@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{58192AC6-9B81-4C17-824F-E184BB1BB2CE}</ProjectGuid>
+    <RootNamespace>Manbil</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfgui-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>libovrd.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;sfgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>libovr.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BasicGenerators.cpp" />
+    <ClCompile Include="BasicMath.cpp" />
+    <ClCompile Include="BasicMComponentFactories.cpp" />
+    <ClCompile Include="BasicMComponents.cpp" />
+    <ClCompile Include="CachedFunc.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorGradient.cpp" />
+    <ClCompile Include="ColorNode.cpp" />
+    <ClCompile Include="Boxes.cpp" />
+    <ClCompile Include="DiamondSquare.cpp" />
+    <ClCompile Include="FastRand.cpp" />
+    <ClCompile Include="Foliage.cpp" />
+    <ClCompile Include="GeneralOculus.cpp" />
+    <ClCompile Include="GeometricMath.cpp" />
+    <ClCompile Include="Materials.cpp" />
+    <ClCompile Include="MGameMaterialManager.cpp" />
+    <ClCompile Include="Perlin.cpp" />
+    <ClCompile Include="RenderDataHandler.cpp" />
+    <ClCompile Include="Interpolator.cpp" />
+    <ClCompile Include="Interval.cpp" />
+    <ClCompile Include="LayeredOctave.cpp" />
+    <ClCompile Include="Lighting.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Matrix4f.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MGame.cpp" />
+    <ClCompile Include="MovingCamera.cpp" />
+    <ClCompile Include="NoiseCombinations.cpp" />
+    <ClCompile Include="NoiseFilterer.cpp" />
+    <ClCompile Include="NoiseFilterRegion.cpp" />
+    <ClCompile Include="NoiseTest.cpp" />
+    <ClCompile Include="NoiseToTexture.cpp" />
+    <ClCompile Include="OpenGLIncludes.cpp" />
+    <ClCompile Include="OpenGLTestWorld.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="RenderingState.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="ScreenClearer.cpp" />
+    <ClCompile Include="SFMLOpenGLWorld.cpp" />
+    <ClCompile Include="SFMLWorld.cpp" />
+    <ClCompile Include="ShaderHandler.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainWalkCamera.cpp" />
+    <ClCompile Include="TerrainWorld.cpp" />
+    <ClCompile Include="TextureSettings.cpp" />
+    <ClCompile Include="ThreeDShapes.cpp" />
+    <ClCompile Include="TransformObject.cpp" />
+    <ClCompile Include="TwoTrianglesMaterial.cpp" />
+    <ClCompile Include="TwoTrianglesWorld.cpp" />
+    <ClCompile Include="Value2D.cpp" />
+    <ClCompile Include="Vectors.cpp" />
+    <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="Vertices.cpp" />
+    <ClCompile Include="Worley.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicGenerators.h" />
+    <ClInclude Include="BasicMath.h" />
+    <ClInclude Include="BasicMComponentFactories.h" />
+    <ClInclude Include="BasicMComponents.h" />
+    <ClInclude Include="BoolInput.h" />
+    <ClInclude Include="CachedFunc.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorGradient.h" />
+    <ClInclude Include="ColorNode.h" />
+    <ClInclude Include="Boxes.h" />
+    <ClInclude Include="DiamondSquare.h" />
+    <ClInclude Include="Fake2DArray.h" />
+    <ClInclude Include="Fake3DArray.h" />
+    <ClInclude Include="FastRand.h" />
+    <ClInclude Include="Foliage.h" />
+    <ClInclude Include="Input\Input Objects\FloatInput.h" />
+    <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h" />
+    <ClInclude Include="Input\Input Objects\Vector2Input.h" />
+    <ClInclude Include="RegionSplitter.h" />
+    <ClInclude Include="GeneralOculus.h" />
+    <ClInclude Include="GeometricMath.h" />
+    <ClInclude Include="Materials.h" />
+    <ClInclude Include="MGameMaterialManager.h" />
+    <ClInclude Include="Perlin.h" />
+    <ClInclude Include="RenderDataHandler.h" />
+    <ClInclude Include="Interpolator.h" />
+    <ClInclude Include="Interval.h" />
+    <ClInclude Include="LayeredOctave.h" />
+    <ClInclude Include="Lighting.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Matrix4f.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MGame.h" />
+    <ClInclude Include="MGameForwardDeclarations.h" />
+    <ClInclude Include="MovingCamera.h" />
+    <ClInclude Include="NoiseCombinations.h" />
+    <ClInclude Include="NoiseFilterer.h" />
+    <ClInclude Include="NoiseFilterRegion.h" />
+    <ClInclude Include="NoiseTest.h" />
+    <ClInclude Include="NoiseToTexture.h" />
+    <ClInclude Include="OpenGLIncludes.h" />
+    <ClInclude Include="OpenGLTestWorld.h" />
+    <ClInclude Include="ProjectionInfo.h" />
+    <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="RenderingState.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="ScreenClearer.h" />
+    <ClInclude Include="SFMLOpenGLWorld.h" />
+    <ClInclude Include="SFMLWorld.h" />
+    <ClInclude Include="ShaderHandler.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainWalkCamera.h" />
+    <ClInclude Include="TerrainWorld.h" />
+    <ClInclude Include="TextureSettings.h" />
+    <ClInclude Include="ThreeDShapes.h" />
+    <ClInclude Include="TransformObject.h" />
+    <ClInclude Include="TwoTrianglesMaterial.h" />
+    <ClInclude Include="TwoTrianglesWorld.h" />
+    <ClInclude Include="Value2D.h" />
+    <ClInclude Include="Vectors.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Vertices.h" />
+    <ClInclude Include="RenderInfo.h" />
+    <ClInclude Include="Worley.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="fbm.txt" />
+    <Text Include="mandlebrot.txt" />
+    <Text Include="Perlin.txt" />
+    <Text Include="raymarcheddistancefunc.txt" />
+    <Text Include="raymarchedterrain.txt" />
+    <Text Include="RMDFFun.txt" />
+    <Text Include="t.txt" />
+    <Text Include="Test.txt" />
+    <Text Include="water2d.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

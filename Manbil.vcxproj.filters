@@ -1,0 +1,453 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="BasicGenerators.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="DiamondSquare.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpolator.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="LayeredOctave.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseCombinations.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseFilterer.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseFilterRegion.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Worley.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicMath.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Interval.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4f.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Vectors.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Value2D.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorGradient.cpp">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorNode.cpp">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometricMath.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Lighting.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingCamera.cpp">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="SFMLWorld.cpp">
+      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="SFMLOpenGLWorld.cpp">
+      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformObject.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="CachedFunc.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="FastRand.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseTest.cpp">
+      <Filter>Manbil Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLTestWorld.cpp">
+      <Filter>Manbil Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainWalkCamera.cpp">
+      <Filter>Manbil Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainWorld.cpp">
+      <Filter>Manbil Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseToTexture.cpp">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="MGame.cpp">
+      <Filter>MGame</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicMComponents.cpp">
+      <Filter>MGame</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicMComponentFactories.cpp">
+      <Filter>MGame</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreeDShapes.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="Boxes.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="MGameMaterialManager.cpp">
+      <Filter>MGame</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneralOculus.cpp">
+      <Filter>Oculus Rift Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoTrianglesMaterial.cpp">
+      <Filter>Two Triangles</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoTrianglesWorld.cpp">
+      <Filter>Two Triangles</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Perlin.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLIncludes.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderDataHandler.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingState.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenClearer.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderHandler.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureSettings.cpp">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Materials.cpp">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertices.cpp">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Foliage.cpp">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BasicGenerators.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="DiamondSquare.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpolator.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="LayeredOctave.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseCombinations.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseFilterer.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseFilterRegion.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Worley.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicMath.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Interval.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4f.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vectors.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Value2D.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorNode.h">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorGradient.h">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometricMath.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectionInfo.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingCamera.h">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="SFMLWorld.h">
+      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="SFMLOpenGLWorld.h">
+      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformObject.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="CachedFunc.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Fake2DArray.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="FastRand.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseTest.h">
+      <Filter>Manbil Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLTestWorld.h">
+      <Filter>Manbil Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainWalkCamera.h">
+      <Filter>Manbil Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainWorld.h">
+      <Filter>Manbil Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseToTexture.h">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="MGame.h">
+      <Filter>MGame</Filter>
+    </ClInclude>
+    <ClInclude Include="MGameForwardDeclarations.h">
+      <Filter>MGame</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderInfo.h">
+      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicMComponents.h">
+      <Filter>MGame</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicMComponentFactories.h">
+      <Filter>MGame</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreeDShapes.h">
+      <Filter>Math\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Boxes.h">
+      <Filter>Math\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="MGameMaterialManager.h">
+      <Filter>MGame</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneralOculus.h">
+      <Filter>Oculus Rift Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="TwoTrianglesMaterial.h">
+      <Filter>Two Triangles</Filter>
+    </ClInclude>
+    <ClInclude Include="TwoTrianglesWorld.h">
+      <Filter>Two Triangles</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Fake3DArray.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Perlin.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLIncludes.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDataHandler.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingState.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenClearer.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderHandler.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureSettings.h">
+      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Materials.h">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertices.h">
+      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Foliage.h">
+      <Filter>OpenGL/SFML Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="RegionSplitter.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="BoolInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\FloatInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Float Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\Vector2Input.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Math">
+      <UniqueIdentifier>{7424e331-87d1-4987-acf9-b98a2549259e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Noise Generation">
+      <UniqueIdentifier>{dcf3a9f4-2e45-419b-9322-3a4fa7686864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Basic Math">
+      <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff">
+      <UniqueIdentifier>{a1a2cba6-0b4a-4744-a970-3f3f77357e64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Worlds">
+      <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Noise Generation\Noise Coloring">
+      <UniqueIdentifier>{db2ff582-7d50-4f1e-bc51-74e4605fec2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manbil Tests">
+      <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Shapes">
+      <UniqueIdentifier>{d3a505b7-f782-4bb9-8d96-9d0eeb45aa42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Oculus Rift Stuff">
+      <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MGame">
+      <UniqueIdentifier>{e679110c-e835-44d9-bd5e-ed3d7286a232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Higher Math">
+      <UniqueIdentifier>{977d905e-3054-4196-b423-4c0d8d5da765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Two Triangles">
+      <UniqueIdentifier>{3508bde8-92db-4455-83bd-8647a08958b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Two Triangles\Shaders">
+      <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Helper Classes">
+      <UniqueIdentifier>{245e6dd6-d31d-4a83-b45f-ca212d6fc0db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Materials">
+      <UniqueIdentifier>{5dd80362-6981-4b1a-870a-faed149b01aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Input">
+      <UniqueIdentifier>{b872daea-bb08-4de0-9136-bbf9c4c11796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects">
+      <UniqueIdentifier>{bbfc7a37-90f3-4931-96e8-8be03d802388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input">
+      <UniqueIdentifier>{7b41c42e-2003-42c0-85f4-6584bf5776e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Bool Input">
+      <UniqueIdentifier>{d08e6c43-a25e-48f5-b988-5cb6799ffa63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Float Input">
+      <UniqueIdentifier>{17326263-49f3-495b-b423-5aa54203aba3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="water2d.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="raymarcheddistancefunc.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="raymarchedterrain.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="fbm.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="mandlebrot.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="Test.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="RMDFFun.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="t.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="Perlin.txt">
+      <Filter>Two Triangles\Shaders</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
