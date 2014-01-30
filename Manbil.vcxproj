@@ -93,6 +93,9 @@
     <ClCompile Include="Foliage.cpp" />
     <ClCompile Include="GeneralOculus.cpp" />
     <ClCompile Include="GeometricMath.cpp" />
+    <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
+    <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
+    <ClCompile Include="IO\tinyxml2.cpp" />
     <ClCompile Include="Materials.cpp" />
     <ClCompile Include="MGameMaterialManager.cpp" />
     <ClCompile Include="Perlin.cpp" />
@@ -140,7 +143,6 @@
     <ClInclude Include="BasicMath.h" />
     <ClInclude Include="BasicMComponentFactories.h" />
     <ClInclude Include="BasicMComponents.h" />
-    <ClInclude Include="BoolInput.h" />
     <ClInclude Include="CachedFunc.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorGradient.h" />
@@ -151,9 +153,16 @@
     <ClInclude Include="Fake3DArray.h" />
     <ClInclude Include="FastRand.h" />
     <ClInclude Include="Foliage.h" />
-    <ClInclude Include="Input\Input Objects\FloatInput.h" />
+    <ClInclude Include="Input\BoolInput.h" />
+    <ClInclude Include="Input\FloatInput.h" />
+    <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h" />
+    <ClInclude Include="Input\Input Objects\Deadzones.h" />
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h" />
-    <ClInclude Include="Input\Input Objects\Vector2Input.h" />
+    <ClInclude Include="Input\Input Objects\MouseBoolInput.h" />
+    <ClInclude Include="Input\Input Objects\MouseDeltaVector2Input.h" />
+    <ClInclude Include="Input\Vector2Input.h" />
+    <ClInclude Include="IO\DataSerializer.h" />
+    <ClInclude Include="IO\tinyxml2.h" />
     <ClInclude Include="RegionSplitter.h" />
     <ClInclude Include="GeneralOculus.h" />
     <ClInclude Include="GeometricMath.h" />

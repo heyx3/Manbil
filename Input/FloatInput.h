@@ -13,11 +13,14 @@ public:
 	//Creates a float input that clamps the raw value to the range [0, 1].
 	FloatInput(float startingValue = 0.0f) : mode(Modes::Clamp), source(0.0f, 1.0f, 0.001f), value(startingValue), previousValue(startingValue) { }
 	//Creates a float input that maps the raw value from the given range to the range [0, 1].
-	FloatInput(Interval sourceRange, float startingValue = 0.0f) : mode(Modes::Map), source(sourceRange), value(startingValue), previousValue(startingValue) { }
-
+	FloatInput(Interval sourceRange, float startingValue = 0.5f) : mode(Modes::Map), source(sourceRange), value(startingValue), previousValue(startingValue) { }
 
 	float GetValue(void) const { return value; }
 	float GetPreviousValue(void) const { return previousValue; }
+
+	//Gets the change in this input's value from the last update call to this one.
+	float GetDeltaValue(void) const { return value - previousValue; }
+
 
 	void Update(float elapsedFrameTime, float elapsedTotalTime)
 	{
@@ -38,7 +41,7 @@ public:
 
 protected:
 
-	virtual float GetRawValue(float elapsedFrameTime, float elapsedTotalTime) = 0;
+	virtual float GetRawInput(float elapsedFrameTime, float elapsedTotalTime) = 0;
 
 private:
 

@@ -36,7 +36,7 @@ public:
 	void Update(float elapsedFrameTime, float elapsedTotalTime)
 	{
 		previousValue = value;
-		bool val = GetValue(elapsedFrameTime, elapsedTotalTime);
+		bool val = GetRawInput(elapsedFrameTime, elapsedTotalTime);
 
 		switch (DesiredValueState)
 		{
@@ -59,7 +59,7 @@ public:
 protected:
 
 	//Get the raw value of the current input (yet to be filtered according to DesiredValueState).
-	virtual bool GetValue(float elapsedFrameTime, float elapsedTotalTime) = 0;
+	virtual bool GetRawInput(float elapsedFrameTime, float elapsedTotalTime) = 0;
 
 
 private:

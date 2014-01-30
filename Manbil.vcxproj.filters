@@ -164,6 +164,15 @@
     <ClCompile Include="Foliage.cpp">
       <Filter>OpenGL/SFML Stuff</Filter>
     </ClCompile>
+    <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\tinyxml2.cpp">
+      <Filter>IO\tinyxml Library</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicGenerators.h">
@@ -346,17 +355,35 @@
     <ClInclude Include="RegionSplitter.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="BoolInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
-    </ClInclude>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
       <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
     </ClInclude>
-    <ClInclude Include="Input\Input Objects\FloatInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Float Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\Input Objects\Vector2Input.h">
+    <ClInclude Include="Input\Input Objects\Deadzones.h">
       <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\MouseDeltaVector2Input.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\MouseBoolInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\BoolInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\FloatInput.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Vector2Input.h">
+      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\tinyxml2.h">
+      <Filter>IO\tinyxml Library</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\DataSerializer.h">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -419,6 +446,12 @@
     </Filter>
     <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Float Input">
       <UniqueIdentifier>{17326263-49f3-495b-b423-5aa54203aba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\tinyxml Library">
+      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
