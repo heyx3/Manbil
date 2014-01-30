@@ -1,0 +1,516 @@
+﻿  Worley.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\worley.cpp(92): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\worley.cpp(97): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\worley.cpp(139): warning C4239: nonstandard extension used : 'argument' : conversion from 'WorleyAlgorithmData' to 'WorleyAlgorithmData &'
+          A non-const reference may only be bound to an lvalue; assigment operator takes a reference to non-const
+  Vertices.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Vertex.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Vectors.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Value2D.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  TwoTrianglesWorld.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(56): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(98): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(129): warning C4245: 'initializing' : conversion from 'const UniformLocation' to 'BufferObjHandle', signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(130): warning C4245: 'initializing' : conversion from 'const UniformLocation' to 'BufferObjHandle', signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(137): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(218): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(296): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(314): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(315): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(384): warning C4100: 'elapsedSeconds' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\twotrianglesworld.cpp(411): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+  TwoTrianglesMaterial.cpp
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+  TransformObject.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+  ThreeDShapes.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\threedshapes.cpp(21): warning C4100: 'capsule' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\threedshapes.cpp(206): warning C4100: 'cube' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\threedshapes.cpp(223): warning C4100: 'rayDir' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\threedshapes.cpp(223): warning C4100: 'rayStart' : unreferenced formal parameter
+  TextureSettings.cpp
+  TerrainWorld.cpp
+  TerrainWalkCamera.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\terrainwalkcamera.cpp(53): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrainwalkcamera.cpp(54): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+  Terrain.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\terrain.cpp(109): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrain.cpp(86): warning C4100: 'zoomOut' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\terrain.cpp(113): warning C4100: 'zoomOut' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\terrain.cpp(152): warning C4100: 'zoomOut' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\terrain.cpp(334): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrain.cpp(342): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrain.cpp(356): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrain.cpp(364): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\terrain.cpp(300): warning C4100: 'zoomOut' : unreferenced formal parameter
+  ShaderHandler.cpp
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+  SFMLWorld.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+  SFMLOpenGLWorld.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+  ScreenClearer.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  RenderTarget.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+  RenderingState.cpp
+  Quaternion.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\quaternion.cpp(80): warning C4127: conditional expression is constant
+  Generating Code...
+e:\c++\projects\manbil\manbil\quaternion.cpp(93): warning C4702: unreachable code
+e:\c++\projects\manbil\manbil\renderdatahandler.h(136): warning C4715: 'RenderDataHandler::ToEnum' : not all control paths return a value
+e:\c++\projects\manbil\manbil\renderdatahandler.h(136): warning C4715: 'RenderDataHandler::ToEnum' : not all control paths return a value
+  Compiling...
+  OpenGLTestWorld.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\opengltestworld.cpp(156): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\opengltestworld.cpp(157): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\opengltestworld.cpp(329): warning C4100: 'elapsedSeconds' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\opengltestworld.cpp(408): warning C4244: '=' : conversion from 'unsigned int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\opengltestworld.cpp(409): warning C4244: '=' : conversion from 'unsigned int' to 'float', possible loss of data
+  OpenGLIncludes.cpp
+  NoiseToTexture.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  NoiseTest.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\noisetest.cpp(41): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(53): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(57): warning C4305: 'argument' : truncation from 'double' to 'float'
+e:\c++\projects\manbil\manbil\noisetest.cpp(63): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(72): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(81): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(169): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(218): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(240): warning C4127: conditional expression is constant
+e:\c++\projects\manbil\manbil\noisetest.cpp(302): warning C4100: 'elapsedTime' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisetest.cpp(310): warning C4100: 'elapsedTime' : unreferenced formal parameter
+  NoiseFilterRegion.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\noisefilterregion.cpp(3): warning C4100: 'calcStrength' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterregion.cpp(99): warning C4100: 'calcStrength' : unreferenced formal parameter
+  NoiseFilterer.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(36): warning C4100: 'strength' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(41): warning C4100: 'strength' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(64): warning C4189: 'val' : local variable is initialized but not referenced
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(76): warning C4100: 'str' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(82): warning C4100: 'str' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(89): warning C4100: 'noise' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(89): warning C4100: 'loc' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(94): warning C4100: 'noise' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(94): warning C4100: 'loc' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(99): warning C4100: 'pData' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(136): warning C4100: 'pData' : unreferenced formal parameter
+  NoiseCombinations.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  MovingCamera.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+  MGame.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\basicmcomponents.h(38): warning C4100: 'cpy' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'pMessageData' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'message' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(48): warning C4100: 'isMObjectDying' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(94): warning C4512: 'MCameraInfo' : assignment operator could not be generated
+          e:\c++\projects\manbil\manbil\basicmcomponents.h(88) : see declaration of 'MCameraInfo'
+e:\c++\projects\manbil\manbil\mgame.h(25): warning C4100: 'cpy' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\mgame.cpp(49): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(101): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(118): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(126): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(135): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(150): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(162): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(146): warning C4100: 'elapsedSeconds' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\mgame.cpp(178): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(185): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(194): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(201): warning C4018: '<' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\mgame.cpp(167): warning C4100: 'elapsedSeconds' : unreferenced formal parameter
+  Mesh.cpp
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+  Matrix4f.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.cpp(15): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.cpp(36): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.cpp(68): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.cpp(89): warning C4100: 'l' : unreferenced formal parameter
+  Material.cpp
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\material.cpp(25): warning C4245: '=' : conversion from 'int' to 'BufferObjHandle', signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\material.cpp(317): warning C4018: '<' : signed/unsigned mismatch
+  main.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+  Lighting.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\lighting.cpp(48): warning C4189: 'normal' : local variable is initialized but not referenced
+  LayeredOctave.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Interval.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Interpolator.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  RenderDataHandler.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+  Perlin.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  MGameMaterialManager.cpp
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+  Generating Code...
+e:\c++\projects\manbil\manbil\renderdatahandler.cpp(166): warning C4715: 'RenderDataHandler::GetFrameBufferStatusMessage' : not all control paths return a value
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(67): warning C4701: potentially uninitialized local variable 'smoothStepper' used
+e:\c++\projects\manbil\manbil\noisefilterer.cpp(67): warning C4703: potentially uninitialized local pointer variable 'smoothStepper' used
+e:\c++\projects\manbil\manbil\openglincludes.cpp(55): warning C4715: 'TextureTypeToGLEnum' : not all control paths return a value
+e:\c++\projects\manbil\manbil\openglincludes.cpp(42): warning C4715: 'PrimitiveTypeToGLEnum' : not all control paths return a value
+e:\c++\projects\manbil\manbil\renderdatahandler.h(136): warning C4715: 'RenderDataHandler::ToEnum' : not all control paths return a value
+  Compiling...
+  Materials.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+  GeometricMath.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+  GeneralOculus.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+  Foliage.cpp
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\renderdatahandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\foliage.cpp(135): warning C4018: '>=' : signed/unsigned mismatch
+e:\c++\projects\manbil\manbil\foliage.cpp(136): warning C4018: '>=' : signed/unsigned mismatch
+  FastRand.cpp
+  DiamondSquare.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\diamondsquare.cpp(142): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+  Boxes.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  ColorNode.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  ColorGradient.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\colorgradient.cpp(21): warning C4018: '<' : signed/unsigned mismatch
+  Camera.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+  CachedFunc.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  BasicMComponents.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(38): warning C4100: 'cpy' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'pMessageData' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'message' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(48): warning C4100: 'isMObjectDying' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(94): warning C4512: 'MCameraInfo' : assignment operator could not be generated
+          e:\c++\projects\manbil\manbil\basicmcomponents.h(88) : see declaration of 'MCameraInfo'
+  BasicMComponentFactories.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(15): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(17): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\geometricmath.h(19): warning C4100: 'v' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\shaderhandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(195) : see declaration of 'strncpy'
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(38): warning C4100: 'cpy' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'pMessageData' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(41): warning C4100: 'message' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(48): warning C4100: 'isMObjectDying' : unreferenced formal parameter
+e:\c++\projects\manbil\manbil\basicmcomponents.h(94): warning C4512: 'MCameraInfo' : assignment operator could not be generated
+          e:\c++\projects\manbil\manbil\basicmcomponents.h(88) : see declaration of 'MCameraInfo'
+e:\c++\projects\manbil\manbil\basicmcomponentfactories.cpp(3): warning C4100: 'transform' : unreferenced formal parameter
+  BasicMath.cpp
+e:\c++\projects\manbil\manbil\basicmath.cpp(3): warning C4305: 'initializing' : truncation from 'int' to 'const float'
+  BasicGenerators.cpp
+e:\c++\projects\manbil\manbil\vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+e:\c++\projects\manbil\manbil\vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+  Generating Code...
+e:\c++\projects\manbil\manbil\renderdatahandler.h(136): warning C4715: 'RenderDataHandler::ToEnum' : not all control paths return a value
+  Manbil.vcxproj -> E:\C++\Projects\Manbil\Debug\Manbil.exe

@@ -1,0 +1,96 @@
+﻿Build started 1/27/2014 9:30:52 PM.
+     1>Project "E:\C++\Projects\Manbil\Manbil\Manbil.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W4 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newHeight' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\sfmlworld.h(49): warning C4100: 'newWidth' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\sfmlworld.h(50): warning C4100: 'windowEvent' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\Vectors.h(72): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\c++\projects\manbil\manbil\Vectors.h(242): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+     1>e:\c++\projects\manbil\manbil\Vectors.h(245): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\c++\projects\manbil\manbil\Vectors.h(249): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+     1>e:\c++\projects\manbil\manbil\GeometricMath.h(15): warning C4100: 'v' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\GeometricMath.h(17): warning C4100: 'v' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\GeometricMath.h(19): warning C4100: 'v' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\Matrix4f.h(21): warning C4100: 'l' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\Matrix4f.h(58): warning C4100: 'l' : unreferenced formal parameter
+     1>e:\c++\projects\manbil\manbil\ShaderHandler.h(52): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(191) : see declaration of 'strncpy'
+     1>e:\c++\projects\manbil\manbil\RenderDataHandler.h(140): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(191) : see declaration of 'strncpy'
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\C++\Projects\Manbil\Release\Manbil.exe" /NOLOGO glew32.lib glu32.lib opengl32.lib "sfml-graphics.lib" "sfml-system.lib" "sfml-window.lib" "sfml-audio.lib" sfgui.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\C++\Projects\Manbil\Release\Manbil.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\C++\Projects\Manbil\Release\Manbil.lib" /MACHINE:X86 /SAFESEH libovr.lib winmm.lib Release\BasicGenerators.obj
+         Release\BasicMath.obj
+         Release\BasicMComponentFactories.obj
+         Release\BasicMComponents.obj
+         Release\CachedFunc.obj
+         Release\Camera.obj
+         Release\ColorGradient.obj
+         Release\ColorNode.obj
+         Release\Boxes.obj
+         Release\DiamondSquare.obj
+         Release\FastRand.obj
+         Release\Foliage.obj
+         Release\GeneralOculus.obj
+         Release\GeometricMath.obj
+         Release\Materials.obj
+         Release\MGameMaterialManager.obj
+         Release\Perlin.obj
+         Release\RenderDataHandler.obj
+         Release\Interpolator.obj
+         Release\Interval.obj
+         Release\LayeredOctave.obj
+         Release\Lighting.obj
+         Release\main.obj
+         Release\Material.obj
+         Release\Matrix4f.obj
+         Release\Mesh.obj
+         Release\MGame.obj
+         Release\MovingCamera.obj
+         Release\NoiseCombinations.obj
+         Release\NoiseFilterer.obj
+         Release\NoiseFilterRegion.obj
+         Release\NoiseTest.obj
+         Release\NoiseToTexture.obj
+         Release\OpenGLIncludes.obj
+         Release\OpenGLTestWorld.obj
+         Release\Quaternion.obj
+         Release\RenderingState.obj
+         Release\RenderTarget.obj
+         Release\ScreenClearer.obj
+         Release\SFMLOpenGLWorld.obj
+         Release\SFMLWorld.obj
+         Release\ShaderHandler.obj
+         Release\Terrain.obj
+         Release\TerrainWalkCamera.obj
+         Release\TerrainWorld.obj
+         Release\TextureSettings.obj
+         Release\ThreeDShapes.obj
+         Release\TransformObject.obj
+         Release\TwoTrianglesMaterial.obj
+         Release\TwoTrianglesWorld.obj
+         Release\Value2D.obj
+         Release\Vectors.obj
+         Release\Vertex.obj
+         Release\Vertices.obj
+         Release\Worley.obj
+         Generating code
+     1>e:\c++\projects\manbil\manbil\openglincludes.cpp(55): warning C4715: 'TextureTypeToGLEnum' : not all control paths return a value
+     1>e:\c++\projects\manbil\manbil\openglincludes.cpp(42): warning C4715: 'PrimitiveTypeToGLEnum' : not all control paths return a value
+     1>e:\c++\projects\manbil\manbil\renderdatahandler.h(136): warning C4715: 'RenderDataHandler::ToEnum' : not all control paths return a value
+     1>e:\c++\projects\manbil\manbil\quaternion.cpp(93): warning C4702: unreachable code
+     1>e:\c++\projects\manbil\manbil\quaternion.cpp(98): warning C4702: unreachable code
+     1>e:\c++\projects\manbil\manbil\threedshapes.cpp(108): warning C4701: potentially uninitialized local variable 'distSqr' used
+     1>e:\c++\projects\manbil\manbil\threedshapes.cpp(125): warning C4701: potentially uninitialized local variable 'closestDim' used
+     1>e:\c++\projects\manbil\manbil\perlin.cpp(119): warning C4701: potentially uninitialized local variable 'smoothStepper' used
+     1>e:\c++\projects\manbil\manbil\perlin.cpp(119): warning C4703: potentially uninitialized local pointer variable 'smoothStepper' used
+     1>e:\c++\projects\manbil\manbil\noisefilterer.cpp(67): warning C4701: potentially uninitialized local variable 'smoothStepper' used
+     1>e:\c++\projects\manbil\manbil\noisefilterer.cpp(67): warning C4703: potentially uninitialized local pointer variable 'smoothStepper' used
+         Finished generating code
+         Manbil.vcxproj -> E:\C++\Projects\Manbil\Release\Manbil.exe
+     1>Done Building Project "E:\C++\Projects\Manbil\Manbil\Manbil.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:08.22
