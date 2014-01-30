@@ -95,6 +95,7 @@
     <ClCompile Include="GeometricMath.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
+    <ClCompile Include="IO\DataSerializer.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
     <ClCompile Include="Materials.cpp" />
     <ClCompile Include="MGameMaterialManager.cpp" />

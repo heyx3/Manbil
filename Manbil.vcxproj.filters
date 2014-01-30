@@ -173,6 +173,9 @@
     <ClCompile Include="IO\tinyxml2.cpp">
       <Filter>IO\tinyxml Library</Filter>
     </ClCompile>
+    <ClCompile Include="IO\DataSerializer.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicGenerators.h">
