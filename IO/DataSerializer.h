@@ -1,14 +1,36 @@
 #pragma once
 
 #include <string>
+#include <assert.h>
 #include "tinyxml2.h"
+
+template<class Type>
+//Represents a value that may or may not exist.
+class MaybeValue
+{
+public:
+
+	std::string GetErrorMsg(void) const { return errorMsg; }
+
+	bool HasValue(void) const { return errorMsg.empty(); }
+	Type GetValue(void) const { assert(HasValue());  return val; }
+
+	MaybeValue(std::string errorMessage) : errormsg(errorMessage) { }
+	MaybeValue(Type value) : errorMsg(""), val(value) { }
+
+private:
+
+	std::string errorMsg
+
+	Type val;
+};
 
 //Reads/writes XML data from/to an XML element.
 class DataSerializer
 {
 public:
 
-	DataSerializer(tinyxml2::XMLElement element)
+	DataSerializer(const tinyxml2::XMLElement & element)
 		: rootElement(element), errorMsg("")
 	{
 
@@ -40,7 +62,7 @@ public:
 private:
 
 	//Returns an error message, or "" if everything went fine.
-	std::string findChildElement(const char * tag, const char * childName, tinyxml2::XMLElement * outValue) const;
+	MaybeValue<XMLElement*> findChildElement(const char * tag, const char * childName);
 
 	tinyxml2::XMLElement rootElement;
 	std::string errorMsg;
