@@ -3,3 +3,5 @@
 *.idb
 *.pdb
 *.lastbuildstate
+/Debug/Manbil.log
+/Release/Manbil.log
