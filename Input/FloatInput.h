@@ -24,7 +24,7 @@ public:
 
 	void Update(float elapsedFrameTime, float elapsedTotalTime)
 	{
-		float val = GetRawValue(elapsedFrameTime, elapsedTotalTime);
+		float val = GetRawInput(elapsedFrameTime, elapsedTotalTime);
 		previousValue = value;
 
 		switch (mode)

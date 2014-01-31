@@ -62,14 +62,11 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="MovingCamera.cpp">
-      <Filter>OpenGL/SFML Stuff</Filter>
-    </ClCompile>
     <ClCompile Include="SFMLWorld.cpp">
-      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+      <Filter>Worlds</Filter>
     </ClCompile>
     <ClCompile Include="SFMLOpenGLWorld.cpp">
-      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+      <Filter>Worlds</Filter>
     </ClCompile>
     <ClCompile Include="TransformObject.cpp">
       <Filter>Math\Higher Math</Filter>
@@ -91,9 +88,6 @@
     </ClCompile>
     <ClCompile Include="TerrainWorld.cpp">
       <Filter>Manbil Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseToTexture.cpp">
-      <Filter>OpenGL/SFML Stuff</Filter>
     </ClCompile>
     <ClCompile Include="MGame.cpp">
       <Filter>MGame</Filter>
@@ -122,59 +116,65 @@
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Two Triangles</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
-      <Filter>OpenGL/SFML Stuff</Filter>
-    </ClCompile>
     <ClCompile Include="Perlin.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLIncludes.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="RenderDataHandler.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="RenderingState.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="ScreenClearer.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHandler.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="TextureSettings.cpp">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Materials.cpp">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Vertex.cpp">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Vertices.cpp">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Foliage.cpp">
-      <Filter>OpenGL/SFML Stuff</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+      <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+      <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="IO\tinyxml2.cpp">
       <Filter>IO\tinyxml Library</Filter>
     </ClCompile>
     <ClCompile Include="IO\DataSerializer.cpp">
       <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Foliage.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseToTexture.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingCamera.cpp">
+      <Filter>Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,14 +241,11 @@
     <ClInclude Include="Terrain.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="MovingCamera.h">
-      <Filter>OpenGL/SFML Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="SFMLWorld.h">
-      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+      <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="SFMLOpenGLWorld.h">
-      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+      <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="TransformObject.h">
       <Filter>Math\Higher Math</Filter>
@@ -274,9 +271,6 @@
     <ClInclude Include="TerrainWorld.h">
       <Filter>Manbil Tests</Filter>
     </ClInclude>
-    <ClInclude Include="NoiseToTexture.h">
-      <Filter>OpenGL/SFML Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="MGame.h">
       <Filter>MGame</Filter>
     </ClInclude>
@@ -284,7 +278,7 @@
       <Filter>MGame</Filter>
     </ClInclude>
     <ClInclude Include="RenderInfo.h">
-      <Filter>OpenGL/SFML Stuff\Worlds</Filter>
+      <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="BasicMComponents.h">
       <Filter>MGame</Filter>
@@ -310,9 +304,6 @@
     <ClInclude Include="TwoTrianglesWorld.h">
       <Filter>Two Triangles</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>OpenGL/SFML Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="Fake3DArray.h">
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
@@ -320,73 +311,85 @@
       <Filter>Math\Noise Generation</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLIncludes.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="RenderDataHandler.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="RenderingState.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="ScreenClearer.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHandler.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="TextureSettings.h">
-      <Filter>OpenGL/SFML Stuff\Helper Classes</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Materials.h">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Vertices.h">
-      <Filter>OpenGL/SFML Stuff\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Foliage.h">
-      <Filter>OpenGL/SFML Stuff</Filter>
+      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="RegionSplitter.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
+      <Filter>Input\Input Objects\Bool Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\Deadzones.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+      <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\MouseDeltaVector2Input.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+      <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input</Filter>
+      <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\MouseBoolInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects\Bool Input</Filter>
+      <Filter>Input\Input Objects\Bool Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\BoolInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+      <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="Input\FloatInput.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+      <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="Input\Vector2Input.h">
-      <Filter>OpenGL/SFML Stuff\Input\Input Objects</Filter>
+      <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="IO\tinyxml2.h">
       <Filter>IO\tinyxml Library</Filter>
     </ClInclude>
     <ClInclude Include="IO\DataSerializer.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\IOTest.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Foliage.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseToTexture.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingCamera.h">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -401,9 +404,6 @@
     </Filter>
     <Filter Include="OpenGL/SFML Stuff">
       <UniqueIdentifier>{a1a2cba6-0b4a-4744-a970-3f3f77357e64}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Worlds">
-      <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\Noise Generation\Noise Coloring">
       <UniqueIdentifier>{db2ff582-7d50-4f1e-bc51-74e4605fec2d}</UniqueIdentifier>
@@ -429,32 +429,38 @@
     <Filter Include="Two Triangles\Shaders">
       <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Helper Classes">
-      <UniqueIdentifier>{245e6dd6-d31d-4a83-b45f-ca212d6fc0db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Materials">
-      <UniqueIdentifier>{5dd80362-6981-4b1a-870a-faed149b01aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Input">
-      <UniqueIdentifier>{b872daea-bb08-4de0-9136-bbf9c4c11796}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects">
-      <UniqueIdentifier>{bbfc7a37-90f3-4931-96e8-8be03d802388}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Vector2 Input">
-      <UniqueIdentifier>{7b41c42e-2003-42c0-85f4-6584bf5776e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Bool Input">
-      <UniqueIdentifier>{d08e6c43-a25e-48f5-b988-5cb6799ffa63}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL/SFML Stuff\Input\Input Objects\Float Input">
-      <UniqueIdentifier>{17326263-49f3-495b-b423-5aa54203aba3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IO">
       <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
     </Filter>
     <Filter Include="IO\tinyxml Library">
       <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{b872daea-bb08-4de0-9136-bbf9c4c11796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input\Input Objects">
+      <UniqueIdentifier>{bbfc7a37-90f3-4931-96e8-8be03d802388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input\Input Objects\Vector2 Input">
+      <UniqueIdentifier>{7b41c42e-2003-42c0-85f4-6584bf5776e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input\Input Objects\Bool Input">
+      <UniqueIdentifier>{d08e6c43-a25e-48f5-b988-5cb6799ffa63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input\Input Objects\Float Input">
+      <UniqueIdentifier>{17326263-49f3-495b-b423-5aa54203aba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{077822c2-7114-45a1-9e61-f6a8b548b692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Helper Classes">
+      <UniqueIdentifier>{245e6dd6-d31d-4a83-b45f-ca212d6fc0db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Materials">
+      <UniqueIdentifier>{5dd80362-6981-4b1a-870a-faed149b01aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Worlds">
+      <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

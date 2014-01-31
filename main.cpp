@@ -4,9 +4,10 @@
 #include "OpenGLTestWorld.h"
 #include "TwoTrianglesWorld.h"
 
+#include "IO/IOTest.h"
+using namespace tinyxml2;
+
 #include <iostream>
-
-
 using namespace std;
 
 
@@ -16,38 +17,20 @@ void PauseConsole(void)
 	cin >> dummy;
 }
 
-void PrintMatrix(Matrix4f toPrint)
+void RunIOTest(void)
 {
-	const char * const space = "       ";
-	for (int x = 0; x < 4; ++x)
+	IOTester tester;
+	
+	XMLDocument doc;
+	XMLError error = doc.LoadFile("TestIOData.xml");
+	if (error != 0)
 	{
-		cout << "[" << space;
-
-		for (int y = 0; y < 4; ++y)
-		{
-			cout << toPrint[Vector2i(x, y)] << space;
-		}
-
-		cout << "]" << "\n";
+		cout << "Error reading xml document: " << error << "\n";
+		PauseConsole();
+		return;
 	}
 }
 
-Matrix4f GetMatrixToPrint(void)
-{
-	Vector3f camPos(200.0f, 200.0f, 4.0f);
-	Camera cam(camPos, -camPos.Normalized());
-	cam.Info = ProjectionInfo(3.14156f * 0.75f, 4.0f, 3.0f, 1.0f, 1000.0f);
-	
-	Matrix4f world, view, proj;
-	world.SetAsIdentity();
-	cam.GetViewTransform(view);
-	proj.SetAsPerspProj(cam.Info);
-
-	Matrix4f wvp;
-	wvp.SetAsWVP(proj, view, world);
-
-	return wvp.Inverse();
-}
 
 int main()
 {
@@ -56,7 +39,9 @@ int main()
 
 	//NoiseTest().RunWorld();
 	//TerrainWorld().RunWorld();
-	OpenGLTestWorld().RunWorld();
+	//OpenGLTestWorld().RunWorld();
 
 	//TwoTrianglesWorld().RunWorld();
+
+	RunIOTest();
 }

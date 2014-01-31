@@ -19,7 +19,7 @@ public:
 
 	MouseDeltaVector2Input(float maxSpeed, DeadzonePtr deadzone,
 						   sf::Vector2i mouseResetPos = sf::Vector2i(-1, -1), Vector2f initialPos = Vector2f())
-		: Vector2Input(deadzone, Vector2f()), MaxSpeed(maxSpeed), MouseResetPos(mouseResetPos), prevPos(initialPos), prevTotalTime(-1.0f)
+		: Vector2Input(deadzone, Vector2f()), MaxSpeed(maxSpeed), MouseResetPos(mouseResetPos), prevPos(mouseResetPos), prevTotalTime(-1.0f)
 	{
 
 	}

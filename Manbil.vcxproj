@@ -163,6 +163,7 @@
     <ClInclude Include="Input\Input Objects\MouseDeltaVector2Input.h" />
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\DataSerializer.h" />
+    <ClInclude Include="IO\IOTest.h" />
     <ClInclude Include="IO\tinyxml2.h" />
     <ClInclude Include="RegionSplitter.h" />
     <ClInclude Include="GeneralOculus.h" />

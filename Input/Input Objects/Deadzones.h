@@ -5,14 +5,14 @@
 #include "../../Vectors.h"
 #include "../../Interval.h"
 
-typedef std::shared_ptr<Deadzone> DeadzonePtr;
-
 //Filters a Vector2f value in the range { -1, -1 }, { 1, 1 } so that certain small values are zeroed out.
 class Deadzone
 {
 public:
 	virtual Vector2f Filter(Vector2f inV) = 0;
 };
+
+typedef std::shared_ptr<Deadzone> DeadzonePtr;
 
 
 //Doesn't filter the input at all.

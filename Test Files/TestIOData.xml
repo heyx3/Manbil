@@ -1,0 +1,23 @@
+<rootNode>
+
+  <class name="MyIOData">
+
+    <float name="MyFloat">10.0</float>
+    <int name="MyInt">-4883</int>
+    <bool name="MyBool">true</bool>
+    <string name="MyString">haha penis butt</string>
+    
+    <class name="MiniMe">
+
+      <collection name="MyFloats">
+        <float name="0">0.015</float>
+        <float name="1">0.016</float>
+        <float name="2">0.017</float>
+        <float name="3">0.018</float>
+      </collection>
+      
+    </class>
+    
+  </class>
+  
+</rootNode>

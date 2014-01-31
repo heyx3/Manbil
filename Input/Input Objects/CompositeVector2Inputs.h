@@ -16,7 +16,7 @@ public:
 	BoolInputPtr PositiveX, NegativeX,
 				 PositiveY, NegativeY;
 	FourButtonVector2Input(BoolInputPtr posX, BoolInputPtr negX, BoolInputPtr posY, BoolInputPtr negY)
-		: Vector2Input(DeadzonePtr(new EmptyDeadzone())),
+		: Vector2Input(DeadzonePtr((Deadzone*)(new EmptyDeadzone()))),
 		  PositiveX(posX), NegativeX(negX), PositiveY(posY), NegativeY(negY)
 	{
 

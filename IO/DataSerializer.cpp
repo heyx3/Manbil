@@ -24,8 +24,12 @@ const char * const FloatTag = "float",
 		   * const BoolTag = "bool",
 		   * const StringTag = "string",
 		   * const ClassTag = "class",
-		   * const CollectionTag = "collection";
+		   * const CollectionTag = "collection",
+		   * const CollectionElementTag = "element";
 
+//Evaluates to the special collection element tag if this DataSerializer is a collection serializer.
+//Otherwise, evaluates to the given name.
+#define CTAG(regularName) ((isCollectionSerializer ? CollectionElementTag : regularName))
 
 
 MaybeXMLElPtr DataSerializer::findChildElement(const char * tag, const char * name)
@@ -62,7 +66,7 @@ MaybeXMLElPtr DataSerializer::findChildElement(const char * tag, const char * na
 
 bool DataSerializer::ReadFloat(const char * name, float * outV)
 {
-	MaybeXMLElPtr tryFind = findChildElement(FloatTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(CTAG(FloatTag), name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -81,7 +85,7 @@ bool DataSerializer::ReadFloat(const char * name, float * outV)
 }
 bool DataSerializer::ReadInt(const char * name, int * outV)
 {
-	MaybeXMLElPtr tryFind = findChildElement(IntTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(CTAG(IntTag), name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -100,7 +104,7 @@ bool DataSerializer::ReadInt(const char * name, int * outV)
 }
 bool DataSerializer::ReadBoolean(const char * name, bool * outV)
 {
-	MaybeXMLElPtr tryFind = findChildElement(BoolTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(CTAG(BoolTag), name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -119,7 +123,7 @@ bool DataSerializer::ReadBoolean(const char * name, bool * outV)
 }
 bool DataSerializer::ReadString(const char * name, std::string * outV)
 {
-	MaybeXMLElPtr tryFind = findChildElement(StringTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(CTAG(StringTag), name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -132,7 +136,7 @@ bool DataSerializer::ReadString(const char * name, std::string * outV)
 }
 bool DataSerializer::ReadClass(const char * name, ISerializable * outV)
 {
-	MaybeXMLElPtr tryFind = findChildElement(ClassTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(CTAG(ClassTag), name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -145,12 +149,15 @@ bool DataSerializer::ReadClass(const char * name, ISerializable * outV)
 
 bool DataSerializer::WriteFloat(const char * name, float value)
 {
+	const char * tag = CTAG(FloatTag);
+
 	//If the field doesn't exist already, create it.
-	MaybeXMLElPtr tryFind = findChildElement(FloatTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		XMLElement * newChild = rootDocument.NewElement(FloatTag);
+		XMLElement * newChild = rootDocument.NewElement(tag);
 		newChild->SetText(std::to_string(value).c_str());
+		newChild->SetAttribute("name", name);
 		rootElement->InsertEndChild(newChild);
 	}
 	else
@@ -162,12 +169,15 @@ bool DataSerializer::WriteFloat(const char * name, float value)
 }
 bool DataSerializer::WriteInt(const char * name, int value)
 {
+	const char * tag = CTAG(IntTag);
+
 	//If the field doesn't exist already, create it.
-	MaybeXMLElPtr tryFind = findChildElement(IntTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		XMLElement * newChild = rootDocument.NewElement(IntTag);
+		XMLElement * newChild = rootDocument.NewElement(tag);
 		newChild->SetText(std::to_string(value).c_str());
+		newChild->SetAttribute("name", name);
 		rootElement->InsertEndChild(newChild);
 	}
 	else
@@ -179,12 +189,15 @@ bool DataSerializer::WriteInt(const char * name, int value)
 }
 bool DataSerializer::WriteBoolean(const char * name, bool value)
 {
+	const char * tag = CTAG(BoolTag);
+
 	//If the field doesn't exist already, create it.
-	MaybeXMLElPtr tryFind = findChildElement(BoolTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		XMLElement * newChild = rootDocument.NewElement(BoolTag);
+		XMLElement * newChild = rootDocument.NewElement(tag);
 		newChild->SetText(std::to_string(value).c_str());
+		newChild->SetAttribute("name", name);
 		rootElement->InsertEndChild(newChild);
 	}
 	else
@@ -196,12 +209,15 @@ bool DataSerializer::WriteBoolean(const char * name, bool value)
 }
 bool DataSerializer::WriteString(const char * name, const char * value)
 {
+	const char * tag = CTAG(StringTag);
+
 	//If the field doesn't exist already, create it.
-	MaybeXMLElPtr tryFind = findChildElement(StringTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		XMLElement * newChild = rootDocument.NewElement(StringTag);
+		XMLElement * newChild = rootDocument.NewElement(tag);
 		newChild->SetText(value);
+		newChild->SetAttribute("name", name);
 		rootElement->InsertEndChild(newChild);
 	}
 	else
@@ -213,11 +229,14 @@ bool DataSerializer::WriteString(const char * name, const char * value)
 }
 bool DataSerializer::WriteClass(const char * name, const ISerializable & value)
 {
+	const char * tag = CTAG(ClassTag);
+
 	//If the field doesn't exist already, create it.
-	MaybeXMLElPtr tryFind = findChildElement(ClassTag, name);
+	MaybeXMLElPtr tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		XMLElement * newChild = rootDocument.NewElement(ClassTag);
+		XMLElement * newChild = rootDocument.NewElement(tag);
+		newChild->SetAttribute("name", name);
 		return value.WriteData(DataSerializer(newChild, rootDocument));
 	}
 	else
@@ -229,17 +248,23 @@ bool DataSerializer::WriteClass(const char * name, const ISerializable & value)
 
 
 template<typename ValueType, typename CollectionType>
-bool DataSerializer::WriteCollection(const char * name, WriteCollectionElement<ValueType, CollectionType> writer,
-								     CollectionType<ValueType> & collection, int size)
+bool DataSerializer::WriteCollection(const char * name,
+									 bool(*writer)(DataSerializer & ser, const CollectionType * collection, int index, const char * writeName),
+								     const CollectionType * collectionP, int size)
 {
+	const CollectionType & collection = *collectionP;
+
+	const char * tag = CTAG(CollectionTag);
+
 	XMLElement * el = 0;
 
 	//If the element doesn't exist already, create it.
-	MaybeValue<XMLElement*> tryFind = findChildElement(CollectionTag, name);
+	MaybeValue<XMLElement*> tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
-		el = rootDocument.NewElement(name);
+		el = rootDocument.NewElement(tag);
 		rootElement->InsertEndChild(el);
+		el->SetAttribute("name", name);
 	}
 	//Otherwise, clear out the values that were already there.
 	else
@@ -249,16 +274,12 @@ bool DataSerializer::WriteCollection(const char * name, WriteCollectionElement<V
 	}
 
 	//Write each value to the collection.
+	DataSerializer elementSerializer(el, rootDocument, 0);
 	for (int i = 0; i < size; ++i)
 	{
-		//Create the child element.
-		XMLElement * innerEl = rootDocument.NewElement(ClassTag);
-		el->InsertEndChild(innerEl);
-		innerEl->SetAttribute("name", std::to_string(i));
-		
-		//Write to the child element.
+		//Write the child element.
 		DataSerializer elementSerializer(el, rootDocument);
-		if (!writer(elementSerializer, collection, i))
+		if (!writer(elementSerializer, collection, i, std::to_string(i)))
 		{
 			errorMsg = std::string("Error writing collection: ") + elementSerializer.errorMsg;
 			return false;
@@ -269,10 +290,16 @@ bool DataSerializer::WriteCollection(const char * name, WriteCollectionElement<V
 }
 
 template<typename ValueType, typename CollectionType>
-bool DataSerializer::ReadCollection(const char * name, ReadCollectionElement<ValueType, CollectionType> reader, CollectionType<ValueType> & collection)
+bool DataSerializer::ReadCollection(const char * name,
+									bool(*reader)(DataSerializer & ser, CollectionType * collection, int index, const char * readName),
+									CollectionType * collectionP)
 {
+	CollectionType & collection = *collectionP;
+
+	const char * tag = CTAG(CollectionTag);
+
 	//Find the collection to read.
-	Maybevalue<XMLElement*> tryFind = findChildElement(CollectionTag, name);
+	Maybevalue<XMLElement*> tryFind = findChildElement(tag, name);
 	if (!tryFind.HasValue())
 	{
 		errorMsg = tryFind.GetErrorMsg();
@@ -281,11 +308,11 @@ bool DataSerializer::ReadCollection(const char * name, ReadCollectionElement<Val
 
 	//Read each value.
 	int index = 0;
-	for (MaybeXMLElPtr child = findChildElement(ClassTag, std::to_string(index).c_str());
-		child.HasValue(); child = findChildElement(ClassTag, std::to_string(index).c_str()))
+	for (MaybeXMLElPtr child = findChildElement(CollectionElementTag, std::to_string(index).c_str());
+		 child.HasValue(); child = findChildElement(CollectionElementTag, std::to_string(index).c_str()))
 	{
-		DataSerializer ser(child->ToElement(), rootDocument);
-		if (!reader(ser, collection, index))
+		DataSerializer ser(child->ToElement(), rootDocument, 0);
+		if (!reader(ser, collection, index, std::to_string(index)))
 		{
 			errorMsg = std::string("Error reading collecion element ") + std::to_string(index) + ": " + ser.errorMsg;
 			return false;
