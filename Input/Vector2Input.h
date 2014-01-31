@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Deadzones.h"
+#include "Input Objects\Deadzones.h"
 
 
 //Represents an input that can range from { -1, -1 } to { 1, 1 }.

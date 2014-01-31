@@ -159,10 +159,10 @@
       <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="IO\tinyxml2.cpp">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>XML IO\tinyxml Library</Filter>
     </ClCompile>
     <ClCompile Include="IO\DataSerializer.cpp">
-      <Filter>IO</Filter>
+      <Filter>XML IO</Filter>
     </ClCompile>
     <ClCompile Include="Foliage.cpp">
       <Filter>Rendering</Filter>
@@ -371,13 +371,13 @@
       <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="IO\tinyxml2.h">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>XML IO\tinyxml Library</Filter>
     </ClInclude>
     <ClInclude Include="IO\DataSerializer.h">
-      <Filter>IO</Filter>
+      <Filter>XML IO</Filter>
     </ClInclude>
     <ClInclude Include="IO\IOTest.h">
-      <Filter>IO</Filter>
+      <Filter>XML IO</Filter>
     </ClInclude>
     <ClInclude Include="Foliage.h">
       <Filter>Rendering</Filter>
@@ -389,6 +389,9 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MovingCamera.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InputManager.h">
       <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
@@ -429,12 +432,6 @@
     <Filter Include="Two Triangles\Shaders">
       <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IO">
-      <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IO\tinyxml Library">
-      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Input">
       <UniqueIdentifier>{b872daea-bb08-4de0-9136-bbf9c4c11796}</UniqueIdentifier>
     </Filter>
@@ -461,6 +458,12 @@
     </Filter>
     <Filter Include="Worlds">
       <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML IO">
+      <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML IO\tinyxml Library">
+      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

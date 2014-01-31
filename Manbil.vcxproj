@@ -161,6 +161,7 @@
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h" />
     <ClInclude Include="Input\Input Objects\MouseBoolInput.h" />
     <ClInclude Include="Input\Input Objects\MouseDeltaVector2Input.h" />
+    <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\DataSerializer.h" />
     <ClInclude Include="IO\IOTest.h" />
