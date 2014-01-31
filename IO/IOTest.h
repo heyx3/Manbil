@@ -6,17 +6,23 @@ struct MiniIOTester : ISerializable
 {
 public:
 	float Floats[10];
-	virtual bool WriteData(DataSerializer & data) const override
+	virtual bool WriteData(DataSerializer & data) override
 	{
-		return data.WriteCollection<float, float*>("MyFloats",
-												   [](DataSerializer & data, const float ** collection, int index, const char * writeName) { return data.WriteFloat(writeName, (*collection)[index]); },
-												   &Floats, 10);
+		float * floats = Floats;
+
+		bool(*writerFunc)(DataSerializer & ser, float ** collection, int index, const char * writeName) =
+			[](DataSerializer & ser, float ** flp, int i, const char * name)
+				{ return ser.WriteFloat(name, (*flp)[i]); };
+
+		return data.WriteCollection<float, float*>("MyFloats", writerFunc, &floats, 10);
 	}
 	virtual bool ReadData(DataSerializer & data) override
 	{
+		float * floats = Floats;
 		return data.ReadCollection<float, float*>("MyFloats",
-												  [](DataSerializer & ser, float ** collection, int index, const char * readName) { return ser.ReadFloat(readName, &(*collection)[index]); },
-												  &Floats);
+												  [](DataSerializer & ser, float ** collection, int index, const char * readName) -> bool
+														{ return ser.ReadFloat(readName, &(*collection)[index]); },
+												  &floats);
 	}
 };
 
@@ -30,7 +36,7 @@ public:
 	std::string String;
 	MiniIOTester MiniMe;
 
-	virtual bool WriteData(DataSerializer & data) const override
+	virtual bool WriteData(DataSerializer & data) override
 	{
 		return (data.WriteFloat("MyFloat", Float) &&
 				data.WriteInt("MyInt", Int) &&

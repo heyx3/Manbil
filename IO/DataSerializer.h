@@ -27,7 +27,7 @@ private:
 
 
 
-class ISerializable;
+struct ISerializable;
 
 //Reads/writes XML data from/to an XML element.
 class DataSerializer
@@ -37,7 +37,7 @@ public:
 	DataSerializer(tinyxml2::XMLElement * element, tinyxml2::XMLDocument & doc)
 		: rootElement(element), rootDocument(doc), errorMsg(""), isCollectionSerializer(false)
 	{
-
+		if (element == NULL) errorMsg = "Root Element is NULL.";
 	}
 
 
@@ -60,23 +60,98 @@ public:
 	bool WriteInt(const char * name, int value);
 	bool WriteBoolean(const char * name, bool value);
 	bool WriteString(const char * name, const char * value);
-	bool WriteClass(const char * name, const ISerializable & value);
+	bool WriteClass(const char * name, ISerializable & value);
 
 
 	//Reading/writing collections.
 
 	template<typename ValueType, typename CollectionType>
-	bool ReadCollection(const char * name,
-						bool (*valueReader)(DataSerializer & ser, CollectionType * collection, int index, const char * writeName),
-						CollectionType * outCollection);
+	inline bool ReadCollection(const char * name,
+							   bool(*valueReader)(DataSerializer & ser, CollectionType * collection, int index, const char * writeName),
+							   CollectionType * outCollection)
+	{
+		CollectionType & collection = *outCollection;
+
+		const char * tag = (isCollectionSerializer ? CollectionElementTag : CollectionTag);
+
+		//Find the collection to read.
+		MaybeValue<XMLElement*> tryFind = findChildElement(tag, name);
+		if (!tryFind.HasValue())
+		{
+			errorMsg = tryFind.GetErrorMsg();
+			return false;
+		}
+
+		//Read each value.
+		int index = 0;
+		for (MaybeValue<XMLElement*> child = findChildElement(CollectionElementTag, std::to_string(index).c_str());
+			 child.HasValue(); child = findChildElement(CollectionElementTag, std::to_string(index).c_str()))
+		{
+			DataSerializer ser(child.GetValue()->ToElement(), rootDocument, 0);
+			if (!valueReader(ser, outCollection, index, std::to_string(index).c_str()))
+			{
+				errorMsg = std::string("Error reading collecion element ") + std::to_string(index) + ": " + ser.errorMsg;
+				return false;
+			}
+
+			index += 1;
+		}
+
+		return true;
+	}
 	template<typename ValueType, typename CollectionType>
-	bool WriteCollection(const char * name,
-						 bool (*valueWriter)(DataSerializer & ser, const CollectionType * collection, int index, const char * writeName),
-						 const CollectionType * collection, int collectionSize);
-					   
+	inline bool WriteCollection(const char * name,
+								bool(*valueWriter)(DataSerializer & ser, CollectionType * collection, int index, const char * writeName),
+								CollectionType * collectionP, int collectionSize)
+	{
+		CollectionType & collection = *collectionP;
+
+		const char * tag = (isCollectionSerializer ? CollectionElementTag : CollectionTag);
+
+		XMLElement * el = 0;
+
+		//If the element doesn't exist already, create it.
+		MaybeValue<XMLElement*> tryFind = findChildElement(tag, name);
+		if (!tryFind.HasValue())
+		{
+			el = rootDocument.NewElement(tag);
+			rootElement->InsertEndChild(el);
+			el->SetAttribute("name", name);
+		}
+		//Otherwise, clear out the values that were already there.
+		else
+		{
+			el = tryFind.GetValue();
+			el->DeleteChildren();
+		}
+
+		//Write each value to the collection.
+		DataSerializer elementSerializer(el, rootDocument, 0);
+		for (int i = 0; i < collectionSize; ++i)
+		{
+			//Write the child element.
+			DataSerializer elementSerializer(el, rootDocument);
+			if (!valueWriter(elementSerializer, collectionP, i, std::to_string(i).c_str()))
+			{
+				errorMsg = std::string("Error writing collection: ") + elementSerializer.errorMsg;
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 
 
 private:
+
+	static const char * FloatTag,
+				      * IntTag,
+				      * BoolTag,
+				      * StringTag,
+				      * ClassTag,
+				      * CollectionTag,
+				      * CollectionElementTag;
 
 	//Returns an error message, or "" if everything went fine.
 	MaybeValue<tinyxml2::XMLElement*> findChildElement(const char * tag, const char * childName);
@@ -105,5 +180,5 @@ struct ISerializable
 public:
 
 	virtual bool ReadData(DataSerializer & data) = 0;
-	virtual bool WriteData(DataSerializer & data) const = 0;
+	virtual bool WriteData(DataSerializer & data) = 0;
 };
