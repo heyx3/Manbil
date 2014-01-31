@@ -91,6 +91,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
 	
+    //glEnableClientState(GL_INDEX_ARRAY);
+
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
 
@@ -189,7 +191,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	Vertex * vertices = new Vertex[size];
 	Vector3f * vertexPoses = new Vector3f[size], * vertexNormals = new Vector3f[size];
 	Vector2f * vertexTexCoords = new Vector2f[size];
-	int * indices = new int[terr.GetIndicesCount()];
+	unsigned int * indices = new unsigned int[terr.GetIndicesCount()];
 
 	terr.CreateVertexPositions(vertexPoses, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
 	for (int i = 0; i < size; ++i)

@@ -256,28 +256,14 @@ bool Material::Render(const RenderInfo & rendInfo, const std::vector<const Mesh*
 
 
 	//Set some uniforms.
-	//TODO: Did not mean to do the error-checking for setting uniforms. Just call the "SetUniform[X]" function without error checking.
-
-	if ((!SetUniformMat("u_view", *rendInfo.mView) && false) ||
-		(!SetUniformMat("u_proj", *rendInfo.mProj) && false))
-	{
-		errorMsg = "Error setting 'u_view' and 'u_proj'.";
-		return false;
-	}
+    SetUniformMat("u_view", *rendInfo.mView);
+    SetUniformMat("u_proj", *rendInfo.mProj);
 
 	Vector3f camPos = rendInfo.Cam->GetPosition();
-	if (!SetUniformF("u_cam_pos", (float*)(&camPos[0]), 3) && false)
-	{
-		errorMsg = "Error setting 'u_cam_pos'.";
-		return false;
-	}
+    SetUniformF("u_cam_pos", (float*)(&camPos[0]), 3);
 	
 	float seconds = rendInfo.World->GetTotalElapsedSeconds();
-	if (!SetUniformF("u_elapsed_seconds", &seconds, 1) && false)
-	{
-		errorMsg = "Error setting 'u_elapsed_seconds'.";
-		return false;
-	}
+    SetUniformF("u_elapsed_seconds", &seconds, 1);
 
 	if (CheckError("Unknown error setting basic uniforms: ")) return false;
 
@@ -319,19 +305,11 @@ bool Material::Render(const RenderInfo & rendInfo, const std::vector<const Mesh*
 		//Combine the mesh's transform with the world transform.
 		meshes[i]->Transform.GetWorldTransform(meshTrans);
 		worldTotal = Matrix4f::Multiply(*rendInfo.mWorld, meshTrans);
-		if (!SetUniformMat("u_world", worldTotal) && false)
-		{
-			errorMsg = "Error setting 'u_world'.";
-			return false;
-		}
+        SetUniformMat("u_world", worldTotal);
 
 		//Calculate wvp transform.
 		wvp = Matrix4f::Multiply(vp, worldTotal);
-		if (!SetUniformMat("u_wvp", wvp) && false)
-		{
-			errorMsg = "Error setting 'u_wvp'.";
-			return false;
-		}
+        SetUniformMat("u_wvp", wvp);
 
 		if (CheckError("Error setting world/wvp uniforms for a mesh: ")) return false;
 
@@ -349,8 +327,11 @@ bool Material::Render(const RenderInfo & rendInfo, const std::vector<const Mesh*
 			}
 			else
 			{
-				ShaderHandler::DrawVertices(meshes[i]->GetPrimType(), dat.GetVerticesCount(), dat.GetFirstVertex());
+				ShaderHandler::DrawVertices(meshes[i]->GetPrimType(), dat.GetVerticesCount(), sizeof(int) * dat.GetFirstVertex());
 			}
+
+            //RenderDataHandler::BindVertexBuffer();
+            //RenderDataHandler::BindIndexBuffer();
 
 			if (CheckError("Error rendering mesh: ")) return false;
 		}

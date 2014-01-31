@@ -110,7 +110,7 @@ void Terrain::CreateVertexPositions(Vector3f * outPositions, Vector2i topLeft, V
 		}
 	}
 }
-void Terrain::CreateVertexIndices(int * outIndices, Vector2i topLeft, Vector2i bottomRight, int zoomOut) const
+void Terrain::CreateVertexIndices(unsigned int * outIndices, Vector2i topLeft, Vector2i bottomRight, int zoomOut) const
 {
 	//TODO: Handle zoomOut parameter.
 
@@ -122,10 +122,10 @@ void Terrain::CreateVertexIndices(int * outIndices, Vector2i topLeft, Vector2i b
 	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
 
 
-	int indexIndex = 0;
+	unsigned int indexIndex = 0;
 	Vector2i loc;
 
-	int pX, pY, tl, tr, bl, br;
+	unsigned int pX, pY, tl, tr, bl, br;
 	for (pY = topLeft.y; pY < bottomRight.y; ++pY)
 	{
 		loc.y = pY;

@@ -54,7 +54,7 @@ std::string InitializeMaterial(void)
 
 
 //Creates a single foliage object with 8 vertices and 12 indices.
-void CreateVertices(Vertex * vertexStart, int * indexStart, int indexOffset, Vector3f pos, float scale)
+void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOffset, Vector3f pos, float scale)
 {
 	float halfScale = scale * 0.5f;
 
@@ -127,7 +127,7 @@ Foliage::Foliage(std::vector<Vector3f> vertexBasePoses, float foliageScale)
 	nVertices = vertexBasePoses.size() * 8;
 	nIndices = vertexBasePoses.size() * 12;
 	Vertex * vertices = new Vertex[nVertices];
-	int * indices = new int[nIndices];
+	unsigned int * indices = new unsigned int[nIndices];
 
 	int vertexOffset = 0, indexOffset = 0;
 	for (unsigned int i = 0; i < vertexBasePoses.size(); ++i)

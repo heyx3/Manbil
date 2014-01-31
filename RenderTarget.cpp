@@ -135,20 +135,13 @@ RenderTarget::RenderTarget(int w, int h)
 
 	#pragma region Create VBO
 	
-	//VertexPosTex1 vs[6];
-	//vs[0] = VertexPosTex1(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f));
-	//vs[1] = VertexPosTex1(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f));
-	//vs[2] = VertexPosTex1(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f));
-	//vs[3] = vs[0];
-	//vs[4] = VertexPosTex1(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f));
-	//vs[5] = vs[2];
 	VertexPosTex1 vs[4];
 	vs[0] = VertexPosTex1(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f));
 	vs[1] = VertexPosTex1(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f));
 	vs[2] = VertexPosTex1(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f));
 	vs[3] = VertexPosTex1(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f));
 
-	int indices[6];
+	unsigned int indices[6];
 	indices[0] = 0;
 	indices[1] = 1;
 	indices[2] = 3;
@@ -156,7 +149,6 @@ RenderTarget::RenderTarget(int w, int h)
 	indices[4] = 2;
 	indices[5] = 3;
 
-	//RenderDataHandler::CreateVertexBuffer(vbo, vs, 6, RenderDataHandler::UPDATE_ONCE_AND_DRAW);
 	RenderDataHandler::CreateVertexBuffer(vbo, vs, 4, RenderDataHandler::UPDATE_ONCE_AND_DRAW);
 	RenderDataHandler::CreateIndexBuffer(ibo, indices, 6, RenderDataHandler::UPDATE_ONCE_AND_DRAW);
 
@@ -198,6 +190,7 @@ void RenderTarget::ChangeSize(int newW, int newH)
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, width, height);
 }
 
 bool RenderTarget::IsValid(void) const
@@ -235,16 +228,11 @@ void RenderTarget::EnableDrawingInto(void)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glViewport(0, 0, width, height);
-
-	//GLenum drawbuff = GL_COLOR_ATTACHMENT0;
-	//glDrawBuffers(1, &drawbuff);
 }
 void RenderTarget::DisableDrawingInto(void)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, width, height);
-
-	//glDrawBuffer(GL_BACK);
 }
 
 
@@ -253,6 +241,7 @@ void RenderTarget::Draw(void)
 	ClearAllRenderingErrors();
 
 	RenderingState(false).EnableState();
+
 
 	VertexPosTex1::EnableAttributes();
 
@@ -268,7 +257,6 @@ void RenderTarget::Draw(void)
 	RenderDataHandler::BindVertexBuffer(vbo);
 	RenderDataHandler::BindIndexBuffer(ibo);
 	ShaderHandler::DrawIndexedVertices(PrimitiveTypes::Triangles, 6);
-	//ShaderHandler::DrawVertices(PrimitiveTypes::Triangles, 6);
 
 
 	VertexPosTex1::DisableAttributes();

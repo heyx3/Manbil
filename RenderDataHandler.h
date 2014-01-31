@@ -100,11 +100,11 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass) * nVertices, vertices, ToEnum(usage));
 	}
 	//Creates an index buffer.
-	static void CreateIndexBuffer(BufferObjHandle & ibo, int * indices, int nIndices, BufferPurpose usage)
+	static void CreateIndexBuffer(BufferObjHandle & ibo, unsigned int * indices, int nIndices, BufferPurpose usage)
 	{
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * nIndices, indices, ToEnum(usage));
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
 	}
 
 	//Sets the given vertex buffer as active.

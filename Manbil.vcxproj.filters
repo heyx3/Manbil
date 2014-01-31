@@ -9,16 +9,16 @@
       <Filter>Worlds</Filter>
     </ClCompile>
     <ClCompile Include="NoiseTest.cpp">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLTestWorld.cpp">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="TerrainWalkCamera.cpp">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="TerrainWorld.cpp">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="MGame.cpp">
       <Filter>MGame</Filter>
@@ -185,16 +185,16 @@
       <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="NoiseTest.h">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLTestWorld.h">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="TerrainWalkCamera.h">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="TerrainWorld.h">
-      <Filter>Manbil Tests</Filter>
+      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="MGame.h">
       <Filter>MGame</Filter>
@@ -420,9 +420,6 @@
     <Filter Include="Math\Noise Generation\Noise Coloring">
       <UniqueIdentifier>{db2ff582-7d50-4f1e-bc51-74e4605fec2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Manbil Tests">
-      <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Math\Shapes">
       <UniqueIdentifier>{d3a505b7-f782-4bb9-8d96-9d0eeb45aa42}</UniqueIdentifier>
     </Filter>
@@ -473,6 +470,9 @@
     </Filter>
     <Filter Include="XML IO\tinyxml Library">
       <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
