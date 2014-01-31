@@ -376,9 +376,6 @@
     <ClInclude Include="IO\DataSerializer.h">
       <Filter>XML IO</Filter>
     </ClInclude>
-    <ClInclude Include="IO\IOTest.h">
-      <Filter>XML IO</Filter>
-    </ClInclude>
     <ClInclude Include="Foliage.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -393,6 +390,12 @@
     </ClInclude>
     <ClInclude Include="Input\InputManager.h">
       <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input.hpp">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Rendering.hpp">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
