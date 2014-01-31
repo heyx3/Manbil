@@ -405,9 +405,6 @@
     <Filter Include="Math\Basic Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL/SFML Stuff">
-      <UniqueIdentifier>{a1a2cba6-0b4a-4744-a970-3f3f77357e64}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Math\Noise Generation\Noise Coloring">
       <UniqueIdentifier>{db2ff582-7d50-4f1e-bc51-74e4605fec2d}</UniqueIdentifier>
     </Filter>

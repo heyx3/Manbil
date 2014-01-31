@@ -3,6 +3,7 @@
 //#include <SFGUI/SFGUI.hpp>
 #include "SFML/Window.hpp"
 #include "SFML/Graphics.hpp"
+#include "Input/InputManager.h"
 
 //A basic world using SFML. Also initializes the SFGUI library upon creation.
 class SFMLWorld
@@ -36,6 +37,8 @@ public:
 	//void DrawGUI(void) { sfgui.Display(*window); }
 
 protected:
+
+    InputManager<std::string> Input;
 
 	template<class SomeClass>
 	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }

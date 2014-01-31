@@ -73,8 +73,6 @@ public:
 							   bool(*valueReader)(DataSerializer & ser, CollectionType * collection, int index, const char * writeName),
 							   CollectionType * outCollection)
 	{
-		CollectionType & collection = *outCollection;
-
 		const char * tag = (isCollectionSerializer ? CollectionElementTag : CollectionTag);
 
 		//Find the collection to read.

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 
 #include "BoolInput.h"
@@ -8,9 +7,9 @@
 #include "Vector2Input.h"
 
 
-typename std::shared_ptr<BoolInput> BoolInputPtr;
-typename std::shared_ptr<FloatInput> FloatInputPtr;
-typename std::shared_ptr<Vector2Input> Vector2InputPtr;
+typedef std::shared_ptr<BoolInput> BoolInputPtr;
+typedef std::shared_ptr<FloatInput> FloatInputPtr;
+typedef std::shared_ptr<Vector2Input> Vector2InputPtr;
 
 
 template<typename Key>
@@ -57,7 +56,7 @@ public:
     }
     //Removes the FloatInput for the given key and returns it.
     //Returns a pointer to 0 if the given key doesn't point to a FloatInput.
-    BoolInputPtr RemoveFloatInput(const Key & key)
+    FloatInputPtr RemoveFloatInput(const Key & key)
     {
         if (floatInputs.find(key) == floatInputs.end()) return FloatInputPtr(0);
 
@@ -67,7 +66,7 @@ public:
     }
     //Removes the Vector2Input for the given key and returns it.
     //Returns a pointer to 0 if the given key doesn't point to a Vector2Input.
-    BoolInputPtr RemoveV2Input(const Key & key)
+    Vector2InputPtr RemoveV2Input(const Key & key)
     {
         if (v2Inputs.find(key) == v2Inputs.end()) return Vector2InputPtr(0);
 
@@ -80,20 +79,17 @@ public:
     //Updates all inputs already added to this manager.
     void Update(float elapsedFrameTime, float elapsedTotalTime)
     {
-        for (std::unordered_map<Key, BoolInputPtr>::const_iterator it = boolInputs.begin();
-             it != boolInputs.end(); it += 1)
+        for (auto it = boolInputs.begin(); it != boolInputs.end(); ++it)
         {
-            it->Update(elapsedFrameTime, elapsedTotalTime);
+            it->second->Update(elapsedFrameTime, elapsedTotalTime);
         }
-        for (std::unordered_map<Key, FloatInputPtr>::const_iterator it = floatInputs.begin();
-             it != floatInputs.end(); it += 1)
+        for (auto it = floatInputs.begin(); it != floatInputs.end(); ++it)
         {
-            it->Update(elapsedFrameTime, elapsedTotalTime);
+            it->second->Update(elapsedFrameTime, elapsedTotalTime);
         }
-        for (std::unordered_map<Key, Vector2InputPtr>::const_iterator it = v2Inputs.begin();
-             it != v2Inputs.end(); it += 1)
+        for (auto it = v2Inputs.begin(); it != v2Inputs.end(); ++it)
         {
-            it->Update(elapsedFrameTime, elapsedTotalTime);
+            it->second->Update(elapsedFrameTime, elapsedTotalTime);
         }
     }
 

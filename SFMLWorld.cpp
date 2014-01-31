@@ -50,6 +50,9 @@ void SFMLWorld::RunWorld(void)
 		cl.restart();
 		totalElapsedSeconds += elapsed;
 
+        //Update input.
+        Input.Update(elapsed, totalElapsedSeconds);
+
 		//Update and render.
 		if (elapsed > 0.0f)
 		{

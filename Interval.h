@@ -1,13 +1,10 @@
 #pragma once
 
-#include "BasicMath.h"
-#include <algorithm>
+//#include <algorithm>
 #include <string>
 #include "FastRand.h"
 #include "Vectors.h"
 
-#include <iostream>
-#include <sstream>
 
 class Interval
 {
@@ -18,7 +15,7 @@ public:
 	static Interval GetInvalidInterval(void) { return Interval(0.0f, 0.0f); }
 
 	//Gets an interval that completely covers the given two intervals.
-	static Interval Union(Interval one, Interval two) { return Interval(std::min(one.GetStart(), one.GetStart()), std::max(one.GetEnd(), two.GetEnd()), 0.001f, true, true); }
+	static Interval Union(Interval one, Interval two) { return Interval(BasicMath::Min(one.GetStart(), two.GetStart()), BasicMath::Max(one.GetEnd(), two.GetEnd()), 0.001f, true, true); }
 	//Gets an interval that represents the intersection of two intervals.
 	static Interval Intersection(Interval one, Interval two);
 
@@ -70,7 +67,6 @@ public:
 
 	float RandomInsideRange(FastRand & fr) const { return RangeLerp(fr.GetZeroToOne()); }
 
-	std::string ToString(void) const { std::stringstream ss (std::stringstream::in | std::stringstream::out); ss << "Start: " << GetStart() << ", End: " << GetEnd(); return ss.str(); }
 	int GetHashCode(void) const { return Vector2f(center, range).GetHashCode(); }
 	
 	bool operator==(const Interval & other) const { return (center == other.GetCenter() && range == other.GetRange()); }
