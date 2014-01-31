@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Fake2DArray.h"
-#include "FastRand.h"
+#include "../LowerMath.hpp"
 
 typedef Fake2DArray<float> Noise2D;
 

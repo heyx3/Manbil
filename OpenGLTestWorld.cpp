@@ -8,12 +8,7 @@
 #include "RenderDataHandler.h"
 #include "TextureSettings.h"
 
-#include "BasicGenerators.h"
-#include "Terrain.h"
-#include "NoiseFilterer.h"
-#include "Interpolator.h"
-#include "Perlin.h"
-#include "LayeredOctave.h"
+#include "Math/NoiseGeneration.hpp"
 
 #include <assert.h>
 

@@ -1,11 +1,6 @@
 #include "Perlin.h"
 
-#include "Vectors.h"
-#include "FastRand.h"
-#include "BasicMath.h"
-
 #include <iostream>
-
 #include <assert.h>
 
 

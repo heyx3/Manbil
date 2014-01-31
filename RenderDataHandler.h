@@ -2,7 +2,7 @@
 
 #include "OpenGLIncludes.h"
 #include "SFML/Graphics.hpp"
-#include "Matrix4f.h"
+#include "Math/Matrix4f.h"
 
 //Manages different kinds of data being passed between CPU and GPU.
 class RenderDataHandler

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Matrix4f.h"
-#include "Vectors.h"
+#include "../LowerMath.hpp"
 
 //Basic camera functionality: UVN rotation, transform calculation, etc.
 //Can specify a "closest dot variance", which means the closest the "forward" vector can get

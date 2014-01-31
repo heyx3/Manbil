@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ColorGradient.h"
+#include "Math/Noise Generation/ColorGradient.h"
 #include "SFML\Graphics\Image.hpp"
-#include "BasicGenerators.h"
+#include "Math/Noise Generation/BasicGenerators.h"
 
 //Converts a 2D noise field to an SFML Image.
 class NoiseToTexture

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Interval.h"
-#include "ColorNode.h"
 #include <vector>
-#include "Fake2DArray.h"
-#include "Vectors.h"
+#include "ColorNode.h"
+#include "../LowerMath.hpp"
 
 //Maps an interval of floats to colors.
 class ColorGradient

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Camera.h"
-#include "Terrain.h"
+#include "Math/Higher Math/Camera.h"
+#include "Math/Higher Math/Terrain.h"
 #include "SFML/Window.hpp"
 #include "GeneralOculus.h"
 

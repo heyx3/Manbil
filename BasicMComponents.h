@@ -2,9 +2,8 @@
 
 #include "MGameForwardDeclarations.h"
 
-#include "Camera.h"
-#include "TransformObject.h"
-#include "ThreeDShapes.h"
+#include "Math/HigherMath.hpp"
+#include "Math/Shapes.hpp"
 #include "MGameMaterialManager.h"
 #include <memory>
 #include <assert.h>

@@ -4,7 +4,7 @@
 #include <memory>
 #include <OVR.h>
 #include <OVRVersion.h>
-#include "Quaternion.h"
+#include "Math/Quaternion.h"
 
 typedef OVR::HMDInfo RiftDisplayInfo;
 typedef OVR::SensorDevice RiftSensor;

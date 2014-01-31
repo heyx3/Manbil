@@ -2,8 +2,8 @@
 
 #include "SFMLOpenGLWorld.h"
 #include "OpenGLIncludes.h"
-#include "Camera.h"
-#include "TransformObject.h"
+#include "Math/Higher Math/Camera.h"
+#include "Math/Higher Math/TransformObject.h"
 
 //Represents all useful rendering data.
 struct RenderInfo

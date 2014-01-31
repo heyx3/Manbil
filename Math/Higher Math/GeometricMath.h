@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
-
+#include "../Vectors.h"
 #include "SFML/Window.hpp"
 
 //Custom math functions.

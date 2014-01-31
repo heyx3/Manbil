@@ -1,11 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
-#include "Fake2DArray.h"
-#include "BasicMath.h"
-#include "Interval.h"
 #include "BasicGenerators.h"
-
 #include "NoiseFilterRegion.h"
 
 #include <iostream>

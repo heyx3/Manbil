@@ -3,7 +3,7 @@
 #include "sfmlworld.h"
 #include "SFML/Graphics.hpp"
 
-#include "Fake2DArray.h"
+#include "Math/Fake2DArray.h"
 
 class NoiseTest : public SFMLWorld
 {

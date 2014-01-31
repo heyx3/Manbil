@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
-#include "Quaternion.h"
-#include "Matrix4f.h"
+#include "../LowerMath.hpp"
 
 //Represents an object with a position, orientation, and scale.
 class TransformObject

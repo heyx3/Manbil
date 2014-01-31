@@ -2,16 +2,9 @@
 
 #include <assert.h>
 
-#include "Fake2DArray.h"
-#include "NoiseFilterer.h"
-#include "LayeredOctave.h"
-#include "DiamondSquare.h"
-#include "Worley.h"
-#include "CachedFunc.h"
-#include "ColorGradient.h"
-#include "NoiseCombinations.h"
-#include "Interpolator.h"
-#include "Perlin.h"
+#include "Math/LowerMath.hpp"
+#include "Math/NoiseGeneration.hpp"
+#include "Math/Noise Generation/ColorGradient.h"
 
 
 const int noiseSize = 725,

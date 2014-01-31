@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interval.h"
+#include "../Math/Interval.h"
 #include <assert.h>
 
 //Represents an input that can span the range 0 to 1.

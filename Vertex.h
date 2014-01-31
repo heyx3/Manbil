@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
+#include "Math/Vectors.h"
 
 
 //Represents a vertex with position, color, tex coord, and normal data.

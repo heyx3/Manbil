@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
+#include "../Vectors.h"
 
 //Represents a spot on the noise scale.
 struct ColorNode

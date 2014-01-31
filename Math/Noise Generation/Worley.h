@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Interval.h"
 #include "BasicGenerators.h"
 
 #define CALL_MEMBER_FUNCTION(object, ptrToMember) ((object).*(ptrToMember))

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ShaderHandler.h"
-#include "TransformObject.h"
+#include "Math/Higher Math/TransformObject.h"
 
 
 //Wraps the rendering of vertices using a material.

@@ -3,7 +3,7 @@
 #include "SFML/System.hpp"
 #include "SFML/Window.hpp"
 
-#include "Camera.h"
+#include "Math/Higher Math/Camera.h"
 
 class MovingCamera : public Camera
 {

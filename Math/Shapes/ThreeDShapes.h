@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Vectors.h"
-#include "BasicMath.h"
-#include "GeometricMath.h"
-#include "Boxes.h"
 #include <memory>
+#include "../Higher Math/GeometricMath.h"
+#include "Boxes.h"
 
 class Cube;
 class Sphere;

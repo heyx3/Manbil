@@ -1,10 +1,9 @@
 #pragma once
 
 #include "SFMLOpenGLWorld.h"
-#include "GeometricMath.h"
+#include "Math/HigherMath.hpp"
 #include "MovingCamera.h"
 #include "Mesh.h"
-#include "Lighting.h"
 #include "RenderTarget.h"
 #include "Materials.h"
 #include "Foliage.h"

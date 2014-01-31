@@ -1,9 +1,5 @@
 #include "Camera.h"
 
-#include "Quaternion.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 
 Camera::Camera(void) : forward(Vector3f(1.0f, 0.0f, 0.0f)), up(Vector3f(0.0f, 0.0f, 1.0f)), closestDotVariance(0.01f)
 {

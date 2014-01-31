@@ -1,9 +1,6 @@
 #include "NoiseFilterer.h"
 
-#include "BasicMath.h"
 #include <math.h>
-#include "FastRand.h"
-
 #include <assert.h>
 
 

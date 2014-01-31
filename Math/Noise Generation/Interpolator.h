@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Fake2DArray.h"
 #include "BasicGenerators.h"
 
 //Scales up a noise grid and interpolates between the grid values to be smooth.

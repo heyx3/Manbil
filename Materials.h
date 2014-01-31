@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "Vectors.h"
+#include "Math/Vectors.h"
 
 class Material;
 

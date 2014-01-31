@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
+#include "Math/Vectors.h"
 
 //Clears the screen.
 class ScreenClearer

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Fake2DArray.h"
+#include "../LowerMath.hpp"
 
 #include <memory>
 #include <vector>

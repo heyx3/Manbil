@@ -2,80 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="BasicGenerators.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="DiamondSquare.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="Interpolator.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="LayeredOctave.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseCombinations.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseFilterer.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseFilterRegion.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="Worley.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="BasicMath.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Interval.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Matrix4f.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Quaternion.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Vectors.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Value2D.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorGradient.cpp">
-      <Filter>Math\Noise Generation\Noise Coloring</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorNode.cpp">
-      <Filter>Math\Noise Generation\Noise Coloring</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometricMath.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Lighting.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Terrain.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
     <ClCompile Include="SFMLWorld.cpp">
       <Filter>Worlds</Filter>
     </ClCompile>
     <ClCompile Include="SFMLOpenGLWorld.cpp">
       <Filter>Worlds</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformObject.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
-    <ClCompile Include="CachedFunc.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="FastRand.cpp">
-      <Filter>Math\Basic Math</Filter>
     </ClCompile>
     <ClCompile Include="NoiseTest.cpp">
       <Filter>Manbil Tests</Filter>
@@ -98,12 +29,6 @@
     <ClCompile Include="BasicMComponentFactories.cpp">
       <Filter>MGame</Filter>
     </ClCompile>
-    <ClCompile Include="ThreeDShapes.cpp">
-      <Filter>Math\Shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="Boxes.cpp">
-      <Filter>Math\Shapes</Filter>
-    </ClCompile>
     <ClCompile Include="MGameMaterialManager.cpp">
       <Filter>MGame</Filter>
     </ClCompile>
@@ -115,9 +40,6 @@
     </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Two Triangles</Filter>
-    </ClCompile>
-    <ClCompile Include="Perlin.cpp">
-      <Filter>Math\Noise Generation</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLIncludes.cpp">
       <Filter>Rendering\Helper Classes</Filter>
@@ -176,88 +98,91 @@
     <ClCompile Include="MovingCamera.cpp">
       <Filter>Input</Filter>
     </ClCompile>
+    <ClCompile Include="Math\BasicMath.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\CachedFunc.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\FastRand.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Interval.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Matrix4f.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Quaternion.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vectors.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\Camera.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\GeometricMath.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\Lighting.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\Terrain.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\TransformObject.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\BasicGenerators.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\DiamondSquare.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\Interpolator.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\LayeredOctave.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\NoiseCombinations.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\NoiseFilterer.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\NoiseFilterRegion.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\Perlin.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\Value2D.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\Worley.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\ColorGradient.cpp">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\ColorNode.cpp">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Shapes\Boxes.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Shapes\ThreeDShapes.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BasicGenerators.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="DiamondSquare.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="Interpolator.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="LayeredOctave.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseCombinations.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseFilterer.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseFilterRegion.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="Worley.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicMath.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Interval.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix4f.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Quaternion.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Vectors.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Value2D.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorNode.h">
-      <Filter>Math\Noise Generation\Noise Coloring</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorGradient.h">
-      <Filter>Math\Noise Generation\Noise Coloring</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometricMath.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Lighting.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectionInfo.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
     <ClInclude Include="SFMLWorld.h">
       <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="SFMLOpenGLWorld.h">
       <Filter>Worlds</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformObject.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="CachedFunc.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Fake2DArray.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="FastRand.h">
-      <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="NoiseTest.h">
       <Filter>Manbil Tests</Filter>
@@ -286,12 +211,6 @@
     <ClInclude Include="BasicMComponentFactories.h">
       <Filter>MGame</Filter>
     </ClInclude>
-    <ClInclude Include="ThreeDShapes.h">
-      <Filter>Math\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="Boxes.h">
-      <Filter>Math\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="MGameMaterialManager.h">
       <Filter>MGame</Filter>
     </ClInclude>
@@ -303,12 +222,6 @@
     </ClInclude>
     <ClInclude Include="TwoTrianglesWorld.h">
       <Filter>Two Triangles</Filter>
-    </ClInclude>
-    <ClInclude Include="Fake3DArray.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Perlin.h">
-      <Filter>Math\Noise Generation</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLIncludes.h">
       <Filter>Rendering\Helper Classes</Filter>
@@ -342,9 +255,6 @@
     </ClInclude>
     <ClInclude Include="Vertices.h">
       <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="RegionSplitter.h">
-      <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
       <Filter>Input\Input Objects\Bool Input</Filter>
@@ -396,6 +306,105 @@
     </ClInclude>
     <ClInclude Include="Rendering\Rendering.hpp">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\BasicMath.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\CachedFunc.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Fake2DArray.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\FastRand.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Interval.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Matrix4f.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Quaternion.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vectors.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Camera.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\GeometricMath.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Lighting.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\ProjectionInfo.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\RegionSplitter.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Terrain.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\TransformObject.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\BasicGenerators.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\DiamondSquare.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\Interpolator.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\LayeredOctave.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\NoiseCombinations.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\NoiseFilterer.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\NoiseFilterRegion.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\Perlin.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\Value2D.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\Worley.h">
+      <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\ColorGradient.h">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\ColorNode.h">
+      <Filter>Math\Noise Generation\Noise Coloring</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Shapes\Boxes.h">
+      <Filter>Math\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Shapes\ThreeDShapes.h">
+      <Filter>Math\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\LowerMath.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\HigherMath.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Shapes.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\NoiseGeneration.hpp">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

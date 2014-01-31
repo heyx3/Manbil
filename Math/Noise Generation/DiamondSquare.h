@@ -1,8 +1,6 @@
 #pragma once
 
 #include "BasicGenerators.h"
-#include "Interval.h"
-#include "FastRand.h"
 
 //Represents the random noise range for one or more diamond-square iterations.
 struct DiamondSquareStep

@@ -1,8 +1,5 @@
 #include "Value2D.h"
 
-#include "Vectors.h"
-#include "FastRand.h"
-#include "BasicMath.h"
 
 void Value2D::Generate(Fake2DArray<float> & outValues) const
 {

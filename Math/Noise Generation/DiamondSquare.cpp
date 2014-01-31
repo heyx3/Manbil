@@ -1,7 +1,6 @@
 #include "DiamondSquare.h"
 
 #include <queue>
-#include "BasicMath.h"
 #include <math.h>
 
 int DiamondSquare::NOISE_IS_BAD_SIZE_EXCEPTION = 1;

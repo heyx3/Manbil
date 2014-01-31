@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Vectors.h"
-#include "Interval.h"
-#include "Fake2DArray.h"
+#include "../LowerMath.hpp"
 
 //Represents a way to select a region of 2D noise to be filtered.
 class NoiseFilterRegion
