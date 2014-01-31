@@ -18,16 +18,8 @@ public:
 	static const int TWODSAMPLERS = 5;
 
 
-
-	//Initializes OpenGL drawing data that is global for all Material instances.
-	static void InitializeMaterialDrawing(void);
-	//Resets OpenGL drawing data that is global for all Material instances.
-	static void EndMaterialDrawing(void);
-
-
 	//The 2d textures used for the sampler objects.
 	BufferObjHandle TextureSamplers[TWODSAMPLERS];
-
 
 
 	Material(std::string vertexShader, std::string pixelShader);

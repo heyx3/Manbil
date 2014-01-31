@@ -6,15 +6,6 @@
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 
-void Material::InitializeMaterialDrawing(void)
-{
-	Vertex::EnableVertexAttributes();
-}
-void Material::EndMaterialDrawing(void)
-{
-	Vertex::DisableVertexAttributes();
-}
-
 Material::Material(std::string vs, std::string ps)
 {
 	//Initialize data.
@@ -320,6 +311,8 @@ bool Material::Render(const RenderInfo & rendInfo, const std::vector<const Mesh*
 
 			RenderDataHandler::BindVertexBuffer(dat.GetVerticesHandle());
 
+            Vertex::EnableVertexAttributes();
+
 			if (dat.UsesIndices())
 			{
 				RenderDataHandler::BindIndexBuffer(dat.GetIndicesHandle());
@@ -329,6 +322,8 @@ bool Material::Render(const RenderInfo & rendInfo, const std::vector<const Mesh*
 			{
 				ShaderHandler::DrawVertices(meshes[i]->GetPrimType(), dat.GetVerticesCount(), sizeof(int) * dat.GetFirstVertex());
 			}
+
+            Vertex::DisableVertexAttributes();
 
             //RenderDataHandler::BindVertexBuffer();
             //RenderDataHandler::BindIndexBuffer();

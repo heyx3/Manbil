@@ -294,8 +294,6 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	Material::InitializeMaterialDrawing();
-
 	std::vector<const Mesh *> meshes;
 	meshes.insert(meshes.begin(), &testMesh);
 	if (!testMat->Render(info, meshes))
@@ -305,13 +303,9 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 		EndWorld();
 	}
 
-	Material::EndMaterialDrawing();
-
 
 	if (IsGameOver()) return;
 	
-
-	//Foliage::StartFoliageRendering(true);
 
 	//if (!foliage->Render(info))
 	//{
@@ -319,8 +313,6 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 	//	Pause();
 	//	EndWorld();
 	//}
-
-	//Foliage::EndFoliageRendering(true);
 }
 
 void OpenGLTestWorld::RenderWorld(float elapsedSeconds)

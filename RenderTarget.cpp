@@ -92,10 +92,11 @@ RenderTarget::RenderTarget(int w, int h)
 						void main()							\n\
 						{									\n\
 							outColor = vec4(texture(frameBufferTex, texCoordOut).xyz, 1.0);\n\
+                            outColor = vec4(smoothstep(0.0, 1.0, outColor.xyz), 1.0);\n\
 							\n\
 							//DEBUG.\n\
-							outColor = vec4(texCoordOut.x, texCoordOut.y, 1.0, 1.0);\n\
-							outColor += 0.001 * vec4(texture(frameBufferTex, texCoordOut).xyz, 1.0);\n\
+							//outColor = vec4(texCoordOut.x, texCoordOut.y, 1.0, 1.0);\n\
+							//outColor += 0.001 * vec4(texture(frameBufferTex, texCoordOut).xyz, 1.0);\n\
 						}";
 
 	if (!ShaderHandler::CreateShaderProgram(shaderProg))
@@ -243,9 +244,6 @@ void RenderTarget::Draw(void)
 	RenderingState(false).EnableState();
 
 
-	VertexPosTex1::EnableAttributes();
-
-
 	glUseProgram(shaderProg);
 	glUniform1i(colorTexLoc, TextureSlot);
 	glActiveTexture(GL_TEXTURE0 + TextureSlot);
@@ -255,10 +253,9 @@ void RenderTarget::Draw(void)
 	if (!errorMsg.empty()) return;
 
 	RenderDataHandler::BindVertexBuffer(vbo);
+	VertexPosTex1::EnableAttributes();
 	RenderDataHandler::BindIndexBuffer(ibo);
 	ShaderHandler::DrawIndexedVertices(PrimitiveTypes::Triangles, 6);
-
-
 	VertexPosTex1::DisableAttributes();
 
 
