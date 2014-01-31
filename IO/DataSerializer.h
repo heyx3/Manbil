@@ -39,6 +39,9 @@ public:
 	{
 		if (element == NULL) errorMsg = "Root Element is NULL.";
 	}
+    //Gets a serializer for the root element in the given XML file.
+    //Also takes in an uninitialized XMLDocument instance.
+    DataSerializer(std::string filePath, tinyxml2::XMLDocument & doc);
 
 
 	std::string GetErrorMsg(void) const { return errorMsg; }

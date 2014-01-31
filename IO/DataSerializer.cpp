@@ -32,6 +32,28 @@ const char * DataSerializer::FloatTag = "float",
 #define CTAG(regularName) ((isCollectionSerializer ? CollectionElementTag : regularName))
 
 
+DataSerializer::DataSerializer(std::string filePath, tinyxml2::XMLDocument & doc)
+: rootElement(0), rootDocument(doc), errorMsg(""), isCollectionSerializer(false)
+{
+    //Try opening the document.
+    tinyxml2::XMLError error = rootDocument.LoadFile(filePath.c_str());
+    if (error != 0)
+    {
+        errorMsg = std::string("Error loading document '") + filePath + "': " + std::to_string(error);
+        return;
+    }
+
+
+    //Try getting the root element.
+
+    XMLNode * childNode = rootDocument.FirstChild();
+    while (childNode != NULL && childNode->ToElement() == NULL)
+        childNode = childNode->NextSibling();
+
+    rootElement = childNode->ToElement();
+    if (rootElement == NULL) errorMsg = "Root element is NULL.";
+}
+
 MaybeValue<XMLElement*> DataSerializer::findChildElement(const char * tag, const char * name, XMLElement* rootEl)
 {
 	if (rootEl == 0) rootEl = rootElement;
