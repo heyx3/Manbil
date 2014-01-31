@@ -28,7 +28,8 @@ public:
 
 	//Constructor/deconstructor.
 
-	BoolInput(bool startingValue = false, ValueStates desiredValueState = ValueStates::IsDown) : value(startingValue) { }
+	BoolInput(bool startingValue = false, ValueStates desiredValueState = ValueStates::IsDown)
+		: value(startingValue), DesiredValueState(desiredValueState) { }
 	virtual ~BoolInput(void) { }
 
 

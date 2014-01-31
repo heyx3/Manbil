@@ -84,13 +84,14 @@ public:
 
 		//Read each value.
 		int index = 0;
-		for (MaybeValue<XMLElement*> child = findChildElement(CollectionElementTag, std::to_string(index).c_str());
-			 child.HasValue(); child = findChildElement(CollectionElementTag, std::to_string(index).c_str()))
+		DataSerializer ser(tryFind.GetValue(), rootDocument, 0);
+		for (MaybeValue<XMLElement*> child = findChildElement(CollectionElementTag, std::to_string(index).c_str(), tryFind.GetValue());
+			 child.HasValue();
+			 child = findChildElement(CollectionElementTag, std::to_string(index).c_str(), tryFind.GetValue()))
 		{
-			DataSerializer ser(child.GetValue()->ToElement(), rootDocument, 0);
 			if (!valueReader(ser, outCollection, index, std::to_string(index).c_str()))
 			{
-				errorMsg = std::string("Error reading collecion element ") + std::to_string(index) + ": " + ser.errorMsg;
+				errorMsg = std::string("Error reading collection element ") + std::to_string(index) + ": " + ser.errorMsg;
 				return false;
 			}
 
@@ -104,8 +105,6 @@ public:
 								bool(*valueWriter)(DataSerializer & ser, CollectionType * collection, int index, const char * writeName),
 								CollectionType * collectionP, int collectionSize)
 	{
-		CollectionType & collection = *collectionP;
-
 		const char * tag = (isCollectionSerializer ? CollectionElementTag : CollectionTag);
 
 		XMLElement * el = 0;
@@ -154,7 +153,7 @@ private:
 				      * CollectionElementTag;
 
 	//Returns an error message, or "" if everything went fine.
-	MaybeValue<tinyxml2::XMLElement*> findChildElement(const char * tag, const char * childName);
+	MaybeValue<tinyxml2::XMLElement*> findChildElement(const char * tag, const char * childName, tinyxml2::XMLElement* rootEl = 0);
 
 	tinyxml2::XMLElement * rootElement;
 	tinyxml2::XMLDocument & rootDocument;

@@ -5,7 +5,7 @@
 struct MiniIOTester : ISerializable
 {
 public:
-	float Floats[10];
+	float Floats[4];
 	virtual bool WriteData(DataSerializer & data) override
 	{
 		float * floats = Floats;
@@ -14,7 +14,7 @@ public:
 			[](DataSerializer & ser, float ** flp, int i, const char * name)
 				{ return ser.WriteFloat(name, (*flp)[i]); };
 
-		return data.WriteCollection<float, float*>("MyFloats", writerFunc, &floats, 10);
+		return data.WriteCollection<float, float*>("MyFloats", writerFunc, &floats, 4);
 	}
 	virtual bool ReadData(DataSerializer & data) override
 	{

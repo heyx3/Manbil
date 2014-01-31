@@ -32,9 +32,11 @@ const char * DataSerializer::FloatTag = "float",
 #define CTAG(regularName) ((isCollectionSerializer ? CollectionElementTag : regularName))
 
 
-MaybeXMLElPtr DataSerializer::findChildElement(const char * tag, const char * name)
+MaybeValue<XMLElement*> DataSerializer::findChildElement(const char * tag, const char * name, XMLElement* rootEl)
 {
-	for (XMLNode * child = rootElement->FirstChild(); child != NULL; child = child->NextSibling())
+	if (rootEl == 0) rootEl = rootElement;
+
+	for (XMLNode * child = rootEl->FirstChild(); child != NULL; child = child->NextSibling())
 	{
 		//Only looking at elements.
 		XMLElement * childEl = child->ToElement();
@@ -234,6 +236,7 @@ bool DataSerializer::WriteClass(const char * name, ISerializable & value)
 	{
 		XMLElement * newChild = rootDocument.NewElement(tag);
 		newChild->SetAttribute("name", name);
+        rootElement->InsertEndChild(newChild);
 		return value.WriteData(DataSerializer(newChild, rootDocument));
 	}
 	else

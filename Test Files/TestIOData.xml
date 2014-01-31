@@ -10,10 +10,10 @@
     <class name="MiniMe">
 
       <collection name="MyFloats">
-        <float name="0">0.015</float>
-        <float name="1">0.016</float>
-        <float name="2">0.017</float>
-        <float name="3">0.018</float>
+        <element name="0">0.015</element>
+        <element name="1">0.016</element>
+        <element name="2">0.017</element>
+        <element name="3">0.018</element>
       </collection>
       
     </class>
