@@ -7,7 +7,7 @@
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 #pragma region Shader headers
-
+//TODO: Rename "worldTo4DScreen" to "objectTo4DScreen". Same with "worldTo3DScreen".
 std::string shaderHeaderPostfix = std::string() +
                        "uniform mat4 u_wvp;                                                                       \n\
 						uniform mat4 u_world;                                                                     \n\
@@ -49,7 +49,7 @@ std::string shaderHeaderPostfix = std::string() +
                         {                                                                                         \n\
                             return vector + (2.0 * cross(cross(vector, quaternion.xyz) +                          \n\
                                                             (quaternion.w * vector),                              \n\
-                                                         quaternion.xyz);             \n\
+                                                         quaternion.xyz));             \n\
                             vec4 conjugate = vec4(-quaternion.xyz, quaternion.w);                                 \n\
                             vec4 finalW = multiplyQuaternions(multiplyQuaternionAndVector(quaternion, vector),    \n\
                                                               conjugate);                                         \n\
@@ -57,12 +57,12 @@ std::string shaderHeaderPostfix = std::string() +
                         }                                                                                         \n\
                         vec4 slerp(vec4 first, vec4 second, float t)                                              \n\
                         {                                                                                         \n\
-                            first = normalized(first);                                                            \n\
-                            second = normalized(second);                                                          \n\
+                            first = normalize(first);                                                            \n\
+                            second = normalize(second);                                                          \n\
                             float dotted = clamp(dot(first, second), -1.0, 1.0);                                  \n\
                                                                                                                   \n\
                             float theta = acos(dotted) * t;                                                       \n\
-                            vec4 finalQ = normalized(first - (second * doted));                                   \n\
+                            vec4 finalQ = normalize(first - (second * dotted));                                   \n\
                             return (finalQ * sin(theta)) + (first * cos(theta));                                  \n\
                         }                                                                                         \n\
                                                                                                                   \n\

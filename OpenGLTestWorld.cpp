@@ -139,16 +139,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
 
 
-
-	worldRenderState.EnableState();
-	if (!PrintRenderError("Error setting up render state"))
-	{
-		Pause();
-		EndWorld();
-		return;
-	}
-	
-
 	//Camera.
 	Vector3f pos(-100, -100, terrainHeight);
 	cam = MovingCamera(pos, 80.0f, 0.05f, -pos);
@@ -160,6 +150,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	cam.Window = GetWindow();
 
 
+    //Material.
     std::vector<RenderingPass> mats;
     mats.insert(mats.end(), Materials::LitTexture);
     testMat = new Material(mats);
@@ -218,16 +209,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 	RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
 	vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
 
-    Vertex * vts = new Vertex[3];
-    vts[0] = Vertex(Vector3f(0, 0, 0), Vector2f(0, 0));
-    vts[1] = Vertex(Vector3f(0, 0, 100), Vector2f(0, 1));
-    vts[2] = Vertex(Vector3f(0, 100, 100), Vector2f(1, 1));
-
-    RenderDataHandler::CreateVertexBuffer(vs, vts, 3, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    VertexIndexData vid2(3, vs);
-
-    delete[] vts;
-
 
 	if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
 	{
@@ -240,25 +221,27 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 	//Create the foliage before deleting the vertex data.
 	std::vector<Vector3f> poses;
-	for (int i = 0; i < size; i += size)
+	for (int i = 0; i < size; i += size/20)
 	{
 		poses.insert(poses.end(), vertexPoses[i]);
+        cam.SetPosition(vertexPoses[i]);
 	}
-	foliage = new Foliage(poses, 2.0f);
-    foliage
-	foliage->SetFoliageTexture(otherImgH);
-	if (foliage->HasRenderError())
+	foliage = new Foliage(poses, 10.0f);
+	if (foliage->HasError())
 	{
-		std::cout << "Error creating foliage: " << foliage->GetRenderError();
+		std::cout << "Error creating foliage: " << foliage->GetError();
 		Pause();
 		EndWorld();
 		return;
 	}
+    foliage->SetTexture(otherImgH);
+    foliage->SetWaveSpeed(0.25f);
+    foliage->SetWaveScale(5.0f);
 	
 	delete[] vertexPoses;
 
 
-	//Create mesh.
+	//Create terrain mesh.
 	testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
     Materials::LitTexture_SetUniforms(testMesh, dirLight);
     PassSamplers dummySamplers;
@@ -266,7 +249,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), dummySamplers);
 
 
-	//Create ppe.
+	//Create post-process effect.
 	ClearAllRenderingErrors();
     std::vector<RenderingPass> passes;
     passes.insert(passes.end(), Materials::EmptyPostProcess);
@@ -328,18 +311,16 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
 		Pause();
 		EndWorld();
+        return;
 	}
-
-
-	if (IsGameOver()) return;
 	
 
-	//if (!foliage->Render(info))
-	//{
-	//	std::cout << "Error rendering foliage: " << foliage->GetRenderError() << "\n";
-	//	Pause();
-	//	EndWorld();
-	//}
+	if (!foliage->Render(info))
+	{
+		std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
+		Pause();
+		EndWorld();
+	}
 }
 
 void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
@@ -353,6 +334,7 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 
 	RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
 	
+    //Set up Post-Process effect if necessary.
 	bool should = ShouldUseFramebuffer();
 	if (should)
 	{
@@ -366,32 +348,19 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 		}
 	}
 	
-	//worldRenderState.EnableState();
+    //Draw the world.
 	ScreenClearer().ClearScreen();
-	if (!PrintRenderError("Error clearing screen of color and depth for render buffer"))
-	{
-		Pause();
-		EndWorld();
-		return;
-	}
 	RenderWorldGeometry(info);
 
+    //Now draw the Post-Processed world render if necessary.
 	if (should)
 	{
-        effect->GetRenderTarget()->DisableDrawingInto(windowSize.x, windowSize.y);
-        if (!effect->GetRenderTarget()->IsValid())
-		{
-			std::cout << "Error setting up render target.\n";
-			Pause();
-			EndWorld();
-			return;
-		}
-	
+        effect->GetRenderTarget()->DisableDrawingInto(windowSize.x, windowSize.y);	
 		ScreenClearer().ClearScreen();
         effect->RenderEffect(info);
         if (effect->HasError())
 		{
-			std::cout << "Error setting up render target.\n";
+			std::cout << "Error rendering post-process effect.\n";
 			Pause();
 			EndWorld();
 			return;
