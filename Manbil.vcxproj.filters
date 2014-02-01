@@ -179,6 +179,9 @@
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp">
       <Filter>Rendering\Post-Processing</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Shapes\ModelGenerator.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -411,6 +414,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h">
       <Filter>Rendering\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Shapes\ModelGenerator.h">
+      <Filter>Math\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

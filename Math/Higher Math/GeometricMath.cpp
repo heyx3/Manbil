@@ -22,11 +22,11 @@ void GeometricMath::CalculateNormals(const Vector3f * vertices, const int * indi
 		ind3 = indices[i + 2];
 
 		//Get two vectors to cross.
-		v1 = (vertices[ind1] - vertices[ind2]).FastNormalized();
-		v2 = (vertices[ind1] - vertices[ind3]).FastNormalized();
+		v1 = (vertices[ind1] - vertices[ind2]).Normalized();
+        v2 = (vertices[ind1] - vertices[ind3]).Normalized();
 
 		//Cross them.
-		crossed = v1.Cross(v2).FastNormalized();
+        crossed = v1.Cross(v2).Normalized();
 		
 		//Add the crossed value into the total for the triangle's vertices.
 		outNormals[ind1] += crossed;
@@ -45,4 +45,22 @@ void GeometricMath::CalculateNormals(const Vector3f * vertices, const int * indi
 	}
 
 	delete [] nNormals;
+}
+
+void GeometricMath::CalculateNormals(const Vector3f * vertices, int nVertices, Vector3f * outNormals)
+{
+    //Go through every group of three triangles and compute the normal.
+    Vector3f cross1, cross2, crossed;
+    for (int i = 0; i + 2 < nVertices; i += 3)
+    {
+        //Get two vectors to cross.
+        cross1 = (vertices[i] - vertices[i + 1]).Normalized();
+        cross2 = (vertices[i] - vertices[i + 2]).Normalized();
+        crossed = cross1.Cross(cross2).Normalized();
+
+        //Set the normals to that value.
+        outNormals[i] = crossed;
+        outNormals[i + 1] = crossed;
+        outNormals[i + 2] = crossed;
+    }
 }
