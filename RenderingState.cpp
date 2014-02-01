@@ -20,6 +20,7 @@ void RenderingState::EnableState(void) const
 	if (UseBlending)
 	{
 		glEnable(GL_BLEND);
+        glBlendFunc(ToEnum(SourceBlend), ToEnum(DestBlend));
 	}
 	else
 	{

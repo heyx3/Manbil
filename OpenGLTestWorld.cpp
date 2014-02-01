@@ -39,7 +39,7 @@ using namespace OGLTestPrints;
 
 const Vector2i windowSize(1000, 700);
 
-const RenderingState worldRenderState(true, true, true);
+const RenderingState worldRenderState;
 
 
 sf::Image img;

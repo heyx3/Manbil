@@ -9,4 +9,6 @@ void TextureSettings::SetData(BufferObjHandle tex) const
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(HorWrap));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
+
+    if (GenerateMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
 }

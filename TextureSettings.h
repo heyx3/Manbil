@@ -22,14 +22,16 @@ public:
 	TextureFiltering MagFilter, MinFilter;
 	TextureWrapping HorWrap, VertWrap;
 
+    bool GenerateMipmaps;
 
-	TextureSettings(TextureFiltering filter = TextureFiltering::TF_NEAREST, TextureWrapping wrap = TextureWrapping::TW_WRAP)
-		: MagFilter(filter), MinFilter(filter), HorWrap(wrap), VertWrap(wrap)
+
+	TextureSettings(TextureFiltering filter = TextureFiltering::TF_NEAREST, TextureWrapping wrap = TextureWrapping::TW_WRAP, bool genMipmaps = true)
+        : MagFilter(filter), MinFilter(filter), HorWrap(wrap), VertWrap(wrap), GenerateMipmaps(genMipmaps)
 	{
 
 	}
-	TextureSettings(TextureFiltering mag, TextureFiltering min, TextureWrapping hor, TextureWrapping vert)
-					: MagFilter(mag), MinFilter(min), HorWrap(hor), VertWrap(vert)
+	TextureSettings(TextureFiltering mag, TextureFiltering min, TextureWrapping hor, TextureWrapping vert, bool genMipmaps = true)
+		: MagFilter(mag), MinFilter(min), HorWrap(hor), VertWrap(vert), GenerateMipmaps(genMipmaps)
 	{
 
 	}
