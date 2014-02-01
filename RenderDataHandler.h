@@ -21,7 +21,7 @@ public:
 	static void ClearErrorMessage(void) { errorMsg[0] = '\0'; }
 
 	//Gets the location of a uniform variable in the given shader program. Returns whether or not it was successful.
-	static bool GetUniformLocation(BufferObjHandle shaderProgram, const Char* name, UniformLocation & out_handle);
+	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle);
 	
 	//An error that can be thrown in "SetUniformValue".
 	static const int EXCEPTION_ELEMENTS_OUT_OF_RANGE;
@@ -33,26 +33,26 @@ public:
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
 	
 	//Creates a texture object for passing to a shader.
-	static void CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img, bool createMipmaps = false);
+	static void CreateTexture2D(RenderObjHandle & texObjectHandle, sf::Image & img, bool createMipmaps = false);
 	//Creates a texture object for passing to a shader.
-	static void CreateTexture2D(BufferObjHandle & texObjectHandle, Vector2i size);
+	static void CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
 	//Creates a depth texture object for passing to a shader.
-	static void CreateDepthTexture2D(BufferObjHandle & texObjectHandle, Vector2i size);
+	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
     //Generates mipmaps for a texture that has already been created.
-    static void GenerateTexture2DMipmaps(BufferObjHandle texture);
+    static void GenerateTexture2DMipmaps(RenderObjHandle texture);
 
 	//Sets the texture data using float4 color.
-	static void SetTexture2DDataFloats(const BufferObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+	static void SetTexture2DDataFloats(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
 	//Sets the texture data using unsigned byte4 color.
-	static void SetTexture2DDataUBytes(const BufferObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+	static void SetTexture2DDataUBytes(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
 	//Sets the texture data using an SFML Image.
-	static void SetTexture2DData(const BufferObjHandle & texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
+	static void SetTexture2DData(const RenderObjHandle & texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
 	//Sets the given depth texture to the given size.
-	static void SetDepthTexture2DSize(const BufferObjHandle & texObjHandle, Vector2i size);
+	static void SetDepthTexture2DSize(const RenderObjHandle & texObjHandle, Vector2i size);
 	//Deletes a texture object.
-	static void DeleteTexture2D(BufferObjHandle & texObjHandle);
+	static void DeleteTexture2D(RenderObjHandle & texObjHandle);
 	//Sets a texture object as the active one.
-	static void BindTexture(TextureTypes type, const BufferObjHandle & bo) { glBindTexture(TextureTypeToGLEnum(type), bo); }
+	static void BindTexture(TextureTypes type, const RenderObjHandle & bo) { glBindTexture(TextureTypeToGLEnum(type), bo); }
 	//Sets a texture unit as active.
 	static void ActivateTextureUnit(int texNumb) { glActiveTexture(GL_TEXTURE0 + texNumb); }
 
@@ -74,8 +74,8 @@ public:
 		//The frame buffer is fine and ready to be used.
 		EVERYTHING_IS_FINE,
 	};
-	static FrameBufferStatus GetFramebufferStatus(const BufferObjHandle & fbo);
-	static const char * GetFrameBufferStatusMessage(const BufferObjHandle & fbo);
+	static FrameBufferStatus GetFramebufferStatus(const RenderObjHandle & fbo);
+	static const char * GetFrameBufferStatusMessage(const RenderObjHandle & fbo);
 
 	//The different uses (and frequencies of use) for buffer objects.
 	enum BufferPurpose
@@ -95,14 +95,14 @@ public:
 
 	template<class VertexClass>
 	//Creates a vertex buffer.
-	static void CreateVertexBuffer(BufferObjHandle & vbo, VertexClass * vertices, int nVertices, BufferPurpose usage)
+	static void CreateVertexBuffer(RenderObjHandle & vbo, VertexClass * vertices, int nVertices, BufferPurpose usage)
 	{
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass) * nVertices, vertices, ToEnum(usage));
 	}
 	//Creates an index buffer.
-	static void CreateIndexBuffer(BufferObjHandle & ibo, unsigned int * indices, int nIndices, BufferPurpose usage)
+	static void CreateIndexBuffer(RenderObjHandle & ibo, unsigned int * indices, int nIndices, BufferPurpose usage)
 	{
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -110,12 +110,12 @@ public:
 	}
 
 	//Sets the given vertex buffer as active.
-	static void BindVertexBuffer(BufferObjHandle vbo = 0) { glBindBuffer(GL_ARRAY_BUFFER, vbo); }
+	static void BindVertexBuffer(RenderObjHandle vbo = 0) { glBindBuffer(GL_ARRAY_BUFFER, vbo); }
 	//Sets the given index buffer as active.
-	static void BindIndexBuffer(BufferObjHandle ibo = 0) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); }
+	static void BindIndexBuffer(RenderObjHandle ibo = 0) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); }
 
 	//Deletes a vertex or index buffer.
-	static void DeleteBuffer(BufferObjHandle bo) { glDeleteBuffers(1, &bo); }
+	static void DeleteBuffer(RenderObjHandle bo) { glDeleteBuffers(1, &bo); }
 
 private:
 	

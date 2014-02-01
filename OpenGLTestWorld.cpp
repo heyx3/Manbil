@@ -43,7 +43,7 @@ const RenderingState worldRenderState;
 
 
 sf::Image img;
-BufferObjHandle imgObj;
+RenderObjHandle imgObj;
 
 const int terrainSize = 300;
 const float terrainBreadth = 2.0f, terrainHeight = 60.0f;
@@ -120,7 +120,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
 
 	sf::Image otherImg;
-	BufferObjHandle otherImgH;
+	RenderObjHandle otherImgH;
 	if (!otherImg.loadFromFile("Brick.png"))
 	{
 		std::cout << "Failed to load brick texture.\n";
@@ -182,7 +182,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 	//Create vertices.
 
-	BufferObjHandle vs, is;
+	RenderObjHandle vs, is;
 	VertexIndexData vid;
 
 	Noise2D noise(terrainSize, terrainSize);
@@ -245,6 +245,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 		poses.insert(poses.end(), vertexPoses[i]);
 	}
 	foliage = new Foliage(poses, 2.0f);
+    foliage
 	foliage->SetFoliageTexture(otherImgH);
 	if (foliage->HasRenderError())
 	{

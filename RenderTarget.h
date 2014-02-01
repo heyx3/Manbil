@@ -22,10 +22,10 @@ public:
 	void ClearErrorMessage(void) { errorMsg.clear(); }
 
 
-    BufferObjHandle GetColorTexture(void) const { return colorTex; }
-    BufferObjHandle GetDepthTexture(void) const { return depthTex; }
+    RenderObjHandle GetColorTexture(void) const { return colorTex; }
+    RenderObjHandle GetDepthTexture(void) const { return depthTex; }
 
-    BufferObjHandle GetFramebuffer(void) const { return frameBuffer; }
+    RenderObjHandle GetFramebuffer(void) const { return frameBuffer; }
 
     Vector2i GetSize(void) const { return Vector2i(width, height); }
 
@@ -47,7 +47,7 @@ private:
 	unsigned int width, height;
 
     bool usesCol, usesDepth;
-	BufferObjHandle frameBuffer, colorTex, depthTex;
+	RenderObjHandle frameBuffer, colorTex, depthTex;
 
 	mutable std::string errorMsg;
 };

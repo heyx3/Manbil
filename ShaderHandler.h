@@ -12,7 +12,7 @@ class ShaderHandler
 {
 public:
 
-	typedef std::vector<BufferObjHandle> ShaderObjectList;
+	typedef std::vector<RenderObjHandle> ShaderObjectList;
 
 
 	//The size of the error message string.
@@ -26,11 +26,11 @@ public:
 
 
 	//Returns whether or not the shader program was created successfully.
-	static bool CreateShaderProgram(BufferObjHandle & out_handle);
+	static bool CreateShaderProgram(RenderObjHandle & out_handle);
 	//Returns whether or not the creation was successful.
-	static bool CreateShader(BufferObjHandle shaderProgram, BufferObjHandle& out_handle, const Char* shaderText, GLenum shaderType);
+	static bool CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, GLenum shaderType);
 	//Returns whether or not the process was successful. "validate" does an extra check of shader validity (useful when debugging).
-	static bool FinalizeShaders(BufferObjHandle shaderProgram, bool validate = true);
+	static bool FinalizeShaders(RenderObjHandle shaderProgram, bool validate = true);
 
 
 	//Deletes the given vector of shader objects. Can be done after finalizing their shader program to save space.
@@ -38,7 +38,7 @@ public:
 
 
 	//Sets the given shader program to be used.
-	static void UseShader(BufferObjHandle shaderProgram) { glUseProgram(shaderProgram); }
+	static void UseShader(RenderObjHandle shaderProgram) { glUseProgram(shaderProgram); }
 
 
 	//Draws vertices using the given primitive type and the given number of vertices. The third optional parameter is the first vertex to draw.

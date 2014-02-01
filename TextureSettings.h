@@ -37,7 +37,7 @@ public:
 	}
 
 
-	void SetData(BufferObjHandle tex) const;
+	void SetData(RenderObjHandle tex) const;
 
 
 private:

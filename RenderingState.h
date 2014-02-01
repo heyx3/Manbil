@@ -3,7 +3,7 @@
 #include "OpenGLIncludes.h"
 
 //Information about OpenGL rendering.
-class RenderingState
+struct RenderingState
 {
 public:
 

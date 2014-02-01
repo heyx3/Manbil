@@ -48,8 +48,8 @@ public:
 	void ClearErrorMessage(void) const { errorMsg.clear(); }
 
 
-	BufferObjHandle GetTexture(unsigned int texValue) { assert(texValue < AvailableSamplers); return textures[texValue]; }
-	void SetTexture(unsigned int tex, BufferObjHandle texObj) { assert(tex < AvailableSamplers); textures[tex] = texObj; }
+	RenderObjHandle GetTexture(unsigned int texValue) { assert(texValue < AvailableSamplers); return textures[texValue]; }
+	void SetTexture(unsigned int tex, RenderObjHandle texObj) { assert(tex < AvailableSamplers); textures[tex] = texObj; }
 
 
 	//Each uniform setter function returns whether or not it succeeded.
@@ -74,17 +74,17 @@ public:
 
 private:
 
-	BufferObjHandle vbo;
+	RenderObjHandle vbo;
 
 	bool CheckError(const char * errorIntro) const;
 
 	mutable std::string errorMsg;
 
-	BufferObjHandle shaderProg;
+	RenderObjHandle shaderProg;
 
 	UniformLocation timeLoc, mPosLoc, resLoc, samplerLocs[AvailableSamplers],
 					camPosLoc, camFLoc, camULoc, camSLoc;
 
 	unsigned int samplerTexUnits[AvailableSamplers];
-	BufferObjHandle textures[AvailableSamplers];
+	RenderObjHandle textures[AvailableSamplers];
 };

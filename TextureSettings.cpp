@@ -1,6 +1,6 @@
 #include "TextureSettings.h"
 
-void TextureSettings::SetData(BufferObjHandle tex) const
+void TextureSettings::SetData(RenderObjHandle tex) const
 {
 	glBindTexture(GL_TEXTURE_2D, tex);
 

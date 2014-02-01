@@ -6,7 +6,7 @@
 #include "SFML/OpenGL.hpp"
 
 
-typedef GLuint BufferObjHandle;
+typedef GLuint RenderObjHandle;
 typedef GLint UniformLocation;
 typedef GLchar Char;
 typedef GLvoid Void;
@@ -46,14 +46,14 @@ public:
 	//Creates a VertexIndexData with invalid data.
 	VertexIndexData(void) : indices(-1), vertices(-1), hVertex(0), hIndex(0), firstVertex(0) { }
 	//Creates a VertexIndexData that doesn't use indices.
-	VertexIndexData(int nVertices, BufferObjHandle vbo, int _firstVertex = 0) : indices(-1), vertices(nVertices), hVertex(vbo), hIndex(0), firstVertex(_firstVertex) { }
+	VertexIndexData(int nVertices, RenderObjHandle vbo, int _firstVertex = 0) : indices(-1), vertices(nVertices), hVertex(vbo), hIndex(0), firstVertex(_firstVertex) { }
 	//Creates a VertexIndexData that uses indices.
-	VertexIndexData(int nVertices, BufferObjHandle vbo, int nIndices, BufferObjHandle ibo) : indices(nIndices), vertices(nVertices), hVertex(vbo), hIndex(ibo), firstVertex(0) { }
+	VertexIndexData(int nVertices, RenderObjHandle vbo, int nIndices, RenderObjHandle ibo) : indices(nIndices), vertices(nVertices), hVertex(vbo), hIndex(ibo), firstVertex(0) { }
 	//Creates a copy of the VertexIndexData with a different starting index.
 	VertexIndexData(const VertexIndexData & copy, int newFirstIndex = 0) : indices(copy.indices), vertices(copy.vertices), hVertex(copy.hVertex), hIndex(copy.hIndex), firstVertex(newFirstIndex) { }
 
-	BufferObjHandle GetVerticesHandle(void) const { return hVertex; }
-	BufferObjHandle GetIndicesHandle(void) const { return hIndex; }
+	RenderObjHandle GetVerticesHandle(void) const { return hVertex; }
+	RenderObjHandle GetIndicesHandle(void) const { return hIndex; }
 
 	int GetIndicesCount(void) const { return indices; }
 	int GetVerticesCount(void) const { return vertices; }
@@ -66,5 +66,5 @@ public:
 private:
 
 	int indices, vertices, firstVertex;
-	BufferObjHandle hVertex, hIndex;
+	RenderObjHandle hVertex, hIndex;
 };

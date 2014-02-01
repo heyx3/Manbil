@@ -13,8 +13,7 @@
 		2) "waveScale" (flaot) -- the amount of waving.
 	Encodes x and y wave scale in the red and green values of the vertices.
 */
-std::unique_ptr<Material> foliageMat = std::unique_ptr<Material>();
-bool materialInitialized = false;
+
 
 std::string InitializeMaterial(void)
 {
@@ -85,8 +84,6 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 }
 
 
-bool Foliage::foliageInitialized = false;
-
 const Material& Foliage::GetFoliageMaterial(void) { return *foliageMat; }
 
 
@@ -109,7 +106,7 @@ void Foliage::EndFoliageRendering(bool disableVertexAttributes)
 	foliageInitialized = false;
 }
 
-void Foliage::SetFoliageTexture(BufferObjHandle texObj)
+void Foliage::SetFoliageTexture(RenderObjHandle texObj)
 {
 	foliageMat->SetTexture(texObj, 0);
 }

@@ -7,38 +7,41 @@
 #include <vector>
 
 
-//Represents a clump of foliage.
-//This class handles all aspects of rendering itself;
-//    just use the static methods to prepare foliage to be drawn.
+//Represents a single clump of foliage.
 class Foliage
 {
 public:
-	
-	static void StartFoliageRendering(bool enableVertexAttributes);
-	static void EndFoliageRendering(bool disableVertexAttributes);
 
-	static void SetFoliageTexture(BufferObjHandle texObj);
+    Material * Mat;
 
-	static const Material& GetFoliageMaterial(void);
+    //Gets the single rendering pass needed to render the foliage.
+    static RenderingPass GetFoliageRenderer(void);
 
 
-	Foliage(std::vector<Vector3f> foliageBasePoses, float foliageScale);
-	Foliage(const Foliage & cpy); //Don't actually implement this function. That way, any attempts to copy this object result in a compile-time error.
+    //If no foliage material is provided, one will be generated.
+	Foliage(std::vector<Vector3f> foliageBasePoses, float foliageScale, Material * foliageMat = 0);
 	~Foliage(void);
 
-	bool HasRenderError(void) const { return !errorMsg.empty(); }
+	Foliage(const Foliage & cpy); //This function intentionally left unimplemented.
 
-	void ClearRenderError(void) { errorMsg.clear(); }
-	std::string GetRenderError(void) const { return errorMsg; }
+
+	bool HasError(void) const { return !errorMsg.empty(); }
+	void ClearError(void) const { errorMsg.clear(); }
+	std::string GetError(void) const { return errorMsg; }
+
+
+    void SetWaveSpeed(float value) { Mat->SetUniformF("waveSpeed", &value, 1); }
+    void SetWaveScale(float value) { Mat->SetUniformF("waveScale", &value, 1); }
+    void SetTexture(RenderObjHandle tex) { Mat->SetTexture(tex, 0); }
+
 
 	bool Render(const RenderInfo & info);
 
+
 private:
 
-	static bool foliageInitialized;
+	mutable std::string errorMsg;
 
-	std::string errorMsg;
-
-	BufferObjHandle vbo, ibo;
+	RenderObjHandle vbo, ibo;
 	int nVertices, nIndices;
 };

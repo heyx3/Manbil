@@ -85,7 +85,7 @@ Material::Material(std::vector<RenderingPass> passes)
     {
         //Record this pass's data.
 
-        BufferObjHandle prog;
+        RenderObjHandle prog;
         ShaderHandler::CreateShaderProgram(prog);
         shaderPrograms.insert(shaderPrograms.end(), prog);
 
@@ -101,7 +101,7 @@ Material::Material(std::vector<RenderingPass> passes)
         mt.VertexShader.insert(mt.VertexShader.begin(), vsHeader.begin(), vsHeader.end());
         mt.FragmentShader.insert(mt.FragmentShader.begin(), psHeader.begin(), psHeader.end());
 
-        BufferObjHandle vS, fS;
+        RenderObjHandle vS, fS;
         if (!ShaderHandler::CreateShader(prog, vS, mt.VertexShader.c_str(), GL_VERTEX_SHADER))
         {
             errorMsg = std::string("Couldn't create vertex shader: ") + ShaderHandler::GetErrorMessage();

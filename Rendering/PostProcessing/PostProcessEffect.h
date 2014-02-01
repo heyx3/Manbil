@@ -46,5 +46,5 @@ private:
     Material material;
     Mesh screenMesh;
     RenderTarget * renderTarget;
-    BufferObjHandle vbo;
+    RenderObjHandle vbo;
 };

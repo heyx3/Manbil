@@ -6,7 +6,7 @@
 char ShaderHandler::errorMsg[ERROR_MESSAGE_SIZE];
 
 
-bool ShaderHandler::CreateShaderProgram(BufferObjHandle & out_handle)
+bool ShaderHandler::CreateShaderProgram(RenderObjHandle & out_handle)
 {
 	out_handle = glCreateProgram();
 
@@ -19,7 +19,7 @@ bool ShaderHandler::CreateShaderProgram(BufferObjHandle & out_handle)
 	return true;
 }
 
-bool ShaderHandler::CreateShader(BufferObjHandle shaderProgram, BufferObjHandle& out_handle, const Char* shaderText, GLenum shaderType)
+bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, GLenum shaderType)
 {
 	out_handle = glCreateShader(shaderType);
 
@@ -52,7 +52,7 @@ bool ShaderHandler::CreateShader(BufferObjHandle shaderProgram, BufferObjHandle&
 	return true;
 }
 
-bool ShaderHandler::FinalizeShaders(BufferObjHandle shaderProgram, bool validate)
+bool ShaderHandler::FinalizeShaders(RenderObjHandle shaderProgram, bool validate)
 {
 	UniformLocation success;
 	char error[ERROR_MESSAGE_SIZE];

@@ -34,13 +34,13 @@ struct RenderingPass
 struct PassSamplers
 {
 public:
-    BufferObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
+    RenderObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
 
-    PassSamplers(BufferObjHandle samplers[MaterialConstants::TWODSAMPLERS]) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = samplers[i]; }
+    PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS]) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = samplers[i]; }
     PassSamplers(void) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = 0; }
 
-    BufferObjHandle & operator[](int index) { return Samplers[index]; }
-    const BufferObjHandle & operator[](int index) const { return Samplers[index]; }
+    RenderObjHandle & operator[](int index) { return Samplers[index]; }
+    const RenderObjHandle & operator[](int index) const { return Samplers[index]; }
 };
 
 
@@ -141,7 +141,7 @@ public:
     }
 
     //Sets the given default texture sampler for all passes.
-    bool SetTexture(BufferObjHandle texture, unsigned int sampler)
+    bool SetTexture(RenderObjHandle texture, unsigned int sampler)
     {
         bool b = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
@@ -149,7 +149,7 @@ public:
         return b;
     }
     //Sets the given default texture sampler for the given rendering pass.
-    bool SetTexture(int pass, BufferObjHandle texture, unsigned int sampler)
+    bool SetTexture(int pass, RenderObjHandle texture, unsigned int sampler)
     {
         assert(pass < GetNumbPasses());
         textureSamplers[pass].Samplers[sampler] = texture;
@@ -193,7 +193,7 @@ private:
     std::vector<PassSamplers> textureSamplers;
     std::vector<RenderingState> renderStates;
     std::vector<std::unordered_map<std::string, UniformLocation>> uniforms;
-    std::vector<BufferObjHandle> shaderPrograms;
+    std::vector<RenderObjHandle> shaderPrograms;
 
 
     mutable std::string errorMsg;

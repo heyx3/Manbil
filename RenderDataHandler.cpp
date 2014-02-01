@@ -6,7 +6,7 @@
 char RenderDataHandler::errorMsg[ERROR_MESSAGE_SIZE];
 const int RenderDataHandler::EXCEPTION_ELEMENTS_OUT_OF_RANGE = 1;
 
-bool RenderDataHandler::GetUniformLocation(BufferObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
+bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
 {
 	out_handle = glGetUniformLocation(shaderProgram, name);
 
@@ -74,7 +74,7 @@ void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 	glUniformMatrix4fv(lc, 1, GL_TRUE, (const GLfloat*)(&mat));
 }
 
-void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img, bool genMipmaps)
+void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle, sf::Image & img, bool genMipmaps)
 {
 	glGenTextures(1, &texObjectHandle);
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
@@ -85,42 +85,42 @@ void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, sf::I
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 }
-void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, Vector2i size)
+void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size)
 {
 	glGenTextures(1, &texObjectHandle);
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 }
-void RenderDataHandler::CreateDepthTexture2D(BufferObjHandle & depthTexObjHandle, Vector2i size)
+void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, Vector2i size)
 {
 	glGenTextures(1, &depthTexObjHandle);
 	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 }
 
-void RenderDataHandler::SetTexture2DDataFloats(const BufferObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
+void RenderDataHandler::SetTexture2DDataFloats(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize.x, texSize.y, 0, GL_RGBA, GL_FLOAT, pixelData);
 }
-void RenderDataHandler::SetTexture2DDataUBytes(const BufferObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
+void RenderDataHandler::SetTexture2DDataUBytes(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texSize.x, texSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, pixelData);
 }
 
-void RenderDataHandler::SetDepthTexture2DSize(const BufferObjHandle & texObjHandle, Vector2i texSize)
+void RenderDataHandler::SetDepthTexture2DSize(const RenderObjHandle & texObjHandle, Vector2i texSize)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texSize.x, texSize.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 }
 
-void RenderDataHandler::DeleteTexture2D(BufferObjHandle & texObjHandle)
+void RenderDataHandler::DeleteTexture2D(RenderObjHandle & texObjHandle)
 {
 	glDeleteTextures(1, &texObjHandle);
 }
 
-RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(const BufferObjHandle & fbo)
+RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(const RenderObjHandle & fbo)
 
 {
 	GLint prevBuffer;
@@ -143,7 +143,7 @@ RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(con
 		default: return FrameBufferStatus::UNKNOWN;
 	}
 }
-const char * RenderDataHandler::GetFrameBufferStatusMessage(const BufferObjHandle & fbo)
+const char * RenderDataHandler::GetFrameBufferStatusMessage(const RenderObjHandle & fbo)
 {
 	GLint prevBuffer;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBuffer);

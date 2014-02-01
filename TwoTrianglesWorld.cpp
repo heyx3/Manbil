@@ -126,7 +126,7 @@ void LoadTTFShader(TwoTrianglesMaterial * & tMat)
 //Texture loading code.
 
 string texPath = "";
-BufferObjHandle texObjLoaded = RenderDataHandler::INVALID_UNIFORM_LOCATION,
+RenderObjHandle texObjLoaded = RenderDataHandler::INVALID_UNIFORM_LOCATION,
 				noiseObjLoaded = RenderDataHandler::INVALID_UNIFORM_LOCATION;
 
 //Continuously asks the user fora texture until a valid one is supplied.
