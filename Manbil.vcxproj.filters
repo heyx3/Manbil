@@ -176,6 +176,9 @@
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp">
       <Filter>Math\Shapes</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -406,6 +409,9 @@
     <ClInclude Include="Math\NoiseGeneration.hpp">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -473,6 +479,9 @@
     </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Post-Processing">
+      <UniqueIdentifier>{d1d8c8fa-48ec-4ad0-bc6f-63d81ae1bb77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

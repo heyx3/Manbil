@@ -8,8 +8,8 @@
 #include "RenderingState.h"
 
 
-RenderTarget::RenderTarget(int w, int h)
-	: width(w), height(h), ColorTextureSlot(0), DepthTextureSlot(1)
+RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool useDepth)
+	: width(w), height(h)
 {
 	ClearAllRenderingErrors();
 
@@ -311,15 +311,15 @@ RenderTarget::~RenderTarget(void)
 
 
 
-void RenderTarget::EnableDrawingInto(void)
+void RenderTarget::EnableDrawingInto(void) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glViewport(0, 0, width, height);
 }
-void RenderTarget::DisableDrawingInto(void)
+void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, w, h);
 }
 
 

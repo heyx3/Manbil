@@ -8,23 +8,23 @@ class RenderTarget
 {
 public:
 
-	unsigned int ColorTextureSlot, DepthTextureSlot;
-
-	RenderTarget(int width, int height);
+    //Takes in the size of the target.
+    RenderTarget(unsigned int width, unsigned int height, bool useColor, bool useDepth);
 	RenderTarget(void); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
 	~RenderTarget(void);
 
 	void operator=(const RenderTarget & other); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
 
-	//Gets the most recent error this render target created, or the empty string if there is no error.
-	const std::string & GetErrorMessage(void) const { return errorMsg; }
-	//Removes the current error message.
-	void RemoveErrorMessage(void) { errorMsg.clear(); }
 
-    bool DoesUseColorTexture(void) const { return usesCol; }
-    bool DoesUseDepthTexture(void) const { return usesDepth; }
+    bool HasError(void) const { return !errorMsg.empty(); }
+	const std::string & GetErrorMessage(void) const { return errorMsg; }
+	void ClearErrorMessage(void) { errorMsg.clear(); }
+
+
     BufferObjHandle GetColorTexture(void) const { return colorTex; }
     BufferObjHandle GetDepthTexture(void) const { return depthTex; }
+
+    Vector2i GetSize(void) const { return Vector2i(width, height); }
 
 	//Resizes this render target.
 	void ChangeSize(int newWidth, int newHeight);
@@ -33,23 +33,18 @@ public:
 	bool IsValid(void) const;
 
 	//Sets up this render target so that any rendering will go into this render target.
-	void EnableDrawingInto(void);
+	void EnableDrawingInto(void) const;
 
 	//Sets up this render target so that any rendering will go into the default frame buffer (a.k.a. the window).
-	void DisableDrawingInto(void);
-
-	//Draws this render target to the current frame buffer.
-	void Draw(void);
+    //Takes in the size of the back buffer to use.
+	void DisableDrawingInto(unsigned int width, unsigned int height) const;
 
 private:
 
 	unsigned int width, height;
 
     bool usesCol, usesDepth;
-	BufferObjHandle shaderProg, vShader, fShader,
-					frameBuffer, colorTex, depthTex,
-					vbo, ibo;
-	UniformLocation colorTexLoc, depthTexLoc;
+	BufferObjHandle frameBuffer, colorTex, depthTex;
 
 	mutable std::string errorMsg;
 };
