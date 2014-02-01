@@ -5,6 +5,7 @@
 
 #include "RenderInfo.h"
 #include "RenderDataHandler.h"
+#include "ShaderHandler.h"
 #include "Vertex.h"
 
 class Mesh;
