@@ -34,7 +34,6 @@ private:
 	void RenderWorldGeometry(const RenderInfo & info);
 
 	Material * testMat;
-    Material2 * testMat2;
 	RenderTarget * rend;
 	Foliage * foliage;
 

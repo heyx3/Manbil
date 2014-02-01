@@ -11,70 +11,12 @@
 class Mesh;
 
 
-
-//Represents a vertex and fragment shader combined.
-//Refer to the document "Shader Definitions" for more info.
-class Material
+//Constants used for the Material system.
+struct MaterialConstants
 {
 public:
-
     //The number of available 2d texture samplers, starting at u_sampler0.
     static const int TWODSAMPLERS = 5;
-
-
-    //The 2d textures used for the sampler objects.
-    BufferObjHandle TextureSamplers[TWODSAMPLERS];
-
-
-    Material(std::string vertexShader, std::string pixelShader);
-    //Creates a copy of the given material.
-    Material(const Material & copy);
-
-    //Releases this material, making it and all its copies invalid.
-    //Using this material after it is deleted results in undefined behavior.
-    void DeleteMaterial(void);
-
-
-    //Error-handling.
-
-    bool HasError(void) const { return !errorMsg.empty(); }
-    std::string GetErrorMessage(void) const { return errorMsg; }
-    void SetErrorMessage(std::string msg = "") { errorMsg = msg; }
-
-
-    BufferObjHandle GetShaderProgram(void) const { return shaderProgram; }
-
-
-
-    //Gets the location of the given vertex or fragment shader uniform for later writing.
-    //Returns whether the uniform actually exists.
-    bool AddUniform(std::string uniformName);
-
-
-    //Uniform setters. Return "false" if the uniform wasn't found, or "true" otherwise.
-
-    bool SetUniformF(std::string uniform, const float * start, int numbFloats);
-    bool SetUniformI(std::string uniform, const int * start, int numbInts);
-    bool SetUniformMat(std::string uniform, const Matrix4f & matrix);
-
-
-    //Draws the given meshes, interpreting them as the given primitive type.
-    bool Render(const RenderInfo & rendInfo, const std::vector<const Mesh*> & meshes);
-
-
-    //Returns this material's shader program index.
-    int GetHashCode(void) const { return shaderProgram; }
-
-
-private:
-
-    mutable std::string errorMsg;
-    //Sets "errorMsg" to either an empty string or the current OpenGL error message, then returns whether there was an error message.
-    bool CheckError(std::string errorStart) { errorMsg = GetCurrentRenderingError(); if (!errorMsg.empty()) errorMsg.insert(errorMsg.begin(), errorStart.begin(), errorStart.end()); return HasError(); }
-
-    std::unordered_map<std::string, UniformLocation> uniforms;
-
-    BufferObjHandle shaderProgram;
 };
 
 
@@ -85,44 +27,43 @@ struct RenderingPass
     RenderingPass(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
 };
 
+
 //Represents all the texture samplers to be used for a rendering pass.
 struct PassSamplers
 {
 public:
-    BufferObjHandle Samplers[Material::TWODSAMPLERS];
+    BufferObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
 
-    PassSamplers(BufferObjHandle samplers[Material::TWODSAMPLERS]) { for (int i = 0; i < Material::TWODSAMPLERS; ++i) Samplers[i] = samplers[i]; }
-    PassSamplers(void) { for (int i = 0; i < Material::TWODSAMPLERS; ++i) Samplers[i] = 0; }
+    PassSamplers(BufferObjHandle samplers[MaterialConstants::TWODSAMPLERS]) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = samplers[i]; }
+    PassSamplers(void) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = 0; }
 
     BufferObjHandle & operator[](int index) { return Samplers[index]; }
     const BufferObjHandle & operator[](int index) const { return Samplers[index]; }
 };
 
 
-
 //TODO: Add u_cam_forward, u_cam_upward, and u_cam_side uniforms.
 
 //Represents a vertex shader and multiple fragment shaders.
 //Refer to the document "Shader Definitions" for more info.
-class Material2
+class Material
 {
 public:
-
-    //The number of available 2d texture samplers, starting at u_sampler0.
-    static const int TWODSAMPLERS = 5;
 
     //The names of the different uniforms.
     //TODO: Define.
     static const std::string WvpMatName, WorldMatName, ViewMatName, ProjMatName,
-                             SamplerNames[TWODSAMPLERS], TimeName;
+        SamplerNames[MaterialConstants::TWODSAMPLERS], TimeName;
 
 
 
     //Creates a new material with the given vertex shaders and fragment shaders.
     //All rendering passes are done in the order they are given here.
-    Material2(std::vector<RenderingPass> passes);
-    Material2(const Material2 & cpy); //Don't implement; materials shouldn't be copied.
-    ~Material2(void);
+    Material(std::vector<RenderingPass> passes);
+    //Creates a material that has only one pass.
+    Material(const RenderingPass & shaders);
+    Material(const Material & cpy); //Don't implement; materials shouldn't be copied.
+    ~Material(void);
 
 
     //Error-handling.

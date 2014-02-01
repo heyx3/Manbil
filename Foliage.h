@@ -18,7 +18,6 @@ public:
 	static void EndFoliageRendering(bool disableVertexAttributes);
 
 	static void SetFoliageTexture(BufferObjHandle texObj);
-	static void SetFoliageTextureUnit(int unit = 0);
 
 	static const Material& GetFoliageMaterial(void);
 

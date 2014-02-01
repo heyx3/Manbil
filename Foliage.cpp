@@ -21,7 +21,7 @@ std::string InitializeMaterial(void)
 	if (materialInitialized) return "";
 	materialInitialized = true;
 
-	foliageMat = std::unique_ptr<Material>(new Material(std::string("uniform float waveSpeed;\n\
+	foliageMat = std::unique_ptr<Material>(new Material(RenderingPass(std::string("uniform float waveSpeed;\n\
 																	 uniform float waveScale;\n\
 																	 \n\
 																	 void main()\n\
@@ -34,7 +34,7 @@ std::string InitializeMaterial(void)
 														std::string("void main()\n\
 																	 {\n\
 																		out_finalCol = vec4(texture2D(u_sampler0, out_tex).xyz, 1.0);\n\
-																	 }")));
+																	 }"))));
 	if (foliageMat->HasError()) return std::string("Error creating material: ") + foliageMat->GetErrorMessage();
 
 
@@ -111,11 +111,7 @@ void Foliage::EndFoliageRendering(bool disableVertexAttributes)
 
 void Foliage::SetFoliageTexture(BufferObjHandle texObj)
 {
-	foliageMat->TextureSamplers[0] = texObj;
-}
-void Foliage::SetFoliageTextureUnit(int unit)
-{
-	foliageMat->SetUniformI("u_sampler0", &unit, 1);
+	foliageMat->SetTexture(texObj, 0);
 }
 
 

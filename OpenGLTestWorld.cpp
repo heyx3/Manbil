@@ -160,43 +160,23 @@ void OpenGLTestWorld::InitializeWorld(void)
 	cam.Window = GetWindow();
 
 
-
-	testMat = new Material(Materials::LitTexture.VertexShader, Materials::LitTexture.FragmentShader);
-	if (testMat->HasError())
-	{
-		std::cout << "Lit Texture material error: " << testMat->GetErrorMessage() << "\n";
-		Pause();
-		EndWorld();
-		return;
-	}
-	testMat->TextureSamplers[0] = imgObj;
-	if (!Materials::LitTexture_GetUniforms(*testMat))
-	{
-		std::cout << "Lit texture directional light uniform get location error.\n";
-	}
-	if (!Materials::LitTexture_SetUniforms(*testMat, dirLight))
-	{
-		std::cout << "Lit texture directional light uniform set error.\n";
-	}
-
-
     std::vector<RenderingPass> mats;
     mats.insert(mats.end(), Materials::LitTexture);
-    testMat2 = new Material2(mats);
-    if (testMat2->HasError())
+    testMat = new Material(mats);
+    if (testMat->HasError())
     {
-        std::cout << "Lit Texture material2 error: " << testMat2->GetErrorMessage() << "\n";
+        std::cout << "Lit Texture material error: " << testMat->GetErrorMessage() << "\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!Materials::LitTexture_GetUniforms(*testMat2))
+    if (!Materials::LitTexture_GetUniforms(*testMat))
     {
-        std::cout << "Lit texture 2 directional light uniform get location error.\n";
+        std::cout << "Lit texture directional light uniform get location error.\n";
     }
-    if (!Materials::LitTexture_SetUniforms(*testMat2, dirLight))
+    if (!Materials::LitTexture_SetUniforms(*testMat, dirLight))
     {
-        std::cout << "Lit texture 2 directional light uniform set error.\n";
+        std::cout << "Lit texture directional light uniform set error.\n";
     }
 
 
@@ -238,6 +218,16 @@ void OpenGLTestWorld::InitializeWorld(void)
 	RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
 	vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
 
+    Vertex * vts = new Vertex[3];
+    vts[0] = Vertex(Vector3f(0, 0, 0), Vector2f(0, 0));
+    vts[1] = Vertex(Vector3f(0, 0, 100), Vector2f(0, 1));
+    vts[2] = Vertex(Vector3f(0, 100, 100), Vector2f(1, 1));
+
+    RenderDataHandler::CreateVertexBuffer(vs, vts, 3, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    VertexIndexData vid2(3, vs);
+
+    delete[] vts;
+
 
 	if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
 	{
@@ -255,7 +245,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 		poses.insert(poses.end(), vertexPoses[i]);
 	}
 	foliage = new Foliage(poses, 2.0f);
-	foliage->SetFoliageTextureUnit(1);
 	foliage->SetFoliageTexture(otherImgH);
 	if (foliage->HasRenderError())
 	{
@@ -294,14 +283,12 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 {
 	DeleteAndSetToNull(rend);
 	DeleteAndSetToNull(testMat);
-    DeleteAndSetToNull(testMat2);
 	DeleteAndSetToNull(foliage);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
 	DeleteAndSetToNull(rend);
 	DeleteAndSetToNull(testMat);
-    DeleteAndSetToNull(testMat2);
 	DeleteAndSetToNull(foliage);
 }
 
@@ -328,9 +315,9 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
 	std::vector<const Mesh *> meshes;
 	meshes.insert(meshes.begin(), &testMesh);
-	if (!testMat2->Render(info, meshes))
+	if (!testMat->Render(info, meshes))
 	{
-		std::cout << "Error rendering world: " << testMat2->GetErrorMessage() << "\n";
+		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
 		Pause();
 		EndWorld();
 	}

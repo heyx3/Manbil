@@ -14,10 +14,12 @@ typedef std::unordered_map<std::string, Matrix4f> MatUniforms;
 //Contains different useful materials.
 struct Materials
 {
-	static const RenderingPass UnlitTexture, LitTexture, BareColor;
+	static const RenderingPass UnlitTexture, LitTexture, BareColor,
+                               NoisePass;
     static void GetDefaultUniforms_BareColor(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats) { }
     static void GetDefaultUniforms_UnlitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats) { float f = 1.0f; floats["brightness"] = Mesh::UniformValue<float>(&f, 1); }
     static void GetDefaultUniforms_LitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats);
+    static void GetDefaultUniforms_NoisePass(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats) { float f = 0.1f; floats["transparency"] = Mesh::UniformValue<float>(&f, 1); }
 
 	//The exact struct that the "LitTexture" material uses.
 	struct LitTexture_DirectionalLight
@@ -31,10 +33,6 @@ struct Materials
     static bool LitTexture_GetUniforms(Material & mat);
     //Sets the direcitonal light data for the given LitTexture material. Returns whether it was successful.
     static bool LitTexture_SetUniforms(Material & mat, const LitTexture_DirectionalLight & lightData);
-    //Gets references to the directional light uniforms for the given LitTexture material2. Returns whether it was successful.
-    static bool LitTexture_GetUniforms(Material2 & mat);
-    //Sets the direcitonal light data for the given LitTexture material2. Returns whether it was successful.
-    static bool LitTexture_SetUniforms(Material2 & mat, const LitTexture_DirectionalLight & lightData);
     //Sets the given mesh's light data to the given value.
     static void LitTexture_SetUniforms(Mesh & mesh, const LitTexture_DirectionalLight & lightData);
 };
