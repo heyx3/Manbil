@@ -3,7 +3,7 @@
 #include "Material.h"
 #include "ShaderHandler.h"
 
-
+//TODO: Use stencil buffers to not draw invisible pixels? That way they won't be written to the depth buffer.
 const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("void main()\n\
 				{\n\
@@ -15,7 +15,8 @@ const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("uniform float brightness;\n\
                 void main()\n\
 				{\n\
-					out_finalCol = vec4(brightness * texture2D(u_sampler0, out_tex).xyz, 1.0);\n\
+                    vec4 col = texture2D(u_sampler0, out_tex);\n\
+					out_finalCol = vec4(brightness * col.xyz, col.w);\n\
 				}"));
 
 

@@ -23,7 +23,7 @@ public:
     //If no foliage material is provided, one will be generated.
     //If this Foliage generates its own Material,
     //    the Material will be destroyed when this Foliage object is deleted.
-	Foliage(std::vector<Vector3f> foliageBasePoses, float foliageScale, Material * foliageMat = 0);
+	Foliage(std::vector<Vector3f> foliageBasePoses, Vector2f foliageScale, Material * foliageMat = 0);
 	~Foliage(void);
 
 	Foliage(const Foliage & cpy); //This function intentionally left unimplemented.
@@ -37,6 +37,7 @@ public:
     void SetWaveSpeed(float value) { Mat->SetUniformF("waveSpeed", &value, 1); }
     void SetWaveScale(float value) { Mat->SetUniformF("waveScale", &value, 1); }
     void SetLeanAwayMaxDist(float value) { Mat->SetUniformF("leanMaxDist", &value, 1); }
+    void SetBrightness(float value) { Mat->SetUniformF("brightness", &value, 1); }
     void SetTexture(RenderObjHandle tex) { Mat->SetTexture(tex, 0); }
 
 

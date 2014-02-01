@@ -121,7 +121,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 	sf::Image otherImg;
 	RenderObjHandle otherImgH;
-	if (!otherImg.loadFromFile("Brick.png"))
+	if (!otherImg.loadFromFile("shrub.png"))
 	{
 		std::cout << "Failed to load brick texture.\n";
 		Pause();
@@ -221,12 +221,12 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 	//Create the foliage before deleting the vertex data.
 	std::vector<Vector3f> poses;
-	for (int i = 0; i < size; i += size/20)
+    FastRand fr;
+	for (int i = terrainSize; i < size; i += 1 + (BasicMath::Abs(fr.GetRandInt()) % 200))
 	{
 		poses.insert(poses.end(), vertexPoses[i]);
-        cam.SetPosition(vertexPoses[i]);
 	}
-	foliage = new Foliage(poses, 10.0f);
+	foliage = new Foliage(poses, Vector2f(10.0f, 4.0f));
 	if (foliage->HasError())
 	{
 		std::cout << "Error creating foliage: " << foliage->GetError();
@@ -237,6 +237,9 @@ void OpenGLTestWorld::InitializeWorld(void)
     foliage->SetTexture(otherImgH);
     foliage->SetWaveSpeed(0.5f);
     foliage->SetWaveScale(2.0f);
+    foliage->SetLeanAwayMaxDist(10.0f);
+    foliage->SetBrightness(0.5f);
+    //Materials::LitTexture_SetUniforms(*foliage->Mat, dirLight);
 	
 	delete[] vertexPoses;
 
