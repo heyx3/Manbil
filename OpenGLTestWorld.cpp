@@ -65,13 +65,19 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 	LayeredOctave lay(3, weights, gens);
 	finalG = &lay;
 
-
+    NoiseFilterer filterer;
+    filterer.FilterFunc = &NoiseFilterer::Increase;
+    filterer.Increase_Amount = 1.0f;
+    CircularFilterRegion circleReg(Vector2f(), 200.0f, 1.0f, 0.2f);
+    filterer.FillRegion = &circleReg;
+    filterer.NoiseToFilter = &lay;
+    finalG = &filterer;
 
 	if (finalG != 0) finalG->Generate(outNoise);
 }
 
 
-bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
+bool ShouldUseFramebuffer(void) { return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
@@ -91,7 +97,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
 	
-    //glEnableClientState(GL_INDEX_ARRAY);
 
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
@@ -148,7 +153,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	Vector3f pos(-100, -100, terrainHeight);
 	cam = MovingCamera(pos, 80.0f, 0.05f, -pos);
 	cam.Info.FOV = ToRadian(55.0f);
-	cam.Info.zFar = 10000.0f;
+	cam.Info.zFar = 1000.0f;
 	cam.Info.zNear = 1.0f;
 	cam.Info.Width = windowSize.x;
 	cam.Info.Height = windowSize.y;
@@ -257,7 +262,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 		EndWorld();
 		return;
 	}
-	rend->TextureSlot = 0;
+	rend->ColorTextureSlot = 0;
+    rend->DepthTextureSlot = 1;
 }
 
 OpenGLTestWorld::~OpenGLTestWorld(void)

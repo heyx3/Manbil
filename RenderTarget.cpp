@@ -1,5 +1,7 @@
 #include "RenderTarget.h"
 
+#include <assert.h>
+
 #include "Vertices.h"
 #include "ShaderHandler.h"
 #include "RenderDataHandler.h"
@@ -7,68 +9,14 @@
 
 
 RenderTarget::RenderTarget(int w, int h)
-	: width(w), height(h), TextureSlot(0)
+	: width(w), height(h), ColorTextureSlot(0), DepthTextureSlot(1)
 {
 	ClearAllRenderingErrors();
 
 
-	#pragma region Create frame buffer
-
-	//Create frame buffer object.
-	glGenFramebuffers(1, &frameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-
-
-	//Create the color texture.
-	glGenTextures(1, &colorTex);
-	glBindTexture(GL_TEXTURE_2D, colorTex);
-
-	//Set some parameters for the texture.
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	//Attach the texture to the frame buffer.
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-
-	//Set up the depth renderbuffer.
-	glGenRenderbuffers(1, &depthBuff);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuff);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuff);
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	RenderDataHandler::FrameBufferStatus stat = RenderDataHandler::GetFramebufferStatus(frameBuffer);
-	if (stat != RenderDataHandler::FrameBufferStatus::EVERYTHING_IS_FINE)
-	{
-		errorMsg = "Framebuffer is not ready!";
-		return;
-	}
-
-	#pragma endregion
-
-
-	std::string errIntro = std::string("Error setting up frame buffer object: ");
-	errorMsg = GetCurrentRenderingError();
-	ClearAllRenderingErrors();
-	if (errorMsg.compare("") != 0)
-	{
-		errorMsg = errIntro + errorMsg;
-		return;
-	}
-
-
 	#pragma region Create shaders
 
-	errIntro = "Error creating render target shaders: ";
+	std::string errIntro = "Error creating render target shaders: ";
 
 	const char * pVS = "#version 330						        \n\
 															        \n\
@@ -87,10 +35,19 @@ RenderTarget::RenderTarget(int w, int h)
 						in vec2 texCoordOut;				        \n\
 						out vec4 outColor;					        \n\
 															        \n\
-						uniform sampler2D frameBufferTex;	        \n\
+						uniform sampler2D fbColorTex;	            \n\
+                        uniform sampler2D fbDepthTex;               \n\
                         vec3 smpl(vec2 uv)                          \n\
                         {                                           \n\
-                            return texture(frameBufferTex, uv).xyz; \n\
+                            return texture(fbColorTex, uv).xyz;     \n\
+                        }                                           \n\
+                        float smplD(vec2 uv)                        \n\
+                        {                                           \n\
+                            return texture(fbDepthTex, uv).x;       \n\
+                        }                                           \n\
+                        float scaleDepth(float d)                   \n\
+                        {                                           \n\
+                            return pow(d, 300.0);                   \n\
                         }                                           \n\
 															        \n\
                         vec3 blur(vec2 uv)                          \n\
@@ -110,7 +67,10 @@ RenderTarget::RenderTarget(int w, int h)
                                                                     \n\
 						void main()							        \n\
 						{									        \n\
-							outColor = vec4(blur(texCoordOut), 1.0);\n\
+                            float depthScl = 1.0 - scaleDepth(smplD(texCoordOut));\n\
+                            vec3 worldColor = blur(texCoordOut);    \n\
+                            vec3 fogColor = worldColor;             \n\
+                            outColor = vec4(mix(fogColor, worldColor, depthScl), 1.0);\n\
 						}";
 
 	if (!ShaderHandler::CreateShaderProgram(shaderProg))
@@ -136,11 +96,8 @@ RenderTarget::RenderTarget(int w, int h)
 		return;
 	}
 
-	if (!RenderDataHandler::GetUniformLocation(shaderProg, "frameBufferTex", colorTexLoc))
-	{
-		errorMsg = std::string("Error getting frame buffer texture uniform: ", RenderDataHandler::GetErrorMessage());
-		return;
-	}
+    usesCol = RenderDataHandler::GetUniformLocation(shaderProg, "fbColorTex", colorTexLoc);
+    usesDepth = RenderDataHandler::GetUniformLocation(shaderProg, "fbDepthTex", depthTexLoc);
 
 	#pragma endregion
 
@@ -148,7 +105,79 @@ RenderTarget::RenderTarget(int w, int h)
 	ClearAllRenderingErrors();
 
 
-	#pragma region Create VBO
+    #pragma region Create frame buffer
+
+    //Create frame buffer object.
+    glGenFramebuffers(1, &frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+    //Set up the color texture.
+    if (usesCol)
+    {
+        glGenTextures(1, &colorTex);
+        glBindTexture(GL_TEXTURE_2D, colorTex);
+
+        //Set some parameters for the texture.
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+        //Attach the texture to the frame buffer.
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    }
+
+    //Set up the depth texture.
+    if (usesDepth)
+    {
+        glGenTextures(1, &depthTex);
+        glBindTexture(GL_TEXTURE_2D, depthTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+    }
+    //Need SOME kind of depth testing so that the world looks OK.
+    //Renderbuffers should be used in place of depth textures if the shader doesn't do anything with depth.
+    else
+    {
+        glGenRenderbuffers(1, &depthTex);
+        glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Check framebuffer status.
+    RenderDataHandler::FrameBufferStatus stat = RenderDataHandler::GetFramebufferStatus(frameBuffer);
+    if (stat != RenderDataHandler::FrameBufferStatus::EVERYTHING_IS_FINE)
+    {
+        errorMsg = "Framebuffer is not ready!";
+        return;
+    }
+
+
+    //Check for any errors with setting up the frame buffer.
+    errIntro = std::string("Error setting up frame buffer object: ");
+    errorMsg = GetCurrentRenderingError();
+    ClearAllRenderingErrors();
+    if (errorMsg.compare("") != 0)
+    {
+        errorMsg = errIntro + errorMsg;
+        return;
+    }
+
+    #pragma endregion
+
+
+	#pragma region Create VBO/IBO
 	
 	VertexPosTex1 vs[4];
 	vs[0] = VertexPosTex1(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f));
@@ -167,9 +196,7 @@ RenderTarget::RenderTarget(int w, int h)
 	RenderDataHandler::CreateVertexBuffer(vbo, vs, 4, RenderDataHandler::UPDATE_ONCE_AND_DRAW);
 	RenderDataHandler::CreateIndexBuffer(ibo, indices, 6, RenderDataHandler::UPDATE_ONCE_AND_DRAW);
 
-	#pragma endregion
-
-
+    //Check for any errors with setting up the vbo/ibo.
 	errIntro = std::string("Error setting up vertex buffer object: ");
 	errorMsg = GetCurrentRenderingError();
 	ClearAllRenderingErrors();
@@ -178,6 +205,9 @@ RenderTarget::RenderTarget(int w, int h)
 		errorMsg = errIntro + errorMsg;
 		return;
 	}
+
+	#pragma endregion
+
 
 	glViewport(0, 0, width, height);
 }
@@ -188,26 +218,52 @@ void RenderTarget::ChangeSize(int newW, int newH)
 	height = newH;
 	
 
-    //Recreate the color texture.
-	glBindTexture(GL_TEXTURE_2D, colorTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newW, newH, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    //Recreate the color texture and set properties.
+    if (usesCol)
+    {
+        glBindTexture(GL_TEXTURE_2D, colorTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newW, newH, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 	
-	//Set properties.
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-    //Recreate the depth renderbuffer.
-    glBindRenderbuffer(GL_RENDERBUFFER, depthBuff);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    //Recreate the depth texture and set properties.
+    if (usesDepth)
+    {
+        glBindTexture(GL_TEXTURE_2D, depthTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+    }
+    else
+    {
+        glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
+    }
+
+
+	//Attach the objects to the frame buffer.
 
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glViewport(0, 0, width, height);
 
-	//Attach the objects to the frame buffer.
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuff);
+    if (usesCol)
+    {
+        glBindTexture(GL_TEXTURE_2D, colorTex);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
+    }
+    if (usesDepth)
+    {
+        glBindTexture(GL_TEXTURE_2D, depthTex);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+    }
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -246,8 +302,11 @@ RenderTarget::~RenderTarget(void)
 	glDeleteFramebuffers(1, &frameBuffer);
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
-	glDeleteTextures(1, &colorTex);
-	glDeleteRenderbuffers(1, &depthBuff);
+	if (usesCol) glDeleteTextures(1, &colorTex);
+
+    //Either "depthTex" holds a depth texture, or it actually holds a depth renderbuffer.
+    if (usesDepth) glDeleteTextures(1, &depthTex);
+    else glDeleteRenderbuffers(1, &depthTex);
 }
 
 
@@ -268,16 +327,25 @@ void RenderTarget::Draw(void)
 {
 	ClearAllRenderingErrors();
 
-	RenderingState(false).EnableState();
+	RenderingState(true).EnableState();
 
 
 	glUseProgram(shaderProg);
-	glUniform1i(colorTexLoc, TextureSlot);
-	glActiveTexture(GL_TEXTURE0 + TextureSlot);
-	glBindTexture(GL_TEXTURE_2D, colorTex);
 
-	errorMsg = GetCurrentRenderingError();
-	if (!errorMsg.empty()) return;
+    //Set up color/depth textures.
+    assert(!usesDepth || !usesCol || ColorTextureSlot != DepthTextureSlot);
+    if (usesCol)
+    {
+	    glUniform1i(colorTexLoc, ColorTextureSlot);
+	    glActiveTexture(GL_TEXTURE0 + ColorTextureSlot);
+	    glBindTexture(GL_TEXTURE_2D, colorTex);
+    }
+    if (usesDepth)
+    {
+        glUniform1i(depthTexLoc, DepthTextureSlot);
+        glActiveTexture(GL_TEXTURE0 + DepthTextureSlot);
+        glBindTexture(GL_TEXTURE_2D, depthTex);
+    }
 
 	RenderDataHandler::BindVertexBuffer(vbo);
 	VertexPosTex1::EnableAttributes();
@@ -287,4 +355,6 @@ void RenderTarget::Draw(void)
 
 
 	errorMsg = GetCurrentRenderingError();
+    if (!errorMsg.empty())
+        errorMsg = std::string("Error rendering render target: ") + errorMsg;
 }

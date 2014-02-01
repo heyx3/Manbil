@@ -8,7 +8,7 @@ class RenderTarget
 {
 public:
 
-	unsigned int TextureSlot;
+	unsigned int ColorTextureSlot, DepthTextureSlot;
 
 	RenderTarget(int width, int height);
 	RenderTarget(void); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
@@ -20,6 +20,11 @@ public:
 	const std::string & GetErrorMessage(void) const { return errorMsg; }
 	//Removes the current error message.
 	void RemoveErrorMessage(void) { errorMsg.clear(); }
+
+    bool DoesUseColorTexture(void) const { return usesCol; }
+    bool DoesUseDepthTexture(void) const { return usesDepth; }
+    BufferObjHandle GetColorTexture(void) const { return colorTex; }
+    BufferObjHandle GetDepthTexture(void) const { return depthTex; }
 
 	//Resizes this render target.
 	void ChangeSize(int newWidth, int newHeight);
@@ -40,11 +45,11 @@ private:
 
 	unsigned int width, height;
 
+    bool usesCol, usesDepth;
 	BufferObjHandle shaderProg, vShader, fShader,
-					frameBuffer, colorTex,
+					frameBuffer, colorTex, depthTex,
 					vbo, ibo;
-	UniformLocation colorTexLoc;
-	GLuint depthBuff;
+	UniformLocation colorTexLoc, depthTexLoc;
 
 	mutable std::string errorMsg;
 };
