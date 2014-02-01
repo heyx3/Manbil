@@ -67,12 +67,14 @@ const RenderingPass Materials::BareColor = RenderingPass(
 					out_finalCol = vec4(out_col.xyz, 1.0);\n\
 				}"));
 
+
+
 const RenderingPass Materials::NoisePass = RenderingPass(
     std::string("void main()\n\
                  {\n\
                     vec4 _pos_ = worldTo4DScreen(in_pos);\n\
                     out_pos = (u_world * vec4(in_pos, 1.0)).xyz;\n\
-                    gl_Position = _pos_;\n\
+                    gl_Position = _pos_ - vec4(0.0, 0.0, 0.001, 0.0);\n\
                  }"),
     std::string("uniform float transparency;\n\
                  \n\
@@ -81,6 +83,17 @@ const RenderingPass Materials::NoisePass = RenderingPass(
                     float noise = fract(sin(dot(out_pos.xy, vec2(1.051, 16512.9865))) * 1.0);\n\
                     out_finalCol = vec4(vec3(noise), 1.0);\n\
                  }"));
+
+const RenderingPass Materials::EmptyPostProcess = RenderingPass(
+    std::string("void main()\n\
+                {\n\
+                    out_tex = in_tex;\n\
+                    gl_Position = vec4(in_pos, 1.0);\n\
+                }"),
+    std::string("void main()\n\
+                {\n\
+                    out_finalCol = vec4(texture(u_sampler0, out_tex).xyz, 1.0);\n\
+                }"));
 
 
 void Materials::GetDefaultUniforms_LitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats)

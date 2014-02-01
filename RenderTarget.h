@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OpenGLIncludes.h"
+#include "Math/Vectors.h"
 #include <string>
 
 //Allows drawing into a texture.
@@ -23,6 +24,8 @@ public:
 
     BufferObjHandle GetColorTexture(void) const { return colorTex; }
     BufferObjHandle GetDepthTexture(void) const { return depthTex; }
+
+    BufferObjHandle GetFramebuffer(void) const { return frameBuffer; }
 
     Vector2i GetSize(void) const { return Vector2i(width, height); }
 

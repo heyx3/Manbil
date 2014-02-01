@@ -15,22 +15,26 @@ public:
 
 
     //Takes in the post-process effects (as individual passes to be applied to a screen quad).
-    PostProcessEffect(std::vector<RenderingPass> passes, RenderTarget target);
+    //The color texture will be in "u_sampler0", and the depth texture will be in "u_sampler1".
+    PostProcessEffect(unsigned int renderWidth, unsigned int renderHeight, std::vector<RenderingPass> passes);
     ~PostProcessEffect(void);
 
 
-    bool HasError(void) const { return !errorMsg.empty() || renderTarget.HasError() || material.HasError(); }
+    bool HasError(void) const { return !errorMsg.empty() || renderTarget->HasError() || material.HasError(); }
     const std::string & GetErrorMessage(void) const;
-    void ClearErrorMessage(void) { errorMsg.clear(); material.SetErrorMessage(""); renderTarget.ClearErrorMessage(); }
-    \
+    void ClearErrorMessage(void) { errorMsg.clear(); material.SetErrorMessage(""); renderTarget->ClearErrorMessage(); }
+    
     bool UsesColorTexture(void) const { return usesCol; }
     bool UsesDepthTexture(void) const { return usesDepth; }
 
-    const RenderTarget & GetRenderTarget(void) const { return renderTarget; }
-    RenderTarget & GetRenderTarget(void) { return renderTarget; }
+    const RenderTarget * GetRenderTarget(void) const { return renderTarget; }
+    RenderTarget * GetRenderTarget(void) { return renderTarget; }
 
     const Material & GetMaterial(void) const { return material; }
     Material & GetMaterial(void) { return material; }
+
+
+    void RenderEffect(const RenderInfo & info, Vector2f screenOffset = Vector2f(), Vector2f screenScale = Vector2f(1.0f, 1.0f));
 
 
 private:
@@ -40,6 +44,7 @@ private:
     bool usesCol, usesDepth;
 
     Material material;
-    RenderTarget renderTarget;
+    Mesh screenMesh;
+    RenderTarget * renderTarget;
     BufferObjHandle vbo;
 };

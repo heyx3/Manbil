@@ -7,6 +7,7 @@
 #include "RenderTarget.h"
 #include "Materials.h"
 #include "Foliage.h"
+#include "Rendering/PostProcessing/PostProcessEffect.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -34,7 +35,7 @@ private:
 	void RenderWorldGeometry(const RenderInfo & info);
 
 	Material * testMat;
-	RenderTarget * rend;
+    PostProcessEffect * effect;
 	Foliage * foliage;
 
 	Mesh testMesh;

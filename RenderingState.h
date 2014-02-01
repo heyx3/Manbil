@@ -5,6 +5,8 @@ class RenderingState
 {
 public:
 
+    //TODO: Add functionality for different kinds of blending, so that multiple render passes will actually be useful.
+
 	enum Cullables
 	{
 		C_FRONT,

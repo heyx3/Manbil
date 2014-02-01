@@ -89,6 +89,20 @@ public:
             exists = TryAddUniform(i, uniform) || exists;
         return exists;
     }
+    //Returns whether or not this material has the location of the given uniform.
+    bool HasUniform(std::string uniform)
+    {
+        bool exists = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+            exists = HasUniform(uniform, i) || exists;
+        return exists;
+    }
+    //Returns whether or not this material has the location of the given uniform for the given pass.
+    bool HasUniform(std::string uniform, unsigned int pass)
+    {
+        assert(pass < GetNumbPasses());
+        return uniforms[pass].find(uniform) != uniforms[pass].end();
+    }
 
     //Returns whether or not the uniform exists in any of the passes.
     bool SetUniformF(std::string uniform, const float * data, int nData)

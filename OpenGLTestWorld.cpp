@@ -265,29 +265,29 @@ void OpenGLTestWorld::InitializeWorld(void)
     testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), dummySamplers);
 
 
-	//Create render target.
+	//Create ppe.
 	ClearAllRenderingErrors();
-	rend = new RenderTarget(windowSize.x, windowSize.y);
-	if (!rend->IsValid())
+    std::vector<RenderingPass> passes;
+    passes.insert(passes.end(), Materials::EmptyPostProcess);
+    effect = new PostProcessEffect(windowSize.x, windowSize.y, passes);
+	if (effect->HasError())
 	{
-		std::cout << "Error creating render target: " << rend->GetErrorMessage() << "\n";
+		std::cout << "Error creating render target: " << effect->GetErrorMessage() << "\n";
 		Pause();
 		EndWorld();
 		return;
 	}
-	rend->ColorTextureSlot = 0;
-    rend->DepthTextureSlot = 1;
 }
 
 OpenGLTestWorld::~OpenGLTestWorld(void)
 {
-	DeleteAndSetToNull(rend);
+	DeleteAndSetToNull(effect);
 	DeleteAndSetToNull(testMat);
 	DeleteAndSetToNull(foliage);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
-	DeleteAndSetToNull(rend);
+	DeleteAndSetToNull(effect);
 	DeleteAndSetToNull(testMat);
 	DeleteAndSetToNull(foliage);
 }
@@ -348,8 +348,8 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 	bool should = ShouldUseFramebuffer();
 	if (should)
 	{
-		rend->EnableDrawingInto();
-		if (!rend->IsValid())
+		effect->GetRenderTarget()->EnableDrawingInto();
+		if (!effect->GetRenderTarget()->IsValid())
 		{
 			std::cout << "Error setting up render target.\n";
 			Pause();
@@ -370,8 +370,8 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 
 	if (should)
 	{
-		rend->DisableDrawingInto();
-		if (!rend->IsValid())
+        effect->GetRenderTarget()->DisableDrawingInto(windowSize.x, windowSize.y);
+        if (!effect->GetRenderTarget()->IsValid())
 		{
 			std::cout << "Error setting up render target.\n";
 			Pause();
@@ -380,8 +380,8 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 		}
 	
 		ScreenClearer().ClearScreen();
-		rend->Draw();
-		if (!rend->IsValid())
+        effect->RenderEffect(info);
+        if (effect->HasError())
 		{
 			std::cout << "Error setting up render target.\n";
 			Pause();
@@ -404,10 +404,10 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 		return;
 	}
 
-	rend->ChangeSize(newW, newH);
-	if (!rend->IsValid())
+    effect->GetRenderTarget()->ChangeSize(newW, newH);
+    if (!effect->GetRenderTarget()->IsValid())
 	{
-		std::cout << "Error changing render target size: " << rend->GetErrorMessage() << "\n";
+        std::cout << "Error changing render target size: " << effect->GetRenderTarget()->GetErrorMessage() << "\n";
 		Pause();
 		EndWorld();
 		return;
