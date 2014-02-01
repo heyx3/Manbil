@@ -153,7 +153,10 @@ public:
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
             tried = TrySetUniformF(i, uniform, data, nData) || tried;
+        }
         return tried;
     }
     //Returns whether or not the uniform exists in any of the passes.
@@ -161,7 +164,10 @@ public:
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
             tried = TrySetUniformI(i, uniform, data, nData) || tried;
+        }
         return tried;
     }
     //Returns whether or not the uniform exists in any of the passes.
@@ -169,7 +175,10 @@ public:
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
             tried = TrySetUniformMat(i, uniform, data) || tried;
+        }
         return tried;
     }
 
@@ -196,7 +205,7 @@ public:
 
 private:
 
-    //Renders the given mesh for the given pass. Assume uniforms are already set (except texture samplers).
+    //Renders the given mesh for the given pass. Assume uniforms and textures are already all set up.
     bool Render(const Mesh * mesh, const RenderInfo & info, unsigned int pass);
 
     bool TryAddUniform(unsigned int programIndex, std::string uniform);

@@ -330,7 +330,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 	meshes.insert(meshes.begin(), &testMesh);
 	if (!testMat2->Render(info, meshes))
 	{
-		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+		std::cout << "Error rendering world: " << testMat2->GetErrorMessage() << "\n";
 		Pause();
 		EndWorld();
 	}
@@ -362,13 +362,13 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 	if (should)
 	{
 		rend->EnableDrawingInto();
-		//if (!rend->IsValid())
-		//{
-		//	std::cout << "Error setting up render target.\n";
-		//	Pause();
-		//	EndWorld();
-		//	return;
-		//}
+		if (!rend->IsValid())
+		{
+			std::cout << "Error setting up render target.\n";
+			Pause();
+			EndWorld();
+			return;
+		}
 	}
 	
 	worldRenderState.EnableState();
@@ -384,13 +384,13 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 	if (should)
 	{
 		rend->DisableDrawingInto();
-		//if (!rend->IsValid())
-		//{
-		//	std::cout << "Error setting up render target.\n";
-		//	Pause();
-		//	EndWorld();
-		//	return;
-		//}
+		if (!rend->IsValid())
+		{
+			std::cout << "Error setting up render target.\n";
+			Pause();
+			EndWorld();
+			return;
+		}
 	
 		ScreenClearer().ClearScreen();
 		rend->Draw();

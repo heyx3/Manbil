@@ -152,18 +152,6 @@ bool Material2::Render(const RenderInfo & info, const std::vector<const Mesh*> &
 {
     ClearAllRenderingErrors();
 
-    //Set some basic uniforms.
-
-    SetUniformMat("u_view", *info.mView);
-    SetUniformMat("u_proj", *info.mProj);
-
-    Vector3f camPos = info.Cam->GetPosition();
-    SetUniformF("u_cam_pos", (float*)(&camPos[0]), 3);
-
-    float seconds = info.World->GetTotalElapsedSeconds();
-    SetUniformF("u_elapsed_seconds", &seconds, 1);
-
-
     //Each mesh will has a different world matrix on top of the global world matrix in the RenderInfo.
     Matrix4f transMat, worldMat, vpMat, wvp;
     vpMat = Matrix4f::Multiply(*info.mProj, *info.mView);
@@ -176,11 +164,26 @@ bool Material2::Render(const RenderInfo & info, const std::vector<const Mesh*> &
         worldMat = Matrix4f::Multiply(worldMat, transMat);
         wvp = Matrix4f::Multiply(vpMat, worldMat);
 
+        //Render each pass for this mesh.
         for (int pass = 0; pass < GetNumbPasses(); ++pass)
         {
-            //Set matrix data.
+            ShaderHandler::UseShader(shaderPrograms[pass]);
+
+
+            //Set basic uniforms.
+
+            TrySetUniformMat(pass, "u_view", *info.mView);
+            TrySetUniformMat(pass, "u_proj", *info.mProj);
+
+            Vector3f camPos = info.Cam->GetPosition();
+            TrySetUniformF(pass, "u_cam_pos", (float*)(&camPos[0]), 3);
+
+            float seconds = info.World->GetTotalElapsedSeconds();
+            TrySetUniformF(pass, "u_elapsed_seconds", &seconds, 1);
+
             TrySetUniformMat(pass, "u_world", worldMat);
             TrySetUniformMat(pass, "u_wvp", wvp);
+
 
             //Set the mesh's special uniforms.
             for (auto iterator = meshes[mesh]->FloatUniformValues.begin(); iterator != meshes[mesh]->FloatUniformValues.end(); ++iterator)
@@ -190,39 +193,8 @@ bool Material2::Render(const RenderInfo & info, const std::vector<const Mesh*> &
             for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
                 TrySetUniformMat(pass, iterator->first, iterator->second);
 
-            if (!Render(meshes[mesh], info, pass))
-                return false;
-        }
-    }
 
-    return true;
-    
-
-
-
-    //TODO: Change to iterating by mesh, THEN by pass, for performance reasons (specifically, setting uniforms). After doing this, this function can just loop through each mesh and call a Render() overload on each individual mesh.
-    ClearAllRenderingErrors();
-
-
-
-    //Pre-compute matrix math.
-
-    Matrix4f vp = Matrix4f::Multiply(*info.mProj, *info.mView);
-    Matrix4f tempMat;
-    //std::vector<Matrix4f> worldTotal, wvp;
-
-
-    //Iterate through each pass.
-    for (unsigned int pass = 0; pass < GetNumbPasses(); ++pass)
-    {
-        //Prepare the shader.
-        ShaderHandler::UseShader(shaderPrograms[pass]);
-
-        //Render each mesh.
-        VertexIndexData dat;
-        for (unsigned int mesh = 0; mesh < meshes.size(); ++mesh)
-        {
-            //Set up samplers.
+            //Enable any textures.
             for (int i = 0; i < TWODSAMPLERS; ++i)
             {
                 UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
@@ -230,144 +202,24 @@ bool Material2::Render(const RenderInfo & info, const std::vector<const Mesh*> &
                 {
                     glUniform1i(found->second, i);
                     RenderDataHandler::ActivateTextureUnit(i);
-                    //RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass]);
+
+                    if (meshes[mesh]->TextureSamplers[pass].Samplers[i] == 0)
+                    {
+                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
+                    }
+                    else
+                    {
+                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass].Samplers[i]);
+                    }
                 }
             }
+
             if (CheckError("Error setting up rendering/textures: ")) return false;
 
-            //Pre-compute matrix data.
-            if (pass == 0)
-            {
-                //World/object transform.
-                meshes[mesh]->Transform.GetWorldTransform(tempMat);
-                //worldTotal.insert(worldTotal.end(), Matrix4f::Multiply(*info.mWorld, tempMat));
-                //WVP transform.
-                //wvp.insert(wvp.end(), Matrix4f::Multiply(vp, worldTotal[mesh]));
-            }
 
-            //Set matrix data.
-            //TrySetUniformMat(pass, "u_world", worldTotal[mesh]);
-            //TrySetUniformMat(pass, "u_wvp", wvp[mesh]);
-
-            //Set the mesh's special uniforms.
-            for (auto iterator = meshes[mesh]->FloatUniformValues.begin(); iterator != meshes[mesh]->FloatUniformValues.end(); ++iterator)
-                TrySetUniformF(pass, iterator->first, iterator->second.Data, iterator->second.NData);
-            for (auto iterator = meshes[mesh]->IntUniformValues.begin(); iterator != meshes[mesh]->IntUniformValues.end(); ++iterator)
-                TrySetUniformI(pass, iterator->first, iterator->second.Data, iterator->second.NData);
-            for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
-                TrySetUniformMat(pass, iterator->first, iterator->second);
-
-            //Render each mesh's vertex/index buffer.
-            for (int j = 0; j < meshes[mesh]->GetNumbVertexIndexData(); ++j)
-            {
-                dat = meshes[mesh]->GetVertexIndexData(j);
-
-                RenderDataHandler::BindVertexBuffer(dat.GetVerticesHandle());
-
-                Vertex::EnableVertexAttributes();
-
-                if (dat.UsesIndices())
-                {
-                    RenderDataHandler::BindIndexBuffer(dat.GetIndicesHandle());
-                    ShaderHandler::DrawIndexedVertices(meshes[mesh]->GetPrimType(), dat.GetIndicesCount());
-                }
-                else
-                {
-                    ShaderHandler::DrawVertices(meshes[mesh]->GetPrimType(), dat.GetVerticesCount(), sizeof(int)* dat.GetFirstVertex());
-                }
-
-                Vertex::DisableVertexAttributes();
-
-                if (CheckError("Error rendering mesh: ")) return false;
-            }
-        }
-    }
-
-    return true;
-}
-bool Material2::Render(unsigned int pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes)
-{
-    assert(pass < GetNumbPasses());
-    ClearAllRenderingErrors();
-
-
-    //Prepare the shader.
-    ShaderHandler::UseShader(shaderPrograms[pass]);
-
-
-    //Set some basic uniforms.
-
-    TrySetUniformMat(pass, "u_view", *info.mView);
-    TrySetUniformMat(pass, "u_proj", *info.mProj);
-
-    Vector3f camPos = info.Cam->GetPosition();
-    TrySetUniformF(pass, "u_cam_pos", (float*)(&camPos[0]), 3);
-
-    float seconds = info.World->GetTotalElapsedSeconds();
-    TrySetUniformF(pass, "u_elapsed_seconds", &seconds, 1);
-
-
-    //Do some matrix math before rendering each mesh.
-
-    Matrix4f vp = Matrix4f::Multiply(*info.mProj, *info.mView),
-        meshTrans, worldTotal, wvp;
-    VertexIndexData dat;
-    for (unsigned int mesh = 0; mesh < meshes.size(); ++mesh)
-    {
-        //Enable any textures.
-        for (int i = 0; i < TWODSAMPLERS; ++i)
-        {
-            UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
-            if (found != uniforms[pass].end())
-            {
-                glUniform1i(found->second, i);
-                RenderDataHandler::ActivateTextureUnit(i);
-                //RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass]);
-            }
-        }
-
-        if (CheckError("Error setting up rendering/textures: ")) return false;
-
-
-        //Combine the mesh's transform with the world transform.
-        meshes[mesh]->Transform.GetWorldTransform(meshTrans);
-        worldTotal = Matrix4f::Multiply(*info.mWorld, meshTrans);
-        TrySetUniformMat(pass, "u_world", worldTotal);
-
-        //Calculate wvp transform.
-        wvp = Matrix4f::Multiply(vp, worldTotal);
-        TrySetUniformMat(pass, "u_wvp", wvp);
-
-        //Set the mesh's special uniforms.
-        for (auto iterator = meshes[mesh]->FloatUniformValues.begin(); iterator != meshes[mesh]->FloatUniformValues.end(); ++iterator)
-            TrySetUniformF(pass, iterator->first, iterator->second.Data, iterator->second.NData);
-        for (auto iterator = meshes[mesh]->IntUniformValues.begin(); iterator != meshes[mesh]->IntUniformValues.end(); ++iterator)
-            TrySetUniformI(pass, iterator->first, iterator->second.Data, iterator->second.NData);
-        for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
-            TrySetUniformMat(pass, iterator->first, iterator->second);
-
-        //Render each mesh's vertex/index buffer.
-        for (int j = 0; j < meshes[mesh]->GetNumbVertexIndexData(); ++j)
-        {
-            dat = meshes[mesh]->GetVertexIndexData(j);
-
-            RenderDataHandler::BindVertexBuffer(dat.GetVerticesHandle());
-
-            Vertex::EnableVertexAttributes();
-
-            if (dat.UsesIndices())
-            {
-                RenderDataHandler::BindIndexBuffer(dat.GetIndicesHandle());
-                ShaderHandler::DrawIndexedVertices(meshes[mesh]->GetPrimType(), dat.GetIndicesCount());
-            }
-            else
-            {
-                ShaderHandler::DrawVertices(meshes[mesh]->GetPrimType(), dat.GetVerticesCount(), sizeof(int)* dat.GetFirstVertex());
-            }
-
-            Vertex::DisableVertexAttributes();
-
-            if (CheckError("Error rendering mesh: ")) return false;
+            //Finally render the mesh.
+            if (!Render(meshes[mesh], info, pass))
+                return false;
         }
     }
 
@@ -375,28 +227,6 @@ bool Material2::Render(unsigned int pass, const RenderInfo & info, const std::ve
 }
 bool Material2::Render(const Mesh * mesh, const RenderInfo & info, unsigned int pass)
 {
-    //Enable any textures.
-    for (int i = 0; i < TWODSAMPLERS; ++i)
-    {
-        UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
-        if (found != uniforms[pass].end())
-        {
-            glUniform1i(found->second, i);
-            RenderDataHandler::ActivateTextureUnit(i);
-
-            if (mesh->TextureSamplers[pass].Samplers[i] == 0)
-            {
-                RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
-            }
-            else
-            {
-                RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, mesh->TextureSamplers[pass].Samplers[i]);
-            }
-        }
-    }
-
-    if (CheckError("Error setting up rendering/textures: ")) return false;
-
     //Render each vertex/index buffer.
     VertexIndexData dat;
     for (int j = 0; j < mesh->GetNumbVertexIndexData(); ++j)
