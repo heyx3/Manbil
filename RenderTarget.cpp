@@ -50,13 +50,11 @@ RenderTarget::RenderTarget(int w, int h)
                             return pow(d, 300.0);                   \n\
                         }                                           \n\
 															        \n\
-                        vec3 blur(vec2 uv)                          \n\
+                        vec3 blur(vec2 uv, float step, int sharpness)\n\
                         {                                           \n\
                             vec3 col = smpl(uv);                    \n\
-                            const int sharpness = 4;                \n\
                             col *= float(sharpness);                \n\
                                                                     \n\
-                            const float step = 0.002;               \n\
                             for (int i = -1; i < 2; ++i)            \n\
                                 for (int j = -1; j < 2; ++j)        \n\
                                     col += smpl(uv + vec2(step * i, \n\
@@ -68,8 +66,8 @@ RenderTarget::RenderTarget(int w, int h)
 						void main()							        \n\
 						{									        \n\
                             float depthScl = 1.0 - scaleDepth(smplD(texCoordOut));\n\
-                            vec3 worldColor = blur(texCoordOut);    \n\
-                            vec3 fogColor = worldColor;             \n\
+                            vec3 worldColor = blur(texCoordOut, 0.008 * (1.0 - depthScl), int(4.0 * depthScl));\n\
+                            vec3 fogColor = worldColor;//vec3(1.0, 1.0, 1.0);             \n\
                             outColor = vec4(mix(fogColor, worldColor, depthScl), 1.0);\n\
 						}";
 
@@ -239,13 +237,11 @@ void RenderTarget::ChangeSize(int newW, int newH)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
     }
     else
     {
         glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
     }
 
 
@@ -263,6 +259,10 @@ void RenderTarget::ChangeSize(int newW, int newH)
     {
         glBindTexture(GL_TEXTURE_2D, depthTex);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+    }
+    else
+    {
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
     }
 
 

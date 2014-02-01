@@ -5,6 +5,17 @@
 
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
+bool Material2::TryAddUniform(int programIndex, std::string uniform)
+{
+    if (uniforms[programIndex].find(uniform) != uniforms[programIndex].end()) return false;
+
+    UniformLocation temp;
+    bool b = RenderDataHandler::GetUniformLocation(shaderPrograms[programIndex], uniform.c_str(), temp);
+
+    uniforms[programIndex][uniform] = temp;
+    return b;
+}
+
 
 Material::Material(std::string vs, std::string ps)
 {

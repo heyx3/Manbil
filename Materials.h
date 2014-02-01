@@ -2,15 +2,7 @@
 
 #include <string>
 #include "Math/Vectors.h"
-
-class Material;
-
-//Represents the combiniation of a vertex shader and a fragment shader.
-struct MaterialShaders
-{
-	std::string VertexShader, FragmentShader;
-	MaterialShaders(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
-};
+#include "Material.h"
 
 
 //Contains different useful materials.
@@ -18,7 +10,7 @@ struct Materials
 {
 	static const MaterialShaders UnlitTexture, LitTexture, BareColor;
 
-	//The exact struct that the "LitTexture" material uses. In the shader it is called "DirectionalLight".
+	//The exact struct that the "LitTexture" material uses.
 	struct LitTexture_DirectionalLight
 	{
 		Vector3f Dir, Col;

@@ -68,7 +68,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
     NoiseFilterer filterer;
     filterer.FilterFunc = &NoiseFilterer::Increase;
     filterer.Increase_Amount = 1.0f;
-    CircularFilterRegion circleReg(Vector2f(), 200.0f, 1.0f, 0.2f);
+    CircularFilterRegion circleReg(Vector2f(), 500.0f, 1.0f, 0.2f);
     filterer.FillRegion = &circleReg;
     filterer.NoiseToFilter = &lay;
     finalG = &filterer;
