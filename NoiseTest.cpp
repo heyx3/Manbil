@@ -47,7 +47,7 @@ void NoiseToPixels(const Noise2D & noise, Fake2DArray<sf::Uint8> & outPixels)
 	{
 		#pragma region Grass
 
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0.36, 0.18f, 0, 1)));
+		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0.36f, 0.18f, 0, 1)));
 		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.3f, Vector4f(0.2f, 0.14f, 0.0f, 1.0f), Vector4f(0.05f, 0.25f, 0.05f, 1)));
 		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(0, 0.8f, 0, 1)));
 

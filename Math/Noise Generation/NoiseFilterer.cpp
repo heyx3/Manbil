@@ -58,8 +58,6 @@ void NF::UpContrast(void) const
 
 	SetAtEveryPoint((void*)smoothStepper, [](void * pDat, Vector2i loc, Noise2D * noise)
 	{
-		float val = (*noise)[loc];
-
 		return ((float (*)(float inF))pDat)((*noise)[loc]);
 	});
 }
