@@ -33,11 +33,13 @@ public:
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
 	
 	//Creates a texture object for passing to a shader.
-	static void CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img);
+	static void CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img, bool createMipmaps = false);
 	//Creates a texture object for passing to a shader.
 	static void CreateTexture2D(BufferObjHandle & texObjectHandle, Vector2i size);
 	//Creates a depth texture object for passing to a shader.
 	static void CreateDepthTexture2D(BufferObjHandle & texObjectHandle, Vector2i size);
+    //Generates mipmaps for a texture that has already been created.
+    static void GenerateTexture2DMipmaps(BufferObjHandle texture);
 
 	//Sets the texture data using float4 color.
 	static void SetTexture2DDataFloats(const BufferObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);

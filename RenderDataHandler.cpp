@@ -74,11 +74,16 @@ void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 	glUniformMatrix4fv(lc, 1, GL_TRUE, (const GLfloat*)(&mat));
 }
 
-void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img)
+void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, sf::Image & img, bool genMipmaps)
 {
 	glGenTextures(1, &texObjectHandle);
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+    if (genMipmaps)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 }
 void RenderDataHandler::CreateTexture2D(BufferObjHandle & texObjectHandle, Vector2i size)
 {

@@ -40,6 +40,6 @@ public:
 
 private:
 
-	static GLint ToGLInt(TextureFiltering tf) { return (tf == TextureFiltering::TF_LINEAR) ? GL_LINEAR : GL_NEAREST; }
+	static GLint ToGLInt(TextureFiltering tf, bool minFilter) { return (tf == TextureFiltering::TF_LINEAR) ? (minFilter ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR) : GL_NEAREST; }
 	static GLint ToGLInt(TextureWrapping twa) { return (twa == TextureWrapping::TW_CLAMP) ? GL_CLAMP_TO_EDGE : GL_REPEAT; }
 };

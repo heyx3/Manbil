@@ -104,7 +104,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 		EndWorld();
 		return;
 	}
-	RenderDataHandler::CreateTexture2D(imgObj, img);
+	RenderDataHandler::CreateTexture2D(imgObj, img, true);
 	
 	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(imgObj);
 	if (!PrintRenderError("Error setting up grass texture"))

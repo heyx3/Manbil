@@ -24,8 +24,8 @@ RenderTarget::RenderTarget(int w, int h)
 	glBindTexture(GL_TEXTURE_2D, colorTex);
 
 	//Set some parameters for the texture.
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
@@ -70,33 +70,47 @@ RenderTarget::RenderTarget(int w, int h)
 
 	errIntro = "Error creating render target shaders: ";
 
-	const char * pVS = "#version 330						   \n\
-															   \n\
-						layout (location = 0) in vec3 position;\n\
-						layout (location = 1) in vec2 texCoord;\n\
-															   \n\
-						out vec2 texCoordOut;				   \n\
-															   \n\
-						void main()							   \n\
-						{									   \n\
-							texCoordOut = texCoord;			   \n\
-							gl_Position = vec4(position, 1.0); \n\
+	const char * pVS = "#version 330						        \n\
+															        \n\
+						layout (location = 0) in vec3 position;     \n\
+						layout (location = 1) in vec2 texCoord;     \n\
+															        \n\
+						out vec2 texCoordOut;				        \n\
+															        \n\
+						void main()							        \n\
+						{									        \n\
+							texCoordOut = texCoord;			        \n\
+							gl_Position = vec4(position, 1.0);      \n\
 						}";
-	const char * pFS = "#version 330						\n\
-															\n\
-						in vec2 texCoordOut;				\n\
-						out vec4 outColor;					\n\
-															\n\
-						uniform sampler2D frameBufferTex;	\n\
-															\n\
-						void main()							\n\
-						{									\n\
-							outColor = vec4(texture(frameBufferTex, texCoordOut).xyz, 1.0);\n\
-                            outColor = vec4(smoothstep(0.0, 1.0, outColor.xyz), 1.0);\n\
-							\n\
-							//DEBUG.\n\
-							//outColor = vec4(texCoordOut.x, texCoordOut.y, 1.0, 1.0);\n\
-							//outColor += 0.001 * vec4(texture(frameBufferTex, texCoordOut).xyz, 1.0);\n\
+	const char * pFS = "#version 330						        \n\
+															        \n\
+						in vec2 texCoordOut;				        \n\
+						out vec4 outColor;					        \n\
+															        \n\
+						uniform sampler2D frameBufferTex;	        \n\
+                        vec3 smpl(vec2 uv)                          \n\
+                        {                                           \n\
+                            return texture(frameBufferTex, uv).xyz; \n\
+                        }                                           \n\
+															        \n\
+                        vec3 blur(vec2 uv)                          \n\
+                        {                                           \n\
+                            vec3 col = smpl(uv);                    \n\
+                            const int sharpness = 4;                \n\
+                            col *= float(sharpness);                \n\
+                                                                    \n\
+                            const float step = 0.002;               \n\
+                            for (int i = -1; i < 2; ++i)            \n\
+                                for (int j = -1; j < 2; ++j)        \n\
+                                    col += smpl(uv + vec2(step * i, \n\
+                                                          step * j));\n\
+                                                                    \n\
+                            return col / float(9 + sharpness);      \n\
+                        }                                           \n\
+                                                                    \n\
+						void main()							        \n\
+						{									        \n\
+							outColor = vec4(blur(texCoordOut), 1.0);\n\
 						}";
 
 	if (!ShaderHandler::CreateShaderProgram(shaderProg))
@@ -174,24 +188,37 @@ void RenderTarget::ChangeSize(int newW, int newH)
 	height = newH;
 	
 
+    //Recreate the color texture.
 	glBindTexture(GL_TEXTURE_2D, colorTex);
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newW, newH, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	
 	//Set properties.
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	
-	//Attach the texture to the frame buffer.
+    //Recreate the depth renderbuffer.
+    glBindRenderbuffer(GL_RENDERBUFFER, depthBuff);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glViewport(0, 0, width, height);
+
+	//Attach the objects to the frame buffer.
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuff);
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
+
+    std::string str = GetCurrentRenderingError();
+    if (!str.empty())
+    {
+        errorMsg = "Error resizing render target: ";
+        errorMsg += str;
+    }
 }
 
 bool RenderTarget::IsValid(void) const
