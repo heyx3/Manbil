@@ -1,6 +1,8 @@
 #include "Materials.h"
 
 #include "Material.h"
+#include "ShaderHandler.h"
+
 
 const MaterialShaders Materials::UnlitTexture = MaterialShaders(
 	std::string("void main()\n\

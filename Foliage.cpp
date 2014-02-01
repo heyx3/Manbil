@@ -1,6 +1,7 @@
 #include "Foliage.h"
 
 #include "RenderDataHandler.h"
+#include "Mesh.h"
 #include <memory>
 #include <assert.h>
 

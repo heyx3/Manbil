@@ -1,11 +1,329 @@
 #include "Material.h"
 
 #include "Vertex.h"
+#include "Mesh.h"
 #include "RenderDataHandler.h"
 
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
-bool Material2::TryAddUniform(int programIndex, std::string uniform)
+#pragma region Shader headers
+
+std::string shaderHeaderPostfix = std::string() +
+                       "uniform mat4 u_wvp;                                                                       \n\
+						uniform mat4 u_world;                                                                     \n\
+						uniform mat4 u_view;                                                                      \n\
+						uniform mat4 u_proj;                                                                      \n\
+						uniform vec3 u_cam_pos;                                                                   \n\
+						uniform float u_elapsed_seconds;                                                          \n\
+						                                                                                          \n\
+						uniform sampler2D u_sampler0;                                                             \n\
+						uniform sampler2D u_sampler1;                                                             \n\
+						uniform sampler2D u_sampler2;                                                             \n\
+						uniform sampler2D u_sampler3;                                                             \n\
+						uniform sampler2D u_sampler4;                                                             \n\
+						                                                                                          \n\
+						                                                                                          \n\
+						vec4 worldTo4DScreen(vec3 world) { return u_wvp * vec4(world, 1.0); }                     \n\
+						vec3 fourDScreenTo3DScreen(vec4 screen4D) { return screen4D.xyz / screen4D.w; }           \n\
+						vec3 worldTo3DScreen(vec3 world) { return fourDScreenTo3DScreen(worldTo4DScreen(world)); }\n\
+                                                                                                                  \n\
+                        float getBrightness(vec3 surfaceNormal, vec3 camToFragNormal, vec3 lightDirNormal,        \n\
+						   				    float ambient, float diffuse, float specular, float specularIntensity)\n\
+						{                                                                                         \n\
+							float dotted = max(dot(-surfaceNormal, lightDirNormal), 0.0);                         \n\
+							                                                                                      \n\
+							vec3 fragToCam = -camToFragNormal;                                                    \n\
+							vec3 lightReflect = normalize(reflect(lightDirNormal, surfaceNormal));                \n\
+							                                                                                      \n\
+							float specFactor = max(0.0, dot(fragToCam, lightReflect));                            \n\
+							specFactor = pow(specFactor, specularIntensity);                                      \n\
+							                                                                                      \n\
+							return ambient + (diffuse * dotted) + (specular * specFactor);                        \n\
+						}                                                                                         \n\
+						\n";
+std::string vsHeader = "#version 330		                     \n\
+						                                         \n\
+						layout (location = 0) in vec3 in_pos;    \n\
+						layout (location = 1) in vec4 in_col;    \n\
+						layout (location = 2) in vec2 in_tex;    \n\
+						layout (location = 3) in vec3 in_normal; \n\
+						                                         \n\
+						out vec3 out_pos;                        \n\
+						out vec4 out_col;                        \n\
+						out vec2 out_tex;                        \n\
+						out vec3 out_normal;                     \n\
+						\n\n" + shaderHeaderPostfix;
+std::string psHeader = std::string() +
+                       "#version 330		   \n\
+						                       \n\
+						in vec3 out_pos;       \n\
+						in vec4 out_col;       \n\
+						in vec2 out_tex;       \n\
+						in vec3 out_normal;    \n\
+                                               \n\
+						out vec4 out_finalCol; \n\
+						\n\n" + shaderHeaderPostfix;
+
+#pragma endregion
+
+
+Material2::Material2(std::vector<MaterialShaders> passes)
+    : errorMsg("")
+{
+    for (int i = 0; i < passes.size(); ++i)
+    {
+        //Create the program.
+
+        BufferObjHandle prog;
+        ShaderHandler::CreateShaderProgram(prog);
+        shaderPrograms.insert(shaderPrograms.end(), prog);
+
+
+        //Compile the shaders.
+
+        MaterialShaders mt = passes[i];
+        mt.VertexShader.append(vsHeader);
+        mt.FragmentShader.append(psHeader);
+
+        BufferObjHandle vS, fS;
+        if (!ShaderHandler::CreateShader(prog, vS, mt.VertexShader.c_str(), GL_VERTEX_SHADER))
+        {
+            errorMsg = std::string("Couldn't create vertex shader: ") + ShaderHandler::GetErrorMessage();
+            return;
+        }
+        if (!ShaderHandler::CreateShader(prog, fS, mt.FragmentShader.c_str(), GL_FRAGMENT_SHADER))
+        {
+            errorMsg = std::string("Couldn't create fragment shader: ") + ShaderHandler::GetErrorMessage();
+            return;
+        }
+
+        glDeleteShader(vS);
+        glDeleteShader(fS);
+
+        if (!ShaderHandler::FinalizeShaders(prog))
+        {
+            errorMsg = std::string("Error finalizing shaders: ") + ShaderHandler::GetErrorMessage();
+            return;
+        }
+
+
+        //Get default uniforms.
+
+        UniformLocation uLoc;
+
+        if (RenderDataHandler::GetUniformLocation(prog, "u_wvp", uLoc))
+            uniforms[i]["u_wvp"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_world", uLoc))
+            uniforms[i]["u_world"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_view", uLoc))
+            uniforms[i]["u_view"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_proj", uLoc))
+            uniforms[i]["u_proj"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_cam_pos", uLoc))
+            uniforms[i]["u_cam_pos"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_elapsed_seconds", uLoc))
+            uniforms[i]["u_elapsed_seconds"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler0", uLoc))
+            uniforms[i]["u_sampler0"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler1", uLoc))
+            uniforms[i]["u_sampler1"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler2", uLoc))
+            uniforms[i]["u_sampler2"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler3", uLoc))
+            uniforms[i]["u_sampler3"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler4", uLoc))
+            uniforms[i]["u_sampler4"] = uLoc;
+    }
+}
+Material2::~Material2(void)
+{
+    for (int i = 0; i < GetNumbPasses(); ++i)
+    {
+        glDeleteProgram(shaderPrograms[i]);
+    }
+}
+
+bool Material2::Render(const RenderInfo & info, const std::vector<Mesh*> meshes)
+{
+    //Set some basic uniforms.
+
+    SetUniformMat("u_view", *info.mView);
+    SetUniformMat("u_proj", *info.mProj);
+
+    Vector3f camPos = info.Cam->GetPosition();
+    SetUniformF("u_cam_pos", (float*)(&camPos[0]), 3);
+
+    float seconds = info.World->GetTotalElapsedSeconds();
+    SetUniformF("u_elapsed_seconds", &seconds, 1);
+
+
+    //Pre-compute matrix math.
+
+    Matrix4f vp = Matrix4f::Multiply(*info.mProj, *info.mView);
+    Matrix4f tempMat;
+    std::vector<Matrix4f> worldTotal, wvp;
+
+
+    //Iterate through each pass.
+    for (unsigned int pass = 0; pass < GetNumbPasses(); ++pass)
+    {
+        //Prepare the shader.
+        ShaderHandler::UseShader(shaderPrograms[pass]);
+
+        //Enable any textures.
+        int texUnit;
+        for (int i = 0; i < TWODSAMPLERS; ++i)
+        {
+            UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
+            if (found != uniforms[pass].end())
+            {
+                glGetUniformiv(shaderPrograms[pass], found->second, &texUnit);
+                RenderDataHandler::ActivateTextureUnit(texUnit);
+                RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass][i]);
+            }
+        }
+        if (CheckError("Error setting up rendering/textures: ")) return false;
+
+        //Render each mesh.
+        VertexIndexData dat;
+        for (unsigned int mesh = 0; mesh < meshes.size(); ++mesh)
+        {
+            //Pre-compute matrix data.
+            if (pass == 0)
+            {
+                //World/object transform.
+                meshes[mesh]->Transform.GetWorldTransform(tempMat);
+                worldTotal.insert(worldTotal.end(), Matrix4f::Multiply(*info.mWorld, tempMat));
+                //WVP transform.
+                wvp.insert(wvp.end(), Matrix4f::Multiply(vp, worldTotal[mesh]));
+            }
+
+            //Set matrix data.
+            TrySetUniformMat(pass, "u_world", worldTotal[mesh]);
+            TrySetUniformMat(pass, "u_wvp", wvp[mesh]);
+
+            //Set the mesh's special uniforms.
+            for (auto iterator = meshes[mesh]->FloatUniformValues.begin(); iterator != meshes[mesh]->FloatUniformValues.end(); ++iterator)
+                TrySetUniformF(pass, iterator->first, iterator->second.Data, iterator->second.NData);
+            for (auto iterator = meshes[mesh]->IntUniformValues.begin(); iterator != meshes[mesh]->IntUniformValues.end(); ++iterator)
+                TrySetUniformI(pass, iterator->first, iterator->second.Data, iterator->second.NData);
+            for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
+                TrySetUniformMat(pass, iterator->first, iterator->second);
+
+            //Render each mesh's vertex/index buffer.
+            for (int j = 0; j < meshes[mesh]->GetNumbVertexIndexData(); ++j)
+            {
+                dat = meshes[mesh]->GetVertexIndexData(j);
+
+                RenderDataHandler::BindVertexBuffer(dat.GetVerticesHandle());
+
+                Vertex::EnableVertexAttributes();
+
+                if (dat.UsesIndices())
+                {
+                    RenderDataHandler::BindIndexBuffer(dat.GetIndicesHandle());
+                    ShaderHandler::DrawIndexedVertices(meshes[mesh]->GetPrimType(), dat.GetIndicesCount());
+                }
+                else
+                {
+                    ShaderHandler::DrawVertices(meshes[mesh]->GetPrimType(), dat.GetVerticesCount(), sizeof(int)* dat.GetFirstVertex());
+                }
+
+                Vertex::DisableVertexAttributes();
+
+                if (CheckError("Error rendering mesh: ")) return false;
+            }
+        }
+    }
+}
+bool Material2::Render(unsigned int pass, const RenderInfo & info, const std::vector<Mesh*> meshes)
+{
+    assert(pass < GetNumbPasses());
+
+
+    //Prepare the shader.
+    ShaderHandler::UseShader(shaderPrograms[pass]);
+
+
+    //Set some basic uniforms.
+
+    TrySetUniformMat(pass, "u_view", *info.mView);
+    TrySetUniformMat(pass, "u_proj", *info.mProj);
+
+    Vector3f camPos = info.Cam->GetPosition();
+    TrySetUniformF(pass, "u_cam_pos", (float*)(&camPos[0]), 3);
+
+    float seconds = info.World->GetTotalElapsedSeconds();
+    TrySetUniformF(pass, "u_elapsed_seconds", &seconds, 1);
+
+
+    //Enable any textures.
+    int texUnit;
+    for (int i = 0; i < TWODSAMPLERS; ++i)
+    {
+        UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
+        if (found != uniforms[pass].end())
+        {
+            glGetUniformiv(shaderPrograms[pass], found->second, &texUnit);
+            RenderDataHandler::ActivateTextureUnit(texUnit);
+            RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass][i]);
+        }
+    }
+
+    if (CheckError("Error setting up rendering/textures: ")) return false;
+
+
+    //Do some matrix math before rendering each mesh.
+
+    Matrix4f vp = Matrix4f::Multiply(*info.mProj, *info.mView),
+        meshTrans, worldTotal, wvp;
+    VertexIndexData dat;
+    for (unsigned int mesh = 0; mesh < meshes.size(); ++mesh)
+    {
+        //Combine the mesh's transform with the world transform.
+        meshes[mesh]->Transform.GetWorldTransform(meshTrans);
+        worldTotal = Matrix4f::Multiply(*info.mWorld, meshTrans);
+        TrySetUniformMat(pass, "u_world", worldTotal);
+
+        //Calculate wvp transform.
+        wvp = Matrix4f::Multiply(vp, worldTotal);
+        TrySetUniformMat(pass, "u_wvp", wvp);
+
+        //Set the mesh's special uniforms.
+        for (auto iterator = meshes[mesh]->FloatUniformValues.begin(); iterator != meshes[mesh]->FloatUniformValues.end(); ++iterator)
+            TrySetUniformF(pass, iterator->first, iterator->second.Data, iterator->second.NData);
+        for (auto iterator = meshes[mesh]->IntUniformValues.begin(); iterator != meshes[mesh]->IntUniformValues.end(); ++iterator)
+            TrySetUniformI(pass, iterator->first, iterator->second.Data, iterator->second.NData);
+        for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
+            TrySetUniformMat(pass, iterator->first, iterator->second);
+
+        //Render each mesh's vertex/index buffer.
+        for (int j = 0; j < meshes[mesh]->GetNumbVertexIndexData(); ++j)
+        {
+            dat = meshes[mesh]->GetVertexIndexData(j);
+
+            RenderDataHandler::BindVertexBuffer(dat.GetVerticesHandle());
+
+            Vertex::EnableVertexAttributes();
+
+            if (dat.UsesIndices())
+            {
+                RenderDataHandler::BindIndexBuffer(dat.GetIndicesHandle());
+                ShaderHandler::DrawIndexedVertices(meshes[mesh]->GetPrimType(), dat.GetIndicesCount());
+            }
+            else
+            {
+                ShaderHandler::DrawVertices(meshes[mesh]->GetPrimType(), dat.GetVerticesCount(), sizeof(int)* dat.GetFirstVertex());
+            }
+
+            Vertex::DisableVertexAttributes();
+
+            if (CheckError("Error rendering mesh: ")) return false;
+        }
+    }
+}
+
+bool Material2::TryAddUniform(unsigned int programIndex, std::string uniform)
 {
     if (uniforms[programIndex].find(uniform) != uniforms[programIndex].end()) return false;
 
@@ -17,6 +335,8 @@ bool Material2::TryAddUniform(int programIndex, std::string uniform)
 }
 
 
+
+
 Material::Material(std::string vs, std::string ps)
 {
 	//Initialize data.
@@ -26,78 +346,6 @@ Material::Material(std::string vs, std::string ps)
 	for (int i = 0; i < TWODSAMPLERS; ++i)
 		TextureSamplers[i] = -1;
 
-
-
-	//Add some declarations before the shaders.
-
-	std::string vsHeader = "#version 330		\n\
-							\n\
-							layout (location = 0) in vec3 in_pos;\n\
-							layout (location = 1) in vec4 in_col;\n\
-							layout (location = 2) in vec2 in_tex;\n\
-							layout (location = 3) in vec3 in_normal;\n\
-							\n\
-							uniform mat4 u_wvp;\n\
-							uniform mat4 u_world;\n\
-							uniform mat4 u_view;\n\
-							uniform mat4 u_proj;\n\
-							uniform vec3 u_cam_pos;\n\
-							uniform float u_elapsed_seconds;\n\
-							\n\
-							uniform sampler2D u_sampler0;\n\
-							uniform sampler2D u_sampler1;\n\
-							uniform sampler2D u_sampler2;\n\
-							uniform sampler2D u_sampler3;\n\
-							uniform sampler2D u_sampler4;\n\
-							\n\
-							out vec3 out_pos;\n\
-							out vec4 out_col;\n\
-							out vec2 out_tex;\n\
-							out vec3 out_normal;\n\
-							\n\
-							vec4 worldTo4DScreen(vec3 world) { return u_wvp * vec4(world, 1.0); }\n\
-							vec3 fourDScreenTo3DScreen(vec4 screen4D) { return screen4D.xyz / screen4D.w; }\n\
-							vec3 worldTo3DScreen(vec3 world) { return fourDScreenTo3DScreen(worldTo4DScreen(world)); }\n\
-							\n";
-	std::string psHeader = "#version 330		\n\
-							\n\
-							in vec3 out_pos;\n\
-							in vec4 out_col;\n\
-							in vec2 out_tex;\n\
-							in vec3 out_normal;\n\
-							\n\
-							uniform mat4 u_wvp;\n\
-							uniform mat4 u_world;\n\
-							uniform mat4 u_view;\n\
-							uniform mat4 u_proj;\n\
-							uniform vec3 u_cam_pos;\n\
-							uniform float u_elapsed_seconds;\n\
-							\n\
-							uniform sampler2D u_sampler0;\n\
-							uniform sampler2D u_sampler1;\n\
-							uniform sampler2D u_sampler2;\n\
-							uniform sampler2D u_sampler3;\n\
-							uniform sampler2D u_sampler4;\n\
-							\n\
-							out vec4 out_finalCol;\n\
-							\n\
-							vec4 worldTo4DScreen(vec3 world) { return u_wvp * vec4(world, 1.0); }\n\
-							vec3 fourDScreenTo3DScreen(vec4 screen4D) { return screen4D.xyz / screen4D.w; }\n\
-							vec3 worldTo3DScreen(vec3 world) { return fourDScreenTo3DScreen(worldTo4DScreen(world)); }\n\
-							float getBrightness(vec3 surfaceNormal, vec3 camToFragNormal, vec3 lightDirNormal,\n\
-												float ambient, float diffuse, float specular, float specularIntensity)	\n\
-							{\n\
-								float dotted = max(dot(-surfaceNormal, lightDirNormal), 0.0);\n\
-								\n\
-								vec3 fragToCam = -camToFragNormal;\n\
-								vec3 lightReflect = normalize(reflect(lightDirNormal, surfaceNormal));\n\
-								\n\
-								float specFactor = max(0.0, dot(fragToCam, lightReflect));\n\
-								specFactor = pow(specFactor, specularIntensity);\n\
-								\n\
-								return ambient + (diffuse * dotted) + (specular * specFactor);\n\
-							}\n\
-							\n";
 
 	vs.insert(vs.begin(), vsHeader.begin(), vsHeader.end());
 	ps.insert(ps.begin(), psHeader.begin(), psHeader.end());

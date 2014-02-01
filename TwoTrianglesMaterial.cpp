@@ -2,6 +2,7 @@
 
 #include "Vertices.h"
 #include "RenderingState.h"
+#include "ShaderHandler.h"
 
 
 typedef TwoTrianglesMaterial TTM;
