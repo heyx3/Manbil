@@ -27,6 +27,46 @@ std::string shaderHeaderPostfix = std::string() +
 						vec3 fourDScreenTo3DScreen(vec4 screen4D) { return screen4D.xyz / screen4D.w; }           \n\
 						vec3 worldTo3DScreen(vec3 world) { return fourDScreenTo3DScreen(worldTo4DScreen(world)); }\n\
                                                                                                                   \n\
+                        vec4 getQuaternionRotation(vec3 rotAxis, float rotation)                                  \n\
+                        {                                                                                         \n\
+                            float sinHalfAngle = sin(rotation * 0.5),                                             \n\
+                                  cosHalfAngle = cos(rotation * 0.5);                                             \n\
+                            return vec4(rotAxis.xyz * sinHalfAngle, cosHalfAngle);                                \n\
+                        }                                                                                         \n\
+                        vec4 multiplyQuaternions(vec4 left, vec4 right)                                           \n\
+                        {                                                                                         \n\
+                            const vec3 constants = vec3(-1.0, 0.0, 1.0);                                          \n\
+                            return vec4(dot(left.xwyz * constants.zzzx, right.wxzy),                              \n\
+                                        dot(left.ywzx * constants.zzzx, right.wyxz),                              \n\
+                                        dot(left.zwxy * constants.zzzx, right.wzyx),                              \n\
+                                        dot(left.wxyz * constants.zxxx, right.wxyz));                             \n\
+                        }                                                                                         \n\
+                        vec4 multiplyQuaternionAndVector(vec4 quat, vec3 vector)                                  \n\
+                        {                                                                                         \n\
+                            return multiplyQuaternions(quat, vec4(vector.xyz, 0.0));                              \n\
+                        }                                                                                         \n\
+                        vec3 applyQuaternionRotation(vec3 vector, vec4 quaternion)                                \n\
+                        {                                                                                         \n\
+                            return vector + (2.0 * cross(cross(vector, quaternion.xyz) +                          \n\
+                                                            (quaternion.w * vector),                              \n\
+                                                         quaternion.xyz);             \n\
+                            vec4 conjugate = vec4(-quaternion.xyz, quaternion.w);                                 \n\
+                            vec4 finalW = multiplyQuaternions(multiplyQuaternionAndVector(quaternion, vector),    \n\
+                                                              conjugate);                                         \n\
+                            return normalize(finalW.xyz);                                                         \n\
+                        }                                                                                         \n\
+                        vec4 slerp(vec4 first, vec4 second, float t)                                              \n\
+                        {                                                                                         \n\
+                            first = normalized(first);                                                            \n\
+                            second = normalized(second);                                                          \n\
+                            float dotted = clamp(dot(first, second), -1.0, 1.0);                                  \n\
+                                                                                                                  \n\
+                            float theta = acos(dotted) * t;                                                       \n\
+                            vec4 finalQ = normalized(first - (second * doted));                                   \n\
+                            return (finalQ * sin(theta)) + (first * cos(theta));                                  \n\
+                        }                                                                                         \n\
+                                                                                                                  \n\
+                                                                                                                  \n\
                         float getBrightness(vec3 surfaceNormal, vec3 camToFragNormal, vec3 lightDirNormal,        \n\
 						   				    float ambient, float diffuse, float specular, float specularIntensity)\n\
 						{                                                                                         \n\
