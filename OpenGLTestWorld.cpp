@@ -47,7 +47,7 @@ RenderObjHandle imgObj;
 
 const int terrainSize = 300;
 const float terrainBreadth = 2.0f, terrainHeight = 60.0f;
-const float terrainTexScale = 0.65f;
+const float terrainTexScale = 50.0f;
 void GenerateTerrainNoise(Noise2D & outNoise)
 {
 	Generator * finalG = 0;
@@ -123,7 +123,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	RenderObjHandle otherImgH;
 	if (!otherImg.loadFromFile("shrub.png"))
 	{
-		std::cout << "Failed to load brick texture.\n";
+		std::cout << "Failed to load shrub texture.\n";
 		Pause();
 		EndWorld();
 		return;
@@ -131,12 +131,13 @@ void OpenGLTestWorld::InitializeWorld(void)
 	RenderDataHandler::CreateTexture2D(otherImgH, otherImg);
 
 	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(otherImgH);
-	if (!PrintRenderError("Error setting up brick texture"))
+	if (!PrintRenderError("Error setting up shrub texture"))
 	{
 		Pause();
 		EndWorld();
 		return;
 	}
+
 
 
 	//Camera.
@@ -169,7 +170,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     {
         std::cout << "Lit texture directional light uniform set error.\n";
     }
-
+    testMat->SetUniformF("u_textureScale", &terrainTexScale, 1);
 
 	//Create vertices.
 
@@ -197,7 +198,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 		vertexPoses[i].z *= terrainHeight;
 	}
 	terr.CreateVertexNormals(vertexNormals, vertexPoses, Vector3f(1.0f, 1.0f, 1.0f), Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
-	terr.CreateVertexTexCoords(vertexTexCoords, Vector2f(terrainTexScale, terrainTexScale), Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
+	terr.CreateVertexTexCoords(vertexTexCoords, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
 	terr.CreateVertexIndices(indices, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
 
 	for (int i = 0; i < size; ++i)

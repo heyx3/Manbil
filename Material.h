@@ -44,7 +44,6 @@ public:
 };
 
 
-//TODO: Add u_cam_forward, u_cam_upward, and u_cam_side uniforms.
 
 //Represents a vertex shader and multiple fragment shaders.
 //Refer to the document "Shader Definitions" for more info.
@@ -52,10 +51,12 @@ class Material
 {
 public:
 
+    //TODO: Add u_cam_forward, u_cam_upward, and u_cam_side uniforms.
+
     //The names of the different uniforms.
     //TODO: Define.
     static const std::string WvpMatName, WorldMatName, ViewMatName, ProjMatName,
-        SamplerNames[MaterialConstants::TWODSAMPLERS], TimeName;
+        TextureScaleName, TimeName, SamplerNames[MaterialConstants::TWODSAMPLERS];
 
 
 

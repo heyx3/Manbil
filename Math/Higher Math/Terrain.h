@@ -54,7 +54,7 @@ public:
 	void CreateVertexPositions(Vector3f * outPositions, Vector2i topLeft, Vector2i bottomRight, int zoomOut = 0) const;
 	void CreateVertexIndices(unsigned int * outIndices, Vector2i topLeft, Vector2i bottomRight, int zoomOut = 0) const;
 	void CreateVertexNormals(Vector3f * outNormals, const Vector3f * const vertexPositions, Vector3f vertexPosScale, Vector2i topLeft, Vector2i bottomRight, int zoomOut = 0) const;
-	void CreateVertexTexCoords(Vector2f * texCoords, Vector2f textureScaling, Vector2i topLeft, Vector2i bottomRight, int zoomOut = 0) const;
+	void CreateVertexTexCoords(Vector2f * texCoords, Vector2i topLeft, Vector2i bottomRight, int zoomOut = 0) const;
 
 private:
 

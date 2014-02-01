@@ -15,7 +15,7 @@ const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("uniform float brightness;\n\
                 void main()\n\
 				{\n\
-                    vec4 col = texture2D(u_sampler0, out_tex);\n\
+                    vec4 col = texture2D(u_sampler0, out_tex * u_textureScale);\n\
 					out_finalCol = vec4(brightness * col.xyz, col.w);\n\
 				}"));
 
@@ -48,7 +48,7 @@ const RenderingPass Materials::LitTexture = RenderingPass(
 													 DirectionalLight.Dir,\n\
 													 DirectionalLight.Ambient, DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
 													 DirectionalLight.SpecularIntensity);\n\
-					vec3 texCol = texture2D(u_sampler0, out_tex).xyz;\n\
+					vec3 texCol = texture2D(u_sampler0, out_tex * u_textureScale).xyz;\n\
 					\n\
 					out_finalCol = vec4(texCol * DirectionalLight.Col * brightness, 1.0);\n\
 				}"));

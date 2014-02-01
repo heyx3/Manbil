@@ -7,7 +7,7 @@
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 #pragma region Shader headers
-//TODO: Rename "worldTo4DScreen" to "objectTo4DScreen". Same with "worldTo3DScreen".
+//TODO: Rename "worldTo4DScreen" to "objectTo4DScreen". Same with "worldTo3DScreen". Also update the readme file for this system and add uniform names in Material.h.
 std::string shaderHeaderPostfix = std::string() +
                        "uniform mat4 u_wvp;                                                                       \n\
 						uniform mat4 u_world;                                                                     \n\
@@ -15,6 +15,7 @@ std::string shaderHeaderPostfix = std::string() +
 						uniform mat4 u_proj;                                                                      \n\
 						uniform vec3 u_cam_pos;                                                                   \n\
 						uniform float u_elapsed_seconds;                                                          \n\
+                        uniform float u_textureScale;                                                             \n\
 						                                                                                          \n\
 						uniform sampler2D u_sampler0;                                                             \n\
 						uniform sampler2D u_sampler1;                                                             \n\
@@ -159,6 +160,7 @@ Material::Material(std::vector<RenderingPass> passes)
         if (!ShaderHandler::FinalizeShaders(prog))
         {
             errorMsg = std::string("Error finalizing shaders: ") + ShaderHandler::GetErrorMessage();
+            ClearAllRenderingErrors();
             return;
         }
 
@@ -191,6 +193,13 @@ Material::Material(std::vector<RenderingPass> passes)
             uniforms[pass]["u_sampler3"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_sampler4", uLoc))
             uniforms[pass]["u_sampler4"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_textureScale", uLoc))
+        {
+            uniforms[pass]["u_textureScale"] = uLoc;
+            ShaderHandler::UseShader(prog);
+            float f = 1.0f;
+            RenderDataHandler::SetUniformValue(uLoc, 1, &f);
+        }
     }
 }
 Material::Material(const RenderingPass & shaders)

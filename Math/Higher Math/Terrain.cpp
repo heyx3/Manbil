@@ -1,5 +1,7 @@
 #include "Terrain.h"
 
+#include <iostream>
+
 #include "GeometricMath.h"
 
 unsigned char Terrain::Exception_Invalid_Area = 1;
@@ -297,7 +299,7 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 		}
 	}
 }
-void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2f textureScaling, Vector2i topLeft, Vector2i bottomRight, int zoomOut) const
+void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2i topLeft, Vector2i bottomRight, int zoomOut) const
 {
 	//TODO: Handle zoomOut parameter.
 
@@ -309,71 +311,11 @@ void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2f textureScalin
 	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
 
 
-	int pX, pY;
-	Vector2i loc;
-	
-	Vector2f texCoord;
-
-	Vector2i roundedScale = Vector2i(BasicMath::RoundToInt(textureScaling.x), BasicMath::RoundToInt(textureScaling.y));
-	Vector2f invScale = Vector2f(1.0f / textureScaling.x, 1.0f / textureScaling.y);
-	float fTemp;
-
-	bool equalX = (textureScaling.x == 1.0f), equalY = (textureScaling.y == 1.0f),
-		 smallerX = (textureScaling.x < 1.0f), smallerY = (textureScaling.y < 1.0f);
-
-	for (pY = topLeft.y; pY <= bottomRight.y; ++pY)
-	{
-		loc.y = pY;
-
-		for (pX = topLeft.x; pX <= bottomRight.x; ++pX)
-		{
-			loc.x = pX;
-
-			if (equalX)
-			{
-				texCoord.x = loc.x % 2;
-			}
-			else if (smallerX)
-			{
-				texCoord.x = (loc.x % 2) * invScale.x;
-			}
-			else
-			{
-				fTemp = loc.x % (roundedScale.x * 2);
-
-				if (fTemp <= roundedScale.x)
-				{
-					texCoord.x = fTemp * invScale.x;
-				}
-				else
-				{
-					texCoord.x = (roundedScale.x - (fTemp - roundedScale.x)) * invScale.x;
-				}
-			}
-
-			if (equalY)
-			{
-				texCoord.y = loc.y % 2;
-			}
-			else if (smallerY)
-			{
-				texCoord.y = (loc.y % 2) * invScale.y;
-			}
-			else
-			{
-				fTemp = loc.y % (roundedScale.y * 2);
-
-				if (fTemp <= roundedScale.y)
-				{
-					texCoord.y = fTemp * invScale.y;
-				}
-				else
-				{
-					texCoord.y = (roundedScale.y - (fTemp - roundedScale.y)) * invScale.y;
-				}
-			}
-
-			texCoords[GetIndex(loc, topLeft)] = texCoord;
-		}
-	}
+    float increment = 1.0f / GetSize();
+    for (int x = topLeft.x; x <= bottomRight.x; ++x)
+        for (int y = topLeft.y; y <= bottomRight.y; ++y)
+        {
+            texCoords[GetIndex(Vector2i(x, y), topLeft)] = Vector2f(increment * x, increment * y);
+            
+        }
 }
