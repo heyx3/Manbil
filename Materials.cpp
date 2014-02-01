@@ -12,9 +12,10 @@ const MaterialShaders Materials::UnlitTexture = MaterialShaders(
 				}"),
 
 
-	std::string("void main()\n\
+	std::string("uniform float brightness;\n\
+                void main()\n\
 				{\n\
-					out_finalCol = vec4(texture2D(u_sampler0, out_tex).xyz, 1.0);\n\
+					out_finalCol = vec4(brightness * texture2D(u_sampler0, out_tex).xyz, 1.0);\n\
 				}"));
 
 
@@ -65,6 +66,24 @@ const MaterialShaders Materials::BareColor = MaterialShaders(
 				{\n\
 					out_finalCol = vec4(out_col.xyz, 1.0);\n\
 				}"));
+
+
+void Materials::GetDefaultUniforms_LitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats)
+{
+    Vector3f tempV3(1.0f, 0.0f, 0.0f);
+
+    floats["DirectionalLight.Dir"] = Mesh::UniformValue<float>(&tempV3[0], 3);
+
+    tempV3 = Vector3f(1, 1, 1);
+    floats["DirectionalLight.Col"] = Mesh::UniformValue<float>(&tempV3[0], 3);
+
+    float zero = 0.0f, one = 1.0f, tenth = 0.1f;
+    float thirtyTwo = 32.0f;
+    floats["DirectionalLight.Ambient"] = Mesh::UniformValue<float>(&tenth, 1);
+    floats["DirectionalLight.Diffuse"] = Mesh::UniformValue<float>(&one, 1);
+    floats["DirectionalLight.Specular"] = Mesh::UniformValue<float>(&one, 1);
+    floats["DirectionalLight.SpecularIntensity"] = Mesh::UniformValue<float>(&thirtyTwo, 1);
+}
 
 bool Materials::LitTexture_GetUniforms(Material & mat)
 {

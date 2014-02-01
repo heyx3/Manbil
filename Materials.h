@@ -3,12 +3,21 @@
 #include <string>
 #include "Math/Vectors.h"
 #include "Material.h"
+#include "Mesh.h"
+
+
+typedef std::unordered_map<std::string, Mesh::UniformValue<float>> FloatUniforms;
+typedef std::unordered_map<std::string, Mesh::UniformValue<int>> IntUniforms;
+typedef std::unordered_map<std::string, Matrix4f> MatUniforms;
 
 
 //Contains different useful materials.
 struct Materials
 {
 	static const MaterialShaders UnlitTexture, LitTexture, BareColor;
+    static void GetDefaultUniforms_BareColor(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats) { }
+    static void GetDefaultUniforms_UnlitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats) { float f = 1.0f; floats["brightness"] = Mesh::UniformValue<float>(&f, 1); }
+    static void GetDefaultUniforms_LitTexture(FloatUniforms & floats, IntUniforms & ints, MatUniforms & mats);
 
 	//The exact struct that the "LitTexture" material uses.
 	struct LitTexture_DirectionalLight
