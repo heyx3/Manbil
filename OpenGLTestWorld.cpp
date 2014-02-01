@@ -77,7 +77,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-bool ShouldUseFramebuffer(void) { return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
+bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
@@ -180,6 +180,26 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
 
 
+    std::vector<MaterialShaders> mats;
+    mats.insert(mats.end(), Materials::LitTexture);
+    testMat2 = new Material2(mats);
+    if (testMat2->HasError())
+    {
+        std::cout << "Lit Texture material2 error: " << testMat2->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!Materials::LitTexture_GetUniforms(*testMat2))
+    {
+        std::cout << "Lit texture 2 directional light uniform get location error.\n";
+    }
+    if (!Materials::LitTexture_SetUniforms(*testMat2, dirLight))
+    {
+        std::cout << "Lit texture 2 directional light uniform set error.\n";
+    }
+
+
 	//Create vertices.
 
 	BufferObjHandle vs, is;
@@ -250,6 +270,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 	//Create mesh.
 	testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
+    Materials::LitTexture_SetUniforms(testMesh, dirLight);
 
 
 	//Create render target.
@@ -270,12 +291,14 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 {
 	DeleteAndSetToNull(rend);
 	DeleteAndSetToNull(testMat);
+    DeleteAndSetToNull(testMat2);
 	DeleteAndSetToNull(foliage);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
 	DeleteAndSetToNull(rend);
 	DeleteAndSetToNull(testMat);
+    DeleteAndSetToNull(testMat2);
 	DeleteAndSetToNull(foliage);
 }
 
@@ -302,7 +325,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
 	std::vector<const Mesh *> meshes;
 	meshes.insert(meshes.begin(), &testMesh);
-	if (!testMat->Render(info, meshes))
+	if (!testMat2->Render(info, meshes))
 	{
 		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
 		Pause();

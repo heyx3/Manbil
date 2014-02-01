@@ -3,9 +3,6 @@
 Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
     : primType(pType), nVIData(numbVIData)
 {
-    for (int i = 0; i < Material::TWODSAMPLERS; ++i)
-        TextureSamplers[i] = 0;
-
     if (viDataArray == 0)
     {
         viData = 0;
@@ -21,8 +18,14 @@ Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
 Mesh::Mesh(const Mesh & cpy)
     : primType(cpy.primType), nVIData(cpy.nVIData)
 {
-    for (int i = 0; i < Material::TWODSAMPLERS; ++i)
-        TextureSamplers[i] = cpy.TextureSamplers[i];
+    for (int pass = 0; pass < cpy.TextureSamplers.size(); ++pass)
+    {
+        BufferObjHandle copies[Material::TWODSAMPLERS];
+        for (int s = 0; s < Material::TWODSAMPLERS; ++s)
+            copies[s] = cpy.TextureSamplers[pass][s];
+
+        TextureSamplers.insert(TextureSamplers.end(), copies);
+    }
 
     FloatUniformValues = cpy.FloatUniformValues;
     IntUniformValues = cpy.IntUniformValues;
@@ -56,8 +59,14 @@ void Mesh::operator=(const Mesh & other)
     primType = other.primType;
     SetVertexIndexData(other.viData, other.nVIData);
 
-    for (int i = 0; i < Material::TWODSAMPLERS; ++i)
-        TextureSamplers[i] = other.TextureSamplers[i];
+    for (int pass = 0; pass < other.TextureSamplers.size(); ++pass)
+    {
+        BufferObjHandle copies[Material::TWODSAMPLERS];
+        for (int s = 0; s < Material::TWODSAMPLERS; ++s)
+            copies[s] = other.TextureSamplers[pass][s];
+
+        TextureSamplers.insert(TextureSamplers.end(), copies);
+    }
 
     FloatUniformValues = other.FloatUniformValues;
     IntUniformValues = other.IntUniformValues;

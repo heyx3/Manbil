@@ -87,21 +87,48 @@ void Materials::GetDefaultUniforms_LitTexture(FloatUniforms & floats, IntUniform
 
 bool Materials::LitTexture_GetUniforms(Material & mat)
 {
-	return  mat.AddUniform("DirectionalLight.Dir") &&
-			mat.AddUniform("DirectionalLight.Col") &&
-			mat.AddUniform("DirectionalLight.Ambient") &&
-			mat.AddUniform("DirectionalLight.Diffuse") &&
-			mat.AddUniform("DirectionalLight.Specular") &&
-			mat.AddUniform("DirectionalLight.SpecularIntensity");
+    return mat.AddUniform("DirectionalLight.Dir") &&
+           mat.AddUniform("DirectionalLight.Col") &&
+           mat.AddUniform("DirectionalLight.Ambient") &&
+           mat.AddUniform("DirectionalLight.Diffuse") &&
+           mat.AddUniform("DirectionalLight.Specular") &&
+           mat.AddUniform("DirectionalLight.SpecularIntensity");
 }
 bool Materials::LitTexture_SetUniforms(Material & mat, const LitTexture_DirectionalLight & lightDat)
 {
-	ShaderHandler::UseShader(mat.GetShaderProgram());
+    ShaderHandler::UseShader(mat.GetShaderProgram());
 
-	return  mat.SetUniformF("DirectionalLight.Dir", &(lightDat.Dir[0]), 3) &&
-			mat.SetUniformF("DirectionalLight.Col", &(lightDat.Col[0]), 3) &&
-			mat.SetUniformF("DirectionalLight.Ambient", &lightDat.Ambient, 1) &&
-			mat.SetUniformF("DirectionalLight.Diffuse", &lightDat.Diffuse, 1) &&
-			mat.SetUniformF("DirectionalLight.Specular", &lightDat.Specular, 1) &&
-			mat.SetUniformF("DirectionalLight.SpecularIntensity", &lightDat.SpecularIntensity, 1);
+    return mat.SetUniformF("DirectionalLight.Dir", &(lightDat.Dir[0]), 3) &&
+           mat.SetUniformF("DirectionalLight.Col", &(lightDat.Col[0]), 3) &&
+           mat.SetUniformF("DirectionalLight.Ambient", &lightDat.Ambient, 1) &&
+           mat.SetUniformF("DirectionalLight.Diffuse", &lightDat.Diffuse, 1) &&
+           mat.SetUniformF("DirectionalLight.Specular", &lightDat.Specular, 1) &&
+           mat.SetUniformF("DirectionalLight.SpecularIntensity", &lightDat.SpecularIntensity, 1);
+}
+bool Materials::LitTexture_GetUniforms(Material2 & mat)
+{
+    return mat.AddUniform("DirectionalLight.Dir") &&
+           mat.AddUniform("DirectionalLight.Col") &&
+           mat.AddUniform("DirectionalLight.Ambient") &&
+           mat.AddUniform("DirectionalLight.Diffuse") &&
+           mat.AddUniform("DirectionalLight.Specular") &&
+           mat.AddUniform("DirectionalLight.SpecularIntensity");
+}
+bool Materials::LitTexture_SetUniforms(Material2 & mat, const LitTexture_DirectionalLight & lightDat)
+{
+    return mat.SetUniformF("DirectionalLight.Dir", &(lightDat.Dir[0]), 3) &&
+           mat.SetUniformF("DirectionalLight.Col", &(lightDat.Col[0]), 3) &&
+           mat.SetUniformF("DirectionalLight.Ambient", &lightDat.Ambient, 1) &&
+           mat.SetUniformF("DirectionalLight.Diffuse", &lightDat.Diffuse, 1) &&
+           mat.SetUniformF("DirectionalLight.Specular", &lightDat.Specular, 1) &&
+           mat.SetUniformF("DirectionalLight.SpecularIntensity", &lightDat.SpecularIntensity, 1);
+}
+void Materials::LitTexture_SetUniforms(Mesh & mesh, const LitTexture_DirectionalLight & lightData)
+{
+    mesh.FloatUniformValues["DirectionalLight.Dir"] = Mesh::UniformValue<float>(&lightData.Dir[0], 3);
+    mesh.FloatUniformValues["DirectionalLight.Col"] = Mesh::UniformValue<float>(&lightData.Col[0], 3);
+    mesh.FloatUniformValues["DirectionalLight.Ambient"] = Mesh::UniformValue<float>(&lightData.Ambient, 1);
+    mesh.FloatUniformValues["DirectionalLight.Diffuse"] = Mesh::UniformValue<float>(&lightData.Diffuse, 1);
+    mesh.FloatUniformValues["DirectionalLight.Specular"] = Mesh::UniformValue<float>(&lightData.Specular, 1);
+    mesh.FloatUniformValues["DirectionalLight.SpecularIntensity"] = Mesh::UniformValue<float>(&lightData.SpecularIntensity, 1);
 }

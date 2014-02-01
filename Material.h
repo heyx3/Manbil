@@ -29,7 +29,9 @@ public:
     static const int TWODSAMPLERS = 5;
 
     //The names of the different uniforms.
-    static const std::string WvpMatName, WMatName, VMatName, PMatName, SamplerNames[TWODSAMPLERS], TimeName;
+    //TODO: Define.
+    static const std::string WvpMatName, WorldMatName, ViewMatName, ProjMatName,
+                             SamplerNames[TWODSAMPLERS], TimeName;
 
 
 
@@ -65,7 +67,7 @@ public:
     }
 
     //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformF(std::string uniform, float * data, int nData)
+    bool SetUniformF(std::string uniform, const float * data, int nData)
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
@@ -73,7 +75,7 @@ public:
         return tried;
     }
     //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformI(std::string uniform, int * data, int nData)
+    bool SetUniformI(std::string uniform, const int * data, int nData)
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
@@ -106,21 +108,24 @@ public:
     }
 
     //Renders all passes. Returns whether all passes were successful.
-    bool Render(const RenderInfo & info, const std::vector<Mesh*> meshes);
+    bool Render(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
     //Returns whether the render was successful.
-    bool Render(unsigned int pass, const RenderInfo & info, const std::vector<Mesh*> meshes);
+    bool Render(unsigned int pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
 
 private:
 
+    //Renders the given mesh for the given pass. Assume uniforms are already set (except texture samplers).
+    bool Render(const Mesh * mesh, const RenderInfo & info, unsigned int pass);
+
     bool TryAddUniform(unsigned int programIndex, std::string uniform);
 
-    bool TrySetUniformF(unsigned int programIndex, std::string uniform, float * data, int nData)
+    bool TrySetUniformF(unsigned int programIndex, std::string uniform, const float * data, int nData)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
         RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);
         return true;
     }
-    bool TrySetUniformI(unsigned int programIndex, std::string uniform, int * data, int nData)
+    bool TrySetUniformI(unsigned int programIndex, std::string uniform, const int * data, int nData)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
         RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);

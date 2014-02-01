@@ -17,11 +17,11 @@ public:
     public:
         DataType Data[4]; //Uniforms are a max of 4 components long.
         unsigned int NData;
-        UniformValue(DataType data[4], unsigned int nData) : NData(nData) { for (int i = 0; i < 4; ++i) Data[i] = data[i]; }
+        UniformValue(const DataType data[4], unsigned int nData) : NData(nData) { for (int i = 0; i < 4; ++i) Data[i] = data[i]; }
         UniformValue(void) : NData(0) { }
     };
 
-    BufferObjHandle TextureSamplers[Material::TWODSAMPLERS];
+    std::vector<BufferObjHandle[Material::TWODSAMPLERS]> TextureSamplers;
     std::unordered_map<std::string, UniformValue<float>> FloatUniformValues;
     std::unordered_map<std::string, UniformValue<int>> IntUniformValues;
     std::unordered_map<std::string, Matrix4f> MatUniformValues;
