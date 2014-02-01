@@ -50,6 +50,12 @@ public:
 	{
 
 	}
+    RenderingState(const RenderingState & cpy)
+        : UseDepthTesting(cpy.UseDepthTesting), UseBlending(cpy.UseBlending), UseTextures(cpy.UseTextures),
+        ToCull(cpy.ToCull), SourceBlend(cpy.SourceBlend), DestBlend(cpy.DestBlend)
+    {
+
+    }
 
 
 	//Sets the rendering API to use this state.

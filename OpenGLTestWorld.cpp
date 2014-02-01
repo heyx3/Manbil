@@ -280,7 +280,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
     effect->GetMaterial().AddUniform("transparency");
     effect->GetMaterial().AddUniform("isScreenSpace");
-    float transparency = 0.5f;
+    float transparency = 0.3f;
     effect->GetMaterial().SetUniformF("transparency", &transparency, 1);
     int isScreenSpace = 1;
     effect->GetMaterial().SetUniformI("isScreenSpace", &isScreenSpace, 1);
@@ -365,7 +365,7 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 		}
 	}
 	
-	worldRenderState.EnableState();
+	//worldRenderState.EnableState();
 	ScreenClearer().ClearScreen();
 	if (!PrintRenderError("Error clearing screen of color and depth for render buffer"))
 	{

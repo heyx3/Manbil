@@ -83,7 +83,7 @@ Material::Material(std::vector<RenderingPass> passes)
 {
     for (int pass = 0; pass < passes.size(); ++pass)
     {
-        //Create the program.
+        //Record this pass's data.
 
         BufferObjHandle prog;
         ShaderHandler::CreateShaderProgram(prog);
@@ -91,6 +91,8 @@ Material::Material(std::vector<RenderingPass> passes)
 
         PassSamplers samplers;
         textureSamplers.insert(textureSamplers.end(), samplers);
+
+        renderStates.insert(renderStates.end(), passes[pass].RenderState);
 
 
         //Compile the shaders.
@@ -243,6 +245,8 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
 }
 bool Material::Render(const Mesh * mesh, const RenderInfo & info, unsigned int pass)
 {
+    renderStates[pass].EnableState();
+
     //Render each vertex/index buffer.
     VertexIndexData dat;
     for (int j = 0; j < mesh->GetNumbVertexIndexData(); ++j)

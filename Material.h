@@ -6,6 +6,7 @@
 #include "RenderInfo.h"
 #include "RenderDataHandler.h"
 #include "ShaderHandler.h"
+#include "RenderingState.h"
 #include "Vertex.h"
 
 class Mesh;
@@ -23,9 +24,9 @@ public:
 //Represents the combiniation of a vertex shader and a fragment shader.
 struct RenderingPass
 {
-    //TODO: Attach a RenderingState to each pass.
+    RenderingState RenderState;
     std::string VertexShader, FragmentShader;
-    RenderingPass(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
+    RenderingPass(std::string vs, std::string fs, RenderingState rendState = RenderingState()) : VertexShader(vs), FragmentShader(fs), RenderState(rendState) { }
 };
 
 
@@ -190,6 +191,7 @@ private:
     //The following vectors are indexed by rendering pass.
 
     std::vector<PassSamplers> textureSamplers;
+    std::vector<RenderingState> renderStates;
     std::vector<std::unordered_map<std::string, UniformLocation>> uniforms;
     std::vector<BufferObjHandle> shaderPrograms;
 

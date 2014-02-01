@@ -78,9 +78,6 @@ void PostProcessEffect::RenderEffect(const RenderInfo & info, Vector2f screenOff
 
     ClearAllRenderingErrors();
 
-    RenderingState(true, true).EnableState();
-
-
     screenMesh.Transform.SetPosition(Vector3f(screenOffset.x, screenOffset.y, 0.0f));
     screenMesh.Transform.SetScale(Vector3f(screenScale.x, screenScale.y, 1.0f));
     std::vector<const Mesh*> meshes;

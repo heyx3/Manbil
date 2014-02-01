@@ -91,7 +91,8 @@ const RenderingPass Materials::NoisePass = RenderingPass(
                  {\n\
                     float noise = fract(sin(dot(out_col, vec4(1.051, 16512.9865, -151.643, 0.0015))) * 4563.5843);\n\
                     out_finalCol = vec4(vec3(noise), transparency);\n\
-                 }"));
+                 }"),
+     RenderingState(true, true));
 
 const RenderingPass Materials::EmptyPostProcess = RenderingPass(
     std::string("void main()\n\
