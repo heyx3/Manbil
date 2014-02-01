@@ -14,13 +14,20 @@
 void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOffset, Vector3f pos, float scale)
 {
     //The foliage encodes x and y wave amount in the red and green values of the vertices.
+    //The blue value of the vertex is a pseudo-random value to make each foliage piece wave a little differently.
 
 	float halfScale = scale * 0.5f;
+    FastRand fr(indexOffset + 12345);
+    float rand1 = fr.GetZeroToOne();
+    fr.GetRandInt();
+    fr.GetRandInt();
+    fr.GetRandInt();
+    float rand2 = fr.GetZeroToOne();
 
-	vertexStart[0] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z), Vector2f(0.0f, 0.0f), Vector4f(), Vector3f(0.0f, 1.0f, 0.0f));
-	vertexStart[1] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z), Vector2f(1.0f, 0.0f), Vector4f(), Vector3f(0.0f, 1.0f, 0.0f));
-	vertexStart[2] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z + scale), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	vertexStart[3] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z + scale), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	vertexStart[0] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z),         Vector2f(0.0f, 0.0f), Vector4f(),                        Vector3f(0.0f, 1.0f, 0.0f));
+	vertexStart[1] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z),         Vector2f(1.0f, 0.0f), Vector4f(),                        Vector3f(0.0f, 1.0f, 0.0f));
+	vertexStart[2] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z + scale), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	vertexStart[3] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z + scale), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 
 	indexStart[0] = indexOffset;
@@ -30,10 +37,10 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 	indexStart[4] = indexOffset + 3;
 	indexStart[5] = indexOffset + 2;
 
-	vertexStart[4] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z), Vector2f(0.0f, 0.0f), Vector4f(), Vector3f(1.0f, 0.0f, 0.0f));
-	vertexStart[5] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z), Vector2f(1.0f, 0.0f), Vector4f(), Vector3f(1.0f, 0.0f, 0.0f));
-	vertexStart[6] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z + scale), Vector2f(0.0f, 1.0f), Vector4f(0.0f, 1.0f, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
-	vertexStart[7] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z + scale), Vector2f(1.0f, 1.0f), Vector4f(0.0f, 1.0f, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
+	vertexStart[4] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z),         Vector2f(0.0f, 0.0f), Vector4f(),                        Vector3f(1.0f, 0.0f, 0.0f));
+	vertexStart[5] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z),         Vector2f(1.0f, 0.0f), Vector4f(),                        Vector3f(1.0f, 0.0f, 0.0f));
+	vertexStart[6] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z + scale), Vector2f(0.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
+	vertexStart[7] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z + scale), Vector2f(1.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
 	
 	indexStart[6] = indexOffset + 4;
 	indexStart[7] = indexOffset + 6;
@@ -45,7 +52,6 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 
 RenderingPass Foliage::GetFoliageRenderer(void)
 {
-    return Materials::LitTexture;
     //TODO: Finish testing out the leaning thing.
     return RenderingPass(
         std::string("uniform float waveSpeed;\n\
@@ -55,9 +61,10 @@ RenderingPass Foliage::GetFoliageRenderer(void)
 					 void main()\n\
 					 {\n\
 				 	    float waveOffsetInner = u_elapsed_seconds * waveSpeed;\n\
-				 	    vec2 waveOffset = waveScale * sin(vec2(waveOffsetInner, waveOffsetInner) * in_col.xy);\n\
+                        waveOffsetInner += (in_col.z * 6117.34);\n\
+				 	    vec2 waveOffset = waveScale * sin(vec2(waveOffsetInner) * in_col.xy);\n\
                         \n\
-                        vec3 finalObjPos = in_pos + vec3(waveOffset.x, waveOffset.y, 0.0);\n\
+                        vec3 finalObjPos = in_pos + vec3(waveOffset, 0.0);\n\
                         vec4 pos4D = worldTo4DScreen(finalObjPos);\n\
 				 	    out_tex = in_tex;\n\
                         out_normal = normalize((u_world * vec4(in_normal, 0.0)).xyz);\n\

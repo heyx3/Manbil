@@ -76,20 +76,20 @@ const RenderingPass Materials::NoisePass = RenderingPass(
                     if (isScreenSpace == 0)\n\
                     {\n\
                         vec4 _pos_ = worldTo4DScreen(in_pos);\n\
-                        out_col = vec4(in_pos, fract(sin(dot(u_cam_pos.xy * 999.852, vec2(1.051, 16516.2351))) * 2621.623));\n\
                         gl_Position = _pos_ - vec4(0.0, 0.0, 0.001, 0.0);\n\
                     }\n\
                     else\n\
                     {\n\
-                        out_col = vec4(in_pos, fract(sin(dot(u_cam_pos.xy, vec2(1.051, 16516.2351))) * 2621.623));\n\
                         gl_Position = vec4(in_pos - vec3(0.0, 0.0, 0.001), 1.0);\n\
                     }\n\
+                    \n\
+                    out_tex = in_tex;\n\
                  }"),
     std::string("uniform float transparency;\n\
                  \n\
                  void main()\n\
                  {\n\
-                    float noise = fract(sin(dot(out_col, vec4(1.051, 16512.9865, -151.643, 0.0015))) * 4563.5843);\n\
+                    float noise = fract(sin(u_elapsed_seconds * dot(out_tex, vec2(236.2623, -2135.135)) * 4563.5843));\n\
                     out_finalCol = vec4(vec3(noise), transparency);\n\
                  }"),
      RenderingState(true, true));

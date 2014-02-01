@@ -235,8 +235,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 		return;
 	}
     foliage->SetTexture(otherImgH);
-    foliage->SetWaveSpeed(0.25f);
-    foliage->SetWaveScale(5.0f);
+    foliage->SetWaveSpeed(0.5f);
+    foliage->SetWaveScale(2.0f);
 	
 	delete[] vertexPoses;
 
