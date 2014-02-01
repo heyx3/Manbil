@@ -78,7 +78,7 @@ void PostProcessEffect::RenderEffect(const RenderInfo & info, Vector2f screenOff
 
     ClearAllRenderingErrors();
 
-    RenderingState(true).EnableState();
+    RenderingState(true, true).EnableState();
 
 
     screenMesh.Transform.SetPosition(Vector3f(screenOffset.x, screenOffset.y, 0.0f));

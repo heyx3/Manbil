@@ -86,8 +86,8 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
-	dirLight.Ambient = 0.1f;
-	dirLight.Diffuse = 0.8f;
+	dirLight.Ambient = 0.05f;
+	dirLight.Diffuse = 0.7f;
 	dirLight.Specular = 0.0f;
 	
 	dirLight.SpecularIntensity = 128.0f;
@@ -269,6 +269,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	ClearAllRenderingErrors();
     std::vector<RenderingPass> passes;
     passes.insert(passes.end(), Materials::EmptyPostProcess);
+    passes.insert(passes.end(), Materials::NoisePass);
     effect = new PostProcessEffect(windowSize.x, windowSize.y, passes);
 	if (effect->HasError())
 	{
@@ -277,6 +278,12 @@ void OpenGLTestWorld::InitializeWorld(void)
 		EndWorld();
 		return;
 	}
+    effect->GetMaterial().AddUniform("transparency");
+    effect->GetMaterial().AddUniform("isScreenSpace");
+    float transparency = 0.5f;
+    effect->GetMaterial().SetUniformF("transparency", &transparency, 1);
+    int isScreenSpace = 1;
+    effect->GetMaterial().SetUniformI("isScreenSpace", &isScreenSpace, 1);
 }
 
 OpenGLTestWorld::~OpenGLTestWorld(void)

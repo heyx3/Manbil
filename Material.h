@@ -23,6 +23,7 @@ public:
 //Represents the combiniation of a vertex shader and a fragment shader.
 struct RenderingPass
 {
+    //TODO: Attach a RenderingState to each pass.
     std::string VertexShader, FragmentShader;
     RenderingPass(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
 };
