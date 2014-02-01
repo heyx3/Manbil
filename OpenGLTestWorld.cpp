@@ -180,7 +180,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
 
 
-    std::vector<MaterialShaders> mats;
+    std::vector<RenderingPass> mats;
     mats.insert(mats.end(), Materials::LitTexture);
     testMat2 = new Material2(mats);
     if (testMat2->HasError())
@@ -271,6 +271,9 @@ void OpenGLTestWorld::InitializeWorld(void)
 	//Create mesh.
 	testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
     Materials::LitTexture_SetUniforms(testMesh, dirLight);
+    PassSamplers dummySamplers;
+    dummySamplers[0] = imgObj;
+    testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), dummySamplers);
 
 
 	//Create render target.

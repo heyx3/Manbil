@@ -4,7 +4,7 @@
 #include "ShaderHandler.h"
 
 
-const MaterialShaders Materials::UnlitTexture = MaterialShaders(
+const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("void main()\n\
 				{\n\
 					gl_Position = worldTo4DScreen(in_pos);\n\
@@ -20,7 +20,7 @@ const MaterialShaders Materials::UnlitTexture = MaterialShaders(
 
 
 
-const MaterialShaders Materials::LitTexture = MaterialShaders(
+const RenderingPass Materials::LitTexture = RenderingPass(
 	std::string("void main()\n\
 				{\n\
 					vec4 pos4 = worldTo4DScreen(in_pos);\n\
@@ -54,7 +54,7 @@ const MaterialShaders Materials::LitTexture = MaterialShaders(
 
 
 
-const MaterialShaders Materials::BareColor = MaterialShaders(
+const RenderingPass Materials::BareColor = RenderingPass(
 	std::string("void main()\n\
 				{\n\
 					gl_Position = worldTo4DScreen(in_pos);\n\

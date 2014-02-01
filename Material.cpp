@@ -67,7 +67,7 @@ std::string psHeader = std::string() +
 #pragma endregion
 
 
-Material2::Material2(std::vector<MaterialShaders> passes)
+Material2::Material2(std::vector<RenderingPass> passes)
     : errorMsg("")
 {
     for (int pass = 0; pass < passes.size(); ++pass)
@@ -78,15 +78,13 @@ Material2::Material2(std::vector<MaterialShaders> passes)
         ShaderHandler::CreateShaderProgram(prog);
         shaderPrograms.insert(shaderPrograms.end(), prog);
 
-        BufferObjHandle dummySamplers[TWODSAMPLERS];
-        for (int j = 0; j < TWODSAMPLERS; ++j)
-            dummySamplers[j] = 0;
-        textureSamplers.insert(textureSamplers.end(), dummySamplers);
+        PassSamplers samplers;
+        textureSamplers.insert(textureSamplers.end(), samplers);
 
 
         //Compile the shaders.
 
-        MaterialShaders mt = passes[pass];
+        RenderingPass mt = passes[pass];
         mt.VertexShader.insert(mt.VertexShader.begin(), vsHeader.begin(), vsHeader.end());
         mt.FragmentShader.insert(mt.FragmentShader.begin(), psHeader.begin(), psHeader.end());
 
@@ -385,7 +383,15 @@ bool Material2::Render(const Mesh * mesh, const RenderInfo & info, unsigned int 
         {
             glUniform1i(found->second, i);
             RenderDataHandler::ActivateTextureUnit(i);
-            RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, mesh->TextureSamplers[pass][i]);
+
+            if (mesh->TextureSamplers[pass].Samplers[i] == 0)
+            {
+                RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
+            }
+            else
+            {
+                RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, mesh->TextureSamplers[pass].Samplers[i]);
+            }
         }
     }
 

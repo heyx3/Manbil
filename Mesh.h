@@ -21,7 +21,7 @@ public:
         UniformValue(void) : NData(0) { }
     };
 
-    std::vector<BufferObjHandle[Material::TWODSAMPLERS]> TextureSamplers;
+    std::vector<PassSamplers> TextureSamplers;
     std::unordered_map<std::string, UniformValue<float>> FloatUniformValues;
     std::unordered_map<std::string, UniformValue<int>> IntUniformValues;
     std::unordered_map<std::string, Matrix4f> MatUniformValues;

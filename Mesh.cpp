@@ -20,11 +20,8 @@ Mesh::Mesh(const Mesh & cpy)
 {
     for (int pass = 0; pass < cpy.TextureSamplers.size(); ++pass)
     {
-        BufferObjHandle copies[Material::TWODSAMPLERS];
-        for (int s = 0; s < Material::TWODSAMPLERS; ++s)
-            copies[s] = cpy.TextureSamplers[pass][s];
-
-        TextureSamplers.insert(TextureSamplers.end(), copies);
+        PassSamplers sampler(cpy.TextureSamplers[pass]);
+        TextureSamplers.insert(TextureSamplers.end(), sampler);
     }
 
     FloatUniformValues = cpy.FloatUniformValues;
@@ -61,11 +58,8 @@ void Mesh::operator=(const Mesh & other)
 
     for (int pass = 0; pass < other.TextureSamplers.size(); ++pass)
     {
-        BufferObjHandle copies[Material::TWODSAMPLERS];
-        for (int s = 0; s < Material::TWODSAMPLERS; ++s)
-            copies[s] = other.TextureSamplers[pass][s];
-
-        TextureSamplers.insert(TextureSamplers.end(), copies);
+        PassSamplers sampler(other.TextureSamplers[pass]);
+        TextureSamplers.insert(TextureSamplers.end(), sampler);
     }
 
     FloatUniformValues = other.FloatUniformValues;
