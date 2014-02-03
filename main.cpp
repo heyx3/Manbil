@@ -1,6 +1,5 @@
 #include "SFML/Graphics.hpp"
 #include "NoiseTest.h"
-#include "TerrainWorld.h"
 #include "OpenGLTestWorld.h"
 #include "TwoTrianglesWorld.h"
 
@@ -19,7 +18,6 @@ void PauseConsole(void)
 int main()
 {
     //NoiseTest().RunWorld();
-    //TerrainWorld().RunWorld();
     OpenGLTestWorld().RunWorld();
     //TwoTrianglesWorld().RunWorld();
 }

@@ -35,14 +35,17 @@ public:
     public:
         //The position (in world space) of the ripple's source.
         Vector3f Source;
-        //The dropoff scaling, proportional to the distance from the source.
-        //A value of 1.0 results in no dropoff.
-        float DropoffScale;
+        //The distance from the source at which the amplitude becomes 0.
+        float DropoffPoint;
         //The time since this ripple was created.
         float TimeSinceCreated;
         //The height of the waves.
         float Amplitude;
-        RippleWaterArgs(Vector3f source, float dropoffScale, float height) : Source(source), DropoffScale(dropoffScale), Amplitude(height), TimeSinceCreated(0.0f) { }
+        //The wavelength of the waves.
+        float Period;
+        //The speed of the waves.
+        float Speed;
+        RippleWaterArgs(Vector3f source, float dropoffPoint, float height, float period, float speed) : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
 
@@ -78,7 +81,7 @@ public:
     int AddFlow(const DirectionalWaterArgs & args);
     //Changes he water flow with the given ID.
     //This function only applies to directional water.
-    int ChangeFlow(int element, const DirectionalWaterArgs & args);
+    void ChangeFlow(int element, const DirectionalWaterArgs & args);
 
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?

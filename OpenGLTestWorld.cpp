@@ -88,9 +88,9 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 
 	dirLight.Ambient = 0.05f;
 	dirLight.Diffuse = 0.7f;
-	dirLight.Specular = 1.0f;
+	dirLight.Specular = 4.0f;
 	
-	dirLight.SpecularIntensity = 128.0f;
+	dirLight.SpecularIntensity = 32.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {
