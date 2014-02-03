@@ -195,9 +195,9 @@ void OpenGLTestWorld::InitializeWorld(void)
 		vertices[i] = Vertex(vertexPoses[i], vertexTexCoords[i], vertexNormals[i]);
 	}
 
-	RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
+	//RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+	//RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+	//vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
 
 
 	if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
@@ -229,9 +229,20 @@ void OpenGLTestWorld::InitializeWorld(void)
     foliage->SetWaveScale(2.0f);
     foliage->SetLeanAwayMaxDist(10.0f);
     foliage->SetBrightness(0.5f);
-    //Materials::LitTexture_SetUniforms(*foliage->Mat, dirLight);
 	
 	delete[] vertexPoses;
+
+    //Create water.
+    water = new Water(30, 4, Vector2f(1.0f, 0.0f), Vector3f());
+    if (water->HasError())
+    {
+        std::cout << "Error creating water: " << water->GetErrorMessage();
+        Pause();
+        EndWorld();
+        return;
+    }
+    Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
+    Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
 
 
     //Camera.
@@ -309,15 +320,15 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	std::vector<const Mesh *> meshes;
-	meshes.insert(meshes.begin(), &testMesh);
-	if (!testMat->Render(info, meshes))
-	{
-		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
-		Pause();
-		EndWorld();
-        return;
-	}
+	//std::vector<const Mesh *> meshes;
+	//meshes.insert(meshes.begin(), &testMesh);
+	//if (!testMat->Render(info, meshes))
+	//{
+	//	std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+	//	Pause();
+	//	EndWorld();
+    //    return;
+	//}
 	
 
 	if (!foliage->Render(info))
@@ -325,7 +336,16 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 		std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
 		Pause();
 		EndWorld();
+        return;
 	}
+
+    if (!water->Render(info))
+    {
+        std::cout << "Error rendering water: " << water->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 }
 
 void OpenGLTestWorld::RenderWorld(float elapsedSeconds)

@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "RenderTarget.h"
 #include "Materials.h"
+#include "Rendering/Objects/Water.h"
 #include "Foliage.h"
 #include "Rendering/PostProcessing/PostProcessEffect.h"
 #include "TerrainWalkCamera.h"
@@ -38,6 +39,7 @@ private:
 	Material * testMat;
     PostProcessEffect * effect;
 	Foliage * foliage;
+    Water * water;
     Terrain * pTerr;
 
 	Mesh testMesh;

@@ -119,12 +119,13 @@ public:
         return tried;
     }
     //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformArrayF(std::string uniform, const float * dataSplit, int nUniforms)
+    bool SetUniformArrayF(std::string uniform, const float * dataSplit, int floatsPerUniform, int nUniforms)
     {
         bool tried = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
         {
-            Shader
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayF(i, uniform, dataSplit, nUniforms, floatsPerUniform) || tried;
         }
         return tried;
     }
@@ -136,6 +137,17 @@ public:
         {
             ShaderHandler::UseShader(shaderPrograms[i]);
             tried = TrySetUniformI(i, uniform, data, nData) || tried;
+        }
+        return tried;
+    }
+    //Returns whether or not the uniform exists in any of the passes.
+    bool SetUniformArrayI(std::string uniform, const int * dataSplit, int intsPerUniform, int nUniforms)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayI(i, uniform, dataSplit, nUniforms, intsPerUniform) || tried;
         }
         return tried;
     }
@@ -179,6 +191,18 @@ private:
 
     bool TryAddUniform(unsigned int programIndex, std::string uniform);
 
+    bool TrySetUniformArrayF(unsigned int programIndex, std::string uniform, const float * data, unsigned int nUniforms, unsigned int nFloatsPerUniform)
+    {
+        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
+        RenderDataHandler::SetUniformArrayValue(uniforms[programIndex][uniform], nUniforms, nFloatsPerUniform, data);
+        return true;
+    }
+    bool TrySetUniformArrayI(unsigned int programIndex, std::string uniform, const int * data, unsigned int nUniforms, unsigned int nIntsPerUniform)
+    {
+        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
+        RenderDataHandler::SetUniformArrayValue(uniforms[programIndex][uniform], nUniforms, nIntsPerUniform, data);
+        return true;
+    }
     bool TrySetUniformF(unsigned int programIndex, std::string uniform, const float * data, int nData)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;

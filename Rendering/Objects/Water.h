@@ -4,7 +4,7 @@
 #include "../../Math/HigherMath.hpp"
 
 //Represents a flowing body of water.
-//A bumpmap can be stored in the first texture.
+//Color data is stored in u_sampler0, and bumpmap is stored in u_sampler1.
 class Water
 {
 public:
@@ -63,6 +63,8 @@ public:
     const std::string & GetErrorMessage(void) const { return errorMsg; }
     void ClearErrorMessage(void) { errorMsg.clear(); }
 
+    const Mesh & GetMesh(void) const { return waterMesh; }
+    Mesh & GetMesh(void) { return waterMesh; }
 
     WaterTypes GetWaterType(void) const { return waterType; }
 

@@ -22,6 +22,7 @@ public:
     };
 
     std::vector<PassSamplers> TextureSamplers;
+    //TODO: Add float/int/matrix array values. Add matrix array uniform set functions to RenderDataHandler. Finally, change the functions in Materials to either take a mesh or a material, not individual uniform lists.
     std::unordered_map<std::string, UniformValue<float>> FloatUniformValues;
     std::unordered_map<std::string, UniformValue<int>> IntUniformValues;
     std::unordered_map<std::string, Matrix4f> MatUniformValues;
