@@ -35,9 +35,11 @@ public:
 
 	//Update this input's current input value.
 	void Update(float elapsedFrameTime, float elapsedTotalTime)
-	{
+    {
+        bool val = GetRawInput(elapsedFrameTime, elapsedTotalTime);
 		previousValue = value;
-		bool val = GetRawInput(elapsedFrameTime, elapsedTotalTime);
+        if (val)
+            value = value;
 
 		switch (DesiredValueState)
 		{

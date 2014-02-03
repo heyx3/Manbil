@@ -7,6 +7,7 @@
 #include "RenderingState.h"
 #include "RenderDataHandler.h"
 #include "TextureSettings.h"
+#include "Input/Input Objects/KeyboardBoolInput.h"
 
 #include "Math/NoiseGeneration.hpp"
 
@@ -76,6 +77,8 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 	if (finalG != 0) finalG->Generate(outNoise);
 }
 
+Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 2.5f, 5.0f, 5.0f);
+
 
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
 
@@ -86,8 +89,8 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
-	dirLight.Ambient = 0.05f;
-	dirLight.Diffuse = 0.7f;
+	dirLight.Ambient = 0.1f;
+	dirLight.Diffuse = 0.9f;
 	dirLight.Specular = 4.0f;
 	
 	dirLight.SpecularIntensity = 128.0f;
@@ -97,6 +100,9 @@ void OpenGLTestWorld::InitializeWorld(void)
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
 	
+
+    Input.AddBoolInput(666, BoolInputPtr((BoolInput*)(new KeyboardBoolInput(sf::Keyboard::Key::U, BoolInput::ValueStates::JustPressed))));
+
 
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
@@ -195,9 +201,9 @@ void OpenGLTestWorld::InitializeWorld(void)
 		vertices[i] = Vertex(vertexPoses[i], vertexTexCoords[i], vertexNormals[i]);
 	}
 
-	//RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	//RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	//vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
+	RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+	RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+	vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
 
 
 	if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
@@ -233,7 +239,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	delete[] vertexPoses;
 
     //Create water.
-    water = new Water(30, 4, Vector2f(1.0f, 0.0f), Vector3f());
+    water = new Water(300, 4, Vector2f(1.0f, 0.0f), Vector3f());
     if (water->HasError())
     {
         std::cout << "Error creating water: " << water->GetErrorMessage();
@@ -243,6 +249,11 @@ void OpenGLTestWorld::InitializeWorld(void)
     }
     Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
+    water->Transform.SetScale(25.0f / 3.0f);
+    float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
+    water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
+    water->Transform.IncrementPosition(Vector3f(0, 0, -30));
+    water->GetMesh().TextureSamplers[0][0] = imgObj;
 
 
     //Camera.
@@ -316,19 +327,28 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 	{
 		EndWorld();
 	}
+
+    if (Input.GetBoolInputValue(666))
+    {
+        Water::RippleWaterArgs argsTemp(rippleArgs);
+        argsTemp.Source = cam.GetPosition();
+        water->AddRipple(argsTemp);
+    }
+
+    water->Update(elapsedSeconds);
 }
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	//std::vector<const Mesh *> meshes;
-	//meshes.insert(meshes.begin(), &testMesh);
-	//if (!testMat->Render(info, meshes))
-	//{
-	//	std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
-	//	Pause();
-	//	EndWorld();
-    //    return;
-	//}
+	std::vector<const Mesh *> meshes;
+	meshes.insert(meshes.begin(), &testMesh);
+	if (!testMat->Render(info, meshes))
+	{
+		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+		Pause();
+		EndWorld();
+        return;
+	}
 	
 
 	if (!foliage->Render(info))

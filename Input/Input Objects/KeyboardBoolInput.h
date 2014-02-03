@@ -15,5 +15,5 @@ public:
 
 protected:
 
-	virtual bool GetValue(float el, float total) override { return sf::Keyboard::isKeyPressed(KeyToCheck); }
+	virtual bool GetRawInput(float el, float total) override { return sf::Keyboard::isKeyPressed(KeyToCheck); }
 };

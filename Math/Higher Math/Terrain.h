@@ -7,6 +7,8 @@ class Terrain
 {
 public:
 
+    static bool DebugShit;
+
 	Terrain(int size) { heightmap = new Fake2DArray<float>(size, size, 0.0f); }
 	~Terrain(void) { delete heightmap; }
 

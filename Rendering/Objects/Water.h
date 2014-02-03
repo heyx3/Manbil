@@ -91,7 +91,7 @@ public:
     //Returns whether the uniform was set successfully.
     bool SetBumpmapHeight(float newHeight) { return Mat->SetUniformF("bumpmapHeight", &newHeight, 1); }
 
-
+    void Update(float elapsedTime);
     bool Render(const RenderInfo & info);
 
 
@@ -122,5 +122,5 @@ private:
     //Gets the single RenderingPass needed to render rippling water.
     static RenderingPass GetRippleWaterRenderer(int maxRipples);
     //Gets the single RenderingPass needed to render directional water.
-    static RenderingPass GetDirectionalWaterRenderer(void);
+    static RenderingPass GetDirectionalWaterRenderer(int maxFlows);
 };

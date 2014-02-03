@@ -10,6 +10,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 
     //Just create a flat terrain and let it do the math.
 
+    Terrain::DebugShit = true;
     Terrain terr(size);
     int nVs = terr.GetVerticesCount(),
         nIs = terr.GetIndicesCount();
@@ -17,7 +18,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     Vector2f * texCoords = new Vector2f[nVs];
     Vector3f * normals = new Vector3f[nVs];
     terr.CreateVertexPositions(poses);
-    terr.CreateVertexNormals(normals, poses, Vector3f());
+    terr.CreateVertexNormals(normals, poses, Vector3f(1, 1, 1));
     terr.CreateVertexTexCoords(texCoords);
 
     Vertex * vertices = new Vertex[nVs];
@@ -34,18 +35,32 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     RenderDataHandler::CreateVertexBuffer(vbo, vertices, nVs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(ibo, indices, nIs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
 
+    delete[] vertices, indices;
+
     VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
     outM.SetVertexIndexData(&vid, 1);
+    PassSamplers samplers;
+    outM.TextureSamplers.insert(outM.TextureSamplers.end(), samplers);
     
-    delete[] vertices, indices;
+    Materials::GetDefaultUniforms_LitTexture(outM.FloatUniformValues, outM.IntUniformValues, outM.MatUniformValues);
+    Materials::LitTexture_DirectionalLight lightM;
+    lightM.Dir = Vector3f(1, 1, -1).Normalized();
+    lightM.Col = Vector3f(1, 1, 1);
+    lightM.Ambient = 0.2f;
+    lightM.Diffuse = 0.8f;
+    lightM.Specular = 0.0f;
+    lightM.SpecularIntensity = 32.0f;
+    Materials::LitTexture_SetUniforms(outM, lightM);
 }
 
 Water::Water(unsigned int size, unsigned int maxRipples,
              Vector2f texturePanDir, Vector3f pos)
     : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles),
+      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
+    Transform.SetPosition(pos);
+
     Mat = new Material(GetRippleWaterRenderer(maxRipples));
 
     if (Mat->HasError())
@@ -64,6 +79,12 @@ Water::Water(unsigned int size, unsigned int maxRipples,
     rippleIDs = new int[maxRipples];
     dp_tsc_h_p = new Vector4f[maxRipples];
     sXY_sp = new Vector3f[maxRipples];
+    for (int i = 0; i < maxRipples; ++i)
+    {
+        dp_tsc_h_p[i].w = 1.0f;
+        dp_tsc_h_p[i].x = 1.0f;
+        sXY_sp[i].z = 1.0f;
+    }
 
     float bumpmapHeight = 10.0f;
     Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
@@ -72,10 +93,10 @@ Water::Water(unsigned int size, unsigned int maxRipples,
 }
 Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int _maxFlows)
     : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles),
+      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
-    Mat = new Material(GetDirectionalWaterRenderer());
+    Mat = new Material(GetDirectionalWaterRenderer(maxFlows));
 
     if (Mat->HasError())
     {
@@ -106,12 +127,13 @@ Water::~Water(void)
 
 int Water::AddRipple(const RippleWaterArgs & args)
 {
+    RippleWaterArgs cpy(args);
+
     //Translate the source into object space.
     Matrix4f inv;
     Transform.GetWorldTransform(inv);
     inv = inv.Inverse();
-    Vector3f sourcePos = args.Source;
-    sourcePos = inv.Apply(sourcePos);
+    cpy.Source = inv.Apply(args.Source);
     
 
     //Update tracking values.
@@ -121,11 +143,18 @@ int Water::AddRipple(const RippleWaterArgs & args)
     currentRippleIndex += 1;
     currentRippleIndex %= maxRipples;
 
+    //Make sure uniform values aren't invalid.
+    if (args.DropoffPoint <= 0.0f)
+        cpy.DropoffPoint = 9999.0f;
+    if (args.Period <= 0.0f)
+        cpy.Period = 5.0f;
+    if (args.Speed <= 0.0f)
+        cpy.Speed = 1.0f;
 
     //Set the uniforms.
-    dp_tsc_h_p[currentRippleIndex] = Vector4f(args.DropoffPoint, args.TimeSinceCreated, args.Amplitude, args.Period);
-    sXY_sp[currentRippleIndex] = Vector3f(sourcePos.x, sourcePos.y, args.Speed);
-    rippleIDs[currentRippleIndex] = rippleID;
+    dp_tsc_h_p[index] = Vector4f(cpy.DropoffPoint, cpy.TimeSinceCreated, cpy.Amplitude, cpy.Period);
+    sXY_sp[index] = Vector3f(cpy.Source.x, cpy.Source.y, cpy.Speed);
+    rippleIDs[index] = rippleID;
 
 
     return rippleID;
@@ -178,6 +207,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 {
     std::string n = std::to_string(maxRipples);
 
+    //TODO: Texture panning.
     return RenderingPass(std::string() + "\
              //Keep uniforms compacted into vectors so they can be sent to the GPU quicker.\n\
              uniform vec4 dropoffPoints_timesSinceCreated_heights_periods[" + n + "];\n\
@@ -199,18 +229,21 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float dist = distance(source, horizontalPos);\n\
                     float heightScale = mix(0.0, 1.0, 1.0 - (dist / dropoffPoint));\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
-                    float cutoff = timeSinceCreated * speed;\n\
+                    float cutoff = timeSinceCreated * speed * 2.0;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
-                    offset += height * heightScale * cutoff * sin((dist / period) + (u_elapsed_seconds / speed));\n\
+                    offset += height * heightScale * cutoff * sin((dist / period) + (-u_elapsed_seconds * speed));\n\
                 }\n\
                 return offset;\n\
              }\n\
              \n\
              void main()\n\
              {\n\
+                out_tex = in_tex;\n\
+                //out_normal = normalize((u_world * vec4(in_normal, 0.0)).xyz);\n\
+                //gl_Position = worldTo4DScreen(in_pos);\n\
+                //return;\n\
                 float heightOffset = getHeightOffset(in_pos.xy);\n\
                 vec3 finalPos = in_pos + vec3(0.0, 0.0, getHeightOffset(in_pos.xy));\n\
-                out_tex = in_tex;\n\
                 //Change the normal by shifting it towards the player based on the height change.\n\
                 vec2 toPlayer = normalize(u_cam_pos.xy - in_pos.xy);\n\
                 vec3 normalOffset = vec3(heightOffset * toPlayer, 0.0);\n\
@@ -239,17 +272,34 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                                                  DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
                                                  DirectionalLight.SpecularIntensity);\n\
                 vec4 texCol = texture(u_sampler0, u_textureScale * out_tex);\n\
-                out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, texCol.w);\n\
+                out_finalCol = vec4(/*brightness * DirectionalLight.Col * */texCol.xyz, 1.0);\n\
             }");
 }
 
-RenderingPass Water::GetDirectionalWaterRenderer(void)
+RenderingPass Water::GetDirectionalWaterRenderer(int maxFlows)
 {
     return Materials::BareColor;
 }
 
+void Water::Update(float elapsed)
+{
+    switch (waterType)
+    {
+    case WaterTypes::Rippling:
+        for (int i = 0; i < maxRipples; ++i)
+            dp_tsc_h_p[i].y += elapsed;
+        break;
+    case WaterTypes::Directed:
+
+        break;
+
+    default: assert(false);
+    }
+}
 bool Water::Render(const RenderInfo & info)
 {
+    waterMesh.Transform = Transform;
+
     //Set the data.
     Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
     Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);

@@ -57,32 +57,18 @@ bool TerrainWalkCamera::Update(float elapsedTime, std::shared_ptr<OculusDevice> 
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
     {
-        HeightOffset += elapsedTime * speedScale * 10.0f;
+        HeightOffset += elapsedTime * speedScale * 500.0f;
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
     {
-        HeightOffset += elapsedTime * speedScale * -10.0f;
+        HeightOffset += elapsedTime * speedScale * -500.0f;
     }
 
 
 	//Set Z position.
     Vector2f pos(GetPosition().x / TerrainScale.x, GetPosition().y / TerrainScale.y);
-	//Filter the heightmap nearby to reduce bumpiness.
-    float sum = 0.0f;
-    Vector2i posI;
-    for (int x = -2; x < 3; ++x)
-    {
-        posI.x = x;
-        for (int y = -2; y < 3; ++y)
-        {
-            posI.y = y;
-            Vector2i finalPosI(posI.x + (int)pos.x, posI.y + (int)pos.y);
-            sum += (1.0f / 16.0f) * BasicMath::Max(sum, (*heightmap)[finalPosI.Clamp(0, heightmap->GetSize())]);
-        }
-    }
-	SetPositionZ(sum * TerrainScale.z);
-    IncrementPositionZ(HeightOffset);
+	SetPositionZ(HeightOffset + ((*heightmap)[pos.Clamp(0.0f, heightmap->GetSize() - 1)] * TerrainScale.z));
     
 
 

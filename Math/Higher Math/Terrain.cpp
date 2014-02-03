@@ -4,6 +4,7 @@
 
 #include "GeometricMath.h"
 
+bool Terrain::DebugShit = false;
 unsigned char Terrain::Exception_Invalid_Area = 1;
 
 void Terrain::SetHeightmap(const Fake2DArray<float> & copy)
@@ -93,8 +94,8 @@ void Terrain::CreateVertexPositions(Vector3f * outPositions, Vector2i topLeft, V
 	{
 		throw Exception_Invalid_Area;
 	}
-	topLeft = Constrain(topLeft, Vector2i(GetSize(), GetSize()));
-	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
+	topLeft = Constrain(topLeft, Vector2i(GetSize()-1, GetSize()-1));
+	bottomRight = Constrain(bottomRight, Vector2i(GetSize()-1, GetSize()-1));
 
 
 	int pX, pY;
@@ -120,8 +121,8 @@ void Terrain::CreateVertexIndices(unsigned int * outIndices, Vector2i topLeft, V
 	{
 		throw Exception_Invalid_Area;
 	}
-	topLeft = Constrain(topLeft, Vector2i(GetSize(), GetSize()));
-	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
+    topLeft = Constrain(topLeft, Vector2i(GetSize() - 1, GetSize() - 1));
+    bottomRight = Constrain(bottomRight, Vector2i(GetSize() - 1, GetSize() - 1));
 
 
 	unsigned int indexIndex = 0;
@@ -147,7 +148,7 @@ void Terrain::CreateVertexIndices(unsigned int * outIndices, Vector2i topLeft, V
 
 			outIndices[indexIndex++] = br;
 			outIndices[indexIndex++] = tl;
-			outIndices[indexIndex++] = tr;
+            outIndices[indexIndex++] = tr;
 		}
 	}
 }
@@ -159,8 +160,8 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 	{
 		throw Exception_Invalid_Area;
 	}
-	topLeft = Constrain(topLeft, Vector2i(GetSize(), GetSize()));
-	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
+    topLeft = Constrain(topLeft, Vector2i(GetSize() - 1, GetSize() - 1));
+    bottomRight = Constrain(bottomRight, Vector2i(GetSize() - 1, GetSize() - 1));
 
 
 	int tl, tm, tr, l, m, r, bl, bm, br;
@@ -296,6 +297,16 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 
 			//Set the normal for the position.
             outNormals[GetIndex(loc, topLeft, bottomRight)] = normal;
+
+            if (false && DebugShit)
+            {
+                std::cout << normal.x << "," << normal.y << "," << normal.z << "\n";
+                if (pX >= 5 && pY >= 5 && pX % 7 == 0 && pY % 7 == 0)
+                {
+                    char dummy;
+                    std::cin >> dummy;
+                }
+            }
 		}
 	}
 }
@@ -307,8 +318,8 @@ void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2i topLeft, Vect
 	{
 		throw Exception_Invalid_Area;
 	}
-	topLeft = Constrain(topLeft, Vector2i(GetSize(), GetSize()));
-	bottomRight = Constrain(bottomRight, Vector2i(GetSize(), GetSize()));
+    topLeft = Constrain(topLeft, Vector2i(GetSize() - 1, GetSize() - 1));
+    bottomRight = Constrain(bottomRight, Vector2i(GetSize() - 1, GetSize() - 1));
 
 
     float increment = 1.0f / GetSize();
@@ -316,6 +327,5 @@ void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2i topLeft, Vect
         for (int y = topLeft.y; y <= bottomRight.y; ++y)
         {
             texCoords[GetIndex(Vector2i(x, y), topLeft, bottomRight)] = Vector2f(increment * x, increment * y);
-            
         }
 }
