@@ -108,7 +108,7 @@ void Terrain::CreateVertexPositions(Vector3f * outPositions, Vector2i topLeft, V
 		{
 			loc.x = pX;
 
-			outPositions[GetIndex(loc, topLeft)] = Vector3f(pX, pY, (*heightmap)[loc]);
+			outPositions[GetIndex(loc, topLeft, bottomRight)] = Vector3f(pX, pY, (*heightmap)[loc]);
 		}
 	}
 }
@@ -136,9 +136,9 @@ void Terrain::CreateVertexIndices(unsigned int * outIndices, Vector2i topLeft, V
 		{
 			loc.x = pX;
 
-			tl = GetIndex(loc, topLeft);
+            tl = GetIndex(loc, topLeft, bottomRight);
 			tr = tl + 1;
-			bl = GetIndex(loc + Vector2i(0, 1), topLeft);
+            bl = GetIndex(loc + Vector2i(0, 1), topLeft, bottomRight);
 			br = bl + 1;
 
 			outIndices[indexIndex++] = br;
@@ -184,15 +184,15 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 
 			//Get the indices for the 3x3 square surrounding the position.
 
-			tl = GetIndex(loc + Vector2i(-1, -1), topLeft);
+            tl = GetIndex(loc + Vector2i(-1, -1), topLeft, bottomRight);
 			tm = tl + 1;
 			tr = tm + 1;
 
-			l = GetIndex(loc + Vector2i(-1, 0), topLeft);
+            l = GetIndex(loc + Vector2i(-1, 0), topLeft, bottomRight);
 			m = l + 1;
 			r = m + 1;
 
-			bl = GetIndex(loc + Vector2i(-1, 1), topLeft);
+            bl = GetIndex(loc + Vector2i(-1, 1), topLeft, bottomRight);
 			bm = bl + 1;
 			br = bm + 1;
 
@@ -295,7 +295,7 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 
 
 			//Set the normal for the position.
-			outNormals[GetIndex(loc, topLeft)] = normal;
+            outNormals[GetIndex(loc, topLeft, bottomRight)] = normal;
 		}
 	}
 }
@@ -315,7 +315,7 @@ void Terrain::CreateVertexTexCoords(Vector2f * texCoords, Vector2i topLeft, Vect
     for (int x = topLeft.x; x <= bottomRight.x; ++x)
         for (int y = topLeft.y; y <= bottomRight.y; ++y)
         {
-            texCoords[GetIndex(Vector2i(x, y), topLeft)] = Vector2f(increment * x, increment * y);
+            texCoords[GetIndex(Vector2i(x, y), topLeft, bottomRight)] = Vector2f(increment * x, increment * y);
             
         }
 }

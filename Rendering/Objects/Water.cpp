@@ -1,12 +1,55 @@
 #include "Water.h"
 
+#include "../../OpenGLIncludes.h"
+#include "../../RenderDataHandler.h"
+#include "../../Math/Higher Math/Terrain.h"
 
-Water::Water(unsigned int width, unsigned int height, unsigned int maxRipples,
+void CreateWaterMesh(unsigned int size, Mesh & outM)
+{
+    Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
+
+    //Just create a flat terrain and let it do the math.
+
+    Terrain terr(size);
+    Vertex * vertices = new Vertex[terr.GetVerticesCount()];
+    Vector3f * poses = new Vector3f[terr.GetVerticesCount()];
+    Vector2f * texCoords = new Vector2f[terr.GetVerticesCount()];
+    Vector3f * normals = new Vector3f[terr.GetVerticesCount()];
+    unsigned int * indices = new unsigned int[terr.GetIndicesCount()];
+
+    terr.CreateVertexPositions(poses);
+    terr.CreateVertexNormals(normals, poses, Vector3f());
+    terr.CreateVertexTexCoords(texCoords);
+    terr.CreateVertexIndices(indices);
+    for (int i = 0; i < terr.GetVerticesCount(); ++i)
+    {
+        vertices[i] = Vertex(poses[i] + offset, texCoords[i], normals[i]);
+    }
+
+    RenderObjHandle vbo, ibo;
+    RenderDataHandler::CreateVertexBuffer(vbo, vertices, terr.GetVerticesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(ibo, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    delete[] vertices, poses, texCoords, normals, indices;
+
+    VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
+    outM.SetVertexIndexData(&vid, 1);
+}
+
+Water::Water(unsigned int size, unsigned int maxRipples,
              Vector2f texturePanDir, Vector3f pos)
     : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
       Mat(0), waterMesh(PrimitiveTypes::Triangles)
 {
     Mat = new Material(GetRippleWaterRenderer(maxRipples));
+
+    if (Mat->HasError())
+    {
+        errorMsg = "Error creating ripple water material: ";
+        errorMsg += Mat->GetErrorMessage();
+        return;
+    }
+
+    CreateWaterMesh(size, waterMesh);
 
     RippleWaterArgs args(Vector3f(), 0.0f, 0.0f, 1.0f, 1.0f);
     RippleWaterArgsElement argsE(args, -1);
@@ -15,23 +58,57 @@ Water::Water(unsigned int width, unsigned int height, unsigned int maxRipples,
         ripples.insert(ripples.end(), argsE);
     }
 }
-Water::Water(Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int maxRipples)
-    : currentFlowIndex(0), maxFlows(maxFlows), Mat(0), waterMesh(PrimitiveTypes::Triangles)
+Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int _maxFlows)
+    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0), Mat(0), waterMesh(PrimitiveTypes::Triangles)
 {
     Mat = new Material(GetDirectionalWaterRenderer());
+
+    if (Mat->HasError())
+    {
+        errorMsg = "Error creating directional water material: ";
+        errorMsg += Mat->GetErrorMessage();
+        return;
+    }
+
+    CreateWaterMesh(size, waterMesh);
+
+    DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
+    DirectionalWaterArgsElement argsE(args, -1);
+    for (int i = 0; i < maxFlows; ++i)
+    {
+        flows.insert(flows.end(), argsE);
+    }
 }
 
+Water::~Water(void)
+{
+    delete Mat;
+}
 
 int Water::AddRipple(const RippleWaterArgs & args)
 {
-    //Translate the source into object space.
+    //Prepare to translate the source into object space.
     Matrix4f inv;
     Transform.GetWorldTransform(inv);
     inv = inv.Inverse();
     
-    //TODO: Apply the transformation after putting the ripple into the list.
 
-    return -1;
+    //Put in the new value.
+
+    RippleWaterArgsElement el(args, nextRippleID);
+    nextRippleID += 1;
+
+    int index = currentRippleIndex;
+    ripples.insert(ripples.begin() + currentRippleIndex, el);
+    currentRippleIndex += 1;
+    currentRippleIndex %= ripples.size();
+
+
+    //Apply the transformation now.
+    ripples[currentRippleIndex].Args.Source = inv.Apply(ripples[currentRippleIndex].Args.Source);
+
+
+    return nextRippleID - 1;
 }
 void Water::ChangeRipple(int element, const RippleWaterArgs & args)
 {
@@ -117,7 +194,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 //Change the normal by shifting it towards the player based on the height change.\n\
                 vec2 toPlayer = normalize(u_cam_pos.xy - in_pos.xy);\n\
                 vec3 normalOffset = vec3(heightOffset * toPlayer, 0.0);\n\
-                out_normal = normalize(vec3(0.0, 0.0, 1.0) + normalOffset);\n\
+                out_normal = normalize(worldTo3DScreen(vec3(0.0, 0.0, 1.0)) + normalOffset);\n\
                 \n\
                 gl_Position = worldTo4DScreen(finalPos);\n\
              }",
@@ -125,7 +202,8 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             uniform float bumpmapHeight;\n\
             void main()\n\
             {\n\
-                finalPos = out_pos + vec3(0.0, 0.0, bumpmapHeight * texture(u_sampler0, u_textureScale * in_tex).x);\n\
+                finalPos = out_pos +\n\
+                           out_normal * bumpmapHeight * texture(u_sampler0, u_textureScale * in_tex).x);\n\
             }");
 }
 

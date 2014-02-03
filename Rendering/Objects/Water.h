@@ -54,10 +54,10 @@ public:
 
 
     //Makes a new Water object that uses circular ripples.
-    Water(unsigned int width, unsigned int height, unsigned int maxRipples, Vector2f texturePanDirection, Vector3f pos = Vector3f());
+    Water(unsigned int size, unsigned int maxRipples, Vector2f texturePanDirection, Vector3f pos = Vector3f());
     //Makes a new Water object that uses directional water.
-    Water(Vector2f texturePanDirection, DirectionalWaterArgs mainFlow, unsigned int maxRipples);
-
+    Water(unsigned int size, Vector2f texturePanDirection, DirectionalWaterArgs mainFlow, unsigned int maxRipples);
+    ~Water(void);
 
     bool HasError(void) const { return !errorMsg.empty(); }
     const std::string & GetErrorMessage(void) const { return errorMsg; }
@@ -107,6 +107,8 @@ private:
     struct DirectionalWaterArgsElement { public: DirectionalWaterArgs Args; int Element; DirectionalWaterArgsElement(const DirectionalWaterArgs & a, int e) : Args(a), Element(e) { } };
     int currentFlowIndex;
     int maxFlows;
+    int nextFlowID;
+    int totalFlows;
     std::vector<DirectionalWaterArgsElement> flows;
 
     Mesh waterMesh;

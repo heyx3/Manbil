@@ -46,7 +46,7 @@ public:
 	Noise2D * ToCopy;
 	Vector2i CopyOffset;
 	CopyNoise(Noise2D * toCopy = 0, Vector2i copyOffset = Vector2i(0, 0)) : ToCopy(toCopy), CopyOffset(copyOffset) { }
-	virtual void Generate(Noise2D & outNoise) const override { outNoise.Fill(*ToCopy, CopyOffset); }
+	virtual void Generate(Noise2D & outNoise) const override { outNoise.Fill(*ToCopy, 0.0f, CopyOffset); }
 };
 
 

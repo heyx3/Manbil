@@ -8,6 +8,8 @@ class Fake2DArray
 {
 public:
 
+    //TODO: Change to use unsigned ints for the dimensions.
+
 	//Creates a new Fake2DArray without initializing any of the values.
 	Fake2DArray(int aWidth, int aHeight)
 	{
@@ -16,7 +18,7 @@ public:
 
 		arrayVals = new ArrayType[width * height];
 	}
-	Fake2DArray(int aWidth, int aHeight, const ArrayType defaultValue)
+	Fake2DArray(int aWidth, int aHeight, const ArrayType & defaultValue)
 	{
 		width = aWidth;
 		height = aHeight;
@@ -28,14 +30,7 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-	Fake2DArray(const Fake2DArray<ArrayType> & cpy)
-	{
-		width = cpy.width;
-		height = cpy.height;
-
-		arrayVals = new ArrayType[width * height];
-		Fill(cpy);
-	}
+	Fake2DArray(const Fake2DArray<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
 
 	~Fake2DArray(void)
 	{
@@ -50,7 +45,7 @@ public:
 		delete[] arrayVals;
 		arrayVals = new ArrayType[width * height];
 	}
-	void Reset(int _width, int _height, const ArrayType defaultValue)
+	void Reset(int _width, int _height, const ArrayType & defaultValue)
 	{
 		Reset(_width, _height);
 
@@ -74,11 +69,11 @@ public:
 			arrayVals[i] = value;
 		}
 	}
-	//Copies the given array into this one.
-	void Fill(const Fake2DArray<ArrayType> & toCopy, Vector2i copyOffset = Vector2i(0, 0))
+	//Copies the given array into this one. Optionally specifies an offset for the top-left position of "toCopy".
+	void Fill(const Fake2DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector2i copyOffset = Vector2i(0, 0))
 	{
 		int x, y;
-		Vector2i loc;
+		Vector2i loc, offsetLoc;
 		for (x = 0; x < width; ++x)
 		{
 			loc.x = x;
@@ -87,7 +82,10 @@ public:
 			{
 				loc.y = y;
 
-				(*this)[loc] = toCopy[loc + copyOffset];
+                offsetLoc = loc + copyOffset;
+                if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.x > width || offsetLoc.y > height)
+                    operator[](loc) = defaultValue;
+                else operator[](loc) = toCopy[loc + copyOffset];
 			}
 		}
 	}

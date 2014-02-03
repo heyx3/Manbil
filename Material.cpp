@@ -14,6 +14,9 @@ std::string shaderHeaderPostfix = std::string() +
 						uniform mat4 u_view;                                                                      \n\
 						uniform mat4 u_proj;                                                                      \n\
 						uniform vec3 u_cam_pos;                                                                   \n\
+                        uniform vec3 u_cam_forward;                                                               \n\
+                        uniform vec3 u_cam_upward;                                                               \n\
+                        uniform vec3 u_cam_sideways;                                                              \n\
 						uniform float u_elapsed_seconds;                                                          \n\
                         uniform float u_textureScale;                                                             \n\
 						                                                                                          \n\
@@ -181,6 +184,12 @@ Material::Material(std::vector<RenderingPass> passes)
             uniforms[pass]["u_proj"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_cam_pos", uLoc))
             uniforms[pass]["u_cam_pos"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_cam_forward", uLoc))
+            uniforms[pass]["u_cam_forward"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_cam_upward", uLoc))
+            uniforms[pass]["u_cam_upward"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_cam_sideways", uLoc))
+            uniforms[pass]["u_cam_sideways"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_elapsed_seconds", uLoc))
             uniforms[pass]["u_elapsed_seconds"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_sampler0", uLoc))
@@ -244,6 +253,12 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
 
             Vector3f camPos = info.Cam->GetPosition();
             TrySetUniformF(pass, "u_cam_pos", (float*)(&camPos[0]), 3);
+            Vector3f dir = info.Cam->GetForward();
+            TrySetUniformF(pass, "u_cam_forward", (float*)(&dir[0]), 3);
+            dir = info.Cam->GetUpward();
+            TrySetUniformF(pass, "u_cam_upward", (float*)(&dir[0]), 3);
+            dir = info.Cam->GetSideways();
+            TrySetUniformF(pass, "u_cam_sideways", (float*)(&dir[0]), 3);
 
             float seconds = info.World->GetTotalElapsedSeconds();
             TrySetUniformF(pass, "u_elapsed_seconds", &seconds, 1);

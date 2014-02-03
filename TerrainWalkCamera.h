@@ -16,6 +16,9 @@ private:
 
 public:
 
+    Vector3f TerrainScale;
+    float HeightOffset;
+
 	TerrainWalkCamera(Vector3f pos = Vector3f(), Vector3f forward = Vector3f(1, 0, 0), Vector3f up = Vector3f(0, 0, 1),
 					  Heightmap * _heightmap = 0,
 					  float _moveSpeed = 20.0f, float _rotSpeed = 0.05f,

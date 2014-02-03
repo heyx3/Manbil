@@ -1,9 +1,11 @@
 #include "TerrainWalkCamera.h"
+#include <iostream>
 
 const Vector2i TerrainWalkCamera::mouseTarget = Vector2i(800, 600);
 
 
 TerrainWalkCamera::TerrainWalkCamera(Vector3f p, Vector3f f, Vector3f u, Heightmap * hMap, float mSpd, float rSpd, sf::Window * w)
+    : TerrainScale(1.0f, 1.0f, 1.0f), HeightOffset(5.0f)
 {
 	SetPosition(p);
 	SetRotation(f, u, false);
@@ -27,34 +29,61 @@ bool TerrainWalkCamera::Update(float elapsedTime, std::shared_ptr<OculusDevice> 
 
 	//Update keyboard movement.
 
+    float speedScale = 1.0f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        speedScale = 0.3f;
+    }
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
-		IncrementPosition(GetForward() * moveSpeed * elapsedTime);
+		IncrementPosition(GetForward() * speedScale * moveSpeed * TerrainScale.x * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
-		IncrementPosition(-GetForward() * moveSpeed * elapsedTime);
+        IncrementPosition(-GetForward() * speedScale * moveSpeed * TerrainScale.x * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
-		IncrementPosition(GetSideways() * moveSpeed * elapsedTime);
+        IncrementPosition(GetSideways() * speedScale * moveSpeed * TerrainScale.x * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 	{
-		IncrementPosition(-GetSideways() * moveSpeed * elapsedTime);
+        IncrementPosition(-GetSideways() * speedScale * moveSpeed * TerrainScale.x * elapsedTime);
 	}
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+    {
+        HeightOffset += elapsedTime * speedScale * 10.0f;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+    {
+        HeightOffset += elapsedTime * speedScale * -10.0f;
+    }
 
 
 	//Set Z position.
-	Vector2f pos(GetPosition().x, GetPosition().y);
-	pos = Vector2f(BasicMath::Clamp(pos.x, 0, heightmap->GetSize() - 2),
-				   BasicMath::Clamp(pos.y, 0, heightmap->GetSize() - 2));
-	
-	float z = (*heightmap)[pos];
-	SetPositionZ(z);
+    Vector2f pos(GetPosition().x / TerrainScale.x, GetPosition().y / TerrainScale.y);
+	//Filter the heightmap nearby to reduce bumpiness.
+    float sum = 0.0f;
+    Vector2i posI;
+    for (int x = -2; x < 3; ++x)
+    {
+        posI.x = x;
+        for (int y = -2; y < 3; ++y)
+        {
+            posI.y = y;
+            Vector2i finalPosI(posI.x + (int)pos.x, posI.y + (int)pos.y);
+            sum += (1.0f / 16.0f) * BasicMath::Max(sum, (*heightmap)[finalPosI.Clamp(0, heightmap->GetSize())]);
+        }
+    }
+	SetPositionZ(sum * TerrainScale.z);
+    IncrementPositionZ(HeightOffset);
+    
 
 
 	//Update mouse rotation.

@@ -8,6 +8,7 @@
 #include "Materials.h"
 #include "Foliage.h"
 #include "Rendering/PostProcessing/PostProcessEffect.h"
+#include "TerrainWalkCamera.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -37,8 +38,9 @@ private:
 	Material * testMat;
     PostProcessEffect * effect;
 	Foliage * foliage;
+    Terrain * pTerr;
 
 	Mesh testMesh;
-	MovingCamera cam;
+	TerrainWalkCamera cam;
 	Materials::LitTexture_DirectionalLight dirLight;
 };

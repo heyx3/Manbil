@@ -65,9 +65,12 @@ namespace MyVectors
 		Vector2i operator*(int i) const { return Vector2i(x * i, y * i); }
 		Vector2i operator/(const int i) const { return Vector2i(x / i, y / i); }
 	
+		Vector2i operator-(void) const { return Vector2i(-x, -y); }
+
 		bool Equals(Vector2i v) const { return x == v.x && y == v.y; }
 
-		Vector2i operator-(void) const { return Vector2i(-x, -y); }
+        Vector2i Clamp(int min, int max) { return Vector2i(BasicMath::Max(min, BasicMath::Min(max, x)),
+                                                           BasicMath::Max(min, BasicMath::Min(max, y))); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		int LengthSquared(void) const { return (x * x) + (y * y); }
@@ -106,12 +109,18 @@ namespace MyVectors
 		Vector2f operator*(const float f) const { return Vector2f(x * f, y * f); }
 		Vector2f operator/(const float f) const { return Vector2f(x / f, y / f); }
 
+		Vector2f operator-(void) const { return Vector2f(-x, -y); }
+	
 		const float & operator[](int index) const { return (&x)[index]; }
 		float & operator[](int index) { return (&x)[index]; }
 
-		Vector2f operator-(void) const { return Vector2f(-x, -y); }
-	
 		bool Equals(Vector2f v) const { return x == v.x && y == v.y; }
+
+        Vector2f Clamp(float min, float max)
+        {
+            return Vector2f(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)));
+        }
 
 		float Dot(Vector2f other) const { return (x * other.x) + (y * other.y); }
 		float AngleBetween(Vector2f other) const { return acos(Dot(other) / (Length() * other.Length())); }
@@ -169,12 +178,19 @@ namespace MyVectors
 		Vector3f operator*(const float scale) const { return Vector3f(x * scale, y * scale, z * scale); }
 		Vector3f operator/(const float invScale) const { return Vector3f(x / invScale, y / invScale, z / invScale); }
 	
+		Vector3f operator-(void) const { return Vector3f(-x, -y, -z); }
+	
 		const float & operator[](int index) const { return (&x)[index]; }
 		float & operator[](int index) { return (&x)[index]; }
 
-		Vector3f operator-(void) const { return Vector3f(-x, -y, -z); }
-	
 		bool Equals(Vector3f v) const { return x == v.x && y == v.y && z == v.z; }
+
+        Vector3f Clamp(float min, float max)
+        {
+            return Vector3f(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)),
+                            BasicMath::Max(min, BasicMath::Min(max, z)));
+        }
 
 		float Dot(Vector3f other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 		float AngleBetween(Vector3f other) const { return acos(Dot(other) / (Length() * other.Length())); }
@@ -239,6 +255,13 @@ namespace MyVectors
 	
 		bool Equals(Vector3i v) const { return x == v.x && y == v.y && z == v.z; }
 
+        Vector3i Clamp(int min, int max)
+        {
+            return Vector3i(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)),
+                            BasicMath::Max(min, BasicMath::Min(max, z)));
+        }
+
 		float Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 		float AngleBetween(Vector3i other) const { return acos(Dot(other) / (Length() * other.Length())); }
 
@@ -277,13 +300,21 @@ namespace MyVectors
 		Vector4f operator*(const float scale) const { return Vector4f(x * scale, y * scale, z * scale, w * scale); }
 		Vector4f operator/(const float invScale) const { return Vector4f(x / invScale, y / invScale, z / invScale, w / invScale); }
 	
-		const float & operator[](int index) const { return (&x)[index]; }
-		float & operator[](int index) { return (&x)[index]; }
-
 		Vector4f operator-(void) const { return Vector4f(-x, -y, -z, -w); }
 	
 		bool operator==(Vector4f other) { return Equals(other); }
 		bool Equals(Vector4f v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
+
+		const float & operator[](int index) const { return (&x)[index]; }
+		float & operator[](int index) { return (&x)[index]; }
+
+        Vector4f Clamp(float min, float max)
+        {
+            return Vector4f(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)),
+                            BasicMath::Max(min, BasicMath::Min(max, z)), 
+                            BasicMath::Max(min, BasicMath::Min(max, w)));
+        }
 
 		float Dot(Vector4f other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
 		float AngleBetween(Vector4f other) const { return acos(Dot(other) / (Length() * other.Length())); }

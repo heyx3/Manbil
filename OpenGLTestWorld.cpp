@@ -46,7 +46,7 @@ sf::Image img;
 RenderObjHandle imgObj;
 
 const int terrainSize = 300;
-const float terrainBreadth = 2.0f, terrainHeight = 60.0f;
+const float terrainBreadth = 5.0f, terrainHeight = 100.0f;
 const float terrainTexScale = 50.0f;
 void GenerateTerrainNoise(Noise2D & outNoise)
 {
@@ -81,7 +81,7 @@ bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-	: SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0)
+: SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
 	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
@@ -90,7 +90,7 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 	dirLight.Diffuse = 0.7f;
 	dirLight.Specular = 4.0f;
 	
-	dirLight.SpecularIntensity = 32.0f;
+	dirLight.SpecularIntensity = 128.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {
@@ -139,18 +139,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 	}
 
 
-
-	//Camera.
-	Vector3f pos(-100, -100, terrainHeight);
-	cam = MovingCamera(pos, 80.0f, 0.05f, -pos);
-	cam.Info.FOV = ToRadian(55.0f);
-	cam.Info.zFar = 1000.0f;
-	cam.Info.zNear = 1.0f;
-	cam.Info.Width = windowSize.x;
-	cam.Info.Height = windowSize.y;
-	cam.Window = GetWindow();
-
-
     //Material.
     std::vector<RenderingPass> mats;
     mats.insert(mats.end(), Materials::LitTexture);
@@ -180,7 +168,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 	Noise2D noise(terrainSize, terrainSize);
 	GenerateTerrainNoise(noise);
 
-	Terrain terr(terrainSize);
+    pTerr = new Terrain(terrainSize);
+	Terrain & terr = *pTerr;
 	terr.SetHeightmap(noise);
 
 	const int size = terrainSize * terrainSize;
@@ -245,6 +234,17 @@ void OpenGLTestWorld::InitializeWorld(void)
 	delete[] vertexPoses;
 
 
+    //Camera.
+    Vector3f pos(0, 0, terrainHeight);
+    cam = TerrainWalkCamera(pos, Vector3f(1.0f, 1.0f, -0.30f), Vector3f(0, 0, 1), pTerr, 30.0f, 0.05f, GetWindow());
+    cam.TerrainScale = Vector3f(terrainBreadth, terrainBreadth, terrainHeight);
+    cam.Info.FOV = ToRadian(55.0f);
+    cam.Info.zFar = 10000.0f;
+    cam.Info.zNear = 1.0f;
+    cam.Info.Width = windowSize.x;
+    cam.Info.Height = windowSize.y;
+
+
 	//Create terrain mesh.
 	testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
     Materials::LitTexture_SetUniforms(testMesh, dirLight);
@@ -278,12 +278,14 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 	DeleteAndSetToNull(effect);
 	DeleteAndSetToNull(testMat);
 	DeleteAndSetToNull(foliage);
+    DeleteAndSetToNull(pTerr);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
 	DeleteAndSetToNull(effect);
 	DeleteAndSetToNull(testMat);
-	DeleteAndSetToNull(foliage);
+    DeleteAndSetToNull(foliage);
+    DeleteAndSetToNull(pTerr);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -299,7 +301,7 @@ void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
 
 void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 {
-	if (cam.Update(elapsedSeconds))
+	if (cam.Update(elapsedSeconds, std::shared_ptr<OculusDevice>(0)))
 	{
 		EndWorld();
 	}

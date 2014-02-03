@@ -15,6 +15,7 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 {
     //The foliage encodes x and y wave amount in the red and green values of the vertices.
     //The blue value of the vertex is a pseudo-random value to make each foliage piece wave a little differently.
+    //The alpha will be -1 for a foliage quad along the x axis, and +1 for a foliage quad along the y axis.
     //The normal will be used to give the base position.
 
 	float halfScale = scale.x * 0.5f;
@@ -27,8 +28,8 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 
 	vertexStart[0] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z),           Vector2f(0.0f, 0.0f), Vector4f(),                        pos);
 	vertexStart[1] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z),           Vector2f(1.0f, 0.0f), Vector4f(),                        pos);
-    vertexStart[2] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z + scale.y), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 0.0f), pos);
-    vertexStart[3] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z + scale.y), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 0.0f), pos);
+    vertexStart[2] = Vertex(Vector3f(pos.x - halfScale, pos.y, pos.z + scale.y), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 1.0f), pos);
+    vertexStart[3] = Vertex(Vector3f(pos.x + halfScale, pos.y, pos.z + scale.y), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 0.0f, rand1, 1.0f), pos);
 
 
 	indexStart[0] = indexOffset;
@@ -40,8 +41,8 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 
 	vertexStart[4] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z),           Vector2f(0.0f, 0.0f), Vector4f(),                        pos);
 	vertexStart[5] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z),           Vector2f(1.0f, 0.0f), Vector4f(),                        pos);
-    vertexStart[6] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z + scale.y), Vector2f(0.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, 0.0f), pos);
-    vertexStart[7] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z + scale.y), Vector2f(1.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, 0.0f), pos);
+    vertexStart[6] = Vertex(Vector3f(pos.x, pos.y - halfScale, pos.z + scale.y), Vector2f(0.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, -1.0f), pos);
+    vertexStart[7] = Vertex(Vector3f(pos.x, pos.y + halfScale, pos.z + scale.y), Vector2f(1.0f, 1.0f), Vector4f(0.0f, 1.0f, rand2, -1.0f), pos);
 	
 	indexStart[6] = indexOffset + 4;
 	indexStart[7] = indexOffset + 6;
@@ -63,14 +64,14 @@ RenderingPass Foliage::GetFoliageRenderer(void)
 					 {\n\
 				 	    float waveOffsetInner = u_elapsed_seconds * waveSpeed;\n\
                         waveOffsetInner += (in_col.z * 6117.34);\n\
-				 	    vec2 waveOffset = waveScale * sin(vec2(waveOffsetInner) * in_col.xy);\n\
+				 	    vec2 waveOffset = waveScale * sin(in_col.z + (vec2(waveOffsetInner) * in_col.xy));\n\
                         \n\
                         vec3 finalObjPos = in_pos + vec3(waveOffset, 0.0);\n\
                         //Lean away from the player.\n\
                         float dist = worldTo4DScreen(finalObjPos).z;\n\
                         float distLerp = clamp(1.0 - dist / leanMaxDist, 0.0, 1.0);\n\
                         float rotAmount = -0.5 * 3.14159;\n\
-                        vec4 rotationQ = getQuaternionRotation(vec3(in_col.xy, 0.0), distLerp * rotAmount);\n\
+                        vec4 rotationQ = getQuaternionRotation(u_cam_sideways * (in_col.x + in_col.y), distLerp * rotAmount);\n\
                         finalObjPos = in_normal + applyQuaternionRotation(finalObjPos - in_normal, rotationQ);\n\
                         \n\
                         vec4 pos4D = worldTo4DScreen(finalObjPos);\n\
