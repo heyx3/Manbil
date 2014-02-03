@@ -38,7 +38,8 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 Water::Water(unsigned int size, unsigned int maxRipples,
              Vector2f texturePanDir, Vector3f pos)
     : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles)
+      Mat(0), waterMesh(PrimitiveTypes::Triangles),
+      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
     Mat = new Material(GetRippleWaterRenderer(maxRipples));
 
@@ -51,15 +52,20 @@ Water::Water(unsigned int size, unsigned int maxRipples,
 
     CreateWaterMesh(size, waterMesh);
 
-    RippleWaterArgs args(Vector3f(), 0.0f, 0.0f, 1.0f, 1.0f);
-    RippleWaterArgsElement argsE(args, -1);
-    for (int i = 0; i < maxRipples; ++i)
-    {
-        ripples.insert(ripples.end(), argsE);
-    }
+    Mat->AddUniform("dropoffPoints_timesSinceCreated_heights_periods");
+    Mat->AddUniform("sourcesXY_speeds");
+    Mat->AddUniform("bumpmapHeight");
+
+    rippleIDs = new int[maxRipples];
+    dp_tsc_h_p = new Vector4f[maxRipples];
+    sXY_sp = new Vector3f[maxRipples];
+
+    Mat->SetUniformF("dropoffPoints_timesSinceCreated_heights_periods", &dp_tsc_h_p, 
 }
 Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int _maxFlows)
-    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0), Mat(0), waterMesh(PrimitiveTypes::Triangles)
+    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
+      Mat(0), waterMesh(PrimitiveTypes::Triangles),
+      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
     Mat = new Material(GetDirectionalWaterRenderer());
 
@@ -83,6 +89,11 @@ Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlo
 Water::~Water(void)
 {
     delete Mat;
+
+    if (rippleIDs != 0)
+    {
+        delete[] rippleIDs, dp_tsc_h_p, sXY_sp;
+    }
 }
 
 int Water::AddRipple(const RippleWaterArgs & args)
@@ -112,7 +123,7 @@ int Water::AddRipple(const RippleWaterArgs & args)
 }
 void Water::ChangeRipple(int element, const RippleWaterArgs & args)
 {
-    for (int i = 0; i < ripples.size(); ++i)
+    for (int i = 0; i < maxRipples; ++i)
     {
         if (ripples[i].Element == element)
         {
@@ -157,8 +168,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 {
     std::string n = std::to_string(maxRipples);
 
-    return RenderingPass(std::string() +
-            "uniform vec2 sources[" + n + "];\n\
+    return RenderingPass(std::string() + "\
              //Keep uniforms compacted into vectors so they can be sent to the GPU quicker.\n\
              uniform vec4 dropoffPoints_timesSinceCreated_heights_periods[" + n + "];\n\
              uniform vec3 sourcesXY_speeds[" + n + "];\n\
@@ -210,4 +220,10 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 RenderingPass Water::GetDirectionalWaterRenderer(void)
 {
     return Materials::BareColor;
+}
+
+bool Water::Render(const RenderInfo & info)
+{
+    //Set the data.
+    SetUniform
 }

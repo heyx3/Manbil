@@ -44,6 +44,34 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 		default: assert(false);
 	}
 }
+void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int floatsPerElement, const float * valuesSplit)
+{
+    if (floatsPerElement < 1 || floatsPerElement > 4)
+    {
+        throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
+    }
+
+    switch (floatsPerElement)
+    {
+        case 1:
+            glUniform1fv(loc, arrayElements, valuesSplit);
+            break;
+
+        case 2:
+            glUniform2fv(loc, arrayElements, valuesSplit);
+            break;
+
+        case 3:
+            glUniform3fv(loc, arrayElements, valuesSplit);
+            break;
+
+        case 4:
+            glUniform4fv(loc, arrayElements, valuesSplit);
+            break;
+
+        default: assert(false);
+    }
+}
 void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const int * value)
 {
 	if (elements < 1 || elements > 4)
@@ -68,6 +96,34 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 
 		default: assert(false);
 	}
+}
+void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit)
+{
+    if (intsPerElement < 1 || intsPerElement > 4)
+    {
+        throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
+    }
+
+    switch (intsPerElement)
+    {
+    case 1:
+        glUniform1iv(loc, arrayElements, valuesSplit);
+        break;
+
+    case 2:
+        glUniform2iv(loc, arrayElements, valuesSplit);
+        break;
+
+    case 3:
+        glUniform3iv(loc, arrayElements, valuesSplit);
+        break;
+
+    case 4:
+        glUniform4iv(loc, arrayElements, valuesSplit);
+        break;
+
+    default: assert(false);
+    }
 }
 void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 {

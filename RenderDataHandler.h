@@ -26,9 +26,13 @@ public:
 	//An error that can be thrown in "SetUniformValue".
 	static const int EXCEPTION_ELEMENTS_OUT_OF_RANGE;
 	//Sets a float/vec2/vec3/vec4 value. Assumes the correct shader program is already bound.
-	static void SetUniformValue(UniformLocation loc, int elements, const float * values);
+    static void SetUniformValue(UniformLocation loc, int elements, const float * values);
+    //Sets an array of float/vec2/3/4 values. Assumes the correct shader program is already bound.
+    static void SetUniformArrayValue(UniformLocation loc, int arrayElements, int floatsPerElement, const float * valuesSplit);
 	//Sets an int/int2/int3/int4 value. Assumes the correct shader program is already bound.
-	static void SetUniformValue(UniformLocation loc, int elements, const int * values);
+    static void SetUniformValue(UniformLocation loc, int elements, const int * values);
+    //Sets an array of int/2/3/4 values. Assumes the correct shader program is already bound.
+    static void SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit);
 	//Sets a matrix value. Assumes the correct shader program is already bound.
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
 	

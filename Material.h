@@ -119,6 +119,16 @@ public:
         return tried;
     }
     //Returns whether or not the uniform exists in any of the passes.
+    bool SetUniformArrayF(std::string uniform, const float * dataSplit, int nUniforms)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            Shader
+        }
+        return tried;
+    }
+    //Returns whether or not the uniform exists in any of the passes.
     bool SetUniformI(std::string uniform, const int * data, int nData)
     {
         bool tried = false;

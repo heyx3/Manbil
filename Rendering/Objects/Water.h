@@ -90,18 +90,22 @@ public:
     bool SetBumpmapHeight(float newHeight) { return Mat->SetUniformF("bumpmapHeight", &newHeight, 1); }
 
 
+    bool Render(const RenderInfo & info);
+
+
 private:
 
     WaterTypes waterType;
     std::string errorMsg;
 
     //Ripple stuff.
-    struct RippleWaterArgsElement { public: RippleWaterArgs Args; int Element; RippleWaterArgsElement(const RippleWaterArgs & a, int e) : Args(a), Element(e) { } };
     int currentRippleIndex;
     int maxRipples;
     int nextRippleID;
     int totalRipples;
-    std::vector<RippleWaterArgsElement> ripples;
+    int * rippleIDs;
+    Vector4f * dp_tsc_h_p; //If you want an explanation for the weird name, look at the shader.
+    Vector3f * sXY_sp;
 
     //Flow stuff.
     struct DirectionalWaterArgsElement { public: DirectionalWaterArgs Args; int Element; DirectionalWaterArgsElement(const DirectionalWaterArgs & a, int e) : Args(a), Element(e) { } };
