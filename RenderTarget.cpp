@@ -91,6 +91,8 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 
 void RenderTarget::ChangeSize(int newW, int newH)
 {
+    //TODO: Fix.
+
 	width = newW;
 	height = newH;
 	

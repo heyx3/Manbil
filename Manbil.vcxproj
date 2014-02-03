@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="BasicMComponentFactories.cpp" />
     <ClCompile Include="BasicMComponents.cpp" />
+    <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Foliage.cpp" />
     <ClCompile Include="GeneralOculus.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
@@ -134,7 +135,6 @@
     <ClCompile Include="SFMLWorld.cpp" />
     <ClCompile Include="ShaderHandler.cpp" />
     <ClCompile Include="TerrainWalkCamera.cpp" />
-    <ClCompile Include="TerrainWorld.cpp" />
     <ClCompile Include="TextureSettings.cpp" />
     <ClCompile Include="TwoTrianglesMaterial.cpp" />
     <ClCompile Include="TwoTrianglesWorld.cpp" />
@@ -144,6 +144,8 @@
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />
     <ClInclude Include="BasicMComponents.h" />
+    <ClInclude Include="Events\EventManager.h" />
+    <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Foliage.h" />
     <ClInclude Include="Input\BoolInput.h" />
     <ClInclude Include="Input\FloatInput.h" />
@@ -213,7 +215,6 @@
     <ClInclude Include="SFMLWorld.h" />
     <ClInclude Include="ShaderHandler.h" />
     <ClInclude Include="TerrainWalkCamera.h" />
-    <ClInclude Include="TerrainWorld.h" />
     <ClInclude Include="TextureSettings.h" />
     <ClInclude Include="TwoTrianglesMaterial.h" />
     <ClInclude Include="TwoTrianglesWorld.h" />

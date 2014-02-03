@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    InputManager<std::string> Input;
+    InputManager<unsigned int> Input;
 
 	template<class SomeClass>
 	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }

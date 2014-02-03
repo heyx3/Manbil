@@ -22,7 +22,8 @@ public:
     struct DirectionalWaterArgs
     {
     public:
-        //The direction and magnitude of the water flow.
+        //The direction and magnitude of the water flow (in object space).
+        //The magnitude is in units per second.
         Vector2f Flow;
         float Amplitude;
         DirectionalWaterArgs(Vector2f flow, float amplitude) : Flow(flow), Amplitude(amplitude) { }
@@ -32,22 +33,32 @@ public:
     struct RippleWaterArgs
     {
     public:
-        //The position along the horizontal plane of the ripple's source.
-        Vector2f Source;
+        //The position (in world space) of the ripple's source.
+        Vector3f Source;
         //The dropoff scaling, proportional to the distance from the source.
         //A value of 1.0 results in no dropoff.
         float DropoffScale;
-        RippleWaterArgs(Vector2f source, float dropoffScale) : Source(source), DropoffScale(dropoffScale) { }
+        //The time since this ripple was created.
+        float TimeSinceCreated;
+        //The height of the waves.
+        float Amplitude;
+        RippleWaterArgs(Vector3f source, float dropoffScale, float height) : Source(source), DropoffScale(dropoffScale), Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
 
     Material * Mat;
+    TransformObject Transform;
 
 
     //Makes a new Water object that uses circular ripples.
-    Water(unsigned int width, unsigned int height, unsigned int maxRipples, Vector2f texturePanDirection);
+    Water(unsigned int width, unsigned int height, unsigned int maxRipples, Vector2f texturePanDirection, Vector3f pos = Vector3f());
     //Makes a new Water object that uses directional water.
-    Water(Vector2f texturePanDirection, DirectionalWaterArgs mainFlow);
+    Water(Vector2f texturePanDirection, DirectionalWaterArgs mainFlow, unsigned int maxRipples);
+
+
+    bool HasError(void) const { return !errorMsg.empty(); }
+    const std::string & GetErrorMessage(void) const { return errorMsg; }
+    void ClearErrorMessage(void) { errorMsg.clear(); }
 
 
     WaterTypes GetWaterType(void) const { return waterType; }
@@ -55,12 +66,22 @@ public:
 
     //Adds another ripple to the water.
     //This function only applies to rippling water.
-    //Returns whether the ripple was created successfully.
-    bool AddRipple(RippleWaterArgs args);
+    //Returns the id for the created ripple, or -1 if it was unsuccessful.
+    int AddRipple(const RippleWaterArgs & args);
+    //Changes the water ripples with the given ID.
+    //This function only applies to rippling water.
+    void ChangeRipple(int element, const RippleWaterArgs & args);
+
     //Adds a new flow to the water.
     //This function only applies to directional water.
-    //Returns whether the flow was created successfully.
-    bool AddFlow(DirectionalWaterArgs args);
+    //Returns the id for the created flow, or -1 if it was unsuccessful.
+    int AddFlow(const DirectionalWaterArgs & args);
+    //Changes he water flow with the given ID.
+    //This function only applies to directional water.
+    int ChangeFlow(int element, const DirectionalWaterArgs & args);
+
+
+    //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
     //Returns whether the uniform was set successfully.
     bool SetBumpmapHeight(float newHeight) { return Mat->SetUniformF("bumpmapHeight", &newHeight, 1); }
@@ -69,19 +90,26 @@ public:
 private:
 
     WaterTypes waterType;
+    std::string errorMsg;
 
     //Ripple stuff.
+    struct RippleWaterArgsElement { public: RippleWaterArgs Args; int Element; RippleWaterArgsElement(const RippleWaterArgs & a, int e) : Args(a), Element(e) { } };
     int currentRippleIndex;
     int maxRipples;
     int nextRippleID;
     int totalRipples;
-    std::vector<float> ripplesTimeSinceCreated; //Used to limit the distance the ripple reaches out from.
+    std::vector<RippleWaterArgsElement> ripples;
 
     //Flow stuff.
+    struct DirectionalWaterArgsElement { public: DirectionalWaterArgs Args; int Element; DirectionalWaterArgsElement(const DirectionalWaterArgs & a, int e) : Args(a), Element(e) { } };
     int currentFlowIndex;
+    int maxFlows;
+    std::vector<DirectionalWaterArgsElement> flows;
+
+    Mesh waterMesh;
 
     //Gets the single RenderingPass needed to render rippling water.
-    static RenderingPass GetRippleWaterRenderer(void);
+    static RenderingPass GetRippleWaterRenderer(int maxRipples);
     //Gets the single RenderingPass needed to render directional water.
     static RenderingPass GetDirectionalWaterRenderer(void);
 };

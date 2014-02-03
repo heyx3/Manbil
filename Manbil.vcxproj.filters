@@ -17,9 +17,6 @@
     <ClCompile Include="TerrainWalkCamera.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="MGame.cpp">
       <Filter>MGame</Filter>
     </ClCompile>
@@ -182,6 +179,9 @@
     <ClCompile Include="Rendering\Objects\Water.cpp">
       <Filter>Rendering\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Events\Timing.cpp">
+      <Filter>Events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -197,9 +197,6 @@
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="TerrainWalkCamera.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainWorld.h">
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="MGame.h">
@@ -418,6 +415,12 @@
     <ClInclude Include="Rendering\Objects\Water.h">
       <Filter>Rendering\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Events\EventManager.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\Timing.h">
+      <Filter>Events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -491,6 +494,9 @@
     </Filter>
     <Filter Include="Rendering\Objects">
       <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Events">
+      <UniqueIdentifier>{95bef7da-4bab-4a10-9f0f-306b3c80aa15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
