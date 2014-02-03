@@ -88,7 +88,7 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 
 	dirLight.Ambient = 0.05f;
 	dirLight.Diffuse = 0.7f;
-	dirLight.Specular = 0.0f;
+	dirLight.Specular = 1.0f;
 	
 	dirLight.SpecularIntensity = 128.0f;
 }
@@ -257,7 +257,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 	ClearAllRenderingErrors();
     std::vector<RenderingPass> passes;
     passes.insert(passes.end(), Materials::EmptyPostProcess);
-    passes.insert(passes.end(), Materials::NoisePass);
     effect = new PostProcessEffect(windowSize.x, windowSize.y, passes);
 	if (effect->HasError())
 	{

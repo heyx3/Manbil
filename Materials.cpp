@@ -104,6 +104,7 @@ const RenderingPass Materials::EmptyPostProcess = RenderingPass(
     std::string("void main()\n\
                 {\n\
                     out_finalCol = vec4(texture(u_sampler0, out_tex).xyz, 1.0);\n\
+                    out_finalCol = vec4(smoothstep(0.0, 1.0, out_finalCol.xyz), 1.0);\n\
                 }"));
 
 

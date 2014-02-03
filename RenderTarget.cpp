@@ -165,6 +165,7 @@ bool RenderTarget::IsValid(void) const
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	bool goodFBO = (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, currentBuffer);
+    glViewport(0, 0, width, height);
 
 
 	if (errorMsg.empty())

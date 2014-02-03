@@ -126,6 +126,7 @@
     <ClCompile Include="OpenGLIncludes.cpp" />
     <ClCompile Include="OpenGLTestWorld.cpp" />
     <ClCompile Include="RenderingState.cpp" />
+    <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScreenClearer.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="OpenGLIncludes.h" />
     <ClInclude Include="OpenGLTestWorld.h" />
     <ClInclude Include="RenderingState.h" />
+    <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
     <ClInclude Include="RenderTarget.h" />

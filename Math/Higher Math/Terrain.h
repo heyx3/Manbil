@@ -48,6 +48,7 @@ public:
 	//The exception thrown when invalid top-left/bottom-right values are given for the following functions: "CreateVertexPositions", "CreateVertexIndices", "CreateVertexNormals", "CreateVertexTexCoords".
 	static unsigned char Exception_Invalid_Area;
 
+
 	//Creates vertex data for this terrain.
 	//The "zoomOut" level describes how detailed it should be.
 

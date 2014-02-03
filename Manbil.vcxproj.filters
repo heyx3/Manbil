@@ -86,9 +86,6 @@
     <ClCompile Include="IO\DataSerializer.cpp">
       <Filter>XML IO</Filter>
     </ClCompile>
-    <ClCompile Include="Foliage.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="NoiseToTexture.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -178,6 +175,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp">
       <Filter>Rendering\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Foliage.cpp">
+      <Filter>Rendering\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Objects\Water.cpp">
+      <Filter>Rendering\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -288,9 +291,6 @@
     </ClInclude>
     <ClInclude Include="IO\DataSerializer.h">
       <Filter>XML IO</Filter>
-    </ClInclude>
-    <ClInclude Include="Foliage.h">
-      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="NoiseToTexture.h">
       <Filter>Rendering</Filter>
@@ -412,6 +412,12 @@
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h">
       <Filter>Rendering\Post-Processing</Filter>
     </ClInclude>
+    <ClInclude Include="Foliage.h">
+      <Filter>Rendering\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Objects\Water.h">
+      <Filter>Rendering\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -482,6 +488,9 @@
     </Filter>
     <Filter Include="Rendering\Post-Processing">
       <UniqueIdentifier>{d1d8c8fa-48ec-4ad0-bc6f-63d81ae1bb77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Objects">
+      <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
