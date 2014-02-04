@@ -31,6 +31,24 @@ std::string shaderHeaderPostfix = std::string() +
 						vec3 fourDScreenTo3DScreen(vec4 screen4D) { return screen4D.xyz / screen4D.w; }           \n\
 						vec3 worldTo3DScreen(vec3 world) { return fourDScreenTo3DScreen(worldTo4DScreen(world)); }\n\
                                                                                                                   \n\
+                        vec2 smoothstepVec2(vec2 start, vec2 end, float interp)                                   \n\
+                        {                                                                                         \n\
+                            return vec2(smoothstep(start.x, end.x, interp), smoothstep(start.y, end.y, interp));  \n\
+                        }                                                                                         \n\
+                        vec3 smoothstepVec3(vec3 start, vec3 end, float interp)                                   \n\
+                        {                                                                                         \n\
+                            return vec3(smoothstep(start.x, end.x, interp),                                       \n\
+                                        smoothstep(start.y, end.y, interp),                                       \n\
+                                        smoothstep(start.z, end.z, interp));                                      \n\
+                        }                                                                                         \n\
+                        vec4 smoothstepVec4(vec4 start, vec4 end, float interp)                                   \n\
+                        {                                                                                         \n\
+                            return vec4(smoothstep(start.x, end.x, interp),                                       \n\
+                                        smoothstep(start.y, end.y, interp),                                       \n\
+                                        smoothstep(start.z, end.z, interp),                                       \n\
+                                        smoothstep(start.w, end.w, interp));                                      \n\
+                        }                                                                                         \n\
+                                                                                                                  \n\
                         vec4 getQuaternionRotation(vec3 rotAxis, float rotation)                                  \n\
                         {                                                                                         \n\
                             float sinHalfAngle = sin(rotation * 0.5),                                             \n\

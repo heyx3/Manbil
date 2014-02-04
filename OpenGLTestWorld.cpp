@@ -77,7 +77,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 	if (finalG != 0) finalG->Generate(outNoise);
 }
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 2.0f, 2.5f, 5.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 10.0f, 5.0f);
 
 
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
@@ -86,14 +86,14 @@ bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
-	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
+	dirLight.Dir = Vector3f(1.0f, 1.0f, -0.025f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
-	dirLight.Ambient = 0.1f;
-	dirLight.Diffuse = 0.9f;
+	dirLight.Ambient = 0.3f;
+	dirLight.Diffuse = 0.7f;
 	dirLight.Specular = 4.0f;
 	
-	dirLight.SpecularIntensity = 128.0f;
+	dirLight.SpecularIntensity = 32.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {
@@ -125,8 +125,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 		return;
 	}
 
-	sf::Image otherImg, waterImg;
-	RenderObjHandle otherImgH, waterImgH;
+	sf::Image otherImg, waterImg, normalMapImg;
+	RenderObjHandle otherImgH, waterImgH, normalMapImgH;
 	if (!otherImg.loadFromFile("shrub.png"))
 	{
 		std::cout << "Failed to load shrub texture.\n";
@@ -152,6 +152,21 @@ void OpenGLTestWorld::InitializeWorld(void)
     RenderDataHandler::CreateTexture2D(waterImgH, waterImg);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(waterImgH);
     if (!PrintRenderError("Error setting up water texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!normalMapImg.loadFromFile("Normalmap.png"))
+    {
+        std::cout << "Failed to load normal map texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(normalMapImgH, normalMapImg);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(normalMapImgH);
+    if (!PrintRenderError("Error setting up normal map texture"))
     {
         Pause();
         EndWorld();
@@ -269,6 +284,8 @@ void OpenGLTestWorld::InitializeWorld(void)
     water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
     water->GetMesh().TextureSamplers[0][0] = waterImgH;
+    water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
+
 
 
     //Camera.

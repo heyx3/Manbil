@@ -88,8 +88,11 @@ public:
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
-    //Returns whether the uniform was set successfully.
+    //The following functions return whether the uniform was set successfully.
+
     bool SetBumpmapHeight(float newHeight) { return Mat->SetUniformF("bumpmapHeight", &newHeight, 1); }
+    bool SetTexturePanDir(Vector2f dir) { return Mat->SetUniformF("texturePanDir", &dir[0], 2); }
+
 
     void Update(float elapsedTime);
     bool Render(const RenderInfo & info);
