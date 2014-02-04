@@ -267,9 +267,9 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float derivative = cos(innerVal);\n\
                     vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
                     \n\
-                    norm += heightScale * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
+                    norm += heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
                 }\n\
-                return normalize((norm + vec3(0.0, 0.0, 0.001)) / " + n + ");\n\
+                return normalize((norm + vec3(0.0, 0.0, 0.0001)));\n\
              }\n";
 
 
