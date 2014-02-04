@@ -38,8 +38,6 @@ public:
     {
         bool val = GetRawInput(elapsedFrameTime, elapsedTotalTime);
 		previousValue = value;
-        if (val)
-            value = value;
 
 		switch (DesiredValueState)
 		{
@@ -50,12 +48,14 @@ public:
 				value = !val;
 				break;
 			case ValueStates::JustPressed:
-				value = (val && !previousValue);
+				value = (val && !previousRawValue);
 				break;
 			case ValueStates::JustReleased:
-				value = (!val && previousValue);
+				value = (!val && previousRawValue);
 			default: assert(false); return;
 		}
+
+        previousRawValue = val;
 	}
 
 
@@ -68,4 +68,5 @@ protected:
 private:
 	
 	bool value, previousValue;
+    bool previousRawValue;
 };

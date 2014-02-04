@@ -213,8 +213,11 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
              uniform vec4 dropoffPoints_timesSinceCreated_heights_periods[" + n + "];\n\
              uniform vec3 sourcesXY_speeds[" + n + "];\n\
              \n\
-             float getHeightOffset(vec2 horizontalPos)\n\
+             //The XYZ of the return value is the normal at the given position.\n\
+             //The W of the return value is the height at the given position.\n\
+             vec4 getWaveData(vec2 horizontalPos)\n\
              {\n\
+                vec3 norm = vec3(0.0, 0.0, 1.0);\n\
                 float offset = 0.0;\n\
                 for (int i = 0; i < " + n + "; ++i)\n\
                 {\n\
@@ -231,23 +234,40 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
                     float cutoff = timeSinceCreated * speed * 2.0;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
-                    offset += height * heightScale * cutoff * sin((dist / period) + (-u_elapsed_seconds * speed));\n\
+                    \n\
+                    float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
+                    float waveScale = height * heightScale * cutoff;\n\
+                    float sinVal = sin(innerVal);\n\
+                    float cosVal = cos(innerVal);\n\
+                    \n\
+                    offset += waveScale * sinVal;\n\
+                    vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
+                    float derivative = cosVal;\n\
+                    norm += waveScale * normalize(mix(vec3(-toSource.x, -toSource.y, toSource.z), toSource, derivative));\n\
                 }\n\
-                return offset;\n\
+                return vec4(normalize(norm), offset);\n\
              }\n\
              \n\
              void main()\n\
              {\n\
                 out_tex = in_tex;\n\
-                //out_normal = normalize((u_world * vec4(in_normal, 0.0)).xyz);\n\
-                //gl_Position = worldTo4DScreen(in_pos);\n\
-                //return;\n\
-                float heightOffset = getHeightOffset(in_pos.xy);\n\
-                vec3 finalPos = in_pos + vec3(0.0, 0.0, getHeightOffset(in_pos.xy));\n\
+                \n\
+                //Get height ripples.\n\
+                vec4 waveData = getWaveData(in_pos.xy);\n\
+                float heightOffset = waveData.w;\n\
+                vec3 waveNorm = waveData.xyz;\n\
+                \n\
+                vec3 finalPos = in_pos + vec3(0.0, 0.0, heightOffset);\n\
+                \n\
+                vec4 out_pos4 = (u_world * vec4(finalPos, 1.0));\n\
+                out_pos = out_pos4.xyz / out_pos4.w;\n\
+                \n\
                 //Change the normal by shifting it towards the player based on the height change.\n\
                 vec2 toPlayer = normalize(u_cam_pos.xy - in_pos.xy);\n\
                 vec3 normalOffset = vec3(heightOffset * toPlayer, 0.0);\n\
-                out_normal = normalize(worldTo3DScreen(vec3(0.0, 0.0, 1.0)) + normalOffset);\n\
+                out_normal = normalize(u_world * vec4(vec3(0.0, 0.0, 1.0) + normalOffset, 0.0)).xyz;\n\
+                \n\
+                out_normal = normalize(u_world * vec4(waveNorm, 0.0)).xyz;\n\
                 \n\
                 gl_Position = worldTo4DScreen(finalPos);\n\
              }",
@@ -264,15 +284,16 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             \n\
             void main()\n\
             {\n\
+                //TODO: Bumpmap should use Nearest filtering. Sample it above/below/left/right of out_tex and average both cross products to get the normal.\n\
                 vec3 finalPos = out_pos +\n\
                                (out_normal * bumpmapHeight * texture(u_sampler1, u_textureScale * out_tex).x);\n\
                 //TODO: Compute normals.\n\
-                float brightness = getBrightness(out_normal, normalize(out_pos - u_cam_pos),\n\
+                float brightness = getBrightness(normalize(out_normal), normalize(out_pos - u_cam_pos),\n\
                                                  DirectionalLight.Dir, DirectionalLight.Ambient,\n\
                                                  DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
                                                  DirectionalLight.SpecularIntensity);\n\
                 vec4 texCol = texture(u_sampler0, u_textureScale * out_tex);\n\
-                out_finalCol = vec4(/*brightness * DirectionalLight.Col * */texCol.xyz, 1.0);\n\
+                out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
 }
 

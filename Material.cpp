@@ -237,7 +237,7 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
     {
         //Calculate the transformation matrices for this mesh.
         meshes[mesh]->Transform.GetWorldTransform(transMat);
-        worldMat = Matrix4f::Multiply(worldMat, transMat);
+        worldMat = Matrix4f::Multiply(*info.mWorld, transMat);
         wvp = Matrix4f::Multiply(vpMat, worldMat);
 
         //Render each pass for this mesh.
@@ -248,8 +248,10 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
 
             //Set basic uniforms.
 
+            TrySetUniformMat(pass, "u_world", worldMat);
             TrySetUniformMat(pass, "u_view", *info.mView);
             TrySetUniformMat(pass, "u_proj", *info.mProj);
+            TrySetUniformMat(pass, "u_wvp", wvp);
 
             Vector3f camPos = info.Cam->GetPosition();
             TrySetUniformF(pass, "u_cam_pos", (float*)(&camPos[0]), 3);
@@ -262,9 +264,6 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
 
             float seconds = info.World->GetTotalElapsedSeconds();
             TrySetUniformF(pass, "u_elapsed_seconds", &seconds, 1);
-
-            TrySetUniformMat(pass, "u_world", worldMat);
-            TrySetUniformMat(pass, "u_wvp", wvp);
 
 
             //Set the mesh's special uniforms.

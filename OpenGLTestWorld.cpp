@@ -77,7 +77,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 	if (finalG != 0) finalG->Generate(outNoise);
 }
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 2.5f, 5.0f, 5.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 2.0f, 2.5f, 5.0f);
 
 
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
@@ -125,8 +125,8 @@ void OpenGLTestWorld::InitializeWorld(void)
 		return;
 	}
 
-	sf::Image otherImg;
-	RenderObjHandle otherImgH;
+	sf::Image otherImg, waterImg;
+	RenderObjHandle otherImgH, waterImgH;
 	if (!otherImg.loadFromFile("shrub.png"))
 	{
 		std::cout << "Failed to load shrub texture.\n";
@@ -135,7 +135,6 @@ void OpenGLTestWorld::InitializeWorld(void)
 		return;
 	}
 	RenderDataHandler::CreateTexture2D(otherImgH, otherImg);
-
 	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(otherImgH);
 	if (!PrintRenderError("Error setting up shrub texture"))
 	{
@@ -143,6 +142,21 @@ void OpenGLTestWorld::InitializeWorld(void)
 		EndWorld();
 		return;
 	}
+    if (!waterImg.loadFromFile("Water.png"))
+    {
+        std::cout << "Failed to load water texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(waterImgH, waterImg);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(waterImgH);
+    if (!PrintRenderError("Error setting up water texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
 
 
     //Material.
@@ -247,13 +261,14 @@ void OpenGLTestWorld::InitializeWorld(void)
         EndWorld();
         return;
     }
+    Materials::LitTexture_GetUniforms(*water->Mat);
     Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
     water->Transform.SetScale(25.0f / 3.0f);
     float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
     water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
-    water->GetMesh().TextureSamplers[0][0] = imgObj;
+    water->GetMesh().TextureSamplers[0][0] = waterImgH;
 
 
     //Camera.
