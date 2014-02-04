@@ -421,6 +421,9 @@
     <ClInclude Include="Events\Timing.h">
       <Filter>Events</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Helper Classes\BumpmapToNormalmap.h">
+      <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

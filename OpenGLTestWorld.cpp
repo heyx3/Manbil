@@ -372,24 +372,24 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	//std::vector<const Mesh *> meshes;
-	//meshes.insert(meshes.begin(), &testMesh);
-	//if (!testMat->Render(info, meshes))
-	//{
-	//	std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
-	//	Pause();
-	//	EndWorld();
-    //    return;
-	//}
+	std::vector<const Mesh *> meshes;
+	meshes.insert(meshes.begin(), &testMesh);
+	if (!testMat->Render(info, meshes))
+	{
+		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+		Pause();
+		EndWorld();
+        return;
+	}
 	
 
-	//if (!foliage->Render(info))
-	//{
-	//	std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
-	//	Pause();
-	//	EndWorld();
-    //    return;
-	//}
+	if (!foliage->Render(info))
+	{
+		std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
+		Pause();
+		EndWorld();
+        return;
+	}
 
     if (!water->Render(info))
     {

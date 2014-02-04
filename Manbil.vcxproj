@@ -207,6 +207,7 @@
     <ClInclude Include="OpenGLIncludes.h" />
     <ClInclude Include="OpenGLTestWorld.h" />
     <ClInclude Include="RenderingState.h" />
+    <ClInclude Include="Rendering\Helper Classes\BumpmapToNormalmap.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />

@@ -16,6 +16,8 @@ public:
         Directed,
         //Ripples outward from several spots.
         Rippling,
+        //Flows wildly based on a heightmap.
+        SeededHeightmap,
     };
 
     //Data that only applies to directional water.
