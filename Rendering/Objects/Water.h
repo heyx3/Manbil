@@ -50,18 +50,28 @@ public:
         RippleWaterArgs(Vector3f source, float dropoffPoint, float height, float period, float speed) : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
+    //Data that only applies to seeded heightmap water.
+    struct SeededWaterArgs
+    {
+    public:
+        float Amplitude, Period, Speed;
+        SeededWaterArgs(float amplitude, float period, float speed) : Amplitude(amplitude), Period(period), Speed(speed) { }
+    };
+
 
     Material * Mat;
     TransformObject Transform;
 
 
     //Makes a new Water object that uses circular ripples.
-    Water(unsigned int size, unsigned int maxRipples, Vector2f texturePanDirection, Vector3f pos = Vector3f());
+    Water(unsigned int size, unsigned int maxRipples, Vector3f pos = Vector3f());
     //Makes a new Water object that uses directional water.
-    Water(unsigned int size, Vector2f texturePanDirection, DirectionalWaterArgs mainFlow, unsigned int maxRipples);
-    //Makes a new Water object that uses SeededHeightmap water.
-    Water(unsigned int size, Vector2f texturePanDirection, const Fake2DArray<float> & seedValues);
+    Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int maxRipples, Vector3f pos = Vector3f());
+    //Makes a new Water object that uses seeded heightmap water.
+    Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f pos = Vector3f());
+
     ~Water(void);
+    
 
     bool HasError(void) const { return !errorMsg.empty(); }
     const std::string & GetErrorMessage(void) const { return errorMsg; }
@@ -89,6 +99,9 @@ public:
     //This function only applies to directional water.
     void ChangeFlow(int element, const DirectionalWaterArgs & args);
 
+    //Changes the properties of the water.
+    //This function only applies to seeded heightmap water.
+    void ChangeSeededWater(const SeededWaterArgs & args);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
@@ -131,4 +144,6 @@ private:
     static RenderingPass GetRippleWaterRenderer(int maxRipples);
     //Gets the single RenderingPass needed to render directional water.
     static RenderingPass GetDirectionalWaterRenderer(int maxFlows);
+    //Gets the single RenderingPass needed to render seeded heightmap water.
+    static RenderingPass GetSeededHeightRenderer(void);
 };

@@ -78,6 +78,20 @@ public:
     //Gets the number of passes this material uses.
     int GetNumbPasses(void) const { return shaderPrograms.size(); }
 
+    //Gets the different shader programs in the order they are rendered.
+    const std::vector<RenderObjHandle> & GetShaderPasses(void) const { return shaderPrograms; }
+    //Gets the different rendering states for each pass in the order the passes are rendered in.
+    const std::vector<RenderingState> & GetPassRenderStates(void) const { return renderStates; }
+    //Gets the different texture samplers for each pass in the order the passes are rendered in.
+    const std::vector<PassSamplers> & GetPassSamplers(void) const { return textureSamplers; }
+
+    //Gets the different shader programs in the order they are rendered.
+    std::vector<RenderObjHandle> & GetShaderPasses(void) { return shaderPrograms; }
+    //Gets the different rendering states for each pass in the order the passes are rendered in.
+    std::vector<RenderingState> & GetPassRenderStates(void) { return renderStates; }
+    //Gets the different texture samplers for each pass in the order the passes are rendered in.
+    std::vector<PassSamplers> & GetPassSamplers(void) { return textureSamplers; }
+
     //Returns this material's first shader program index.
     int GetHashCode(void) const { if (shaderPrograms.size() == 0) return 1; return shaderPrograms[0]; }
 

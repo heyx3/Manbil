@@ -5,7 +5,7 @@
 #include "../../Math/Higher Math/Terrain.h"
 
 //Optionally takes a heightmap for the Z values.
-void CreateWaterMesh(unsigned int size, Mesh & outM, Fake2DArray<float> * heightmap = 0)
+void CreateWaterMesh(unsigned int size, Mesh & outM, const Fake2DArray<float> * heightmap = 0)
 {
     Fake2DArray<float> flatHeightmap(size, size, 0.0f);
     if (heightmap == 0) heightmap = &flatHeightmap;
@@ -53,11 +53,10 @@ void CreateWaterMesh(unsigned int size, Mesh & outM, Fake2DArray<float> * height
     outM.TextureSamplers.insert(outM.TextureSamplers.end(), samplers);
 }
 
-Water::Water(unsigned int size, unsigned int maxRipples,
-             Vector2f texturePanDir, Vector3f pos)
+Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
     : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling),
-      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
+      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
+      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
 {
     Transform.SetPosition(pos);
 
@@ -102,11 +101,13 @@ Water::Water(unsigned int size, unsigned int maxRipples,
     Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
     Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
 }
-Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int _maxFlows)
+Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _maxFlows, Vector3f pos)
     : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
       Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
+    Transform.SetPosition(pos);
+
     //Create material and mesh.
     CreateWaterMesh(size, waterMesh);
     Mat = new Material(GetDirectionalWaterRenderer(maxFlows));
@@ -140,6 +141,37 @@ Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlo
     {
         flows.insert(flows.end(), argsE);
     }
+}
+Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f pos)
+    : Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
+{
+    Transform.SetPosition(pos);
+
+    //Create material and mesh.
+    CreateWaterMesh(size, waterMesh, &seedValues);
+    Mat = new Material(GetSeededHeightRenderer());
+    if (Mat->HasError())
+    {
+        errorMsg = "Error creating seeded height water material: ";
+        errorMsg += Mat->GetErrorMessage();
+        return;
+    }
+
+
+    //Set up uniforms.
+    Mat->AddUniform("texturePanDir");
+    Mat->AddUniform("normalmapTexturePanDir");
+    Materials::LitTexture_GetUniforms(*Mat);
+
+    //Set lighting.
+    Materials::LitTexture_DirectionalLight lightM;
+    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
+    lightM.Col = Vector3f(1, 1, 1);
+    lightM.Ambient = 0.2f;
+    lightM.Diffuse = 0.8f;
+    lightM.Specular = 0.0f;
+    lightM.SpecularIntensity = 32.0f;
+    Materials::LitTexture_SetUniforms(*Mat, lightM);
 }
 
 Water::~Water(void)
@@ -233,7 +265,7 @@ void Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
 RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 {
     std::string n = std::to_string(maxRipples);
-
+    
     std::string commonGround = std::string() + "\
              //Keep uniforms compacted into vectors so they can be sent to the GPU quicker.\n\
              uniform vec4 dropoffPoints_timesSinceCreated_heights_periods[" + n + "];\n\
@@ -321,7 +353,6 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 			};\n\
 			uniform DirectionalLightStruct DirectionalLight;\n\
             \n\
-            uniform float bumpmapHeight;\n\
             uniform vec2 texturePanDir;\n\
             uniform vec2 normalmapTexturePanDir;\n\
             \n\
@@ -344,10 +375,40 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
 }
-
 RenderingPass Water::GetDirectionalWaterRenderer(int maxFlows)
 {
-    return Materials::BareColor;
+    return Materials::LitTexture;
+}
+RenderingPass Water::GetSeededHeightRenderer(void)
+{
+    std::string commonGround = std::string() + "\
+                uniform float amplitude;\n\
+                uniform float period;\n\
+                uniform float speed;\n\
+                float getWaveHeight(vec2 horizontalPos, float seed)\n\
+                {\n\
+                    seed *= 1351.2454;\n\
+                    return sin(seed / period) + (u_elapsed_seconds * speed);\n\
+                }\n\
+                ";
+
+    return RenderingPass(
+        commonGround + "\
+            ",
+        commonGround + "\
+            struct DirectionalLightStruct\n\
+			{\n\
+				vec3 Dir, Col;\n\
+				float Ambient, Diffuse, Specular;\n\
+				float SpecularIntensity;\n\
+			};\n\
+			uniform DirectionalLightStruct DirectionalLight;\n\
+            \n\
+            uniform vec2 texturePanDir;\n\
+            uniform vec2 normalmapTexturePanDir;\n\
+            \n\
+            ",
+        );
 }
 
 void Water::Update(float elapsed)
@@ -355,10 +416,22 @@ void Water::Update(float elapsed)
     switch (waterType)
     {
     case WaterTypes::Rippling:
+
+        //Keep in mind that negative time values indicate the ripple source was stopped and is disappearing.
         for (int i = 0; i < maxRipples; ++i)
-            dp_tsc_h_p[i].y += elapsed;
+            if (dp_tsc_h_p[i].y >= 0.0f)
+                dp_tsc_h_p[i].y += elapsed;
+            else dp_tsc_h_p[i].y -= elapsed;
+
         break;
+
+
     case WaterTypes::Directed:
+
+        break;
+
+
+    case WaterTypes::SeededHeightmap:
 
         break;
 
@@ -369,9 +442,26 @@ bool Water::Render(const RenderInfo & info)
 {
     waterMesh.Transform = Transform;
 
-    //Set the data.
-    Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
-    Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
+
+    //Set uniforms.
+    switch (waterType)
+    {
+    case WaterTypes::Rippling:
+        Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
+        Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
+        break;
+
+    case WaterTypes::Directed:
+
+        break;
+
+    case WaterTypes::SeededHeightmap:
+
+        break;
+
+    default: assert(false);
+    }
+
 
     //Render.
     std::vector<const Mesh*> meshes;
