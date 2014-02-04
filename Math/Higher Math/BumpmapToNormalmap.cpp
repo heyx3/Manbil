@@ -1,17 +1,5 @@
 #include "BumpmapToNormalmap.h"
 
-void BumpmapToNormalmap::Convert(const sf::Image & img, Fake2DArray<Vector3f> & normals)
-{
-    //Convert the image to a heightmap.
-    const float invScale = 1.0f / 255.0f;
-    Fake2DArray<float> heightmap(img.getSize().x, img.getSize().y);
-    for (int x = 0; x < heightmap.GetWidth(); ++x)
-        for (int y = 0; y < heightmap.GetHeight(); ++y)
-            heightmap[Vector2i(x, y)] = (img.getPixel(x, y).r * invScale);
-
-    Convert(heightmap, normals);
-}
-
 void BumpmapToNormalmap::Convert(const Fake2DArray<float> & heightmap, Fake2DArray<Vector3f> & normals)
 {
     Vector3f sum, tempSum, base, first, second;

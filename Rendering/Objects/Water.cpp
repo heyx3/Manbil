@@ -4,14 +4,20 @@
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
 
-void CreateWaterMesh(unsigned int size, Mesh & outM)
+//Optionally takes a heightmap for the Z values.
+void CreateWaterMesh(unsigned int size, Mesh & outM, Fake2DArray<float> * heightmap = 0)
 {
+    Fake2DArray<float> flatHeightmap(size, size, 0.0f);
+    if (heightmap == 0) heightmap = &flatHeightmap;
+
+
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
     //Just create a flat terrain and let it do the math.
 
     Terrain::DebugShit = true;
     Terrain terr(size);
+    terr.SetHeightmap(*heightmap);
     int nVs = terr.GetVerticesCount(),
         nIs = terr.GetIndicesCount();
     Vector3f * poses = new Vector3f[nVs];
@@ -30,27 +36,21 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 
     unsigned int * indices = new unsigned int[nIs];
     terr.CreateVertexIndices(indices);
-
+    
+    //Create the vertex and index buffers.
     RenderObjHandle vbo, ibo;
     RenderDataHandler::CreateVertexBuffer(vbo, vertices, nVs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(ibo, indices, nIs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
+    outM.SetVertexIndexData(&vid, 1);
 
     delete[] vertices, indices;
 
-    VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
-    outM.SetVertexIndexData(&vid, 1);
+
+    //Set up the mesh.
+
     PassSamplers samplers;
     outM.TextureSamplers.insert(outM.TextureSamplers.end(), samplers);
-    
-    Materials::GetDefaultUniforms_LitTexture(outM.FloatUniformValues, outM.IntUniformValues, outM.MatUniformValues);
-    Materials::LitTexture_DirectionalLight lightM;
-    lightM.Dir = Vector3f(1, 1, -1).Normalized();
-    lightM.Col = Vector3f(1, 1, 1);
-    lightM.Ambient = 0.2f;
-    lightM.Diffuse = 0.8f;
-    lightM.Specular = 0.0f;
-    lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(outM, lightM);
 }
 
 Water::Water(unsigned int size, unsigned int maxRipples,
@@ -61,8 +61,9 @@ Water::Water(unsigned int size, unsigned int maxRipples,
 {
     Transform.SetPosition(pos);
 
+    //Create material and mesh.
+    CreateWaterMesh(size, waterMesh);
     Mat = new Material(GetRippleWaterRenderer(maxRipples));
-
     if (Mat->HasError())
     {
         errorMsg = "Error creating ripple water material: ";
@@ -70,13 +71,25 @@ Water::Water(unsigned int size, unsigned int maxRipples,
         return;
     }
 
-    CreateWaterMesh(size, waterMesh);
 
+    //Set up uniforms.
     Mat->AddUniform("dropoffPoints_timesSinceCreated_heights_periods");
     Mat->AddUniform("sourcesXY_speeds");
-    Mat->AddUniform("bumpmapHeight");
     Mat->AddUniform("texturePanDir");
+    Mat->AddUniform("normalmapTexturePanDir");
+    Materials::LitTexture_GetUniforms(*Mat);
+    
+    //Set lighting.
+    Materials::LitTexture_DirectionalLight lightM;
+    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
+    lightM.Col = Vector3f(1, 1, 1);
+    lightM.Ambient = 0.2f;
+    lightM.Diffuse = 0.8f;
+    lightM.Specular = 0.0f;
+    lightM.SpecularIntensity = 32.0f;
+    Materials::LitTexture_SetUniforms(*Mat, lightM);
 
+    //Set ripples.
     rippleIDs = new int[maxRipples];
     dp_tsc_h_p = new Vector4f[maxRipples];
     sXY_sp = new Vector3f[maxRipples];
@@ -86,20 +99,17 @@ Water::Water(unsigned int size, unsigned int maxRipples,
         dp_tsc_h_p[i].x = 1.0f;
         sXY_sp[i].z = 1.0f;
     }
-
-    float bumpmapHeight = 10.0f;
     Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
     Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
-    Mat->SetUniformF("bumpmapHeight", &bumpmapHeight, 1);
-    //SetTexturePanDir(Vector2f(1.0f, 1.0f));
 }
 Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlow, unsigned int _maxFlows)
     : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
       Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
 {
+    //Create material and mesh.
+    CreateWaterMesh(size, waterMesh);
     Mat = new Material(GetDirectionalWaterRenderer(maxFlows));
-
     if (Mat->HasError())
     {
         errorMsg = "Error creating directional water material: ";
@@ -107,8 +117,23 @@ Water::Water(unsigned int size, Vector2f texPanDir, DirectionalWaterArgs mainFlo
         return;
     }
 
-    CreateWaterMesh(size, waterMesh);
 
+    //Set up uniforms.
+    Mat->AddUniform("texturePanDir");
+    Mat->AddUniform("normalmapTexturePanDir");
+    Materials::LitTexture_GetUniforms(*Mat);
+
+    //Set lighting.
+    Materials::LitTexture_DirectionalLight lightM;
+    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
+    lightM.Col = Vector3f(1, 1, 1);
+    lightM.Ambient = 0.2f;
+    lightM.Diffuse = 0.8f;
+    lightM.Specular = 0.0f;
+    lightM.SpecularIntensity = 32.0f;
+    Materials::LitTexture_SetUniforms(*Mat, lightM);
+
+    //Set flows.
     DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
     DirectionalWaterArgsElement argsE(args, -1);
     for (int i = 0; i < maxFlows; ++i)
@@ -298,6 +323,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             \n\
             uniform float bumpmapHeight;\n\
             uniform vec2 texturePanDir;\n\
+            uniform vec2 normalmapTexturePanDir;\n\
             \n\
             void main()\n\
             {\n\
@@ -306,9 +332,9 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 uvs += texturePanDir * u_elapsed_seconds;\n\
                 \n\
                 vec3 norm = getWaveNormal(out_col.xy);\n\
-                vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * vec2(0.25, 0.25))).xyz;\n\
-                normalMap = (1.0 * vec4(normalMap, 0.0)).xyz;\n\
+                vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * normalmapTexturePanDir)).xyz;\n\
                 norm = normalize(norm + vec3(-normalMap.x, -normalMap.y, abs(normalMap.z)));\n\
+                \n\
                 float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
                                                  DirectionalLight.Dir, DirectionalLight.Ambient,\n\
                                                  DirectionalLight.Diffuse, DirectionalLight.Specular,\n\

@@ -53,9 +53,6 @@
     <ClCompile Include="ShaderHandler.cpp">
       <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
-    <ClCompile Include="TextureSettings.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
@@ -185,6 +182,12 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
+    <ClCompile Include="TextureSettings.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -242,9 +245,6 @@
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHandler.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureSettings.h">
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
@@ -427,6 +427,12 @@
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
+    <ClInclude Include="TextureSettings.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureConverters.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -503,6 +509,9 @@
     </Filter>
     <Filter Include="Events">
       <UniqueIdentifier>{95bef7da-4bab-4a10-9f0f-306b3c80aa15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Texture Management">
+      <UniqueIdentifier>{2e9a24e0-4aee-4777-9c35-afe630868075}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

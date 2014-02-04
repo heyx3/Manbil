@@ -131,6 +131,7 @@
     <ClCompile Include="RenderingState.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
+    <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScreenClearer.cpp" />
     <ClCompile Include="SFMLOpenGLWorld.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
+    <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />
     <ClInclude Include="SFMLOpenGLWorld.h" />

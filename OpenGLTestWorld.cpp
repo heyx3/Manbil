@@ -8,6 +8,8 @@
 #include "RenderDataHandler.h"
 #include "TextureSettings.h"
 #include "Input/Input Objects/KeyboardBoolInput.h"
+#include "Math/Higher Math/BumpmapToNormalmap.h"
+#include "Rendering/Texture Management/TextureConverters.h"
 
 #include "Math/NoiseGeneration.hpp"
 
@@ -78,6 +80,28 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 10.0f, 5.0f);
+void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
+{
+    outHeight.Fill(Vector3f());
+
+    sf::Image bumpMap;
+    if (!bumpMap.loadFromFile("bumpy.png"))
+    {
+        std::cout << "Error loading water bumpmap\n";
+        Pause();
+        return;
+    }
+    if (bumpMap.getSize().x != outHeight.GetWidth() || bumpMap.getSize().y != outHeight.GetHeight())
+    {
+        std::cout << "The Fake2DArray<Vector3f> is the wrong size\n";
+        Pause();
+        return;
+    }
+
+    Fake2DArray<float> heightmap(bumpMap.getSize().x, bumpMap.getSize().y);
+    TextureConverters::ToArray(bumpMap, TextureConverters::Channels::Red, heightmap);
+    BumpmapToNormalmap::Convert(heightmap, outHeight);
+}
 
 
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
@@ -281,7 +305,9 @@ void OpenGLTestWorld::InitializeWorld(void)
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
     water->Transform.SetScale(25.0f / 3.0f);
     float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
+    float panData[2] = { 0.0f, 0.0f };
     water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
+    water->GetMesh().FloatUniformValues["texturePanDir"] = Mesh::UniformValue<float>(panData, 2);
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
     water->GetMesh().TextureSamplers[0][0] = waterImgH;
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;

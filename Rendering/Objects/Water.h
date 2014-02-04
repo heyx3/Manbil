@@ -16,7 +16,7 @@ public:
         Directed,
         //Ripples outward from several spots.
         Rippling,
-        //Flows wildly based on a heightmap.
+        //Ripples wildly; uses a "heightmap" as a seed value for each vertex's rippling.
         SeededHeightmap,
     };
 
@@ -59,6 +59,8 @@ public:
     Water(unsigned int size, unsigned int maxRipples, Vector2f texturePanDirection, Vector3f pos = Vector3f());
     //Makes a new Water object that uses directional water.
     Water(unsigned int size, Vector2f texturePanDirection, DirectionalWaterArgs mainFlow, unsigned int maxRipples);
+    //Makes a new Water object that uses SeededHeightmap water.
+    Water(unsigned int size, Vector2f texturePanDirection, const Fake2DArray<float> & seedValues);
     ~Water(void);
 
     bool HasError(void) const { return !errorMsg.empty(); }
@@ -92,8 +94,9 @@ public:
 
     //The following functions return whether the uniform was set successfully.
 
-    bool SetBumpmapHeight(float newHeight) { return Mat->SetUniformF("bumpmapHeight", &newHeight, 1); }
+    bool SetLighting(const Materials::LitTexture_DirectionalLight light) { return Materials::LitTexture_SetUniforms(*Mat, light); }
     bool SetTexturePanDir(Vector2f dir) { return Mat->SetUniformF("texturePanDir", &dir[0], 2); }
+    bool SetNormalmapTexturePanDir(Vector2f dir) { return Mat->SetUniformF("normalmapTexturePanDir", &dir[0], 2); }
 
 
     void Update(float elapsedTime);

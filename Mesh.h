@@ -17,7 +17,7 @@ public:
     public:
         DataType Data[4]; //Uniforms are a max of 4 components long.
         unsigned int NData;
-        UniformValue(const DataType data[4], unsigned int nData) : NData(nData) { for (int i = 0; i < 4; ++i) Data[i] = data[i]; }
+        UniformValue(const DataType * data, unsigned int nData) : NData(nData) { for (int i = 0; i < nData; ++i) Data[i] = data[i]; }
         UniformValue(void) : NData(0) { }
     };
 
