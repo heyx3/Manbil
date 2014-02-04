@@ -182,6 +182,9 @@
     <ClCompile Include="Events\Timing.cpp">
       <Filter>Events</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -421,8 +424,8 @@
     <ClInclude Include="Events\Timing.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Helper Classes\BumpmapToNormalmap.h">
-      <Filter>Rendering\Helper Classes</Filter>
+    <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
+      <Filter>Math\Higher Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

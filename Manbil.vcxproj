@@ -93,6 +93,7 @@
     <ClCompile Include="Math\BasicMath.cpp" />
     <ClCompile Include="Math\CachedFunc.cpp" />
     <ClCompile Include="Math\FastRand.cpp" />
+    <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
     <ClCompile Include="Math\Higher Math\Camera.cpp" />
     <ClCompile Include="Math\Higher Math\GeometricMath.cpp" />
     <ClCompile Include="Math\Higher Math\Lighting.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="Math\CachedFunc.h" />
     <ClInclude Include="Math\Fake2DArray.h" />
     <ClInclude Include="Math\FastRand.h" />
+    <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h" />
     <ClInclude Include="Math\Higher Math\Camera.h" />
     <ClInclude Include="Math\Higher Math\GeometricMath.h" />
     <ClInclude Include="Math\Higher Math\Lighting.h" />
@@ -207,7 +209,6 @@
     <ClInclude Include="OpenGLIncludes.h" />
     <ClInclude Include="OpenGLTestWorld.h" />
     <ClInclude Include="RenderingState.h" />
-    <ClInclude Include="Rendering\Helper Classes\BumpmapToNormalmap.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
