@@ -57,12 +57,12 @@ bool TerrainWalkCamera::Update(float elapsedTime, std::shared_ptr<OculusDevice> 
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
     {
-        HeightOffset += elapsedTime * speedScale * 500.0f;
+        HeightOffset += elapsedTime * speedScale * 250.0f;
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
     {
-        HeightOffset += elapsedTime * speedScale * -500.0f;
+        HeightOffset += elapsedTime * speedScale * -250.0f;
     }
 
 

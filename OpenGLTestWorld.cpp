@@ -93,7 +93,7 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 	dirLight.Diffuse = 0.7f;
 	dirLight.Specular = 4.0f;
 	
-	dirLight.SpecularIntensity = 32.0f;
+	dirLight.SpecularIntensity = 128.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {
@@ -290,7 +290,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 
     //Camera.
     Vector3f pos(0, 0, terrainHeight);
-    cam = TerrainWalkCamera(pos, Vector3f(1.0f, 1.0f, -0.30f), Vector3f(0, 0, 1), pTerr, 30.0f, 0.05f, GetWindow());
+    cam = TerrainWalkCamera(pos, Vector3f(1.0f, 1.0f, -0.30f), Vector3f(0, 0, 1), pTerr, 60.0f, 0.05f, GetWindow());
     cam.TerrainScale = Vector3f(terrainBreadth, terrainBreadth, terrainHeight);
     cam.Info.FOV = ToRadian(55.0f);
     cam.Info.zFar = 10000.0f;
@@ -372,24 +372,24 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	std::vector<const Mesh *> meshes;
-	meshes.insert(meshes.begin(), &testMesh);
-	if (!testMat->Render(info, meshes))
-	{
-		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
-		Pause();
-		EndWorld();
-        return;
-	}
+	//std::vector<const Mesh *> meshes;
+	//meshes.insert(meshes.begin(), &testMesh);
+	//if (!testMat->Render(info, meshes))
+	//{
+	//	std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+	//	Pause();
+	//	EndWorld();
+    //    return;
+	//}
 	
 
-	if (!foliage->Render(info))
-	{
-		std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
-		Pause();
-		EndWorld();
-        return;
-	}
+	//if (!foliage->Render(info))
+	//{
+	//	std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
+	//	Pause();
+	//	EndWorld();
+    //    return;
+	//}
 
     if (!water->Render(info))
     {

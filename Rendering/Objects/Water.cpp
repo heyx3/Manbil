@@ -228,7 +228,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float speed = sourcesXY_speeds[i].z;\n\
                     \n\
                     float dist = distance(source, horizontalPos);\n\
-                    float heightScale = max(0, mix(0.0, 1.0, pow(1.0 - (dist / dropoffPoint), 1.0)));\n\
+                    float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
                     float cutoff = timeSinceCreated * speed * 3.0;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
@@ -236,7 +236,9 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
                     float waveScale = height * heightScale * cutoff;\n\
                     \n\
-                    offset += waveScale * sin(innerVal);\n\
+                    float heightOffset = sin(innerVal);\n\
+                    heightOffset = -1.0 + 2.0 * pow(0.5 + 0.5 * heightOffset, 1.2);\n\
+                    offset += waveScale * heightOffset;\n\
                 }\n\
                 return offset;\n\
              }\n\
@@ -254,7 +256,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float speed = sourcesXY_speeds[i].z;\n\
                     \n\
                     float dist = distance(source, horizontalPos);\n\
-                    float heightScale = max(0, mix(0.0, 1.0, pow(1.0 - (dist / dropoffPoint), 1.0)));\n\
+                    float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
                     float cutoff = timeSinceCreated * speed * 3.0;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
