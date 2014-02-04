@@ -162,6 +162,7 @@ Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f 
     Mat->AddUniform("texturePanDir");
     Mat->AddUniform("normalmapTexturePanDir");
     Materials::LitTexture_GetUniforms(*Mat);
+    Mat->AddUniform("amplitude_period_speed");
 
     //Set lighting.
     Materials::LitTexture_DirectionalLight lightM;
@@ -172,6 +173,9 @@ Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f 
     lightM.Specular = 0.0f;
     lightM.SpecularIntensity = 32.0f;
     Materials::LitTexture_SetUniforms(*Mat, lightM);
+
+    //Set water args.
+    ChangeSeededWater(SeededWaterArgs(1.0f, 1.0f, 1.0f));
 }
 
 Water::~Water(void)
@@ -186,6 +190,8 @@ Water::~Water(void)
 
 int Water::AddRipple(const RippleWaterArgs & args)
 {
+    if (waterType != WaterTypes::Rippling) return -1;
+
     RippleWaterArgs cpy(args);
 
     //Translate the source into object space.
@@ -218,8 +224,10 @@ int Water::AddRipple(const RippleWaterArgs & args)
 
     return rippleID;
 }
-void Water::ChangeRipple(int element, const RippleWaterArgs & args)
+bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
 {
+    if (waterType != WaterTypes::Rippling) return false;
+
     for (int i = 0; i < maxRipples; ++i)
     {
         if (rippleIDs[i] == element)
@@ -240,6 +248,8 @@ void Water::ChangeRipple(int element, const RippleWaterArgs & args)
 
 int Water::AddFlow(const DirectionalWaterArgs & args)
 {
+    if (waterType != WaterTypes::Directed) return -1;
+
     //Translate the source into object space.
     Matrix4f inv;
     Transform.GetWorldTransform(inv);
@@ -249,16 +259,30 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
 
     return -1;
 }
-void Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
+bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
 {
+    if (waterType != WaterTypes::Directed) return false;
+
     for (int i = 0; i < flows.size(); ++i)
     {
         if (flows[i].Element == element)
         {
             flows[i].Args = args;
-            return;
+            return true;
         }
     }
+
+    return false;
+}
+
+bool Water::ChangeSeededWater(const SeededWaterArgs & args)
+{
+    if (waterType != WaterTypes::SeededHeightmap) return false;
+
+    Vector3f data(args.Amplitude, args.Period, args.Speed);
+    Mat->SetUniformF("amplitude_period_speed", &data[0], 3);
+
+    return true;
 }
 
 
@@ -382,13 +406,24 @@ RenderingPass Water::GetDirectionalWaterRenderer(int maxFlows)
 RenderingPass Water::GetSeededHeightRenderer(void)
 {
     std::string commonGround = std::string() + "\
-                uniform float amplitude;\n\
-                uniform float period;\n\
-                uniform float speed;\n\
+                uniform vec3 amplitude_period_speed;\n\
                 float getWaveHeight(vec2 horizontalPos, float seed)\n\
                 {\n\
+                    float amp = amplitude_period_speed.x,\n\
+                          per = amplitude_period_speed.y,\n\
+                          spd = amplitude_period_speed.z;\n\
                     seed *= 1351.2454;\n\
-                    return sin(seed / period) + (u_elapsed_seconds * speed);\n\
+                    return amp * sin((seed / per) + (u_elapsed_seconds * spd));\n\
+                }\n\
+                vec3 getWaveNormal(vec2 horizontalPos, float seed)\n\
+                {\n\
+                    float amp = amplitude_period_speed.x,\n\
+                          per = amplitude_period_speed.y,\n\
+                          spd = amplitude_period_speed.z;\n\
+                    seed *= 1351.2454;\n\
+                    \n\
+                    //TODO: Get height at different points and compute normal via cross-product. Make sure it's positive in z!\n\
+                    float derivative = sin((seed / per) + (u_elapsed_seconds * spd));\n\
                 }\n\
                 ";
 

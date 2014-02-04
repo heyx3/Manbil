@@ -88,20 +88,20 @@ public:
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
     int AddRipple(const RippleWaterArgs & args);
     //Changes the water ripples with the given ID.
-    //This function only applies to rippling water.
-    void ChangeRipple(int element, const RippleWaterArgs & args);
+    //Returns false if this water isn't Rippling; returns true otherwise.
+    bool ChangeRipple(int element, const RippleWaterArgs & args);
 
     //Adds a new flow to the water.
     //This function only applies to directional water.
-    //Returns the id for the created flow, or -1 if it was unsuccessful.
+    //Returns the id for the created flow, or -1 if this water isn't Directional water.
     int AddFlow(const DirectionalWaterArgs & args);
     //Changes he water flow with the given ID.
-    //This function only applies to directional water.
-    void ChangeFlow(int element, const DirectionalWaterArgs & args);
+    //Returns false if this water isn't Directional or the given id isn't found; returns true otherwise.
+    bool ChangeFlow(int element, const DirectionalWaterArgs & args);
 
     //Changes the properties of the water.
-    //This function only applies to seeded heightmap water.
-    void ChangeSeededWater(const SeededWaterArgs & args);
+    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
+    bool ChangeSeededWater(const SeededWaterArgs & args);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
