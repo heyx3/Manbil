@@ -7,7 +7,7 @@
 #include "RenderingState.h"
 #include "RenderDataHandler.h"
 #include "TextureSettings.h"
-#include "Input/Input Objects/KeyboardBoolInput.h"
+#include "Input/Input Objects/MouseBoolInput.h"
 #include "Math/Higher Math/BumpmapToNormalmap.h"
 #include "Rendering/Texture Management/TextureConverters.h"
 
@@ -79,7 +79,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 2.0f, 5.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 1000.0f, 40.0f, 30.0f, 1.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f());
@@ -100,7 +100,7 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 
     Fake2DArray<float> heightmap(bumpMap.getSize().x, bumpMap.getSize().y);
     TextureConverters::ToArray(bumpMap, TextureConverters::Channels::Red, heightmap);
-    BumpmapToNormalmap::Convert(heightmap, outHeight);
+    BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
 }
 
 
@@ -162,15 +162,26 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    
+
     //Water normal map texture.
-    if (!normalMapImg.loadFromFile("Normalmap.png"))
+    if (false)
     {
-        std::cout << "Failed to load normal map texture.\n";
-        Pause();
-        EndWorld();
-        return;
+        if (!normalMapImg.loadFromFile("Normalmap.png"))
+        {
+            std::cout << "Failed to load normal map texture.\n";
+            Pause();
+            EndWorld();
+            return;
+        }
     }
+    else
+    {
+        Fake2DArray<Vector3f> normalMap(512, 512);
+        GenerateWaterNormalmap(normalMap);
+
+        TextureConverters::ToImage(normalMap, normalMapImg);
+    }
+
     RenderDataHandler::CreateTexture2D(normalMapImgH, normalMapImg);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(normalMapImgH);
     if (!PrintRenderError("Error setting up normal map texture"))
@@ -306,7 +317,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     //Create water.
 
-    water = new Water(300, 4, Vector3f());
+    water = new Water(600, 4, Vector3f());
     if (water->HasError())
     {
         std::cout << "Error creating water: " << water->GetErrorMessage();
@@ -321,20 +332,24 @@ void OpenGLTestWorld::InitializeObjects(void)
     Materials::LitTexture_GetUniforms(*water->Mat);
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
 
+    float amb = 0.35f, diff = 1.0f - amb;
+    water->GetMesh().FloatUniformValues["DirectionalLight.Ambient"].SetData(&amb);
+    water->GetMesh().FloatUniformValues["DirectionalLight.Diffuse"].SetData(&diff);
+
     water->GetMesh().TextureSamplers[0][0] = waterImgH;
     water->GetMesh().TextureSamplers[0].Panners[0] = Vector2f(0.0f, 0.0f);
-    water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(20.0f, 20.0f);
+    water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(50.0f, 50.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.01f, -0.01f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(10.0f, 10.0f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(0.05f, 0.05f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(30.0f, 30.0f);
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
-	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
+	dirLight.Dir = Vector3f(-1.0f, -1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
 	dirLight.Ambient = 0.3f;
@@ -349,7 +364,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	if (IsGameOver()) return;
 	
 
-    Input.AddBoolInput(666, BoolInputPtr((BoolInput*)(new KeyboardBoolInput(sf::Keyboard::Key::U, BoolInput::ValueStates::JustPressed))));
+    Input.AddBoolInput(666, BoolInputPtr((BoolInput*)(new MouseBoolInput(sf::Mouse::Button::Left, BoolInput::ValueStates::JustPressed))));
 
 
 	GetWindow()->setVerticalSyncEnabled(true);

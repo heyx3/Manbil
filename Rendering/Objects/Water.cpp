@@ -6,6 +6,8 @@
 #include "../../TextureSettings.h"
 
 
+//TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
+
 void CreateWaterMesh(unsigned int size, Mesh & outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
@@ -339,7 +341,8 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float dist = distance(source, horizontalPos);\n\
                     float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
-                    float cutoff = timeSinceCreated * speed * 3.0;\n\
+                    //TODO: Smooth cutoff, not a binary 1/0 thing.\n\
+                    float cutoff = period * speed * timeSinceCreated;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
                     \n\
                     float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
