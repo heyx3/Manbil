@@ -105,17 +105,12 @@ public:
     //Changes the heightmap used to seed this water.
     //Returns false if this water isn't SeededHeightmap; returns true otherwise.
     bool SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution);
-    //Sets the direction and magnitude of this water's heightmap seed movement.
-    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
-    bool SetSeededWaterSeedPanDir(Vector2f dir) { if (waterType != WaterTypes::SeededHeightmap) return false; Mat->SetUniformF("seedMapPanDir", &dir[0], 2); return true; }
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
     //The following functions return whether the uniform was set successfully.
 
-    bool SetLighting(const Materials::LitTexture_DirectionalLight light) { return Materials::LitTexture_SetUniforms(*Mat, light); }
-    bool SetTexturePanDir(Vector2f dir) { return Mat->SetUniformF("texturePanDir", &dir[0], 2); }
-    bool SetNormalmapTexturePanDir(Vector2f dir) { return Mat->SetUniformF("normalmapTexturePanDir", &dir[0], 2); }
+    void SetLighting(const Materials::LitTexture_DirectionalLight light) { Materials::LitTexture_SetUniforms(waterMesh, light); }
 
 
     void Update(float elapsedTime);

@@ -70,8 +70,6 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
     //Set up uniforms.
     Mat->AddUniform("dropoffPoints_timesSinceCreated_heights_periods");
     Mat->AddUniform("sourcesXY_speeds");
-    Mat->AddUniform("texturePanDir");
-    Mat->AddUniform("normalmapTexturePanDir");
     Materials::LitTexture_GetUniforms(*Mat);
     
     //Set lighting.
@@ -82,7 +80,7 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
     lightM.Diffuse = 0.8f;
     lightM.Specular = 0.0f;
     lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(*Mat, lightM);
+    Materials::LitTexture_SetUniforms(waterMesh, lightM);
 
     //Set ripples.
     rippleIDs = new int[maxRipples];
@@ -90,12 +88,12 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
     sXY_sp = new Vector3f[maxRipples];
     for (int i = 0; i < maxRipples; ++i)
     {
-        dp_tsc_h_p[i].w = 1.0f;
-        dp_tsc_h_p[i].x = 1.0f;
-        sXY_sp[i].z = 1.0f;
+        dp_tsc_h_p[i].w = 999.0f;
+        dp_tsc_h_p[i].x = 0.001f;
+        sXY_sp[i].z = 0.001f;
     }
-    Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
-    Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
+    waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"] = Mesh::UniformArrayValue<float>(&(dp_tsc_h_p[0][0]), maxRipples, 4);
+    waterMesh.FloatArrayUniformValues["sourcesXY_speeds"] = Mesh::UniformArrayValue<float>(&(sXY_sp[0][0]), maxRipples, 3);
 }
 Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _maxFlows, Vector3f pos)
     : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
@@ -116,8 +114,6 @@ Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _max
 
 
     //Set up uniforms.
-    Mat->AddUniform("texturePanDir");
-    Mat->AddUniform("normalmapTexturePanDir");
     Materials::LitTexture_GetUniforms(*Mat);
 
     //Set lighting.
@@ -128,7 +124,7 @@ Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _max
     lightM.Diffuse = 0.8f;
     lightM.Specular = 0.0f;
     lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(*Mat, lightM);
+    Materials::LitTexture_SetUniforms(waterMesh, lightM);
 
     //Set flows.
     DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
@@ -173,13 +169,15 @@ Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos)
         return;
     }
     Mat->SetTexture(tex, 2);
+    waterMesh.TextureSamplers[0][2] = tex;
+    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_WRAP, false).SetData(tex);
 
 
     //Set up uniforms.
-    Mat->AddUniform("texturePanDir");
-    Mat->AddUniform("normalmapTexturePanDir");
     Materials::LitTexture_GetUniforms(*Mat);
     Mat->AddUniform("amplitude_period_speed");
+    Vector3f aps(0.0f, 999.0f, 0.01f);
+    waterMesh.FloatUniformValues["amplitude_period_speed"] = Mesh::UniformValue<float>(&aps[0], 3);
 
     //Set lighting.
     Materials::LitTexture_DirectionalLight lightM;
@@ -189,7 +187,7 @@ Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos)
     lightM.Diffuse = 0.8f;
     lightM.Specular = 0.0f;
     lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(*Mat, lightM);
+    Materials::LitTexture_SetUniforms(waterMesh, lightM);
 
     //Set water args.
     SetSeededWater(SeededWaterArgs(1.0f, 1.0f, 1.0f));
@@ -301,7 +299,7 @@ bool Water::SetSeededWater(const SeededWaterArgs & args)
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
     Vector3f data(args.Amplitude, args.Period, args.Speed);
-    Mat->SetUniformF("amplitude_period_speed", &data[0], 3);
+    waterMesh.FloatUniformValues["amplitude_period_speed"] = Mesh::UniformValue<float>(&data[0], 3);
 
     return true;
 }
@@ -310,7 +308,7 @@ bool Water::SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution)
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
     Vector2f res(resolution.x, resolution.y);
-    Mat->SetUniformF("seedMapResolution", &res[0], 2);
+    waterMesh.FloatUniformValues["seedMapResolution"] = Mesh::UniformValue<float>(&res[0], 2);
 
     TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_WRAP, false).SetData(image);
     waterMesh.TextureSamplers[0][2] = image;
@@ -436,24 +434,18 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
 			};\n\
 			uniform DirectionalLightStruct DirectionalLight;\n\
             \n\
-            uniform vec2 texturePanDir;\n\
-            uniform vec2 normalmapTexturePanDir;\n\
-            \n\
             void main()\n\
             {\n\
-                \n\
-                vec2 uvs = u_textureScale * out_tex;\n\
-                uvs += texturePanDir * u_elapsed_seconds;\n\
-                \n\
-                vec3 norm = getWaveNormal(out_col.xy);\n\
-                vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * normalmapTexturePanDir)).xyz;\n\
+                //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
+                vec3 norm = vec3(0.0, 0.0, 1.0);//getWaveNormal(out_col.xy);\n\
+                vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
                 norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
                 \n\
                 float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
                                                  DirectionalLight.Dir, DirectionalLight.Ambient,\n\
                                                  DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
                                                  DirectionalLight.SpecularIntensity);\n\
-                vec4 texCol = texture(u_sampler0, uvs);\n\
+                vec4 texCol = sampleTex(0, out_tex);\n\
                 \n\
                 out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
@@ -467,7 +459,6 @@ RenderingPass Water::GetSeededHeightRenderer(void)
     std::string commonGround = std::string() + "\
                 uniform vec3 amplitude_period_speed;\n\
                 uniform vec2 seedMapResolution;\n\
-                uniform vec2 seedMapPanDir;\n\
                 \n\
                 float getWaveHeight(vec2 horizontalPos)\n\
                 {\n\
@@ -477,7 +468,7 @@ RenderingPass Water::GetSeededHeightRenderer(void)
                     \n\
                     vec2 uvLookup = in_tex + (u_elapsed_seconds * seedMapPanDir);\n\
                     \n\
-                    float seed = 6346.1634 * texture(u_sampler2, uvLookup);\n\
+                    float seed = 6346.1634 * sampleTex(2, in_tex).x;]\n\
                     return amp * sin((seed / per) + (u_elapsed_seconds * spd));\n\
                 }\n\
                 vec3 getWaveNormal(vec2 horizontalPos)\n\
@@ -537,21 +528,17 @@ RenderingPass Water::GetSeededHeightRenderer(void)
             \n\
             void main()\n\
             {\n\
-               \n\
-               vec2 uvs = u_textureScale * out_tex;\n\
-               uvs += texturePanDir * u_elapsed_seconds;\n\
-               \n\
-               vec3 norm = getWaveNormal(out_col.xy);\n\
-               vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * normalmapTexturePanDir)).xyz;\n\
-               norm = normalize(norm + vec3(-normalMap.x, -normalMap.y, abs(normalMap.z)));\n\
-               \n\
-               float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
-                                                DirectionalLight.Dir, DirectionalLight.Ambient,\n\
-                                                DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
-                                                DirectionalLight.SpecularIntensity);\n\
-               vec4 texCol = texture(u_sampler0, uvs);\n\
-               \n\
-               out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
+                vec3 norm = getWaveNormal(out_col.xy);\n\
+                vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
+                norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
+                \n\
+                float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
+                                                 DirectionalLight.Dir, DirectionalLight.Ambient,\n\
+                                                 DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
+                                                 DirectionalLight.SpecularIntensity);\n\
+                vec4 texCol = sampleTex(0, out_tex);\n\
+                \n\
+                out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
 }
 
@@ -591,8 +578,8 @@ bool Water::Render(const RenderInfo & info)
     switch (waterType)
     {
     case WaterTypes::Rippling:
-        Mat->SetUniformArrayF("dropoffPoints_timesSinceCreated_heights_periods", &(dp_tsc_h_p[0][0]), 4, maxRipples);
-        Mat->SetUniformArrayF("sourcesXY_speeds", &(sXY_sp[0][0]), 3, maxRipples);
+        waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
+        waterMesh.FloatArrayUniformValues["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
         break;
 
     case WaterTypes::Directed:

@@ -15,7 +15,7 @@ const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("uniform float brightness;\n\
                 void main()\n\
 				{\n\
-                    vec4 col = texture2D(u_sampler0, out_tex * u_textureScale);\n\
+                    vec4 col = sampleTex(0, out_tex);\n\
 					out_finalCol = vec4(brightness * col.xyz, col.w);\n\
 				}"));
 
@@ -48,7 +48,7 @@ const RenderingPass Materials::LitTexture = RenderingPass(
 													 DirectionalLight.Dir,\n\
 													 DirectionalLight.Ambient, DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
 													 DirectionalLight.SpecularIntensity);\n\
-					vec3 texCol = texture2D(u_sampler0, out_tex * u_textureScale).xyz;\n\
+					vec3 texCol = sampleTex(0, out_tex).xyz;\n\
 					\n\
 					out_finalCol = vec4(texCol * DirectionalLight.Col * brightness, 1.0);\n\
 				}"));
@@ -103,7 +103,8 @@ const RenderingPass Materials::EmptyPostProcess = RenderingPass(
                 }"),
     std::string("void main()\n\
                 {\n\
-                    out_finalCol = vec4(texture(u_sampler0, out_tex).xyz, 1.0);\n\
+                    out_finalCol = vec4(sampleTex(0, out_tex).xyz, 1.0);\n\
+                    return;\n\
                     vec3 powCol = out_finalCol.xyz;\n\
                     if (powCol.x < 0.8 && powCol.y < 0.8 && powCol.y < 0.8)\n\
                          powCol = vec3(pow(out_finalCol.x, 4.0),\n\
@@ -138,15 +139,6 @@ bool Materials::LitTexture_GetUniforms(Material & mat)
            mat.AddUniform("DirectionalLight.Diffuse") &&
            mat.AddUniform("DirectionalLight.Specular") &&
            mat.AddUniform("DirectionalLight.SpecularIntensity");
-}
-bool Materials::LitTexture_SetUniforms(Material & mat, const LitTexture_DirectionalLight & lightDat)
-{
-    return mat.SetUniformF("DirectionalLight.Dir", &(lightDat.Dir[0]), 3) &&
-           mat.SetUniformF("DirectionalLight.Col", &(lightDat.Col[0]), 3) &&
-           mat.SetUniformF("DirectionalLight.Ambient", &lightDat.Ambient, 1) &&
-           mat.SetUniformF("DirectionalLight.Diffuse", &lightDat.Diffuse, 1) &&
-           mat.SetUniformF("DirectionalLight.Specular", &lightDat.Specular, 1) &&
-           mat.SetUniformF("DirectionalLight.SpecularIntensity", &lightDat.SpecularIntensity, 1);
 }
 void Materials::LitTexture_SetUniforms(Mesh & mesh, const LitTexture_DirectionalLight & lightData)
 {

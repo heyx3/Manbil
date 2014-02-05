@@ -8,6 +8,8 @@ class TextureSettings
 {
 public:
 
+    //TODO: Create a "Texture2D" class to handle creation, copying, settings, and everything else.
+
 	enum TextureFiltering
 	{
 		TF_NEAREST,

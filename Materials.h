@@ -32,8 +32,6 @@ struct Materials
     };
     //Gets references to the directional light uniforms for the given LitTexture material. Returns whether it was successful.
     static bool LitTexture_GetUniforms(Material & mat);
-    //Sets the direcitonal light data for the given LitTexture material. Returns whether it was successful.
-    static bool LitTexture_SetUniforms(Material & mat, const LitTexture_DirectionalLight & lightData);
     //Sets the given mesh's light data to the given value.
     static void LitTexture_SetUniforms(Mesh & mesh, const LitTexture_DirectionalLight & lightData);
 };

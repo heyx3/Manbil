@@ -4,6 +4,7 @@
 #include "RenderInfo.h"
 #include "Material.h"
 #include "Math/Vectors.h"
+#include "Mesh.h"
 #include <vector>
 
 
@@ -26,19 +27,22 @@ public:
 	Foliage(std::vector<Vector3f> foliageBasePoses, Vector2f foliageScale, Material * foliageMat = 0);
 	~Foliage(void);
 
-	Foliage(const Foliage & cpy); //This function intentionally left unimplemented.
+    //This function intentionally left unimplemented.
+	Foliage(const Foliage & cpy);
 
 
 	bool HasError(void) const { return !errorMsg.empty(); }
 	std::string GetError(void) const { return errorMsg; }
 	void ClearError(void) const { errorMsg.clear(); }
 
+    const Mesh & GetMesh(void) const { return folMesh; }
+    Mesh & GetMesh(void) { return folMesh; }
 
-    void SetWaveSpeed(float value) { Mat->SetUniformF("waveSpeed", &value, 1); }
-    void SetWaveScale(float value) { Mat->SetUniformF("waveScale", &value, 1); }
-    void SetLeanAwayMaxDist(float value) { Mat->SetUniformF("leanMaxDist", &value, 1); }
-    void SetBrightness(float value) { Mat->SetUniformF("brightness", &value, 1); }
-    void SetTexture(RenderObjHandle tex) { Mat->SetTexture(tex, 0); }
+    void SetWaveSpeed(float value) { folMesh.FloatUniformValues["waveSpeed"].Data[0] = value; }
+    void SetWaveScale(float value) { folMesh.FloatUniformValues["waveScale"].Data[0] = value; }
+    void SetLeanAwayMaxDist(float value) { folMesh.FloatUniformValues["leanMaxDist"].Data[0] = value; }
+    void SetBrightness(float value) { folMesh.FloatUniformValues["brightness"].Data[0] = value; }
+    void SetTexture(RenderObjHandle tex) { folMesh.TextureSamplers[0][0] = tex; }
 
 
 	bool Render(const RenderInfo & info);
@@ -47,9 +51,7 @@ public:
 private:
 
     bool madeMaterial;
+    Mesh folMesh;
 
 	mutable std::string errorMsg;
-
-	RenderObjHandle vbo, ibo;
-	int nVertices, nIndices;
 };

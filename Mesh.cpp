@@ -25,7 +25,9 @@ Mesh::Mesh(const Mesh & cpy)
     }
 
     FloatUniformValues = cpy.FloatUniformValues;
+    FloatArrayUniformValues = cpy.FloatArrayUniformValues;
     IntUniformValues = cpy.IntUniformValues;
+    IntArrayUniformValues = cpy.IntArrayUniformValues;
     MatUniformValues = cpy.MatUniformValues;
 
     Transform = cpy.Transform;
@@ -63,6 +65,8 @@ void Mesh::operator=(const Mesh & other)
     }
 
     FloatUniformValues = other.FloatUniformValues;
+    FloatArrayUniformValues = other.FloatArrayUniformValues;
     IntUniformValues = other.IntUniformValues;
+    IntArrayUniformValues = other.IntArrayUniformValues;
     MatUniformValues = other.MatUniformValues;
 }

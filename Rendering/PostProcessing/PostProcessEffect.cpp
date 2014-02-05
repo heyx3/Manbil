@@ -24,6 +24,7 @@ PostProcessEffect::PostProcessEffect(unsigned int w, unsigned int h, std::vector
     }
 
     //Create the vbo.
+    RenderObjHandle vbo;
     Vertex vertices[6];
     vertices[0] = Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f));
     vertices[1] = Vertex(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f));
@@ -44,6 +45,9 @@ PostProcessEffect::PostProcessEffect(unsigned int w, unsigned int h, std::vector
         samplers[0] = renderTarget->GetColorTexture();
         samplers[1] = renderTarget->GetDepthTexture();
         screenMesh.TextureSamplers.insert(screenMesh.TextureSamplers.end(), samplers);
+
+        material.SetTexture(i, 0, renderTarget->GetColorTexture());
+        material.SetTexture(i, 1, renderTarget->GetDepthTexture());
     }
 }
 
@@ -60,8 +64,14 @@ const std::string & PostProcessEffect::GetErrorMessage(void) const
 
 PostProcessEffect::~PostProcessEffect(void)
 {
-    glDeleteBuffers(1, &vbo);
     if (renderTarget != 0) delete renderTarget;
+
+    //Delete the vertex buffer and possibly an index buffer if the quad used one.
+    GLuint buf1 = screenMesh.GetVertexIndexData(0).GetVerticesHandle(),
+           buf2 = screenMesh.GetVertexIndexData(0).GetIndicesHandle();
+    GLuint buffs[] = { buf1, buf2 };
+
+    glDeleteBuffers((screenMesh.GetVertexIndexData(0).UsesIndices() ? 2 : 1), buffs);
 }
 
 void PostProcessEffect::RenderEffect(const RenderInfo & info, Vector2f screenOffset, Vector2f screenScale)
@@ -83,5 +93,8 @@ void PostProcessEffect::RenderEffect(const RenderInfo & info, Vector2f screenOff
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &screenMesh);
 
-    material.Render(info, meshes);
+    if (!material.Render(info, meshes))
+    {
+        errorMsg = "Error rendering post-process quad: " + material.GetErrorMessage();
+    }
 }

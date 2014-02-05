@@ -33,6 +33,9 @@ public:
     const Material & GetMaterial(void) const { return material; }
     Material & GetMaterial(void) { return material; }
 
+    const Mesh & GetMesh(void) const { return screenMesh; }
+    Mesh & GetMesh(void) { return screenMesh; }
+
 
     void RenderEffect(const RenderInfo & info, Vector2f screenOffset = Vector2f(), Vector2f screenScale = Vector2f(1.0f, 1.0f));
 
@@ -46,5 +49,4 @@ private:
     Material material;
     Mesh screenMesh;
     RenderTarget * renderTarget;
-    RenderObjHandle vbo;
 };

@@ -3,6 +3,7 @@
 #include "sfmlopenglworld.h"
 #include "TwoTrianglesMaterial.h"
 
+//TODO: Rewrite all the rendering to use the new rendering system.
 
 class TwoTrianglesWorld : public SFMLOpenGLWorld
 {

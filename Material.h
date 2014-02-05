@@ -35,9 +35,10 @@ struct PassSamplers
 {
 public:
     RenderObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
+    Vector2f Panners[MaterialConstants::TWODSAMPLERS];
+    Vector2f Scales[MaterialConstants::TWODSAMPLERS];
 
-    PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS]) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = samplers[i]; }
-    PassSamplers(void) { for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i) Samplers[i] = 0; }
+    PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS] = 0);
 
     RenderObjHandle & operator[](int index) { return Samplers[index]; }
     const RenderObjHandle & operator[](int index) const { return Samplers[index]; }
@@ -51,18 +52,19 @@ class Material
 {
 public:
 
-    //TODO: Add u_cam_forward, u_cam_upward, and u_cam_side uniforms.
-
     //The names of the different uniforms.
     //TODO: Define.
     static const std::string WvpMatName, WorldMatName, ViewMatName, ProjMatName,
-        TextureScaleName, TimeName, SamplerNames[MaterialConstants::TWODSAMPLERS];
+                             TextureScaleName, TimeName,
+                             SamplerNames[MaterialConstants::TWODSAMPLERS],
+                             SamplerScales[MaterialConstants::TWODSAMPLERS],
+                             SamplerPans[MaterialConstants::TWODSAMPLERS];
 
 
 
     //Creates a new material with the given vertex shaders and fragment shaders.
     //All rendering passes are done in the order they are given here.
-    Material(std::vector<RenderingPass> passes);
+    Material(const std::vector<RenderingPass> & passes);
     //Creates a material that has only one pass.
     Material(const RenderingPass & shaders);
     Material(const Material & cpy); //Don't implement; materials shouldn't be copied.
@@ -121,75 +123,21 @@ public:
         return uniforms[pass].find(uniform) != uniforms[pass].end();
     }
 
-    //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformF(std::string uniform, const float * data, int nData)
-    {
-        bool tried = false;
-        for (int i = 0; i < GetNumbPasses(); ++i)
-        {
-            ShaderHandler::UseShader(shaderPrograms[i]);
-            tried = TrySetUniformF(i, uniform, data, nData) || tried;
-        }
-        return tried;
-    }
-    //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformArrayF(std::string uniform, const float * dataSplit, int floatsPerUniform, int nUniforms)
-    {
-        bool tried = false;
-        for (int i = 0; i < GetNumbPasses(); ++i)
-        {
-            ShaderHandler::UseShader(shaderPrograms[i]);
-            tried = TrySetUniformArrayF(i, uniform, dataSplit, nUniforms, floatsPerUniform) || tried;
-        }
-        return tried;
-    }
-    //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformI(std::string uniform, const int * data, int nData)
-    {
-        bool tried = false;
-        for (int i = 0; i < GetNumbPasses(); ++i)
-        {
-            ShaderHandler::UseShader(shaderPrograms[i]);
-            tried = TrySetUniformI(i, uniform, data, nData) || tried;
-        }
-        return tried;
-    }
-    //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformArrayI(std::string uniform, const int * dataSplit, int intsPerUniform, int nUniforms)
-    {
-        bool tried = false;
-        for (int i = 0; i < GetNumbPasses(); ++i)
-        {
-            ShaderHandler::UseShader(shaderPrograms[i]);
-            tried = TrySetUniformArrayI(i, uniform, dataSplit, nUniforms, intsPerUniform) || tried;
-        }
-        return tried;
-    }
-    //Returns whether or not the uniform exists in any of the passes.
-    bool SetUniformMat(std::string uniform, const Matrix4f & data)
-    {
-        bool tried = false;
-        for (int i = 0; i < GetNumbPasses(); ++i)
-        {
-            ShaderHandler::UseShader(shaderPrograms[i]);
-            tried = TrySetUniformMat(i, uniform, data) || tried;
-        }
-        return tried;
-    }
-
     //Sets the given default texture sampler for all passes.
-    bool SetTexture(RenderObjHandle texture, unsigned int sampler)
+    bool SetTexture(unsigned int sampler, RenderObjHandle texture, Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panner = Vector2f())
     {
         bool b = false;
         for (int i = 0; i < GetNumbPasses(); ++i)
-            b = SetTexture(i, texture, sampler) || b;
+            b = SetTexture(i, sampler, texture, scale, panner) || b;
         return b;
     }
     //Sets the given default texture sampler for the given rendering pass.
-    bool SetTexture(int pass, RenderObjHandle texture, unsigned int sampler)
+    bool SetTexture(int pass, unsigned int sampler, RenderObjHandle texture, Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panner = Vector2f())
     {
         assert(pass < GetNumbPasses());
         textureSamplers[pass].Samplers[sampler] = texture;
+        textureSamplers[pass].Panners[sampler] = panner;
+        textureSamplers[pass].Scales[sampler] = scale;
         return true;
     }
 
@@ -205,10 +153,98 @@ private:
 
     bool TryAddUniform(unsigned int programIndex, std::string uniform);
 
+    bool SetUniformF(std::string uniform, const float * data, int nData)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformF(i, uniform, data, nData) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformArrayF(std::string uniform, const float * dataSplit, int floatsPerUniform, int nUniforms)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayF(i, uniform, dataSplit, nUniforms, floatsPerUniform) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformArrayF(std::string uniform, int arrayElement, const float * uniformData, int nData)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayF(i, uniform, arrayElement, uniformData, nData) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformI(std::string uniform, const int * data, int nData)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformI(i, uniform, data, nData) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformArrayI(std::string uniform, const int * dataSplit, int intsPerUniform, int nUniforms)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayI(i, uniform, dataSplit, nUniforms, intsPerUniform) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformArrayI(std::string uniform, int arrayElement, const int * uniformData, int nData)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformArrayI(i, uniform, arrayElement, uniformData, nData) || tried;
+        }
+        return tried;
+    }
+    bool SetUniformMat(std::string uniform, const Matrix4f & data)
+    {
+        bool tried = false;
+        for (int i = 0; i < GetNumbPasses(); ++i)
+        {
+            ShaderHandler::UseShader(shaderPrograms[i]);
+            tried = TrySetUniformMat(i, uniform, data) || tried;
+        }
+        return tried;
+    }
+
+    bool TrySetUniformF(unsigned int programIndex, std::string uniform, const float * data, int nData)
+    {
+        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
+        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);
+        return true;
+    }
     bool TrySetUniformArrayF(unsigned int programIndex, std::string uniform, const float * data, unsigned int nUniforms, unsigned int nFloatsPerUniform)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
         RenderDataHandler::SetUniformArrayValue(uniforms[programIndex][uniform], nUniforms, nFloatsPerUniform, data);
+        return true;
+    }
+    bool TrySetUniformArrayF(unsigned int programIndex, std::string uniform, int arrayElement, const float * data, int nData)
+    {
+        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
+        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform] + arrayElement, nData, data);
+    }
+    bool TrySetUniformI(unsigned int programIndex, std::string uniform, const int * data, int nData)
+    {
+        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
+        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);
         return true;
     }
     bool TrySetUniformArrayI(unsigned int programIndex, std::string uniform, const int * data, unsigned int nUniforms, unsigned int nIntsPerUniform)
@@ -217,17 +253,10 @@ private:
         RenderDataHandler::SetUniformArrayValue(uniforms[programIndex][uniform], nUniforms, nIntsPerUniform, data);
         return true;
     }
-    bool TrySetUniformF(unsigned int programIndex, std::string uniform, const float * data, int nData)
+    bool TrySetUniformArrayI(unsigned int programIndex, std::string uniform, int arrayElement, const int * data, int nData)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
-        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);
-        return true;
-    }
-    bool TrySetUniformI(unsigned int programIndex, std::string uniform, const int * data, int nData)
-    {
-        if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
-        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform], nData, data);
-        return true;
+        RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform] + arrayElement, nData, data);
     }
     bool TrySetUniformMat(unsigned int programIndex, std::string uniform, const Matrix4f & data)
     {

@@ -6,7 +6,26 @@
 
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
+
+
+PassSamplers::PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS])
+{
+    for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
+    {
+        if (samplers == 0) Samplers[i] = 0;
+        else Samplers[i] = samplers[i];
+
+        Panners[i] = Vector2f();
+        Scales[i] = Vector2f(1.0f, 1.0f);
+    }
+}
+
+
+
 #pragma region Shader headers
+
+std::string nSamplers = std::to_string(MaterialConstants::TWODSAMPLERS);
+
 //TODO: Rename "worldTo4DScreen" to "objectTo4DScreen". Same with "worldTo3DScreen". Also update the readme file for this system and add uniform names in Material.h.
 std::string shaderHeaderPostfix = std::string() +
                        "uniform mat4 u_wvp;                                                                       \n\
@@ -15,16 +34,19 @@ std::string shaderHeaderPostfix = std::string() +
 						uniform mat4 u_proj;                                                                      \n\
 						uniform vec3 u_cam_pos;                                                                   \n\
                         uniform vec3 u_cam_forward;                                                               \n\
-                        uniform vec3 u_cam_upward;                                                               \n\
+                        uniform vec3 u_cam_upward;                                                                \n\
                         uniform vec3 u_cam_sideways;                                                              \n\
 						uniform float u_elapsed_seconds;                                                          \n\
-                        uniform float u_textureScale;                                                             \n\
 						                                                                                          \n\
-						uniform sampler2D u_sampler0;                                                             \n\
-						uniform sampler2D u_sampler1;                                                             \n\
-						uniform sampler2D u_sampler2;                                                             \n\
-						uniform sampler2D u_sampler3;                                                             \n\
-						uniform sampler2D u_sampler4;                                                             \n\
+						uniform sampler2D u_samplers2D[" + nSamplers + "];                                        \n\
+                        uniform vec2 u_samplerScales[" + nSamplers + "];                                          \n\
+                        uniform vec2 u_samplerPans[" + nSamplers + "];                                            \n\
+						                                                                                          \n\
+						vec4 sampleTex(int samp, vec2 uvs)                                                        \n\
+						{                                                                                         \n\
+						    return texture2D(u_samplers2D[samp], u_samplerScales[samp] *                       \n\
+                                                                    (uvs + (u_elapsed_seconds * u_samplerPans[samp]))); \n\
+                        }                                                                                         \n\
 						                                                                                          \n\
 						                                                                                          \n\
 						vec4 worldTo4DScreen(vec3 world) { return u_wvp * vec4(world, 1.0); }                     \n\
@@ -71,16 +93,12 @@ std::string shaderHeaderPostfix = std::string() +
                         {                                                                                         \n\
                             return vector + (2.0 * cross(cross(vector, quaternion.xyz) +                          \n\
                                                             (quaternion.w * vector),                              \n\
-                                                         quaternion.xyz));             \n\
-                            vec4 conjugate = vec4(-quaternion.xyz, quaternion.w);                                 \n\
-                            vec4 finalW = multiplyQuaternions(multiplyQuaternionAndVector(quaternion, vector),    \n\
-                                                              conjugate);                                         \n\
-                            return normalize(finalW.xyz);                                                         \n\
+                                                         quaternion.xyz));                                        \n\
                         }                                                                                         \n\
                         vec4 slerp(vec4 first, vec4 second, float t)                                              \n\
                         {                                                                                         \n\
-                            first = normalize(first);                                                            \n\
-                            second = normalize(second);                                                          \n\
+                            first = normalize(first);                                                             \n\
+                            second = normalize(second);                                                           \n\
                             float dotted = clamp(dot(first, second), -1.0, 1.0);                                  \n\
                                                                                                                   \n\
                             float theta = acos(dotted) * t;                                                       \n\
@@ -131,7 +149,7 @@ std::string psHeader = std::string() +
 
 //Used for the single-pass Material constructor.
 std::vector<RenderingPass> tempHelperMaterialPassList;
-std::vector<RenderingPass> MakeList(const RenderingPass & onlyElement)
+const std::vector<RenderingPass> & MakeList(const RenderingPass & onlyElement)
 {
     tempHelperMaterialPassList.clear();
     tempHelperMaterialPassList.insert(tempHelperMaterialPassList.begin(), onlyElement);
@@ -140,7 +158,7 @@ std::vector<RenderingPass> MakeList(const RenderingPass & onlyElement)
 
 
 
-Material::Material(std::vector<RenderingPass> passes)
+Material::Material(const std::vector<RenderingPass> & passes)
     : errorMsg("")
 {
     for (int pass = 0; pass < passes.size(); ++pass)
@@ -210,23 +228,12 @@ Material::Material(std::vector<RenderingPass> passes)
             uniforms[pass]["u_cam_sideways"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_elapsed_seconds", uLoc))
             uniforms[pass]["u_elapsed_seconds"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler0", uLoc))
-            uniforms[pass]["u_sampler0"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler1", uLoc))
-            uniforms[pass]["u_sampler1"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler2", uLoc))
-            uniforms[pass]["u_sampler2"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler3", uLoc))
-            uniforms[pass]["u_sampler3"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_sampler4", uLoc))
-            uniforms[pass]["u_sampler4"] = uLoc;
-        if (RenderDataHandler::GetUniformLocation(prog, "u_textureScale", uLoc))
-        {
-            uniforms[pass]["u_textureScale"] = uLoc;
-            ShaderHandler::UseShader(prog);
-            float f = 1.0f;
-            RenderDataHandler::SetUniformValue(uLoc, 1, &f);
-        }
+        if (RenderDataHandler::GetUniformLocation(prog, "u_samplers2D", uLoc))
+            uniforms[pass]["u_samplers2D"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_samplerScales", uLoc))
+            uniforms[pass]["u_samplerScales"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_samplerPans", uLoc))
+            uniforms[pass]["u_samplerPans"] = uLoc;
     }
 }
 Material::Material(const RenderingPass & shaders)
@@ -245,6 +252,13 @@ Material::~Material(void)
 bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & meshes)
 {
     ClearAllRenderingErrors();
+
+
+    //Set up texture units.
+    int samplerValues[MaterialConstants::TWODSAMPLERS];
+    for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
+        samplerValues[i] = i;
+
 
     //Each mesh will has a different world matrix on top of the global world matrix in the RenderInfo.
     Matrix4f transMat, worldMat, vpMat, wvp;
@@ -291,24 +305,31 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
                 TrySetUniformI(pass, iterator->first, iterator->second.Data, iterator->second.NData);
             for (auto iterator = meshes[mesh]->MatUniformValues.begin(); iterator != meshes[mesh]->MatUniformValues.end(); ++iterator)
                 TrySetUniformMat(pass, iterator->first, iterator->second);
+            for (auto iterator = meshes[mesh]->FloatArrayUniformValues.begin(); iterator != meshes[mesh]->FloatArrayUniformValues.end(); ++iterator)
+                TrySetUniformArrayF(pass, iterator->first, iterator->second.Data, iterator->second.NArrayElements, iterator->second.NDataPerElement);
+            for (auto iterator = meshes[mesh]->IntArrayUniformValues.begin(); iterator != meshes[mesh]->IntArrayUniformValues.end(); ++iterator)
+                TrySetUniformArrayI(pass, iterator->first, iterator->second.Data, iterator->second.NArrayElements, iterator->second.NDataPerElement);
 
 
-            //Enable any textures.
-            for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
+            //Enable textures that the shader uses.
+            if (TrySetUniformArrayI(pass, "u_samplers2D", samplerValues, MaterialConstants::TWODSAMPLERS, 1))
             {
-                UniformLocMap::const_iterator found = uniforms[pass].find(std::string("u_sampler") + std::to_string(i));
-                if (found != uniforms[pass].end())
+                for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
                 {
-                    glUniform1i(found->second, i);
                     RenderDataHandler::ActivateTextureUnit(i);
 
-                    if (meshes[mesh]->TextureSamplers[pass].Samplers[i] == 0)
+                    //If the mesh has a sampler it wants to use, use that. Otherwise, use the default.
+                    if (meshes[mesh]->TextureSamplers[pass].Samplers[i] != 0)
                     {
-                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
+                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass].Samplers[i]);
+                        TrySetUniformArrayF(pass, "u_samplerScales", i, &meshes[mesh]->TextureSamplers[pass].Scales[i][0], 2);
+                        TrySetUniformArrayF(pass, "u_samplerPans", i, &meshes[mesh]->TextureSamplers[pass].Panners[i][0], 2);
                     }
                     else
                     {
-                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass].Samplers[i]);
+                        RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
+                        TrySetUniformArrayF(pass, "u_samplerScales", i, &textureSamplers[pass].Scales[i][0], 2);
+                        TrySetUniformArrayF(pass, "u_samplerPans", i, &textureSamplers[pass].Panners[i][0], 2);
                     }
                 }
             }

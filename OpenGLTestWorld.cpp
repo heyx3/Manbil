@@ -79,7 +79,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 0.25f, 10.0f, 5.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 2.0f, 5.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f());
@@ -199,11 +199,6 @@ void OpenGLTestWorld::InitializeMaterials(void)
     {
         std::cout << "Lit texture directional light uniform get location error.\n";
     }
-    if (!Materials::LitTexture_SetUniforms(*testMat, dirLight))
-    {
-        std::cout << "Lit texture directional light uniform set error.\n";
-    }
-    testMat->SetUniformF("u_textureScale", &terrainTexScale, 1);
 
 
     //Create post-process effect.
@@ -218,12 +213,6 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    effect->GetMaterial().AddUniform("transparency");
-    effect->GetMaterial().AddUniform("isScreenSpace");
-    float transparency = 0.3f;
-    effect->GetMaterial().SetUniformF("transparency", &transparency, 1);
-    int isScreenSpace = 1;
-    effect->GetMaterial().SetUniformI("isScreenSpace", &isScreenSpace, 1);
 }
 void OpenGLTestWorld::InitializeTerrain(void)
 {
@@ -285,6 +274,7 @@ void OpenGLTestWorld::InitializeTerrain(void)
     Materials::LitTexture_SetUniforms(testMesh, dirLight);
     PassSamplers terrainSamplers;
     terrainSamplers[0] = grassImgH;
+    terrainSamplers.Scales[0] = Vector2f(terrainTexScale, terrainTexScale);
     testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), terrainSamplers);
 }
 void OpenGLTestWorld::InitializeObjects(void)
@@ -312,7 +302,10 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     delete[] terrainPoses;
 
+
+
     //Create water.
+
     water = new Water(300, 4, Vector3f());
     if (water->HasError())
     {
@@ -321,24 +314,27 @@ void OpenGLTestWorld::InitializeObjects(void)
         EndWorld();
         return;
     }
-    Materials::LitTexture_GetUniforms(*water->Mat);
-    Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
-    Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
-    water->Transform.SetScale(25.0f / 3.0f);
-    float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
-    float panData[2] = { 0.1f, 0.1f };
-    water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
-    water->GetMesh().FloatUniformValues["texturePanDir"] = Mesh::UniformValue<float>(panData, 2);
+
+    water->Transform.SetScale(8.5f);
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
+
+    Materials::LitTexture_GetUniforms(*water->Mat);
+    Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
+
     water->GetMesh().TextureSamplers[0][0] = waterImgH;
+    water->GetMesh().TextureSamplers[0].Panners[0] = Vector2f(0.0f, 0.0f);
+    water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(20.0f, 20.0f);
+
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.1f, -0.1f);
+    water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(10.0f, 10.0f);
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
-	dirLight.Dir = Vector3f(0.0f, 0.0f, -1.0f).Normalized();
+	dirLight.Dir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
 	dirLight.Ambient = 0.3f;
@@ -381,6 +377,9 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 	DeleteAndSetToNull(testMat);
 	DeleteAndSetToNull(foliage);
     DeleteAndSetToNull(pTerr);
+
+    RenderObjHandle textures[] = { grassImgH, waterImgH, normalMapImgH, shrubImgH };
+    glDeleteTextures(4, textures);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
@@ -388,6 +387,9 @@ void OpenGLTestWorld::OnWorldEnd(void)
 	DeleteAndSetToNull(testMat);
     DeleteAndSetToNull(foliage);
     DeleteAndSetToNull(pTerr);
+
+    RenderObjHandle textures[] = { grassImgH, waterImgH, normalMapImgH, shrubImgH };
+    glDeleteTextures(4, textures);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)

@@ -54,7 +54,6 @@ void CreateVertices(Vertex * vertexStart, unsigned int * indexStart, int indexOf
 
 RenderingPass Foliage::GetFoliageRenderer(void)
 {
-    //TODO: Test out the leaning thing.
     return RenderingPass(
         std::string("uniform float waveSpeed;\n\
 					 uniform float waveScale;\n\
@@ -86,7 +85,7 @@ RenderingPass Foliage::GetFoliageRenderer(void)
 
 
 Foliage::Foliage(std::vector<Vector3f> vertexBasePoses, Vector2f foliageScale, Material * foliageMat)
-    : Mat(foliageMat)
+    : Mat(foliageMat), folMesh(PrimitiveTypes::Triangles)
 {
     //Create our own foliage material if needed.
     if (Mat == 0)
@@ -110,10 +109,26 @@ Foliage::Foliage(std::vector<Vector3f> vertexBasePoses, Vector2f foliageScale, M
     Mat->AddUniform("waveScale");
     Mat->AddUniform("leanMaxDist");
     Mat->AddUniform("brightness");
-    //Materials::LitTexture_GetUniforms(*Mat);
-    //Materials::LitTexture_DirectionalLight light;
 
-	//Create the vertices/indices array.
+    //Set default uniform values.
+    float one = 1.0f;
+    float dist = 10.0f;
+    float brightness = 1.0f;
+    folMesh.FloatUniformValues["waveSpeed"] = Mesh::UniformValue<float>(&one, 1);
+    folMesh.FloatUniformValues["waveScale"] = Mesh::UniformValue<float>(&one, 1);
+    folMesh.FloatUniformValues["leanMaxDist"] = Mesh::UniformValue<float>(&dist, 1);
+    folMesh.FloatUniformValues["brightness"] = Mesh::UniformValue<float>(&brightness, 1);
+
+    //Set up samplers.
+    PassSamplers samplers;
+    folMesh.TextureSamplers.insert(folMesh.TextureSamplers.begin(), samplers);
+
+
+	//Create the vertices/indices.
+
+    RenderObjHandle vbo, ibo;
+    int nVertices, nIndices;
+
 	nVertices = vertexBasePoses.size() * 8;
 	nIndices = vertexBasePoses.size() * 12;
 	Vertex * vertices = new Vertex[nVertices];
@@ -133,17 +148,7 @@ Foliage::Foliage(std::vector<Vector3f> vertexBasePoses, Vector2f foliageScale, M
 
 		vertexOffset += 8;
 		indexOffset += 12;
-
-        //std::cout << vertexBasePoses[i].x << ";" << vertexBasePoses[i].y << ";" << vertexBasePoses[i].z << "\n";
-        //std::cout << vertexOffset << "\n";
-
-        //if (i % 10 > 7)
-        //{
-        //    char dummy;
-        //    std::cin >> dummy;
-        //}
 	}
-
 
 	RenderDataHandler::CreateVertexBuffer(vbo, vertices, nVertices, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
 	RenderDataHandler::CreateIndexBuffer(ibo, indices, nIndices, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
@@ -151,24 +156,24 @@ Foliage::Foliage(std::vector<Vector3f> vertexBasePoses, Vector2f foliageScale, M
 	delete[] indices;
 	delete[] vertices;
 
+
+    //Create the mesh.
+    VertexIndexData vid(vertexBasePoses.size() * 8, vbo, vertexBasePoses.size() * 12, ibo);
+    folMesh.SetVertexIndexData(&vid, 1);
 }
 Foliage::~Foliage(void)
 {
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ibo);
     if (madeMaterial) delete Mat;
+
+    const VertexIndexData & vid = folMesh.GetVertexIndexData(0);
+    GLuint bs[] = { vid.GetVerticesHandle(), vid.GetIndicesHandle() };
+	glDeleteBuffers(2, bs);
 }
 
 bool Foliage::Render(const RenderInfo & info)
 {
-	VertexIndexData vid(nVertices, vbo, nIndices, ibo);
-	Mesh m(PrimitiveTypes::Triangles, 1, &vid);
-
-    PassSamplers samplers;
-    m.TextureSamplers.insert(m.TextureSamplers.begin(), samplers);
-
 	std::vector<const Mesh *> meshes;
-	meshes.insert(meshes.begin(), &m);
+	meshes.insert(meshes.begin(), &folMesh);
 
 	return Mat->Render(info, meshes);
 }
