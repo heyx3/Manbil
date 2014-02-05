@@ -65,7 +65,10 @@ namespace MyVectors
 		Vector2i operator*(int i) const { return Vector2i(x * i, y * i); }
 		Vector2i operator/(const int i) const { return Vector2i(x / i, y / i); }
 	
-		Vector2i operator-(void) const { return Vector2i(-x, -y); }
+        Vector2i operator-(void) const { return Vector2i(-x, -y); }
+
+        const int & operator[](int index) const { return (&x)[index]; }
+        int & operator[](int index) { return (&x)[index]; }
 
 		bool Equals(Vector2i v) const { return x == v.x && y == v.y; }
 
@@ -251,7 +254,10 @@ namespace MyVectors
 		Vector3i operator*(const int scale) const { return Vector3i(x * scale, y * scale, z * scale); }
 		Vector3i operator/(const int invScale) const { return Vector3i(x / invScale, y / invScale, z / invScale); }
 	
-		Vector3i operator-(void) const { return Vector3i(-x, -y, -z); }
+        Vector3i operator-(void) const { return Vector3i(-x, -y, -z); }
+
+        const int & operator[](int index) const { return (&x)[index]; }
+        int & operator[](int index) { return (&x)[index]; }
 	
 		bool Equals(Vector3i v) const { return x == v.x && y == v.y && z == v.z; }
 

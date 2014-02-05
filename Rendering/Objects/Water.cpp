@@ -3,21 +3,17 @@
 #include "../../OpenGLIncludes.h"
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
+#include "../../TextureSettings.h"
 
-//Optionally takes a heightmap for the Z values.
-void CreateWaterMesh(unsigned int size, Mesh & outM, const Fake2DArray<float> * heightmap = 0)
+
+void CreateWaterMesh(unsigned int size, Mesh & outM)
 {
-    Fake2DArray<float> flatHeightmap(size, size, 0.0f);
-    if (heightmap == 0) heightmap = &flatHeightmap;
-
-
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
     //Just create a flat terrain and let it do the math.
 
     Terrain::DebugShit = true;
     Terrain terr(size);
-    terr.SetHeightmap(*heightmap);
     int nVs = terr.GetVerticesCount(),
         nIs = terr.GetIndicesCount();
     Vector3f * poses = new Vector3f[nVs];
@@ -142,13 +138,15 @@ Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _max
         flows.insert(flows.end(), argsE);
     }
 }
-Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f pos)
+Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos)
     : Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
 {
+    assert(seedValues.GetWidth() == seedValues.GetHeight());
+
     Transform.SetPosition(pos);
 
     //Create material and mesh.
-    CreateWaterMesh(size, waterMesh, &seedValues);
+    CreateWaterMesh(seedValues.GetWidth(), waterMesh);
     Mat = new Material(GetSeededHeightRenderer());
     if (Mat->HasError())
     {
@@ -156,6 +154,25 @@ Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f 
         errorMsg += Mat->GetErrorMessage();
         return;
     }
+
+    //Set up texture seed heightmap.
+    RenderObjHandle tex;
+    RenderDataHandler::CreateTexture2D<float>(tex, seedValues,
+                                              [](void* sp, unsigned char * px, float dat)
+                                              {
+                                                  unsigned char uByte = (unsigned char)(255.0f * dat);
+                                                  px[0] = uByte; //Red
+                                                  px[1] = uByte; //Green
+                                                  px[2] = uByte; //Blue
+                                                  px[3] = 255;   //Alpha
+                                              });
+    errorMsg = GetCurrentRenderingError();
+    if (HasError())
+    {
+        errorMsg = std::string("Error creating water texture seed heightmap: ") + errorMsg;
+        return;
+    }
+    Mat->SetTexture(tex, 2);
 
 
     //Set up uniforms.
@@ -175,7 +192,7 @@ Water::Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f 
     Materials::LitTexture_SetUniforms(*Mat, lightM);
 
     //Set water args.
-    ChangeSeededWater(SeededWaterArgs(1.0f, 1.0f, 1.0f));
+    SetSeededWater(SeededWaterArgs(1.0f, 1.0f, 1.0f));
 }
 
 Water::~Water(void)
@@ -242,8 +259,12 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
             //Set the uniforms.
             dp_tsc_h_p[i] = Vector4f(args.DropoffPoint, args.TimeSinceCreated, args.Amplitude, args.Period);
             sXY_sp[i] = Vector3f(sourcePos.x, sourcePos.y, args.Speed);
+
+            return true;
         }
     }
+
+    return false;
 }
 
 int Water::AddFlow(const DirectionalWaterArgs & args)
@@ -275,12 +296,24 @@ bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
     return false;
 }
 
-bool Water::ChangeSeededWater(const SeededWaterArgs & args)
+bool Water::SetSeededWater(const SeededWaterArgs & args)
 {
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
     Vector3f data(args.Amplitude, args.Period, args.Speed);
     Mat->SetUniformF("amplitude_period_speed", &data[0], 3);
+
+    return true;
+}
+bool Water::SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution)
+{
+    if (waterType != WaterTypes::SeededHeightmap) return false;
+
+    Vector2f res(resolution.x, resolution.y);
+    Mat->SetUniformF("seedMapResolution", &res[0], 2);
+
+    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_WRAP, false).SetData(image);
+    waterMesh.TextureSamplers[0][2] = image;
 
     return true;
 }
@@ -407,29 +440,63 @@ RenderingPass Water::GetSeededHeightRenderer(void)
 {
     std::string commonGround = std::string() + "\
                 uniform vec3 amplitude_period_speed;\n\
-                float getWaveHeight(vec2 horizontalPos, float seed)\n\
+                uniform vec2 seedMapResolution;\n\
+                uniform vec2 seedMapPanDir;\n\
+                \n\
+                float getWaveHeight(vec2 horizontalPos)\n\
                 {\n\
                     float amp = amplitude_period_speed.x,\n\
                           per = amplitude_period_speed.y,\n\
                           spd = amplitude_period_speed.z;\n\
-                    seed *= 1351.2454;\n\
+                    \n\
+                    vec2 uvLookup = in_tex + (u_elapsed_seconds * seedMapPanDir);\n\
+                    \n\
+                    float seed = 6346.1634 * texture(u_sampler2, uvLookup);\n\
                     return amp * sin((seed / per) + (u_elapsed_seconds * spd));\n\
                 }\n\
-                vec3 getWaveNormal(vec2 horizontalPos, float seed)\n\
+                vec3 getWaveNormal(vec2 horizontalPos)\n\
                 {\n\
-                    float amp = amplitude_period_speed.x,\n\
-                          per = amplitude_period_speed.y,\n\
-                          spd = amplitude_period_speed.z;\n\
-                    seed *= 1351.2454;\n\
+                    //Get the height at nearby vertices and compute the normal via cross-product.\n\
+                    vec2 epsilon = 1.0 / seedMapResolution;\n\
                     \n\
-                    //TODO: Get height at different points and compute normal via cross-product. Make sure it's positive in z!\n\
-                    float derivative = sin((seed / per) + (u_elapsed_seconds * spd));\n\
+                    vec2 one_zero = horizontalPos + vec2(epsilon, 0.0f),\n\
+                         nOne_zero = horizontalPos + vec2(-epsilon, 0.0f),\n\
+                         zero_one = horizontalPos + vec2(0.0f, epsilon),\n\
+                         zero_nOne = horizontalPos + vec2(0.0f, -epsilon);\n\
+                    \n\
+                    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));\n\
+                    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),\n\
+                         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),\n\
+                         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),\n\
+                         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));\n\
+                    \n\
+                    //TODO: See if we can remove the outer 'normalize()' here without messing anything up.\n\
+                    vec3 norm1 = normalize(cross(normalize(p_one_zero - p_zero_zero),\n\
+                                                 normalize(p_zero_one - p_zero_zero))),\n\
+                         norm2 = normalize(cross(normalize(p_nOne_zero - p_zero_zero),\n\
+                                                 normalize(p_zero_nOne - p_zero_zero))),\n\
+                         normFinal = normalize(norm1 + norm2);\n\
+                    //Make sure it's positive along the vertical axis.\n\
+                    normFinal *= sign(normFinal.z);\n\
+                    \n\
+                    return normFinal;\n\
                 }\n\
                 ";
 
     return RenderingPass(
         commonGround + "\
-            ",
+            void main()\n\
+            {\n\
+               out_tex = in_tex;\n\
+               out_col = vec4(in_pos, 0.0);\n\
+               \n\
+               float heightOffset = getWaveHeight(in_pos.xy);\n\
+               vec3 finalPos = in_pos + vec3(0.0, 0.0, heightOffset);\n\
+               gl_Position = worldTo4DScreen(finalPos);\n\
+               \n\
+               vec4 out_pos4 = (u_world * vec4(finalPos, 1.0));\n\
+               out_pos = out_pos4.xyz / out_pos4.w;\n\
+            }",
         commonGround + "\
             struct DirectionalLightStruct\n\
 			{\n\
@@ -442,8 +509,24 @@ RenderingPass Water::GetSeededHeightRenderer(void)
             uniform vec2 texturePanDir;\n\
             uniform vec2 normalmapTexturePanDir;\n\
             \n\
-            ",
-        );
+            void main()\n\
+            {\n\
+               \n\
+               vec2 uvs = u_textureScale * out_tex;\n\
+               uvs += texturePanDir * u_elapsed_seconds;\n\
+               \n\
+               vec3 norm = getWaveNormal(out_col.xy);\n\
+               vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * normalmapTexturePanDir)).xyz;\n\
+               norm = normalize(norm + vec3(-normalMap.x, -normalMap.y, abs(normalMap.z)));\n\
+               \n\
+               float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
+                                                DirectionalLight.Dir, DirectionalLight.Ambient,\n\
+                                                DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
+                                                DirectionalLight.SpecularIntensity);\n\
+               vec4 texCol = texture(u_sampler0, uvs);\n\
+               \n\
+               out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
+            }");
 }
 
 void Water::Update(float elapsed)

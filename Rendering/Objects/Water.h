@@ -67,8 +67,8 @@ public:
     Water(unsigned int size, unsigned int maxRipples, Vector3f pos = Vector3f());
     //Makes a new Water object that uses directional water.
     Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int maxRipples, Vector3f pos = Vector3f());
-    //Makes a new Water object that uses seeded heightmap water.
-    Water(unsigned int size, const Fake2DArray<float> & seedValues, Vector3f pos = Vector3f());
+    //Makes a new Water object that uses seeded heightmap water. The heightmap must be square.
+    Water(const Fake2DArray<float> & seedValues, Vector3f pos = Vector3f());
 
     ~Water(void);
     
@@ -88,7 +88,7 @@ public:
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
     int AddRipple(const RippleWaterArgs & args);
     //Changes the water ripples with the given ID.
-    //Returns false if this water isn't Rippling; returns true otherwise.
+    //Returns false if this water isn't Rippling or the given id isn't found; returns true otherwise.
     bool ChangeRipple(int element, const RippleWaterArgs & args);
 
     //Adds a new flow to the water.
@@ -101,7 +101,13 @@ public:
 
     //Changes the properties of the water.
     //Returns false if this water isn't SeededHeightmap; returns true otherwise.
-    bool ChangeSeededWater(const SeededWaterArgs & args);
+    bool SetSeededWater(const SeededWaterArgs & args);
+    //Changes the heightmap used to seed this water.
+    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
+    bool SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution);
+    //Sets the direction and magnitude of this water's heightmap seed movement.
+    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
+    bool SetSeededWaterSeedPanDir(Vector2f dir) { if (waterType != WaterTypes::SeededHeightmap) return false; Mat->SetUniformF("seedMapPanDir", &dir[0], 2); return true; }
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
@@ -137,6 +143,7 @@ private:
     int nextFlowID;
     int totalFlows;
     std::vector<DirectionalWaterArgsElement> flows;
+
 
     Mesh waterMesh;
 

@@ -3,6 +3,7 @@
 #include "OpenGLIncludes.h"
 #include "SFML/Graphics.hpp"
 #include "Math/Matrix4f.h"
+#include "Math/Fake2DArray.h"
 
 //Manages different kinds of data being passed between CPU and GPU.
 class RenderDataHandler
@@ -38,6 +39,42 @@ public:
 	
 	//Creates a texture object for passing to a shader.
 	static void CreateTexture2D(RenderObjHandle & texObjectHandle, sf::Image & img, bool createMipmaps = false);
+    template<typename Data>
+    //Creates a texture object for passing to a shader.
+    static void CreateTexture2D(RenderObjHandle & texObjectHandle, const Fake2DArray<Data> & imgData,
+                                void(*outputColor)(void* specialData, unsigned char pixel[4], Data data), void* pData = 0,
+                                bool generateMipmaps = false)
+    {
+        //Create the data array.
+        unsigned char * textureData = new unsigned char[imgData.GetWidth() * imgData.GetHeight()];
+        for (int x = 0; x < imgData.GetWidth(); ++x)
+        {
+            for (int y = 0; y < imgData.GetHeight(); ++y)
+            {
+                int index = (x * 4) + (y * imgData.GetWidth() * 4);
+
+                for (int i = 0; i < 4; ++i)
+                    textureData[index + i] = 0;
+
+                outputColor(pData, &textureData[index], imgData[Vector2i(x, y)]);
+            }
+        }
+
+        //Create the texture object.
+        CreateTexture2D(texObjectHandle, Vector2i(imgData.GetWidth(), imgData.GetHeight()));
+        glBindTexture(GL_TEXTURE_2D, texObjectHandle);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgData.GetWidth(), imgData.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+
+
+        delete[] textureData;
+
+
+        if (generateMipmaps)
+        {
+            glEnable(GL_TEXTURE_2D);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+    }
 	//Creates a texture object for passing to a shader.
 	static void CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
 	//Creates a depth texture object for passing to a shader.

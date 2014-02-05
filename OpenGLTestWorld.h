@@ -34,6 +34,11 @@ protected:
 
 private:
 
+    void InitializeTextures(void);
+    void InitializeMaterials(void);
+    void InitializeTerrain(void);
+    void InitializeObjects(void);
+
 	void RenderWorldGeometry(const RenderInfo & info);
 
 	Material * testMat;
@@ -45,4 +50,6 @@ private:
 	Mesh testMesh;
 	TerrainWalkCamera cam;
 	Materials::LitTexture_DirectionalLight dirLight;
+
+    RenderObjHandle grassImgH, normalMapImgH, shrubImgH, waterImgH;
 };

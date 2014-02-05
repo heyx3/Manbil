@@ -40,13 +40,12 @@ namespace OGLTestPrints
 using namespace OGLTestPrints;
 
 
-const Vector2i windowSize(1000, 700);
 
+const Vector2i windowSize(1000, 700);
 const RenderingState worldRenderState;
 
-
-sf::Image img;
-RenderObjHandle imgObj;
+//Both "InitializeTerrain" and "InitializeObjects" need the terrain vertex positions.
+Vector3f * terrainPoses = 0;
 
 const int terrainSize = 300;
 const float terrainBreadth = 5.0f, terrainHeight = 100.0f;
@@ -79,6 +78,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 	if (finalG != 0) finalG->Generate(outNoise);
 }
 
+
 Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 10.0f, 5.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
@@ -104,7 +104,235 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 }
 
 
+
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
+
+
+void OpenGLTestWorld::InitializeTextures(void)
+{
+    sf::Image img, shrubImg, waterImg, normalMapImg;
+
+    //Grass texture.
+    if (!img.loadFromFile("Grass.png"))
+    {
+        std::cout << "Failed to load grass texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(grassImgH, img, true);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(grassImgH);
+    if (!PrintRenderError("Error setting up grass texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    //Shrub texture.
+    if (!shrubImg.loadFromFile("shrub.png"))
+    {
+        std::cout << "Failed to load shrub texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(shrubImgH, shrubImg);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(shrubImgH);
+    if (!PrintRenderError("Error setting up shrub texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    //Water color texture.
+    if (!waterImg.loadFromFile("Water.png"))
+    {
+        std::cout << "Failed to load water texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(waterImgH, waterImg);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(waterImgH);
+    if (!PrintRenderError("Error setting up water texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+    
+    //Water normal map texture.
+    if (!normalMapImg.loadFromFile("Normalmap.png"))
+    {
+        std::cout << "Failed to load normal map texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    RenderDataHandler::CreateTexture2D(normalMapImgH, normalMapImg);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(normalMapImgH);
+    if (!PrintRenderError("Error setting up normal map texture"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+}
+void OpenGLTestWorld::InitializeMaterials(void)
+{
+    //Terrain material.
+
+    std::vector<RenderingPass> mats;
+    mats.insert(mats.end(), Materials::LitTexture);
+    testMat = new Material(mats);
+    if (testMat->HasError())
+    {
+        std::cout << "Lit Texture material error: " << testMat->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    if (!Materials::LitTexture_GetUniforms(*testMat))
+    {
+        std::cout << "Lit texture directional light uniform get location error.\n";
+    }
+    if (!Materials::LitTexture_SetUniforms(*testMat, dirLight))
+    {
+        std::cout << "Lit texture directional light uniform set error.\n";
+    }
+    testMat->SetUniformF("u_textureScale", &terrainTexScale, 1);
+
+
+    //Create post-process effect.
+    ClearAllRenderingErrors();
+    std::vector<RenderingPass> passes;
+    passes.insert(passes.end(), Materials::EmptyPostProcess);
+    effect = new PostProcessEffect(windowSize.x, windowSize.y, passes);
+    if (effect->HasError())
+    {
+        std::cout << "Error creating render target: " << effect->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    effect->GetMaterial().AddUniform("transparency");
+    effect->GetMaterial().AddUniform("isScreenSpace");
+    float transparency = 0.3f;
+    effect->GetMaterial().SetUniformF("transparency", &transparency, 1);
+    int isScreenSpace = 1;
+    effect->GetMaterial().SetUniformI("isScreenSpace", &isScreenSpace, 1);
+}
+void OpenGLTestWorld::InitializeTerrain(void)
+{
+    //Gnerate the heightmap.
+
+    Noise2D noise(terrainSize, terrainSize);
+    GenerateTerrainNoise(noise);
+
+    pTerr = new Terrain(terrainSize);
+    Terrain & terr = *pTerr;
+    terr.SetHeightmap(noise);
+
+
+    //Create vertices.
+
+    RenderObjHandle vs, is;
+    VertexIndexData vid;
+
+    const int size = terrainSize * terrainSize;
+    assert(size == terr.GetVerticesCount());
+    Vertex * vertices = new Vertex[size];
+    terrainPoses = new Vector3f[size];
+    Vector3f * vertexNormals = new Vector3f[size];
+    Vector2f * vertexTexCoords = new Vector2f[size];
+    unsigned int * indices = new unsigned int[terr.GetIndicesCount()];
+
+    terr.CreateVertexPositions(terrainPoses, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
+    for (int i = 0; i < size; ++i)
+    {
+        terrainPoses[i].x *= terrainBreadth;
+        terrainPoses[i].y *= terrainBreadth;
+        terrainPoses[i].z *= terrainHeight;
+    }
+    terr.CreateVertexNormals(vertexNormals, terrainPoses, Vector3f(1.0f, 1.0f, 1.0f), Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
+    terr.CreateVertexTexCoords(vertexTexCoords, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
+    terr.CreateVertexIndices(indices, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
+
+    for (int i = 0; i < size; ++i)
+    {
+        vertices[i] = Vertex(terrainPoses[i], vertexTexCoords[i], vertexNormals[i]);
+    }
+
+    RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
+
+
+    if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
+    {
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    delete[] vertices, vertexNormals, vertexTexCoords, indices;
+
+    //Create terrain mesh.
+    testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
+    Materials::LitTexture_SetUniforms(testMesh, dirLight);
+    PassSamplers terrainSamplers;
+    terrainSamplers[0] = grassImgH;
+    testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), terrainSamplers);
+}
+void OpenGLTestWorld::InitializeObjects(void)
+{
+    //Create the foliage before deleting the vertex data.
+    std::vector<Vector3f> poses;
+    FastRand fr;
+    for (int i = terrainSize; i < terrainSize * terrainSize; i += 1 + (BasicMath::Abs(fr.GetRandInt()) % 200))
+    {
+        poses.insert(poses.end(), terrainPoses[i]);
+    }
+    foliage = new Foliage(poses, Vector2f(10.0f, 4.0f));
+    if (foliage->HasError())
+    {
+        std::cout << "Error creating foliage: " << foliage->GetError();
+        Pause();
+        EndWorld();
+        return;
+    }
+    foliage->SetTexture(grassImgH);
+    foliage->SetWaveSpeed(0.5f);
+    foliage->SetWaveScale(2.0f);
+    foliage->SetLeanAwayMaxDist(10.0f);
+    foliage->SetBrightness(0.5f);
+
+    delete[] terrainPoses;
+
+    //Create water.
+    water = new Water(300, 4, Vector3f());
+    if (water->HasError())
+    {
+        std::cout << "Error creating water: " << water->GetErrorMessage();
+        Pause();
+        EndWorld();
+        return;
+    }
+    Materials::LitTexture_GetUniforms(*water->Mat);
+    Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
+    Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
+    water->Transform.SetScale(25.0f / 3.0f);
+    float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
+    float panData[2] = { 0.0f, 0.0f };
+    water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
+    water->GetMesh().FloatUniformValues["texturePanDir"] = Mesh::UniformValue<float>(panData, 2);
+    water->Transform.IncrementPosition(Vector3f(0, 0, -30));
+    water->GetMesh().TextureSamplers[0][0] = waterImgH;
+    water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
+}
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
@@ -131,188 +359,10 @@ void OpenGLTestWorld::InitializeWorld(void)
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
 
-
-	if (!img.loadFromFile("Grass.png"))
-	{
-		std::cout << "Failed to load grass texture.\n";
-		Pause();
-		EndWorld();
-		return;
-	}
-	RenderDataHandler::CreateTexture2D(imgObj, img, true);
-	
-	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(imgObj);
-	if (!PrintRenderError("Error setting up grass texture"))
-	{
-		Pause();
-		EndWorld();
-		return;
-	}
-
-	sf::Image otherImg, waterImg, normalMapImg;
-	RenderObjHandle otherImgH, waterImgH, normalMapImgH;
-	if (!otherImg.loadFromFile("shrub.png"))
-	{
-		std::cout << "Failed to load shrub texture.\n";
-		Pause();
-		EndWorld();
-		return;
-	}
-	RenderDataHandler::CreateTexture2D(otherImgH, otherImg);
-	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(otherImgH);
-	if (!PrintRenderError("Error setting up shrub texture"))
-	{
-		Pause();
-		EndWorld();
-		return;
-	}
-    if (!waterImg.loadFromFile("Water.png"))
-    {
-        std::cout << "Failed to load water texture.\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    RenderDataHandler::CreateTexture2D(waterImgH, waterImg);
-    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(waterImgH);
-    if (!PrintRenderError("Error setting up water texture"))
-    {
-        Pause();
-        EndWorld();
-        return;
-    }
-    if (!normalMapImg.loadFromFile("Normalmap.png"))
-    {
-        std::cout << "Failed to load normal map texture.\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    RenderDataHandler::CreateTexture2D(normalMapImgH, normalMapImg);
-    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP).SetData(normalMapImgH);
-    if (!PrintRenderError("Error setting up normal map texture"))
-    {
-        Pause();
-        EndWorld();
-        return;
-    }
-
-
-    //Material.
-    std::vector<RenderingPass> mats;
-    mats.insert(mats.end(), Materials::LitTexture);
-    testMat = new Material(mats);
-    if (testMat->HasError())
-    {
-        std::cout << "Lit Texture material error: " << testMat->GetErrorMessage() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    if (!Materials::LitTexture_GetUniforms(*testMat))
-    {
-        std::cout << "Lit texture directional light uniform get location error.\n";
-    }
-    if (!Materials::LitTexture_SetUniforms(*testMat, dirLight))
-    {
-        std::cout << "Lit texture directional light uniform set error.\n";
-    }
-    testMat->SetUniformF("u_textureScale", &terrainTexScale, 1);
-
-	//Create vertices.
-
-	RenderObjHandle vs, is;
-	VertexIndexData vid;
-
-	Noise2D noise(terrainSize, terrainSize);
-	GenerateTerrainNoise(noise);
-
-    pTerr = new Terrain(terrainSize);
-	Terrain & terr = *pTerr;
-	terr.SetHeightmap(noise);
-
-	const int size = terrainSize * terrainSize;
-	assert(size == terr.GetVerticesCount());
-	Vertex * vertices = new Vertex[size];
-	Vector3f * vertexPoses = new Vector3f[size], * vertexNormals = new Vector3f[size];
-	Vector2f * vertexTexCoords = new Vector2f[size];
-	unsigned int * indices = new unsigned int[terr.GetIndicesCount()];
-
-	terr.CreateVertexPositions(vertexPoses, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
-	for (int i = 0; i < size; ++i)
-	{
-		vertexPoses[i].x *= terrainBreadth;
-		vertexPoses[i].y *= terrainBreadth;
-		vertexPoses[i].z *= terrainHeight;
-	}
-	terr.CreateVertexNormals(vertexNormals, vertexPoses, Vector3f(1.0f, 1.0f, 1.0f), Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
-	terr.CreateVertexTexCoords(vertexTexCoords, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
-	terr.CreateVertexIndices(indices, Vector2i(0, 0), Vector2i(terrainSize - 1, terrainSize - 1));
-
-	for (int i = 0; i < size; ++i)
-	{
-		vertices[i] = Vertex(vertexPoses[i], vertexTexCoords[i], vertexNormals[i]);
-	}
-
-	RenderDataHandler::CreateVertexBuffer(vs, vertices, size, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	RenderDataHandler::CreateIndexBuffer(is, indices, terr.GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-	vid = VertexIndexData(size, vs, terr.GetIndicesCount(), is);
-
-
-	if (!PrintRenderError("Error creating vertex/index buffer for terrain"))
-	{
-		Pause();
-		EndWorld();
-		return;
-	}
-
-	delete[] vertices, vertexNormals, vertexTexCoords, indices;
-
-	//Create the foliage before deleting the vertex data.
-	std::vector<Vector3f> poses;
-    FastRand fr;
-	for (int i = terrainSize; i < size; i += 1 + (BasicMath::Abs(fr.GetRandInt()) % 200))
-	{
-		poses.insert(poses.end(), vertexPoses[i]);
-	}
-	foliage = new Foliage(poses, Vector2f(10.0f, 4.0f));
-	if (foliage->HasError())
-	{
-		std::cout << "Error creating foliage: " << foliage->GetError();
-		Pause();
-		EndWorld();
-		return;
-	}
-    foliage->SetTexture(otherImgH);
-    foliage->SetWaveSpeed(0.5f);
-    foliage->SetWaveScale(2.0f);
-    foliage->SetLeanAwayMaxDist(10.0f);
-    foliage->SetBrightness(0.5f);
-	
-	delete[] vertexPoses;
-
-    //Create water.
-    water = new Water(300, 4, Vector2f(1.0f, 0.0f), Vector3f());
-    if (water->HasError())
-    {
-        std::cout << "Error creating water: " << water->GetErrorMessage();
-        Pause();
-        EndWorld();
-        return;
-    }
-    Materials::LitTexture_GetUniforms(*water->Mat);
-    Materials::GetDefaultUniforms_LitTexture(water->GetMesh().FloatUniformValues, water->GetMesh().IntUniformValues, water->GetMesh().MatUniformValues);
-    Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
-    water->Transform.SetScale(25.0f / 3.0f);
-    float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
-    float panData[2] = { 0.0f, 0.0f };
-    water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
-    water->GetMesh().FloatUniformValues["texturePanDir"] = Mesh::UniformValue<float>(panData, 2);
-    water->Transform.IncrementPosition(Vector3f(0, 0, -30));
-    water->GetMesh().TextureSamplers[0][0] = waterImgH;
-    water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-
-
+    InitializeTextures();
+    InitializeMaterials();
+    InitializeTerrain();
+    InitializeObjects();
 
     //Camera.
     Vector3f pos(0, 0, terrainHeight);
@@ -323,34 +373,6 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
-
-
-	//Create terrain mesh.
-	testMesh = Mesh(PrimitiveTypes::Triangles, 1, &vid);
-    Materials::LitTexture_SetUniforms(testMesh, dirLight);
-    PassSamplers dummySamplers;
-    dummySamplers[0] = imgObj;
-    testMesh.TextureSamplers.insert(testMesh.TextureSamplers.end(), dummySamplers);
-
-
-	//Create post-process effect.
-	ClearAllRenderingErrors();
-    std::vector<RenderingPass> passes;
-    passes.insert(passes.end(), Materials::EmptyPostProcess);
-    effect = new PostProcessEffect(windowSize.x, windowSize.y, passes);
-	if (effect->HasError())
-	{
-		std::cout << "Error creating render target: " << effect->GetErrorMessage() << "\n";
-		Pause();
-		EndWorld();
-		return;
-	}
-    effect->GetMaterial().AddUniform("transparency");
-    effect->GetMaterial().AddUniform("isScreenSpace");
-    float transparency = 0.3f;
-    effect->GetMaterial().SetUniformF("transparency", &transparency, 1);
-    int isScreenSpace = 1;
-    effect->GetMaterial().SetUniformI("isScreenSpace", &isScreenSpace, 1);
 }
 
 OpenGLTestWorld::~OpenGLTestWorld(void)
