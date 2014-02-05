@@ -345,7 +345,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float cutoff = period * speed * timeSinceCreated;\n\
                     cutoff = max(0, sign(cutoff - dist));\n\
                     \n\
-                    float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
+                    float innerVal = (dist / period) + (-timeSinceCreated * speed);\n\
                     float waveScale = height * heightScale * cutoff;\n\
                     \n\
                     float heightOffset = sin(innerVal);\n\
