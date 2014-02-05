@@ -63,8 +63,8 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	}
 
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
-	Vector2i cells = Vector2i((noise.GetWidth() / cSize) + 2,
-							  (noise.GetHeight() / cSize) + 2);
+	Vector2i cells = Vector2i((noise.GetWidth() / cSize),
+							  (noise.GetHeight() / cSize));
 	if ((noise.GetWidth() / cSize) < ((float)noise.GetWidth() / (float)cSize))
 	{
 		cells += Vector2i(1, 1);
@@ -74,12 +74,6 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	int i, x, y;
 	struct Cell { std::vector<Vector2f> pointsInCell; };
 	Fake2DArray<Cell> cellContents(cells.x, cells.y);
-	//std::vector<Vector2f> ** cellContents = new std::vector<Vector2f>*[cells.x+1];
-	//std::vector<Vector2f>::iterator it;
-	//for (i = 0; i < cells.x+1; ++i)
-	//{
-	//	cellContents[i] = new std::vector<Vector2f>[cells.y+1];
-	//}
 
 	//Generate cell contents.
 	FastRand fr(Seed);
@@ -125,14 +119,12 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 		tempPos.x = (float)x;
 		tempPosi.x = x;
 		tempCellLoc.x = x / CellSize;
-		tempCellLoc.x += 1;
 
 		for (y = 0; y < noise.GetHeight(); ++y)
 		{
 			tempPos.y = (float)y;
 			tempPosi.y = y;
 			tempCellLoc.y = y / CellSize;
-			tempCellLoc.y += 1;
 
 			for (i = 0; i < NUMB_DISTANCE_VALUES; ++i)
 			{
@@ -144,8 +136,13 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 			{
 				for (y2 = -1; y2 <= 1; ++y2)
 				{
+                    //If the cell area is out of bounds, either wrap it or stop this iteration.
+                    Vector2i tempLoci(tempCellLoc.x + x2, tempCellLoc.y + y2);
+                    Vector2i newTempLoci = cellContents.Wrap(tempLoci);
+                    if (Wrap || !tempLoci.Equals(newTempLoci)) continue;
+
 					//Go through every point in the cell.
-					cellTemp = &cellContents[tempCellLoc + Vector2i(x2, y2)].pointsInCell;
+					cellTemp = &cellContents[newTempLoci].pointsInCell;
 
 					for (i = 0; i < (int)cellTemp->size(); ++i)
 					{
@@ -181,21 +178,11 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 		}
 	}
 
-
-	//Clean up.
-	//for (i = 0; i < cells.x; ++i)
-	//{
-	//	delete [] cellContents[i];
-	//}
-	//delete[] cellContents;
-
-
 	//Remap values to 0-1.
 	NoiseFilterer nf;
 	RectangularFilterRegion rfr(Vector2i(), Vector2i(noise.GetWidth(), noise.GetHeight()));
 
 	nf.FillRegion = &rfr;
 	nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.001f, true, true);
-	nf.FilterFunc = &NoiseFilterer::RemapValues;
-	nf.Generate(noise);
+    nf.RemapValues(&noise);
 }

@@ -79,28 +79,45 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 1000.0f, 40.0f, 30.0f, 1.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 1000.0f, 5.0f, 30.0f, 1.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
-    outHeight.Fill(Vector3f());
+    outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
+    Fake2DArray<float> heightmap(outHeight.GetWidth(), outHeight.GetHeight());
 
-    sf::Image bumpMap;
-    if (!bumpMap.loadFromFile("bumpy.png"))
+    //Load image.
+    if (false)
     {
-        std::cout << "Error loading water bumpmap\n";
-        Pause();
-        return;
+        sf::Image bumpMap;
+        if (!bumpMap.loadFromFile("bumpy.png"))
+        {
+            std::cout << "Error loading water bumpmap\n";
+            Pause();
+            return;
+        }
+        if (bumpMap.getSize().x != outHeight.GetWidth() || bumpMap.getSize().y != outHeight.GetHeight())
+        {
+            std::cout << "The Fake2DArray<Vector3f> is the wrong size\n";
+            Pause();
+            return;
+        }
+
+        TextureConverters::ToArray(bumpMap, TextureConverters::Channels::Red, heightmap);
     }
-    if (bumpMap.getSize().x != outHeight.GetWidth() || bumpMap.getSize().y != outHeight.GetHeight())
+    //Generate with noise.
+    else
     {
-        std::cout << "The Fake2DArray<Vector3f> is the wrong size\n";
-        Pause();
-        return;
+        Perlin per1(64.0f, Perlin::Quintic);
+        float weights[] = { 1.0f };
+        Generator * noiseOctaves[] = { &per1 };
+
+        LayeredOctave octaves(1, weights, noiseOctaves);
+
+        octaves.Generate(heightmap);
     }
 
-    Fake2DArray<float> heightmap(bumpMap.getSize().x, bumpMap.getSize().y);
-    TextureConverters::ToArray(bumpMap, TextureConverters::Channels::Red, heightmap);
-    BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
+    //BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
+    outHeight.Fill([&heightmap](Vector2i loc, Vector3f * outV) { *outV = Vector3f(heightmap[loc], heightmap[loc], heightmap[loc]); });
 }
 
 
@@ -305,7 +322,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         EndWorld();
         return;
     }
-    foliage->SetTexture(grassImgH);
+    foliage->SetTexture(shrubImgH);
     foliage->SetWaveSpeed(0.5f);
     foliage->SetWaveScale(2.0f);
     foliage->SetLeanAwayMaxDist(10.0f);
@@ -341,8 +358,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(50.0f, 50.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(0.05f, 0.05f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(30.0f, 30.0f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.01f, -0.02f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(100.0f, 100.0f);
 }
 
 

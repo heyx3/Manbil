@@ -11,28 +11,26 @@ void BumpmapToNormalmap::Convert(const Fake2DArray<float> & heightmap, float hei
 
             base = Vector3f(x, y, heightScale * heightmap[Vector2i(x, y)]);
 
-            if (x > 0 && y > 0)
-            {
-                first = Vector3f(x - 1.0f, y, heightScale * heightmap[Vector2i(x - 1, y)]);
-                second = Vector3f(x, y - 1.0f, heightScale * heightmap[Vector2i(x, y - 1)]);
 
-                tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
-                if (tempSum.z < 0.0f)
-                    tempSum = -tempSum;
+            first = Vector3f(x - 1.0f, y, heightScale * heightmap[heightmap.Wrap(Vector2i(x - 1, y))]);
+            second = Vector3f(x, y - 1.0f, heightScale * heightmap[heightmap.Wrap(Vector2i(x, y - 1))]);
 
-                sum += tempSum;
-            }
-            if (x < heightmap.GetWidth() - 1 && y < heightmap.GetHeight() - 1)
-            {
-                first = Vector3f(x + 1.0f, y, heightScale * heightmap[Vector2i(x + 1, y)]);
-                second = Vector3f(x, y - 1.0f, heightScale * heightmap[Vector2i(x, y + 1)]);
+            tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
+            if (tempSum.z < 0.0f)
+                tempSum = -tempSum;
 
-                tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
-                if (tempSum.z < 0.0f)
-                    tempSum = -tempSum;
+            sum += tempSum;
 
-                sum += tempSum;
-            }
+
+            first = Vector3f(x + 1.0f, y, heightScale * heightmap[heightmap.Wrap(Vector2i(x + 1, y))]);
+            second = Vector3f(x, y + 1.0f, heightScale * heightmap[heightmap.Wrap(Vector2i(x, y + 1))]);
+
+            tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
+            if (tempSum.z < 0.0f)
+                tempSum = -tempSum;
+
+            sum += tempSum;
+
 
             sum = sum.Normalized();
             //Normal components are in the range {-1, 1}, but color components are in the range {0, 1}.

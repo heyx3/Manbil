@@ -354,10 +354,20 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 }\n\
                 return offset;\n\
              }\n\
-             vec3 getWaveNormal(vec2 horizontalPos)\n\
+             \n\
+             struct NormalData\n\
              {\n\
-                vec3 norm = vec3(0.0, 0.0, 0.001);\n\
+                vec3 normal, tangent, bitangent;\n\
+             };\n\
+             NormalData getWaveNormal(vec2 horizontalPos)\n\
+             {\n\
+                NormalData dat;\n\
+                dat.normal = vec3(0.0, 0.0, 0.001);\n\
+                dat.tangent = vec3(0.001, 0.0, 0.0);\n\
+                dat.bitangent = vec3(0.0, 0.001, 0.0);\n\
+                \n\
                 vec2 epsilon = vec2(0.1);\n\
+                \n\
                 for (int i = 0; i < " + n + "; ++i)\n\
                 {\n\
                     //Get the height at nearby vertices and compute the normal via cross-product.\n\
@@ -382,32 +392,33 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     //Make sure it's positive along the vertical axis.\n\
                     normFinal *= sign(normFinal.z);\n\
                     \n\
-                    norm += normFinal;\n\
+                    dat.normal += normFinal;\n\
                     if (false) {\n\
                     //Extract the uniform data.\n\
-                    float dropoffPoint = dropoffPoints_timesSinceCreated_heights_periods[i].x;\n\
-                    float timeSinceCreated = dropoffPoints_timesSinceCreated_heights_periods[i].y;\n\
-                    float height = dropoffPoints_timesSinceCreated_heights_periods[i].z;\n\
-                    float period = dropoffPoints_timesSinceCreated_heights_periods[i].w;\n\
-                    vec2 source = sourcesXY_speeds[i].xy;\n\
-                    float speed = sourcesXY_speeds[i].z;\n\
+                    //float dropoffPoint = dropoffPoints_timesSinceCreated_heights_periods[i].x;\n\
+                    //float timeSinceCreated = dropoffPoints_timesSinceCreated_heights_periods[i].y;\n\
+                    //float height = dropoffPoints_timesSinceCreated_heights_periods[i].z;\n\
+                    //float period = dropoffPoints_timesSinceCreated_heights_periods[i].w;\n\
+                    //vec2 source = sourcesXY_speeds[i].xy;\n\
+                    //float speed = sourcesXY_speeds[i].z;\n\
                     \n\
-                    float dist = distance(source, horizontalPos);\n\
-                    float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
+                    //float dist = distance(source, horizontalPos);\n\
+                    //float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
-                    float cutoff = timeSinceCreated * speed * 3.0;\n\
-                    cutoff = max(0, sign(cutoff - dist));\n\
+                    //float cutoff = timeSinceCreated * speed * 3.0;\n\
+                    //cutoff = max(0, sign(cutoff - dist));\n\
                     \n\
-                    float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
-                    float waveScale = height * heightScale * cutoff;\n\
+                    //float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
+                    //float waveScale = height * heightScale * cutoff;\n\
                     \n\
-                    float derivative = cos(innerVal);\n\
-                    vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
+                    //float derivative = cos(innerVal);\n\
+                    //vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
                     \n\
-                    norm += height * heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
+                    //norm += height * heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
                     }\n\
                 }\n\
-                return normalize(norm);\n\
+                dat.normal = normalize(dat.normal);\n\
+                return dat;\n\
              }\n";
 
 
@@ -437,7 +448,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             void main()\n\
             {\n\
                 //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
-                vec3 norm = getWaveNormal(out_col.xy);\n\
+                vec3 norm = getWaveNormal(out_col.xy).normal;\n\
                 vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
                 norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
                 \n\

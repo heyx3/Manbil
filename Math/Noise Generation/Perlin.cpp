@@ -33,18 +33,18 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 
 	int gradientWidth = BasicMath::RoundToInt(width / Scale),
 		gradientHeight = BasicMath::RoundToInt(height / Scale);
-	Fake2DArray<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
+	Fake2DArray<Vector2f> gradients(gradientWidth, gradientHeight);
 
-	for (x = 0; x <= gradientWidth + 1; ++x)
+	for (x = 0; x < gradients.GetWidth(); ++x)
 	{
 		loc.x = x;
 
-		for (y = 0; y <= gradientHeight + 1; ++y)
+		for (y = 0; y < gradients.GetHeight(); ++y)
 		{
 			loc.y = y;
 
 			int hash = fr.GetRandInt();
-			gradients[loc] = gradientTable[BasicMath::Abs(hash) % numGradients];
+			gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
 		}
 	}
 
@@ -78,7 +78,7 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 		loc.x = x;
 
 		lerpGrid.x = x * invScale;
-		tlGrid.x = (int)lerpGrid.x;
+        tlGrid.x = (int)lerpGrid.x;
 		relGrid.x = lerpGrid.x - tlGrid.x;
 
 		for (y = 0; y < height; ++y)
@@ -86,7 +86,7 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 			loc.y = y;
 
 			lerpGrid.y = y * invScale;
-			tlGrid.y = (int)lerpGrid.y;
+            tlGrid.y = (int)lerpGrid.y;
 			relGrid.y = lerpGrid.y - tlGrid.y;
 
 			//The noise value at every grid point is 0.
@@ -97,10 +97,10 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 			}
 
 			//Get the dot of each grid corner's gradient and the vector from the coordinate to that grid corner.
-			Vector2f tl = gradients[tlGrid],
-					 tr = gradients[tlGrid.Right()],
-					 bl = gradients[tlGrid.Below()],
-					 br = gradients[tlGrid.BelowRight()];
+			Vector2f tl = gradients[gradients.Wrap(tlGrid)],
+					 tr = gradients[gradients.Wrap(tlGrid.Right())],
+					 bl = gradients[gradients.Wrap(tlGrid.Below())],
+                     br = gradients[gradients.Wrap(tlGrid.BelowRight())];
 			Vector2f tTL = relGrid,
 					 tTR = relGrid - Vector2f(1.0f, 0.0f),
 					 tBL = relGrid - Vector2f(0.0f, 1.0f),
@@ -121,11 +121,10 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 
 
 	NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(outValues);
-	mm = mm;
 
-	for (x = 0; x < width; ++x)
+	for (x = 0; x < outValues.GetWidth(); ++x)
 	{
-		for (y = 0; y < height; ++y)
+		for (y = 0; y < outValues.GetHeight(); ++y)
 		{
 			if (mm.Min == mm.Max)
 			{

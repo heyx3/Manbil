@@ -10,8 +10,10 @@ typedef NoiseFilterer NF;
 const float sqrt2 = sqrt(2.0f),
 	sqrt2Inv = 1.0f / sqrt2;
 
-void NF::ReflectValues(void) const
+void NF::ReflectValues(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	struct RefValuesStruct { Interval i; };
 	RefValuesStruct rvs;
 	rvs.i = Interval::GetZeroToOneInterval();
@@ -19,8 +21,10 @@ void NF::ReflectValues(void) const
 	SetAtEveryPoint((void*)&rvs, [](void *pData, Vector2i loc, Noise2D * nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
 }
 
-void NF::RemapValues(void) const
+void NF::RemapValues(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	Interval newVals = Interval::GetZeroToOneInterval();
 	Interval oldVals = RemapValues_OldVals;
 
@@ -39,8 +43,10 @@ void NF::RemapValues(void) const
 	*noise, Vector2i(noise->GetWidth(), noise->GetHeight()));
 }
 
-void NF::UpContrast(void) const
+void NF::UpContrast(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	//Get the smoothing function to use.
 	float (*smoothStepper)(float inF);
 	switch (UpContrast_Power)
@@ -62,8 +68,10 @@ void NF::UpContrast(void) const
 	});
 }
 
-void NF::Average(void) const
+void NF::Average(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	struct AverageStruct { float average; int count; Noise2D * nse; AverageStruct(void) : average(0.0f), count(0) { } };
 	AverageStruct avs;
 	avs.nse = noise;
@@ -84,13 +92,17 @@ void NF::Average(void) const
 	SetAtEveryPoint((void*)&avs.average, [](void * pData, Vector2i loc, Noise2D * noise) { return *(float*)pData; });
 }
 
-void NF::Flatten(void) const
+void NF::Flatten(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	SetAtEveryPoint((void*)&Flatten_FlatValue, [](void *pData, Vector2i loc, Noise2D * noise) { return *(float*)pData; });
 }
 
-void NF::Smooth(void) const
+void NF::Smooth(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	SetAtEveryPoint((void*)0, [](void *pData, Vector2i loc, Noise2D * noise)
 	{
 		int x, y, lX, lY;
@@ -131,16 +143,20 @@ void NF::Smooth(void) const
 	});
 }
 
-void NF::Increase(void) const
+void NF::Increase(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	SetAtEveryPoint((void*)&Increase_Amount, [](void *pData, Vector2i loc, Noise2D * noise)
 	{
 		return (*noise)[loc] + *(float*)pData;
 	});
 }
 
-void NF::Noise(void) const
+void NF::Noise(Noise2D * nse) const
 {
+    if (nse != 0) noise = nse;
+
 	struct NoiseStruct { float amount; int seed; FastRand fr; };
 	NoiseStruct ns;
 	ns.amount = Noise_Amount;
@@ -163,7 +179,7 @@ void NF::Generate(Noise2D & dat) const
 	NoiseToFilter->Generate(dat);
 
 	noise = &dat;
-	((*this).*FilterFunc)();
+	((*this).*FilterFunc)(0);
 }
 
 void NF::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2i loc, Noise2D * noise)) const

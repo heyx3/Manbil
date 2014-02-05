@@ -55,6 +55,29 @@ public:
 		}
 	}
 
+    Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1.0f, in.x)),
+                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1.0f, in.y))); }
+    Vector2f Clamp(Vector2f in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1.0f, in.x)),
+                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1.0f, in.y))); }
+    Vector2i Wrap(Vector2i in) const
+    {
+        while (in.x < 0) in.x += GetWidth();
+        while (in.x >= GetWidth()) in.x -= GetWidth();
+        while (in.y < 0) in.y += GetHeight();
+        while (in.y >= GetHeight()) in.y -= GetHeight();
+
+        return in;
+    }
+    Vector2f Wrap(Vector2f in) const
+    {
+        while (in.x < 0.0f) in.x += GetWidth();
+        while (in.x >= GetWidth()) in.x -= GetWidth();
+        while (in.y < 0.0f) in.y += GetHeight();
+        while (in.y >= GetHeight()) in.y -= GetHeight();
+
+        return in;
+    }
+
 	ArrayType& operator[](Vector2i l) { return arrayVals[GetIndex(l.x, l.y)]; }
 	const ArrayType& operator[](Vector2i l) const { return arrayVals[GetIndex(l.x, l.y)]; }
 

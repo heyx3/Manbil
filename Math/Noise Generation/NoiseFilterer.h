@@ -6,6 +6,8 @@
 #include <iostream>
 
 //Filters floating-point noise using different algorithms.
+//Either a generator can be specified in "NoiseToFilter",
+//     or a Noise2D can be supplied directly to the desired filter function.
 class NoiseFilterer : public Generator
 {
 public:
@@ -30,17 +32,17 @@ public:
 	NoiseFilterRegion * FillRegion;
 	Generator * NoiseToFilter;
 	bool InvertFunc;
-	typedef void (NoiseFilterer::*MemberFunc)(void) const;
+	typedef void (NoiseFilterer::*MemberFunc)(Noise2D * nse) const;
 	MemberFunc FilterFunc;
 
 
 	Interval RemapValues_OldVals;
 	//Remaps the noise from the given original range to the range 0.0-1.0.
-	void RemapValues(void) const;
+	void RemapValues(Noise2D * nse = 0) const;
 
 
 	//Reflects the noise's values around the center of the noise range. The strength will always be 1.0 regardless of what is passed in.
-	void ReflectValues(void) const;
+    void ReflectValues(Noise2D * nse = 0) const;
 
 
 	//The higher the power, the more expensive the function.
@@ -51,31 +53,31 @@ public:
 	};
 	UpContrastPowers UpContrast_Power;
 	//Increases the contrast in the noise.
-	void UpContrast(void) const;
+    void UpContrast(Noise2D * nse = 0) const;
 
 
 	//Gets the average of the area and pushes all noise values to that average.
-	void Average(void) const;
+    void Average(Noise2D * nse = 0) const;
 
 
 	float Flatten_FlatValue;
 	//Flattens the noise.
-	void Flatten(void) const;
+    void Flatten(Noise2D * nse = 0) const;
 
 
 	//Smooths the area.
-	void Smooth(void) const;
+    void Smooth(Noise2D * nse = 0) const;
 
 
 	float Noise_Amount;
 	int Noise_Seed;
 	//Adds random noise to the area.
-	void Noise(void) const;
+    void Noise(Noise2D * nse = 0) const;
 
 
 	float Increase_Amount;
 	//Increases the area by the given amount.
-	void Increase(void) const;
+    void Increase(Noise2D * nse = 0) const;
 
 
 	virtual void Generate(Noise2D & noise) const override;

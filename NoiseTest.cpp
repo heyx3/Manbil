@@ -7,7 +7,7 @@
 #include "Math/Noise Generation/ColorGradient.h"
 
 
-const int noiseSize = 725,
+const int noiseSize = 512,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -53,7 +53,7 @@ void NoiseToPixels(const Noise2D & noise, Fake2DArray<sf::Uint8> & outPixels)
 
 		#pragma endregion
 	}
-	else if (true)
+	else if (false)
 	{
 		#pragma region Sky
 
@@ -71,7 +71,7 @@ void NoiseToPixels(const Noise2D & noise, Fake2DArray<sf::Uint8> & outPixels)
 
 		#pragma endregion
 	}
-	else if (false)
+	else if (true)
 	{
 		#pragma region Black and white
 
@@ -208,29 +208,20 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
-	else if (false)
+	else if (true)
 	{
-		#pragma region Faint bubbly clouds
-
+		#pragma region Worley
 
 		fr.Seed = fr.GetRandInt();
-		Worley wor(fr.GetRandInt(), 300, Interval(20, 2));
-		wor.DistFunc = &Worley::QuadraticDistance;
+		Worley wor(fr.GetRandInt(), 100, Interval(20, 2));
+		wor.DistFunc = &Worley::StraightLineDistance;
 		wor.ValueGenerator = [](Worley::DistanceValues v) { return -v.Values[0] + v.Values[5]; };
+        wor.Wrap = false;
 		wor.Generate(finalNoise);
-
-		NoiseFilterer nf;
-		nf.FilterFunc = &NoiseFilterer::Average;
-		MaxFilterRegion mfr;
-		mfr.StrengthLerp = 0.5f;
-		nf.FillRegion = &mfr;
-		nf.Noise_Seed = fr.GetRandInt();
-		nf.Generate(finalNoise);
-
 
 		#pragma endregion
 	}
-	else if (true)
+	else if (false)
 	{
 		#pragma region Layered Perlin
 
@@ -266,6 +257,15 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
+    else if (false)
+    {
+        #pragma region Regular Perlin
+
+        Perlin perl(64.0f, Perlin::Quintic, fr.Seed);
+        perl.Generate(finalNoise);
+
+        #pragma endregion
+    }
 	else assert(false);
 
 
