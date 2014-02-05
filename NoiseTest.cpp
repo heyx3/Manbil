@@ -161,54 +161,39 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 	if (false)
 	{
-		#pragma region Grass
+		#pragma region Layered Perlin
 
 
-		Perlin per(40.0f, Perlin::Smoothness::Quintic, fr.Seed);
-		per.Generate(finalNoise);
+		Perlin per1(128.0f, Perlin::Smoothness::Quintic, fr.Seed),
+               per2(64.0f, Perlin::Smoothness::Quintic, fr.Seed + 634356),
+               per3(32.0f, Perlin::Smoothness::Quintic, fr.Seed + 6193498),
+               per4(16.0f, Perlin::Smoothness::Quintic, fr.Seed + 1009346),
+               per5(8.0f, Perlin::Smoothness::Quintic, fr.Seed + 6193498),
+               per6(4.0f, Perlin::Smoothness::Quintic, fr.Seed + 6193498),
+               per7(2.0f, Perlin::Smoothness::Quintic, fr.Seed + 6193498);
+        Generator * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
+        float weights[7];
+        float counter = 0.5f;
+        for (int i = 0; i < 7; ++i)
+        {
+            weights[i] = counter;
+            counter *= 0.5f;
+        }
 
+        LayeredOctave layers(7, weights, gens);
 
-		nf.FilterFunc = &NoiseFilterer::Increase;
-		mfr.ActiveIn = Interval(0.0f, 1.0f, 0.001f, true, true);
-		mfr.StrengthLerp = 1.0f;
-		nf.Increase_Amount = 0.0f;
-		nf.Generate(finalNoise);
-
+        
 		nf.FilterFunc = &NoiseFilterer::UpContrast;
-		mfr.ActiveIn = Interval(0.0f, 1.0f, 0.001f, true, true);
-		mfr.StrengthLerp = 0.5f;
+        nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        nf.NoiseToFilter = &layers;
 		nf.Generate(finalNoise);
 
-		nf.FilterFunc = &NoiseFilterer::Noise;
-		mfr.ActiveIn = Interval(0.25f, 0.35f, 0.001f, true, true);
-		mfr.StrengthLerp = 1.0f;
-		nf.Noise_Amount = 0.08f;
-		nf.Noise_Seed = rand();
-		nf.Generate(finalNoise);
-
-		nf.FilterFunc = &NoiseFilterer::Smooth;
-		mfr.ActiveIn = Interval(0.0f, 1.0f, 0.001f, true, true);
-		mfr.StrengthLerp = 1.0f;
-		nf.Generate(finalNoise);
-
-		nf.FilterFunc = &NoiseFilterer::Noise;
-		mfr.ActiveIn = Interval(0.3001f, 1.0f, 0.00001f, true, true);
-		mfr.StrengthLerp = 1.0f;
-		nf.Noise_Amount = 0.05f;
-		nf.Noise_Seed = rand();
-		nf.Generate(finalNoise);
-
-		nf.FilterFunc = &NoiseFilterer::Noise;
-		mfr.ActiveIn = Interval(0.0f, 1.0f, 0.001f, true, true);
-		mfr.StrengthLerp = 1.0f;
-		nf.Noise_Amount = 0.05f;
-		nf.Noise_Seed = rand();
-		nf.Generate(finalNoise);
-
+        per4.Generate(finalNoise);
+        
 
 		#pragma endregion
 	}
-	else if (true)
+	else if (false)
 	{
 		#pragma region Worley
 
@@ -220,41 +205,28 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
-	else if (false)
+	else if (true)
 	{
-		#pragma region Layered Perlin
+        #pragma region Water
 
+        Perlin per1(32.0f, Perlin::Quintic, fr.Seed),
+               per2(16.0f, Perlin::Quintic, fr.Seed + 262134),
+               per3(8.0f, Perlin::Quintic, fr.Seed + 628331),
+               per4(4.0f, Perlin::Quintic, fr.Seed + 278),
+               per5(2.0f, Perlin::Quintic, fr.Seed + 2472);
+        float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f };
+        Generator * noiseOctaves[] = { &per1, &per2, &per3, &per4, &per5 };
 
-		const int numb = 6;
+        LayeredOctave octaves(5, weights, noiseOctaves);
 
-		Generator * pers[numb] = { new Perlin(200.0f, Perlin::Smoothness::Cubic, fr.Seed),
-								   new Perlin(100.0f, Perlin::Smoothness::Cubic, fr.Seed + 12456),
-								   new Perlin(50.0f, Perlin::Smoothness::Cubic, fr.Seed + 5643457),
-								   new Perlin(25.0f, Perlin::Smoothness::Cubic, fr.Seed + 235678),
-								   new Perlin(12.5f, Perlin::Smoothness::Linear, fr.Seed + 358746),
-								   new Perlin(1.0f, Perlin::Smoothness::Linear, fr.Seed + 987654),
-						 };
-		float scales[numb] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f };
+        nf.FilterFunc = &NoiseFilterer::UpContrast;
+        nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        nf.NoiseToFilter = &octaves;
 
+        nf.Generate(finalNoise);
+        nf.UpContrast(&finalNoise);
 
-		LayeredOctave lo(numb, scales, pers);
-		lo.Generate(finalNoise);
-
-		for (int i = 0; i < numb; ++i) delete pers[i];
-
-
-		NoiseFilterer nf;
-		MaxFilterRegion mfr;
-		nf.FillRegion = &mfr;
-		nf.FilterFunc = &NoiseFilterer::UpContrast;
-		nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
-		mfr.StrengthLerp = 1.0f;
-
-		nf.Generate(finalNoise);
-
-
-
-		#pragma endregion
+        #pragma endregion
 	}
     else if (false)
     {

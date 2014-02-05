@@ -107,17 +107,30 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
     //Generate with noise.
     else
     {
-        Perlin per1(64.0f, Perlin::Quintic);
-        float weights[] = { 1.0f };
-        Generator * noiseOctaves[] = { &per1 };
+        NoiseFilterer nf;
+        MaxFilterRegion mfr;
+        nf.FillRegion = &mfr;
+        const int sed = 125;
+        Perlin per1(32.0f, Perlin::Quintic, sed),
+            per2(16.0f, Perlin::Quintic, sed + 262134),
+            per3(8.0f, Perlin::Quintic, sed + 628331),
+            per4(4.0f, Perlin::Quintic, sed + 278),
+            per5(2.0f, Perlin::Quintic, sed + 2472);
+        float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f };
+        Generator * noiseOctaves[] = { &per1, &per2, &per3, &per4, &per5 };
 
-        LayeredOctave octaves(1, weights, noiseOctaves);
+        LayeredOctave octaves(5, weights, noiseOctaves);
 
-        octaves.Generate(heightmap);
+        nf.FilterFunc = &NoiseFilterer::UpContrast;
+        nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        nf.NoiseToFilter = &octaves;
+
+        nf.Generate(heightmap);
+        nf.UpContrast(&heightmap);
+
     }
 
-    //BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
-    outHeight.Fill([&heightmap](Vector2i loc, Vector3f * outV) { *outV = Vector3f(heightmap[loc], heightmap[loc], heightmap[loc]); });
+    BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
 }
 
 
@@ -358,7 +371,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(50.0f, 50.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.01f, -0.02f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.005f, -0.01f);
     water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(100.0f, 100.0f);
 }
 
