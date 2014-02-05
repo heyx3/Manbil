@@ -315,7 +315,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         return;
     }
 
-    water->Transform.SetScale(8.5f);
+    water->Transform.SetScale(Vector3f(8.5f, 8.5f, 1.0f));
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
 
     Materials::LitTexture_GetUniforms(*water->Mat);
@@ -326,8 +326,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(20.0f, 20.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.1f, -0.1f);
-    water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(10.0f, 10.0f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.01f, -0.01f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(10.0f, 10.0f);
 }
 
 

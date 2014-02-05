@@ -41,12 +41,6 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     outM.SetVertexIndexData(&vid, 1);
 
     delete[] vertices, indices;
-
-
-    //Set up the mesh.
-
-    PassSamplers samplers;
-    outM.TextureSamplers.insert(outM.TextureSamplers.end(), samplers);
 }
 
 Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
@@ -66,6 +60,9 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
         return;
     }
 
+    //Set up the samplers.
+    PassSamplers samplers;
+    waterMesh.TextureSamplers.insert(waterMesh.TextureSamplers.end(), samplers);
 
     //Set up uniforms.
     Mat->AddUniform("dropoffPoints_timesSinceCreated_heights_periods");
@@ -92,8 +89,8 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
         dp_tsc_h_p[i].x = 0.001f;
         sXY_sp[i].z = 0.001f;
     }
-    waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"] = Mesh::UniformArrayValue<float>(&(dp_tsc_h_p[0][0]), maxRipples, 4);
-    waterMesh.FloatArrayUniformValues["sourcesXY_speeds"] = Mesh::UniformArrayValue<float>(&(sXY_sp[0][0]), maxRipples, 3);
+    waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
+    waterMesh.FloatArrayUniformValues["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]), maxRipples, 3);
 }
 Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _maxFlows, Vector3f pos)
     : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
@@ -437,7 +434,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             void main()\n\
             {\n\
                 //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
-                vec3 norm = vec3(0.0, 0.0, 1.0);//getWaveNormal(out_col.xy);\n\
+                vec3 norm = getWaveNormal(out_col.xy);\n\
                 vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
                 norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
                 \n\
@@ -573,7 +570,9 @@ bool Water::Render(const RenderInfo & info)
 {
     waterMesh.Transform = Transform;
 
-
+    int size = -1;
+    float f1;
+    Vector4f FUCK;
     //Set uniforms.
     switch (waterType)
     {

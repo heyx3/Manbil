@@ -236,7 +236,7 @@ private:
         RenderDataHandler::SetUniformArrayValue(uniforms[programIndex][uniform], nUniforms, nFloatsPerUniform, data);
         return true;
     }
-    bool TrySetUniformArrayF(unsigned int programIndex, std::string uniform, int arrayElement, const float * data, int nData)
+    bool TrySetUniformArrayF(unsigned int programIndex, std::string uniform, unsigned int arrayElement, const float * data, int nData)
     {
         if (uniforms[programIndex].find(uniform) == uniforms[programIndex].end()) return false;
         RenderDataHandler::SetUniformValue(uniforms[programIndex][uniform] + arrayElement, nData, data);

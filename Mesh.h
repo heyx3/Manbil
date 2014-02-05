@@ -52,10 +52,21 @@ public:
             }
         }
         UniformArrayValue(void) : Data(0), NArrayElements(0), NDataPerElement(0) { }
-        ~UniformArrayValue(void) { delete[] Data; }
+        ~UniformArrayValue(void)
+        {
+            delete[] Data;
+        }
         void SetData(const DataType * data)
         {
             assert(Data != 0);
+            for (int i = 0; i < NArrayElements * NDataPerElement; ++i)
+                Data[i] = data[i];
+        }
+        void SetData(const DataType * data, unsigned int nArrayElements, unsigned int nDataPerElement)
+        {
+            NArrayElements = nArrayElements;
+            NDataPerElement = nDataPerElement;
+            Data = new DataType[NArrayElements * NDataPerElement];
             for (int i = 0; i < NArrayElements * NDataPerElement; ++i)
                 Data[i] = data[i];
         }

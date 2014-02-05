@@ -314,7 +314,7 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
             //Enable textures that the shader uses.
             if (TrySetUniformArrayI(pass, "u_samplers2D", samplerValues, MaterialConstants::TWODSAMPLERS, 1))
             {
-                for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
+                for (unsigned int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
                 {
                     RenderDataHandler::ActivateTextureUnit(i);
 
