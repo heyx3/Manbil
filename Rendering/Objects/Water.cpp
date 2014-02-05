@@ -358,9 +358,34 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
              }\n\
              vec3 getWaveNormal(vec2 horizontalPos)\n\
              {\n\
-                vec3 norm = vec3(0.0, 0.0, 1.0);\n\
+                vec3 norm = vec3(0.0, 0.0, 0.001);\n\
+                vec2 epsilon = vec2(0.1);\n\
                 for (int i = 0; i < " + n + "; ++i)\n\
                 {\n\
+                    //Get the height at nearby vertices and compute the normal via cross-product.\n\
+                    \n\
+                    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),\n\
+                         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),\n\
+                         zero_one = horizontalPos + vec2(0.0f, epsilon.y),\n\
+                         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);\n\
+                    \n\
+                    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));\n\
+                    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),\n\
+                         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),\n\
+                         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),\n\
+                         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));\n\
+                    \n\
+                    //TODO: See if we can remove the outer 'normalize()' here without messing anything up.\n\
+                    vec3 norm1 = normalize(cross(normalize(p_one_zero - p_zero_zero),\n\
+                                                 normalize(p_zero_one - p_zero_zero))),\n\
+                         norm2 = normalize(cross(normalize(p_nOne_zero - p_zero_zero),\n\
+                                                 normalize(p_zero_nOne - p_zero_zero))),\n\
+                         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));\n\
+                    //Make sure it's positive along the vertical axis.\n\
+                    normFinal *= sign(normFinal.z);\n\
+                    \n\
+                    norm += normFinal;\n\
+                    if (false) {\n\
                     //Extract the uniform data.\n\
                     float dropoffPoint = dropoffPoints_timesSinceCreated_heights_periods[i].x;\n\
                     float timeSinceCreated = dropoffPoints_timesSinceCreated_heights_periods[i].y;\n\
@@ -381,9 +406,10 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float derivative = cos(innerVal);\n\
                     vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
                     \n\
-                    norm += heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
+                    norm += height * heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
+                    }\n\
                 }\n\
-                return normalize((norm + vec3(0.0, 0.0, 0.0001)));\n\
+                return normalize(norm);\n\
              }\n";
 
 
@@ -421,7 +447,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 \n\
                 vec3 norm = getWaveNormal(out_col.xy);\n\
                 vec3 normalMap = texture(u_sampler1, uvs + (u_elapsed_seconds * normalmapTexturePanDir)).xyz;\n\
-                norm = normalize(norm + vec3(-normalMap.x, -normalMap.y, abs(normalMap.z)));\n\
+                norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
                 \n\
                 float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
                                                  DirectionalLight.Dir, DirectionalLight.Ambient,\n\

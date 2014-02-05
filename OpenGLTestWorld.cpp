@@ -79,7 +79,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 2.0f, 10.0f, 5.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 250.0f, 0.25f, 10.0f, 5.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f());
@@ -326,7 +326,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
     water->Transform.SetScale(25.0f / 3.0f);
     float data[4] = { 20.0f, 0.0f, 0.0f, 0.0f };
-    float panData[2] = { 0.0f, 0.0f };
+    float panData[2] = { 0.1f, 0.1f };
     water->GetMesh().FloatUniformValues["u_textureScale"] = Mesh::UniformValue<float>(data, 1);
     water->GetMesh().FloatUniformValues["texturePanDir"] = Mesh::UniformValue<float>(panData, 2);
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
@@ -338,7 +338,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
-	dirLight.Dir = Vector3f(1.0f, 1.0f, -0.025f).Normalized();
+	dirLight.Dir = Vector3f(0.0f, 0.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
 
 	dirLight.Ambient = 0.3f;
