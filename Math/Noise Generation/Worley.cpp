@@ -65,10 +65,6 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
 	Vector2i cells = Vector2i((noise.GetWidth() / cSize),
 							  (noise.GetHeight() / cSize));
-	if ((noise.GetWidth() / cSize) < ((float)noise.GetWidth() / (float)cSize))
-	{
-		cells += Vector2i(1, 1);
-	}
 
 	//Initialize cell contents.
 	int i, x, y;
@@ -78,20 +74,17 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	//Generate cell contents.
 	FastRand fr(Seed);
 	Interval tempIntX, tempIntY;
-	Vector2i tempCellLoc;
 	std::vector<Vector2f> * cellTemp;
 	int pointsInCell;
-	for (x = -1; x < cells.x - 1; ++x)
+	for (x = 0; x < cells.x; ++x)
 	{
 		tempIntX = Interval(x * cSize, (x * cSize) + cSize, 0.001f, true, true);
-		tempCellLoc.x = x + 1;
 
-		for (y = -1; y < cells.y - 1; ++y)
+		for (y = 0; y < cells.y; ++y)
 		{
 			tempIntY = Interval(y * cSize, (y * cSize) + cSize, 0.001f, true, true);
-			tempCellLoc.y = y + 1;
 
-			cellTemp = &cellContents[tempCellLoc].pointsInCell;
+			cellTemp = &cellContents[Vector2i(x, y)].pointsInCell;
 
 			//Generate some randomized number of points in this cell.
 			pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
@@ -112,6 +105,7 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	int x2, y2;
 	Vector2f tempPos;
 	Vector2i tempPosi;
+    Vector2i tempCellLoc;
 	float tempNoiseVal;
 	//Go through every noise element.
 	for (x = 0; x < noise.GetWidth(); ++x)
@@ -139,7 +133,10 @@ void Worley::Generate(Fake2DArray<float> & noise) const
                     //If the cell area is out of bounds, either wrap it or stop this iteration.
                     Vector2i tempLoci(tempCellLoc.x + x2, tempCellLoc.y + y2);
                     Vector2i newTempLoci = cellContents.Wrap(tempLoci);
-                    if (Wrap || !tempLoci.Equals(newTempLoci)) continue;
+                    bool wrappedLeftX = (tempLoci.x < newTempLoci.x),
+                         wrappedLeftY = (tempLoci.y < newTempLoci.y),
+                         wrappedRightX = (tempLoci.x > newTempLoci.x),
+                         wrappedRightY = (tempLoci.y > newTempLoci.y);
 
 					//Go through every point in the cell.
 					cellTemp = &cellContents[newTempLoci].pointsInCell;
@@ -148,7 +145,13 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 					{
 						//Put it into the ordered list of distances.
 						tempWAD.Pos = (*cellTemp)[i];
-						tempWAD.Distance = DistFunc(tempPos, (*cellTemp)[i]);
+                        if (wrappedLeftX) tempWAD.Pos.x -= noise.GetWidth();
+                        if (wrappedLeftY) tempWAD.Pos.y -= noise.GetHeight();
+                        if (wrappedRightX) tempWAD.Pos.x += noise.GetWidth();
+                        if (wrappedRightY) tempWAD.Pos.y += noise.GetHeight();
+
+						tempWAD.Distance = DistFunc(tempPos, tempWAD.Pos);
+
 						if (!IsGoodData(valsData[NUMB_DISTANCE_VALUES - 1]) ||
 							tempWAD.Distance < valsData[NUMB_DISTANCE_VALUES - 1].Distance)
 						{
@@ -180,9 +183,8 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 
 	//Remap values to 0-1.
 	NoiseFilterer nf;
-	RectangularFilterRegion rfr(Vector2i(), Vector2i(noise.GetWidth(), noise.GetHeight()));
-
-	nf.FillRegion = &rfr;
+    RectangularFilterRegion mfr(Vector2i(), Vector2i(noise.GetWidth(), noise.GetHeight()));
+	nf.FillRegion = &mfr;
 	nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.001f, true, true);
     nf.RemapValues(&noise);
 }

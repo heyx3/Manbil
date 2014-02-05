@@ -31,11 +31,10 @@ public:
 	//Other members.
 	int Seed, CellSize;
 	Interval PointsPerCell;
-    bool Wrap;
 
 
-	Worley(int _Seed = 12345, int _CellSize = 30, Interval _PointsPerCell = Interval(5.0f, 8.0f), bool wrap = false)
-		: Wrap(wrap), Seed(_Seed), CellSize(_CellSize), PointsPerCell(_PointsPerCell), DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
+	Worley(int _Seed = 12345, int _CellSize = 30, Interval _PointsPerCell = Interval(5.0f, 8.0f))
+		: Seed(_Seed), CellSize(_CellSize), PointsPerCell(_PointsPerCell), DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
 	~Worley(void) { }
 
 	virtual void Generate(Noise2D & noise) const override;

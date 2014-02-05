@@ -124,15 +124,19 @@ void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const
     {
         loc.x = x;
 
-        if (Wrap) loc.x = noise.Wrap(loc).x;
-        else if (x < 0 || x >= noise.GetWidth()) continue;
+        if (Wrap)
+            loc.x = noise.Wrap(loc).x;
+        else if (x < 0 || x >= noise.GetWidth())
+            continue;
 
         for (y = topLeft.y; y <= bottomRight.y; ++y)
         {
             loc.y = y;
 
-            if (Wrap) loc.y = noise.Wrap(loc).y;
-            else if (y < 0 || y >= noise.GetHeight()) continue;
+            if (Wrap)
+                loc.y = noise.Wrap(loc).y;
+            else if (y < 0 || y >= noise.GetHeight())
+                continue;
 
             if (ActiveIn.Touches(noise[loc]))
                 toDo(pData, loc, StrengthLerp);

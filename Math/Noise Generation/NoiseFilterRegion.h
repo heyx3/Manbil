@@ -16,9 +16,12 @@ public:
     //Whether this region should wrap around the edges of the noise.
     bool Wrap;
 
-	NoiseFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, 99999.0f), bool wrap = false) : Wrap(wrap), ActiveIn(activeIn), StrengthLerp(strengthLerp) { }
+	NoiseFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false) : Wrap(wrap), ActiveIn(activeIn), StrengthLerp(strengthLerp) { }
 
 	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) = 0;
+
+protected:
+    static float GetMaxFloat(void) { return std::numeric_limits<float>().max(); }
 };
 
 //Represents the entire noise area.
@@ -26,7 +29,7 @@ class MaxFilterRegion : public NoiseFilterRegion
 {
 public:
 
-    MaxFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, 999999.0f)) : NoiseFilterRegion(strengthLerp, activeIn, false) { }
+    MaxFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat())) : NoiseFilterRegion(strengthLerp, activeIn, false) { }
 
 	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
 };
@@ -42,7 +45,7 @@ public:
 	//0 means no dropoff, 1 means dropoff starts at center moving outwards. -1 means dropoff starts at radius moving inwards.
 	float DropoffRadiusPercent;
 
-    CircularFilterRegion(Vector2f center, float radius, float strengthLerp = 1.0f, float dropoffRadiusPercent = 0.0f, Interval activeIn = Interval(0.0f, 99999.0f), bool wrap = false)
+    CircularFilterRegion(Vector2f center, float radius, float strengthLerp = 1.0f, float dropoffRadiusPercent = 0.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false)
 		: NoiseFilterRegion(strengthLerp, activeIn, wrap), Center(center), Radius(radius), DropoffRadiusPercent(dropoffRadiusPercent) { }
 
 	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
@@ -59,7 +62,7 @@ public:
 
 	Vector2i TopLeft, BottomRight;
 
-    RectangularFilterRegion(Vector2i topLeft, Vector2i bottomRight, float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, 99999.0f), bool wrap = false)
+    RectangularFilterRegion(Vector2i topLeft, Vector2i bottomRight, float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false)
 		: NoiseFilterRegion(strengthLerp, activeIn, wrap), TopLeft(topLeft), BottomRight(bottomRight) { }
 
 	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
