@@ -2,9 +2,9 @@
 
 const Vertex DrawingQuad::vertices[4] =
 {
-    Vertex(Vector3f(0.0f, 0.0f, 0.0f), Vector2f(0.0f, 0.0f)),
-    Vertex(Vector3f(1.0f, 0.0f, 0.0f), Vector2f(1.0f, 0.0f)),
-    Vertex(Vector3f(0.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f)),
+    Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f)),
+    Vertex(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f)),
+    Vertex(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f)),
     Vertex(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f)),
 };
 const unsigned int DrawingQuad::indices[6] =
@@ -31,5 +31,11 @@ DrawingQuad::DrawingQuad(void)
 
     //Set up this quad's mesh.
     quad.SetVertexIndexData(&vid, 1);
+    meshes.insert(meshes.end(), &quad);
+}
+DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
+    : quad(PrimitiveTypes::Triangles)
+{
+    quad = cpy.quad;
     meshes.insert(meshes.end(), &quad);
 }

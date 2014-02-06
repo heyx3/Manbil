@@ -10,6 +10,7 @@
 #include "Input/Input Objects/MouseBoolInput.h"
 #include "Math/Higher Math/BumpmapToNormalmap.h"
 #include "Rendering/Texture Management/TextureConverters.h"
+#include "Rendering/Helper Classes/DrawingQuad.h"
 
 #include "Math/NoiseGeneration.hpp"
 
@@ -154,6 +155,10 @@ bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard
 sf::Sprite sprToDraw;
 sf::Texture tex;
 
+DrawingQuad * quad;
+Material * unlitMat;
+
+
 void OpenGLTestWorld::InitializeTextures(void)
 {
 
@@ -270,6 +275,18 @@ void OpenGLTestWorld::InitializeMaterials(void)
     if (effect->HasError())
     {
         std::cout << "Error creating render target: " << effect->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+
+    //Create test quad material.
+    unlitMat = new Material(Materials::UnlitTexture);
+    unlitMat->AddUniform("brightness");
+    if (unlitMat->HasError())
+    {
+        std::cout << "Error creating unlit material: " << unlitMat->GetErrorMessage() << "\n";
         Pause();
         EndWorld();
         return;
@@ -414,8 +431,13 @@ void OpenGLTestWorld::InitializeWorld(void)
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
 	
-
     Input.AddBoolInput(666, BoolInputPtr((BoolInput*)(new MouseBoolInput(sf::Mouse::Button::Left, BoolInput::ValueStates::JustPressed))));
+
+
+    quad = new DrawingQuad();
+    quad->SetPos(Vector2f());
+    quad->SetSize(Vector2f(10.0f, 10.0f));
+    quad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
 
 
 	GetWindow()->setVerticalSyncEnabled(true);
@@ -425,6 +447,12 @@ void OpenGLTestWorld::InitializeWorld(void)
     InitializeMaterials();
     InitializeTerrain();
     InitializeObjects();
+
+
+    PassSamplers samplers;
+    samplers[0] = grassImgH;
+    quad->GetMesh().TextureSamplers.insert(quad->GetMesh().TextureSamplers.begin(), samplers);
+
 
     //Camera.
     Vector3f pos(0, 0, terrainHeight);
@@ -454,6 +482,9 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(foliage);
     DeleteAndSetToNull(pTerr);
 
+    DeleteAndSetToNull(quad);
+    DeleteAndSetToNull(unlitMat);
+
     RenderObjHandle textures[] = { grassImgH, waterImgH, normalMapImgH, shrubImgH };
     glDeleteTextures(4, textures);
 }
@@ -471,6 +502,8 @@ void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
 
 void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 {
+    quad->SetSize(Vector2f(3.0f, 10.0f * sinf(GetTotalElapsedSeconds())));
+
 	if (cam.Update(elapsedSeconds, std::shared_ptr<OculusDevice>(0)))
 	{
 		EndWorld();
@@ -488,6 +521,17 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
+    if (true)
+    {
+        if (!quad->Render(info, *unlitMat))
+        {
+            std::cout << "Error rendering quad: " << unlitMat->GetErrorMessage() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+    }
+
     if (true)
     {
         std::vector<const Mesh *> meshes;
