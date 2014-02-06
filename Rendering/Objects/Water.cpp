@@ -55,13 +55,14 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     terr.CreateVertexTexCoords(texCoords);
 
     Vertex * vertices = new Vertex[nVs];
+    FastRand fr(146230);
     for (int i = 0; i < nVs; ++i)
     {
         //Red and Green color channels are already used to store the object-space vertex position.
         //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
         vertices[i] = Vertex(Vector3f(poses[i].x, poses[i].y, 0.0f) + offset,
                              texCoords[i],
-                             Vector4f(0.0f, 0.0f, poses[i].z, 0.0f),
+                             Vector4f(0.0f, 0.0f, poses[i].z, fr.GetZeroToOne()),
                              normals[i]);
     }
     delete[] poses, texCoords, normals;
