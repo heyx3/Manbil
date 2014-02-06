@@ -79,7 +79,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 5.125f, 2.0f, 2.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 150.0f, 3.0f, 2.0f, 4.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
@@ -384,8 +384,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(50.0f, 50.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.0005f, -0.0000f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(50.0f, 50.0f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.005f, -0.004f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(100.0f, 100.0f);
 }
 
 

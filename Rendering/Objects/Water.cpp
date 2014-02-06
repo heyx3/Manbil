@@ -385,7 +385,8 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     float waveScale = height * heightScale * cutoff;\n\
                     \n\
                     float heightOffset = sin(innerVal);\n\
-                    heightOffset = -1.0 + 2.0 * pow(0.5 + 0.5 * heightOffset, 1.2);\n\
+                    //TODO: Add uniform 'waveSharpness' for this 'pow' function.\n\
+                    heightOffset = -1.0 + 2.0 * pow(0.5 + 0.5 * heightOffset, 2.0);\n\
                     offset += waveScale * heightOffset;\n\
                 }\n\
                 return offset;\n\
