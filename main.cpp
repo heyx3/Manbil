@@ -19,8 +19,8 @@ void PauseConsole(void)
 int main()
 {
     //NoiseTest().RunWorld();
-    //OpenGLTestWorld().RunWorld();
 
+    OpenGLTestWorld().RunWorld();
     TwoDOpenGLTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();

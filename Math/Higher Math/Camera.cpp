@@ -74,7 +74,9 @@ void Camera::GetViewTransform(Matrix4f & outM) const
 
 	outM.SetValues(&mVP);
 }
-void Camera::GetOrthoProjection(Matrix4f & outM) const
+void Camera::GetOrthoProjection(Matrix4f & outM, bool inWorld) const
 {
-    outM.SetAsOrthoProj(MinOrthoBounds + pos, MaxOrthoBounds + pos);
+    if (inWorld)
+        outM.SetAsOrthoProj(MinOrthoBounds + pos, MaxOrthoBounds + pos);
+    else outM.SetAsOrthoProj(MinOrthoBounds, MaxOrthoBounds);
 }

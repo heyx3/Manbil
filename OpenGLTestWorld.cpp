@@ -434,11 +434,6 @@ void OpenGLTestWorld::InitializeWorld(void)
     Input.AddBoolInput(666, BoolInputPtr((BoolInput*)(new MouseBoolInput(sf::Mouse::Button::Left, BoolInput::ValueStates::JustPressed))));
 
 
-    quad = new DrawingQuad();
-    quad->SetPos(Vector2f());
-    quad->SetSize(Vector2f(10.0f, 10.0f));
-    quad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
-
 
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
@@ -448,6 +443,11 @@ void OpenGLTestWorld::InitializeWorld(void)
     InitializeTerrain();
     InitializeObjects();
 
+    quad = new DrawingQuad();
+    quad->SetPos(Vector2f());
+    quad->SetSize(Vector2f(10.0f, 10.0f));
+    quad->SetDepth(-1.0f);
+    quad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
 
     PassSamplers samplers;
     samplers[0] = grassImgH;
@@ -532,7 +532,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 
-    if (true)
+    if (false)
     {
         std::vector<const Mesh *> meshes;
         meshes.insert(meshes.begin(), &testMesh);
@@ -545,7 +545,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 	
-    if (true)
+    if (false)
     {
         if (!foliage->Render(info))
         {
@@ -556,12 +556,15 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 
-    if (!water->Render(info))
+    if (false)
     {
-        std::cout << "Error rendering water: " << water->GetErrorMessage() << "\n";
-        Pause();
-        EndWorld();
-        return;
+        if (!water->Render(info))
+        {
+            std::cout << "Error rendering water: " << water->GetErrorMessage() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
     }
 }
 
