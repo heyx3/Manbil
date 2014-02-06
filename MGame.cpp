@@ -195,7 +195,7 @@ void MWorld::RenderWorld(float elapsedSeconds)
 	{
 		cc = (CameraComponent*)&*cameras[i];
 		cc->GetViewTransform(view);
-		proj.SetAsOrthoProj(cc->Info);
+		//proj.SetAsOrthoProj(cc->Info);
 		MCameraInfo mci(*cc, world, view, proj);
 
 		for (j = 0; j < objects.size(); ++j)

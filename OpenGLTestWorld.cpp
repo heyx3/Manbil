@@ -392,7 +392,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
     water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.005f, -0.004f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(50.0f, 50.0f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(10.0f, 10.0f);
 }
 
 
@@ -488,7 +488,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-    if (false)
+    if (true)
     {
         std::vector<const Mesh *> meshes;
         meshes.insert(meshes.begin(), &testMesh);
@@ -501,7 +501,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 	
-    if (false)
+    if (true)
     {
         if (!foliage->Render(info))
         {
@@ -529,6 +529,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 	worldM.SetAsIdentity();
 	cam.GetViewTransform(viewM);
 	projM.SetAsPerspProj(cam.Info);
+    //cam.GetOrthoProjection(projM);
 
 	RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
 	
@@ -564,13 +565,6 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 			return;
 		}
 	}
-}
-
-void OpenGLTestWorld::RenderSFML(float elapsedSeconds)
-{
-    //GetWindow()->clear();
-    GetWindow()->draw(sprToDraw);
-    //GetWindow()->display();
 }
 
 

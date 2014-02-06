@@ -136,14 +136,14 @@ public:
 
 	template<class VertexClass>
 	//Creates a vertex buffer.
-	static void CreateVertexBuffer(RenderObjHandle & vbo, VertexClass * vertices, int nVertices, BufferPurpose usage)
+	static void CreateVertexBuffer(RenderObjHandle & vbo, const VertexClass * vertices, int nVertices, BufferPurpose usage)
 	{
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass) * nVertices, vertices, ToEnum(usage));
 	}
 	//Creates an index buffer.
-	static void CreateIndexBuffer(RenderObjHandle & ibo, unsigned int * indices, int nIndices, BufferPurpose usage)
+	static void CreateIndexBuffer(RenderObjHandle & ibo, const unsigned int * indices, int nIndices, BufferPurpose usage)
 	{
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);

@@ -72,7 +72,7 @@ public:
     void SetAsTranslation(Vector3f pos);
 	void SetAsRotation(Vector3f Target, Vector3f Up, bool alreadyNormalized = false);
 	void SetAsPerspProj(const ProjectionInfo& p);
-	void SetAsOrthoProj(const ProjectionInfo& p);
+    void SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds);
 	void SetAsWVP(const Matrix4f & projM, const Matrix4f & camM, const Matrix4f & worldM);
 
 private:

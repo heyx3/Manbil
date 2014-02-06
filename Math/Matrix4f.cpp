@@ -259,17 +259,17 @@ void Matrix4f::SetAsPerspProj(const ProjectionInfo& p)
 	El(0, 2) = 0.0f;                   El(1, 2) = 0.0f;			     El(2, 2) = -(p.zNear + p.zFar)/zRange;  El(3, 2) = 2.0f * p.zFar * p.zNear / zRange;
 	El(0, 3) = 0.0f;                   El(1, 3) = 0.0f;			     El(2, 3) = 1.0f;					     El(3, 3) = 0.0;    
 }
-void Matrix4f::SetAsOrthoProj(const ProjectionInfo & p)
+void Matrix4f::SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds)
 {
 	//TODO: Test.
 
-	float width = p.Width,
-		  height = p.Height,
-		  depth = p.zFar - p.zNear;
+	float width = maxBounds.x - minBounds.x,
+		  height = maxBounds.y - minBounds.y,
+		  depth = maxBounds.z - minBounds.z;
 	
-	El(0, 0) = 2 / width;	El(1, 0) = 0;			El(2, 0) = 0;			El(3, 0) = 0;
-	El(0, 1) = 0;			El(1, 1) = 2 / height;	El(2, 1) = 0;			El(3, 1) = 0;
-	El(0, 2) = 0;			El(1, 2) = 0;			El(2, 2) = 2 / depth;	El(3, 2) = 0;
+	El(0, 0) = 2 / width;	El(1, 0) = 0;			El(2, 0) = 0;			El(3, 0) = -(maxBounds.x + minBounds.x)/width;
+    El(0, 1) = 0;			El(1, 1) = 2 / height;	El(2, 1) = 0;			El(3, 1) = -(maxBounds.y + minBounds.y) / height;
+    El(0, 2) = 0;			El(1, 2) = 0;			El(2, 2) = 2 / depth;	El(3, 2) = -(maxBounds.z + minBounds.z) / depth;
 	El(0, 3) = 0;			El(1, 3) = 0;			El(2, 3) = 0;			El(3, 3) = 1;
 }
 void Matrix4f::SetAsWVP(const Matrix4f & projM, const Matrix4f & camM, const Matrix4f & worldM)
