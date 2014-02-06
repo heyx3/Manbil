@@ -8,7 +8,7 @@
 #include <iostream>
 namespace TwoDOpenGLTestStuff
 {
-    Vector2i windowSize(750, 750);
+    Vector2i windowSize(1000, 700);
 
     void Pause()
     {
@@ -29,6 +29,8 @@ TwoDOpenGLTest::TwoDOpenGLTest(void)
 void TwoDOpenGLTest::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
+
+    glViewport(0, 0, windowSize.x, windowSize.y);
 
     Input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::W, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(0, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::S, BoolInput::ValueStates::IsDown)));
@@ -67,9 +69,11 @@ void TwoDOpenGLTest::InitializeWorld(void)
     foreQuad = new DrawingQuad();
     foreQuad->GetMesh().TextureSamplers.insert(foreQuad->GetMesh().TextureSamplers.end(), foreSamplers);
     foreQuad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
+    foreQuad->SetPos(Vector2f());
     backQuad = new DrawingQuad();
     backQuad->GetMesh().TextureSamplers.insert(backQuad->GetMesh().TextureSamplers.end(), backSamplers);
     backQuad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
+    backQuad->SetPos(Vector2f());
 
     backMat = new Material(Materials::UnlitTexture);
     if (backMat->HasError())
@@ -91,10 +95,10 @@ void TwoDOpenGLTest::InitializeWorld(void)
     foreMat->AddUniform("brightness");
 
 
-    cam = new Camera(Vector3f(0, 0, 100.01f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f), true);
+    cam = new Camera(Vector3f(0, 0, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f), true);
     cam->MinOrthoBounds = Vector3f(-500.0f, -500.0f, -100.0f);
     cam->MaxOrthoBounds = Vector3f(500.0f, 500.0f, 0.01f);
-    cam->Info = ProjectionInfo(ToRadian(55.0f), 750, 750, 1.0f, 9999.0f);
+    cam->Info = ProjectionInfo(ToRadian(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
 }
 
 void TwoDOpenGLTest::CleanUp(void)
@@ -109,6 +113,8 @@ void TwoDOpenGLTest::CleanUp(void)
 
 void TwoDOpenGLTest::UpdateWorld(float elapsedSeconds)
 {
+    foreQuad->SetSize(Vector2f(3.0, 10.0f * sinf(GetTotalElapsedSeconds())));
+
     if (Input.GetBoolInputValue(0))
     {
         cam->SetPositionZ(cam->GetPosition().z - (elapsedSeconds * 25.0f));
@@ -126,31 +132,23 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
     TransformObject trans;
     Matrix4f worldM, viewM, projM;
 
-    //trans.GetWorldTransform(worldM);
-    //cam->GetViewTransform(viewM);
+    trans.GetWorldTransform(worldM);
+    cam->GetViewTransform(viewM);
     //cam->GetOrthoProjection(projM);
-    //projM.SetAsPerspProj(cam->Info);
+    projM.SetAsPerspProj(cam->Info);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
 
 
-    RenderingState().EnableState();
-    ScreenClearer(true, false).ClearScreen();
+    ScreenClearer().ClearScreen();
 
-    backQuad->SetPos(Vector2f());
-    backQuad->SetSize(Vector2f(0.5f, 0.5f));
-    backQuad->SetDepth(-0.5f);
-    if (!backQuad->Render(info, *backMat))
-    {
-        std::cout << "Error rendering background: " << backMat->GetErrorMessage();
-        Pause();
-        EndWorld();
-        return;
-    }
-
-    foreQuad->SetPos(Vector2f());
-    foreQuad->SetSize(Vector2f(0.5f, 0.5f));
-    foreQuad->SetDepth(0.5f);
+    //if (!backQuad->Render(info, *backMat))
+    //{
+    //    std::cout << "Error rendering background: " << backMat->GetErrorMessage();
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
     if (!foreQuad->Render(info, *foreMat))
     {
         std::cout << "Error rendering foreground: " << backMat->GetErrorMessage();
