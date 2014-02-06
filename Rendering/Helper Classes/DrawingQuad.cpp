@@ -2,14 +2,14 @@
 
 const Vertex DrawingQuad::vertices[4] =
 {
-    Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f)),
-    Vertex(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f)),
-    Vertex(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f)),
-    Vertex(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f)),
+    Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    Vertex(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    Vertex(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    Vertex(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
 };
 const unsigned int DrawingQuad::indices[6] =
 {
-    1, 0, 3,
+    0, 1, 3,
     0, 2, 3,
 };
 
