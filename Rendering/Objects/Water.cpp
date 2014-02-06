@@ -4,6 +4,7 @@
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
 #include "../../TextureSettings.h"
+#include "../../Math/NoiseGeneration.hpp"
 
 
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
@@ -12,10 +13,38 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
+    //Create some random noise.
+
+    Noise2D noise(size, size);
+
+    //Layered Perin noise.
+    Perlin per1(32.0f, Perlin::Smoothness::Quintic, 135213),
+           per2(16.0f, Perlin::Smoothness::Quintic, 135213),
+           per3(8.0f, Perlin::Smoothness::Quintic, 135213),
+           per4(4.0f, Perlin::Smoothness::Quintic, 135213),
+           per5(2.0f, Perlin::Smoothness::Quintic, 135213),
+           per6(1.0f, Perlin::Smoothness::Quintic, 135213);
+    Generator * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6 };
+    float weights[6];
+    float weight = 0.5f; for (int i = 0; i < 6; ++i) { weights[i] = weight; weight *= 0.5f; }
+    LayeredOctave octaves(6, weights, gens);
+
+    //Filter the layered Perlin noise to have less contrast.
+    NoiseFilterer nf;
+    MaxFilterRegion mfr;
+    mfr.StrengthLerp = 0.25f;
+    nf.FillRegion = &mfr;
+    nf.NoiseToFilter = &octaves;
+    nf.FilterFunc = &NoiseFilterer::Average;
+
+    nf.Generate(noise);
+
+
     //Just create a flat terrain and let it do the math.
 
-    Terrain::DebugShit = true;
     Terrain terr(size);
+    //Put the noise into the terrain heightmap so that the terrain class will automatically put each noise value into the correct vertex.
+    terr.SetHeightmap(noise);
     int nVs = terr.GetVerticesCount(),
         nIs = terr.GetIndicesCount();
     Vector3f * poses = new Vector3f[nVs];
@@ -28,7 +57,12 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     Vertex * vertices = new Vertex[nVs];
     for (int i = 0; i < nVs; ++i)
     {
-        vertices[i] = Vertex(poses[i] + offset, texCoords[i], normals[i]);
+        //Red and Green color channels are already used to store the object-space vertex position.
+        //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
+        vertices[i] = Vertex(Vector3f(poses[i].x, poses[i].y, 0.0f) + offset,
+                             texCoords[i],
+                             Vector4f(0.0f, 0.0f, poses[i].z, 0.0f),
+                             normals[i]);
     }
     delete[] poses, texCoords, normals;
 
@@ -340,6 +374,8 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                     \n\
                     float dist = distance(source, horizontalPos);\n\
                     float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
+                    //TODO: Turn the dropoff exponent into a uniform.\n\
+                    heightScale = heightScale * heightScale * heightScale;\n\
                     //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
                     //TODO: Smooth cutoff, not a binary 1/0 thing.\n\
                     float cutoff = period * speed * timeSinceCreated;\n\
@@ -383,14 +419,11 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                          p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),\n\
                          p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));\n\
                     \n\
-                    //TODO: See if we can remove the outer 'normalize()' here without messing anything up.\n\
-                    vec3 norm1 = normalize(cross(normalize(p_one_zero - p_zero_zero),\n\
-                                                 normalize(p_zero_one - p_zero_zero))),\n\
-                         norm2 = normalize(cross(normalize(p_nOne_zero - p_zero_zero),\n\
-                                                 normalize(p_zero_nOne - p_zero_zero))),\n\
+                    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),\n\
+                                       normalize(p_zero_one - p_zero_zero)),\n\
+                         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),\n\
+                                       normalize(p_zero_nOne - p_zero_zero)),\n\
                          normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));\n\
-                    //Make sure it's positive along the vertical axis.\n\
-                    normFinal *= sign(normFinal.z);\n\
                     \n\
                     dat.normal += normFinal;\n\
                     if (false) {\n\
@@ -426,7 +459,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
              void main()\n\
              {\n\
                 out_tex = in_tex;\n\
-                out_col = vec4(in_pos, 0.0);\n\
+                out_col = vec4(in_pos.xy, in_col.zw);\n\
                 \n\
                 float heightOffset = getWaveHeight(in_pos.xy);\n\
                 vec3 finalPos = in_pos + vec3(0.0, 0.0, heightOffset);\n\
@@ -447,10 +480,22 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             \n\
             void main()\n\
             {\n\
-                //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
+                //Remap the random seed from [0, 1] to [-1, 1].\n\
+                float f2 = -1.0 + (2.0 * out_col.z);\n\
+                \n\
+                //Get the normal and the normal map sample.\n\
                 vec3 norm = getWaveNormal(out_col.xy).normal;\n\
-                vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
-                norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
+                \n\
+                //TODO: Take this math involving 'out_col.z' and turn it into two uniforms.\n\
+                vec2 specialOffset = vec2(f2 * 0.5 * sin(0.25 * u_elapsed_seconds));\n\
+                vec3 normalMap = sampleTex(1, out_tex, specialOffset).xyz;\n\
+                \n\
+                //Remap the normal map so that the horizontal coordinates are in the range [-1, 1] instead of [0, 1].\n\
+                normalMap = vec3(-1.0 + (2.0 * normalMap.xy), abs(normalMap.z));\n\
+                \n\
+                //Combine the normal maps.\n\
+                //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
+                norm = normalize(norm + normalMap);\n\
                 \n\
                 float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
                                                  DirectionalLight.Dir, DirectionalLight.Ambient,\n\

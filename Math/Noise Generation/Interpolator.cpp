@@ -51,10 +51,10 @@ float Interpolator::GetInterpolatedNoise(Vector2f scale, Noise2D & tempSmoothedN
 	if (x1 >= tempSmoothedNoise.GetWidth()) x1 -= tempSmoothedNoise.GetWidth();
 	if (y1 >= tempSmoothedNoise.GetHeight()) y1 -= tempSmoothedNoise.GetHeight();
 
-	float c1 = tempSmoothedNoise[Vector2i(ix, iy)],
-		  c2 = tempSmoothedNoise[Vector2i(x1, iy)],
-		  c3 = tempSmoothedNoise[Vector2i(ix, y1)],
-		  c4 = tempSmoothedNoise[Vector2i(x1, y1)];
+	float c1 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(ix, iy))],
+          c2 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(x1, iy))],
+          c3 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(ix, y1))],
+          c4 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(x1, y1))];
 
 	float int1 = BasicMath::Lerp(c1, c2, xFrac),
 		  int2 = BasicMath::Lerp(c3, c4, xFrac);

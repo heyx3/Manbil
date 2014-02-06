@@ -68,7 +68,7 @@ bool TerrainWalkCamera::Update(float elapsedTime, std::shared_ptr<OculusDevice> 
 
 	//Set Z position.
     Vector2f pos(GetPosition().x / TerrainScale.x, GetPosition().y / TerrainScale.y);
-	SetPositionZ(HeightOffset + ((*heightmap)[pos.Clamp(0.0f, heightmap->GetSize() - 1)] * TerrainScale.z));
+	SetPositionZ(HeightOffset);// + ((*heightmap)[pos.Clamp(0.0f, heightmap->GetSize() - 1)] * TerrainScale.z));
     
 
 

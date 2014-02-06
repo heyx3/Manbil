@@ -4,7 +4,6 @@
 
 #include "GeometricMath.h"
 
-bool Terrain::DebugShit = false;
 unsigned char Terrain::Exception_Invalid_Area = 1;
 
 void Terrain::SetHeightmap(const Fake2DArray<float> & copy)
@@ -297,16 +296,6 @@ void Terrain::CreateVertexNormals(Vector3f * outNormals, const Vector3f * const 
 
 			//Set the normal for the position.
             outNormals[GetIndex(loc, topLeft, bottomRight)] = normal;
-
-            if (false && DebugShit)
-            {
-                std::cout << normal.x << "," << normal.y << "," << normal.z << "\n";
-                if (pX >= 5 && pY >= 5 && pX % 7 == 0 && pY % 7 == 0)
-                {
-                    char dummy;
-                    std::cin >> dummy;
-                }
-            }
 		}
 	}
 }

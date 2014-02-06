@@ -42,11 +42,12 @@ std::string shaderHeaderPostfix = std::string() +
                         uniform vec2 u_samplerScales[" + nSamplers + "];                                          \n\
                         uniform vec2 u_samplerPans[" + nSamplers + "];                                            \n\
 						                                                                                          \n\
-						vec4 sampleTex(int samp, vec2 uvs)                                                        \n\
+						vec4 sampleTex(int samp, vec2 uvs, vec2 uvOffset)                                         \n\
 						{                                                                                         \n\
-						    return texture2D(u_samplers2D[samp], u_samplerScales[samp] *                       \n\
-                                                                    (uvs + (u_elapsed_seconds * u_samplerPans[samp]))); \n\
+						    return texture2D(u_samplers2D[samp], uvOffset + (u_samplerScales[samp] *              \n\
+                                                                             (uvs + (u_elapsed_seconds * u_samplerPans[samp])))); \n\
                         }                                                                                         \n\
+                        vec4 sampleTex(int samp, vec2 uvs) { return sampleTex(samp, uvs, vec2(0.0)); }            \n\
 						                                                                                          \n\
 						                                                                                          \n\
 						vec4 worldTo4DScreen(vec3 world) { return u_wvp * vec4(world, 1.0); }                     \n\

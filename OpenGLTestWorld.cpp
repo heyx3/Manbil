@@ -79,14 +79,27 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 1000.0f, 5.0f, 30.0f, 1.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 5.125f, 2.0f, 2.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
     Fake2DArray<float> heightmap(outHeight.GetWidth(), outHeight.GetHeight());
 
     //Load image.
-    if (false)
+    if (true)
+    {
+        sf::Image normalMap;
+        if (!normalMap.loadFromFile("Normalmap.png"))
+        {
+            std::cout << "Error loading water normal map\n";
+            Pause();
+            return;
+        }
+
+        TextureConverters::ToArray(normalMap, outHeight);
+        return;
+    }
+    else if (false)
     {
         sf::Image bumpMap;
         if (!bumpMap.loadFromFile("bumpy.png"))
@@ -362,7 +375,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     Materials::LitTexture_GetUniforms(*water->Mat);
     Materials::LitTexture_SetUniforms(water->GetMesh(), dirLight);
 
-    float amb = 0.35f, diff = 1.0f - amb;
+    float amb = 0.7f, diff = 1.0f - amb;
     water->GetMesh().FloatUniformValues["DirectionalLight.Ambient"].SetData(&amb);
     water->GetMesh().FloatUniformValues["DirectionalLight.Diffuse"].SetData(&diff);
 
@@ -371,8 +384,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetMesh().TextureSamplers[0].Scales[0] = Vector2f(50.0f, 50.0f);
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
-    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.005f, -0.01f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(100.0f, 100.0f);
+    water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.0005f, -0.0000f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(50.0f, 50.0f);
 }
 
 
@@ -384,7 +397,7 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 
 	dirLight.Ambient = 0.3f;
 	dirLight.Diffuse = 0.7f;
-	dirLight.Specular = 4.0f;
+	dirLight.Specular = 2.5f;
 	
 	dirLight.SpecularIntensity = 128.0f;
 }
@@ -467,24 +480,29 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-	std::vector<const Mesh *> meshes;
-	meshes.insert(meshes.begin(), &testMesh);
-	if (!testMat->Render(info, meshes))
-	{
-		std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
-		Pause();
-		EndWorld();
-        return;
-	}
+    if (false)
+    {
+        std::vector<const Mesh *> meshes;
+        meshes.insert(meshes.begin(), &testMesh);
+        if (!testMat->Render(info, meshes))
+        {
+            std::cout << "Error rendering world: " << testMat->GetErrorMessage() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+    }
 	
-
-	if (!foliage->Render(info))
-	{
-		std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
-		Pause();
-		EndWorld();
-        return;
-	}
+    if (false)
+    {
+        if (!foliage->Render(info))
+        {
+            std::cout << "Error rendering foliage: " << foliage->GetError() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+    }
 
     if (!water->Render(info))
     {

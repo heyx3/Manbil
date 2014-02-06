@@ -209,21 +209,19 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	{
         #pragma region Water
 
-        Perlin per1(32.0f, Perlin::Quintic, fr.Seed),
-               per2(16.0f, Perlin::Quintic, fr.Seed + 262134),
-               per3(8.0f, Perlin::Quintic, fr.Seed + 628331),
-               per4(4.0f, Perlin::Quintic, fr.Seed + 278),
-               per5(2.0f, Perlin::Quintic, fr.Seed + 2472);
-        float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f };
-        Generator * noiseOctaves[] = { &per1, &per2, &per3, &per4, &per5 };
+        Value2D basicNoise(fr.Seed);
+        Interpolator interpNoise(&basicNoise, noiseSize, noiseSize, 10.0);
+        interpNoise.Generate(finalNoise);
 
-        LayeredOctave octaves(5, weights, noiseOctaves);
+        NoiseFilterer nf;
+        MaxFilterRegion mfr(1.0f, Interval(0.0f, 1.0f, 0.0001f, true, true));
+        nf.FillRegion = &mfr;
+        //nf.Increase_Amount = -1.0f;
+        //nf.Increase(&finalNoise);
 
-        nf.FilterFunc = &NoiseFilterer::UpContrast;
         nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
-        nf.NoiseToFilter = &octaves;
-
-        nf.Generate(finalNoise);
+        nf.UpContrast(&finalNoise);
+        nf.UpContrast(&finalNoise);
         nf.UpContrast(&finalNoise);
 
         #pragma endregion

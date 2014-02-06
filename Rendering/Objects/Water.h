@@ -4,10 +4,12 @@
 #include "../../Math/HigherMath.hpp"
 
 //Represents a flowing body of water.
-//Color data is stored in u_sampler0, and bumpmap is stored in u_sampler1.
+//Color data is stored in u_sampler0, and normal map is stored in u_sampler1.
 class Water
 {
 public:
+
+    //TODO: Change to use one uber-shader that has ripples, flows, AND seeded heightmaps.
 
     //Different kinds of water motion.
     enum WaterTypes
