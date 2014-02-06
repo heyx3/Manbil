@@ -24,7 +24,7 @@ protected:
 	virtual void InitializeWorld(void) override;
 
 	virtual void UpdateWorld(float elapsedSeconds) override;
-	virtual void RenderWorld(float elapsedSeconds) override;
+	virtual void RenderOpenGL(float elapsedSeconds) override;
 
 	virtual void OnInitializeError(std::string errorMsg) override;
 

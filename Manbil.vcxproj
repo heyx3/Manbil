@@ -210,6 +210,8 @@
     <ClInclude Include="OpenGLIncludes.h" />
     <ClInclude Include="OpenGLTestWorld.h" />
     <ClInclude Include="RenderingState.h" />
+    <ClInclude Include="Rendering\GUI\GUIElement.h" />
+    <ClInclude Include="Rendering\GUI\GUIScreen.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />

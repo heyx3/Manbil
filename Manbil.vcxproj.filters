@@ -433,6 +433,12 @@
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUIScreen.h">
+      <Filter>Rendering\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUIElement.h">
+      <Filter>Rendering\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -512,6 +518,9 @@
     </Filter>
     <Filter Include="Rendering\Texture Management">
       <UniqueIdentifier>{2e9a24e0-4aee-4777-9c35-afe630868075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\GUI">
+      <UniqueIdentifier>{c8b64acb-b386-4277-a154-8f47c09c666b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

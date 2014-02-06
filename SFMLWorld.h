@@ -10,12 +10,17 @@ class SFMLWorld
 {
 public:
 
-	SFMLWorld(int windWidth, int windHeight)
-		: totalElapsedSeconds(0.0f), window(0), windowWidth(windWidth), windowHeight(windHeight) { window = 0; }
+	SFMLWorld(int windWidth, int windHeight, sf::ContextSettings settings = sf::ContextSettings())
+        : contextSettings(settings), totalElapsedSeconds(0.0f), window(0), windowWidth(windWidth), windowHeight(windHeight)
+    {
+        window = 0;
+    }
 	virtual ~SFMLWorld(void) { if (window) delete window; }
 
 	float GetTotalElapsedSeconds(void) const { return  totalElapsedSeconds; }
 	sf::RenderWindow * GetWindow(void) const { return window; }
+
+    const sf::ContextSettings & GetContextSettings(void) const { return contextSettings; }
 
 	void SetWindowTitle(const sf::String & title) { window->setTitle(title); }
 
@@ -63,6 +68,8 @@ private:
 	float totalElapsedSeconds;
 	sf::RenderWindow * window;
 	int windowWidth, windowHeight;
+
+    sf::ContextSettings contextSettings;
 
 	bool worldOver;
 };

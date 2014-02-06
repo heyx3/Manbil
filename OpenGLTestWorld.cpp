@@ -79,14 +79,14 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 150.0f, 3.0f, 2.0f, 4.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 150.0f, 10.0f, 5.0f, 1.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
     Fake2DArray<float> heightmap(outHeight.GetWidth(), outHeight.GetHeight());
 
     //Load image.
-    if (true)
+    if (false)
     {
         sf::Image normalMap;
         if (!normalMap.loadFromFile("Normalmap.png"))
@@ -125,10 +125,10 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
         nf.FillRegion = &mfr;
         const int sed = 125;
         Perlin per1(32.0f, Perlin::Quintic, sed),
-            per2(16.0f, Perlin::Quintic, sed + 262134),
-            per3(8.0f, Perlin::Quintic, sed + 628331),
-            per4(4.0f, Perlin::Quintic, sed + 278),
-            per5(2.0f, Perlin::Quintic, sed + 2472);
+               per2(16.0f, Perlin::Quintic, sed + 262134),
+               per3(8.0f, Perlin::Quintic, sed + 628331),
+               per4(4.0f, Perlin::Quintic, sed + 278),
+               per5(2.0f, Perlin::Quintic, sed + 2472);
         float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f };
         Generator * noiseOctaves[] = { &per1, &per2, &per3, &per4, &per5 };
 
@@ -360,7 +360,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     //Create water.
 
-    water = new Water(600, 4, Vector3f());
+    water = new Water(128, 4, Vector3f());
     if (water->HasError())
     {
         std::cout << "Error creating water: " << water->GetErrorMessage();
@@ -369,7 +369,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         return;
     }
 
-    water->Transform.SetScale(Vector3f(8.5f, 8.5f, 1.0f));
+    water->Transform.SetScale(Vector3f(8.0f, 8.0f, 1.0f));
     water->Transform.IncrementPosition(Vector3f(0, 0, -30));
 
     Materials::LitTexture_GetUniforms(*water->Mat);
@@ -390,7 +390,8 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-: SFMLOpenGLWorld(windowSize.x, windowSize.y), testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
+: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)),
+  testMat(0), testMesh(PrimitiveTypes::Triangles), foliage(0), pTerr(0)
 {
 	dirLight.Dir = Vector3f(-1.0f, -1.0f, -1.0f).Normalized();
 	dirLight.Col = Vector3f(1.0f, 1.0f, 1.0f);
@@ -513,7 +514,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 }
 
-void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
+void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 {
 	Matrix4f worldM, viewM, projM;
 	TransformObject dummy;
@@ -556,8 +557,6 @@ void OpenGLTestWorld::RenderWorld(float elapsedSeconds)
 			return;
 		}
 	}
-
-	GetWindow()->display();
 }
 
 

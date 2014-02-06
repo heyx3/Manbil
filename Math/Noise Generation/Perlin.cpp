@@ -33,6 +33,11 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 
 	int gradientWidth = BasicMath::RoundToInt(width / Scale),
 		gradientHeight = BasicMath::RoundToInt(height / Scale);
+    if (gradientWidth == 0 || gradientHeight == 0)
+    {
+        outValues.Fill(0.0f);
+        return;
+    }
 	Fake2DArray<Vector2f> gradients(gradientWidth, gradientHeight);
 
 	for (x = 0; x < gradients.GetWidth(); ++x)
