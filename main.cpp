@@ -2,6 +2,7 @@
 #include "NoiseTest.h"
 #include "OpenGLTestWorld.h"
 #include "TwoTrianglesWorld.h"
+#include "Tests/TwoDOpenGLTest.h"
 
 #include <iostream>
 using namespace std;
@@ -18,6 +19,9 @@ void PauseConsole(void)
 int main()
 {
     //NoiseTest().RunWorld();
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
+
+    TwoDOpenGLTest().RunWorld();
+
     //TwoTrianglesWorld().RunWorld();
 }

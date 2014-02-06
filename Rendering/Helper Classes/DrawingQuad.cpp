@@ -13,24 +13,23 @@ const unsigned int DrawingQuad::indices[6] =
     0, 2, 3,
 };
 
-Mesh DrawingQuad::quad = Mesh(PrimitiveTypes::Triangles);
-
-std::vector<const Mesh*> DrawingQuad::meshes = std::vector<const Mesh*>();
-
+VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
 
 
 DrawingQuad::DrawingQuad(void)
+    : quad(PrimitiveTypes::Triangles)
 {
-    //Initialize the mesh if it hasn't been already.
-    if (meshes.empty())
+    //Set up the vertices if they haven't been already.
+    if (vid.GetVerticesCount() < 0)
     {
         RenderObjHandle vbo, ibo;
         RenderDataHandler::CreateVertexBuffer(vbo, vertices, 4, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
         RenderDataHandler::CreateIndexBuffer(ibo, indices, 6, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-        
-        VertexIndexData vid(4, vbo, 6, ibo);
-        quad.SetVertexIndexData(&vid, 1);
-        
-        meshes.insert(meshes.end(), &quad);
+
+        vid = VertexIndexData(4, vbo, 6, ibo);
     }
+
+    //Set up this quad's mesh.
+    quad.SetVertexIndexData(&vid, 1);
+    meshes.insert(meshes.end(), &quad);
 }

@@ -188,8 +188,11 @@
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
+    <ClCompile Include="Tests\TwoDOpenGLTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
-      <Filter>Rendering\GUI</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -442,8 +445,11 @@
     <ClInclude Include="Rendering\GUI\GUIElement.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\TwoDOpenGLTest.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
-      <Filter>Rendering\GUI</Filter>
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

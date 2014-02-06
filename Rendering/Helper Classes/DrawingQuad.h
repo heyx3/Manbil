@@ -15,8 +15,10 @@ public:
 
     void SetQuadPos(Vector2f pos) { quad.Transform.SetPosition(Vector3f(pos.x, pos.y, 0.0f)); }
     void SetQuadSize(Vector2f size) { quad.Transform.SetScale(Vector3f(size.x, size.y, 1.0f)); }
+    void SetQuadDepth(float depth) { Vector3f pos = quad.Transform.GetPosition(); quad.Transform.SetPosition(Vector3f(pos.x, pos.y, depth)); }
 
     DrawingQuad(void);
+    DrawingQuad(const DrawingQuad & cpy);
 
     void Render(const RenderInfo & info, Material & mat) { mat.Render(info, meshes); }
 
@@ -25,6 +27,8 @@ private:
     static const Vertex vertices[4];
     static const unsigned int indices[6];
 
-    static Mesh quad;
-    static std::vector<const Mesh*> meshes;
+    Mesh quad;
+    std::vector<const Mesh*> meshes;
+
+    static VertexIndexData vid;
 };
