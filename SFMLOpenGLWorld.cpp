@@ -18,14 +18,16 @@ void SFMLOpenGLWorld::InitializeWorld(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	GetWindow()->setVerticalSyncEnabled(true);
+
+    //GetWindow()->setActive();
 }
 
 void SFMLOpenGLWorld::RenderWorld(float elapsedSeconds)
 {
     RenderOpenGL(elapsedSeconds);
     //TODO: Saving ALL states is needlessly expensive. Change to only save important rendering states.
-    //GetWindow()->pushGLStates();
+    GetWindow()->pushGLStates();
     RenderSFML(elapsedSeconds);
-    //GetWindow()->popGLStates();
+    GetWindow()->popGLStates();
     GetWindow()->display();
 }

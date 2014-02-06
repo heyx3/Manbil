@@ -143,7 +143,7 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 
     }
 
-    BumpmapToNormalmap::Convert(heightmap, 10.0f, outHeight);
+    BumpmapToNormalmap::Convert(heightmap, 5.0f, outHeight);
 }
 
 
@@ -151,8 +151,12 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }
 
 
+sf::Sprite sprToDraw;
+sf::Texture tex;
+
 void OpenGLTestWorld::InitializeTextures(void)
 {
+
     sf::Image img, shrubImg, waterImg, normalMapImg;
 
     //Grass texture.
@@ -233,6 +237,9 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
+
+    tex.loadFromImage(img);
+    sprToDraw.setTexture(tex);
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
@@ -385,7 +392,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->GetMesh().TextureSamplers[0][1] = normalMapImgH;
     water->GetMesh().TextureSamplers[0].Panners[1] = Vector2f(-0.005f, -0.004f);
-    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(100.0f, 100.0f);
+    water->GetMesh().TextureSamplers[0].Scales[1] = Vector2f(50.0f, 50.0f);
 }
 
 
@@ -557,6 +564,13 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 			return;
 		}
 	}
+}
+
+void OpenGLTestWorld::RenderSFML(float elapsedSeconds)
+{
+    //GetWindow()->clear();
+    GetWindow()->draw(sprToDraw);
+    //GetWindow()->display();
 }
 
 

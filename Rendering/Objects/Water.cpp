@@ -8,6 +8,7 @@
 
 
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
+//TODO: Use two normal maps and interpolate between them using the per-vertex random seed.
 
 void CreateWaterMesh(unsigned int size, Mesh & outM)
 {
@@ -483,13 +484,13 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
             void main()\n\
             {\n\
                 //Remap the random seed from [0, 1] to [-1, 1].\n\
-                float f2 = -1.0 + (2.0 * out_col.z);\n\
+                vec2 f2 = -1.0 + (2.0 * out_col.zw);\n\
                 \n\
                 //Get the normal and the normal map sample.\n\
                 vec3 norm = getWaveNormal(out_col.xy).normal;\n\
                 \n\
                 //TODO: Take this math involving 'out_col.z' and turn it into two uniforms.\n\
-                vec2 specialOffset = vec2(f2 * 0.5 * sin(0.25 * u_elapsed_seconds));\n\
+                vec2 specialOffset = vec2(f2.x * 1.0 * sin(0.5 * u_elapsed_seconds));\n\
                 vec3 normalMap = sampleTex(1, out_tex, specialOffset).xyz;\n\
                 \n\
                 //Remap the normal map so that the horizontal coordinates are in the range [-1, 1] instead of [0, 1].\n\
