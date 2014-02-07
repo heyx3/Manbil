@@ -32,7 +32,6 @@ const RenderingPass Materials::LitTexture = RenderingPass(
 					out_normal = normalize((u_world * vec4(in_normal, 0.0)).xyz);\n\
 				}"),
 
-
 	std::string("struct DirectionalLightStruct\n\
 				{\n\
 					vec3 Dir, Col;\n\

@@ -40,6 +40,8 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 
     nf.Generate(noise);
 
+    Value2D().Generate(noise);
+
 
     //Just create a flat terrain and let it do the math.
 
@@ -490,7 +492,7 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 vec3 norm = getWaveNormal(out_col.xy).normal;\n\
                 \n\
                 //TODO: Take this math involving 'out_col.z' and turn it into two uniforms.\n\
-                vec2 specialOffset = vec2(f2.x * 0.25 * sin(0.5 * u_elapsed_seconds));\n\
+                vec2 specialOffset = vec2(f2.x * 0.01 * sin(0.25 * f2.x * u_elapsed_seconds));\n\
                 vec3 normalMap = sampleTex(1, out_tex, specialOffset).xyz;\n\
                 \n\
                 //Remap the normal map so that the horizontal coordinates are in the range [-1, 1] instead of [0, 1].\n\

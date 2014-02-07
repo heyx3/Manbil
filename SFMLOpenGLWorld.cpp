@@ -15,11 +15,7 @@ void SFMLOpenGLWorld::InitializeWorld(void)
 		OnInitializeError(std::string(cs));
 	}
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
 	GetWindow()->setVerticalSyncEnabled(true);
-
-    //GetWindow()->setActive();
 }
 
 void SFMLOpenGLWorld::RenderWorld(float elapsedSeconds)

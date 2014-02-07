@@ -80,7 +80,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 150.0f, 10.0f, 5.0f, 1.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 50.0f, 0.85f, 0.5f, 20.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
@@ -155,7 +155,7 @@ bool ShouldUseFramebuffer(void) { return sf::Keyboard::isKeyPressed(sf::Keyboard
 sf::Sprite sprToDraw;
 sf::Texture tex;
 
-DrawingQuad * quad;
+DrawingQuad * quad, * quad2;
 Material * unlitMat;
 
 
@@ -384,7 +384,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     //Create water.
 
-    water = new Water(128, 4, Vector3f());
+    water = new Water(300, 4, Vector3f());
     if (water->HasError())
     {
         std::cout << "Error creating water: " << water->GetErrorMessage();
@@ -446,12 +446,18 @@ void OpenGLTestWorld::InitializeWorld(void)
     quad = new DrawingQuad();
     quad->SetPos(Vector2f());
     quad->SetSize(Vector2f(10.0f, 10.0f));
-    quad->SetDepth(-1.0f);
+    quad->SetDepth(1.0f);
     quad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
+    quad2 = new DrawingQuad();
+    quad2->SetPos(Vector2f(0.0f, 0.0f));
+    quad2->SetSize(Vector2f(10.0f, 10.0f));
+    quad2->SetDepth(-1.0f);
+    quad2->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
 
     PassSamplers samplers;
     samplers[0] = grassImgH;
     quad->GetMesh().TextureSamplers.insert(quad->GetMesh().TextureSamplers.begin(), samplers);
+    quad2->GetMesh().TextureSamplers.insert(quad2->GetMesh().TextureSamplers.begin(), samplers);
 
 
     //Camera.
@@ -472,6 +478,9 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 	DeleteAndSetToNull(foliage);
     DeleteAndSetToNull(pTerr);
 
+    DeleteAndSetToNull(quad);
+    DeleteAndSetToNull(quad2);
+
     RenderObjHandle textures[] = { grassImgH, waterImgH, normalMapImgH, shrubImgH };
     glDeleteTextures(4, textures);
 }
@@ -484,6 +493,9 @@ void OpenGLTestWorld::OnWorldEnd(void)
 
     DeleteAndSetToNull(quad);
     DeleteAndSetToNull(unlitMat);
+
+    DeleteAndSetToNull(quad);
+    DeleteAndSetToNull(quad2);
 
     RenderObjHandle textures[] = { grassImgH, waterImgH, normalMapImgH, shrubImgH };
     glDeleteTextures(4, textures);
@@ -503,6 +515,7 @@ void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
 void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 {
     quad->SetSize(Vector2f(3.0f, 10.0f * sinf(GetTotalElapsedSeconds())));
+    quad2->SetSize(Vector2f(1.0f, 10.0f * sinf(GetTotalElapsedSeconds())));
 
 	if (cam.Update(elapsedSeconds, std::shared_ptr<OculusDevice>(0)))
 	{
@@ -521,11 +534,18 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-    if (true)
+    if (false)
     {
         if (!quad->Render(info, *unlitMat))
         {
             std::cout << "Error rendering quad: " << unlitMat->GetErrorMessage() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        if (!quad2->Render(info, *unlitMat))
+        {
+            std::cout << "Error rendering quad2: " << unlitMat->GetErrorMessage() << "\n";
             Pause();
             EndWorld();
             return;
@@ -556,7 +576,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 
-    if (false)
+    if (true)
     {
         if (!water->Render(info))
         {

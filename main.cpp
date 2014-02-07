@@ -21,7 +21,7 @@ int main()
     //NoiseTest().RunWorld();
 
     OpenGLTestWorld().RunWorld();
-    TwoDOpenGLTest().RunWorld();
+    //TwoDOpenGLTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 }
