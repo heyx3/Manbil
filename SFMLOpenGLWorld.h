@@ -20,6 +20,4 @@ protected:
 
     //First, render all the OpenGL stuff.
     virtual void RenderOpenGL(float elapsedSeconds) = 0;
-    //Second, render all the SFML stuff.
-    virtual void RenderSFML(float elapsedSeconds) { }
 };

@@ -44,7 +44,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
     Input.AddBoolInput(1234, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Escape, BoolInput::ValueStates::IsDown)));
 
 
-    glEnable(GL_TEXTURE_2D);
+    RenderingState(true, true, true).EnableState();
 
     sf::Image background, foreground;
     if (!background.loadFromFile("Water.png"))

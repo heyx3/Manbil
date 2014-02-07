@@ -20,8 +20,8 @@ int main()
 {
     //NoiseTest().RunWorld();
 
-    OpenGLTestWorld().RunWorld();
-    //TwoDOpenGLTest().RunWorld();
+    //OpenGLTestWorld().RunWorld();
+    TwoDOpenGLTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 }
