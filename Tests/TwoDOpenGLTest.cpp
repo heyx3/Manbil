@@ -62,7 +62,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
         return;
     }
 
-    TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, true);
+    TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false);
     RenderObjHandle foreTex, backTex;
 
     RenderDataHandler::CreateTexture2D(foreTex, foreground);
