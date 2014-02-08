@@ -1,0 +1,7 @@
+Each material has many different channels (diffuse, normal, specular, object-space vertex offset, etc.).
+
+Define a "Vector" as a collection of 1-4 floats.
+
+Each channel takes in a Vector of certain size (e.x. diffuse takes a Vector size 3 for color, specular takes a Vector size 1 for specular value, etc.)
+
+A DataNode is an object that has a certain number of Vector inputs (called "data lines") and a single Vector output. Each data line can be either a constant value or the output of another DataNode.

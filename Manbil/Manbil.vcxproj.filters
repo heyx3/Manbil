@@ -200,6 +200,9 @@
     <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -478,7 +481,10 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\ChannelNode.h">
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\ParamNode.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -569,6 +575,9 @@
     </Filter>
     <Filter Include="Rendering\Materials\Data Nodes\Math">
       <UniqueIdentifier>{89ba6ab3-54f0-441b-916c-03b4fa298a9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Materials\Data Nodes\Channels">
+      <UniqueIdentifier>{54bb0aa5-6c1a-4400-a398-fe7faac26ecc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
