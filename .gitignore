@@ -5,3 +5,6 @@
 *.lastbuildstate
 /Debug/Manbil.log
 /Release/Manbil.log
+*.opensdf
+*.sdf
+*.suo
