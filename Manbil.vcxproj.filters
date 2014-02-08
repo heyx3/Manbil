@@ -472,6 +472,15 @@
     <ClInclude Include="Rendering\Materials\RenderTargetPool.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\ChannelNode.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -554,6 +563,12 @@
     </Filter>
     <Filter Include="Rendering\GUI">
       <UniqueIdentifier>{c8b64acb-b386-4277-a154-8f47c09c666b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Materials\Data Nodes">
+      <UniqueIdentifier>{a5ab7fb2-95fe-443f-a7cd-b7f65bb8e0c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Materials\Data Nodes\Math">
+      <UniqueIdentifier>{89ba6ab3-54f0-441b-916c-03b4fa298a9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

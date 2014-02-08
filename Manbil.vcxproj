@@ -218,6 +218,9 @@
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />
     <ClInclude Include="Rendering\GUI\TextManager.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\ChannelNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />
     <ClInclude Include="Rendering\Materials\RenderingModes.h" />
     <ClInclude Include="Rendering\Materials\RenderTargetPool.h" />

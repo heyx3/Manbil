@@ -29,6 +29,37 @@ enum RenderPasses
 };
 
 
+struct ChannelData
+{
+public:
+
+    struct UniformDeclaration
+    {
+    public:
+        std::string Type, Name;
+        UniformDeclaration(std::string type, std::string name) :Type(type), Name(name) { }
+    };
+    struct FunctionDeclaration
+    {
+    public:
+        std::string Name, ReturnValue, Arguments, Body;
+        FunctionDeclaration(std::string name, std::string returnVal, std::string params, std::string body)
+            : Name(name), ReturnValue(returnVal), Arguments(params), Body(body) { }
+    };
+    struct Texture2DDeclaration
+    {
+    public:
+        std::string Name;
+        Texture
+    };
+
+
+    RenderingChannels Channel;
+
+    std::vector<UniformDeclaration> Declarations;
+
+};
+
 //Data for a channel, computed using some shader code.
 //"Header" is the shader code that declares associated uniforms/functions.
 //"ChannelOutput" is an expression (to be inserted into "main()") that evaluates to the channel output value.
