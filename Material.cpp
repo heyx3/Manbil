@@ -41,11 +41,14 @@ std::string shaderHeaderPostfix = std::string() +
 						uniform sampler2D u_samplers2D[" + nSamplers + "];                                        \n\
                         uniform vec2 u_samplerScales[" + nSamplers + "];                                          \n\
                         uniform vec2 u_samplerPans[" + nSamplers + "];                                            \n\
+                        uniform vec2 u_samplerOffsets[" + nSamplers + "];                                         \n\
 						                                                                                          \n\
 						vec4 sampleTex(int samp, vec2 uvs, vec2 uvOffset)                                         \n\
 						{                                                                                         \n\
-						    return texture2D(u_samplers2D[samp], uvOffset + (u_samplerScales[samp] *              \n\
-                                                                             (uvs + (u_elapsed_seconds * u_samplerPans[samp])))); \n\
+						    return texture2D(u_samplers2D[samp],                                                  \n\
+                                             uvOffset + (u_samplerScales[samp] *                                  \n\
+                                                         (uvs + u_samplerOffsets +                                \n\
+                                                          (u_elapsed_seconds * u_samplerPans[samp]))));           \n\
                         }                                                                                         \n\
                         vec4 sampleTex(int samp, vec2 uvs) { return sampleTex(samp, uvs, vec2(0.0)); }            \n\
 						                                                                                          \n\
@@ -158,7 +161,6 @@ const std::vector<RenderingPass> & MakeList(const RenderingPass & onlyElement)
 }
 
 
-
 Material::Material(const std::vector<RenderingPass> & passes)
     : errorMsg("")
 {
@@ -235,6 +237,8 @@ Material::Material(const std::vector<RenderingPass> & passes)
             uniforms[pass]["u_samplerScales"] = uLoc;
         if (RenderDataHandler::GetUniformLocation(prog, "u_samplerPans", uLoc))
             uniforms[pass]["u_samplerPans"] = uLoc;
+        if (RenderDataHandler::GetUniformLocation(prog, "u_samplerOffsets", uLoc))
+            uniforms[pass]["u_samplerOffsets"] = uLoc;
     }
 }
 Material::Material(const RenderingPass & shaders)
@@ -325,12 +329,14 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
                         RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, meshes[mesh]->TextureSamplers[pass].Samplers[i]);
                         TrySetUniformArrayF(pass, "u_samplerScales", i, &meshes[mesh]->TextureSamplers[pass].Scales[i][0], 2);
                         TrySetUniformArrayF(pass, "u_samplerPans", i, &meshes[mesh]->TextureSamplers[pass].Panners[i][0], 2);
+                        TrySetUniformArrayF(pass, "u_samplerOffsets", i, &meshes[mesh]->TextureSamplers[pass].Offsets[i][0], 2);
                     }
                     else
                     {
                         RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, textureSamplers[pass].Samplers[i]);
                         TrySetUniformArrayF(pass, "u_samplerScales", i, &textureSamplers[pass].Scales[i][0], 2);
                         TrySetUniformArrayF(pass, "u_samplerPans", i, &textureSamplers[pass].Panners[i][0], 2);
+                        TrySetUniformArrayF(pass, "u_samplerOffsets", i, &textureSamplers[pass].Offsets[i][i], 2);
                     }
                 }
             }

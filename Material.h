@@ -37,6 +37,7 @@ public:
     RenderObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
     Vector2f Panners[MaterialConstants::TWODSAMPLERS];
     Vector2f Scales[MaterialConstants::TWODSAMPLERS];
+    Vector2f Offsets[MaterialConstants::TWODSAMPLERS];
 
     PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS] = 0);
 
@@ -44,6 +45,86 @@ public:
     const RenderObjHandle & operator[](int index) const { return Samplers[index]; }
 };
 
+typedef std::shared_ptr<sf::Texture> TexturePtr;
+
+/*TODO: Time to rewrite the material system again!
+    Instead of dealing with "uniforms", use "TextureChannelData", " and "ConstChannelData"
+    Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! Each pass should have a clear purpose as well -- http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
+    Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have more complext inputs.
+    Refer to the "Rendering Hierarchy" document to see how rendering should be organized.
+*/
+enum RenderingMode
+{
+    RM_Opaque,
+    RM_Transluscent,
+    RM_Additive,
+};
+
+//Data for a channel, calculated by texture lookup.
+struct TextureChannelData
+{
+public:
+    Channels Channel;
+    ChannelsIn InChannel;
+
+    TexturePtr Value;
+    Vector2f Offset, Scale, PanVelocity;
+    TextureChannelData(Channels channel, TexturePtr value, ChannelsIn inChannel, Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panVelocity = Vector2f(0.0f, 0.0f))
+        : Channel(channel), InChannel(inChannel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity)
+    { }
+};
+enum Channels
+{
+    Diffuse = 0,
+    Opacity,
+
+    Normal,
+    Bump,
+    Specular,
+
+    DiffuseIntensity,
+    SpecularIntensity,
+
+    NUMB_CHANNELS,
+};
+//Data for a channel, calculated by a constant float uniform.
+struct FloatChannelData
+{
+public:
+    Channels Channel;
+    float Values[4];
+    int NumbValues;
+    FloatChannelData(Channels channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
+    FloatChannelData(Channels channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
+    FloatChannelData(Channels channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
+    FloatChannelData(Channels channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
+    FloatChannelData(Channels channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
+};
+//Data for a channel, calculated by a constant float uniform.
+struct IntChannelData
+{
+public:
+    Channels Channel;
+    int Values[4];
+    int NumbValues;
+    IntChannelData(Channels channel, int value) : Channel(channel), NumbValues(1) { Values[0] = value; }
+    IntChannelData(Channels channel, Vector2i value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
+    IntChannelData(Channels channel, Vector3i value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
+    IntChannelData(Channels channel, Vector4i value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
+    IntChannelData(Channels channel, int * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
+};
+
+class Mat
+{
+public:
+
+    RenderingMode GetMode(void) const { return mode; }
+
+
+private:
+
+    RenderingMode mode;
+};
 
 
 //Represents a vertex shader and multiple fragment shaders.
@@ -51,6 +132,69 @@ public:
 class Material
 {
 public:
+
+    //The different basic data channels making up a material. These may be textures or uniforms.
+    enum Channels
+    {
+        Color = 0,
+        Opacity,
+
+        Normal,
+        Bump,
+        Specular,
+
+        Special1,
+        Special2,
+        Special3,
+        Special4,
+        Special5,
+        Special6,
+
+        NUMB_CHANNELS,
+    };
+    //Data for a channel, calculated by texture lookup.
+    struct TextureChannelData
+    {
+    public:
+        Channels Channel;
+        ChannelsIn InChannel;
+
+        TexturePtr Value;
+        Vector2f Offset, Scale, PanVelocity;
+        TextureChannelData(Channels channel, TexturePtr value, ChannelsIn inChannel, Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panVelocity = Vector2f(0.0f, 0.0f))
+            : Channel(channel), InChannel(inChannel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity) { }
+    };
+    //Data for a channel, calculated by a constant float uniform.
+    struct FloatChannelData
+    {
+    public:
+        Channels Channel;
+        float Values[4];
+        int NumbValues;
+        FloatChannelData(Channels channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
+        FloatChannelData(Channels channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
+        FloatChannelData(Channels channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
+        FloatChannelData(Channels channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
+        FloatChannelData(Channels channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
+    };
+    //Data for a channel, calculated by a constant float uniform.
+    struct IntChannelData
+    {
+    public:
+        Channels Channel;
+        int Values[4];
+        int NumbValues;
+        IntChannelData(Channels channel, int value) : Channel(channel), NumbValues(1) { Values[0] = value; }
+        IntChannelData(Channels channel, Vector2i value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
+        IntChannelData(Channels channel, Vector3i value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
+        IntChannelData(Channels channel, Vector4i value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
+        IntChannelData(Channels channel, int * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
+    };
+
+    bool IsChannelEnabled(Channels channel) { return channelsEnabled[(int)channel]; }
+    bool IsChannelTexture(Channels channel) {  }
+
+
 
     //The names of the different uniforms.
     //TODO: Define.
@@ -264,6 +408,10 @@ private:
         RenderDataHandler::SetMatrixValue(uniforms[programIndex][uniform], data);
         return true;
     }
+
+
+    //Indexed by channel.
+    bool channelsEnabled[(int)Channels::NUMB_CHANNELS];
 
 
     //The following vectors are indexed by rendering pass.
