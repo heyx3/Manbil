@@ -8,110 +8,76 @@
 #include "ShaderHandler.h"
 #include "RenderingState.h"
 #include "Vertex.h"
+#include "Rendering/Materials/RenderingModes.h"
+#include "Rendering/Texture Management/TextureChannels.h"
 
 class Mesh;
+typedef std::shared_ptr<sf::Texture> TexturePtr;
 
 
-//Constants used for the Material system.
+/*TODO: Time to rewrite the material system again!
+    When dealing with channels, use "TextureChannelData", " and "ConstChannelData". Otherwise, use regular uniforms.
+    Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! Each pass should have a clear, global purpose as well -- http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
+    Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have more complext inputs.
+    Refer to the "Rendering Hierarchy" document to see how rendering should be organized.
+    NOTE: For now, don't bother trying to work with the transparent render modes.
+*/
+
+//Constants/information used for the Material system.
 struct MaterialConstants
 {
 public:
-    //The number of available 2d texture samplers, starting at u_sampler0.
-    static const int TWODSAMPLERS = 5;
+    static RenderingState GetRenderingState(RenderingModes mode);
+};
+
+//The different rendering passes.
+enum RenderPasses
+{
+    //Render normals, depth, diffuse, etc. -- basic data, multiple render targets.
+    BaseComponents,
+    //Render basic lighting, along with ambient occlusion -- two render targets.
+    CombineComponents,
+    //Apply ambient occlusion.
+    ApplyOcclusion,
 };
 
 
 //Represents the combiniation of a vertex shader and a fragment shader.
 struct RenderingPass
 {
-    RenderingState RenderState;
     std::string VertexShader, FragmentShader;
-    RenderingPass(std::string vs, std::string fs, RenderingState rendState = RenderingState()) : VertexShader(vs), FragmentShader(fs), RenderState(rendState) { }
+    RenderingPass(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
 };
 
 
-//Represents all the texture samplers to be used for a rendering pass.
-struct PassSamplers
-{
-public:
-    RenderObjHandle Samplers[MaterialConstants::TWODSAMPLERS];
-    Vector2f Panners[MaterialConstants::TWODSAMPLERS];
-    Vector2f Scales[MaterialConstants::TWODSAMPLERS];
-    Vector2f Offsets[MaterialConstants::TWODSAMPLERS];
-
-    PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS] = 0);
-
-    RenderObjHandle & operator[](int index) { return Samplers[index]; }
-    const RenderObjHandle & operator[](int index) const { return Samplers[index]; }
-};
-
-typedef std::shared_ptr<sf::Texture> TexturePtr;
-
-/*TODO: Time to rewrite the material system again!
-    Instead of dealing with "uniforms", use "TextureChannelData", " and "ConstChannelData"
-    Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! Each pass should have a clear purpose as well -- http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
-    Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have more complext inputs.
-    Refer to the "Rendering Hierarchy" document to see how rendering should be organized.
-*/
-enum RenderingMode
-{
-    RM_Opaque,
-    RM_Transluscent,
-    RM_Additive,
-};
-
+template<typename ChannelEnum>
 //Data for a channel, calculated by texture lookup.
 struct TextureChannelData
 {
 public:
-    Channels Channel;
-    ChannelsIn InChannel;
-
+    ChannelEnum Channel;
+    
     TexturePtr Value;
     Vector2f Offset, Scale, PanVelocity;
-    TextureChannelData(Channels channel, TexturePtr value, ChannelsIn inChannel, Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panVelocity = Vector2f(0.0f, 0.0f))
-        : Channel(channel), InChannel(inChannel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity)
+    TextureChannelData(ChannelEnum channel, TexturePtr value,
+                       Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f),
+                       Vector2f panVelocity = Vector2f(0.0f, 0.0f))
+        : Channel(channel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity)
     { }
 };
-enum Channels
-{
-    Diffuse = 0,
-    Opacity,
-
-    Normal,
-    Bump,
-    Specular,
-
-    DiffuseIntensity,
-    SpecularIntensity,
-
-    NUMB_CHANNELS,
-};
+template<typename ChannelEnum>
 //Data for a channel, calculated by a constant float uniform.
 struct FloatChannelData
 {
 public:
-    Channels Channel;
+    ChannelEnum Channel;
     float Values[4];
     int NumbValues;
-    FloatChannelData(Channels channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
-    FloatChannelData(Channels channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
-    FloatChannelData(Channels channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
-    FloatChannelData(Channels channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
-    FloatChannelData(Channels channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
-};
-//Data for a channel, calculated by a constant float uniform.
-struct IntChannelData
-{
-public:
-    Channels Channel;
-    int Values[4];
-    int NumbValues;
-    IntChannelData(Channels channel, int value) : Channel(channel), NumbValues(1) { Values[0] = value; }
-    IntChannelData(Channels channel, Vector2i value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
-    IntChannelData(Channels channel, Vector3i value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
-    IntChannelData(Channels channel, Vector4i value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
-    IntChannelData(Channels channel, int * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
+    FloatChannelData(ChannelEnum channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
+    FloatChannelData(ChannelEnum channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
+    FloatChannelData(ChannelEnum channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
+    FloatChannelData(ChannelEnum channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
+    FloatChannelData(ChannelEnum channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
 };
 
 class Mat
@@ -132,67 +98,6 @@ private:
 class Material
 {
 public:
-
-    //The different basic data channels making up a material. These may be textures or uniforms.
-    enum Channels
-    {
-        Color = 0,
-        Opacity,
-
-        Normal,
-        Bump,
-        Specular,
-
-        Special1,
-        Special2,
-        Special3,
-        Special4,
-        Special5,
-        Special6,
-
-        NUMB_CHANNELS,
-    };
-    //Data for a channel, calculated by texture lookup.
-    struct TextureChannelData
-    {
-    public:
-        Channels Channel;
-        ChannelsIn InChannel;
-
-        TexturePtr Value;
-        Vector2f Offset, Scale, PanVelocity;
-        TextureChannelData(Channels channel, TexturePtr value, ChannelsIn inChannel, Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f panVelocity = Vector2f(0.0f, 0.0f))
-            : Channel(channel), InChannel(inChannel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity) { }
-    };
-    //Data for a channel, calculated by a constant float uniform.
-    struct FloatChannelData
-    {
-    public:
-        Channels Channel;
-        float Values[4];
-        int NumbValues;
-        FloatChannelData(Channels channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
-        FloatChannelData(Channels channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
-        FloatChannelData(Channels channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
-        FloatChannelData(Channels channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
-        FloatChannelData(Channels channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
-    };
-    //Data for a channel, calculated by a constant float uniform.
-    struct IntChannelData
-    {
-    public:
-        Channels Channel;
-        int Values[4];
-        int NumbValues;
-        IntChannelData(Channels channel, int value) : Channel(channel), NumbValues(1) { Values[0] = value; }
-        IntChannelData(Channels channel, Vector2i value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
-        IntChannelData(Channels channel, Vector3i value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
-        IntChannelData(Channels channel, Vector4i value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
-        IntChannelData(Channels channel, int * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
-    };
-
-    bool IsChannelEnabled(Channels channel) { return channelsEnabled[(int)channel]; }
-    bool IsChannelTexture(Channels channel) {  }
 
 
 
@@ -408,10 +313,6 @@ private:
         RenderDataHandler::SetMatrixValue(uniforms[programIndex][uniform], data);
         return true;
     }
-
-
-    //Indexed by channel.
-    bool channelsEnabled[(int)Channels::NUMB_CHANNELS];
 
 
     //The following vectors are indexed by rendering pass.

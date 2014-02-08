@@ -460,6 +460,9 @@
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\RenderingModes.h">
+      <Filter>Rendering\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
