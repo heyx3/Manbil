@@ -1,6 +1,9 @@
 #pragma once
 
+#include <assert.h>
 
+
+//Different kinds of materials.
 enum RenderingModes
 {
     RM_Opaque,
@@ -8,42 +11,63 @@ enum RenderingModes
     RM_Additive,
 };
 
-enum OpaqueRenderingChannels
+
+//Data about how a material handles light.
+//It will not use ambient occlusion if "IsLit" is false.
+struct LightSettings
 {
-    ORC_Diffuse,
-    ORC_DiffuseIntensity,
-    ORC_Specular,
-    ORC_SpecularIntensity,
-
-    ORC_Normal,
-
-    ORC_NumbChannels,
+public:
+    bool UseAmbientOcclusion;
+    LightSettings(bool useAO) : UseAmbientOcclusion(useAO) { }
 };
-enum TranslucentRenderingChannels
+
+
+//Different kinds of data fundamental to the look of a material.
+//Different channels will not be used depending on rendering mode and light settings.
+//Each channel may be computed through a constant uniform, a texture lookup, or an expression/function call.
+enum RenderingChannels
 {
-    TRC_Diffuse,
-    TRC_DiffuseIntensity,
-    TRC_Specular,
-    TRC_SpecularIntensity,
+    RC_ObjectVertexOffset,
+    RC_WorldVertexOffset,
 
-    TRC_Opacity,
-    TRC_Distortion,
+    RC_Diffuse,
+    RC_DiffuseIntensity,
 
-    TRC_Normal,
+    RC_Specular,
+    RC_SpecularIntensity,
 
-    TRC_NumbChannels,
+    RC_Normal,
+
+    RC_Opacity,
+    RC_Distortion,
+
+    RC_NumbChannels,
 };
-enum AdditiveRenderingChannels
+
+//Gets whether the given channel is used in the given rendering mode with the given material light settings.
+bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit)
 {
-    ARC_Diffuse,
-    ARC_DiffuseIntensity,
-    ARC_Specular,
-    ARC_SpecularIntensity,
+    typedef RenderingChannels RCs;
 
-    TRC_Opacity,
-    TRC_Distortion,
+    if (channel == RCs::RC_NumbChannels) return false;
 
-    ARC_Normal,
+    if (!isLit)
+    {
+        if (channel == RCs::RC_Specular || channel == RCs::RC_SpecularIntensity || channel == RCs::RC_Normal)
+            return false;
+    }
 
-    ARC_NumbChannels,
-};
+    switch (mode)
+    {
+    case RenderingModes::RM_Opaque:
+        return (channel == RenderingChannels::RC_Opacity || channel == RenderingChannels::RC_Distortion);
+
+    case RenderingModes::RM_Transluscent:
+        return true;
+
+    case RenderingModes::RM_Additive:
+        return true;
+
+    default: assert(false);
+    }
+}

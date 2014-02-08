@@ -6,91 +6,69 @@
 #include "RenderInfo.h"
 #include "RenderDataHandler.h"
 #include "ShaderHandler.h"
-#include "RenderingState.h"
 #include "Vertex.h"
 #include "Rendering/Materials/RenderingModes.h"
+#include "Rendering/Materials/MaterialData.h"
 #include "Rendering/Texture Management/TextureChannels.h"
+#include "RenderTarget.h"
+
 
 class Mesh;
 typedef std::shared_ptr<sf::Texture> TexturePtr;
 
 
+
 /*TODO: Time to rewrite the material system again!
-    When dealing with channels, use "TextureChannelData", " and "ConstChannelData". Otherwise, use regular uniforms.
-    Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! Each pass should have a clear, global purpose as well -- http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
-    Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have more complext inputs.
-    Refer to the "Rendering Hierarchy" document to see how rendering should be organized.
-    NOTE: For now, don't bother trying to work with the transparent render modes.
+    Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
+    Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have a wider array of inputs.
+    NOTE: For now, don't bother trying to work with/sort the transparent materials.
 */
 
-//Constants/information used for the Material system.
-struct MaterialConstants
-{
-public:
-    static RenderingState GetRenderingState(RenderingModes mode);
-};
-
-//The different rendering passes.
-enum RenderPasses
-{
-    //Render normals, depth, diffuse, etc. -- basic data, multiple render targets.
-    BaseComponents,
-    //Render basic lighting, along with ambient occlusion -- two render targets.
-    CombineComponents,
-    //Apply ambient occlusion.
-    ApplyOcclusion,
-};
-
-
-//Represents the combiniation of a vertex shader and a fragment shader.
-struct RenderingPass
-{
-    std::string VertexShader, FragmentShader;
-    RenderingPass(std::string vs, std::string fs) : VertexShader(vs), FragmentShader(fs) { }
-};
-
-
-template<typename ChannelEnum>
-//Data for a channel, calculated by texture lookup.
-struct TextureChannelData
-{
-public:
-    ChannelEnum Channel;
-    
-    TexturePtr Value;
-    Vector2f Offset, Scale, PanVelocity;
-    TextureChannelData(ChannelEnum channel, TexturePtr value,
-                       Vector2f offset = Vector2f(), Vector2f scale = Vector2f(1.0f, 1.0f),
-                       Vector2f panVelocity = Vector2f(0.0f, 0.0f))
-        : Channel(channel), Value(value), Offset(offset), Scale(scale), PanVelocity(panVelocity)
-    { }
-};
-template<typename ChannelEnum>
-//Data for a channel, calculated by a constant float uniform.
-struct FloatChannelData
-{
-public:
-    ChannelEnum Channel;
-    float Values[4];
-    int NumbValues;
-    FloatChannelData(ChannelEnum channel, float value) : Channel(channel), NumbValues(1) { Values[0] = value; }
-    FloatChannelData(ChannelEnum channel, Vector2f value) : Channel(channel), NumbValues(2) { Values[0] = value.x; Values[1] = value.y; }
-    FloatChannelData(ChannelEnum channel, Vector3f value) : Channel(channel), NumbValues(3) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; }
-    FloatChannelData(ChannelEnum channel, Vector4f value) : Channel(channel), NumbValues(4) { Values[0] = value.x; Values[1] = value.y; Values[2] = value.z; Values[3] = value.w; }
-    FloatChannelData(ChannelEnum channel, float * vals, int nValues) : Channel(channel), NumbValues(nValues) { for (int i = 0; i < NumbValues; ++i) Values[i] = vals[i]; }
-};
-
+//Represents some kind of surface to be drawn on.
 class Mat
 {
 public:
 
-    RenderingMode GetMode(void) const { return mode; }
+    typedef std::unordered_map<RenderingChannels, std::shared_ptr<ComputedChannelData>> ComputedChannels;
+    typedef std::unordered_map<RenderingChannels, std::shared_ptr<TextureChannelData>> TextureChannels;
+    typedef std::unordered_map<RenderingChannels, std::shared_ptr<UniformChannelData>> UniformChannels;
+
+
+    ComputedChannels ComputeChannels;
+    TextureChannels TextureChannels;
+    UniformChannels UniformChannels;
+
+
+    Mat(const ComputedChannels & computeChannels, const TextureChannels & texChannels, const UniformChannels & uniformChannels,
+        RenderingModes mode, bool isLit, LightSettings lightSettings);
+
+
+    RenderingModes GetMode(void) const { return mode; }
+    bool GetIsLit(void) const { return isLit; }
+    const LightSettings & GetLightSettings(void) const { return lightSettings; }
+
+    const std::vector<std::string> & GetUniforms(RenderPasses pass) const;
+
+
+    void Render(RenderPasses pass, RenderTarget * renderTargets, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
 
 
 private:
 
-    RenderingMode mode;
+    std::unordered_map<std::string, UniformLocation> uniforms[(int)RenderPasses::Numb_Passes];
+
+    void RenderBaseComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    void RenderCombineComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    void RenderApplyOcclusion(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+
+
+    bool isLit;
+    LightSettings lightSettings;
+    RenderingModes mode;
 };
+
+
+
 
 
 //Represents a vertex shader and multiple fragment shaders.
@@ -98,8 +76,6 @@ private:
 class Material
 {
 public:
-
-
 
     //The names of the different uniforms.
     //TODO: Define.

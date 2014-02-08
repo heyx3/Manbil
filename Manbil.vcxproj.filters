@@ -463,6 +463,12 @@
     <ClInclude Include="Rendering\Materials\RenderingModes.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\MaterialData.h">
+      <Filter>Rendering\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\RenderTargetPool.h">
+      <Filter>Rendering\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
