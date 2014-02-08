@@ -21,7 +21,7 @@ public:
 
 
     bool HasError(void) const { return !errorMsg.empty() || renderTarget->HasError() || material.HasError(); }
-    const std::string & GetErrorMessage(void) const;
+    std::string GetErrorMessage(void) const;
     void ClearErrorMessage(void) { errorMsg.clear(); material.SetErrorMessage(""); renderTarget->ClearErrorMessage(); }
     
     bool UsesColorTexture(void) const { return usesCol; }

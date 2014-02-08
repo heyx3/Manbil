@@ -18,7 +18,7 @@ namespace TwoDOpenGLTestStuff
 }
 using namespace TwoDOpenGLTestStuff;
 
-
+sf::Font font;
 
 TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
@@ -31,6 +31,14 @@ TwoDOpenGLTest::TwoDOpenGLTest(void)
 void TwoDOpenGLTest::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
+
+    if (!font.loadFromFile("Content/Fonts/Candara.ttf"))
+    {
+        std::cout << "Error loading 'Candara.ttf'\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 
     GetWindow()->setVerticalSyncEnabled(true);
     GetWindow()->setMouseCursorVisible(true);
@@ -47,20 +55,21 @@ void TwoDOpenGLTest::InitializeWorld(void)
     RenderingState(true, true, true).EnableState();
 
     sf::Image background, foreground;
-    if (!background.loadFromFile("Water.png"))
+    if (!background.loadFromFile("Content/Textures/Water.png"))
     {
         std::cout << "Error loading 'Water.png'\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!foreground.loadFromFile("shrub.png"))
+    if (!foreground.loadFromFile("Content/Textures/shrub.png"))
     {
         std::cout << "Error loading 'shrub.png'\n";
         Pause();
         EndWorld();
         return;
     }
+
 
     TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false);
     RenderObjHandle foreTex, backTex;
@@ -69,6 +78,9 @@ void TwoDOpenGLTest::InitializeWorld(void)
     setts.SetData(foreTex);
     RenderDataHandler::CreateTexture2D(backTex, background);
     setts.SetData(backTex);
+
+    const sf::Texture & fontTex = font.getTexture(20);
+    sf::Glyph glyph = font.getGlyph()
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
@@ -147,7 +159,7 @@ void TwoDOpenGLTest::CleanUp(void)
 
 void TwoDOpenGLTest::UpdateWorld(float elapsedSeconds)
 {
-    foreQuad->SetSize(Vector2f(3.0, 1.0f * sinf(GetTotalElapsedSeconds())));
+    foreQuad->SetSize(Vector2f(1.0f, 1.0f));
 
     if (Input.GetBoolInputValue(1))
     {

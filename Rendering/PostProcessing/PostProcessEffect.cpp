@@ -51,7 +51,7 @@ PostProcessEffect::PostProcessEffect(unsigned int w, unsigned int h, std::vector
     }
 }
 
-const std::string & PostProcessEffect::GetErrorMessage(void) const
+std::string PostProcessEffect::GetErrorMessage(void) const
 {
     if (errorMsg.empty())
         if (!material.HasError())

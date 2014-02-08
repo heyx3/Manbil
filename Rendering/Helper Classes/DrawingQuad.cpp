@@ -17,7 +17,7 @@ VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
 
 
 DrawingQuad::DrawingQuad(void)
-    : quad(PrimitiveTypes::Triangles)
+    : quad(PrimitiveTypes::Triangles), origin(0.0f, 0.0f)
 {
     //Set up the vertices if they haven't been already.
     if (vid.GetVerticesCount() < 0)
@@ -34,7 +34,7 @@ DrawingQuad::DrawingQuad(void)
     meshes.insert(meshes.end(), &quad);
 }
 DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
-    : quad(PrimitiveTypes::Triangles)
+    : quad(PrimitiveTypes::Triangles), origin(cpy.origin)
 {
     quad = cpy.quad;
     meshes.insert(meshes.end(), &quad);

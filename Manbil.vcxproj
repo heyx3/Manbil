@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\SFGUI-0.1.1-win-x86-vc11\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -129,6 +129,7 @@
     <ClCompile Include="OpenGLIncludes.cpp" />
     <ClCompile Include="OpenGLTestWorld.cpp" />
     <ClCompile Include="RenderingState.cpp" />
+    <ClCompile Include="Rendering\GUI\TextManager.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
@@ -214,10 +215,12 @@
     <ClInclude Include="RenderingState.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />
+    <ClInclude Include="Rendering\GUI\TextManager.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
+    <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />

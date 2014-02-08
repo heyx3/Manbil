@@ -194,6 +194,9 @@
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
       <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\TextManager.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -450,6 +453,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
       <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\TextManager.h">
+      <Filter>Rendering\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureChannels.h">
+      <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

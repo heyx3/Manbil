@@ -48,7 +48,6 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 		{
 			loc.y = y;
 
-			int hash = fr.GetRandInt();
 			gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
 		}
 	}

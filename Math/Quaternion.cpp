@@ -70,16 +70,6 @@ Quaternion Quaternion::Normalized(void) const
 
 Quaternion Quaternion::Multiply(const Quaternion & l, const Quaternion & r)
 {
-	Quaternion q = l;
-
-	const float w3 = (r.w * q.w) - (r.x * q.x) - (r.y * q.y) - (r.z * q.z),
-				x3 = (r.w * q.x) + (r.x * q.w) + (r.y * q.z) - (r.z * q.y),
-				y3 = (r.w * q.y) + (r.y * q.w) + (r.z * q.x) - (r.x * q.z),
-				z3 = (r.w * q.z) + (r.z * q.w) + (r.x * q.y) - (r.y * q.x);
-
-	if (false)
-	return Quaternion(x3, y3, z3, w3);
-
 	const float w2 = (l.w * r.w) - (l.x * r.x) - (l.y * r.y) - (l.z * r.z),
 				x2 = (l.x * r.w) + (l.w * r.x) + (l.y * r.z) - (l.z * r.y),
 				y2 = (l.y * r.w) + (l.w * r.y) + (l.z * r.x) - (l.x * r.z),

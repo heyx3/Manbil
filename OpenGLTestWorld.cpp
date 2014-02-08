@@ -165,7 +165,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     sf::Image img, shrubImg, waterImg, normalMapImg;
 
     //Grass texture.
-    if (!img.loadFromFile("Grass.png"))
+    if (!img.loadFromFile("Content/Textures/Grass.png"))
     {
         std::cout << "Failed to load grass texture.\n";
         Pause();
@@ -182,7 +182,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
 
     //Shrub texture.
-    if (!shrubImg.loadFromFile("shrub.png"))
+    if (!shrubImg.loadFromFile("Content/Textures/shrub.png"))
     {
         std::cout << "Failed to load shrub texture.\n";
         Pause();
@@ -199,7 +199,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
 
     //Water color texture.
-    if (!waterImg.loadFromFile("Water.png"))
+    if (!waterImg.loadFromFile("Content/Textures/Water.png"))
     {
         std::cout << "Failed to load water texture.\n";
         Pause();
@@ -218,7 +218,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     //Water normal map texture.
     if (false)
     {
-        if (!normalMapImg.loadFromFile("Normalmap.png"))
+        if (!normalMapImg.loadFromFile("Content/Textures/Normalmap.png"))
         {
             std::cout << "Failed to load normal map texture.\n";
             Pause();
