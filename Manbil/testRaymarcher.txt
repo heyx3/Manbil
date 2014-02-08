@@ -1,0 +1,171 @@
+struct Ray { vec3 pos, dir; };
+
+Ray getPixelRay(vec2 uv)
+{
+	Ray returnVal;
+
+	//Get the camera position and orientation.
+	vec3 camPos = vec3(0.0, 15.0, 0.0);
+	vec3 camForward = normalize(vec3(cos(u_elapsed_seconds),
+									 -0.5,
+									 sin(u_elapsed_seconds)));
+	vec3 camUpward = vec3(0.0, 1.0, 0.0);
+	vec3 camSideways = normalize(cross(camForward, camUpward));
+
+	//Fix the upward vector to be exactly perpendicular to the forward vector.
+	camUpward = normalize(cross(camForward, camSideways));
+
+	//Make sure it is pointing upwards and not downwards.
+	camUpward *= sign(camUpward.y);
+
+
+	//Map the screen coordinates from the range (0, 0):(1, 1) to (-1, -1):(1, 1).
+	uv = (2.0 * uv) - vec2(1.0, 1.0);
+
+
+	//Get the pixel position.
+	const float viewScale = 0.8;
+	returnVal.pos = (camPos + camForward) +
+					(viewScale * uv.x * camSideways) +
+					(viewScale * uv.y * camUpward * u_resolution.y / u_resolution.x);
+
+	//Get the pixel ray direction.
+	returnVal.dir = normalize(returnVal.pos - camPos);
+
+
+	return returnVal;
+}
+
+
+
+
+float rnd(float n)
+{
+    return fract(sin(n * 43758.5453123));
+}
+
+const float terrainHeight = 10.0;
+float getTerrainHeight(vec2 terrainPos)
+{
+	terrainPos *= 0.1;
+
+	vec2 x = terrainPos;
+	vec2 p = floor(x);
+    vec2 f = fract(x);
+
+    f = smoothstep(0.0, 1.0, f);
+
+    float n = p.x + p.y*57.0;
+
+    float res = mix(mix(rnd(n + 0.0),  rnd(n + 1.0), f.x),
+                    mix(rnd(n + 57.0), rnd(n+ 58.0), f.x),
+					f.y);
+					 
+    return max(terrainHeight * 0.23, terrainHeight * res);
+}
+
+
+
+vec3 getNormal(vec3 terrainPos)
+{
+	//Smaller values yield a more accurate normal, but may introduce floating-point error.
+	const float increment = 0.01;
+
+	//Get the terrain position a little bit ahead along the x axis and along the z axis.
+	vec3 sampleX = terrainPos + vec3(increment, 0.0, 0.0),
+		 sampleZ = terrainPos + vec3(0.0, 0.0, increment);
+	sampleX.y = getTerrainHeight(sampleX.xz);
+	sampleZ.y = getTerrainHeight(sampleZ.xz);
+
+	//Cross the vectors going from the given position to the two samples to get an approximate normal vector.
+	vec3 ret = normalize(cross(sampleX - terrainPos, sampleZ - terrainPos));
+
+	return ret;
+}
+
+
+
+vec3 lightDir = normalize(vec3(1.0f, 1.0f, 1.0f));
+float ambientStrength = 0.4,
+      diffuseStrength = 0.6;
+
+float getBrightness(vec3 surfaceNormal)
+{
+	float diffuseScale = max(0.0, dot(surfaceNormal, -lightDir));
+
+	return ambientStrength + (diffuseScale * diffuseStrength);
+}
+
+
+//"heightLerp" sould be in the range (0 : 1).
+vec3 getBaseTerrainCol(float heightLerp)
+{
+	if (heightLerp <= 0.25) return vec3(0.05, .6, 0.05);
+	if (heightLerp <= 0.75) return vec3(0.4, 0.2, 0.0);
+	return vec3(1.0, 1.0, 1.0);
+}
+
+
+
+int maxIterations = 2000;
+float distanceStep = 0.05,
+      halfStep = distanceStep * 0.5;
+float maxDistance = maxIterations * distanceStep;
+
+float getFogLerp(float distanceRatio)
+{
+	//This would be a linear fog dropoff.
+	//return distanceRatio;
+
+	//This would be an expotential fog dropoff.
+	return pow(distanceRatio, 1.5);
+}
+
+
+vec3 backgroundCol = vec3(0.5, 0.5, 1.0);
+
+vec3 getTerrainColor(vec3 pos, float distanceRatio)
+{
+	float light = getBrightness(getNormal(pos));
+	vec3 col = mix(light * getBaseTerrainCol(pos.y / terrainHeight),
+				   backgroundCol,
+				   getFogLerp(distanceRatio));
+
+	return col;
+}
+
+vec3 doRaymarch(Ray ray)
+{
+	float totalDist = distanceStep;
+	vec3 currentPos;
+	float terrHeight;
+
+	for (int i = 0; i < maxIterations; ++i)
+	{
+		currentPos = ray.pos + (totalDist * ray.dir);
+		terrHeight = getTerrainHeight(currentPos.xz);
+
+		if (currentPos.y < terrHeight)
+		{
+			//The real intersection is somewhere between the previous position
+			//and the current position. Use the midpoint between the two.
+			currentPos = ray.pos + ((totalDist - halfStep) * ray.dir);
+			currentPos.y = getTerrainHeight(currentPos.xz);
+			
+			return getTerrainColor(currentPos, totalDist / maxDistance);
+		}
+
+		totalDist += distanceStep;
+	}
+
+	//If no terrain was hit, return a sky color.
+	return backgroundCol;
+}
+
+
+
+void main()
+{
+	Ray ray = getPixelRay(in_uv_coords);
+	out_color4 = vec4(doRaymarch(ray), 1.0);
+}

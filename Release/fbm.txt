@@ -1,0 +1,107 @@
+//2D Fractional Brownian Noise generator.
+//The generated image varies with time. This is done by using elapsed time as a seed value for the RNG.
+
+
+
+
+//------------------------------------------------------------------
+//--------------------------Noise Generation---------------------------
+//-----------------------------------------------------------------
+
+//Generates a pseudo-random float based on a seed vector.
+float rand3(vec3 seed)
+{
+	return fract(sin(dot(seed, vec3(1.051, 16512.9865, -15363.23))) * 458.5453);
+}
+
+//Generates 3d coherent noise.
+float fbm3d(vec3 loc, float scale)
+{
+	vec3 bottomLeftBack = floor(loc / scale) * scale,
+		 topRightFront = bottomLeftBack + vec3(scale, scale, scale),
+		 bottomLeftFront = vec3(bottomLeftBack.x, bottomLeftBack.y, topRightFront.z),
+		 bottomRightBack = vec3(topRightFront.x, bottomLeftBack.y, bottomLeftBack.z),
+		 bottomRightFront = vec3(topRightFront.x, bottomLeftBack.y, topRightFront.z),
+		 topLeftBack = vec3(bottomLeftBack.x, topRightFront.y, bottomLeftBack.z),
+		 topLeftFront = vec3(bottomLeftBack.x, topRightFront.y, topRightFront.z),
+		 topRightBack = vec3(topRightFront.x, topRightFront.y, bottomLeftBack.z);
+
+	float bottomLeftBackN = rand3(bottomLeftBack),
+	      bottomLeftFrontN = rand3(bottomLeftFront),
+		  bottomRightBackN = rand3(bottomRightBack),
+		  bottomRightFrontN = rand3(bottomRightFront),
+		  topLeftBackN = rand3(topLeftBack),
+		  topLeftFrontN = rand3(topLeftFront),
+		  topRightBackN = rand3(topRightBack),
+		  topRightFrontN = rand3(topRightFront);
+
+
+	//Get the value by getting the weighted average of the noise at each corner.
+
+	//Skewing the interpolants away from the center makes the final result less grid-like.
+	vec3 lerpComponents = smoothstep(0.0, 1.0, (loc - bottomLeftBack) / scale);
+
+	//Get the average along the x values.
+	float averageAlongBottomBack = mix(bottomLeftBackN, bottomRightBackN, lerpComponents.x),
+		  averageAlongBottomFront = mix(bottomLeftFrontN, bottomRightFrontN, lerpComponents.x),
+		  averageAlongTopBack = mix(topLeftBackN, topRightBackN, lerpComponents.x),
+		  averageAlongTopFront = mix(topLeftFrontN, topRightFrontN, lerpComponents.x),
+
+		  averageAlongBack = mix(averageAlongBottomBack, averageAlongTopBack, lerpComponents.y),
+		  averageAlongFront = mix(averageAlongBottomFront, averageAlongTopFront, lerpComponents.y),
+
+		  finalAverage = mix(averageAlongBack, averageAlongFront, lerpComponents.z);
+
+	return finalAverage;
+}
+
+
+
+const int intervals = 8;
+const float startingSize = 500.0,
+			startingWeight = 0.5,
+			startingTimeWeight = 0.55;
+const float weightCounterScale = 0.5,
+			sizeCounterScale = 0.5,
+			timeWeightCounterScale = 0.75;
+
+//Generates coherent noise consisting of multiple layers of fbm3d().
+float layeredFBMNoise(vec2 loc)
+{
+	float noise = 0.0,
+		  sizeCounter = startingSize,
+		  weightCounter = startingWeight,
+		  timeWeightCounter = startingTimeWeight;
+
+	vec3 loc3 = vec3(loc.x, loc.y, 90.0 * u_elapsed_seconds);
+
+	for (int i = 0; i < intervals; ++i)
+	{
+		noise += weightCounter * fbm3d(loc3, sizeCounter);
+
+		weightCounter *= weightCounterScale;
+		sizeCounter *= sizeCounterScale;
+		timeWeightCounter *= timeWeightCounterScale;
+	}
+
+	return noise;
+}
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------
+//--------------------------Entry point---------------------------
+//-----------------------------------------------------------------
+
+void main(void)
+{
+	float noise = layeredFBMNoise(in_uv_coords * u_resolution);
+
+	out_color4 = vec4(noise, noise, noise, 1.0);
+}

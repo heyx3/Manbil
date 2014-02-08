@@ -1,0 +1,21 @@
+//Gets a pseudo-random value using the given seed.
+float rand(vec2 seed)
+{
+	return texture2D(u_sampler_0, seed);
+}
+
+//Creates a new position using the original position and elapsed time.
+vec2 randomDisplacement(vec2 start)
+{
+	return start +
+		   vec2(rand(start) * u_elapsed_seconds,
+				rand(start + vec2(0.642, 0.264)) * u_elapsed_seconds);
+}
+
+void main()
+{
+	float noise = texture2D(u_sampler_0, randomDisplacement(in_uv_coords));
+	noise *= 0.12;
+	out_color4 = texture2D(u_sampler_1, in_uv_coords) +
+				 noise;
+}
