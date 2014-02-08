@@ -197,6 +197,9 @@
     <ClCompile Include="Rendering\GUI\TextManager.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp">
+      <Filter>Rendering\Materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
