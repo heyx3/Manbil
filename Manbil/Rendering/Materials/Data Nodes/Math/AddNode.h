@@ -12,12 +12,20 @@
     Output lines:
     0: Vector, same size as input
 */
-class AddDataNode : public DataNode
+class AddNode : public DataNode
 {
 public:
 
-    AddDataNode(DataLine toAdd)
-        : DataNode()
+    virtual std::string GetName(void) override { return "addition DataNode"; }
+
+    AddNode(DataLine toAdd)
+        : DataNode(MakeVector(toAdd), MakeVector(toAdd.GetDataLineSize()))
+    {
+
+    }
+
+
+    virtual std::string WriteMyOutputConnections(std::string * inputNames, std::string * outputNames) const override;
 
 
 private:

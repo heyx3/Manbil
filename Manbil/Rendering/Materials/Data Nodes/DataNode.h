@@ -3,6 +3,7 @@
 #include <vector>
 #include <assert.h>
 #include <memory>
+#include "../../../Math/Vectors.h"
 
 
 class DataNode;
@@ -44,6 +45,8 @@ public:
     //Assumes both vectors are the same size. Divides this Vector's components by the other's components.
     Vector operator/(const Vector & other) const;
 
+    std::string GetGLSLType(void) const;
+
 private:
 
     unsigned int size;
@@ -58,7 +61,7 @@ struct DataLine
 public:
 
     //This data line either feeds in a constant input, or gets the input value from a DataNode's output.
-    bool GetIsConstant(void) { return isConstantValue; }
+    bool IsConstant(void) const { return isConstantValue; }
 
     //Gets the number of floats in this data line.
     unsigned int GetDataLineSize(void) const { return (isConstantValue ? constantValue.GetSize() : nonConstantValue->GetOutputs()[nonConstantValueIndex]); }
@@ -114,7 +117,10 @@ public:
     //Gets any GLSL helper function declarations this node needs to use.
     virtual void GetFunctionDeclarations(std::vector<std::string> & outDecls) { }
     //The bit of code that will actually compute the outputs given the inputs.
-    virtual std::string WriteOutputConnections(std::string * inputNames, std::string * outputNames) = 0;
+    std::string WriteOutputConnections(std::string * inputNames, std::string * outputNames) const
+    {
+        //TODO: FInish
+    }
 
 
     //Gets this node's input lines.
@@ -125,13 +131,16 @@ public:
 
 protected:
 
-    std::vector<DataLine> MakeVector(const DataLine & dat);
-    std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2);
-    std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3);
+    static std::vector<DataLine> MakeVector(const DataLine & dat);
+    static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2);
+    static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3);
 
-    std::vector<unsigned int> MakeVector(unsigned int dat);
-    std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2);
-    std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3);
+    static std::vector<unsigned int> MakeVector(unsigned int dat);
+    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2);
+    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3);
+
+
+    virtual std::string WriteMyOutputConnections(std::string * inputNames, std::string * outputNames) const = 0;
 
 
 private:

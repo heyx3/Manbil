@@ -203,6 +203,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

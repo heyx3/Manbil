@@ -132,6 +132,7 @@
     <ClCompile Include="Rendering\GUI\TextManager.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
     <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
