@@ -25,12 +25,10 @@ public:
     }
 
 
-    virtual std::string WriteMyOutputConnections(std::string * inputNames, std::string * outputNames) const override;
+    virtual std::string WriteMyOutputConnection(unsigned int dataLine, std::string inputName, std::string outputName) const override;
 
 
 private:
-
-    unsigned int lines;
 
     bool addsConstant;
     float addConstant[4];
