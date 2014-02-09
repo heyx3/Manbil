@@ -18,10 +18,11 @@ typedef std::shared_ptr<sf::Texture> TexturePtr;
 
 
 
-/*TODO: Time to rewrite the material system again!
+/*TODO: Finish rewriting.
     Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
     Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have a wider array of inputs.
-    NOTE: For now, don't bother trying to work with/sort the transparent materials.
+    For now, don't bother trying to work with/sort the transparent materials.
+    Change this data node system so that each node isn't an expression but a statement. Use a graph-wide dictionary for variables.
 */
 
 //Represents some kind of surface to be drawn on.

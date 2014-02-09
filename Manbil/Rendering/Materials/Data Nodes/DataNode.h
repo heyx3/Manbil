@@ -4,93 +4,7 @@
 #include <assert.h>
 #include <memory>
 #include "../../../Math/Vectors.h"
-
-
-class DataNode;
-typedef std::shared_ptr<DataNode> DataNodePtr;
-
-
-//Represents a collection of 1-4 floats.
-//If a Vector has 0 floats, it is considered invalid.
-struct Vector
-{
-public:
-
-    //Gets the number of floats this Vector has.
-    unsigned int GetSize(void) const { return size; }
-    //The floats representing this Vector.
-    const float * GetValue(void) const { return values; }
-
-    void SetValue(float newVal)    { size = 1; values[0] = newVal; }
-    void SetValue(Vector2f newVal) { size = 2; values[0] = newVal.x; values[1] = newVal.y; }
-    void SetValue(Vector3f newVal) { size = 3; values[0] = newVal.x; values[1] = newVal.y; values[2] = newVal.z; }
-    void SetValue(Vector4f newVal) { size = 4; values[0] = newVal.x; values[1] = newVal.y; values[2] = newVal.z; values[3] = newVal.w; }
-    //Marks this Vector as invalid.
-    void SetValue(void) { size = 0; }
-
-    Vector(void) : size(0) { values[0] = 0.0f; values[1] = 0.0f; values[2] = 0.0f; values[3] = 0.0f; }
-    Vector(float value) { SetValue(value); }
-    Vector(Vector2f value) { SetValue(value); }
-    Vector(Vector3f value) { SetValue(value); }
-    Vector(Vector4f value) { SetValue(value); }
-    Vector(unsigned int _size, float defaultValue = 0.0f) : size(_size) { for (unsigned int i = 0; i < size; ++i) values[i] = defaultValue; }
-    Vector(const Vector & cpy) : size(cpy.size) { for (unsigned int i = 0; i < size; ++i) values[i] = cpy.values[i]; }
-
-    //Assumes both vectors are the same size. Adds their components together.
-    Vector operator+(const Vector & other) const;
-    //Assumes both vectors are the same size. Subtracts the other's components from this one's components.
-    Vector operator-(const Vector & other) const;
-    //Assumes both vectors are the same size. Multiplies components together.
-    Vector operator*(const Vector & other) const;
-    //Assumes both vectors are the same size. Divides this Vector's components by the other's components.
-    Vector operator/(const Vector & other) const;
-
-    std::string GetGLSLType(void) const;
-
-private:
-
-    unsigned int size;
-    float values[4];
-};
-
-
-
-//Represents an input into a DataNode.
-struct DataLine
-{
-public:
-
-    //This data line either feeds in a constant input, or gets the input value from a DataNode's output.
-    bool IsConstant(void) const { return isConstantValue; }
-
-    //Gets the number of floats in this data line.
-    unsigned int GetDataLineSize(void) const { return (isConstantValue ? constantValue.GetSize() : nonConstantValue->GetOutputs()[nonConstantValueIndex]); }
-
-    //This function is only valid if this DataLine has a constant input value.
-    Vector GetConstantValue(void) const { assert(isConstantValue); return constantValue; }
-    //This function is only valid if this DataLine has a DataNode input value.
-    DataNodePtr GetDataNodeValue(void) const { assert(!isConstantValue); return nonConstantValue; }
-
-    //Assuming this data line has a DataNode input value, gets the index of the DataNode input's data line.
-    unsigned int GetDataNodeLineIndex(void) const { assert(!isConstantValue); return nonConstantValueIndex; }
-
-
-    //Creates a DataLine that gets its input value from a DataNode.
-    DataLine(DataNodePtr input, unsigned int outputLineIndex)
-        : isConstantValue(false), nonConstantValue(input), nonConstantValueIndex(outputLineIndex) { }
-    //Creates a DataLine with a constant input value.
-    DataLine(const Vector & constantInput) : isConstantValue(true), constantValue(constantInput) { }
-
-
-private:
-
-    bool isConstantValue;
-
-    Vector constantValue;
-
-    DataNodePtr nonConstantValue;
-    unsigned int nonConstantValueIndex;
-};
+#include "DataLine.h"
 
 
 
@@ -99,6 +13,8 @@ private:
 class DataNode
 {
 public:
+
+    typedef std::shared_ptr<DataNode> DataNodePtr;
 
     //Gets the identifier unique for this dataNode.
     unsigned int GetUniqueID(void) const { return id; }
@@ -119,7 +35,14 @@ public:
     //The bit of code that will actually compute the outputs given the inputs.
     std::string WriteOutputConnections(std::string * inputNames, std::string * outputNames) const
     {
-        //TODO: FInish
+        std::string finalStr = "";
+
+        for (int i = 0; i < inputs.size(); ++i)
+        {
+            //Get the input names for the child node.
+        }
+
+        finalStr.append(WriteMyOutputConnections(inputNames, outputNames));
     }
 
 

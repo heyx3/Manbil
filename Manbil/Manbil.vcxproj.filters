@@ -206,6 +206,12 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -488,6 +494,12 @@
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\ParamNode.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
   </ItemGroup>

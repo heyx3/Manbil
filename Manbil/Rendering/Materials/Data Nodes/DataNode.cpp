@@ -1,18 +1,5 @@
 #include "DataNode.h"
 
-std::string Vector::GetGLSLType(void) const
-{
-    switch (size)
-    {
-    case 0: return "invalid_type_name";
-    case 1: return "float";
-    case 2: return "vec2";
-    case 3: return "vec3";
-    case 4: return "vec4";
-    default: assert(false);
-    }
-}
-
 
 std::vector<DataLine> DataNode::MakeVector(const DataLine & dat)
 {
