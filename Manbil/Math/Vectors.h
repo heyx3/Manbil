@@ -190,7 +190,7 @@ namespace MyVectors
         }
 
         int Dot(Vector4i other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
-        int AngleBetween(Vector4i other) const { return acos(Dot(other) / (Length() * other.Length())); }
+        int AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
         int Length(void) const { return sqrtf(LengthSquared()); }
         int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }

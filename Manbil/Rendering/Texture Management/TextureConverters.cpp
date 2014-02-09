@@ -8,23 +8,23 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
 {
     switch (channel)
     {
-    case ChannelsIn::Red:
+    case ChannelsIn::CI_Red:
         WriteArray<UByte>(inImg, channelOut, [](sf::Color col) { return col.r; });
         break;
 
-    case ChannelsIn::Green:
+    case ChannelsIn::CI_Green:
         WriteArray<UByte>(inImg, channelOut, [](sf::Color col) { return col.g; });
         break;
 
-    case ChannelsIn::Blue:
+    case ChannelsIn::CI_Blue:
         WriteArray<UByte>(inImg, channelOut, [](sf::Color col) { return col.b; });
         break;
 
-    case ChannelsIn::Alpha:
+    case ChannelsIn::CI_Alpha:
         WriteArray<UByte>(inImg, channelOut, [](sf::Color col) { return col.a; });
         break;
 
-    case ChannelsIn::GrayscaleMax:
+    case ChannelsIn::CI_GrayscaleMax:
         WriteArray<UByte>(inImg, channelOut,
                           [](sf::Color col)
                           {
@@ -32,7 +32,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
                           });
         break;
 
-    case ChannelsIn::GrayscaleMin:
+    case ChannelsIn::CI_GrayscaleMin:
         WriteArray<UByte>(inImg, channelOut,
                           [](sf::Color col)
         {
@@ -40,7 +40,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
         });
         break;
 
-    case ChannelsIn::GrayscaleAverage:
+    case ChannelsIn::CI_GrayscaleAverage:
         WriteArray<UByte>(inImg, channelOut, [](sf::Color col) { return (UByte)((col.r + col.g + col.b) / 3); });
         break;
 
@@ -51,23 +51,23 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
 {
     switch (channel)
     {
-    case ChannelsIn::Red:
+    case ChannelsIn::CI_Red:
         WriteArray<float>(inImg, channelOut, [](sf::Color col) { return ByteToFloatScalar * col.r; });
         break;
 
-    case ChannelsIn::Green:
+    case ChannelsIn::CI_Green:
         WriteArray<float>(inImg, channelOut, [](sf::Color col) { return ByteToFloatScalar * col.g; });
         break;
 
-    case ChannelsIn::Blue:
+    case ChannelsIn::CI_Blue:
         WriteArray<float>(inImg, channelOut, [](sf::Color col) { return ByteToFloatScalar * col.b; });
         break;
 
-    case ChannelsIn::Alpha:
+    case ChannelsIn::CI_Alpha:
         WriteArray<float>(inImg, channelOut, [](sf::Color col) { return ByteToFloatScalar * col.a; });
         break;
 
-    case ChannelsIn::GrayscaleMax:
+    case ChannelsIn::CI_GrayscaleMax:
         WriteArray<float>(inImg, channelOut,
                           [](sf::Color col)
         {
@@ -75,7 +75,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
         });
         break;
 
-    case ChannelsIn::GrayscaleMin:
+    case ChannelsIn::CI_GrayscaleMin:
         WriteArray<float>(inImg, channelOut,
                           [](sf::Color col)
         {
@@ -83,7 +83,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
         });
         break;
 
-    case ChannelsIn::GrayscaleAverage:
+    case ChannelsIn::CI_GrayscaleAverage:
         WriteArray<float>(inImg, channelOut, [](sf::Color col) { return (col.r + col.g + col.b) / 3.0f; });
         break;
 
@@ -97,7 +97,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
 
     switch (channel)
     {
-    case ChannelsOut::Red:
+    case ChannelsOut::CO_Red:
         WriteImg<UByte>(channelIn, outImg, &values,
                         [](void* df, UByte value)
                         {
@@ -106,7 +106,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
                         });
         break;
 
-    case ChannelsOut::Green:
+    case ChannelsOut::CO_Green:
         WriteImg<UByte>(channelIn, outImg, &values,
                         [](void* df, UByte value)
                         {
@@ -115,7 +115,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
                         });
         break;
 
-    case ChannelsOut::Blue:
+    case ChannelsOut::CO_Blue:
         WriteImg<UByte>(channelIn, outImg, &values,
                         [](void* df, UByte value)
                         {
@@ -124,7 +124,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
                         });
         break;
 
-    case ChannelsOut::Alpha:
+    case ChannelsOut::CO_Alpha:
         WriteImg<UByte>(channelIn, outImg, &values,
                         [](void* df, UByte value)
                         {
@@ -133,7 +133,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
                         });
         break;
 
-    case ChannelsOut::AllColorChannels:
+    case ChannelsOut::CO_AllColorChannels:
         WriteImg<UByte>(channelIn, outImg, &defaultAlpha,
                         [](void* df, UByte value)
                         {
@@ -142,7 +142,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
                         });
         break;
 
-    case ChannelsOut::AllChannels:
+    case ChannelsOut::CO_AllChannels:
         WriteImg<UByte>(channelIn, outImg, 0,
                         [](void* df, UByte value)
                         {
@@ -161,7 +161,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
 
     switch (channel)
     {
-    case ChannelsOut::Red:
+    case ChannelsOut::CO_Red:
         WriteImg<float>(channelIn, outImg, &values,
                         [](void* df, float value)
         {
@@ -170,7 +170,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
         });
         break;
 
-    case ChannelsOut::Green:
+    case ChannelsOut::CO_Green:
         WriteImg<float>(channelIn, outImg, &values,
                         [](void* df, float value)
         {
@@ -179,7 +179,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
         });
         break;
 
-    case ChannelsOut::Blue:
+    case ChannelsOut::CO_Blue:
         WriteImg<float>(channelIn, outImg, &values,
                         [](void* df, float value)
         {
@@ -188,7 +188,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
         });
         break;
 
-    case ChannelsOut::Alpha:
+    case ChannelsOut::CO_Alpha:
         WriteImg<float>(channelIn, outImg, &values,
                         [](void* df, float value)
         {
@@ -197,7 +197,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
         });
         break;
 
-    case ChannelsOut::AllColorChannels:
+    case ChannelsOut::CO_AllColorChannels:
         WriteImg<float>(channelIn, outImg, &defaultAlpha,
                         [](void* df, float value)
         {
@@ -207,7 +207,7 @@ void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOu
         });
         break;
 
-    case ChannelsOut::AllChannels:
+    case ChannelsOut::CO_AllChannels:
         WriteImg<float>(channelIn, outImg, 0,
                         [](void* df, float value)
         {

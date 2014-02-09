@@ -79,8 +79,8 @@ void TwoDOpenGLTest::InitializeWorld(void)
     RenderDataHandler::CreateTexture2D(backTex, background);
     setts.SetData(backTex);
 
-    const sf::Texture & fontTex = font.getTexture(20);
-    sf::Glyph glyph = font.getGlyph()
+    //const sf::Texture & fontTex = font.getTexture(20);
+    //sf::Glyph glyph = font.getGlyph()
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())

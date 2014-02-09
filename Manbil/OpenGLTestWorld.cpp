@@ -80,7 +80,7 @@ void GenerateTerrainNoise(Noise2D & outNoise)
 }
 
 
-Water::RippleWaterArgs rippleArgs(Vector3f(), 50.0f, 0.85f, 0.5f, 20.0f);
+Water::RippleWaterArgs rippleArgs(Vector3f(), 100.0f, 40.0f, 10.0f, 5.0f);
 void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
 {
     outHeight.Fill(Vector3f(0.0f, 0.0f, 1.0f));
@@ -116,7 +116,7 @@ void GenerateWaterNormalmap(Fake2DArray<Vector3f> & outHeight)
             return;
         }
 
-        TextureConverters::ToArray(bumpMap, TextureConverters::Channels::Red, heightmap);
+        TextureConverters::ToArray(bumpMap, ChannelsIn::CI_Red, heightmap);
     }
     //Generate with noise.
     else
@@ -552,7 +552,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 
-    if (false)
+    if (true)
     {
         std::vector<const Mesh *> meshes;
         meshes.insert(meshes.begin(), &testMesh);
@@ -565,7 +565,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         }
     }
 	
-    if (false)
+    if (true)
     {
         if (!foliage->Render(info))
         {
