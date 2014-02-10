@@ -3,7 +3,7 @@
 
 //The bit of code that will actually generate the glsl code.
 //Appends the code to the end of "outCode". Takes in a list of all nodes that have already added their code to "outCode".
-void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const
+void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs, Shaders shaderType) const
 {
     //First write out all the child data nodes that haven't been written out yet.
     for (int i = 0; i < inputs.size(); ++i)
@@ -17,14 +17,14 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
             {
                 writtenNodeIDs.insert(writtenNodeIDs.end(), input->id);
 
-                input->WriteOutputs(outCode, writtenNodeIDs);
+                input->WriteOutputs(outCode, writtenNodeIDs, shaderType);
             }
         }
     }
 
     //Now write out this node's code.
     outCode += "//Outputs for " + GetName() + std::to_string(id) + ":\n";
-    WriteMyOutputs(outCode);
+    WriteMyOutputs(outCode, shaderType);
 }
 
 

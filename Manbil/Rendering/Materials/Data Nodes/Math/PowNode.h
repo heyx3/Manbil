@@ -8,6 +8,8 @@ class PowNode : public DataNode
 {
 public:
 
+    virtual std::string GetName(void) const override { return "powNode"; }
+
     const DataLine & GetBaseInput(void) const { return GetInputs()[0]; }
     const DataLine & GetExponentInput(void) const { return GetInputs()[1]; }
 
@@ -17,9 +19,9 @@ public:
         assert(exponent.GetDataLineSize() == 1 || exponent.GetDataLineSize() == base.GetDataLineSize());
     }
 
-    virtual void WriteMyOutputs(std::string & outCode) const override
+    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
     {
-        outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) +
+        outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0, shaderType) +
                                     " = pow(" + GetBaseInput().GetValue() + ", " +
                                                 GetExponentInput().GetValue() + ");\n";
     }

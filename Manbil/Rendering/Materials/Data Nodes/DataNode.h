@@ -5,36 +5,52 @@
 #include <memory>
 #include "../../../Math/Vectors.h"
 #include "DataLine.h"
-
-
-
+#include "../../../ShaderHandler.h"
 
 //Represents a basic, atomic operation in a shader.
+//TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
+//TODO: Error message system instead of asserts.
 class DataNode
 {
 public:
 
+    typedef ShaderHandler::Shaders Shaders;
     typedef std::shared_ptr<DataNode> DataNodePtr;
-
-    //Gets the identifier unique for this dataNode.
-    unsigned int GetUniqueID(void) const { return id; }
-
-    //Gets the name of this data node. MUST BE A VALID GLSL VARIABLE/FUNCTION NAME.
-    virtual std::string GetName(void) const { return "unknownNode"; }
 
 
     DataNode(const std::vector<DataLine> & _inputs, const std::vector<unsigned int> & outputSizes)
         : id(GetNextID()), inputs(_inputs), outputs(outputSizes) { }
     DataNode(const DataNode & cpy); // Intentionally left blank.
 
-    //The bit of code that will actually generate the glsl code.
-    //Appends the code to the end of "outCode". Takes in a list of all nodes that have already added their code to "outCode".
-    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const;
 
-    //Gets any uniforms this node defines.
-    virtual void GetParameterDeclarations(std::vector<std::string> & outDecls) { }
-    //Gets any GLSL helper function declarations this node needs to use.
-    virtual void GetFunctionDeclarations(std::vector<std::string> & outDecls) { }
+    //Adds all parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls".
+    //Includes all child nodes.
+    void GetParameterDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const
+    {
+        for (int i = 0; i < inputs.size(); ++i)
+            if (!inputs[i].IsConstant())
+                inputs[i].GetDataNodeValue()->GetParameterDeclarations(outDecls, shaderType);
+        GetMyParameterDeclarations(outDecls, shaderType);
+    }
+    //Adds all function declarations to "outDecls".
+    //Includes all child nodes.
+    void GetFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const
+    {
+        for (int i = 0; i < inputs.size(); ++i)
+            if (!inputs[i].IsConstant())
+                inputs[i].GetDataNodeValue()->GetFunctionDeclarations(outDecls, shaderType);
+        GetMyFunctionDeclarations(outDecls, shaderType);
+    }
+    //Appends generated GLSL code for this node (including all code for child nodes) to the end of "outCode".
+    //Takes in a list of all nodes that have already added their code to "outCode".
+    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs, Shaders shaderType) const;
+
+
+    //Gets the identifier unique for this dataNode.
+    unsigned int GetUniqueID(void) const { return id; }
+
+    //Gets the name of this data node. MUST BE A VALID GLSL VARIABLE/FUNCTION NAME.
+    virtual std::string GetName(void) const { return "unknownNode"; }
 
 
     //Gets this node's input lines.
@@ -47,11 +63,13 @@ public:
     std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
     //Gets the variable name for this node's given output.
-    //TODO: Allow subclasses to specify custom names for each output index.
-    std::string GetOutputName(unsigned int outputIndex) const { return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
+    virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const { assert(outputIndex < outputs.size()); return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
 
 
 protected:
+
+
+    //Functions that simplify child classes' constructors.
 
     static std::vector<DataLine> MakeVector(const DataLine & dat);
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2);
@@ -65,8 +83,13 @@ protected:
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
 
 
+
+    //Gets any uniforms this node defines.
+    virtual void GetMyParameterDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const { }
+    //Gets any GLSL helper function declarations this node needs to use.
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const { }
     //Writes the output for this node, assuming all inputs have already written their output.
-    virtual void WriteMyOutputs(std::string & outCode) const = 0;
+    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const = 0;
 
 
 private:

@@ -10,10 +10,10 @@ class MultiplyNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "MultiplyitionNode"; }
+    virtual std::string GetName(void) const override { return "multiplicationNode"; }
 
     MultiplyNode(const std::vector<DataLine> & toMultiply);
     MultiplyNode(DataLine toMultiply1, DataLine toMultiply2);
 
-    virtual void WriteMyOutputs(std::string & outCode) const override;
+    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

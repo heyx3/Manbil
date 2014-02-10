@@ -10,10 +10,10 @@ class SubtractNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "additionNode"; }
+    virtual std::string GetName(void) const override { return "subtractionNode"; }
 
     SubtractNode(DataLine baseValue, const std::vector<DataLine> & toSubtract);
     SubtractNode(DataLine baseValue, DataLine toSubtract);
 
-    virtual void WriteMyOutputs(std::string & outCode) const override;
+    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

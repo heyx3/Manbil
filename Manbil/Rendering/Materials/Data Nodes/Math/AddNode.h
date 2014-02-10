@@ -15,5 +15,5 @@ public:
     AddNode(const std::vector<DataLine> & toAdd);
     AddNode(DataLine toAdd1, DataLine toAdd2);
 
-    virtual void WriteMyOutputs(std::string & outCode) const override;
+    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

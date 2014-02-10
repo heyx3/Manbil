@@ -12,6 +12,13 @@ class ShaderHandler
 {
 public:
 
+    //The different types of shaders.
+    enum Shaders
+    {
+        SH_Vertex_Shader,
+        SH_Fragment_Shader,
+    };
+
 	typedef std::vector<RenderObjHandle> ShaderObjectList;
 
 
@@ -28,7 +35,7 @@ public:
 	//Returns whether or not the shader program was created successfully.
 	static bool CreateShaderProgram(RenderObjHandle & out_handle);
 	//Returns whether or not the creation was successful.
-	static bool CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, GLenum shaderType);
+	static bool CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, Shaders shaderType);
 	//Returns whether or not the process was successful. "validate" does an extra check of shader validity (useful when debugging).
 	static bool FinalizeShaders(RenderObjHandle shaderProgram, bool validate = true);
 

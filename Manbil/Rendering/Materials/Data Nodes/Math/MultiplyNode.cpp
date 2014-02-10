@@ -16,11 +16,11 @@ MultiplyNode::MultiplyNode(DataLine toMultiply1, DataLine toMultiply2)
            toMultiply2.GetDataLineSize() == 1);
 }
 
-void MultiplyNode::WriteMyOutputs(std::string & outCode) const
+void MultiplyNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
 {
     std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
 
-    outCode += "\t" + vecType + GetOutputName(0) + " = ";
+    outCode += "\t" + vecType + GetOutputName(0, shaderType) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)
     {
         outCode += GetInputs()[i].GetValue();

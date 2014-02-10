@@ -7,16 +7,6 @@
 typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 
-const std::string Mat::ElapsedTimeName = "u_elapsed_seconds",
-                  Mat::WorldMatName = "u_matWorld",
-                  Mat::ViewMatName = "u_matView",
-                  Mat::ProjMatName = "u_matProj",
-                  Mat::WVPMatName = "u_matWVP",
-                  Mat::CameraPosName = "u_cam_pos",
-                  Mat::CameraForwardName = "u_cam_forward",
-                  Mat::CameraUpName = "u_cam_upward",
-                  Mat::CameraSideName = "u_cam_sideways";
-
 
 RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
 {

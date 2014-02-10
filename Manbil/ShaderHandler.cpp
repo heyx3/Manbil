@@ -1,6 +1,7 @@
 #include "ShaderHandler.h"
 
 #include <vector>
+#include <assert.h>
 
 
 char ShaderHandler::errorMsg[ERROR_MESSAGE_SIZE];
@@ -19,9 +20,18 @@ bool ShaderHandler::CreateShaderProgram(RenderObjHandle & out_handle)
 	return true;
 }
 
-bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, GLenum shaderType)
+bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle& out_handle, const Char* shaderText, Shaders shaderType)
 {
-	out_handle = glCreateShader(shaderType);
+    GLenum glShaderType;
+    switch (shaderType)
+    {
+    case Shaders::SH_Fragment_Shader: return GL_FRAGMENT_SHADER;
+    case Shaders::SH_Vertex_Shader: return GL_VERTEX_SHADER;
+
+    default: assert(false);
+    }
+
+    out_handle = glCreateShader(glShaderType);
 
 	if (out_handle == 0)
 	{

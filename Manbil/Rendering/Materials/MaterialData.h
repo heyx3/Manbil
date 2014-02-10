@@ -11,6 +11,13 @@ struct MaterialConstants
 {
 public:
     static RenderingState GetRenderingState(RenderingModes mode);
+
+    static const std::string ElapsedTimeName,
+                             WorldMatName, ViewMatName, ProjMatName, WVPMatName,
+                             CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
+                             InPos, InUV, InNormal, InColor,
+                             OutPos, OutUV, OutNormal, OutColor;
+
 };
 
 
