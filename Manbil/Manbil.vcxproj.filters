@@ -221,6 +221,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DivideNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -518,6 +521,12 @@
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\AbsNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -69,6 +69,7 @@ public:
     std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
     //Gets the variable name for this node's given output.
+    //TODO: Allow subclasses to specify custom names for each output index.
     std::string GetOutputName(unsigned int outputIndex) const { return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
 
 
@@ -77,11 +78,13 @@ protected:
     static std::vector<DataLine> MakeVector(const DataLine & dat);
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2);
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3);
+    static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3, const DataLine & dat4);
     static std::vector<DataLine> MakeVector(const DataLine & dat, std::vector<DataLine>::const_iterator wherePut, const std::vector<DataLine> & moreDats);
 
     static std::vector<unsigned int> MakeVector(unsigned int dat);
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2);
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3);
+    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
 
 
     //Writes the output for this node, assuming all inputs have already written their output.
