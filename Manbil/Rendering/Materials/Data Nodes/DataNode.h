@@ -34,7 +34,7 @@ public:
     virtual void GetFunctionDeclarations(std::vector<std::string> & outDecls) { }
     //The bit of code that will actually generate the glsl code.
     //Appends the code to the end of "outCode". Takes in a list of all nodes that have already added their code to "outCode".
-    WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const
+    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const
     {
         //First write out all the child data nodes that haven't been written out yet.
         for (int i = 0; i < inputs.size(); ++i)
@@ -47,12 +47,13 @@ public:
                 {
                     writtenNodeIDs.insert(writtenNodeIDs.end(), input->id);
 
-                    input->WriteOutputConnection()
+                    input->WriteMyOutputConnections();
                 }
             }
         }
 
-        outCode.append(WriteMyOutputConnections(outputNames));
+        //Now write out this node's code.
+        outCode.append(WriteMyOutputConnections());
     }
 
 
@@ -63,6 +64,8 @@ public:
 
     //Gets the variable name for this node's given output.
     std::string GetOutputName(unsigned int outputIndex) const { return GetName() + "_" + std::to_string(id) + "_" + std::to_string(outputIndex); }
+    //Gets a prefix to use for all variable/function declarations to prevent duplicate names.
+    std::string GetNamingPrefix(void) const { return GetName() + "_"; }
 
 
 protected:
