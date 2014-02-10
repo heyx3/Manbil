@@ -1,18 +1,28 @@
 #include "AddNode.h"
 
-std::string AddNode::WriteMyOutputConnection(unsigned int dataLine, std::string inputName, std::string outputName) const
+AddNode::AddNode(const std::vector<DataLine> & toAdd)
+    : DataNode(toAdd, MakeVector(toAdd[0].GetDataLineSize()))
 {
-    assert(dataLine == 0);
+    unsigned int size = toAdd[0].GetDataLineSize();
+    for (unsigned int i = 0; i < toAdd.size(); ++i)
+        assert(toAdd[i].GetDataLineSize() == size);
+}
+AddNode::AddNode(DataLine toAdd1, DataLine toAdd2)
+    : DataNode(MakeVector(toAdd1, toAdd2), MakeVector(toAdd1.GetDataLineSize()))
+{
+    assert(toAdd1.GetDataLineSize() == toAdd2.GetDataLineSize());
+}
 
-    const DataLine & data = GetInputs()[0];
-    std::string dataType = Vector(data.GetDataLineSize()).GetGLSLType();
+void AddNode::WriteMyOutputs(std::string & outCode) const
+{
+    std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
 
-    if (data.IsConstant())
+    outCode += "\t" + vecType + GetOutputName(0) + " = ";
+    for (int i = 0; i < GetInputs().size(); ++i)
     {
-        std::string ret = Vector(data.GetDataLineSize()).GetGLSLType() + inputName + " = " + dataType + "(";
-    }
-    else
-    {
+        outCode += GetInputs()[i].GetValue();
 
+        if (i < GetInputs().size() - 1) outCode += " + ";
+        else outCode += ";\n";
     }
 }

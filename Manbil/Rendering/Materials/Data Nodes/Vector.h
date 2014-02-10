@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../../Math/Vectors.h"
+#include "../../../Math/Vectors.h"
 
 //Represents a collection of 1-4 floats.
 //If a Vector has 0 floats, it is considered invalid.

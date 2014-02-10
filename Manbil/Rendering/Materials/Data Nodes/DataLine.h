@@ -14,6 +14,13 @@ struct DataLine
 {
 public:
 
+    //Creates a DataLine that gets its input value from a DataNode.
+    DataLine(DataNodePtr input, unsigned int outputLineIndex)
+        : isConstantValue(false), nonConstantValue(input), nonConstantValueIndex(outputLineIndex) { }
+    //Creates a DataLine with a constant input value.
+    DataLine(const Vector & constantInput) : isConstantValue(true), constantValue(constantInput) { }
+
+
     //This data line either feeds in a constant input, or gets the input value from a DataNode's output.
     bool IsConstant(void) const { return isConstantValue; }
 
@@ -29,11 +36,8 @@ public:
     unsigned int GetDataNodeLineIndex(void) const { assert(!isConstantValue); return nonConstantValueIndex; }
 
 
-    //Creates a DataLine that gets its input value from a DataNode.
-    DataLine(DataNodePtr input, unsigned int outputLineIndex)
-        : isConstantValue(false), nonConstantValue(input), nonConstantValueIndex(outputLineIndex) { }
-    //Creates a DataLine with a constant input value.
-    DataLine(const Vector & constantInput) : isConstantValue(true), constantValue(constantInput) { }
+    //Gets the GLSL expression for this data line output.
+    std::string GetValue(void) const;
 
 
 private:

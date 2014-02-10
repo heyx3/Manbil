@@ -1,35 +1,20 @@
 #pragma once
 
 #include <assert.h>
+#include <algorithm>
 #include "../DataNode.h"
 #include "../../../../Math/Vectors.h"
 
 
 //Represents a simple addition operator.
-/*
-    Input lines:
-    0: Vector, any size
-    Output lines:
-    0: Vector, same size as input
-*/
 class AddNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) override { return "addition DataNode"; }
+    virtual std::string GetName(void) const override { return "additionNode"; }
 
-    AddNode(DataLine toAdd)
-        : DataNode(MakeVector(toAdd), MakeVector(toAdd.GetDataLineSize()))
-    {
+    AddNode(const std::vector<DataLine> & toAdd);
+    AddNode(DataLine toAdd1, DataLine toAdd2);
 
-    }
-
-
-    virtual std::string WriteMyOutputConnection(unsigned int dataLine, std::string inputName, std::string outputName) const override;
-
-
-private:
-
-    bool addsConstant;
-    float addConstant[4];
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 };
