@@ -35,6 +35,11 @@ public:
     typedef std::unordered_map<RenderingChannels, std::shared_ptr<UniformChannelData>> UniformChannels;
 
 
+    static const std::string ElapsedTimeName,
+                             WorldMatName, ViewMatName, ProjMatName, WVPMatName,
+                             CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
+
+
     ComputedChannels ComputeChannels;
     TextureChannels TextureChannels;
     UniformChannels UniformChannels;

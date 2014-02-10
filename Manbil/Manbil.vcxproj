@@ -234,8 +234,10 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\ParamNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />
     <ClInclude Include="Rendering\Materials\RenderingModes.h" />

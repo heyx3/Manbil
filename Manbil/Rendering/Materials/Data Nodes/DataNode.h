@@ -29,29 +29,7 @@ public:
 
     //The bit of code that will actually generate the glsl code.
     //Appends the code to the end of "outCode". Takes in a list of all nodes that have already added their code to "outCode".
-    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const
-    {
-        //First write out all the child data nodes that haven't been written out yet.
-        for (int i = 0; i < inputs.size(); ++i)
-        {
-            //If the input is a constant value, no need to write it out.
-            if (!inputs[i].IsConstant())
-            {
-                DataNodePtr input = inputs[i].GetDataNodeValue();
-
-                if (std::find(writtenNodeIDs.begin(), writtenNodeIDs.end(), input->id) == writtenNodeIDs.end())
-                {
-                    writtenNodeIDs.insert(writtenNodeIDs.end(), input->id);
-
-                    input->WriteOutputs(outCode, writtenNodeIDs);
-                }
-            }
-        }
-
-        //Now write out this node's code.
-        outCode += "//Outputs for " + GetName() + std::to_string(id) + ":\n";
-        WriteMyOutputs(outCode);
-    }
+    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const;
 
     //Gets any uniforms this node defines.
     virtual void GetParameterDeclarations(std::vector<std::string> & outDecls) { }

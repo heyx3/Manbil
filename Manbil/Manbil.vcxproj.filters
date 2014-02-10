@@ -529,6 +529,12 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
