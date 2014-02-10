@@ -212,6 +212,15 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\DivideNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -501,6 +510,15 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

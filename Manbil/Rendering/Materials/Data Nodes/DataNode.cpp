@@ -22,6 +22,14 @@ std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine 
     dats.insert(dats.end(), dat3);
     return dats;
 }
+std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, std::vector<DataLine>::const_iterator wherePut, const std::vector<DataLine> & moreDats)
+{
+    std::vector<DataLine> cpy = moreDats;
+
+    cpy.insert(wherePut, dat);
+
+    return cpy;
+}
 
 std::vector<unsigned int> DataNode::MakeVector(unsigned int dat)
 {
