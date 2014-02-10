@@ -138,7 +138,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp" />
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\VectorComponentsNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
     <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp" />
@@ -239,8 +241,10 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\VectorComponentsNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />

@@ -1,4 +1,4 @@
-#include "ShaderInNode.h"
+#include "ShaderInNodes.h"
 
 std::string ShaderInNode::GetOutputName(unsigned int outputIndex, Shaders shader) const
 {

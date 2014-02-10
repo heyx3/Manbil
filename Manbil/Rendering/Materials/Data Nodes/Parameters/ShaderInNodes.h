@@ -35,23 +35,27 @@ private:
 class ObjectPosNode : public ShaderInNode
 {
 public:
+    virtual std::string GetName(void) const override { return "objectPosNode"; }
     ObjectPosNode(void) : ShaderInNode(MaterialConstants::InPos, MaterialConstants::OutPos) { }
 };
 //A node that outputs the uv coordinates at the current vertex/fragment.
 class UVNode : public ShaderInNode
 {
 public:
+    virtual std::string GetName(void) const override { return "uvNode"; }
     UVNode(void) : ShaderInNode(MaterialConstants::InUV, MaterialConstants::OutUV) { }
 };
 //A node that outputs the color at the current vertex/fragment.
 class ObjectColorNode : public ShaderInNode
 {
 public:
+    virtual std::string GetName(void) const override { return "objectColorNode"; }
     ObjectColorNode(void) : ShaderInNode(MaterialConstants::InColor, MaterialConstants::OutColor) { }
 };
 //A node that outputs the object-space normal at the current vertex/fragment.
 class ObjectNormalNode : public ShaderInNode
 {
 public:
+    virtual std::string GetName(void) const override { return "objectNormalNode"; }
     ObjectNormalNode(void) : ShaderInNode(MaterialConstants::InNormal, MaterialConstants::OutNormal) { }
 };
