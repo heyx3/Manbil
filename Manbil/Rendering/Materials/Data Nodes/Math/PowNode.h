@@ -19,10 +19,13 @@ public:
         assert(exponent.GetDataLineSize() == 1 || exponent.GetDataLineSize() == base.GetDataLineSize());
     }
 
+
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
     {
         outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0, shaderType) +
-                                    " = pow(" + GetBaseInput().GetValue() + ", " +
-                                                GetExponentInput().GetValue() + ");\n";
+                                    " = pow(" + GetBaseInput().GetValue(shaderType) + ", " +
+                                                GetExponentInput().GetValue(shaderType) + ");\n";
     }
 };

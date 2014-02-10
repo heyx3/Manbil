@@ -236,6 +236,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -558,6 +561,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

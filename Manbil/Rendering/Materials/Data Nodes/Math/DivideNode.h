@@ -15,5 +15,8 @@ public:
     DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide);
     DivideNode(DataLine baseValue, DataLine toDivide);
 
+
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../DataNode.h"
-#include "ShaderInNode.h"
+#include "ShaderInNodes.h"
 
 //Some secondary shader input stuff.
 

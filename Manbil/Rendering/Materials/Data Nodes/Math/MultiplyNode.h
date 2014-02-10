@@ -15,5 +15,8 @@ public:
     MultiplyNode(const std::vector<DataLine> & toMultiply);
     MultiplyNode(DataLine toMultiply1, DataLine toMultiply2);
 
+
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

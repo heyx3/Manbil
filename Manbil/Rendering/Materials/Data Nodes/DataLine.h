@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Vector.h"
+#include "../../../ShaderHandler.h"
 #include <assert.h>
 
 
@@ -37,7 +38,7 @@ public:
 
 
     //Gets the GLSL expression for this data line output.
-    std::string GetValue(void) const;
+    std::string GetValue(ShaderHandler::Shaders shaderType) const;
 
 
 private:

@@ -9,21 +9,21 @@ unsigned int DataLine::GetDataLineSize(void) const
                               nonConstantValue->GetOutputs()[nonConstantValueIndex]);
 }
 
-std::string DataLine::GetValue(void) const
+std::string DataLine::GetValue(ShaderHandler::Shaders shaderType) const
 {
     if (isConstantValue)
     {
         std::string ret = constantValue.GetGLSLType() + "(";
         for (int i = 0; i < constantValue.GetSize(); ++i)
-            if (i == 0)
-                ret += std::to_string(constantValue.GetValue()[i]);
-            else
-                ret += ", " + std::to_string(constantValue.GetValue()[i]);
+        {
+            if (i > 0) ret += ", ";
+            ret += std::to_string(constantValue.GetValue()[i]);
+        }
         ret += ")";
         return ret;
     }
     else
     {
-        return nonConstantValue->GetOutputName(nonConstantValueIndex);
+        return nonConstantValue->GetOutputName(nonConstantValueIndex, shaderType);
     }
 }

@@ -15,5 +15,8 @@ public:
     SubtractNode(DataLine baseValue, const std::vector<DataLine> & toSubtract);
     SubtractNode(DataLine baseValue, DataLine toSubtract);
 
+
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 };

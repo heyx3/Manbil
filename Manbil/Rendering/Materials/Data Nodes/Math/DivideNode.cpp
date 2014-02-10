@@ -23,7 +23,7 @@ void DivideNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
     outCode += "\t" + vecType + GetOutputName(0, shaderType) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)
     {
-        outCode += GetInputs()[i].GetValue();
+        outCode += GetInputs()[i].GetValue(shaderType);
 
         if (i < GetInputs().size() - 1) outCode += " / ";
         else outCode += ";\n";

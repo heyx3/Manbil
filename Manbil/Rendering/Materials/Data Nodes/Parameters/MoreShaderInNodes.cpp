@@ -4,7 +4,7 @@ void WorldPosNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) con
 {
     const DataNodePtr & objPos = GetInputs()[0].GetDataNodeValue();
     std::string outName = GetOutputName(0, shaderType),
-        tempName = "temp_" + outName;
+                tempName = "temp_" + outName;
 
     outCode += "\tvec4 " + tempName + " = (" + MaterialConstants::WorldMatName + " * vec4(" + objPos->GetOutputName(0, shaderType) + ", 1.0))\n";
     outCode += "\tvec3 " + outName + " = " + tempName + ".xyz / " + tempName + ".w;\n";
@@ -14,7 +14,7 @@ void ScreenPosNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) co
 {
     const DataNodePtr & objPos = GetInputs()[0].GetDataNodeValue();
     std::string outName = GetOutputName(0, shaderType),
-        tempName = "temp_" + outName;
+                tempName = "temp_" + outName;
 
     outCode += "\tvec4 " + tempName + " = (" + MaterialConstants::WVPMatName + " * vec4(" + objPos->GetOutputName(0, shaderType) + ", 1.0))\n";
     outCode += "\tvec3 " + outName + " = " + tempName + ".xyz / " + tempName + ".w;\n";

@@ -28,7 +28,7 @@ void VectorComponentsNode::WriteMyOutputs(std::string & outCode, Shaders shaderT
 {
     for (int i = 0; i < GetVectorInput().GetDataLineSize(); ++i)
     {
-        outCode += "\tfloat " + GetOutputName(i, shaderType) + " = " + GetVectorInput().GetValue() + ".";
+        outCode += "\tfloat " + GetOutputName(i, shaderType) + " = " + GetVectorInput().GetValue(shaderType) + ".";
         switch (i)
         {
         case 0: outCode += "x";

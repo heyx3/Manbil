@@ -18,6 +18,9 @@ public:
 
     virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const override;
 
+
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
 
 private:

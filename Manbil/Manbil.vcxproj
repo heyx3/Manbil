@@ -134,6 +134,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DivideNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AbsNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h" />

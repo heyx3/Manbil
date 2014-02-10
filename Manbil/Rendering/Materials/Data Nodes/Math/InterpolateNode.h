@@ -30,7 +30,11 @@ public:
 
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outFuncs, Shaders shaderType) const override;
 
+    
+protected:
+
     virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+
 
 private:
 
