@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "MGameForwardDeclarations.h"
 
@@ -196,3 +196,5 @@ public:
 
 	virtual ComponentTypes VGetThisType(void) const final override { return ComponentTypes::COMPONENT_3DRENDERER; }
 };
+
+*/

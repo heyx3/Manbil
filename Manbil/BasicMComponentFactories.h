@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "BasicMComponents.h"
 
@@ -53,4 +53,4 @@ public:
 private:
 
 	std::shared_ptr<Shape> shape;
-};
+};*/

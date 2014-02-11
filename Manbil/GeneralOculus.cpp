@@ -1,4 +1,4 @@
-#include "GeneralOculus.h"
+/*#include "GeneralOculus.h"
 
 using namespace OVR;
 
@@ -74,4 +74,4 @@ std::shared_ptr<OculusDevice> GeneralOculus::GetDevice(int deviceNumb)
 	RiftDeviceInfo rdi;
 	GetDeviceInfo(pHMD, rdi);
 	return std::shared_ptr<OculusDevice>(new OculusDevice(pHMD, rdi));
-}
+}*/

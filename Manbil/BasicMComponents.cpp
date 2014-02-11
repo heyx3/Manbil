@@ -1,4 +1,4 @@
-#include "BasicMComponents.h"
+/*#include "BasicMComponents.h"
 
 bool CameraComponent::ReceiveMessage(int message, void * pMsgData)
 {
@@ -62,4 +62,4 @@ bool RenderableComponent::ReceiveMessage(int message, void * pMsgData)
 	}
 
 	return true;
-}
+}*/

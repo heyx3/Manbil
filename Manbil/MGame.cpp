@@ -1,4 +1,4 @@
-#include "MGame.h"
+/*#include "MGame.h"
 
 #include "ScreenClearer.h"
 #include "RenderDataHandler.h"
@@ -203,4 +203,4 @@ void MWorld::RenderWorld(float elapsedSeconds)
 			objects[j]->Render2D(mci);
 		}
 	}
-}
+}*/

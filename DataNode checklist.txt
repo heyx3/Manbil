@@ -1,0 +1,11 @@
+-virtual functions are properly declared "virtual [...] const override"
+
+-"WriteMyOutputs" is protected
+
+-Inheritance from "DataNode" is public
+
+-Object description and GetName() are correct
+
+-Output size is correct in constructor
+
+-Override "GetOutputName" to give a descriptive name.

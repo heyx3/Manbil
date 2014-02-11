@@ -13,7 +13,7 @@ public:
 
     virtual std::string GetName(void) const { return "worldPosNode"; }
 
-    WorldPosNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(0))
+    WorldPosNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3))
     {
 
     }
@@ -30,7 +30,7 @@ public:
 
     virtual std::string GetName(void) const { return "screenPosNode"; }
 
-    ScreenPosNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(0)) { }
+    ScreenPosNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3)) { }
 
 
 protected:
@@ -46,7 +46,7 @@ public:
 
     virtual std::string GetName(void) const { return "worldNormalNode"; }
 
-    WorldNormalNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectNormalNode()), 0)), MakeVector(0))
+    WorldNormalNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectNormalNode()), 0)), MakeVector(3))
     {
 
     }
@@ -63,7 +63,7 @@ public:
 
     virtual std::string GetName(void) const { return "screenNormalNode"; }
 
-    ScreenNormalNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectNormalNode()), 0)), MakeVector(0)) { }
+    ScreenNormalNode(void) : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectNormalNode()), 0)), MakeVector(3)) { }
 
 
 protected:

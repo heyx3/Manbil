@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "SFMLOpenGLWorld.h"
 #include <unordered_map>
@@ -84,4 +84,4 @@ private:
 	std::vector<MCompPtr> cameras;
 
 	float elapsed;
-};
+};*/

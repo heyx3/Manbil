@@ -17,9 +17,28 @@ public:
 
     virtual std::string GetName(void) const override { return "paramNode"; }
 
-    virtual void GetMyParameterDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const override
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const override
     {
-        outDecls.insert(outDecls.end(), Vector(vSize).GetGLSLType() + " " + GetUniformName());
+        switch (GetOutputs()[0])
+        {
+            case 1:
+                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(0.0f, 0, GetUniformName());
+            break;
+
+            case 2:
+                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector2f(0.0f, 0.0f), 0, GetUniformName());
+            break;
+
+            case 3:
+                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector3f(0.0f, 0.0f, 0.0f), 0, GetUniformName());
+            break;
+
+            case 4:
+                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0, GetUniformName());
+            break;
+
+        default: assert(false);
+        }
     }
 
     virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const override

@@ -5,7 +5,7 @@ std::vector<unsigned int> VectorComponentsNode::buildOutputs(const DataLine & in
     std::vector<unsigned int> ret;
     for (unsigned int i = 0; i < inData.GetDataLineSize(); ++i)
     {
-        ret.insert(ret.end(), i);
+        ret.insert(ret.end(), 1);
     }
     return ret;
 }

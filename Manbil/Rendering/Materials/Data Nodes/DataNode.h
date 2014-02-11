@@ -6,6 +6,9 @@
 #include "../../../Math/Vectors.h"
 #include "DataLine.h"
 #include "../../../ShaderHandler.h"
+#include "../UniformCollections.h"
+
+
 
 //Represents a basic, atomic operation in a shader.
 //TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
@@ -25,12 +28,12 @@ public:
 
     //Adds all parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls".
     //Includes all child nodes.
-    void GetParameterDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const
+    void GetParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const
     {
         for (int i = 0; i < inputs.size(); ++i)
             if (!inputs[i].IsConstant())
-                inputs[i].GetDataNodeValue()->GetParameterDeclarations(outDecls, shaderType);
-        GetMyParameterDeclarations(outDecls, shaderType);
+                inputs[i].GetDataNodeValue()->GetParameterDeclarations(outUniforms, shaderType);
+        GetMyParameterDeclarations(outUniforms, shaderType);
     }
     //Adds all function declarations to "outDecls".
     //Includes all child nodes.
@@ -85,7 +88,7 @@ protected:
 
 
     //Gets any uniforms this node defines.
-    virtual void GetMyParameterDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const { }
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const { }
     //Gets any GLSL helper function declarations this node needs to use.
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const { }
     //Writes the output for this node, assuming all inputs have already written their output.

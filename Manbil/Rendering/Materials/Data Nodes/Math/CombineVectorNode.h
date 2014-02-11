@@ -10,12 +10,9 @@ public:
 
     virtual std::string GetName(void) const { return "combineVectorNode"; }
 
-    CombineVectorNode(const std::vector<DataLine> & inputs) : DataNode(inputs, MakeVector(0))
+    CombineVectorNode(const std::vector<DataLine> & inputs) : DataNode(inputs, MakeVector(CountElements(inputs)))
     {
-        count = 0;
-        for (int i = 0; i < inputs.size(); ++i)
-            count += inputs[i].GetDataLineSize();
-
+        count = GetOutputs()[0];
         assert(count > 0 && count < 5);
     }
 
@@ -27,4 +24,12 @@ protected:
 private:
 
     unsigned int count;
+
+    static unsigned int CountElements(const std::vector<DataLine> & inputs)
+    {
+        unsigned int count = 0;
+        for (int i = 0; i < inputs.size(); ++i)
+            count += inputs[i].GetDataLineSize();
+        return count;
+    }
 };

@@ -1,15 +1,29 @@
 #include "DivideNode.h"
 
-DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide)
-: DataNode(toDivide, MakeVector(toDivide[0].GetDataLineSize()))
+unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & baseValue)
 {
+    DataLine max = baseValue;
+
+    for (int i = 0; i < toDivide.size(); ++i)
+        if (toDivide[i].GetDataLineSize() > max.GetDataLineSize())
+            max = toDivide[i];
+
+    return max.GetDataLineSize();
+}
+
+
+DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide)
+    : DataNode(toDivide, MakeVector(GetMax(toDivide, baseValue)))
+{
+    assert(toDivide.size() > 0);
+
     unsigned int size = toDivide[0].GetDataLineSize();
     for (unsigned int i = 0; i < toDivide.size(); ++i)
         assert(toDivide[i].GetDataLineSize() == size ||
                toDivide[i].GetDataLineSize() == 1);
 }
 DivideNode::DivideNode(DataLine toDivide1, DataLine toDivide2)
-: DataNode(MakeVector(toDivide1, toDivide2), MakeVector(toDivide1.GetDataLineSize()))
+    : DataNode(MakeVector(toDivide1, toDivide2), MakeVector(toDivide1.GetDataLineSize()))
 {
     assert(toDivide1.GetDataLineSize() == toDivide2.GetDataLineSize() ||
            toDivide1.GetDataLineSize() == 1 ||

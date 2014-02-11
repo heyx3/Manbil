@@ -11,7 +11,7 @@ public:
     virtual std::string GetName(void) const override { return "dotProductNode"; }
 
     DotNode(const DataLine & first, const DataLine & second)
-        : DataNode(MakeVector(first, second), MakeVector(0))
+        : DataNode(MakeVector(first, second), MakeVector(first.GetDataLineSize()))
     {
         assert(first.GetDataLineSize() == second.GetDataLineSize());
     }

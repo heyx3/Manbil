@@ -1,4 +1,4 @@
-#include "BasicMComponentFactories.h"
+/*#include "BasicMComponentFactories.h"
 
 MCompPtr TransformComponentFactory::BirthComponent(MObject & owner, TransformComponent * transform, unsigned int objectID)
 {
@@ -26,4 +26,4 @@ MCompPtr CollisionComponentFactory::BirthComponent(MObject & owner, TransformCom
 	CollisionComponent * cc = new CollisionComponent(owner, objectID, transform, shape);
 
 	return MCompPtr(cc);
-}
+}*/

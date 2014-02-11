@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "Material.h"
 #include <unordered_map>
@@ -32,3 +32,4 @@ private:
 	unsigned int nextID;
 };
 
+*/

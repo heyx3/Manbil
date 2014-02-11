@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include <string>
 #include <memory>
@@ -70,4 +70,4 @@ public:
 	//0 gets the first rift, 1 gets the second, and so on.
 	//Returns "std::shared_ptr<OculusDevice>()" if the device cannot be found.
 	static std::shared_ptr<OculusDevice> GetDevice(int deviceNumb);
-};
+};*/

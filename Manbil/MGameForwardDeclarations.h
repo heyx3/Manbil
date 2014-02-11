@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 //Holds all the world's game objects. Also holds all components in a global map.
 class MWorld;
@@ -10,3 +10,4 @@ class MComponent;
 class MComponentFactory;
 //Camera plus some extra data like transformation matrices.
 struct MCameraInfo;
+*/

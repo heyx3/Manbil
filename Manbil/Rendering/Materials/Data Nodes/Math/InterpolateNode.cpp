@@ -1,7 +1,7 @@
 #include "InterpolateNode.h"
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type)
-    : DataNode(MakeVector(min, max, interp), MakeVector(min.GetDataLineSize(), max.GetDataLineSize(), interp.GetDataLineSize()))
+    : DataNode(MakeVector(min, max, interp), MakeVector(BasicMath::Max(max.GetDataLineSize(), interp.GetDataLineSize())))
 {
     assert(type != IT_Power);
     intType = type;
@@ -14,7 +14,7 @@ InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, In
 }
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, DataLine power)
-    : DataNode(MakeVector(min, max, interp, power), MakeVector(min.GetDataLineSize(), max.GetDataLineSize(), interp.GetDataLineSize()))
+    : DataNode(MakeVector(min, max, interp, power), MakeVector(BasicMath::Max(max.GetDataLineSize(), interp.GetDataLineSize())))
 {
     intType = InterpolationType::IT_Power;
 
