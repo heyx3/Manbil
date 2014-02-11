@@ -248,6 +248,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -622,14 +625,14 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ReflectNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\TextureSampleNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RefractNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\UniformCollections.h">
       <Filter>Rendering\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

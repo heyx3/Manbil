@@ -2,6 +2,8 @@
 
 #include "../DataNode.h"
 #include "../../../Texture Management/TextureChannels.h"
+#include "TimeNode.h"
+#include "ShaderInNodes.h"
 
 
 //Outputs the result of sampling a texture.
@@ -14,11 +16,15 @@ public:
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
 
 
-    TextureSampleNode(ChannelsOut channel, const DataLine & UVs,
+    TextureSampleNode(ChannelsOut channel,
+                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
                       DataLine uvScale = DataLine(Vector(1.0f)),
                       DataLine uvPan = DataLine(Vector(Vector2f(0.0f, 0.0f))),
-                      DataLine uvOffset = DataLine(Vector(Vector2f(0.0f, 0.0f))))
-    : channel(channel), DataNode(MakeVector(UVs, uvScale, uvPan, uvOffset), MakeVector(GetSize(channel))) { }
+                      DataLine uvOffset = DataLine(Vector(Vector2f(0.0f, 0.0f))),
+                      DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
+    : channel(channel), DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), MakeVector(GetSize(channel))) { }
+
+    virtual std::string GetOutputName(unsigned int index, Shaders shaderType) const override;
 
 
 protected:
@@ -32,10 +38,19 @@ protected:
 
 private:
 
+    static std::vector<DataLine> makeVector(const DataLine & uv, const DataLine & uvScale, const DataLine & uvPan,
+                                            const DataLine & uvOffset, const DataLine & time)
+    {
+        std::vector<DataLine> dats = MakeVector(uv, uvScale, uvPan, uvOffset);
+        dats.insert(dats.end(), time);
+        return dats;
+    }
+
     const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
     const DataLine & GetUVScaleInput(void) const { return GetInputs()[1]; }
     const DataLine & GetUVPanInput(void) const { return GetInputs()[2]; }
     const DataLine & GetUVOffsetInput(void) const { return GetInputs()[3]; }
+    const DataLine & GetTimeInput(void) const { return GetInputs()[4]; }
 
     ChannelsOut channel;
 
