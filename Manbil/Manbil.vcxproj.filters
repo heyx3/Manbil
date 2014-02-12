@@ -230,14 +230,8 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Math\VectorComponentsNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\LogNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
@@ -250,6 +244,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -565,17 +565,11 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\VectorComponentsNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\CombineVectorNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\CrossNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
@@ -633,6 +627,18 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\OneMinusNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

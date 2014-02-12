@@ -1,6 +1,6 @@
 #include "WhiteNoiseNode.h"
 
-void WhiteNoiseNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+void WhiteNoiseNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
 {
     std::string vecType = Vector(GetOutputs()[0]).GetGLSLType(),
                 seed1 = GetInputs()[0].GetValue(shaderType),
