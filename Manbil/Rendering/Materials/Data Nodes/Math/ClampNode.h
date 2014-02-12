@@ -4,7 +4,7 @@
 
 
 //Keeps a value inside a max and a min.
-class ClampNode : DataNode
+class ClampNode : public DataNode
 {
 public:
 
@@ -18,13 +18,13 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType)
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
-        outCode += "\t" + vecType + " " + GetOutputName(0, shaderType) +
-                    " = clamp(" + GetValueInput().GetValue(shaderType) + ", " +
-                                  GetMinInput().GetValue(shaderType) + ", " +
-                                  GetMaxInput().GetValue(shaderType) + ");\n";
+        outCode += "\t" + vecType + " " + GetOutputName(0) +
+                    " = clamp(" + GetValueInput().GetValue() + ", " +
+                                  GetMinInput().GetValue() + ", " +
+                                  GetMaxInput().GetValue() + ");\n";
     }
 
 

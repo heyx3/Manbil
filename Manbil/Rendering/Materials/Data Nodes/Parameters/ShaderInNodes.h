@@ -13,9 +13,9 @@ public:
     ShaderInNode(std::string vertexInput, std::string fragmentInput, unsigned int size)
         : vertIn(vertexInput), fragIn(fragmentInput), DataNode(std::vector<DataLine>(), MakeVector(size)) { }
 
-    virtual std::string GetOutputName(unsigned int outputIndex, Shaders shader) const override;
+    virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shader) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No need to write any output; the "output" for this node is just a vertex input.
     }

@@ -22,10 +22,10 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0, shaderType) +
-                                    " = pow(" + GetBaseInput().GetValue(shaderType) + ", " +
-                                                GetExponentInput().GetValue(shaderType) + ");\n";
+        outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) +
+                                    " = pow(" + GetBaseInput().GetValue() + ", " +
+                                                GetExponentInput().GetValue() + ");\n";
     }
 };

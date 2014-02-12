@@ -14,12 +14,12 @@ public:
 
     TimeNode(void) : DataNode(std::vector<DataLine>(), MakeVector(1)) { }
 
-    virtual std::string GetOutputName(unsigned int index, Shaders shaderType) const override { assert(index == 0); return MaterialConstants::ElapsedTimeName; }
+    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return MaterialConstants::ElapsedTimeName; }
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No outputting needed.
     }

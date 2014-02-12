@@ -3,7 +3,7 @@
 #include "../../MaterialData.h"
 
 
-std::string CameraDataNode::GetOutputName(unsigned int index, Shaders shaderType) const
+std::string CameraDataNode::GetOutputName(unsigned int index) const
 {
     switch (index)
     {

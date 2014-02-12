@@ -17,11 +17,11 @@ public:
 
     CameraDataNode(void) : DataNode(std::vector<DataLine>(), MakeVector(3, 3, 3, 3)) { }
 
-    virtual std::string GetOutputName(unsigned int index, Shaders shaderType) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderTypes) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No output writing needed.
     }

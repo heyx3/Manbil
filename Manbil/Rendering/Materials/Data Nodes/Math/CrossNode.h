@@ -18,8 +18,8 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\tvec3 " + GetOutputName(0, shaderType) + " = cross(" + GetInputs()[0].GetValue(shaderType) + ", " + GetInputs()[1].GetValue(shaderType) + ");\n";
+        outCode += "\tvec3 " + GetOutputName(0) + " = cross(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
     }
 };

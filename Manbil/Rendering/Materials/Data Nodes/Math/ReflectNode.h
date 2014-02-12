@@ -19,12 +19,12 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\t" + Vector(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0, shaderType) + " = reflect(" + GetInputs()[0].GetValue(shaderType) + ", ";
+        outCode += "\t" + Vector(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = reflect(" + GetInputs()[0].GetValue() + ", ";
         
-        if (isNormNormalized) outCode += GetInputs()[1].GetValue(shaderType);
-        else outCode += "normalize(" + GetInputs()[1].GetValue(shaderType) + ")";
+        if (isNormNormalized) outCode += GetInputs()[1].GetValue();
+        else outCode += "normalize(" + GetInputs()[1].GetValue() + ")";
 
         outCode += ");\n";
     }

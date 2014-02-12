@@ -20,12 +20,12 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
 
-        outCode += "\t" + vecType + " " + GetOutputName(0, shaderType) +
-            " = mod(" + GetInputs()[0].GetValue(shaderType) + ", " +
-                        GetInputs()[1].GetValue(shaderType) + ");\n";
+        outCode += "\t" + vecType + " " + GetOutputName(0) +
+            " = mod(" + GetInputs()[0].GetValue() + ", " +
+                        GetInputs()[1].GetValue() + ");\n";
     }
 };

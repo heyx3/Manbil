@@ -7,8 +7,8 @@ InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, In
     intType = type;
 
     unsigned int minS = min.GetDataLineSize(),
-        maxS = max.GetDataLineSize(),
-        intS = interp.GetDataLineSize();
+                 maxS = max.GetDataLineSize(),
+                 intS = interp.GetDataLineSize();
 
     assert(minS == maxS && (intS == minS || intS == 1));
 }
@@ -19,14 +19,14 @@ InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, Da
     intType = InterpolationType::IT_Power;
 
     unsigned int minS = min.GetDataLineSize(),
-        maxS = max.GetDataLineSize(),
-        intS = interp.GetDataLineSize();
+                 maxS = max.GetDataLineSize(),
+                 intS = interp.GetDataLineSize();
 
     assert(minS == maxS && (intS == minS || intS == 1));
 }
 
 
-void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFuncs, Shaders shaderType) const
+void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFuncs) const
 {
     if (intType != InterpolationType::IT_VerySmooth) return;
 
@@ -45,7 +45,7 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
     outFuncs.insert(outFuncs.begin(), str);
 }
 
-void InterpolateNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void InterpolateNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string minMaxType = Vector(GetMinInput().GetDataLineSize()).GetGLSLType(),
                 interpType = Vector(GetInterpInput().GetDataLineSize()).GetGLSLType(),
@@ -54,28 +54,28 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) 
     switch (intType)
     {
     case IT_Linear:
-        outCode += "\t" + returnType + " " + GetOutputName(0, shaderType) + " = mix(" + GetMinInput().GetValue(shaderType) + ", " +
-                                                                                        GetMaxInput().GetValue(shaderType) + ", " +
-                                                                                        GetInterpInput().GetValue(shaderType) + ");\n";
+        outCode += "\t" + returnType + " " + GetOutputName(0) + " = mix(" + GetMinInput().GetValue() + ", " +
+                                                                            GetMaxInput().GetValue() + ", " +
+                                                                            GetInterpInput().GetValue() + ");\n";
         break;
 
     case IT_Smooth:
-        outCode += "\t" + returnType + " " + GetOutputName(0, shaderType) + " = smoothstep(" + GetMinInput().GetValue(shaderType) + ", " +
-                                                                                               GetMaxInput().GetValue(shaderType) + ", " +
-                                                                                               GetInterpInput().GetValue(shaderType) + ");\n";
+        outCode += "\t" + returnType + " " + GetOutputName(0) + " = smoothstep(" + GetMinInput().GetValue() + ", " +
+                                                                                   GetMaxInput().GetValue() + ", " +
+                                                                                   GetInterpInput().GetValue() + ");\n";
         break;
 
     case IT_VerySmooth:
-        outCode += "\t" + returnType + " " + GetOutputName(0, shaderType) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue(shaderType) + ", " +
-                                                                                                                     GetMaxInput().GetValue(shaderType) + ", " +
-                                                                                                                     GetInterpInput().GetValue(shaderType) + ");\n";
+        outCode += "\t" + returnType + " " + GetOutputName(0) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
+                                                                                                         GetMaxInput().GetValue() + ", " +
+                                                                                                         GetInterpInput().GetValue() + ");\n";
         break;
 
     case IT_Power:
-        outCode += "\t" + returnType + " " + GetOutputName(0, shaderType) + " = mix(" + GetMinInput().GetValue(shaderType) + ", " +
-                                                                                        GetMaxInput().GetValue(shaderType) + ", " +
-                                                                                        "pow(" + GetInterpInput().GetValue(shaderType) + ", " +
-                                                                                                 GetPowerInput().GetValue(shaderType) + "));\n";
+        outCode += "\t" + returnType + " " + GetOutputName(0) + " = mix(" + GetMinInput().GetValue() + ", " +
+                                                                            GetMaxInput().GetValue() + ", " +
+                                                                            "pow(" + GetInterpInput().GetValue() + ", " +
+                                                                                     GetPowerInput().GetValue() + "));\n";
         break;
 
     default: assert(false);

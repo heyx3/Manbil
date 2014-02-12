@@ -18,5 +18,5 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 };

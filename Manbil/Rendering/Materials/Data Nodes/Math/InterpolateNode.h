@@ -28,12 +28,12 @@ public:
     InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type);
     InterpolateNode(DataLine min, DataLine max, DataLine interp, DataLine power);
 
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outFuncs, Shaders shaderType) const override;
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outFuncs) const override;
 
     
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 
 private:

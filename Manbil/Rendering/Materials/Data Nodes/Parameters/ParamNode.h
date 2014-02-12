@@ -17,45 +17,43 @@ public:
 
     virtual std::string GetName(void) const override { return "paramNode"; }
 
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const override
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
     {
         switch (GetOutputs()[0])
         {
             case 1:
-                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(0.0f, 0, GetUniformName());
+                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(0.0f, 0, GetOutputName(0));
             break;
 
             case 2:
-                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector2f(0.0f, 0.0f), 0, GetUniformName());
+                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector2f(0.0f, 0.0f), 0, GetOutputName(0));
             break;
 
             case 3:
-                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector3f(0.0f, 0.0f, 0.0f), 0, GetUniformName());
+                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector3f(0.0f, 0.0f, 0.0f), 0, GetOutputName(0));
             break;
 
             case 4:
-                outUniforms.FloatUniforms[GetUniformName()] = UniformValue(Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0, GetUniformName());
+                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0, GetOutputName(0));
             break;
 
         default: assert(false);
         }
     }
 
-    virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const override
+    virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
         assert(outputIndex == 0);
-        return GetUniformName();
+        return GetName() + std::to_string(GetUniqueID()) + "_" + name;
     }
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No need to write any outputs; the uniform variable is the output.
     }
 
 
 private:
-
-    std::string GetUniformName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_" + name; }
 
     std::string name;
     unsigned int vSize;
