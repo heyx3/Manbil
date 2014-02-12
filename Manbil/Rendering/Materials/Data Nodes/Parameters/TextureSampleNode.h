@@ -24,17 +24,17 @@ public:
                       DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
     : channel(channel), DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), MakeVector(GetSize(channel))) { }
 
-    virtual std::string GetOutputName(unsigned int index, Shaders shaderType) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
 protected:
 
-    virtual void GetMyParameterDeclarations(UniformDictionary & uniforms, Shaders shaderType) const override
+    virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override
     {
         uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSamplerValue(SFTexPtr(0), 0, GetSamplerUniformName());
     }
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 private:
 
@@ -59,14 +59,14 @@ private:
     {
         switch (channel)
         {
-            case ChannelsOut::Red:
-            case ChannelsOut::Green:
-            case ChannelsOut::Blue:
-            case ChannelsOut::Alpha:
+            case ChannelsOut::CO_Red:
+            case ChannelsOut::CO_Green:
+            case ChannelsOut::CO_Blue:
+            case ChannelsOut::CO_Alpha:
                 return 1;
-            case ChannelsOut::AllColorChannels:
+            case ChannelsOut::CO_AllColorChannels:
                 return 3;
-            case ChannelsOut::AllChannels:
+            case ChannelsOut::CO_AllChannels:
                 return 4;
 
             default: assert(false);

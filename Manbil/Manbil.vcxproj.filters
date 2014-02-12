@@ -547,9 +547,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\AbsNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
@@ -574,31 +571,13 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\CrossNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\CeilNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\FloorNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ClampNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\SinCosNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DistanceNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\NormalizeNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ModuloNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\FractNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\InverseSinCosNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNode.h">
@@ -639,6 +618,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

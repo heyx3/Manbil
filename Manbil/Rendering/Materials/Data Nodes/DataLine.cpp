@@ -9,7 +9,7 @@ unsigned int DataLine::GetDataLineSize(void) const
                               nonConstantValue->GetOutputs()[nonConstantValueIndex]);
 }
 
-std::string DataLine::GetValue(ShaderHandler::Shaders shaderType) const
+std::string DataLine::GetValue(void) const
 {
     if (isConstantValue)
     {
@@ -24,6 +24,6 @@ std::string DataLine::GetValue(ShaderHandler::Shaders shaderType) const
     }
     else
     {
-        return nonConstantValue->GetOutputName(nonConstantValueIndex, shaderType);
+        return nonConstantValue->GetOutputName(nonConstantValueIndex);
     }
 }

@@ -8,4 +8,6 @@
 
 -Output size is correct in constructor
 
+-Use proper assert()'s in constructor
+
 -Override "GetOutputName" to give a descriptive name. Make sure it starts by asserting that the output index is valid.

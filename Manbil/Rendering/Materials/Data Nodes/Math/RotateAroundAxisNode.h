@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const override
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
     {
         std::string getFN = GetGetQuatRotFuncName(),
                     applyFN = GetApplyQuatRotFuncName();
@@ -52,12 +52,12 @@ protected:
                               }\n\n";
         outDecls.insert(outDecls.end(), getFunc);
     }
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override
+    virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\tvec3 " + GetOutputName(0, shaderType) + " = " +
-                        GetApplyQuatRotFuncName() + "(" + GetToRotateInput().GetValue(shaderType) + ", " +
-                                                          GetGetQuatRotFuncName() + "(" + GetRotateAxisInput().GetValue(shaderType) + ", " +
-                                                                                          GetRotateAmountInput().GetValue(shaderType) + "));\n";
+        outCode += "\tvec3 " + GetOutputName(0) + " = " +
+                        GetApplyQuatRotFuncName() + "(" + GetToRotateInput().GetValue() + ", " +
+                                                          GetGetQuatRotFuncName() + "(" + GetRotateAxisInput().GetValue() + ", " +
+                                                                                          GetRotateAmountInput().GetValue() + "));\n";
     }
 
 private:

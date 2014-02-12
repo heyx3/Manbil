@@ -20,6 +20,8 @@ public:
     typedef ShaderHandler::Shaders Shaders;
     typedef std::shared_ptr<DataNode> DataNodePtr;
 
+    static void SetShaderType(Shaders shadeType) { shaderType = shadeType; }
+
 
     DataNode(const std::vector<DataLine> & _inputs, const std::vector<unsigned int> & outputSizes)
         : id(GetNextID()), inputs(_inputs), outputs(outputSizes) { }
@@ -28,25 +30,25 @@ public:
 
     //Adds all parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls".
     //Includes all child nodes.
-    void GetParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const
+    void GetParameterDeclarations(UniformDictionary & outUniforms) const
     {
         for (int i = 0; i < inputs.size(); ++i)
             if (!inputs[i].IsConstant())
-                inputs[i].GetDataNodeValue()->GetParameterDeclarations(outUniforms, shaderType);
-        GetMyParameterDeclarations(outUniforms, shaderType);
+                inputs[i].GetDataNodeValue()->GetParameterDeclarations(outUniforms);
+        GetMyParameterDeclarations(outUniforms);
     }
     //Adds all function declarations to "outDecls".
     //Includes all child nodes.
-    void GetFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const
+    void GetFunctionDeclarations(std::vector<std::string> & outDecls) const
     {
         for (int i = 0; i < inputs.size(); ++i)
             if (!inputs[i].IsConstant())
-                inputs[i].GetDataNodeValue()->GetFunctionDeclarations(outDecls, shaderType);
-        GetMyFunctionDeclarations(outDecls, shaderType);
+                inputs[i].GetDataNodeValue()->GetFunctionDeclarations(outDecls);
+        GetMyFunctionDeclarations(outDecls);
     }
     //Appends generated GLSL code for this node (including all code for child nodes) to the end of "outCode".
     //Takes in a list of all nodes that have already added their code to "outCode".
-    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs, Shaders shaderType) const;
+    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const;
 
 
     //Gets the identifier unique for this dataNode.
@@ -66,7 +68,7 @@ public:
     std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
     //Gets the variable name for this node's given output.
-    virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const { assert(outputIndex < outputs.size()); return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
+    virtual std::string GetOutputName(unsigned int outputIndex) const { assert(outputIndex < outputs.size()); return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
 
 
 protected:
@@ -86,23 +88,27 @@ protected:
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
 
 
+    static Shaders GetShaderType(void) { return shaderType; }
+
 
     //Gets any uniforms this node defines.
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms, Shaders shaderType) const { }
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const { }
     //Gets any GLSL helper function declarations this node needs to use.
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls, Shaders shaderType) const { }
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const { }
     //Writes the output for this node, assuming all inputs have already written their output.
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const = 0;
+    virtual void WriteMyOutputs(std::string & outCode) const = 0;
 
 
 private:
 
-    std::vector<DataLine> inputs;
-    std::vector<unsigned int> outputs;
-
+    static Shaders shaderType;
 
     static unsigned int nextID;
     static unsigned int GetNextID(void) { unsigned int id = nextID; nextID += 1; return id; }
+
+
+    std::vector<DataLine> inputs;
+    std::vector<unsigned int> outputs;
 
     unsigned int id;
 };

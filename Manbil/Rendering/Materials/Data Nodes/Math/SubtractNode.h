@@ -12,11 +12,21 @@ public:
 
     virtual std::string GetName(void) const override { return "subtractionNode"; }
 
-    SubtractNode(DataLine baseValue, const std::vector<DataLine> & toSubtract);
-    SubtractNode(DataLine baseValue, DataLine toSubtract);
+    SubtractNode(const DataLine & baseValue, const std::vector<DataLine> & toSubtract)
+        : DataNode(MakeVector(baseValue, toSubtract.begin(), toSubtract), MakeVector(baseValue.GetDataLineSize()))
+    {
+        unsigned int size = toSubtract[0].GetDataLineSize();
+        for (unsigned int i = 0; i < toSubtract.size(); ++i)
+            assert(toSubtract[i].GetDataLineSize() == size);
+    }
+    SubtractNode(const DataLine & baseValue, const DataLine & toSubtract)
+        : DataNode(MakeVector(baseValue, toSubtract), MakeVector(baseValue.GetDataLineSize()))
+    {
+        assert(baseValue.GetDataLineSize() == toSubtract.GetDataLineSize());
+    }
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 };

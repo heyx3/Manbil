@@ -38,7 +38,7 @@ public:
 
 
     //Gets the GLSL expression for this data line output.
-    std::string GetValue(ShaderHandler::Shaders shaderType) const;
+    std::string GetValue(void) const;
 
 
 private:
