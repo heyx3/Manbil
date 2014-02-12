@@ -249,7 +249,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ModuloNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\OneMinusNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ReflectNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RefractNode.h" />

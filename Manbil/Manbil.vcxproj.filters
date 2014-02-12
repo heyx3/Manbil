@@ -613,9 +613,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\OneMinusNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
