@@ -146,6 +146,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
     <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp" />

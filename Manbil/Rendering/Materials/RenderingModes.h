@@ -10,6 +10,7 @@ enum RenderingModes
     RM_Transluscent,
     RM_Additive,
 };
+bool IsModeTransparent(RenderingModes mode) { return (mode == RM_Transluscent || mode == RM_Additive); }
 
 
 //Data about how a material handles light.

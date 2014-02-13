@@ -251,6 +251,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

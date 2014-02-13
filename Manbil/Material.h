@@ -10,6 +10,7 @@
 #include "Rendering/Materials/RenderingModes.h"
 #include "Rendering/Materials/MaterialData.h"
 #include "Rendering/Texture Management/TextureChannels.h"
+#include "Rendering/Materials/UniformCollections.h"
 #include "RenderTarget.h"
 
 
@@ -30,17 +31,7 @@ class Mat
 {
 public:
 
-    typedef std::unordered_map<RenderingChannels, std::shared_ptr<ComputedChannelData>> ComputedChannels;
-    typedef std::unordered_map<RenderingChannels, std::shared_ptr<TextureChannelData>> TextureChannels;
-    typedef std::unordered_map<RenderingChannels, std::shared_ptr<UniformChannelData>> UniformChannels;
-
-
-    ComputedChannels ComputeChannels;
-    TextureChannels TextureChannels;
-    UniformChannels UniformChannels;
-
-
-    Mat(const ComputedChannels & computeChannels, const TextureChannels & texChannels, const UniformChannels & uniformChannels,
+    Mat(std::string & vShader, std::string & fShader, const UniformDictionary & uniforms,
         RenderingModes mode, bool isLit, LightSettings lightSettings);
 
 
