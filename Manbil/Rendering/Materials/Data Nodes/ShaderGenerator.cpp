@@ -108,13 +108,57 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
                 channels[RC::RC_Distortion] = DataLine(Vector2f(0.0f, 0.0f));
                 break;
             case RC::RC_Normal:
-                channels[RC::RC_Normal] = DataLine(DataNodePtr(new WorldNormalNode()));
+                channels[RC::RC_Normal] = DataLine(DataNodePtr(new WorldNormalNode()), 0);
                 break;
-
-                //TODO: Finish.
+            case RC::RC_ObjectVertexOffset:
+                channels[RC::RC_ObjectVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
+                break;
+            case RC::RC_Opacity:
+                channels[RC::RC_Opacity] = DataLine(1.0f);
+                break;
+            case RC::RC_Specular:
+                channels[RC::RC_Specular] = DataLine(0.0f);
+                break;
+            case RC::RC_SpecularIntensity:
+                channels[RC::RC_SpecularIntensity] = DataLine(32.0f);
+                break;
+            case RC::RC_WorldVertexOffset:
+                channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
+                break;
 
             default: assert(false);
             }
         }
     }
+
+
+    //Create the shaders.
+    //TODO: Add the uniform declarations.
+    std::string vertexShaderHeader = std::string() +
+        "#version 330                                                               \n\
+                                                                                    \n\
+        layout (location = 0) in vec3 " + MaterialConstants::InPos + ";             \n\
+        layout (location = 1) in vec4 " + MaterialConstants::InColor + ";           \n\
+        layout (location = 2) in vec2 " + MaterialConstants::InUV + ";              \n\
+        layout (location = 3) in vec3 " + MaterialConstants::InNormal + ";          \n\
+                                                                                    \n\
+        out vec3 " + MaterialConstants::OutPos + ";                                 \n\
+        out vec4 " + MaterialConstants::OutColor + ";                               \n\
+        out vec2 " + MaterialConstants::OutUV + ";                                  \n\
+        out vec3 " + MaterialConstants::OutNormal + ";                              \n\
+        ";
+    std::string fragmentShaderHeader = std::string() +
+        "#version 330                                                               \n\
+                                                                                    \n\
+        in vec3 " + MaterialConstants::OutPos + ";                                  \n\
+        in vec4 " + MaterialConstants::OutColor + ";                                \n\
+        in vec2 " + MaterialConstants::OutUV + ";                                   \n\
+        in vec3 " + MaterialConstants::OutNormal + ";                               \n\
+                                                                                    \n\
+        out vec4 finalOutColor;                                                     \n\
+        ";
+
+
+    //Add data node uniforms and functions.
+    //TODO: Finish.
 }
