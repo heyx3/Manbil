@@ -243,6 +243,11 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
         fragShader += iterator->second.GetDeclaration() + "\n";
 
+    if (useLighting)
+    {
+        //TODO: Add code for light struct uniform.
+    }
+
 
     //Add in the helper functions to the shader code.
 
@@ -254,6 +259,10 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     fragShader += "\n\n//Helper functions.";
     for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
         fragShader += fragmentFunctionDecls[i] + "\n";
+    if (useLighting)
+    {
+        //TODO: Add code to calculate light value.
+    }
     fragShader += "\n\n\n";
 
 
