@@ -16,7 +16,8 @@ public:
                              WorldMatName, ViewMatName, ProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
                              InPos, InUV, InNormal, InColor,
-                             OutPos, OutUV, OutNormal, OutColor;
+                             OutPos, OutUV, OutNormal, OutColor,
+                             FinalOutColor;
 
 };
 

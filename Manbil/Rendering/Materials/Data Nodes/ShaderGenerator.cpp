@@ -214,6 +214,9 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
                 default: assert(false);
             }
+
+            vertexCode += "\n";
+            fragmentCode += "\n";
         }
     }
 
@@ -241,34 +244,40 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
         fragShader += iterator->second.GetDeclaration() + "\n";
 
 
-    //Add in the functions to the shader code.
+    //Add in the helper functions to the shader code.
 
     vertShader += "\n\n//Helper functions.";
     for (unsigned int i = 0; i < vertexFunctionDecls.size(); ++i)
         vertShader += vertexFunctionDecls[i] + "\n";
-    vertShader += "\n\n";
+    vertShader += "\n\n\n";
 
     fragShader += "\n\n//Helper functions.";
     for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
         fragShader += fragmentFunctionDecls[i] + "\n";
-    fragShader += "\n\n";
+    fragShader += "\n\n\n";
 
 
     //Set up the main() functions.
     vertShader += "                                                                                             \n\
         void main()                                                                                             \n\
         {                                                                                                       \n\
-            " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
-            " + MaterialConstants::OutNormal + " = (" + MaterialConstants::WorldMatName +
-                                                  " * vec4(" + MaterialConstants::InNormal + ", 0.0)).xyz;      \n\
-            " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
+            //Compute outputs.                                                                                  \n\
+            " + vertexCode + "                                                                                  \n\
                                                                                                                 \n\
+                                                                                                                \n\
+            //Compute shader outputs.                                                                           \n\
+            \t" + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                         \n\
+            \t" + MaterialConstants::OutNormal + " = (" + MaterialConstants::WorldMatName +
+                                                  " * vec4(" + MaterialConstants::InNormal + ", 0.0)).xyz;      \n\
+            \t" + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                               \n\
+                                                                                                                \n\
+            //Compute world position.                                                                           \n\
             vec4 pos = " + MaterialConstants::InPos + ";                                                        \n\
             pos += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                      \n\
             pos = (" + MaterialConstants::WorldMatName + " * vec4(pos, 0.0)" + ").xyz;                          \n\
             pos += " + channels[RC::RC_WorldVertexOffset].GetValue() + ";                                       \n\
                                                                                                                 \n\
-            " + MaterialConstants::OutPos + " = pos;                                                            \n\
+            \t" + MaterialConstants::OutPos + " = pos;                                                          \n\
         }";
     //TODO: Finish.
     fragShader += "                                                                                             \n\

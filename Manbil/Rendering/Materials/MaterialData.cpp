@@ -19,4 +19,6 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::OutPos = "out_pos",
                   MaterialConstants::OutUV = "out_uv",
                   MaterialConstants::OutNormal = "out_normal",
-                  MaterialConstants::OutColor = "out_color";
+                  MaterialConstants::OutColor = "out_color",
+                  
+                  MaterialConstants::FinalOutColor = "finalout_color";
