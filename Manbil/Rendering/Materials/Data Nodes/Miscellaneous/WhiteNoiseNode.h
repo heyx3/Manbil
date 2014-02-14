@@ -12,10 +12,11 @@ public:
 
     WhiteNoiseNode(const DataLine & seed) : DataNode(makeInputs(seed), MakeVector(1)) { }
 
+    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_noise"; }
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 private:
 

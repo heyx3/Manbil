@@ -1,11 +1,11 @@
 #include "WhiteNoiseNode.h"
 
-void WhiteNoiseNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string vecType = Vector(GetOutputs()[0]).GetGLSLType(),
-                seed1 = GetInputs()[0].GetValue(shaderType),
-                seed2 = GetInputs()[1].GetValue(shaderType),
-                output = GetOutputName(0, shaderType);
+                seed1 = GetInputs()[0].GetValue(),
+                seed2 = GetInputs()[1].GetValue(),
+                output = GetOutputName(0);
 
     outCode += "\t" + vecType + " " + output + " = fract(sin(dot(" + seed1 + ", " + seed2 + ")) * 43758.5453);\n";
 }

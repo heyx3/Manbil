@@ -31,70 +31,13 @@ public:
     //Adds all needed parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls",
     //    including all child nodes' declarations.
     //Takes in a list of all nodes that have already added their parameters to "outUniforms".
-    void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const
-    {
-        //Exit if this node has already been used.
-        if (std::find(writtenNodeIDs.begin(), writtenNodeIDs.end(), GetUniqueID()) != writtenNodeIDs.end())
-            return;
-
-        //First get the parameter declarations for all the child nodes.
-        for (int i = 0; i < inputs.size(); ++i)
-        {
-            if (!inputs[i].IsConstant())
-            {
-                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-                dataN->GetParameterDeclarations(outUniforms, writtenNodeIDs);
-            }
-        }
-
-        //Now get this node's own parameter declarations.
-        writtenNodeIDs.insert(writtenNodeIDs.end(), GetUniqueID());
-        GetMyParameterDeclarations(outUniforms);
-    }
+    void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const;
     //Adds all needed function declarations to "outDecls", including all child nodes' functions.
     //Takes in a list of all nodes that have already added their functions to "outDecls".
-    void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<unsigned int> & writtenNodeIDs) const
-    {
-        //Exit if this node has already been used.
-        if (std::find(writtenNodeIDs.begin(), writtenNodeIDs.end(), GetUniqueID()) != writtenNodeIDs.end())
-            return;
-
-        //First get the function declarations for all the child nodes.
-        for (int i = 0; i < inputs.size(); ++i)
-        {
-            if (!inputs[i].IsConstant())
-            {
-                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-                dataN->GetFunctionDeclarations(outDecls, writtenNodeIDs);
-            }
-        }
-
-        //Now get this node's own function declarations.
-        writtenNodeIDs.insert(writtenNodeIDs.end(), GetUniqueID());
-        GetMyFunctionDeclarations(outDecls);
-    }
+    void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<unsigned int> & writtenNodeIDs) const;
     //Appends generated GLSL code for this node (including all code for child nodes) to the end of "outCode".
     //Takes in a list of all nodes that have already added their code to "outCode".
-    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const
-    {
-        //Exit if this node has already been used.
-        if (std::find(writtenNodeIDs.begin(), writtenNodeIDs.end(), GetUniqueID()) != writtenNodeIDs.end())
-            return;
-
-        //First get the outputs for all the child nodes.
-        for (int i = 0; i < inputs.size(); ++i)
-        {
-            if (!inputs[i].IsConstant())
-            {
-                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-                dataN->WriteOutputs(outCode, writtenNodeIDs);
-            }
-        }
-
-        //Now get this node's own outputs.
-        writtenNodeIDs.insert(writtenNodeIDs.end(), GetUniqueID());
-        WriteMyOutputs(outCode);
-    }
+    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const;
 
 
     //Gets the identifier unique for this dataNode.

@@ -75,7 +75,7 @@ void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSetti
     }
 }
 
-void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
+void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
                          RenderingModes mode, bool useLighting, const LightSettings & settings,
                          std::unordered_map<RenderingChannels, DataLine> channels)
 {
@@ -171,13 +171,114 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
         " + uniformDeclarations;
 
 
-    //Add data node uniforms and functions.
-    UniformDictionary dict;
-    std::vector<unsigned int> vertexUniforms, fragmentUniforms;
+    std::string vertShader = vertexShaderHeader,
+                fragShader = fragmentShaderHeader;
+
+
+    //Collect data node uniforms, functions, and output.
+
+    UniformDictionary vertexUniformDict, fragmentUniformDict;
+    std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;
+    std::string vertexCode, fragmentCode;
+    std::vector<unsigned int> vertexUniforms, fragmentUniforms,
+                              vertexFunctions, fragmentFunctions,
+                              vertexCodes, fragmentCodes;
+
     for (int i = 0; i < validChannels.size(); ++i)
     {
-        //TODO: Finish.
-        if (!channels[validChannels[i]].IsConstant())
-            channels[validChannels[i]].GetDataNodeValue()->GetParameterDeclarations(dict);
+        const DataLine & data = channels[validChannels[i]];
+        if (!data.IsConstant())
+        {
+            switch (validChannels[i])
+            {
+                case RC::RC_WorldVertexOffset:
+                case RC::RC_ObjectVertexOffset:
+                    DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
+                    data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
+                    data.GetDataNodeValue()->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
+                    data.GetDataNodeValue()->WriteOutputs(vertexCode, vertexCodes);
+                    break;
+
+                case RC::RC_Diffuse:
+                case RC::RC_DiffuseIntensity:
+                case RC::RC_Distortion:
+                case RC::RC_Normal:
+                case RC::RC_Opacity:
+                case RC::RC_Specular:
+                case RC::RC_SpecularIntensity:
+                    DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
+                    data.GetDataNodeValue()->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
+                    data.GetDataNodeValue()->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
+                    data.GetDataNodeValue()->WriteOutputs(fragmentCode, fragmentCodes);
+                    break;
+
+                default: assert(false);
+            }
+        }
     }
+
+
+    //Add in the uniforms to the shader code.
+
+    vertShader += "//Uniforms.\n";
+    for (auto iterator = vertexUniformDict.FloatUniforms.begin(); iterator != vertexUniformDict.FloatUniforms.end(); ++iterator)
+        vertShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = vertexUniformDict.FloatArrayUniforms.begin(); iterator != vertexUniformDict.FloatArrayUniforms.end(); ++iterator)
+        vertShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = vertexUniformDict.MatrixUniforms.begin(); iterator != vertexUniformDict.MatrixUniforms.end(); ++iterator)
+        vertShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
+        vertShader += iterator->second.GetDeclaration() + "\n";
+
+    fragShader += "//Uniforms.\n";
+    for (auto iterator = fragmentUniformDict.FloatUniforms.begin(); iterator != fragmentUniformDict.FloatUniforms.end(); ++iterator)
+        fragShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = fragmentUniformDict.FloatArrayUniforms.begin(); iterator != fragmentUniformDict.FloatArrayUniforms.end(); ++iterator)
+        fragShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = fragmentUniformDict.MatrixUniforms.begin(); iterator != fragmentUniformDict.MatrixUniforms.end(); ++iterator)
+        fragShader += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
+        fragShader += iterator->second.GetDeclaration() + "\n";
+
+
+    //Add in the functions to the shader code.
+
+    vertShader += "\n\n//Helper functions.";
+    for (unsigned int i = 0; i < vertexFunctionDecls.size(); ++i)
+        vertShader += vertexFunctionDecls[i] + "\n";
+    vertShader += "\n\n";
+
+    fragShader += "\n\n//Helper functions.";
+    for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
+        fragShader += fragmentFunctionDecls[i] + "\n";
+    fragShader += "\n\n";
+
+
+    //Set up the main() functions.
+    vertShader += "                                                                                             \n\
+        void main()                                                                                             \n\
+        {                                                                                                       \n\
+            " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
+            " + MaterialConstants::OutNormal + " = (" + MaterialConstants::WorldMatName +
+                                                  " * vec4(" + MaterialConstants::InNormal + ", 0.0)).xyz;      \n\
+            " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
+                                                                                                                \n\
+            vec4 pos = " + MaterialConstants::InPos + ";                                                        \n\
+            pos += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                      \n\
+            pos = (" + MaterialConstants::WorldMatName + " * vec4(pos, 0.0)" + ").xyz;                          \n\
+            pos += " + channels[RC::RC_WorldVertexOffset].GetValue() + ";                                       \n\
+                                                                                                                \n\
+            " + MaterialConstants::OutPos + " = pos;                                                            \n\
+        }";
+    //TODO: Finish.
+    fragShader += "                                                                                             \n\
+        ";
+
+
+    outVShader += vertShader;
+    outFShader += fragShader;
+
+
+    //Finalize the uniforms.
+    //TODO: Finish.
 }
