@@ -20,7 +20,7 @@ public:
     static void GetUsedChannels(RenderingModes mode, bool useLighting, const LightSettings & settings, std::vector<RenderingChannels> & outChannels);
 
     //Generates a vertex and fragment shader given data nodes.
-    static void GenerateShaders(std::string & outVShader, std::string & outFShader,
+    static void GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
                                 RenderingModes mode, bool useLighting, const LightSettings & settings,
                                 std::unordered_map<RenderingChannels, DataLine> channels);
 };
