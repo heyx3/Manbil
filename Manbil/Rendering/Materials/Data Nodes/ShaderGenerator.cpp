@@ -5,6 +5,7 @@
 
 typedef ShaderGenerator SG;
 typedef RenderingChannels RC;
+typedef ShaderHandler::Shaders Shaders;
 
 
 unsigned int SG::GetChannelInputSize(RC channel)
@@ -133,7 +134,16 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
 
 
     //Create the shaders.
-    //TODO: Add the uniform declarations.
+    std::string uniformDeclarations = std::string() +
+        "uniform float " + MaterialConstants::ElapsedTimeName + ";                   \n\
+         uniform vec3 " + MaterialConstants::CameraPosName + ", " +
+                          MaterialConstants::CameraForwardName + ", " +
+                          MaterialConstants::CameraUpName + ", " +
+                          MaterialConstants::CameraSideName + ";                     \n\
+         uniform mat4 " + MaterialConstants::WorldMatName + ", " +
+                          MaterialConstants::ViewMatName + ", " +
+                          MaterialConstants::ProjMatName + ", " +
+                          MaterialConstants::WVPMatName + ";\n\n";
     std::string vertexShaderHeader = std::string() +
         "#version 330                                                               \n\
                                                                                     \n\
@@ -146,7 +156,8 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
         out vec4 " + MaterialConstants::OutColor + ";                               \n\
         out vec2 " + MaterialConstants::OutUV + ";                                  \n\
         out vec3 " + MaterialConstants::OutNormal + ";                              \n\
-        ";
+                                                                                    \n\
+        " + uniformDeclarations;
     std::string fragmentShaderHeader = std::string() +
         "#version 330                                                               \n\
                                                                                     \n\
@@ -156,9 +167,17 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader,
         in vec3 " + MaterialConstants::OutNormal + ";                               \n\
                                                                                     \n\
         out vec4 finalOutColor;                                                     \n\
-        ";
+                                                                                    \n\
+        " + uniformDeclarations;
 
 
     //Add data node uniforms and functions.
-    //TODO: Finish.
+    UniformDictionary dict;
+    std::vector<unsigned int> vertexUniforms, fragmentUniforms;
+    for (int i = 0; i < validChannels.size(); ++i)
+    {
+        //TODO: Finish.
+        if (!channels[validChannels[i]].IsConstant())
+            channels[validChannels[i]].GetDataNodeValue()->GetParameterDeclarations(dict);
+    }
 }
