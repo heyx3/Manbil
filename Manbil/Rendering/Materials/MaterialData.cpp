@@ -22,3 +22,19 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::OutColor = "out_color",
                   
                   MaterialConstants::FinalOutColor = "finalout_color";
+
+RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
+{
+    switch (mode)
+    {
+    case RenderingModes::RM_Opaque:
+        return RenderingState(true, false, true);
+    case RenderingModes::RM_Transluscent:
+        return RenderingState(true, true, true);
+    case RenderingModes::RM_Additive:
+        return RenderingState(true, true, true, RenderingState::Cullables::C_NONE,
+                              RenderingState::BlendingExpressions::One, RenderingState::BlendingExpressions::One);
+
+    default: assert(false);
+    }
+}

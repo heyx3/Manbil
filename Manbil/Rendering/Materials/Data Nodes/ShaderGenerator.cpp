@@ -246,21 +246,16 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
     if (useLighting)
     {
-        fragShader += "\n//Lighting uniforms.\n\
-                      struct DirectionalLight\n\
+        fragShader += "\nstruct DirectionalLight\n\
                       {\n\
                           vec3 Col, Dir;\n\
                           float Ambient, Diffuse;\n\
                       };\n\
-                      uniform DirectionalLight dirLight;\n\
-                      uniform float specular;\n\
-                      uniform float specularIntensity;\n";
+                      uniform DirectionalLight dirLight;\n\n";
         fragmentUniformDict.FloatUniforms["dirLight.Col"] = UniformValue(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
         fragmentUniformDict.FloatUniforms["dirLight.Dir"] = UniformValue(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
         fragmentUniformDict.FloatUniforms["dirLight.Ambient"] = UniformValue(0.2f, 0, "dirLight.Ambient");
         fragmentUniformDict.FloatUniforms["dirLight.Diffuse"] = UniformValue(0.8f, 0, "dirLight.Diffuse");
-        fragmentUniformDict.FloatUniforms["specular"].Value[0] = 0.0f;
-        fragmentUniformDict.FloatUniforms["specularIntensity"].Value[0] = 0.0f;
     }
 
 
@@ -276,7 +271,7 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
         fragShader += fragmentFunctionDecls[i] + "\n";
     if (useLighting)
     {
-        fragShader += "\nvec3 getBrightness(vec3 surfaceNormal, vec3 camToFragNormal, float specular, float specularIntensity, DirectionalLight lightDir)\n\
+        fragShader += "\nvec3 getLight(vec3 surfaceNormal, vec3 camToFragNormal, float specular, float specularIntensity, DirectionalLight lightDir)\n\
                       {\n\
                           float dotted = max(dot(-surfaceNormal, lightDir.Dir), 0.0);\n\
                           \n\
@@ -286,13 +281,15 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
                           float specFactor = max(0.0, dot(fragToCam, lightReflect));\n\
                           specFactor = pow(specFactor, specularIntensity);\n\
                           \n\
-                          return lightDir.Ambient + (lightDir.Diffuse * dotted) + (specular * specFactor);\n\
+                          return lightDir.Col * (lightDir.Ambient + (lightDir.Diffuse * dotted) + (specular * specFactor));\n\
                       }\n";
     }
     fragShader += "\n\n\n";
 
 
     //Set up the main() functions.
+    //TODO: Add/modify a DataNode so that players can transform a normal from object space into world space.
+    //TODO: Create a separate rendering mode for distortion -- it is opaque, and blending is manually done in the fragment shader using a sampler for the rendered world.
     //TODO: For vertex shader: calculate the screen depth of the vertex from 0 - 1 after transforming the position into clip space, pass it to the vertex shader, and expose it as a DataNode.
     vertShader += "                                                                                             \n\
         void main()                                                                                             \n\
@@ -317,21 +314,74 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
                                                                                                                 \n\
             gl_Position = " + MaterialConstants::WVPMatName + " * " + MaterialConstants::InPos + ";             \n\
         }";
-    //TODO: Finish.
     fragShader += "                                                                                             \n\
-        ";
+        void main()                                                                                             \n\
+        {                                                                                                       \n\
+            //Compute outputs.                                                                                  \n\
+            " + fragmentCode + "                                                                                \n\
+                                                                                                                \n\
+                                                                                                                \n\
+            //Compute pixel outputs.                                                                            \n";
+    //If diffuse intensity isn't used, don't bother computing it.
+    if (channels[RC::RC_DiffuseIntensity].IsConstant() && channels[RC::RC_DiffuseIntensity].GetConstantValue().GetValue()[0] == 1.0f)
+        fragShader += "\tvec3 diffuseCol = " + channels[RC::RC_Diffuse].GetValue() + ";\n";
+    else fragShader += "\tvec3 diffuseCol = pow(" + channels[RC::RC_Diffuse].GetValue() + ", " + channels[RC::RC_DiffuseIntensity].GetValue() + ");\n";
+    //If this material uses lighting, calculate lighting stuff.
+    if (useLighting)
+        fragShader += "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
+            diffuseCol *= getLight(normalVal, " + MaterialConstants::OutPos + " - " +
+                                                  MaterialConstants::CameraPosName +
+                                  ", " + channels[RC::RC_Specular].GetValue() +
+                                  ", " + channels[RC::RC_SpecularIntensity].GetValue() +
+                                  ", dirLight);                                                                 \n\n";
+    //Now change how the final color is computed based on rendering mode.
+    switch (mode)
+    {
+    case RenderingModes::RM_Opaque:
+        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, 1.0);\n";
+        break;
+    case RenderingModes::RM_Transluscent:
+        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n";
+        break;
+    case RenderingModes::RM_Additive:
+        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n";
+        break;
+
+    default: assert(false);
+    }
+
+    fragShader += "}";
 
 
     outVShader += vertShader;
     outFShader += fragShader;
 
 
+
     //Finalize the uniforms.
-    //TODO: Implement.
 
-    //Create the shaders.
-    //TODO: Implement.
+    for (auto iterator = fragmentUniformDict.FloatUniforms.begin(); iterator != fragmentUniformDict.FloatUniforms.end(); ++iterator)
+        outUniforms.FloatUniforms[iterator->first] = iterator->second;
+    for (auto iterator = fragmentUniformDict.FloatArrayUniforms.begin(); iterator != fragmentUniformDict.FloatArrayUniforms.end(); ++iterator)
+        outUniforms.FloatArrayUniforms[iterator->first] = iterator->second;
+    for (auto iterator = fragmentUniformDict.MatrixUniforms.begin(); iterator != fragmentUniformDict.MatrixUniforms.end(); ++iterator)
+        outUniforms.MatrixUniforms[iterator->first] = iterator->second;
+    for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
+        outUniforms.TextureUniforms[iterator->first] = iterator->second;
 
-    //Get the uniform locations.
-    //TODO: Implement.
+    for (auto iterator = vertexUniformDict.FloatUniforms.begin(); iterator != vertexUniformDict.FloatUniforms.end(); ++iterator)
+        if (outUniforms.FloatUniforms.find(iterator->first) == outUniforms.FloatUniforms.end())
+            outUniforms.FloatUniforms[iterator->first] = iterator->second;
+    for (auto iterator = vertexUniformDict.FloatArrayUniforms.begin(); iterator != vertexUniformDict.FloatArrayUniforms.end(); ++iterator)
+        if (outUniforms.FloatArrayUniforms.find(iterator->first) == outUniforms.FloatArrayUniforms.end())
+            outUniforms.FloatArrayUniforms[iterator->first] = iterator->second;
+    for (auto iterator = vertexUniformDict.MatrixUniforms.begin(); iterator != vertexUniformDict.MatrixUniforms.end(); ++iterator)
+        if (outUniforms.MatrixUniforms.find(iterator->first) == outUniforms.MatrixUniforms.end())
+            outUniforms.MatrixUniforms[iterator->first] = iterator->second;
+    for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
+        if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
+            outUniforms.TextureUniforms[iterator->first] = iterator->second;
+
+
+    //TOOD: In the Mat class, create these shaders and then get uniform locations and set them in the dictionary.
 }

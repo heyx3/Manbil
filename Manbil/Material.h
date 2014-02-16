@@ -61,7 +61,7 @@ private:
 
 
 
-
+/*
 
 //Represents a vertex shader and multiple fragment shaders.
 //Refer to the document "Shader Definitions" for more info.
@@ -295,3 +295,4 @@ private:
     //Sets "errorMsg" to either an empty string or the current OpenGL error message, then returns whether there was an error message.
     bool CheckError(std::string errorStart) { errorMsg = GetCurrentRenderingError(); if (!errorMsg.empty()) errorMsg.insert(errorMsg.begin(), errorStart.begin(), errorStart.end()); return HasError(); }
 };
+*/

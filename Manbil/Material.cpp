@@ -1,30 +1,11 @@
 #include "Material.h"
 
-#include "Vertex.h"
-#include "Mesh.h"
-#include "RenderDataHandler.h"
 
-typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
+//typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 
 
-RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
-{
-    switch (mode)
-    {
-    case RenderingModes::RM_Opaque:
-        return RenderingState(true, false, true);
-    case RenderingModes::RM_Transluscent:
-        return RenderingState(true, true, true);
-    case RenderingModes::RM_Additive:
-        return RenderingState(true, true, true, RenderingState::Cullables::C_NONE,
-                              RenderingState::BlendingExpressions::One, RenderingState::BlendingExpressions::One);
-
-    default: assert(false);
-    }
-}
-
-
+/*
 PassSamplers::PassSamplers(RenderObjHandle samplers[MaterialConstants::TWODSAMPLERS])
 {
     for (int i = 0; i < MaterialConstants::TWODSAMPLERS; ++i)
@@ -410,3 +391,5 @@ bool Material::TryAddUniform(unsigned int programIndex, std::string uniform)
     uniforms[programIndex][uniform] = temp;
     return b;
 }
+
+*/
