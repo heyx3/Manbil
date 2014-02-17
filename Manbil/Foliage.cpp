@@ -1,5 +1,7 @@
 #include "Foliage.h"
 
+/*
+
 #include <iostream>
 
 #include <memory>
@@ -177,3 +179,5 @@ bool Foliage::Render(const RenderInfo & info)
 
 	return Mat->Render(info, meshes);
 }
+
+*/

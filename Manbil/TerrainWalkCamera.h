@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "Math/Higher Math/Camera.h"
 #include "Math/Higher Math/Terrain.h"
 #include "SFML/Window.hpp"
@@ -49,3 +51,5 @@ private:
 	sf::Vector2i Conv(Vector2i i) const { return sf::Vector2i(i.x, i.y); }
 	Vector2i Conv(sf::Vector2i i) const { return Vector2i(i.x, i.y); }
 };
+
+*/

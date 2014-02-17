@@ -1,5 +1,7 @@
 #include "TwoDOpenGLTest.h"
 
+/*
+
 #include "../ScreenClearer.h"
 #include "../TextureSettings.h"
 #include "../Input/Input Objects/KeyboardBoolInput.h"
@@ -234,3 +236,5 @@ void TwoDOpenGLTest::OnWindowResized(unsigned int w, unsigned int h)
     cam->Info.Width = w;
     cam->Info.Height = h;
 }
+
+*/

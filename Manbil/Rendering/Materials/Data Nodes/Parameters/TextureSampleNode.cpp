@@ -11,7 +11,7 @@ void TextureSampleNode::WriteMyOutputs(std::string & outCode) const
     std::string outType = Vector(GetSize(channel)).GetGLSLType();
 
 
-    outCode += "\t" + outType + " " + GetOutputName(0, ) + " = texture2D(" + GetSamplerUniformName() + ", " + uvFinal + ")";
+    outCode += "\t" + outType + " " + GetOutputName(0) + " = texture2D(" + GetSamplerUniformName() + ", " + uvFinal + ")";
 
 
     switch (channel)

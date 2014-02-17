@@ -3,6 +3,7 @@
 #include <string>
 #include "../../RenderTarget.h"
 
+/*
 
 //Manages render targets for material passes.
 class RenderTargetPool
@@ -32,3 +33,5 @@ private:
 
     static bool isInitialized;
 };
+
+*/

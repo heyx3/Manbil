@@ -1,5 +1,9 @@
 #include "DataNode.h"
 
+unsigned int DataNode::nextID = 0;
+DataNode::Shaders DataNode::shaderType = DataNode::Shaders::SH_Vertex_Shader;
+
+
 void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const
 {
     //Exit if this node has already been used.

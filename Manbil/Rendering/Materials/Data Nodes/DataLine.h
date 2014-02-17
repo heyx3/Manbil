@@ -20,7 +20,8 @@ public:
         : isConstantValue(false), nonConstantValue(input), nonConstantValueIndex(outputLineIndex) { }
     //Creates a DataLine with a constant input value.
     DataLine(const Vector & constantInput) : isConstantValue(true), constantValue(constantInput) { }
-
+    //Creates a DataLine with the default value { 0, 0, 0, 0 }.
+    DataLine(void) : isConstantValue(true), constantValue(Vector(Vector4f(0.0f, 0.0f, 0.0f, 0.0f))) { }
 
     //This data line either feeds in a constant input, or gets the input value from a DataNode's output.
     bool IsConstant(void) const { return isConstantValue; }

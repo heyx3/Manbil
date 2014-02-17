@@ -131,7 +131,7 @@ namespace MyVectors
         }
 
 		float Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
-		float AngleBetween(Vector3i other) const { return acos(Dot(other) / (Length() * other.Length())); }
+		float AngleBetween(Vector3i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
         //Scales this Vector3i's x, y, and z components by the given Vector3i's x, y, and z components.
         void MultiplyComponents(Vector3i scale) { x *= scale.x; y *= scale.y; z *= scale.z; }
@@ -190,7 +190,7 @@ namespace MyVectors
         }
 
         int Dot(Vector4i other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
-        int AngleBetween(Vector4i other) const { return acos(Dot(other) / (Length() * other.Length())); }
+        int AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
         int Length(void) const { return sqrtf(LengthSquared()); }
         int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
@@ -260,7 +260,7 @@ namespace MyVectors
         }
 
 		float Dot(Vector2f other) const { return (x * other.x) + (y * other.y); }
-		float AngleBetween(Vector2f other) const { return acos(Dot(other) / (Length() * other.Length())); }
+		float AngleBetween(Vector2f other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		float LengthSquared(void) const { return (x * x) + (y * y); }
@@ -335,7 +335,7 @@ namespace MyVectors
         }
 
 		float Dot(Vector3f other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
-		float AngleBetween(Vector3f other) const { return acos(Dot(other) / (Length() * other.Length())); }
+		float AngleBetween(Vector3f other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		float LengthSquared(void) const { return (x * x) + (y * y) + (z * z); }
@@ -410,7 +410,7 @@ namespace MyVectors
         }
 
 		float Dot(Vector4f other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
-		float AngleBetween(Vector4f other) const { return acos(Dot(other) / (Length() * other.Length())); }
+		float AngleBetween(Vector4f other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		float LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }

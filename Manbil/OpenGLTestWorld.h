@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "SFMLOpenGLWorld.h"
 #include "Math/HigherMath.hpp"
 #include "MovingCamera.h"
@@ -54,3 +56,5 @@ private:
 
     RenderObjHandle grassImgH, normalMapImgH, shrubImgH, waterImgH;
 };
+
+*/

@@ -1,4 +1,5 @@
 #pragma once
+/*
 
 #include <string>
 #include "Math/Vectors.h"
@@ -35,3 +36,5 @@ struct Materials
     //Sets the given mesh's light data to the given value.
     static void LitTexture_SetUniforms(Mesh & mesh, const LitTexture_DirectionalLight & lightData);
 };
+
+*/

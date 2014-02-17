@@ -6,6 +6,7 @@
 #include "../../OpenGLIncludes.h"
 #include <SFML/Graphics/Texture.hpp>
 #include "../../Math/Matrix4f.h"
+#include "Data Nodes/Vector.h"
 
 
 #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
@@ -26,7 +27,7 @@ public:
     UniformValue(Vector2f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
     UniformValue(Vector3f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
     UniformValue(Vector4f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValue(float * value, unsigned int nData, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
+    UniformValue(float * value = 0, unsigned int nData = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
     std::string GetDeclaration(void) const { return "uniform " + Vector(NData).GetGLSLType() + Name + ";"; }
 };
 
@@ -38,7 +39,7 @@ public:
     unsigned int NumbValues, BasicTypesPerValue;
     UniformLocation Location;
     std::string Name;
-    UniformArrayValue(float * values, unsigned int nValues, unsigned  int nBasicTypesPerValue, UniformLocation loc, std::string name) : Name(name), Location(loc), Values(values), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue) { }
+    UniformArrayValue(float * values = 0, unsigned int nValues = 0, unsigned  int nBasicTypesPerValue = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), Values(values), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue) { }
     std::string GetDeclaration(void) const { return "uniform " + Vector(BasicTypesPerValue).GetGLSLType() + Name + "[" + std::to_string(NumbValues) + "];"; }
 };
 
@@ -49,6 +50,7 @@ public:
     Matrix4f Value;
     UniformLocation Location;
     std::string Name;
+    UniformMatrixValue(void) { }
     UniformMatrixValue(const Matrix4f & value, UniformLocation loc, std::string name) : Name(name), Location(loc), Value(value) { }
     std::string GetDeclaration(void) const { return "uniform mat4 " + Name + ";"; }
 };
@@ -60,7 +62,7 @@ public:
     SFTexPtr Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(SFTexPtr texture, UniformLocation loc, std::string name) : Name(name), Location(loc), Texture(texture) { }
+    UniformSamplerValue(SFTexPtr texture = SFTexPtr(), UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), Texture(texture) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 

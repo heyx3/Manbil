@@ -10,7 +10,7 @@ std::vector<unsigned int> VectorComponentsNode::buildOutputs(const DataLine & in
     return ret;
 }
 
-std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex, Shaders shaderType) const
+std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
 {
     assert(outputIndex < GetVectorInput().GetDataLineSize());
     std::string ret = GetName() + std::to_string(GetUniqueID()) + "_";
@@ -22,13 +22,15 @@ std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex, Shader
     case 3: ret += "w";
     default: assert(false);
     }
+
+    return "";
 }
 
-void VectorComponentsNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
 {
     for (int i = 0; i < GetVectorInput().GetDataLineSize(); ++i)
     {
-        outCode += "\tfloat " + GetOutputName(i, shaderType) + " = " + GetVectorInput().GetValue(shaderType) + ".";
+        outCode += "\tfloat " + GetOutputName(i) + " = " + GetVectorInput().GetValue() + ".";
         switch (i)
         {
         case 0: outCode += "x";

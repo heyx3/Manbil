@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+/*
+
 Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
     : primType(pType), nVIData(numbVIData)
 {
@@ -70,3 +72,5 @@ void Mesh::operator=(const Mesh & other)
     IntArrayUniformValues = other.IntArrayUniformValues;
     MatUniformValues = other.MatUniformValues;
 }
+
+*/

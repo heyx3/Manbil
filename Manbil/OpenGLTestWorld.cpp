@@ -1,5 +1,7 @@
 #include "OpenGLTestWorld.h"
 
+/*
+
 #include "Material.h"
 #include <iostream>
 #include "Vertices.h"
@@ -657,3 +659,5 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	cam.Info.Width = newW;
 	cam.Info.Height = newH;
 }
+
+*/

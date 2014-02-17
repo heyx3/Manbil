@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
 #include <string>
@@ -51,3 +53,5 @@ private:
 
 	mutable std::string errorMsg;
 };
+
+*/

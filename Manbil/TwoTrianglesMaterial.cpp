@@ -101,13 +101,13 @@ TTM::TwoTrianglesMaterial(string fShader)
 		errorMsg += ShaderHandler::GetErrorMessage();
 		return;
 	}
-	if (!ShaderHandler::CreateShader(shaderProg, vsObj, vs.c_str(), GL_VERTEX_SHADER))
+	if (!ShaderHandler::CreateShader(shaderProg, vsObj, vs.c_str(), ShaderHandler::Shaders::SH_Vertex_Shader))
 	{
 		errorMsg = "Error creating vertex shader: ";
 		errorMsg += ShaderHandler::GetErrorMessage();
 		return;
 	}
-	if (!ShaderHandler::CreateShader(shaderProg, fsObj, fs.c_str(), GL_FRAGMENT_SHADER))
+    if (!ShaderHandler::CreateShader(shaderProg, fsObj, fs.c_str(), ShaderHandler::Shaders::SH_Fragment_Shader))
 	{
 		errorMsg = "Error creating fragment shader: ";
 		errorMsg += ShaderHandler::GetErrorMessage();

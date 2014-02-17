@@ -16,12 +16,12 @@ public:
     VectorComponentsNode(const DataLine & inData) : DataNode(MakeVector(inData), buildOutputs(inData)) { }
 
 
-    virtual std::string GetOutputName(unsigned int outputIndex, Shaders shaderType) const override;
+    virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode, Shaders shaderType) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 private:
 

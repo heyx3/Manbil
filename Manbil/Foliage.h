@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "OpenGLIncludes.h"
 #include "RenderInfo.h"
 #include "Material.h"
@@ -55,3 +57,5 @@ private:
 
 	mutable std::string errorMsg;
 };
+
+*/

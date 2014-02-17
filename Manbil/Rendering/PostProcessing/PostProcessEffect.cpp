@@ -1,5 +1,5 @@
 #include "PostProcessEffect.h"
-
+/*
 
 PostProcessEffect::PostProcessEffect(unsigned int w, unsigned int h, std::vector<RenderingPass> passes)
     : errorMsg(""), material(passes), renderTarget(0), screenMesh(PrimitiveTypes::Triangles)
@@ -98,3 +98,5 @@ void PostProcessEffect::RenderEffect(const RenderInfo & info, Vector2f screenOff
         errorMsg = "Error rendering post-process quad: " + material.GetErrorMessage();
     }
 }
+
+*/

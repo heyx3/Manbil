@@ -10,7 +10,7 @@ void WorldPosNode::WriteMyOutputs(std::string & outCode) const
     outCode += "\tvec3 " + outName + " = " + tempName + ".xyz / " + tempName + ".w;\n";
 }
 
-void ScreenPosNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void ScreenPosNode::WriteMyOutputs(std::string & outCode) const
 {
     const DataNodePtr & objPos = GetInputs()[0].GetDataNodeValue();
     std::string outName = GetOutputName(0),
@@ -21,7 +21,7 @@ void ScreenPosNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) co
 }
 
 
-void WorldNormalNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void WorldNormalNode::WriteMyOutputs(std::string & outCode) const
 {
     const DataNodePtr & objPos = GetInputs()[0].GetDataNodeValue();
     std::string outName = GetOutputName(0);
@@ -29,7 +29,7 @@ void WorldNormalNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) 
     outCode += "\tvec3 " + outName + " = (" + MaterialConstants::WorldMatName + " * vec4(" + objPos->GetOutputName(0) + ", 0.0)).xyz\n";
 }
 
-void ScreenNormalNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void ScreenNormalNode::WriteMyOutputs(std::string & outCode) const
 {
     const DataNodePtr & objPos = GetInputs()[0].GetDataNodeValue();
     std::string outName = GetOutputName(0);

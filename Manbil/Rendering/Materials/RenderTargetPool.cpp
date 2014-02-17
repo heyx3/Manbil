@@ -1,5 +1,7 @@
 #include "RenderTargetPool.h"
 
+/*
+
 bool RenderTargetPool::InitializePool(bool color, bool depth, unsigned int width, unsigned int height)
 {
     screenOne = new RenderTarget(width, height, color, depth);
@@ -47,3 +49,5 @@ void RenderTargetPool::ResizePool(unsigned int w, unsigned int h)
     screenTwo->ChangeSize(w, h);
     screenThree->ChangeSize(w, h);
 }
+
+*/

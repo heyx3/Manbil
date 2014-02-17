@@ -1,5 +1,7 @@
 #include "TextManager.h"
 
+/*
+
 bool TextManager::Render(Material & mat, const RenderInfo & info, unsigned int sampler)
 {
     sf::Glyph glyph;
@@ -23,3 +25,5 @@ bool TextManager::Render(Material & mat, const RenderInfo & info, unsigned int s
 
     return true;
 }
+
+*/

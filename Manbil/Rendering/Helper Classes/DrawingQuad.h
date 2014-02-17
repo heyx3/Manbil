@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "../../OpenGLIncludes.h"
 #include "../../Mesh.h"
 #include "../../Material.h"
@@ -49,3 +51,5 @@ private:
 
     static VertexIndexData vid;
 };
+
+*/

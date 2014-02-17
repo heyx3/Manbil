@@ -7,7 +7,6 @@
 #include "RenderDataHandler.h"
 #include "ShaderHandler.h"
 #include "Vertex.h"
-#include "Rendering/Materials/RenderingModes.h"
 #include "Rendering/Materials/MaterialData.h"
 #include "Rendering/Texture Management/TextureChannels.h"
 #include "Rendering/Materials/UniformCollections.h"
@@ -42,7 +41,7 @@ public:
     const std::vector<std::string> & GetUniforms(RenderPasses pass) const;
 
 
-    void Render(RenderPasses pass, RenderTarget * renderTargets, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    //void Render(RenderPasses pass, RenderTarget * renderTargets, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
 
 
 private:

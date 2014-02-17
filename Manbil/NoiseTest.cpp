@@ -1,5 +1,7 @@
 #include "NoiseTest.h"
 
+/*
+
 #include <assert.h>
 
 #include "Math/LowerMath.hpp"
@@ -275,3 +277,5 @@ void NoiseTest::RenderWorld(float elapsedTime)
 	GetWindow()->draw(*renderedNoise);
 	GetWindow()->display();
 }
+
+*/

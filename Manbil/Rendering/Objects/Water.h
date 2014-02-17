@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "../Rendering.hpp"
 #include "../../Math/HigherMath.hpp"
 
@@ -151,3 +153,5 @@ private:
     //Gets the single RenderingPass needed to render seeded heightmap water.
     static RenderingPass GetSeededHeightRenderer(void);
 };
+
+*/

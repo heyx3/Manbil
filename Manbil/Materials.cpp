@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "ShaderHandler.h"
 
+/*
 //TODO: Use stencil buffers to not draw invisible pixels? That way they won't be written to the depth buffer.
 const RenderingPass Materials::UnlitTexture = RenderingPass(
 	std::string("void main()\n\
@@ -148,3 +149,5 @@ void Materials::LitTexture_SetUniforms(Mesh & mesh, const LitTexture_Directional
     mesh.FloatUniformValues["DirectionalLight.Specular"] = Mesh::UniformValue<float>(&lightData.Specular, 1);
     mesh.FloatUniformValues["DirectionalLight.SpecularIntensity"] = Mesh::UniformValue<float>(&lightData.SpecularIntensity, 1);
 }
+
+*/

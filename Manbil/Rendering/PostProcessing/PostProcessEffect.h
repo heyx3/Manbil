@@ -2,6 +2,8 @@
 
 #include "../Rendering.hpp"
 
+/*
+
 //Represents an effect, applied over a RenderTarget, to be rendered onto the screen (or to another RenderTarget).
 class PostProcessEffect
 {
@@ -50,3 +52,5 @@ private:
     Mesh screenMesh;
     RenderTarget * renderTarget;
 };
+
+*/

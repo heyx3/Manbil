@@ -1,10 +1,10 @@
 #include "CombineVectorNode.h"
 
-void CombineVectorNode::WriteMyOutputs(std::string & outCode, Shaders shaderType) const
+void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string vecType = Vector(count).GetGLSLType();
 
-    outCode += "\t" + vecType + " " + GetOutputName(0, shaderType) + " = " + vecType + "(";
+    outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + vecType + "(";
 
     unsigned int counter = 1;
     for (int input = 0; input < GetInputs().size(); ++input)
@@ -13,7 +13,7 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode, Shaders shaderType
 
         for (int element = 0; element < inp.GetDataLineSize(); ++element)
         {
-            outCode += inp.GetValue(shaderType) + ".";
+            outCode += inp.GetValue() + ".";
 
             switch (counter)
             {

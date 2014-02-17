@@ -1,6 +1,8 @@
 #include "TerrainWalkCamera.h"
 #include <iostream>
 
+/*
+
 const Vector2i TerrainWalkCamera::mouseTarget = Vector2i(800, 600);
 
 
@@ -112,3 +114,5 @@ bool TerrainWalkCamera::Update(float elapsedTime, std::shared_ptr<OculusDevice> 
 
 	return false;
 }
+
+*/

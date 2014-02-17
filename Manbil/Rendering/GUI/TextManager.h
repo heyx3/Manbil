@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include <SFML/Graphics/Font.hpp>
 #include "../Helper Classes/DrawingQuad.h"
 #include "../../Material.h"
@@ -64,3 +66,5 @@ private:
 
     std::string errorMsg;
 };
+
+*/

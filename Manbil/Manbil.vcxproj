@@ -149,6 +149,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
+    <ClCompile Include="Rendering\Materials\RenderingModes.cpp" />
     <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />

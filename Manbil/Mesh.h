@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "ShaderHandler.h"
 #include "Math/Higher Math/TransformObject.h"
 #include "Material.h"
@@ -105,3 +107,5 @@ private:
 	VertexIndexData * viData;
 	int nVIData;
 };
+
+*/
