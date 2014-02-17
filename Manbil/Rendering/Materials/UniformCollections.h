@@ -28,7 +28,7 @@ public:
     UniformValue(Vector3f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
     UniformValue(Vector4f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
     UniformValue(float * value = 0, unsigned int nData = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
-    std::string GetDeclaration(void) const { return "uniform " + Vector(NData).GetGLSLType() + Name + ";"; }
+    std::string GetDeclaration(void) const { return "uniform " + Vector(NData).GetGLSLType() + " " + Name + ";"; }
 };
 
 //Represents an array of float/vec2/vec3/vec4 uniforms.
@@ -40,7 +40,7 @@ public:
     UniformLocation Location;
     std::string Name;
     UniformArrayValue(float * values = 0, unsigned int nValues = 0, unsigned  int nBasicTypesPerValue = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), Values(values), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue) { }
-    std::string GetDeclaration(void) const { return "uniform " + Vector(BasicTypesPerValue).GetGLSLType() + Name + "[" + std::to_string(NumbValues) + "];"; }
+    std::string GetDeclaration(void) const { return "uniform " + Vector(BasicTypesPerValue).GetGLSLType() + " " + Name + "[" + std::to_string(NumbValues) + "];"; }
 };
 
 //Represents a uniform mat4.

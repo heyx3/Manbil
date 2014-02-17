@@ -33,6 +33,11 @@ void TestDataNodes(void)
     channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new AddNode(DataLine(Vector(Vector3f(10.0f, -32.4f, 24.0f))),
                                                                                DataLine(Vector(Vector3f(-10.0f, 32.4f, -24.0f))))),
                                                        0);
+    channels[RenderingChannels::RC_ObjectVertexOffset] =
+        DataLine(DataNodePtr(new TextureSampleNode(ChannelsOut::CO_AllColorChannels,
+                                                   DataLine(DataNodePtr(new AddNode(DataLine(Vector(Vector2f(1.0f, 0.0f))),
+                                                                                    DataLine(DataNodePtr(new ParamNode(2, "uvOffset")), 0))), 0))),
+                             0);
 
     #pragma endregion
 

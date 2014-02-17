@@ -21,7 +21,7 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::OutNormal = "out_normal",
                   MaterialConstants::OutColor = "out_color",
                   
-                  MaterialConstants::FinalOutColor = "finalout_color";
+                  MaterialConstants::FinalOutColor = "FinalOut_Color";
 
 RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
 {

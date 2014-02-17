@@ -167,7 +167,7 @@ in vec4 " + MaterialConstants::OutColor + ";                                    
 in vec2 " + MaterialConstants::OutUV + ";                                           \n\
 in vec3 " + MaterialConstants::OutNormal + ";                                       \n\
                                                                                     \n\
-out vec4 finalOutColor;                                                             \n\
+out vec4 " + MaterialConstants::FinalOutColor + ";                                  \n\
                                                                                     \n\
 " + uniformDeclarations;
 
