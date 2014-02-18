@@ -318,12 +318,13 @@ void main()                                                                     
     " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
                                                                                                         \n\
     //Compute world position.                                                                           \n\
-    vec4 pos = " + MaterialConstants::InPos + ";                                                        \n\
-    pos += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                      \n\
-    pos = (" + MaterialConstants::WorldMatName + " * vec4(pos, 1.0)" + ");                              \n\
-    pos += " + channels[RC::RC_WorldVertexOffset].GetValue() + ";                                       \n\
+    vec3 pos3 = " + MaterialConstants::InPos + ";                                                       \n\
+    pos3 += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                     \n\
+    vec4 pos4 = (" + MaterialConstants::WorldMatName + " * vec4(pos3, 1.0)" + ");                       \n\
+    pos3 = pos4.xyz / pos4.w;                                                                           \n\
+    pos3 += " + channels[RC::RC_WorldVertexOffset].GetValue() + ";                                      \n\
                                                                                                         \n\
-    " + MaterialConstants::OutPos + " = pos;                                                            \n\
+    " + MaterialConstants::OutPos + " = pos3;                                                           \n\
                                                                                                         \n\
     gl_Position = " + MaterialConstants::WVPMatName + " * vec4(" + MaterialConstants::InPos + ", 1.0);  \n\
 }";
@@ -336,7 +337,10 @@ void main()                                                                     
     //If diffuse intensity isn't used, don't bother computing it.
     if (channels[RC::RC_DiffuseIntensity].IsConstant() && channels[RC::RC_DiffuseIntensity].GetConstantValue().GetValue()[0] == 1.0f)
         fragShader += "\tvec3 diffuseCol = " + channels[RC::RC_Diffuse].GetValue() + ";\n";
-    else fragShader += "\tvec3 diffuseCol = pow(" + channels[RC::RC_Diffuse].GetValue() + ", " + channels[RC::RC_DiffuseIntensity].GetValue() + ");\n";
+    else fragShader +=
+        "\tvec3 diffuseCol = vec3(pow(" + channels[RC::RC_Diffuse].GetValue() + ".x, " + channels[RC::RC_DiffuseIntensity].GetValue() + "), " +
+                                 "pow(" + channels[RC::RC_Diffuse].GetValue() + ".y, " + channels[RC::RC_DiffuseIntensity].GetValue() + "), " +
+                                 "pow(" + channels[RC::RC_Diffuse].GetValue() + ".z, " + channels[RC::RC_DiffuseIntensity].GetValue() + "));\n";
     //If this material uses lighting, calculate lighting stuff.
     if (useLighting)
         fragShader +=

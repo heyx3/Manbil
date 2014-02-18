@@ -73,10 +73,13 @@ public:
 struct UniformList
 {
 public:
-    std::vector<std::string> FloatUniforms, FloatArrayUniforms, MatrixUniforms, TextureUniforms;
+    struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc) : Name(name), Loc(loc) { } };
+    std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
+                             MatrixUniforms, TextureUniforms;
 };
 
 //Represents a collection of uniform locations.
+//TODO: Change it so that the DataNodes write to UniformLists instead of UniformDictionaries.
 struct UniformDictionary
 {
 public:

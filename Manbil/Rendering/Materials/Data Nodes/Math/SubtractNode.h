@@ -13,9 +13,9 @@ public:
     virtual std::string GetName(void) const override { return "subtractionNode"; }
 
     SubtractNode(const DataLine & baseValue, const std::vector<DataLine> & toSubtract)
-        : DataNode(MakeVector(baseValue, toSubtract.begin(), toSubtract), MakeVector(baseValue.GetDataLineSize()))
+        : DataNode(MakeVector(baseValue, 0, toSubtract), MakeVector(baseValue.GetDataLineSize()))
     {
-        unsigned int size = toSubtract[0].GetDataLineSize();
+        unsigned int size = baseValue.GetDataLineSize();
         for (unsigned int i = 0; i < toSubtract.size(); ++i)
             assert(toSubtract[i].GetDataLineSize() == size);
     }

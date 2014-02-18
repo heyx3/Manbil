@@ -69,7 +69,7 @@ protected:
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2);
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3);
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3, const DataLine & dat4);
-    static std::vector<DataLine> MakeVector(const DataLine & dat, std::vector<DataLine>::const_iterator wherePut, const std::vector<DataLine> & moreDats);
+    static std::vector<DataLine> MakeVector(const DataLine & dat, unsigned int wherePut, const std::vector<DataLine> & moreDats);
 
     static std::vector<unsigned int> MakeVector(unsigned int dat);
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2);

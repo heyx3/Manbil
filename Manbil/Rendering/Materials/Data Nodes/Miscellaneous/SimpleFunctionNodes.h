@@ -15,7 +15,7 @@ class className : public DataNode \
         virtual void WriteMyOutputs(std::string & outCode) const override \
         { \
         std::string vecType = Vector(GetOutputs()[0]).GetGLSLType(); \
-        outCode += "\t" + vecType + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
+        outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
         } \
     };
 

@@ -1,6 +1,79 @@
 #include "Material.h"
 
 
+Material::Material(std::string & vs, std::string & fs, const UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
+    : isLit(il), lightSettings(ls), mode(m)
+{
+    ShaderHandler::CreateShaderProgram(shaderProg);
+
+
+    RenderObjHandle vsO, fsO;
+    if (!ShaderHandler::CreateShader(shaderProg, vsO, vs.c_str(), ShaderHandler::Shaders::SH_Vertex_Shader))
+    {
+        errorMsg = std::string() + "Error creating vertex shader: " + ShaderHandler::GetErrorMessage();
+        return;
+    }
+    if (!ShaderHandler::CreateShader(shaderProg, fsO, fs.c_str(), ShaderHandler::Shaders::SH_Fragment_Shader))
+    {
+        errorMsg = std::string() + "Error creating fragment shader: " + ShaderHandler::GetErrorMessage();
+        return;
+    }
+
+
+
+    if (!ShaderHandler::FinalizeShaders(shaderProg))
+    {
+        errorMsg = std::string() + "Error finalizing material shaders: " + ShaderHandler::GetErrorMessage();
+        return;
+    }
+
+    glDeleteShader(vsO);
+    glDeleteShader(fsO);
+
+
+    //Get uniforms.
+    UniformLocation tempLoc;
+    for (auto iterator = dict.FloatUniforms.begin(); iterator != dict.FloatUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.FloatUniforms.insert(uniforms.FloatUniforms.end(),
+                                          UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
+    for (auto iterator = dict.FloatArrayUniforms.begin(); iterator != dict.FloatArrayUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.FloatArrayUniforms.insert(uniforms.FloatArrayUniforms.end(),
+                                               UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
+    for (auto iterator = dict.MatrixUniforms.begin(); iterator != dict.MatrixUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.MatrixUniforms.insert(uniforms.MatrixUniforms.end(),
+                                           UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
+    for (auto iterator = dict.TextureUniforms.begin(); iterator != dict.TextureUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.TextureUniforms.insert(uniforms.TextureUniforms.end(),
+                                            UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
+}
+
+
+
+
+
+
+
+
 //typedef std::unordered_map<std::string, UniformLocation> UniformLocMap;
 
 

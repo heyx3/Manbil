@@ -13,15 +13,17 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
 
         for (int element = 0; element < inp.GetDataLineSize(); ++element)
         {
-            outCode += inp.GetValue() + ".";
-
-            switch (counter)
+            outCode += inp.GetValue();
+            if (inp.GetDataLineSize() > 1)
             {
-            case 1: outCode += "x"; break;
-            case 2: outCode += "y"; break;
-            case 3: outCode += "z"; break;
-            case 4: outCode += "w"; break;
-            default: assert(false);
+                switch (counter)
+                {
+                    case 1: outCode += ".x"; break;
+                    case 2: outCode += ".y"; break;
+                    case 3: outCode += ".z"; break;
+                    case 4: outCode += ".w"; break;
+                    default: assert(false);
+                }
             }
 
             if (counter < count) outCode += ", ";

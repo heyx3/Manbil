@@ -22,23 +22,34 @@ typedef std::shared_ptr<sf::Texture> TexturePtr;
     Render passes should be done with all world geometry at once, not one mesh at a time doing every pass! http://gamedev.stackexchange.com/questions/66945/how-many-rendering-passes-is-normal
     Post-Process Effects should be totally unrelated to the Material system -- they have a different purpose and have a wider array of inputs.
     For now, don't bother trying to work with/sort the transparent materials.
-    Use the stuff in "UniformCollections.h" to handle the uniform system for Meshes. After the material is compiled, go through the uniform collection and set the uniform locations.
+    Use the stuff in "UniformCollections.h" to handle the uniform system for Meshes.
 */
 
 //Represents some kind of surface to be drawn on.
-class Mat
+class Material
 {
 public:
 
-    Mat(std::string & vShader, std::string & fShader, const UniformDictionary & uniforms,
-        RenderingModes mode, bool isLit, LightSettings lightSettings);
+    Material(const Material & cpy); //Intentionally not implemented.
 
+    Material(std::string & vShader, std::string & fShader, const UniformDictionary & uniforms,
+        RenderingModes mode, bool isLit, LightSettings lightSettings);
+    ~Material(void) { glDeleteProgram(shaderProg); }
+
+
+    RenderObjHandle GetShaderProgram(void) const { return shaderProg; }
+
+    bool HasError(void) const { return !errorMsg.empty(); }
+    std::string GetErrorMsg(void) const { return errorMsg; }
+    void ClearErrorMsg(void) { errorMsg.clear(); }
 
     RenderingModes GetMode(void) const { return mode; }
     bool GetIsLit(void) const { return isLit; }
     const LightSettings & GetLightSettings(void) const { return lightSettings; }
 
-    const std::vector<std::string> & GetUniforms(RenderPasses pass) const;
+    const UniformList & GetUniforms(RenderPasses pass) const { return uniforms; }
+
+    int GetHashCode(void) const { return shaderProg; }
 
 
     //void Render(RenderPasses pass, RenderTarget * renderTargets, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
@@ -46,16 +57,20 @@ public:
 
 private:
 
-    std::unordered_map<std::string, UniformLocation> uniforms[(int)RenderPasses::Numb_Passes];
-
     void RenderBaseComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
     void RenderCombineComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
     void RenderApplyOcclusion(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
 
 
+    std::string errorMsg;
+
     bool isLit;
     LightSettings lightSettings;
     RenderingModes mode;
+
+    UniformList uniforms;
+
+    RenderObjHandle shaderProg;
 };
 
 

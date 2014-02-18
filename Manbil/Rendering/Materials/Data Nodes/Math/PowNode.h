@@ -16,7 +16,7 @@ public:
     PowNode(const DataLine & base, const DataLine & exponent)
         : DataNode(MakeVector(base, exponent), MakeVector(base.GetDataLineSize()))
     {
-        assert(exponent.GetDataLineSize() == 1 || exponent.GetDataLineSize() == base.GetDataLineSize());
+        assert(exponent.GetDataLineSize() == base.GetDataLineSize());
     }
 
 

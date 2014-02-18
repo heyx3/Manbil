@@ -4,7 +4,7 @@ AddNode::AddNode(const std::vector<DataLine> & toAdd)
     : DataNode(toAdd, MakeVector(toAdd[0].GetDataLineSize()))
 {
     unsigned int size = toAdd[0].GetDataLineSize();
-    for (unsigned int i = 0; i < toAdd.size(); ++i)
+    for (unsigned int i = 1; i < toAdd.size(); ++i)
         assert(toAdd[i].GetDataLineSize() == size);
 }
 AddNode::AddNode(DataLine toAdd1, DataLine toAdd2)
@@ -15,7 +15,7 @@ AddNode::AddNode(DataLine toAdd1, DataLine toAdd2)
 
 void AddNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
+    std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)

@@ -3,7 +3,7 @@
 
 void SubtractNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
+    std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)

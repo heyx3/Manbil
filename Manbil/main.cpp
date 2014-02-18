@@ -24,8 +24,21 @@ void WriteToConsole(const std::string & outStr)
 
 #include "Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "Rendering/Materials/Data Nodes/ShaderGenerator.h"
+#include "Material.h"
 void TestDataNodes(void)
 {
+    sf::RenderWindow window;
+    GLenum res = glewInit();
+    if (res != GLEW_OK)
+    {
+        char * cs = (char*)(glewGetErrorString(res));
+        WriteToConsole(std::string() + "Error initializing GLEW: " + cs);
+        PauseConsole();
+    }
+    window.setVerticalSyncEnabled(true);
+
+
+
     #pragma region Set up channels
 
     std::unordered_map<RenderingChannels, DataLine> channels;
@@ -34,7 +47,7 @@ void TestDataNodes(void)
     channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new AddNode(DataLine(Vector(10.0f, -32.4f, 24.0f)),
                                                                                DataLine(Vector(-10.0f, 32.4f, -24.0f)))),
                                                        0);
-    //Object-space offset = texture2D([sampler], In_UV + (vec2(0.0) + (vec2(1.0) * (vec2(0.0) * u_elapsed_seconds))))
+    //Object-space offset = texture2D([sampler], In_UV + (uvOffset + (vec2(1.0) * (vec2(0.0) * u_elapsed_seconds))))
     channels[RenderingChannels::RC_ObjectVertexOffset] =
         DataLine(DataNodePtr(new TextureSampleNode(ChannelsOut::CO_AllColorChannels,
                                                    DataLine(DataNodePtr(new AddNode(DataLine(Vector(1.0f, 0.0f)),
@@ -68,6 +81,19 @@ void TestDataNodes(void)
     WriteToConsole("------------------------------------\n\nFragment shader:\n----------------------------------------\n\n");
     WriteToConsole(frag);
 
+    PauseConsole();
+
+    WriteToConsole("\n\n\n\n\n\n\n\n\n\n\n\n");
+
+    Material mat(vert, frag, uniforms, RenderingModes::RM_Opaque, false, lightSettings);
+    if (mat.HasError())
+    {
+        WriteToConsole(std::string() + "Error creating material: " + mat.GetErrorMsg());
+    }
+    else
+    {
+        WriteToConsole("Material compiled successfully!");
+    }
     PauseConsole();
 }
 

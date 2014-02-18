@@ -13,17 +13,17 @@ unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & bas
 
 
 DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide)
-    : DataNode(toDivide, MakeVector(GetMax(toDivide, baseValue)))
+    : DataNode(MakeVector(baseValue, 0, toDivide), MakeVector(GetMax(toDivide, baseValue)))
 {
     assert(toDivide.size() > 0);
 
-    unsigned int size = toDivide[0].GetDataLineSize();
+    unsigned int size = GetOutputs()[0];
     for (unsigned int i = 0; i < toDivide.size(); ++i)
         assert(toDivide[i].GetDataLineSize() == size ||
                toDivide[i].GetDataLineSize() == 1);
 }
 DivideNode::DivideNode(DataLine toDivide1, DataLine toDivide2)
-    : DataNode(MakeVector(toDivide1, toDivide2), MakeVector(toDivide1.GetDataLineSize()))
+    : DataNode(MakeVector(toDivide1, toDivide2), MakeVector(BasicMath::Max(toDivide1.GetDataLineSize(), toDivide2.GetDataLineSize())))
 {
     assert(toDivide1.GetDataLineSize() == toDivide2.GetDataLineSize() ||
            toDivide1.GetDataLineSize() == 1 ||
@@ -32,7 +32,7 @@ DivideNode::DivideNode(DataLine toDivide1, DataLine toDivide2)
 
 void DivideNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
+    std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)

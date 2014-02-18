@@ -97,11 +97,11 @@ std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine 
     dats.insert(dats.end(), dat4);
     return dats;
 }
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, std::vector<DataLine>::const_iterator wherePut, const std::vector<DataLine> & moreDats)
+std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, unsigned int wherePut, const std::vector<DataLine> & moreDats)
 {
     std::vector<DataLine> cpy = moreDats;
 
-    cpy.insert(wherePut, dat);
+    cpy.insert(cpy.begin() + wherePut, dat);
 
     return cpy;
 }
