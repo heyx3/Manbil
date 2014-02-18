@@ -38,3 +38,5 @@ SFNCLASS(normalize, NormalizeNode, normalizeNode, normalize)
 SFNCLASS(fract, FractNode, fractNode, fract)
 
 SFNCLASS(1.0 - , OneMinusNode, oneMinusNode, oneMinus)
+
+SFNCLASS(-, NegativeNode, negativeNode, negative)

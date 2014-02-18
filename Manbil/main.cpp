@@ -47,11 +47,11 @@ void TestDataNodes(void)
     toDivide.insert(toDivide.end(), DataLine(DataNodePtr(new PowNode(DataLine(Vector(1.0f)), DataLine(Vector(5.0f)))), 0));
     channels[RenderingChannels::RC_WorldVertexOffset] = DataLine(DataNodePtr(new DivideNode(DataLine(Vector(40.0f, 1.0f, -12.0f)), toDivide)), 0);
 
-    //Diffuse intensity = In_Color.x
+    //Diffuse intensity = -In_Color.x
     DataNodePtr splitVec(new VectorComponentsNode(DataLine(DataNodePtr(new ObjectColorNode()), 0)));
     std::vector<DataLine> colorIn;
     colorIn.insert(colorIn.end(), DataLine(splitVec, 0));
-    channels[RenderingChannels::RC_DiffuseIntensity] = DataLine(DataNodePtr(new CombineVectorNode(colorIn)), 0);
+    channels[RenderingChannels::RC_DiffuseIntensity] = DataLine(DataNodePtr(new NegativeNode(DataLine(DataNodePtr(new CombineVectorNode(colorIn)), 0))), 0);
 
     #pragma endregion
 
