@@ -16,14 +16,14 @@ std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
     std::string ret = GetName() + std::to_string(GetUniqueID()) + "_";
     switch (outputIndex)
     {
-    case 0: ret += "x";
-    case 1: ret += "y";
-    case 2: ret += "z";
-    case 3: ret += "w";
+    case 0: ret += "x"; break;
+    case 1: ret += "y"; break;
+    case 2: ret += "z"; break;
+    case 3: ret += "w"; break;
     default: assert(false);
     }
 
-    return "";
+    return ret;
 }
 
 void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
@@ -33,10 +33,10 @@ void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
         outCode += "\tfloat " + GetOutputName(i) + " = " + GetVectorInput().GetValue() + ".";
         switch (i)
         {
-        case 0: outCode += "x";
-        case 1: outCode += "y";
-        case 2: outCode += "z";
-        case 3: outCode += "w";
+        case 0: outCode += "x"; break;
+        case 1: outCode += "y"; break;
+        case 2: outCode += "z"; break;
+        case 3: outCode += "w"; break;
         default: assert(false);
         }
         outCode += "\n";

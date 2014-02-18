@@ -21,13 +21,22 @@ public:
     //Marks this Vector as invalid.
     void SetValue(void) { size = 0; }
 
+
     Vector(void) : size(0) { values[0] = 0.0f; values[1] = 0.0f; values[2] = 0.0f; values[3] = 0.0f; }
+
     Vector(float value) { SetValue(value); }
     Vector(Vector2f value) { SetValue(value); }
     Vector(Vector3f value) { SetValue(value); }
     Vector(Vector4f value) { SetValue(value); }
+
+    Vector(float x, float y) : Vector(Vector2f(x, y)) { }
+    Vector(float x, float y, float z) : Vector(Vector3f(x, y, z)) { }
+    Vector(float x, float y, float z, float w) : Vector(Vector4f(x, y, z, w)) { }
+
     Vector(unsigned int _size, float defaultValue = 0.0f) : size(_size) { for (unsigned int i = 0; i < size; ++i) values[i] = defaultValue; }
+
     Vector(const Vector & cpy) : size(cpy.size) { for (unsigned int i = 0; i < size; ++i) values[i] = cpy.values[i]; }
+
 
     //Assumes both vectors are the same size. Adds their components together.
     Vector operator+(const Vector & other) const;

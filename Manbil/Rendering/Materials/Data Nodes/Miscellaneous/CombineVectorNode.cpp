@@ -17,10 +17,10 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
 
             switch (counter)
             {
-            case 1: outCode += "x";
-            case 2: outCode += "y";
-            case 3: outCode += "z";
-            case 4: outCode += "w";
+            case 1: outCode += "x"; break;
+            case 2: outCode += "y"; break;
+            case 3: outCode += "z"; break;
+            case 4: outCode += "w"; break;
             default: assert(false);
             }
 
