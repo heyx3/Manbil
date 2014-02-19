@@ -25,12 +25,12 @@ public:
 
     static std::string GetVertexHeader(bool useLighting);
     static std::string GetFragmentHeader(bool useLighting);
-    static std::string GetHeader(ShaderHandler::Shaders shaderType)
+    static std::string GetHeader(ShaderHandler::Shaders shaderType, bool useLighting)
     {
         switch (shaderType)
         {
-            case ShaderHandler::Shaders::SH_Vertex_Shader: return GetVertexHeader();
-            case ShaderHandler::Shaders::SH_Fragment_Shader: return GetFragmentHeader();
+            case ShaderHandler::Shaders::SH_Vertex_Shader: return GetVertexHeader(useLighting);
+            case ShaderHandler::Shaders::SH_Fragment_Shader: return GetFragmentHeader(useLighting);
 
             default: assert(false); return "";
         }

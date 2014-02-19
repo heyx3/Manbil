@@ -197,9 +197,6 @@
     <ClCompile Include="Rendering\GUI\TextManager.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClCompile>
@@ -524,9 +521,6 @@
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\MaterialData.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\RenderTargetPool.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h">

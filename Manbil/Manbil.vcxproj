@@ -150,7 +150,6 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
     <ClCompile Include="Rendering\Materials\RenderingModes.cpp" />
-    <ClCompile Include="Rendering\Materials\RenderTargetPool.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
@@ -270,7 +269,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />
     <ClInclude Include="Rendering\Materials\RenderingModes.h" />
-    <ClInclude Include="Rendering\Materials\RenderTargetPool.h" />
     <ClInclude Include="Rendering\Materials\UniformCollections.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
