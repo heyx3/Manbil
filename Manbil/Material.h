@@ -51,8 +51,8 @@ public:
 
     int GetHashCode(void) const { return shaderProg; }
 
-
-    //void Render(RenderPasses pass, RenderTarget * renderTargets, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    //Returns whether thhe render was successful.
+    bool Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
 
 
 private:
@@ -71,6 +71,10 @@ private:
     UniformList uniforms;
 
     RenderObjHandle shaderProg;
+
+    UniformLocation camPosL, camForwardL, camUpL, camSideL,
+                    wvpMatL, worldMatL, viewMatL, projMatL,
+                    timeL;
 };
 
 

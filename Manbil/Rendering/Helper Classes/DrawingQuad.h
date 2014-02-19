@@ -1,7 +1,5 @@
 #pragma once
 
-/*
-
 #include "../../OpenGLIncludes.h"
 #include "../../Mesh.h"
 #include "../../Material.h"
@@ -25,19 +23,7 @@ public:
     DrawingQuad(void);
     DrawingQuad(const DrawingQuad & cpy);
 
-    bool Render(const RenderInfo & info, Material & mat)
-    {
-        Vector3f scale = quad.Transform.GetScale();
-        Vector2f scale2d(scale.x, scale.y);
-
-        Vector3f delta = Vector3f(scale.x * 0.5f, scale.y * 0.5f, 0.0f);
-        delta -= origin.ComponentProduct(scale2d);
-
-        bool rend = mat.Render(info, meshes);
-
-
-        return rend;
-    }
+    bool Render(RenderPasses pass, const RenderInfo & info, Material & mat);
 
 private:
 
@@ -51,5 +37,3 @@ private:
 
     static VertexIndexData vid;
 };
-
-*/

@@ -1,7 +1,5 @@
 #include "DrawingQuad.h"
 
-/*
-
 const Vertex DrawingQuad::vertices[4] =
 {
     Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
@@ -42,4 +40,13 @@ DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
     meshes.insert(meshes.end(), &quad);
 }
 
-*/
+bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, Material & mat)
+{
+    Vector3f scale = quad.Transform.GetScale();
+    Vector2f scale2d(scale.x, scale.y);
+
+    Vector3f delta = Vector3f(scale.x * 0.5f, scale.y * 0.5f, 0.0f);
+    delta -= origin.ComponentProduct(scale2d);
+
+    return mat.Render(pass, info, meshes);
+}

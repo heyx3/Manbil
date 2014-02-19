@@ -1,6 +1,5 @@
 #include "Mesh.h"
 
-/*
 
 Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
     : primType(pType), nVIData(numbVIData)
@@ -20,17 +19,7 @@ Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
 Mesh::Mesh(const Mesh & cpy)
     : primType(cpy.primType), nVIData(cpy.nVIData)
 {
-    for (int pass = 0; pass < cpy.TextureSamplers.size(); ++pass)
-    {
-        PassSamplers sampler(cpy.TextureSamplers[pass]);
-        TextureSamplers.insert(TextureSamplers.end(), sampler);
-    }
-
-    FloatUniformValues = cpy.FloatUniformValues;
-    FloatArrayUniformValues = cpy.FloatArrayUniformValues;
-    IntUniformValues = cpy.IntUniformValues;
-    IntArrayUniformValues = cpy.IntArrayUniformValues;
-    MatUniformValues = cpy.MatUniformValues;
+    Uniforms = cpy.Uniforms;
 
     Transform = cpy.Transform;
 
@@ -60,17 +49,5 @@ void Mesh::operator=(const Mesh & other)
     primType = other.primType;
     SetVertexIndexData(other.viData, other.nVIData);
 
-    for (int pass = 0; pass < other.TextureSamplers.size(); ++pass)
-    {
-        PassSamplers sampler(other.TextureSamplers[pass]);
-        TextureSamplers.insert(TextureSamplers.end(), sampler);
-    }
-
-    FloatUniformValues = other.FloatUniformValues;
-    FloatArrayUniformValues = other.FloatArrayUniformValues;
-    IntUniformValues = other.IntUniformValues;
-    IntArrayUniformValues = other.IntArrayUniformValues;
-    MatUniformValues = other.MatUniformValues;
+    Uniforms = other.Uniforms;
 }
-
-*/

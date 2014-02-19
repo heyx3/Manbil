@@ -135,6 +135,9 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
 
     //Create the shaders.
+
+/*
+
     std::string uniformDeclarations = std::string() +
 "uniform float " + MaterialConstants::ElapsedTimeName + ";                   \n\
 uniform vec3 " + MaterialConstants::CameraPosName + ", " +
@@ -171,9 +174,10 @@ out vec4 " + MaterialConstants::FinalOutColor + ";                              
                                                                                     \n\
 " + uniformDeclarations;
 
+*/
 
-    std::string vertShader = vertexShaderHeader,
-                fragShader = fragmentShaderHeader;
+    std::string vertShader = MaterialConstants::GetVertexHeader(useLighting),
+                fragShader = MaterialConstants::GetFragmentHeader(useLighting);
 
 
     //Collect data node uniforms, functions, and output.
@@ -253,17 +257,10 @@ out vec4 " + MaterialConstants::FinalOutColor + ";                              
     }
     if (useLighting)
     {
-        fragShader +=
-"\nstruct DirectionalLight\n\
-{\n\
-    vec3 Col, Dir;\n\
-    float Ambient, Diffuse;\n\
- };\n\
-uniform DirectionalLight dirLight;\n\n";
-        fragmentUniformDict.FloatUniforms["dirLight.Col"] = UniformValue(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
-        fragmentUniformDict.FloatUniforms["dirLight.Dir"] = UniformValue(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
-        fragmentUniformDict.FloatUniforms["dirLight.Ambient"] = UniformValue(0.2f, 0, "dirLight.Ambient");
-        fragmentUniformDict.FloatUniforms["dirLight.Diffuse"] = UniformValue(0.8f, 0, "dirLight.Diffuse");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValue(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValue(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValue(0.2f, 0, "dirLight.Ambient");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValue(0.8f, 0, "dirLight.Diffuse");
     }
 
 
@@ -281,22 +278,6 @@ uniform DirectionalLight dirLight;\n\n";
         fragShader += "\n\n//Helper functions.";
         for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
             fragShader += fragmentFunctionDecls[i] + "\n";
-    }
-    if (useLighting)
-    {
-        fragShader +=
-"\nvec3 getLight(vec3 surfaceNormal, vec3 camToFragNormal, float specular, float specularIntensity, DirectionalLight lightDir)\n\
-{\n\
-    float dotted = max(dot(-surfaceNormal, lightDir.Dir), 0.0);\n\
-    \n\
-    vec3 fragToCam = -camToFragNormal;\n\
-    vec3 lightReflect = normalize(reflect(lightDir.Dir, surfaceNormal));\n\
-    \n\
-    float specFactor = max(0.0, dot(fragToCam, lightReflect));\n\
-    specFactor = pow(specFactor, specularIntensity);\n\
-    \n\
-    return lightDir.Col * (lightDir.Ambient + (lightDir.Diffuse * dotted) + (specular * specFactor));\n\
-}\n";
     }
     fragShader += "\n\n\n";
 
@@ -343,13 +324,15 @@ void main()                                                                     
                                  "pow(" + channels[RC::RC_Diffuse].GetValue() + ".z, " + channels[RC::RC_DiffuseIntensity].GetValue() + "));\n";
     //If this material uses lighting, calculate lighting stuff.
     if (useLighting)
+    {
         fragShader +=
     "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
      diffuseCol *= getLight(normalVal, " + MaterialConstants::OutPos + " - " +
                                            MaterialConstants::CameraPosName +
                             ", " + channels[RC::RC_Specular].GetValue() +
                             ", " + channels[RC::RC_SpecularIntensity].GetValue() +
-                            ", dirLight);                                                     \n\n";
+                            ", " + MaterialConstants::DirectionalLightName + ");              \n\n";
+        }
     //Now change how the final color is computed based on rendering mode.
     switch (mode)
     {
@@ -397,7 +380,4 @@ void main()                                                                     
     for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
         if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
             outUniforms.TextureUniforms[iterator->first] = iterator->second;
-
-
-    //TOOD: In the Mat class, create these shaders and then get uniform locations and set them in the dictionary.
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include "../../RenderingState.h"
 #include "RenderingModes.h"
+#include "../../ShaderHandler.h"
 
 
 
@@ -18,6 +19,28 @@ public:
                              InPos, InUV, InNormal, InColor,
                              OutPos, OutUV, OutNormal, OutColor,
                              FinalOutColor;
+    static const std::string DirectionalLightName,
+                             DirectionalLight_ColorName, DirectionalLight_DirName,
+                             DirectionalLight_DiffuseName, DirectionalLight_AmbientName;
+
+    static std::string GetVertexHeader(bool useLighting);
+    static std::string GetFragmentHeader(bool useLighting);
+    static std::string GetHeader(ShaderHandler::Shaders shaderType)
+    {
+        switch (shaderType)
+        {
+            case ShaderHandler::Shaders::SH_Vertex_Shader: return GetVertexHeader();
+            case ShaderHandler::Shaders::SH_Fragment_Shader: return GetFragmentHeader();
+
+            default: assert(false); return "";
+        }
+    }
+};
+
+//Required data declarations at the top of all shaders.
+struct ShaderHeaders
+{
+public:
 
 };
 
