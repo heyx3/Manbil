@@ -253,6 +253,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ReflectNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RefractNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\RemapNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h" />

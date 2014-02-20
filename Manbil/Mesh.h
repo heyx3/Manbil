@@ -2,7 +2,7 @@
 
 #include "ShaderHandler.h"
 #include "Math/Higher Math/TransformObject.h"
-#include "Material.h"
+#include "Rendering/Materials/UniformCollections.h"
 
 //TODO: Use the array of VertexIndexData as an LOD system -- each LOD is one VertexIndexData instance.
 

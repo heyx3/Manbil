@@ -1,7 +1,7 @@
 #include "SFML/Graphics.hpp"
 
 //#include "NoiseTest.h"
-//#include "OpenGLTestWorld.h"
+#include "OpenGLTestWorld.h"
 //#include "TwoTrianglesWorld.h"
 //#include "Tests/TwoDOpenGLTest.h"
 
@@ -105,10 +105,10 @@ void TestDataNodes(void)
 
 int main()
 {
-    TestDataNodes();
+    //TestDataNodes();
 
     //NoiseTest().RunWorld();
-    //OpenGLTestWorld().RunWorld();
+    OpenGLTestWorld().RunWorld();
     //TwoDOpenGLTest().RunWorld();
     //TwoTrianglesWorld().RunWorld();
 }

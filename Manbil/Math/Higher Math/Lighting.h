@@ -37,7 +37,7 @@ struct DirectionalLight : public BaseLight
 {
 	Vector3f Direction;
 
-	DirectionalLight(float diffuseIntensity, float ambientIntensity = 0.001f, Vector3f col = Vector3f(1, 1, 1),
+	DirectionalLight(float diffuseIntensity = 0.8f, float ambientIntensity = 0.2f, Vector3f col = Vector3f(1, 1, 1),
 					 Vector3f dir = Vector3f(1, 0, 0))
 		: BaseLight(diffuseIntensity, col, ambientIntensity), Direction(dir.Normalized()){ }
 

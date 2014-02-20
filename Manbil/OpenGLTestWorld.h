@@ -1,17 +1,12 @@
 #pragma once
 
-/*
-
 #include "SFMLOpenGLWorld.h"
 #include "Math/HigherMath.hpp"
 #include "MovingCamera.h"
 #include "Mesh.h"
 #include "RenderTarget.h"
-#include "Materials.h"
-#include "Rendering/Objects/Water.h"
-#include "Foliage.h"
-#include "Rendering/PostProcessing/PostProcessEffect.h"
-#include "TerrainWalkCamera.h"
+#include "Math/Higher Math/Lighting.h"
+#include "Rendering/Helper Classes/DrawingQuad.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -39,22 +34,15 @@ private:
 
     void InitializeTextures(void);
     void InitializeMaterials(void);
-    void InitializeTerrain(void);
     void InitializeObjects(void);
 
 	void RenderWorldGeometry(const RenderInfo & info);
 
-	Material * testMat;
-    PostProcessEffect * effect;
-	Foliage * foliage;
-    Water * water;
-    Terrain * pTerr;
+	Material * quadMat;
+    DrawingQuad * quad;
 
-	Mesh testMesh;
-	TerrainWalkCamera cam;
-	Materials::LitTexture_DirectionalLight dirLight;
+	MovingCamera cam;
+	DirectionalLight dirLight;
 
-    RenderObjHandle grassImgH, normalMapImgH, shrubImgH, waterImgH;
+    sf::Texture quadTex;
 };
-
-*/
