@@ -153,6 +153,35 @@ void NF::Increase(Noise2D * nse) const
 	});
 }
 
+void NF::Min(Noise2D * nse) const
+{
+    if (nse != 0) noise = nse;
+
+    SetAtEveryPoint((void*)&Min_Value, [](void *pData, Vector2i loc, Noise2D * noise)
+    {
+        return BasicMath::Min((*noise)[loc], *(float*)pData);
+    });
+}
+void NF::Max(Noise2D * nse) const
+{
+    if (nse != 0) noise = nse;
+
+    SetAtEveryPoint((void*)&Max_Value, [](void *pData, Vector2i loc, Noise2D * noise)
+    {
+        return BasicMath::Max((*noise)[loc], *(float*)pData);
+    });
+}
+void NF::Clamp(Noise2D * nse) const
+{
+    if (nse != 0) noise = nse;
+
+    float fs[2] = { Min_Value, Max_Value };
+    SetAtEveryPoint((void*)fs, [](void *pData, Vector2i loc, Noise2D * noise)
+    {
+        return BasicMath::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
+    });
+}
+
 void NF::Noise(Noise2D * nse) const
 {
     if (nse != 0) noise = nse;

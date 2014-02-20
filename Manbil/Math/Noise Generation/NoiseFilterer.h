@@ -65,6 +65,15 @@ public:
     void Flatten(Noise2D * nse = 0) const;
 
 
+    float Min_Value, Max_Value;
+    //Performs the operation "BasicMath::Min(Min_Value, x)" on each noise value.
+    void Min(Noise2D * nse = 0) const;
+    //Performs the operation "BasicMath::Max(Max_Value, x)" on each noise value.
+    void Max(Noise2D * nse = 0) const;
+    //Performs the operation "BasicMath::Clamp(x, Min_Value, Max_Value)" on each noise value.
+    void Clamp(Noise2D * nse = 0) const;
+
+
 	//Smooths the area.
     void Smooth(Noise2D * nse = 0) const;
 
