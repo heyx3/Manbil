@@ -7,7 +7,7 @@ void TextureSampleNode::WriteMyOutputs(std::string & outCode) const
                 uvPan = GetUVPanInput().GetValue(),
                 uvOffset = GetUVOffsetInput().GetValue(),
                 time = GetTimeInput().GetValue();
-    std::string uvFinal = std::string() + "(" + uv + " + (" + uvScale + " * (" + uvOffset + " + (" + time + " * " + uvPan + "))))";
+    std::string uvFinal = std::string() + "(" + uvScale + " * (" + uv + " + (" + uvOffset + " + (" + time + " * " + uvPan + "))))";
     std::string outType = Vector(GetSize(channel)).GetGLSLType();
 
 

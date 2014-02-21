@@ -2,7 +2,7 @@
 
 void TextureSettings::SetData(RenderObjHandle tex) const
 {
-	glBindTexture(GL_TEXTURE_2D, tex);
+	if (tex != 0) glBindTexture(GL_TEXTURE_2D, tex);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, GenerateMipmaps));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, GenerateMipmaps));

@@ -27,7 +27,7 @@ public:
     UniformValue(Vector2f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
     UniformValue(Vector3f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
     UniformValue(Vector4f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValue(float * value = 0, unsigned int nData = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
+    UniformValue(const float * value = 0, unsigned int nData = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
     std::string GetDeclaration(void) const { return "uniform " + Vector(NData).GetGLSLType() + " " + Name + ";"; }
 };
 
@@ -59,10 +59,10 @@ public:
 struct UniformSamplerValue
 {
 public:
-    SFTexPtr Texture;
+    sf::Texture * Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(SFTexPtr texture = SFTexPtr(), UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), Texture(texture) { }
+    UniformSamplerValue(sf::Texture * texture = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), Texture(texture) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
@@ -75,7 +75,15 @@ struct UniformList
 public:
     struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
-                             MatrixUniforms, TextureUniforms;
+                         MatrixUniforms, TextureUniforms;
+    //Returns "Uniform("", 0)" if the given name isn't found.
+    static Uniform FindUniform(std::string name, const std::vector<Uniform> & toSearch)
+    {
+        for (int i = 0; i < toSearch.size(); ++i)
+            if (toSearch[i].Name == name)
+                return toSearch[i];
+        return Uniform("", 0);
+    }
 };
 
 //Represents a collection of uniform locations.

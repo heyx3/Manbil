@@ -43,6 +43,7 @@ using namespace OGLTestPrints;
 
 Vector2i windowSize(1000, 1000);
 const RenderingState worldRenderState;
+std::string texSamplerName = "";
 
 
 void OpenGLTestWorld::InitializeTextures(void)
@@ -54,6 +55,10 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
+    quadTex.setRepeated(true);
+    quadTex.setSmooth(true);
+    sf::Texture::bind(&quadTex);
+    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
@@ -62,20 +67,23 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     std::unordered_map<RC, DataLine> chs;
 
-    //Diffuse channel oscillates between 0 and 1.
-    DNP stN(new SineNode(DataLine(DNP(new TimeNode()), 0)));
+    //Diffuse channel just uses a scaled texture.
     std::vector<DataLine> mvInputs;
-    mvInputs.insert(mvInputs.end(), DataLine(DNP(new RemapNode(DataLine(stN, 0), DataLine(Vector(-1.0f)), DataLine(Vector(1.0f)))), 0));
-    mvInputs.insert(mvInputs.end(), mvInputs[0]);
-    mvInputs.insert(mvInputs.end(), mvInputs[0]);
-    chs[RC::RC_Diffuse] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
+    TextureSampleNode * tsn = new TextureSampleNode(ChannelsOut::CO_AllColorChannels, DataLine(DNP(new UVNode()), 0), DataLine(Vector(5.0f, 2.5f)));
+    texSamplerName = tsn->GetSamplerUniformName();
+    chs[RC::RC_Diffuse] = DataLine(DNP(tsn), 0);
+    
 
-    //Vertices are lifted up based on their object-space X coordinate, and then lifed up equally based on elapsed time.
+
+    //Vertices are lifted up based on their object-space X coordinate, and then lifted up equally based on elapsed time.
     mvInputs.clear();
-    mvInputs.insert(mvInputs.end(), DataLine(Vector(0.0f, 0.0f)));
-    mvInputs.insert(mvInputs.end(), DataLine(DNP(new MultiplyNode(DataLine(Vector(10.0f)), DataLine(DNP(new VectorComponentsNode(DataLine(DNP(new ObjectPosNode()), 0))), 0))), 0));
-    mvInputs[1] = DataLine(DNP(new AddNode(mvInputs[1], DataLine(DNP(new TimeNode()), 0))), 0);
-    chs[RC::RC_ObjectVertexOffset] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
+    //mvInputs.insert(mvInputs.end(), DataLine(Vector(0.0f, 0.0f)));
+    //mvInputs.insert(mvInputs.end(), DataLine(DNP(new MultiplyNode(DataLine(Vector(2.0f)), DataLine(DNP(new VectorComponentsNode(DataLine(DNP(new ObjectPosNode()), 0))), 0))), 0));
+    //mvInputs[1] = DataLine(DNP(new AddNode(mvInputs[1], DataLine(DNP(new TimeNode()), 0))), 0);
+    //chs[RC::RC_ObjectVertexOffset] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
+
+    //Diffuse intensity is a constant value.
+    //chs[RC::RC_DiffuseIntensity] = DataLine(Vector(0.3f));
 
 
     std::string vs, fs;
@@ -95,6 +103,13 @@ void OpenGLTestWorld::InitializeObjects(void)
 {
     quad = new DrawingQuad();
     quad->SetSize(Vector2f(10.0f, 5.0f));
+
+    const UniformList & uniforms = quadMat->GetUniforms(RenderPasses::BaseComponents);
+
+    //UniformList::Uniform diffuseSpeed = UniformList::FindUniform(diffuseSpeedName, uniforms.FloatUniforms);
+    //quad->GetMesh().Uniforms.FloatUniforms[diffuseSpeedName] = UniformValue(10.0f, diffuseSpeed.Loc, diffuseSpeed.Name);
+    UniformList::Uniform texSampler = UniformList::FindUniform(texSamplerName, uniforms.TextureUniforms);
+    quad->GetMesh().Uniforms.TextureUniforms[texSamplerName] = UniformSamplerValue(&quadTex, texSampler.Loc, texSampler.Name);
 }
 
 
@@ -158,6 +173,7 @@ void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
 void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 {
     //quad->SetSize(Vector2f(3.0f, 10.0f * sinf(GetTotalElapsedSeconds())));
+    //quad->GetMesh().Uniforms.FloatUniforms[diffuseSpeedName].Value[0] = BasicMath::Max(0.001f, cam.GetPosition().x);
 
 	if (cam.Update(elapsedSeconds))
 	{

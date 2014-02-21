@@ -7,6 +7,7 @@
 
 
 //Outputs the result of sampling a texture.
+//TODO: Output a vec4, and expose a function "unsigned int GetOutputIndex(ChannelsOut outs)".
 class TextureSampleNode : public DataNode
 {
 public:
@@ -14,6 +15,7 @@ public:
     ChannelsOut GetChannel(void) const { return channel; }
 
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
+    std::string GetSamplerUniformName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_" + "sampler"; }
 
 
     TextureSampleNode(ChannelsOut channel,
@@ -22,7 +24,12 @@ public:
                       DataLine uvPan = DataLine(Vector(Vector2f(0.0f, 0.0f))),
                       DataLine uvOffset = DataLine(Vector(Vector2f(0.0f, 0.0f))),
                       DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
-    : channel(channel), DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), MakeVector(GetSize(channel))) { }
+    : channel(channel), DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), MakeVector(GetSize(channel)))
+    {
+        assert(UVs.GetDataLineSize() == 2 && uvScale.GetDataLineSize() <= 2 &&
+               uvPan.GetDataLineSize() == 2 && uvOffset.GetDataLineSize() == 2 &&
+               timeInput.GetDataLineSize() == 1);
+    }
 
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -31,7 +38,7 @@ protected:
 
     virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override
     {
-        uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSamplerValue(SFTexPtr(0), 0, GetSamplerUniformName());
+        uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSamplerValue(0, 0, GetSamplerUniformName());
     }
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -72,6 +79,4 @@ private:
             default: assert(false);
         }
     }
-
-    std::string GetSamplerUniformName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_" + "sampler"; }
 };

@@ -19,26 +19,8 @@ public:
 
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
     {
-        switch (GetOutputs()[0])
-        {
-            case 1:
-                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(0.0f, 0, GetOutputName(0));
-            break;
-
-            case 2:
-                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector2f(0.0f, 0.0f), 0, GetOutputName(0));
-            break;
-
-            case 3:
-                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector3f(0.0f, 0.0f, 0.0f), 0, GetOutputName(0));
-            break;
-
-            case 4:
-                outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0, GetOutputName(0));
-            break;
-
-        default: assert(false);
-        }
+        float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(data, GetOutputs()[0], 0, GetOutputName(0));
     }
 
     virtual std::string GetOutputName(unsigned int outputIndex) const override

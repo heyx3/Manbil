@@ -146,7 +146,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             {
                 RenderDataHandler::ActivateTextureUnit(texUnit);
                 texUnit += 1;
-                sf::Texture::bind(iterator->second.Texture.get());
+                sf::Texture::bind(iterator->second.Texture);
             }
         }
 
