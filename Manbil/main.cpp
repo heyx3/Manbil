@@ -58,7 +58,7 @@ void TestDataNodes(void)
     std::vector<DataLine> toDivide;
     toDivide.insert(toDivide.begin(), DataLine(Vector(1.0f, 1.0f, 4.0f)));
     toDivide.insert(toDivide.end(), DataLine(DataNodePtr(new PowNode(DataLine(Vector(1.0f)), DataLine(Vector(5.0f)))), 0));
-    channels[RenderingChannels::RC_WorldVertexOffset] = DataLine(DataNodePtr(new DivideNode(DataLine(Vector(40.0f, 1.0f, -12.0f)), toDivide)), 0);
+    //channels[RenderingChannels::RC_WorldVertexOffset] = DataLine(DataNodePtr(new DivideNode(DataLine(Vector(40.0f, 1.0f, -12.0f)), toDivide)), 0);
 
     //Diffuse intensity = -In_Color.x
     DataNodePtr splitVec(new VectorComponentsNode(DataLine(DataNodePtr(new ObjectColorNode()), 0)));

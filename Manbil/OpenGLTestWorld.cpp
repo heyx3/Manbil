@@ -41,7 +41,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(200, 200);
+Vector2i windowSize(1000, 1000);
 const RenderingState worldRenderState;
 
 
@@ -62,12 +62,20 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     std::unordered_map<RC, DataLine> chs;
 
+    //Diffuse channel oscillates between 0 and 1.
     DNP stN(new SineNode(DataLine(DNP(new TimeNode()), 0)));
     std::vector<DataLine> mvInputs;
     mvInputs.insert(mvInputs.end(), DataLine(DNP(new RemapNode(DataLine(stN, 0), DataLine(Vector(-1.0f)), DataLine(Vector(1.0f)))), 0));
     mvInputs.insert(mvInputs.end(), mvInputs[0]);
     mvInputs.insert(mvInputs.end(), mvInputs[0]);
     chs[RC::RC_Diffuse] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
+
+    //Vertices are lifted up based on their object-space X coordinate, and then lifed up equally based on elapsed time.
+    mvInputs.clear();
+    mvInputs.insert(mvInputs.end(), DataLine(Vector(0.0f, 0.0f)));
+    mvInputs.insert(mvInputs.end(), DataLine(DNP(new MultiplyNode(DataLine(Vector(10.0f)), DataLine(DNP(new VectorComponentsNode(DataLine(DNP(new ObjectPosNode()), 0))), 0))), 0));
+    mvInputs[1] = DataLine(DNP(new AddNode(mvInputs[1], DataLine(DNP(new TimeNode()), 0))), 0);
+    chs[RC::RC_ObjectVertexOffset] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
 
 
     std::string vs, fs;

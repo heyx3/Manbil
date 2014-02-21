@@ -16,7 +16,7 @@ unsigned int SG::GetChannelInputSize(RC channel)
         case RC::RC_Diffuse:
         case RC::RC_Normal:
         case RC::RC_ObjectVertexOffset:
-        case RC::RC_WorldVertexOffset:
+        //case RC::RC_WorldVertexOffset:
             return 3;
 
         case RC::RC_Distortion:
@@ -39,7 +39,7 @@ bool SG::IsChannelUsed(RC channel, RenderingModes mode, bool useLighting, const 
         case RC::RC_Diffuse:
         case RC::RC_DiffuseIntensity:
         case RC::RC_ObjectVertexOffset:
-        case RC::RC_WorldVertexOffset:
+        //case RC::RC_WorldVertexOffset:
             return true;
 
         case RC::RC_Normal:
@@ -60,7 +60,7 @@ void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSetti
     outChannels.insert(outChannels.end(), RC::RC_Diffuse);
     outChannels.insert(outChannels.end(), RC::RC_DiffuseIntensity);
     outChannels.insert(outChannels.end(), RC::RC_ObjectVertexOffset);
-    outChannels.insert(outChannels.end(), RC::RC_WorldVertexOffset);
+    //outChannels.insert(outChannels.end(), RC::RC_WorldVertexOffset);
 
     if (useLighting)
     {
@@ -124,9 +124,9 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
             case RC::RC_SpecularIntensity:
                 channels[RC::RC_SpecularIntensity] = DataLine(32.0f);
                 break;
-            case RC::RC_WorldVertexOffset:
-                channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
-                break;
+            //case RC::RC_WorldVertexOffset:
+            //    channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
+            //    break;
 
             default: assert(false);
             }
@@ -135,46 +135,6 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
 
     //Create the shaders.
-
-/*
-
-    std::string uniformDeclarations = std::string() +
-"uniform float " + MaterialConstants::ElapsedTimeName + ";                   \n\
-uniform vec3 " + MaterialConstants::CameraPosName + ", " +
-                 MaterialConstants::CameraForwardName + ", " +
-                 MaterialConstants::CameraUpName + ", " +
-                 MaterialConstants::CameraSideName + ";                     \n\
-uniform mat4 " + MaterialConstants::WorldMatName + ", " +
-                 MaterialConstants::ViewMatName + ", " +
-                 MaterialConstants::ProjMatName + ", " +
-                 MaterialConstants::WVPMatName + ";\n\n";
-    std::string vertexShaderHeader = std::string() +
-"#version 330                                                                       \n\
-                                                                                    \n\
-layout (location = 0) in vec3 " + MaterialConstants::InPos + ";                     \n\
-layout (location = 1) in vec4 " + MaterialConstants::InColor + ";                   \n\
-layout (location = 2) in vec2 " + MaterialConstants::InUV + ";                      \n\
-layout (location = 3) in vec3 " + MaterialConstants::InNormal + ";                  \n\
-                                                                                    \n\
-out vec3 " + MaterialConstants::OutPos + ";                                         \n\
-out vec4 " + MaterialConstants::OutColor + ";                                       \n\
-out vec2 " + MaterialConstants::OutUV + ";                                          \n\
-out vec3 " + MaterialConstants::OutNormal + ";                                      \n\
-                                                                                    \n\
-" + uniformDeclarations;
-    std::string fragmentShaderHeader = std::string() +
-"#version 330                                                                       \n\
-                                                                                    \n\
-in vec3 " + MaterialConstants::OutPos + ";                                          \n\
-in vec4 " + MaterialConstants::OutColor + ";                                        \n\
-in vec2 " + MaterialConstants::OutUV + ";                                           \n\
-in vec3 " + MaterialConstants::OutNormal + ";                                       \n\
-                                                                                    \n\
-out vec4 " + MaterialConstants::FinalOutColor + ";                                  \n\
-                                                                                    \n\
-" + uniformDeclarations;
-
-*/
 
     std::string vertShader = MaterialConstants::GetVertexHeader(useLighting),
                 fragShader = MaterialConstants::GetFragmentHeader(useLighting);
@@ -199,7 +159,7 @@ out vec4 " + MaterialConstants::FinalOutColor + ";                              
 
             switch (validChannels[i])
             {
-                case RC::RC_WorldVertexOffset:
+                //case RC::RC_WorldVertexOffset:
                 case RC::RC_ObjectVertexOffset:
                     DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
                     data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
@@ -301,14 +261,14 @@ void main()                                                                     
     //Compute world position.                                                                           \n\
     vec3 pos3 = " + MaterialConstants::InPos + ";                                                       \n\
     pos3 += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                     \n\
-    vec4 pos4 = (" + MaterialConstants::WorldMatName + " * vec4(pos3, 1.0)" + ");                       \n\
-    pos3 = pos4.xyz / pos4.w;                                                                           \n\
-    pos3 += " + channels[RC::RC_WorldVertexOffset].GetValue() + ";                                      \n\
+    vec4 worldPos = (" + MaterialConstants::WorldMatName + " * vec4(pos3, 1.0));                        \n\
+    " + //pos3 += " + "channels[RC::RC_WorldVertexOffset].GetValue() + ;                                 \n
+    "                                                                                                   \n\
+    " + MaterialConstants::OutPos + " = worldPos.xyz / worldPos.w;                                      \n\
                                                                                                         \n\
-    " + MaterialConstants::OutPos + " = pos3;                                                           \n\
-                                                                                                        \n\
-    gl_Position = " + MaterialConstants::WVPMatName + " * vec4(" + MaterialConstants::InPos + ", 1.0);  \n\
+    gl_Position = " + MaterialConstants::WVPMatName + " * vec4(pos3, 1.0);  \n\
 }";
+
     fragShader += "                                                                                     \n\
 void main()                                                                                             \n\
 {                                                                                                       \n\

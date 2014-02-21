@@ -29,7 +29,7 @@ public:
 enum RenderingChannels
 {
     RC_ObjectVertexOffset,
-    RC_WorldVertexOffset,
+    //RC_WorldVertexOffset,
 
     RC_Diffuse,
     RC_DiffuseIntensity,
