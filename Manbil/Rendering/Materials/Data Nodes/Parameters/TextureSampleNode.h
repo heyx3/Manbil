@@ -12,26 +12,52 @@ class TextureSampleNode : public DataNode
 {
 public:
 
-    ChannelsOut GetChannel(void) const { return channel; }
-
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
     std::string GetSamplerUniformName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_" + "sampler"; }
 
 
-    TextureSampleNode(ChannelsOut channel,
-                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
+    TextureSampleNode(DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
                       DataLine uvScale = DataLine(Vector(1.0f)),
                       DataLine uvPan = DataLine(Vector(Vector2f(0.0f, 0.0f))),
                       DataLine uvOffset = DataLine(Vector(Vector2f(0.0f, 0.0f))),
                       DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
-    : channel(channel), DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), MakeVector(GetSize(channel)))
+    : DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), makeVector())
     {
         assert(UVs.GetDataLineSize() == 2 && uvScale.GetDataLineSize() <= 2 &&
                uvPan.GetDataLineSize() == 2 && uvOffset.GetDataLineSize() == 2 &&
                timeInput.GetDataLineSize() == 1);
     }
 
-    virtual std::string GetOutputName(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        std::string base = GetSampleOutputName();
+
+        switch (index)
+        {
+            case 0: return base + ".x";
+            case 1: return base + ".y";
+            case 2: return base + ".z";
+            case 3: return base + ".w";
+            case 4: return base + ".xyz";
+            case 5: return base;
+            default: assert(false);
+        }
+    }
+
+    static unsigned int GetOutputIndex(ChannelsOut channel)
+    {
+        switch (channel)
+        {
+            case ChannelsOut::CO_Red: return 0;
+            case ChannelsOut::CO_Green: return 1;
+            case ChannelsOut::CO_Blue: return 2;
+            case ChannelsOut::CO_Alpha: return 3;
+            case ChannelsOut::CO_AllColorChannels: return 4;
+            case ChannelsOut::CO_AllChannels: return 5;
+
+            default: assert(false);
+        }
+    }
 
 
 protected:
@@ -52,14 +78,25 @@ private:
         dats.insert(dats.end(), time);
         return dats;
     }
+    static std::vector<unsigned int> makeVector(void)
+    {
+        std::vector<unsigned int> ints;
+        ints.insert(ints.end(), 1);
+        ints.insert(ints.end(), 1);
+        ints.insert(ints.end(), 1);
+        ints.insert(ints.end(), 1);
+        ints.insert(ints.end(), 3);
+        ints.insert(ints.end(), 4);
+        return ints;
+    }
+
+    std::string GetSampleOutputName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_sample"; }
 
     const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
     const DataLine & GetUVScaleInput(void) const { return GetInputs()[1]; }
     const DataLine & GetUVPanInput(void) const { return GetInputs()[2]; }
     const DataLine & GetUVOffsetInput(void) const { return GetInputs()[3]; }
     const DataLine & GetTimeInput(void) const { return GetInputs()[4]; }
-
-    ChannelsOut channel;
 
     //Gets the size of the output Vector for the given sampling channel.
     static unsigned int GetSize(ChannelsOut channel)

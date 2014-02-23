@@ -27,7 +27,7 @@ public:
     UniformValue(Vector2f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
     UniformValue(Vector3f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
     UniformValue(Vector4f value, UniformLocation loc, std::string name) : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValue(const float * value = 0, unsigned int nData = 0, UniformLocation loc = 0, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
+    UniformValue(const float * value = 0, unsigned int nData = 0, UniformLocation loc = -1, std::string name = "") : Name(name), Location(loc), NData(nData) { for (int i = 0; i < nData; ++i) Value[i] = value[i]; }
     std::string GetDeclaration(void) const { return "uniform " + Vector(NData).GetGLSLType() + " " + Name + ";"; }
 };
 

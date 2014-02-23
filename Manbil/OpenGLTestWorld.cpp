@@ -15,6 +15,7 @@
 
 #include <assert.h>
 
+typedef MaterialConstants MC;
 
 namespace OGLTestPrints
 {
@@ -69,26 +70,20 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     //Diffuse channel just uses a scaled texture.
     std::vector<DataLine> mvInputs;
-    TextureSampleNode * tsn = new TextureSampleNode(ChannelsOut::CO_AllColorChannels, DataLine(DNP(new UVNode()), 0), DataLine(Vector(5.0f, 2.5f)));
+    TextureSampleNode * tsn = new TextureSampleNode(DataLine(DNP(new UVNode()), 0), DataLine(Vector(10.0f, 5.0f)));
     texSamplerName = tsn->GetSamplerUniformName();
-    chs[RC::RC_Diffuse] = DataLine(DNP(tsn), 0);
+    DNP tsnDNP(tsn);
+    chs[RC::RC_Diffuse] = DataLine(tsnDNP, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     
+    //Specular channel is a constant value.
+    chs[RC::RC_Specular] = DataLine(DNP(new OneMinusNode(DataLine(tsnDNP, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Green)))), 0);
+    chs[RC::RC_SpecularIntensity] = DataLine(Vector(64.0f));
 
-
-    //Vertices are lifted up based on their object-space X coordinate, and then lifted up equally based on elapsed time.
-    mvInputs.clear();
-    //mvInputs.insert(mvInputs.end(), DataLine(Vector(0.0f, 0.0f)));
-    //mvInputs.insert(mvInputs.end(), DataLine(DNP(new MultiplyNode(DataLine(Vector(2.0f)), DataLine(DNP(new VectorComponentsNode(DataLine(DNP(new ObjectPosNode()), 0))), 0))), 0));
-    //mvInputs[1] = DataLine(DNP(new AddNode(mvInputs[1], DataLine(DNP(new TimeNode()), 0))), 0);
-    //chs[RC::RC_ObjectVertexOffset] = DataLine(DNP(new CombineVectorNode(mvInputs)), 0);
-
-    //Diffuse intensity is a constant value.
-    //chs[RC::RC_DiffuseIntensity] = DataLine(Vector(0.3f));
 
 
     std::string vs, fs;
     UniformDictionary uniforms;
-    ShaderGenerator::GenerateShaders(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false), chs);
+    ShaderGenerator::GenerateShaders(vs, fs, uniforms, RenderingModes::RM_Opaque, true, LightSettings(false), chs);
 
     quadMat = new Material(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (quadMat->HasError())
@@ -102,25 +97,32 @@ void OpenGLTestWorld::InitializeMaterials(void)
 void OpenGLTestWorld::InitializeObjects(void)
 {
     quad = new DrawingQuad();
-    quad->SetSize(Vector2f(10.0f, 5.0f));
+    quad->SetSize(Vector2f(50.0f, 50.0f));
 
     const UniformList & uniforms = quadMat->GetUniforms(RenderPasses::BaseComponents);
 
-    //UniformList::Uniform diffuseSpeed = UniformList::FindUniform(diffuseSpeedName, uniforms.FloatUniforms);
-    //quad->GetMesh().Uniforms.FloatUniforms[diffuseSpeedName] = UniformValue(10.0f, diffuseSpeed.Loc, diffuseSpeed.Name);
     UniformList::Uniform texSampler = UniformList::FindUniform(texSamplerName, uniforms.TextureUniforms);
     quad->GetMesh().Uniforms.TextureUniforms[texSamplerName] = UniformSamplerValue(&quadTex, texSampler.Loc, texSampler.Name);
+
+    UniformList::Uniform unfVal = UniformList::FindUniform(MC::DirectionalLight_AmbientName, uniforms.FloatUniforms);
+    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValue(dirLight.AmbientIntensity, unfVal.Loc, unfVal.Name);
+    unfVal = UniformList::FindUniform(MC::DirectionalLight_DiffuseName, uniforms.FloatUniforms);
+    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValue(dirLight.DiffuseIntensity, unfVal.Loc, unfVal.Name);
+    unfVal = UniformList::FindUniform(MC::DirectionalLight_ColorName, uniforms.FloatUniforms);
+    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValue(dirLight.Color, unfVal.Loc, unfVal.Name);
+    unfVal = UniformList::FindUniform(MC::DirectionalLight_DirName, uniforms.FloatUniforms);
+    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValue(dirLight.Direction, unfVal.Loc, unfVal.Name);
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3))
 {
-	dirLight.Direction = Vector3f(-1.0f, -1.0f, -1.0f).Normalized();
+	dirLight.Direction = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
 
-	dirLight.AmbientIntensity = 0.3f;
-	dirLight.DiffuseIntensity = 0.7f;
+	dirLight.AmbientIntensity = 0.1f;
+	dirLight.DiffuseIntensity = 0.8f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {
@@ -174,6 +176,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 {
     //quad->SetSize(Vector2f(3.0f, 10.0f * sinf(GetTotalElapsedSeconds())));
     //quad->GetMesh().Uniforms.FloatUniforms[diffuseSpeedName].Value[0] = BasicMath::Max(0.001f, cam.GetPosition().x);
+    //quad->GetMesh().Transform.Rotate(Vector3f(elapsedSeconds * 0.30f, 0.0f, 0.0f));
 
 	if (cam.Update(elapsedSeconds))
 	{

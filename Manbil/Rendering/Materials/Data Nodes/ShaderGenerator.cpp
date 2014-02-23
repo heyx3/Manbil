@@ -243,30 +243,33 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
 
     //Set up the main() functions.
-    //TODO: Add/modify a DataNode so that players can transform a normal from object space into world space.
+    //TODO: Normal channel is relative to a surface pointing straight up.
+    //TODO: Get outputs for position offset first, then calculate world/object position, then calculate the outputs for the other channels.
     //TODO: Create a separate rendering mode for distortion -- it is opaque, and blending is manually done in the fragment shader using a sampler for the rendered world.
     //TODO: For vertex shader: calculate the screen depth of the vertex from 0 - 1 after transforming the position into clip space, pass it to the vertex shader, and expose it as a DataNode.
     vertShader += "\n\
 void main()                                                                                             \n\
 {                                                                                                       \n\
+    //Compute shader out data (except position, which will be changed by a channel).                    \n\
+    " + MaterialConstants::OutObjNormal + " = " + MaterialConstants::InObjNormal + ";                   \n\
+    " + MaterialConstants::OutWorldNormal + " = normalize(" + MaterialConstants::WorldMatName + " * " +
+                                                          "vec4(" + MaterialConstants::InObjNormal + ", 0.0)).xyz;\n\
+    vec3 " + MaterialConstants::InWorldNormal + " = " + MaterialConstants::OutWorldNormal + ";               \n\
+    " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
+    " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
+                                                                                                        \n\
     //Compute outputs.                                                                                  \n\
     " + vertexCode + "                                                                                  \n\
                                                                                                         \n\
-    //Compute shader outputs.                                                                           \n\
-    " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
-    " + MaterialConstants::OutNormal + " = (" + MaterialConstants::WorldMatName +
-                                             " * vec4(" + MaterialConstants::InNormal + ", 0.0)).xyz;   \n\
-    " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
                                                                                                         \n\
-    //Compute world position.                                                                           \n\
-    vec3 pos3 = " + MaterialConstants::InPos + ";                                                       \n\
-    pos3 += " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";                                     \n\
-    vec4 worldPos = (" + MaterialConstants::WorldMatName + " * vec4(pos3, 1.0));                        \n\
-    " + //pos3 += " + "channels[RC::RC_WorldVertexOffset].GetValue() + ;                                 \n
+    //Compute position out data.                                                                        \n\
+    " + MaterialConstants::OutObjPos + " = " + MaterialConstants::InObjPos + " + " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";\n\
+    vec4 worldPos = (" + MaterialConstants::WorldMatName + " * vec4(" + MaterialConstants::OutObjPos + ", 1.0));                        \n\
+    " + //pos3 += " + "channels[RC::RC_WorldVertexOffset].GetValue() + ;                                \n
     "                                                                                                   \n\
-    " + MaterialConstants::OutPos + " = worldPos.xyz / worldPos.w;                                      \n\
+    " + MaterialConstants::OutWorldPos + " = worldPos.xyz / worldPos.w;                                 \n\
                                                                                                         \n\
-    gl_Position = " + MaterialConstants::WVPMatName + " * vec4(pos3, 1.0);  \n\
+    gl_Position = " + MaterialConstants::WVPMatName + " * vec4(" + MaterialConstants::OutObjPos + ", 1.0);  \n\
 }";
 
     fragShader += "                                                                                     \n\
@@ -287,8 +290,9 @@ void main()                                                                     
     {
         fragShader +=
     "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
-     diffuseCol *= getLight(normalVal, " + MaterialConstants::OutPos + " - " +
-                                           MaterialConstants::CameraPosName +
+     diffuseCol *= getLight(normalize(normalVal), " +
+                           "normalize(" + MaterialConstants::CameraPosName + " - " +
+                                           MaterialConstants::OutWorldPos + ")" +
                             ", " + channels[RC::RC_Specular].GetValue() +
                             ", " + channels[RC::RC_SpecularIntensity].GetValue() +
                             ", " + MaterialConstants::DirectionalLightName + ");              \n\n";

@@ -4,6 +4,7 @@
 #include "../../RenderingState.h"
 #include "RenderingModes.h"
 #include "../../ShaderHandler.h"
+#include "UniformCollections.h"
 
 
 
@@ -16,8 +17,8 @@ public:
     static const std::string ElapsedTimeName,
                              WorldMatName, ViewMatName, ProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
-                             InPos, InUV, InNormal, InColor,
-                             OutPos, OutUV, OutNormal, OutColor,
+                             InObjPos, InWorldPos, InUV, InObjNormal, InWorldNormal, InColor,
+                             OutObjPos, OutWorldPos, OutUV, OutObjNormal, OutWorldNormal, OutColor,
                              FinalOutColor;
     static const std::string DirectionalLightName,
                              DirectionalLight_ColorName, DirectionalLight_DirName,

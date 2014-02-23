@@ -49,8 +49,7 @@ void TestDataNodes(void)
                                                        0);
     //Object-space offset = texture2D([sampler], In_UV + (uvOffset + (vec2(1.0) * (vec2(0.0) * u_elapsed_seconds))))
     channels[RenderingChannels::RC_ObjectVertexOffset] =
-        DataLine(DataNodePtr(new TextureSampleNode(ChannelsOut::CO_AllColorChannels,
-                                                   DataLine(DataNodePtr(new AddNode(DataLine(Vector(1.0f, 0.0f)),
+        DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new AddNode(DataLine(Vector(1.0f, 0.0f)),
                                                                                     DataLine(DataNodePtr(new ParamNode(2, "uvOffset")), 0))), 0))),
                              0);
 

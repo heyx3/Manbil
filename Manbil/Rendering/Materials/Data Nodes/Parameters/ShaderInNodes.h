@@ -36,8 +36,16 @@ class ObjectPosNode : public ShaderInNode
 {
 public:
     virtual std::string GetName(void) const override { return "objectPosNode"; }
-    ObjectPosNode(void) : ShaderInNode(MaterialConstants::InPos, MaterialConstants::OutPos, 3) { }
+    ObjectPosNode(void) : ShaderInNode(MaterialConstants::InObjPos, MaterialConstants::OutObjPos, 3) { }
 };
+//A node that outputs the world-space position of the current vertex/fragment.
+class WorldPosNode : public ShaderInNode
+{
+public:
+    virtual std::string GetName(void) const override { return "worldPosNode"; }
+    WorldPosNode(void) : ShaderInNode(MaterialConstants::InWorldPos, MaterialConstants::OutWorldPos, 3) { }
+};
+
 //A node that outputs the uv coordinates at the current vertex/fragment.
 class UVNode : public ShaderInNode
 {
@@ -45,6 +53,7 @@ public:
     virtual std::string GetName(void) const override { return "uvNode"; }
     UVNode(void) : ShaderInNode(MaterialConstants::InUV, MaterialConstants::OutUV, 2) { }
 };
+
 //A node that outputs the color at the current vertex/fragment.
 class ObjectColorNode : public ShaderInNode
 {
@@ -52,10 +61,18 @@ public:
     virtual std::string GetName(void) const override { return "objectColorNode"; }
     ObjectColorNode(void) : ShaderInNode(MaterialConstants::InColor, MaterialConstants::OutColor, 4) { }
 };
+
 //A node that outputs the object-space normal at the current vertex/fragment.
 class ObjectNormalNode : public ShaderInNode
 {
 public:
     virtual std::string GetName(void) const override { return "objectNormalNode"; }
-    ObjectNormalNode(void) : ShaderInNode(MaterialConstants::InNormal, MaterialConstants::OutNormal, 3) { }
+    ObjectNormalNode(void) : ShaderInNode(MaterialConstants::InObjNormal, MaterialConstants::OutObjNormal, 3) { }
+};
+//A node that outputs the world-space normal at the current vertex/fragment.
+class WorldNormalNode : public ShaderInNode
+{
+public:
+    virtual std::string GetName(void) const override { return "worldNormalNode"; }
+    WorldNormalNode(void) : ShaderInNode(MaterialConstants::InWorldNormal, MaterialConstants::OutWorldNormal, 3) { }
 };
