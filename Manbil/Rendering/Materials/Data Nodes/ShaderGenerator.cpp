@@ -104,7 +104,7 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
                 channels[RC::RC_Diffuse] = DataLine(DataNodePtr(new ObjectColorNode()), 0);
                 break;
             case RC::RC_DiffuseIntensity:
-                channels[RC::RC_DiffuseIntensity] = DataLine(Vector(1.0f));
+                channels[RC::RC_DiffuseIntensity] = DataLine(VectorF(1.0f));
                 break;
             case RC::RC_Distortion:
                 channels[RC::RC_Distortion] = DataLine(Vector2f(0.0f, 0.0f));
@@ -217,10 +217,10 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     }
     if (useLighting)
     {
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValue(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValue(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValue(0.2f, 0, "dirLight.Ambient");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValue(0.8f, 0, "dirLight.Diffuse");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(0.2f, 0, "dirLight.Ambient");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(0.8f, 0, "dirLight.Diffuse");
     }
 
 
@@ -244,7 +244,6 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
     //Set up the main() functions.
     //TODO: Normal channel is relative to a surface pointing straight up.
-    //TODO: Get outputs for position offset first, then calculate world/object position, then calculate the outputs for the other channels.
     //TODO: Create a separate rendering mode for distortion -- it is opaque, and blending is manually done in the fragment shader using a sampler for the rendered world.
     //TODO: For vertex shader: calculate the screen depth of the vertex from 0 - 1 after transforming the position into clip space, pass it to the vertex shader, and expose it as a DataNode.
     vertShader += "\n\
@@ -254,7 +253,7 @@ void main()                                                                     
     " + MaterialConstants::OutObjNormal + " = " + MaterialConstants::InObjNormal + ";                   \n\
     " + MaterialConstants::OutWorldNormal + " = normalize(" + MaterialConstants::WorldMatName + " * " +
                                                           "vec4(" + MaterialConstants::InObjNormal + ", 0.0)).xyz;\n\
-    vec3 " + MaterialConstants::InWorldNormal + " = " + MaterialConstants::OutWorldNormal + ";               \n\
+    vec3 " + MaterialConstants::InWorldNormal + " = " + MaterialConstants::OutWorldNormal + ";          \n\
     " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
     " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
                                                                                                         \n\

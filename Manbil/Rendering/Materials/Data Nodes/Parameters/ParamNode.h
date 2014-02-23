@@ -20,7 +20,7 @@ public:
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
     {
         float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValue(data, GetOutputs()[0], 0, GetOutputName(0));
+        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValueF(data, GetOutputs()[0], 0, GetOutputName(0));
     }
 
     virtual std::string GetOutputName(unsigned int outputIndex) const override

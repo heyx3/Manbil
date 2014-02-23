@@ -17,9 +17,9 @@ public:
 
 
     TextureSampleNode(DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
-                      DataLine uvScale = DataLine(Vector(1.0f)),
-                      DataLine uvPan = DataLine(Vector(Vector2f(0.0f, 0.0f))),
-                      DataLine uvOffset = DataLine(Vector(Vector2f(0.0f, 0.0f))),
+                      DataLine uvScale = DataLine(VectorF(1.0f)),
+                      DataLine uvPan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
+                      DataLine uvOffset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
                       DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
     : DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), makeVector())
     {
@@ -98,7 +98,7 @@ private:
     const DataLine & GetUVOffsetInput(void) const { return GetInputs()[3]; }
     const DataLine & GetTimeInput(void) const { return GetInputs()[4]; }
 
-    //Gets the size of the output Vector for the given sampling channel.
+    //Gets the size of the output VectorF for the given sampling channel.
     static unsigned int GetSize(ChannelsOut channel)
     {
         switch (channel)

@@ -23,7 +23,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\t" + Vector(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = reflect(" + GetInputs()[0].GetValue() + ", ";
+        outCode += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = reflect(" + GetInputs()[0].GetValue() + ", ";
 
         if (isNormNormalized) outCode += GetInputs()[1].GetValue();
         else outCode += "normalize(" + GetInputs()[1].GetValue() + ")";

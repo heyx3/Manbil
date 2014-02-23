@@ -32,7 +32,7 @@ DivideNode::DivideNode(DataLine toDivide1, DataLine toDivide2)
 
 void DivideNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
+    std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (int i = 0; i < GetInputs().size(); ++i)

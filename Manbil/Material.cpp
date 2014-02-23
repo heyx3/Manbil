@@ -51,6 +51,22 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
                                                UniformList::Uniform(iterator->first, tempLoc));
         }
     }
+    for (auto iterator = dict.IntUniforms.begin(); iterator != dict.IntUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.IntUniforms.insert(uniforms.IntUniforms.end(),
+                                        UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
+    for (auto iterator = dict.IntArrayUniforms.begin(); iterator != dict.IntArrayUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.IntArrayUniforms.insert(uniforms.IntArrayUniforms.end(),
+                                             UniformList::Uniform(iterator->first, tempLoc));
+        }
+    }
     for (auto iterator = dict.MatrixUniforms.begin(); iterator != dict.MatrixUniforms.end(); ++iterator)
     {
         if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
@@ -132,6 +148,12 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
                 RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
         for (auto iterator = mesh.Uniforms.FloatArrayUniforms.begin(); iterator != mesh.Uniforms.FloatArrayUniforms.end(); ++iterator)
+            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+                RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
+        for (auto iterator = mesh.Uniforms.IntUniforms.begin(); iterator != mesh.Uniforms.IntUniforms.end(); ++iterator)
+            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+                RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
+        for (auto iterator = mesh.Uniforms.IntArrayUniforms.begin(); iterator != mesh.Uniforms.IntArrayUniforms.end(); ++iterator)
             if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
                 RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
         for (auto iterator = mesh.Uniforms.MatrixUniforms.begin(); iterator != mesh.Uniforms.MatrixUniforms.end(); ++iterator)

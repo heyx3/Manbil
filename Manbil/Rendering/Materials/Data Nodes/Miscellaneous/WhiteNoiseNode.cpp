@@ -2,7 +2,7 @@
 
 void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(GetOutputs()[0]).GetGLSLType(),
+    std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType(),
                 seed1 = GetInputs()[0].GetValue(),
                 seed2 = GetInputs()[1].GetValue(),
                 output = GetOutputName(0);
@@ -22,10 +22,10 @@ std::vector<DataLine> WhiteNoiseNode::makeInputs(const DataLine & seed)
 
     switch (seed.GetDataLineSize())
     {
-        case 1: dat.insert(dat.begin(), DataLine(Vector(seed1))); break;
-        case 2: dat.insert(dat.begin(), DataLine(Vector(Vector2f(seed1, seed2)))); break;
-        case 3: dat.insert(dat.begin(), DataLine(Vector(Vector3f(seed1, seed2, seed3)))); break;
-        case 4: dat.insert(dat.begin(), DataLine(Vector(Vector4f(seed1, seed2, seed3, seed4)))); break;
+        case 1: dat.insert(dat.begin(), DataLine(VectorF(seed1))); break;
+        case 2: dat.insert(dat.begin(), DataLine(VectorF(Vector2f(seed1, seed2)))); break;
+        case 3: dat.insert(dat.begin(), DataLine(VectorF(Vector3f(seed1, seed2, seed3)))); break;
+        case 4: dat.insert(dat.begin(), DataLine(VectorF(Vector4f(seed1, seed2, seed3, seed4)))); break;
         default: assert(false);
     }
 

@@ -38,11 +38,14 @@ private:
 
 	void RenderWorldGeometry(const RenderInfo & info);
 
-	Material * quadMat;
-    DrawingQuad * quad;
+    Terrain * terr;
+    Vector3f * terrPoses;
+    Mesh terrMesh;
+
+    Material * mat;
 
 	MovingCamera cam;
 	DirectionalLight dirLight;
 
-    sf::Texture quadTex;
+    sf::Texture diffuseTex;
 };

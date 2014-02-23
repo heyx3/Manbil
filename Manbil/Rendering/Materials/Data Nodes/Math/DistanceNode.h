@@ -21,7 +21,7 @@ protected:
     
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        std::string vecType = Vector(GetOutputs()[0]).GetGLSLType();
+        std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
         outCode += "\t" + vecType + " " + GetOutputName(0) + " = distance(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
     }
 };

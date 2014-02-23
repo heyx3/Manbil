@@ -2,8 +2,6 @@
 
 #include "BasicGenerators.h"
 
-//TODO: Move NoiseFilterer into here; it's basically a "Combine1Noise" Generator.
-
 class Combine2Noises : public Generator
 {
 public:

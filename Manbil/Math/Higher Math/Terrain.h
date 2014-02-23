@@ -7,16 +7,16 @@ class Terrain
 {
 public:
 
-	Terrain(int size) { heightmap = new Fake2DArray<float>(size, size, 0.0f); }
+	Terrain(unsigned int size) { heightmap = new Fake2DArray<float>(size, size, 0.0f); }
 	~Terrain(void) { delete heightmap; }
 
     //Gets the width/height of the terrain.
-	int GetSize(void) const { return heightmap->GetWidth(); }
+	unsigned int GetSize(void) const { return heightmap->GetWidth(); }
 
 	//Gets the number of vertices necessary to turn this terrain into triangles.
-	int GetVerticesCount(int zoomOut = 0) const { return (GetSize() * GetSize()) / (int)BasicMath::IntPow(4, zoomOut); }
+	unsigned int GetVerticesCount(int zoomOut = 0) const { return (GetSize() * GetSize()) / (int)BasicMath::IntPow(4, zoomOut); }
 	//Gets the number of indices necessary to turn this terrain into triangles.
-	int GetIndicesCount(int zoomOut = 0) const { return (6 * (GetSize() - 1) * (GetSize() - 1)) / (int)BasicMath::IntPow(4, zoomOut); }
+	unsigned int GetIndicesCount(int zoomOut = 0) const { return (6 * (GetSize() - 1) * (GetSize() - 1)) / (int)BasicMath::IntPow(4, zoomOut); }
 
 	void SetHeightmap(const Fake2DArray<float> & copy);
 
@@ -31,7 +31,7 @@ public:
 	void ConvertHeightmap(Fake2DArray<Out> & outArray, Func pConverter)
 	{
 		Vector2i l;
-		int x, y;
+		unsigned int x, y;
 		for (x = 0; x < heightmap->GetWidth(); ++x)
 		{
 			l.x = x;

@@ -3,7 +3,7 @@
 #include <assert.h>
 
 
-std::string Vector::GetGLSLType(void) const
+std::string VectorF::GetGLSLType(void) const
 {
     switch (size)
     {
@@ -16,38 +16,89 @@ std::string Vector::GetGLSLType(void) const
     }
 }
 
-Vector Vector::operator+(const Vector & other) const
+VectorF VectorF::operator+(const VectorF & other) const
 {
     assert(size == other.size);
 
-    Vector retVal(size);
+    VectorF retVal(size);
     for (int i = 0; i < size; ++i)
         retVal.values[i] = values[i] + other.values[i];
     return retVal;
 }
-Vector Vector::operator-(const Vector & other) const
+VectorF VectorF::operator-(const VectorF & other) const
 {
     assert(size == other.size);
 
-    Vector retVal(size);
+    VectorF retVal(size);
     for (int i = 0; i < size; ++i)
         retVal.values[i] = values[i] - other.values[i];
     return retVal;
 }
-Vector Vector::operator*(const Vector & other) const
+VectorF VectorF::operator*(const VectorF & other) const
 {
     assert(size == other.size);
 
-    Vector retVal(size);
+    VectorF retVal(size);
     for (int i = 0; i < size; ++i)
         retVal.values[i] = values[i] * other.values[i];
     return retVal;
 }
-Vector Vector::operator/(const Vector & other) const
+VectorF VectorF::operator/(const VectorF & other) const
 {
     assert(size == other.size);
 
-    Vector retVal(size);
+    VectorF retVal(size);
+    for (int i = 0; i < size; ++i)
+        retVal.values[i] = values[i] / other.values[i];
+    return retVal;
+}
+
+
+std::string VectorI::GetGLSLType(void) const
+{
+    switch (size)
+    {
+    case 0: return "invalid_type_name";
+    case 1: return "int";
+    case 2: return "ivec2";
+    case 3: return "ivec3";
+    case 4: return "ivec4";
+    default: assert(false);
+    }
+}
+
+VectorI VectorI::operator+(const VectorI & other) const
+{
+    assert(size == other.size);
+
+    VectorI retVal(size);
+    for (int i = 0; i < size; ++i)
+        retVal.values[i] = values[i] + other.values[i];
+    return retVal;
+}
+VectorI VectorI::operator-(const VectorI & other) const
+{
+    assert(size == other.size);
+
+    VectorI retVal(size);
+    for (int i = 0; i < size; ++i)
+        retVal.values[i] = values[i] - other.values[i];
+    return retVal;
+}
+VectorI VectorI::operator*(const VectorI & other) const
+{
+    assert(size == other.size);
+
+    VectorI retVal(size);
+    for (int i = 0; i < size; ++i)
+        retVal.values[i] = values[i] * other.values[i];
+    return retVal;
+}
+VectorI VectorI::operator/(const VectorI & other) const
+{
+    assert(size == other.size);
+
+    VectorI retVal(size);
     for (int i = 0; i < size; ++i)
         retVal.values[i] = values[i] / other.values[i];
     return retVal;

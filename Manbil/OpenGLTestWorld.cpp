@@ -49,16 +49,16 @@ std::string texSamplerName = "";
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
-    if (!quadTex.loadFromFile("Content/Textures/Grass.png"))
+    if (!diffuseTex.loadFromFile("Content/Textures/Grass.png"))
     {
         std::cout << "Failed to load 'Grass.png'.\n";
         Pause();
         EndWorld();
         return;
     }
-    quadTex.setRepeated(true);
-    quadTex.setSmooth(true);
-    sf::Texture::bind(&quadTex);
+    diffuseTex.setRepeated(true);
+    diffuseTex.setSmooth(true);
+    sf::Texture::bind(&diffuseTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
@@ -70,14 +70,14 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     //Diffuse channel just uses a scaled texture.
     std::vector<DataLine> mvInputs;
-    TextureSampleNode * tsn = new TextureSampleNode(DataLine(DNP(new UVNode()), 0), DataLine(Vector(10.0f, 5.0f)));
+    TextureSampleNode * tsn = new TextureSampleNode(DataLine(DNP(new UVNode()), 0), DataLine(VectorF(70.0f, 70.0f)));
     texSamplerName = tsn->GetSamplerUniformName();
     DNP tsnDNP(tsn);
     chs[RC::RC_Diffuse] = DataLine(tsnDNP, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     
     //Specular channel is a constant value.
-    chs[RC::RC_Specular] = DataLine(DNP(new OneMinusNode(DataLine(tsnDNP, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Green)))), 0);
-    chs[RC::RC_SpecularIntensity] = DataLine(Vector(64.0f));
+    chs[RC::RC_Specular] = DataLine(VectorF(1.0f));
+    chs[RC::RC_SpecularIntensity] = DataLine(VectorF(32.0f));
 
 
 
@@ -85,10 +85,10 @@ void OpenGLTestWorld::InitializeMaterials(void)
     UniformDictionary uniforms;
     ShaderGenerator::GenerateShaders(vs, fs, uniforms, RenderingModes::RM_Opaque, true, LightSettings(false), chs);
 
-    quadMat = new Material(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false));
-    if (quadMat->HasError())
+    mat = new Material(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (mat->HasError())
     {
-        std::cout << "Error creating quad material: " << quadMat->GetErrorMsg() << "\n";
+        std::cout << "Error creating quad material: " << mat->GetErrorMsg() << "\n";
         Pause();
         EndWorld();
         return;
@@ -96,27 +96,68 @@ void OpenGLTestWorld::InitializeMaterials(void)
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
-    quad = new DrawingQuad();
-    quad->SetSize(Vector2f(50.0f, 50.0f));
+    const unsigned int size = 300;
+    Noise2D heightmap(size, size);
+    float worldSize = 1.0f,
+          worldHeight = 15.0f;
 
-    const UniformList & uniforms = quadMat->GetUniforms(RenderPasses::BaseComponents);
+
+    #pragma region Terrain Heightmap
+
+    Perlin per(35.0f, Perlin::Smoothness::Quintic);
+    per.Generate(heightmap);
+
+    #pragma endregion
+
+
+    terr = new Terrain(300);
+    terr->SetHeightmap(heightmap);
+
+    unsigned int nVs = terr->GetVerticesCount();
+    terrPoses = new Vector3f[nVs];
+    Vector2f * terrUVs = new Vector2f[nVs];
+    Vector3f * terrNormals = new Vector3f[nVs];
+    unsigned int * indices = new unsigned int[terr->GetIndicesCount()];
+
+    terr->CreateVertexPositions(terrPoses);
+    terr->CreateVertexNormals(terrNormals, terrPoses, Vector3f(worldSize, worldSize, worldHeight));
+    terr->CreateVertexTexCoords(terrUVs);
+    terr->CreateVertexIndices(indices);
+
+    Vertex * vertices = new Vertex[nVs];
+    for (unsigned int i = 0; i < nVs; ++i)
+    {
+        vertices[i] = Vertex(terrPoses[i].ComponentProduct(Vector3f(worldSize, worldSize, worldHeight)), terrUVs[i], terrNormals[i]);
+    }
+
+    RenderObjHandle vbo, ibo;
+    RenderDataHandler::CreateVertexBuffer(vbo, vertices, nVs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(ibo, indices, terr->GetIndicesCount(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    VertexIndexData vid(nVs, vbo, terr->GetIndicesCount(), ibo);
+    terrMesh.SetVertexIndexData(vid);
+    
+    delete[] terrUVs, terrNormals, indices, vertices;
+
+
+    const UniformList & uniforms = mat->GetUniforms(RenderPasses::BaseComponents);
+    Mesh & mesh = terrMesh;
 
     UniformList::Uniform texSampler = UniformList::FindUniform(texSamplerName, uniforms.TextureUniforms);
-    quad->GetMesh().Uniforms.TextureUniforms[texSamplerName] = UniformSamplerValue(&quadTex, texSampler.Loc, texSampler.Name);
+    terrMesh.Uniforms.TextureUniforms[texSamplerName] = UniformSamplerValue(&diffuseTex, texSampler.Loc, texSampler.Name);
 
     UniformList::Uniform unfVal = UniformList::FindUniform(MC::DirectionalLight_AmbientName, uniforms.FloatUniforms);
-    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValue(dirLight.AmbientIntensity, unfVal.Loc, unfVal.Name);
+    mesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(dirLight.AmbientIntensity, unfVal.Loc, unfVal.Name);
     unfVal = UniformList::FindUniform(MC::DirectionalLight_DiffuseName, uniforms.FloatUniforms);
-    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValue(dirLight.DiffuseIntensity, unfVal.Loc, unfVal.Name);
+    mesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(dirLight.DiffuseIntensity, unfVal.Loc, unfVal.Name);
     unfVal = UniformList::FindUniform(MC::DirectionalLight_ColorName, uniforms.FloatUniforms);
-    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValue(dirLight.Color, unfVal.Loc, unfVal.Name);
+    mesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(dirLight.Color, unfVal.Loc, unfVal.Name);
     unfVal = UniformList::FindUniform(MC::DirectionalLight_DirName, uniforms.FloatUniforms);
-    quad->GetMesh().Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValue(dirLight.Direction, unfVal.Loc, unfVal.Name);
+    mesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(dirLight.Direction, unfVal.Loc, unfVal.Name);
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3))
+: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), terr(0), terrPoses(0), mat(0), terrMesh(PrimitiveTypes::Triangles)
 {
 	dirLight.Direction = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
@@ -152,13 +193,15 @@ void OpenGLTestWorld::InitializeWorld(void)
 
 OpenGLTestWorld::~OpenGLTestWorld(void)
 {
-    DeleteAndSetToNull(quad);
-    DeleteAndSetToNull(quadMat);
+    DeleteAndSetToNull(terr);
+    DeleteAndSetToNull(terrPoses);
+    DeleteAndSetToNull(mat);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
-    DeleteAndSetToNull(quad);
-    DeleteAndSetToNull(quadMat);
+    DeleteAndSetToNull(terr);
+    DeleteAndSetToNull(terrPoses);
+    DeleteAndSetToNull(mat);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -186,9 +229,12 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-    if (!quad->Render(RenderPasses::BaseComponents, info, *quadMat))
+    std::vector<const Mesh *> meshes;
+    meshes.insert(meshes.end(), &terrMesh);
+
+    if (!mat->Render(RenderPasses::BaseComponents, info, meshes))
     {
-        std::cout << "Error rendering quad: " << quadMat->GetErrorMsg() << ".\n";
+        std::cout << "Error rendering world geometry: " << mat->GetErrorMsg() << ".\n";
         Pause();
         EndWorld();
         return;
@@ -209,6 +255,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 	
     //Draw the world.
 	ScreenClearer().ClearScreen();
+    worldRenderState.EnableState();
 	RenderWorldGeometry(info);
 }
 

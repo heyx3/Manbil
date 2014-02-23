@@ -51,9 +51,9 @@ public:
     const std::vector<DataLine> & GetInputs(void) const { return inputs; }
     //Gets this node's input lines.
     std::vector<DataLine> & GetInputs(void) { return inputs; }
-    //Gets this node's output lines. Each element represents the size of that output line's Vector.
+    //Gets this node's output lines. Each element represents the size of that output line's VectorF.
     const std::vector<unsigned int> & GetOutputs(void) const { return outputs; }
-    //Gets this node's output lines. Each element represents the size of that output line's Vector.
+    //Gets this node's output lines. Each element represents the size of that output line's VectorF.
     std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
     //Gets the variable name for this node's given output.

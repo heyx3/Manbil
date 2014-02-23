@@ -11,7 +11,7 @@ public:
     virtual std::string GetName(void) const override { return "remapNode"; }
 
     RemapNode(const DataLine & toRemap, const DataLine & srcMin, const DataLine & srcMax,
-              DataLine destMin = DataLine(Vector(0.0f)), DataLine destMax = DataLine(Vector(1.0f)))
+              DataLine destMin = DataLine(VectorF(0.0f)), DataLine destMax = DataLine(VectorF(1.0f)))
               : DataNode(MakeVector(toRemap, srcMin, srcMax, destMin, destMax), DataNode::MakeVector(GetSize(toRemap, srcMin, srcMax, destMin, destMax)))
     {
         unsigned int size = GetOutputs()[0];
@@ -35,7 +35,7 @@ protected:
                     sMa = GetSrcMaxInput().GetValue(),
                     dMi = GetDestMinInput().GetValue(),
                     dMa = GetDestMaxInput().GetValue();
-        outOutputs += "\t" + Vector(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = " +
+        outOutputs += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = " +
                         dMi + " + ((" + val + " - " + sMi + ") * (" + dMa + " - " + dMi + ") /\n\t\t(" + sMa + " - " + sMi + "));";
     }
 

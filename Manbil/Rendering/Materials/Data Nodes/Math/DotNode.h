@@ -21,7 +21,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        std::string vecType = Vector(GetInputs()[0].GetDataLineSize()).GetGLSLType();
+        std::string vecType = VectorF(GetInputs()[0].GetDataLineSize()).GetGLSLType();
 
         outCode += "\t" + vecType + " " + GetOutputName(0) +
                         " = dot(" + GetInputs()[0].GetValue() + ", " +

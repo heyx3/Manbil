@@ -2,7 +2,7 @@
 
 void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = Vector(count).GetGLSLType();
+    std::string vecType = VectorF(count).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + vecType + "(";
 

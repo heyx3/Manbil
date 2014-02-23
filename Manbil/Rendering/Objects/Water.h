@@ -1,12 +1,10 @@
 #pragma once
 
-/*
 
 #include "../Rendering.hpp"
 #include "../../Math/HigherMath.hpp"
 
 //Represents a flowing body of water.
-//Color data is stored in u_sampler0, and normal map is stored in u_sampler1.
 class Water
 {
 public:
@@ -63,16 +61,16 @@ public:
     };
 
 
-    Material * Mat;
-    TransformObject Transform;
+    TransformObject & GetTransform(void) { return waterMesh.Transform; }
+    const TransformObject & GetTransform(void) const { return waterMesh.Transform; }
 
 
     //Makes a new Water object that uses circular ripples.
-    Water(unsigned int size, unsigned int maxRipples, Vector3f pos = Vector3f());
+    Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
     //Makes a new Water object that uses directional water.
-    Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int maxRipples, Vector3f pos = Vector3f());
+    Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
     //Makes a new Water object that uses seeded heightmap water. The heightmap must be square.
-    Water(const Fake2DArray<float> & seedValues, Vector3f pos = Vector3f());
+    Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
 
     ~Water(void);
     
@@ -108,13 +106,11 @@ public:
     bool SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
     //Returns false if this water isn't SeededHeightmap; returns true otherwise.
-    bool SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution);
+    bool SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
 
-    //The following functions return whether the uniform was set successfully.
-
-    void SetLighting(const Materials::LitTexture_DirectionalLight light) { Materials::LitTexture_SetUniforms(waterMesh, light); }
+    void SetLighting(const DirectionalLight & light);
 
 
     void Update(float elapsedTime);
@@ -132,7 +128,7 @@ private:
     int nextRippleID;
     int totalRipples;
     int * rippleIDs;
-    Vector4f * dp_tsc_h_p; //If you want an explanation for the weird name, look at the shader.
+    Vector4f * dp_tsc_h_p; //If you want an explanation for the weird names, look at the shader.
     Vector3f * sXY_sp;
 
     //Flow stuff.
@@ -145,13 +141,18 @@ private:
 
 
     Mesh waterMesh;
+    Material * waterMat;
 
-    //Gets the single RenderingPass needed to render rippling water.
-    static RenderingPass GetRippleWaterRenderer(int maxRipples);
-    //Gets the single RenderingPass needed to render directional water.
-    static RenderingPass GetDirectionalWaterRenderer(int maxFlows);
-    //Gets the single RenderingPass needed to render seeded heightmap water.
-    static RenderingPass GetSeededHeightRenderer(void);
+
+
+    //TODO: Implement the following three functions:
+
+    struct MaterialShaderData { public: std::string VS, FS; UniformDictionary Uniforms; };
+
+    //Gets the rippling water shader.
+    static MaterialShaderData GetRippleWaterShaderData(unsigned int maxRipples);
+    //Gets the directional water shader.
+    static MaterialShaderData GetDirectionalWaterShaderData(unsigned int maxFlows);
+    //Gets the seeded heightmap water shader.
+    static MaterialShaderData GetSeededHeightmapWaterShaderData(void);
 };
-
-*/

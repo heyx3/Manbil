@@ -1,6 +1,5 @@
 #include "Water.h"
 
-/*
 
 #include "../../OpenGLIncludes.h"
 #include "../../RenderDataHandler.h"
@@ -85,156 +84,121 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     delete[] vertices, indices;
 }
 
-Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos)
+Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
     : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
+      waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
 {
-    Transform.SetPosition(pos);
-
-    //Create material and mesh.
+    //Create mesh.
     CreateWaterMesh(size, waterMesh);
-    Mat = new Material(GetRippleWaterRenderer(maxRipples));
-    if (Mat->HasError())
-    {
-        errorMsg = "Error creating ripple water material: ";
-        errorMsg += Mat->GetErrorMessage();
-        return;
-    }
+    waterMesh.Transform.SetPosition(pos);
 
-    //Set up the samplers.
-    PassSamplers samplers;
-    waterMesh.TextureSamplers.insert(waterMesh.TextureSamplers.end(), samplers);
-
-    //Set up uniforms.
-    Mat->AddUniform("dropoffPoints_timesSinceCreated_heights_periods");
-    Mat->AddUniform("sourcesXY_speeds");
-    Materials::LitTexture_GetUniforms(*Mat);
-    
-    //Set lighting.
-    Materials::LitTexture_DirectionalLight lightM;
-    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
-    lightM.Col = Vector3f(1, 1, 1);
-    lightM.Ambient = 0.2f;
-    lightM.Diffuse = 0.8f;
-    lightM.Specular = 0.0f;
-    lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(waterMesh, lightM);
-
-    //Set ripples.
+    //Set up shaders and uniforms.
+    MaterialShaderData dat = GetRippleWaterShaderData(maxRipples);
+    waterMesh.Uniforms = dat.Uniforms;
     rippleIDs = new int[maxRipples];
     dp_tsc_h_p = new Vector4f[maxRipples];
     sXY_sp = new Vector3f[maxRipples];
-    for (int i = 0; i < maxRipples; ++i)
+    for (unsigned int i = 0; i < maxRipples; ++i)
     {
         dp_tsc_h_p[i].w = 999.0f;
         dp_tsc_h_p[i].x = 0.001f;
         sXY_sp[i].z = 0.001f;
     }
-    waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
-    waterMesh.FloatArrayUniformValues["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]), maxRipples, 3);
-}
-Water::Water(unsigned int size, DirectionalWaterArgs mainFlow, unsigned int _maxFlows, Vector3f pos)
-    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
-      Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
-      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
-{
-    Transform.SetPosition(pos);
+    waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
+    waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, 0, "sourcesXY_speeds");
 
-    //Create material and mesh.
-    CreateWaterMesh(size, waterMesh);
-    Mat = new Material(GetDirectionalWaterRenderer(maxFlows));
-    if (Mat->HasError())
+
+    //Lighting uniforms.
+    if (useLighting)
     {
-        errorMsg = "Error creating directional water material: ";
-        errorMsg += Mat->GetErrorMessage();
-        return;
+        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
     }
 
+    //Creating the material.
+    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
+    if (waterMat->HasError())
+    {
+        errorMsg = "Error creating ripple water material: ";
+        errorMsg += waterMat->GetErrorMsg();
+        return;
+    }
+}
+Water::Water(unsigned int size, unsigned int _maxFlows, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
+    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
+      waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
+      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
+{
+    //Create mesh.
+    CreateWaterMesh(size, waterMesh);
+    waterMesh.Transform.SetPosition(pos);
 
-    //Set up uniforms.
-    Materials::LitTexture_GetUniforms(*Mat);
-
-    //Set lighting.
-    Materials::LitTexture_DirectionalLight lightM;
-    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
-    lightM.Col = Vector3f(1, 1, 1);
-    lightM.Ambient = 0.2f;
-    lightM.Diffuse = 0.8f;
-    lightM.Specular = 0.0f;
-    lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(waterMesh, lightM);
-
-    //Set flows.
+    //Set up shaders and uniforms.
+    MaterialShaderData dat = GetDirectionalWaterShaderData(maxFlows);
+    waterMesh.Uniforms = dat.Uniforms;
     DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
     DirectionalWaterArgsElement argsE(args, -1);
     for (int i = 0; i < maxFlows; ++i)
     {
         flows.insert(flows.end(), argsE);
     }
+    //Lighting uniforms.
+    if (useLighting)
+    {
+        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
+    }
+
+
+    //Creating the material.
+    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
+    if (waterMat->HasError())
+    {
+        errorMsg = "Error creating flowing water material: ";
+        errorMsg += waterMat->GetErrorMsg();
+        return;
+    }
 }
-Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos)
-    : Mat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
+Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
+    : waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
 {
     assert(seedValues.GetWidth() == seedValues.GetHeight());
 
-    Transform.SetPosition(pos);
 
-    //Create material and mesh.
+    //Create mesh.
     CreateWaterMesh(seedValues.GetWidth(), waterMesh);
-    Mat = new Material(GetSeededHeightRenderer());
-    if (Mat->HasError())
-    {
-        errorMsg = "Error creating seeded height water material: ";
-        errorMsg += Mat->GetErrorMessage();
-        return;
-    }
-
-    //Set up texture seed heightmap.
-    RenderObjHandle tex;
-    RenderDataHandler::CreateTexture2D<float>(tex, seedValues,
-                                              [](void* sp, unsigned char * px, float dat)
-                                              {
-                                                  unsigned char uByte = (unsigned char)(255.0f * dat);
-                                                  px[0] = uByte; //Red
-                                                  px[1] = uByte; //Green
-                                                  px[2] = uByte; //Blue
-                                                  px[3] = 255;   //Alpha
-                                              });
-    errorMsg = GetCurrentRenderingError();
-    if (HasError())
-    {
-        errorMsg = std::string("Error creating water texture seed heightmap: ") + errorMsg;
-        return;
-    }
-    Mat->SetTexture(tex, 2);
-    waterMesh.TextureSamplers[0][2] = tex;
-    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_WRAP, false).SetData(tex);
-
+    waterMesh.Transform.SetPosition(pos);
 
     //Set up uniforms.
-    Materials::LitTexture_GetUniforms(*Mat);
-    Mat->AddUniform("amplitude_period_speed");
-    Vector3f aps(0.0f, 999.0f, 0.01f);
-    waterMesh.FloatUniformValues["amplitude_period_speed"] = Mesh::UniformValue<float>(&aps[0], 3);
+    MaterialShaderData dat = GetSeededHeightmapWaterShaderData();
+    waterMesh.Uniforms = dat.Uniforms;
+    waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
+    waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedValues.GetWidth(), seedValues.GetHeight()), 0, "seedMapResolution");
+    if (useLighting)
+    {
+        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
+    }
+    sf::Texture seedHeightmap;
+    //TODO: Set seedHeightmap using "seedValues".
+    seedHeightmap.setSmooth(false);
+    seedHeightmap.setRepeated(true);
+    //TODO: Create a texture manager class (not a singleton) so that the seeded heightmap texture can be created here without causing memory management issues.
+    waterMesh.Uniforms.TextureUniforms[] = UniformSamplerValue(, 0, );
 
-    //Set lighting.
-    Materials::LitTexture_DirectionalLight lightM;
-    lightM.Dir = Vector3f(1, 1, -0.25).Normalized();
-    lightM.Col = Vector3f(1, 1, 1);
-    lightM.Ambient = 0.2f;
-    lightM.Diffuse = 0.8f;
-    lightM.Specular = 0.0f;
-    lightM.SpecularIntensity = 32.0f;
-    Materials::LitTexture_SetUniforms(waterMesh, lightM);
 
-    //Set water args.
-    SetSeededWater(SeededWaterArgs(1.0f, 1.0f, 1.0f));
+
+    //Creating the material.
+    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
+    if (waterMat->HasError())
+    {
+        errorMsg = "Error creating flowing water material: ";
+        errorMsg += waterMat->GetErrorMsg();
+        return;
+    }
 }
 
 Water::~Water(void)
 {
-    delete Mat;
+    delete waterMat;
 
     if (rippleIDs != 0)
     {
@@ -250,7 +214,7 @@ int Water::AddRipple(const RippleWaterArgs & args)
 
     //Translate the source into object space.
     Matrix4f inv;
-    Transform.GetWorldTransform(inv);
+    waterMesh.Transform.GetWorldTransform(inv);
     inv = inv.Inverse();
     cpy.Source = inv.Apply(args.Source);
     
@@ -288,7 +252,7 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
         {
             //Translate the source into object space.
             Matrix4f inv;
-            Transform.GetWorldTransform(inv);
+            waterMesh.Transform.GetWorldTransform(inv);
             inv = inv.Inverse();
             Vector3f sourcePos = args.Source;
             sourcePos = inv.Apply(sourcePos);
@@ -310,7 +274,7 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
 
     //Translate the source into object space.
     Matrix4f inv;
-    Transform.GetWorldTransform(inv);
+    waterMesh.Transform.GetWorldTransform(inv);
     inv = inv.Inverse();
 
     //TODO: Apply the transformation after putting the ripple into the list.
@@ -338,11 +302,11 @@ bool Water::SetSeededWater(const SeededWaterArgs & args)
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
     Vector3f data(args.Amplitude, args.Period, args.Speed);
-    waterMesh.FloatUniformValues["amplitude_period_speed"] = Mesh::UniformValue<float>(&data[0], 3);
+    waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"].SetValue(data);
 
     return true;
 }
-bool Water::SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution)
+bool Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
 {
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
@@ -356,7 +320,17 @@ bool Water::SetSeededWaterSeed(RenderObjHandle image, Vector2i resolution)
 }
 
 
-RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
+void Water::SetLighting(const DirectionalLight & light)
+{
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(light.AmbientIntensity, 0, MaterialConstants::DirectionalLight_AmbientName);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(light.DiffuseIntensity, 0, MaterialConstants::DirectionalLight_DiffuseName);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(light.Direction, 0, MaterialConstants::DirectionalLight_DirName);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(light.Color, 0, MaterialConstants::DirectionalLight_ColorName);
+}
+
+
+struct RenderingPass { public: std::string vs, fs; RenderingPass(std::string _vs, std::string _fs) : vs(_vs), fs(_fs) { } };
+RenderingPass GetRippleWaterRenderer(int maxRipples)
 {
     std::string n = std::to_string(maxRipples);
     
@@ -513,11 +487,11 @@ RenderingPass Water::GetRippleWaterRenderer(int maxRipples)
                 out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
 }
-RenderingPass Water::GetDirectionalWaterRenderer(int maxFlows)
+RenderingPass GetDirectionalWaterRenderer(int maxFlows)
 {
     return Materials::LitTexture;
 }
-RenderingPass Water::GetSeededHeightRenderer(void)
+RenderingPass GetSeededHeightRenderer(void)
 {
     std::string commonGround = std::string() + "\
                 uniform vec3 amplitude_period_speed;\n\
@@ -634,17 +608,12 @@ void Water::Update(float elapsed)
 }
 bool Water::Render(const RenderInfo & info)
 {
-    waterMesh.Transform = Transform;
-
-    int size = -1;
-    float f1;
-    Vector4f FUCK;
     //Set uniforms.
     switch (waterType)
     {
     case WaterTypes::Rippling:
-        waterMesh.FloatArrayUniformValues["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
-        waterMesh.FloatArrayUniformValues["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
+        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
+        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
         break;
 
     case WaterTypes::Directed:
@@ -662,13 +631,11 @@ bool Water::Render(const RenderInfo & info)
     //Render.
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &waterMesh);
-    if (!Mat->Render(info, meshes))
+    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshes))
     {
         errorMsg = "Error rendering water: ";
-        errorMsg += Mat->GetErrorMessage();
+        errorMsg += waterMat->GetErrorMsg();
         return false;
     }
     else return true;
 }
-
-*/

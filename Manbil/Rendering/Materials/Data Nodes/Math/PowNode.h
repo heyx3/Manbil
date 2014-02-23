@@ -24,7 +24,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\t" + Vector(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) +
+        outCode += "\t" + VectorF(GetBaseInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) +
                                     " = pow(" + GetBaseInput().GetValue() + ", " +
                                                 GetExponentInput().GetValue() + ");\n";
     }

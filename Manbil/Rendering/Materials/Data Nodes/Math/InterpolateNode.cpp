@@ -30,8 +30,8 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
 {
     if (intType != InterpolationType::IT_VerySmooth) return;
 
-    std::string vType = Vector(GetMinInput().GetDataLineSize()).GetGLSLType();
-    std::string vType2 = Vector(GetInterpInput().GetDataLineSize()).GetGLSLType();
+    std::string vType = VectorF(GetMinInput().GetDataLineSize()).GetGLSLType();
+    std::string vType2 = VectorF(GetInterpInput().GetDataLineSize()).GetGLSLType();
     std::string funcName = GetName() + "_verySmoothStep";
     bool floatInterp = (GetInputs()[2].GetDataLineSize() == 1);
 
@@ -47,9 +47,9 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
 
 void InterpolateNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string minMaxType = Vector(GetMinInput().GetDataLineSize()).GetGLSLType(),
-                interpType = Vector(GetInterpInput().GetDataLineSize()).GetGLSLType(),
-                returnType = Vector(BasicMath::Max(GetMinInput().GetDataLineSize(), GetInterpInput().GetDataLineSize())).GetGLSLType();
+    std::string minMaxType = VectorF(GetMinInput().GetDataLineSize()).GetGLSLType(),
+                interpType = VectorF(GetInterpInput().GetDataLineSize()).GetGLSLType(),
+                returnType = VectorF(BasicMath::Max(GetMinInput().GetDataLineSize(), GetInterpInput().GetDataLineSize())).GetGLSLType();
 
     switch (intType)
     {
