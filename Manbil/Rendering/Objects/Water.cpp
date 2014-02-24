@@ -5,7 +5,11 @@
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
 #include "../../TextureSettings.h"
+#include "../Texture Management/TextureConverters.h"
 #include "../../Math/NoiseGeneration.hpp"
+
+#include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Materials/Data Nodes/ShaderGenerator.h"
 
 
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
@@ -94,7 +98,7 @@ Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos, Rendering
     waterMesh.Transform.SetPosition(pos);
 
     //Set up shaders and uniforms.
-    MaterialShaderData dat = GetRippleWaterShaderData(maxRipples);
+    MaterialShaderData dat = GetRippleWaterShaderData(maxRipples, useLighting);
     waterMesh.Uniforms = dat.Uniforms;
     rippleIDs = new int[maxRipples];
     dp_tsc_h_p = new Vector4f[maxRipples];
@@ -134,7 +138,7 @@ Water::Water(unsigned int size, unsigned int _maxFlows, Vector3f pos, RenderingM
     waterMesh.Transform.SetPosition(pos);
 
     //Set up shaders and uniforms.
-    MaterialShaderData dat = GetDirectionalWaterShaderData(maxFlows);
+    MaterialShaderData dat = GetDirectionalWaterShaderData(maxFlows, useLighting);
     waterMesh.Uniforms = dat.Uniforms;
     DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
     DirectionalWaterArgsElement argsE(args, -1);
@@ -158,7 +162,7 @@ Water::Water(unsigned int size, unsigned int _maxFlows, Vector3f pos, RenderingM
         return;
     }
 }
-Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
+Water::Water(const Fake2DArray<float> & seedValues, TextureManager & texM, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
     : waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
 {
     assert(seedValues.GetWidth() == seedValues.GetHeight());
@@ -169,7 +173,7 @@ Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes
     waterMesh.Transform.SetPosition(pos);
 
     //Set up uniforms.
-    MaterialShaderData dat = GetSeededHeightmapWaterShaderData();
+    MaterialShaderData dat = GetSeededHeightmapWaterShaderData(useLighting);
     waterMesh.Uniforms = dat.Uniforms;
     waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
     waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedValues.GetWidth(), seedValues.GetHeight()), 0, "seedMapResolution");
@@ -177,12 +181,20 @@ Water::Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes
     {
         SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
     }
-    sf::Texture seedHeightmap;
-    //TODO: Set seedHeightmap using "seedValues".
-    seedHeightmap.setSmooth(false);
-    seedHeightmap.setRepeated(true);
-    //TODO: Create a texture manager class (not a singleton) so that the seeded heightmap texture can be created here without causing memory management issues.
-    waterMesh.Uniforms.TextureUniforms[] = UniformSamplerValue(, 0, );
+
+
+    //Create a texture from the seed map.
+
+    sf::Image img;
+    img.create(seedValues.GetWidth(), seedValues.GetHeight());
+    TextureConverters::ToImage<float>(seedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
+    
+    unsigned int id = texM.CreateTexture(seedValues.GetWidth(), seedValues.GetHeight());
+    sf::Texture * seedHeightmap = texM.GetTexture(id);
+    seedHeightmap->loadFromImage(img);
+    seedHeightmap->setSmooth(false);
+    seedHeightmap->setRepeated(true);
+    waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, 0, "seedMap");
 
 
 
@@ -310,11 +322,8 @@ bool Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
 {
     if (waterType != WaterTypes::SeededHeightmap) return false;
 
-    Vector2f res(resolution.x, resolution.y);
-    waterMesh.FloatUniformValues["seedMapResolution"] = Mesh::UniformValue<float>(&res[0], 2);
-
-    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_WRAP, false).SetData(image);
-    waterMesh.TextureSamplers[0][2] = image;
+    waterMesh.Uniforms.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
+    waterMesh.Uniforms.TextureUniforms["seedMap"].Texture = image;
 
     return true;
 }
@@ -328,6 +337,16 @@ void Water::SetLighting(const DirectionalLight & light)
     waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(light.Color, 0, MaterialConstants::DirectionalLight_ColorName);
 }
 
+
+Water::MaterialShaderData Water::GetRippleWaterShaderData(unsigned int maxRipples, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels)
+{
+    std::string n = std::to_string(maxRipples);
+
+    std::string header = MaterialConstants::GetFragmentHeader(useLighting);
+
+    ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
+    ShaderGenerator::RemoveUnusedChannels(channels, mode, useLighting, settings);
+}
 
 struct RenderingPass { public: std::string vs, fs; RenderingPass(std::string _vs, std::string _fs) : vs(_vs), fs(_fs) { } };
 RenderingPass GetRippleWaterRenderer(int maxRipples)
@@ -496,6 +515,7 @@ RenderingPass GetSeededHeightRenderer(void)
     std::string commonGround = std::string() + "\
                 uniform vec3 amplitude_period_speed;\n\
                 uniform vec2 seedMapResolution;\n\
+                uniform sampler2D seedMap;\n\
                 \n\
                 float getWaveHeight(vec2 horizontalPos)\n\
                 {\n\

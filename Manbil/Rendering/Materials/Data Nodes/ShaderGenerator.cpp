@@ -7,6 +7,7 @@
 typedef ShaderGenerator SG;
 typedef RenderingChannels RC;
 typedef ShaderHandler::Shaders Shaders;
+typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
 
 unsigned int SG::GetChannelInputSize(RC channel)
@@ -76,22 +77,24 @@ void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSetti
     }
 }
 
-void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                         RenderingModes mode, bool useLighting, const LightSettings & settings,
-                         std::unordered_map<RenderingChannels, DataLine> channels)
+void SG::RemoveUnusedChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
-    //First, make sure the channels are all correctly set up.
+    //Because of the nature of this algorithm, we have to ensure the first channel is valid.
+    while (channels.size() > 0 && !IsChannelUsed(channels.begin()->first, mode, useLighting, settings))
+        channels.erase(channels.begin());
+
+    //Remove all channels that aren't used.
     for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
     {
-        //Make sure each channel is actually used in the current rendering state.
-        assert(IsChannelUsed(iterator->first, mode, useLighting, settings));
-
-        //Make sure each channel has a valid input data line size.
-        assert(GetChannelInputSize(iterator->first) == iterator->second.GetDataLineSize());
+        if (!IsChannelUsed(iterator->first, mode, useLighting, settings))
+        {
+            channels.erase(iterator);
+            iterator = channels.begin();//Dictionaries aren't in any kind of numerical order, so start the search over.
+        }
     }
-
-
-    //If an expected channel input doesn't exist, create it and use a default value.
+}
+void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
+{
     std::vector<RC> validChannels;
     GetUsedChannels(mode, useLighting, settings, validChannels);
     for (int i = 0; i < validChannels.size(); ++i)
@@ -124,13 +127,28 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
             case RC::RC_SpecularIntensity:
                 channels[RC::RC_SpecularIntensity] = DataLine(32.0f);
                 break;
-            //case RC::RC_WorldVertexOffset:
-            //    channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
-            //    break;
+                //case RC::RC_WorldVertexOffset:
+                //    channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
+                //    break;
 
             default: assert(false);
             }
         }
+    }
+}
+
+void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
+                         RenderingModes mode, bool useLighting, const LightSettings & settings,
+                         std::unordered_map<RenderingChannels, DataLine> channels)
+{
+    RemoveUnusedChannels(channels, mode, useLighting, settings);
+    AddMissingChannels(channels, mode, useLighting, settings);
+
+    //First, make sure the channels are all correctly set up.
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    {
+        //Make sure each channel has a valid input data line size.
+        assert(GetChannelInputSize(iterator->first) == iterator->second.GetDataLineSize());
     }
 
 
@@ -141,6 +159,9 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
 
     //Collect data node uniforms, functions, and output.
+
+    std::vector<RC> validChannels;
+    GetUsedChannels(mode, useLighting, settings, validChannels);
 
     UniformDictionary vertexUniformDict, fragmentUniformDict;
     std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;

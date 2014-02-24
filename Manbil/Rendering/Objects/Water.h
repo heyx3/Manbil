@@ -1,13 +1,18 @@
 #pragma once
 
-
 #include "../Rendering.hpp"
 #include "../../Math/HigherMath.hpp"
+#include "../Texture Management/TextureManager.h"
+#include "../Materials/Data Nodes/DataNode.h"
+
 
 //Represents a flowing body of water.
 class Water
 {
 public:
+
+    typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
+
 
     //TODO: Change to use one uber-shader that has ripples, flows, AND seeded heightmaps.
 
@@ -70,7 +75,7 @@ public:
     //Makes a new Water object that uses directional water.
     Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
     //Makes a new Water object that uses seeded heightmap water. The heightmap must be square.
-    Water(const Fake2DArray<float> & seedValues, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
+    Water(const Fake2DArray<float> & seedValues, TextureManager & texManager, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
 
     ~Water(void);
     
@@ -150,9 +155,9 @@ private:
     struct MaterialShaderData { public: std::string VS, FS; UniformDictionary Uniforms; };
 
     //Gets the rippling water shader.
-    static MaterialShaderData GetRippleWaterShaderData(unsigned int maxRipples);
+    static MaterialShaderData GetRippleWaterShaderData(unsigned int maxRipples, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
     //Gets the directional water shader.
-    static MaterialShaderData GetDirectionalWaterShaderData(unsigned int maxFlows);
+    static MaterialShaderData GetDirectionalWaterShaderData(unsigned int maxFlows, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
     //Gets the seeded heightmap water shader.
-    static MaterialShaderData GetSeededHeightmapWaterShaderData(void);
+    static MaterialShaderData GetSeededHeightmapWaterShaderData(RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
 };

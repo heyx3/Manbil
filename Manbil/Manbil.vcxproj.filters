@@ -622,6 +622,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RemapNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureManager.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

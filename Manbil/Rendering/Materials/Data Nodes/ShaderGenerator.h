@@ -19,6 +19,11 @@ public:
     //Gets all channels used in the given rendering mode/settings.
     static void GetUsedChannels(RenderingModes mode, bool useLighting, const LightSettings & settings, std::vector<RenderingChannels> & outChannels);
 
+    //Removes any unnecessary channels.
+    static void RemoveUnusedChannels(std::unordered_map<RenderingChannels, DataLine> & channels, RenderingModes mode, bool useLighting, const LightSettings & settings);
+    //Adds default inputs to any missing channels.
+    static void AddMissingChannels(std::unordered_map<RenderingChannels, DataLine> & channels, RenderingModes mode, bool useLighting, const LightSettings & settings);
+
     //Generates a vertex and fragment shader given data nodes.
     static void GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
                                 RenderingModes mode, bool useLighting, const LightSettings & settings,

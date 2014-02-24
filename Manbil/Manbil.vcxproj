@@ -276,6 +276,7 @@
     <ClInclude Include="Rendering\Rendering.hpp" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
+    <ClInclude Include="Rendering\Texture Management\TextureManager.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />
     <ClInclude Include="SFMLOpenGLWorld.h" />
