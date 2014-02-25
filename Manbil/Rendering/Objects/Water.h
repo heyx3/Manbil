@@ -14,8 +14,6 @@ public:
     typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
 
-    //TODO: Change to use one uber-shader that has ripples, flows, AND seeded heightmaps.
-
     //Different kinds of water motion.
     enum WaterTypes
     {
