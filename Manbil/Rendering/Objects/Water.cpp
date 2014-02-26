@@ -429,10 +429,11 @@ protected:
         func +=
 "    return offset;                                                                                 \n\
 }\n";
+        outDecls.insert(outDecls.end(), func);
 
         if (GetShaderType() == Shaders::SH_Fragment_Shader)
         {
-            std::string() +
+            func = std::string() +
 "struct NormalData                                                                      \n\
 {                                                                                       \n\
     vec3 normal, tangent, bitangent;                                                    \n\
@@ -473,6 +474,7 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
     return dat;                                                                         \n\
 }                                                                                       \n\
 ";
+            outDecls.insert(outDecls.end(), func);
         }
     }
     virtual void WriteMyOutputs(std::string & outCode) const override
