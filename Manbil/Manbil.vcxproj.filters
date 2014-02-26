@@ -625,6 +625,7 @@
     <ClInclude Include="Rendering\Texture Management\TextureManager.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
+    <ClInclude Include="OptionalValue.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

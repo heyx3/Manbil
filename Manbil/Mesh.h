@@ -11,7 +11,6 @@ class Mesh
 {
 public:
 
-    //TODO: Add matrix and int array values. Add matrix array uniform set functions to RenderDataHandler. Next, make sure that Material::Render checks all these collections and that all code in Mesh.cpp uses them. Finally, change the functions in Materials.h to either take a mesh or a material, not individual uniform lists.
     UniformDictionary Uniforms;
 	TransformObject Transform;
 
@@ -19,7 +18,15 @@ public:
 	Mesh(PrimitiveTypes pType, int numbVIData = 0, VertexIndexData * viDataArray = 0);
 	Mesh(const Mesh & cpy);
 	~Mesh(void) { if (viData != 0) delete[] viData; }
-
+    void DeleteVertexIndexBuffers(void)
+    {
+        for (unsigned int i = 0; i < nVIData; ++i)
+        {
+            RenderDataHandler::DeleteBuffer(viData[i].GetVerticesHandle());
+            RenderDataHandler::DeleteBuffer(viData[i].GetIndicesHandle());
+        }
+    }
+    
 
 	int GetNumbVertexIndexData(void) const { return nVIData; }
 

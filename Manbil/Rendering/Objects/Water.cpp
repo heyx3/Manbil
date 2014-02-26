@@ -88,129 +88,110 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     delete[] vertices, indices;
 }
 
-Water::Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
-    : currentRippleIndex(0), maxRipples(maxRipples), nextRippleID(0), totalRipples(0),
+Water::Water(unsigned int size, Vector3f pos,
+             OptionalValue<RippleWaterCreationArgs> rippleArgs,
+             OptionalValue<DirectionalWaterCreationArgs> directionArgs,
+             OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,
+             RenderingModes mode, bool useLighting, LightSettings settings,
+             RenderChannels & channels)
+    : currentRippleIndex(0), totalRipples(0), nextRippleID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
-      waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
+      waterMat(0), waterMesh(PrimitiveTypes::Triangles)
 {
     //Create mesh.
     CreateWaterMesh(size, waterMesh);
     waterMesh.Transform.SetPosition(pos);
 
-    //Set up shaders and uniforms.
-    MaterialShaderData dat = GetRippleWaterShaderData(maxRipples, useLighting);
-    waterMesh.Uniforms = dat.Uniforms;
-    rippleIDs = new int[maxRipples];
-    dp_tsc_h_p = new Vector4f[maxRipples];
-    sXY_sp = new Vector3f[maxRipples];
-    for (unsigned int i = 0; i < maxRipples; ++i)
-    {
-        dp_tsc_h_p[i].w = 999.0f;
-        dp_tsc_h_p[i].x = 0.001f;
-        sXY_sp[i].z = 0.001f;
-    }
-    waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
-    waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, 0, "sourcesXY_speeds");
+    //Generate shader code.
+    std::string vertexShader, fragmentShader;
+    UniformDictionary uniforms;
+    //TODO: Implement.
+    waterMesh.Uniforms = uniforms;
 
+    //Set up ripples.
+    if (rippleArgs.HasValue())
+    {
+        RippleWaterCreationArgs ripArgs = rippleArgs.GetValue();
+        maxRipples = ripArgs.MaxRipples;
 
-    //Lighting uniforms.
-    if (useLighting)
-    {
-        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
+        rippleIDs = new int[maxRipples];
+        dp_tsc_h_p = new Vector4f[maxRipples];
+        sXY_sp = new Vector3f[maxRipples];
+        for (unsigned int i = 0; i < maxRipples; ++i)
+        {
+            dp_tsc_h_p[i].w = 999.0f;
+            dp_tsc_h_p[i].x = 0.001f;
+            sXY_sp[i].z = 0.001f;
+        }
+        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
+        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, 0, "sourcesXY_speeds");
     }
-
-    //Creating the material.
-    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
-    if (waterMat->HasError())
+    else
     {
-        errorMsg = "Error creating ripple water material: ";
-        errorMsg += waterMat->GetErrorMsg();
-        return;
-    }
-}
-Water::Water(unsigned int size, unsigned int _maxFlows, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
-    : currentFlowIndex(0), maxFlows(_maxFlows), nextFlowID(0), totalFlows(0),
-      waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Directed),
-      rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0)
-{
-    //Create mesh.
-    CreateWaterMesh(size, waterMesh);
-    waterMesh.Transform.SetPosition(pos);
-
-    //Set up shaders and uniforms.
-    MaterialShaderData dat = GetDirectionalWaterShaderData(maxFlows, useLighting);
-    waterMesh.Uniforms = dat.Uniforms;
-    DirectionalWaterArgs args(Vector2f(1.0f, 0.0f), 0.0f);
-    DirectionalWaterArgsElement argsE(args, -1);
-    for (int i = 0; i < maxFlows; ++i)
-    {
-        flows.insert(flows.end(), argsE);
-    }
-    //Lighting uniforms.
-    if (useLighting)
-    {
-        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
+        maxRipples = 0;
     }
 
-
-    //Creating the material.
-    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
-    if (waterMat->HasError())
+    //Set up flows.
+    if (directionArgs.HasValue())
     {
-        errorMsg = "Error creating flowing water material: ";
-        errorMsg += waterMat->GetErrorMsg();
-        return;
+        DirectionalWaterCreationArgs dirArgs = directionArgs.GetValue();
+        maxFlows = dirArgs.MaxFlows;
+
+        DirectionalWaterArgs initialArgs(Vector2f(1.0f, 0.0f), 0.0f);
+        DirectionalWaterArgsElement argsE(initialArgs, -1);
+        for (unsigned int i = 0; i < maxFlows; ++i)
+            flows.insert(flows.end(), argsE);
     }
-}
-Water::Water(const Fake2DArray<float> & seedValues, TextureManager & texM, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings)
-    : waterMat(0), waterMesh(PrimitiveTypes::Triangles), waterType(WaterTypes::Rippling)
-{
-    assert(seedValues.GetWidth() == seedValues.GetHeight());
+    else
+    {
+        maxFlows = 0;
+    }
+
+    //Set up seedmap.
+    if (seedmapArgs.HasValue())
+    {
+        SeedmapWaterCreationArgs seedArgs = seedmapArgs.GetValue();
+
+        assert(seedArgs.SeedValues.GetWidth() == seedArgs.SeedValues.GetHeight());
+
+        waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
+        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight()), 0, "seedMapResolution");
 
 
-    //Create mesh.
-    CreateWaterMesh(seedValues.GetWidth(), waterMesh);
-    waterMesh.Transform.SetPosition(pos);
+        //Create a texture from the seed map.
 
-    //Set up uniforms.
-    MaterialShaderData dat = GetSeededHeightmapWaterShaderData(useLighting);
-    waterMesh.Uniforms = dat.Uniforms;
-    waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
-    waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedValues.GetWidth(), seedValues.GetHeight()), 0, "seedMapResolution");
+        sf::Image img;
+        img.create(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight());
+        TextureConverters::ToImage<float>(seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
+
+        unsigned int id = seedArgs.TexManager.CreateTexture(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight());
+        sf::Texture * seedHeightmap = seedArgs.TexManager.GetTexture(id);
+        seedHeightmap->loadFromImage(img);
+        seedHeightmap->setSmooth(false);
+        seedHeightmap->setRepeated(true);
+        waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, 0, "seedMap");
+    }
+
+    //Set up lighting.
     if (useLighting)
     {
         SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
     }
 
 
-    //Create a texture from the seed map.
-
-    sf::Image img;
-    img.create(seedValues.GetWidth(), seedValues.GetHeight());
-    TextureConverters::ToImage<float>(seedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
-    
-    unsigned int id = texM.CreateTexture(seedValues.GetWidth(), seedValues.GetHeight());
-    sf::Texture * seedHeightmap = texM.GetTexture(id);
-    seedHeightmap->loadFromImage(img);
-    seedHeightmap->setSmooth(false);
-    seedHeightmap->setRepeated(true);
-    waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, 0, "seedMap");
-
-
-
-    //Creating the material.
-    waterMat = new Material(dat.VS, dat.FS, dat.Uniforms, mode, useLighting, settings);
+    //Create the material.
+    waterMat = new Material(vertexShader, fragmentShader, waterMesh.Uniforms, mode, useLighting, settings);
     if (waterMat->HasError())
     {
-        errorMsg = "Error creating flowing water material: ";
+        errorMsg = "Error creating water material: ";
         errorMsg += waterMat->GetErrorMsg();
         return;
     }
 }
-
 Water::~Water(void)
 {
     delete waterMat;
+    waterMesh.DeleteVertexIndexBuffers();
 
     if (rippleIDs != 0)
     {
@@ -220,8 +201,6 @@ Water::~Water(void)
 
 int Water::AddRipple(const RippleWaterArgs & args)
 {
-    if (waterType != WaterTypes::Rippling) return -1;
-
     RippleWaterArgs cpy(args);
 
     //Translate the source into object space.
@@ -256,8 +235,6 @@ int Water::AddRipple(const RippleWaterArgs & args)
 }
 bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
 {
-    if (waterType != WaterTypes::Rippling) return false;
-
     for (int i = 0; i < maxRipples; ++i)
     {
         if (rippleIDs[i] == element)
@@ -282,21 +259,17 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
 
 int Water::AddFlow(const DirectionalWaterArgs & args)
 {
-    if (waterType != WaterTypes::Directed) return -1;
-
-    //Translate the source into object space.
+    //Convert the flow direction from world space into object space.
     Matrix4f inv;
     waterMesh.Transform.GetWorldTransform(inv);
     inv = inv.Inverse();
 
-    //TODO: Apply the transformation after putting the ripple into the list.
+    //TODO: Apply the transformation after putting the flow into the list.
 
     return -1;
 }
 bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
 {
-    if (waterType != WaterTypes::Directed) return false;
-
     for (int i = 0; i < flows.size(); ++i)
     {
         if (flows[i].Element == element)
@@ -309,23 +282,15 @@ bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
     return false;
 }
 
-bool Water::SetSeededWater(const SeededWaterArgs & args)
+void Water::SetSeededWater(const SeededWaterArgs & args)
 {
-    if (waterType != WaterTypes::SeededHeightmap) return false;
-
     Vector3f data(args.Amplitude, args.Period, args.Speed);
     waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"].SetValue(data);
-
-    return true;
 }
-bool Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
+void Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
 {
-    if (waterType != WaterTypes::SeededHeightmap) return false;
-
     waterMesh.Uniforms.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
     waterMesh.Uniforms.TextureUniforms["seedMap"].Texture = image;
-
-    return true;
 }
 
 
@@ -337,16 +302,51 @@ void Water::SetLighting(const DirectionalLight & light)
     waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(light.Color, 0, MaterialConstants::DirectionalLight_ColorName);
 }
 
-
-Water::MaterialShaderData Water::GetRippleWaterShaderData(unsigned int maxRipples, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels)
+void Water::Update(float elapsed)
 {
-    std::string n = std::to_string(maxRipples);
+    if (maxRipples > 0)
+    {
+        //Keep in mind that negative time values indicate the ripple source was stopped and is fading out.
+        for (int i = 0; i < maxRipples; ++i)
+            if (dp_tsc_h_p[i].y >= 0.0f)
+                dp_tsc_h_p[i].y += elapsed;
+            else dp_tsc_h_p[i].y -= elapsed;
 
-    std::string header = MaterialConstants::GetFragmentHeader(useLighting);
+    }
 
-    ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
-    ShaderGenerator::RemoveUnusedChannels(channels, mode, useLighting, settings);
+    if (maxFlows > 0)
+    {
+
+    }
 }
+bool Water::Render(const RenderInfo & info)
+{
+    //Set water uniforms.
+    if (maxRipples > 0)
+    {
+        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
+        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
+    }
+    if (maxFlows > 0)
+    {
+
+    }
+
+
+    //Render.
+    std::vector<const Mesh*> meshes;
+    meshes.insert(meshes.end(), &waterMesh);
+    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshes))
+    {
+        errorMsg = "Error rendering water: ";
+        errorMsg += waterMat->GetErrorMsg();
+        return false;
+    }
+    else return true;
+}
+
+
+
 
 //Calculates the height and surface normal for water.
 //TODO: Add support for seeded heightmap. Fix Water's interface so that it uses one big shader that combines flow, ripples, and seeded heightmap.
@@ -359,12 +359,11 @@ public:
 
 
     virtual std::string GetName(void) const override { return "rippleHeightNode"; }
-    virtual std::string GetOutputName(unsigned int i) const override { assert(i == 0); return GetName() + std::to_string(GetUniqueID()) + "_rippleHeight"; }
+    virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
 
-    WaterNode(const DataLine & inOffset, const DataLine & inNormal,
-              unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
+    WaterNode(unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
               unsigned int _maxFlows = 0)
-        : DataNode(MakeVector(inOffset, inNormal), MakeVector(3, 3)),
+        : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3, 3)),
         maxRipples(_maxRipples), dp_tsc_h_p(_dp_tsc_h_p), sXY_sp(_sXY_sp),
         maxFlows(_maxFlows)
     {
@@ -389,14 +388,16 @@ protected:
     }
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
     {
+        std::string func =
+"float getWaveHeight(vec2 horizontalPos)\n\
+{\n\
+    float offset = 0.0;";
         if (maxRipples > 0)
         {
             std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
                         sxysp = "sourcesXY_speeds[i]";
-            outDecls.insert(outDecls.end(), std::string() +
-"float getWaveHeight(vec2 horizontalPos)                                                            \n\
-{                                                                                                   \n\
-    float offset = 0.0;                                                                             \n\
+            func +=
+"    //Ripples.                                                                                     \n\
     for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                                    \n\
     {                                                                                               \n\
         float dropoffPoint = " + dptschp + ".x;                                                     \n\
@@ -411,7 +412,7 @@ protected:
         heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
                                                                                                     \n\
         float cutoff = period * speed * timeSinceCreated;                                           \n\
-        cutoff = max(0, sign(cutoff - dist)); //TODO: Make smooth dropoff, not binary.              \n\
+        cutoff = max(0, (cutoff - dist) / cutoff); //TODO: Test that this is a smooth dropoff.      \n\
                                                                                                     \n\
         float innerVal = (dist / period) + (-timeSinceCreated * speed);                             \n\
         float waveScale = height * heightScale * cutoff;                                            \n\
@@ -419,13 +420,19 @@ protected:
         float heightOffset = sin(innerVal);                                                         \n\
         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.     \n\
         offset += waveScale * heightOffset;                                                         \n\
-    }                                                                                               \n\
-    return offset;                                                                                  \n\
-}                                                                                                   \n\
-");
-            if (GetShaderType() == Shaders::SH_Fragment_Shader)
-            {
-                outDecls.insert(outDecls.end(), std::string() +
+    }\n";
+        }
+        if (maxFlows > 0)
+        {
+
+        }
+        func +=
+"    return offset;                                                                                 \n\
+}\n";
+
+        if (GetShaderType() == Shaders::SH_Fragment_Shader)
+        {
+            std::string() +
 "struct NormalData                                                                      \n\
 {                                                                                       \n\
     vec3 normal, tangent, bitangent;                                                    \n\
@@ -465,23 +472,21 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
     dat.normal = normalize(dat.normal);                                                 \n\
     return dat;                                                                         \n\
 }                                                                                       \n\
-");
-            }
-        }
-        if (maxFlows > 0)
-        {
-
+";
         }
     }
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        if (maxRipples > 0)
+        switch (GetShaderType())
         {
+            case Shaders::SH_Vertex_Shader:
+                outCode += "\tvec3 " + GetOutputName(GetVertexOffsetOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosInput().GetValue() + ".xy));\n";
+                break;
+            case Shaders::SH_Fragment_Shader:
+                outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosInput().GetValue() + ".xy).normal;\n";
+                break;
 
-        }
-        if (maxFlows > 0)
-        {
-
+            default: assert(false);
         }
     }
 
@@ -491,8 +496,7 @@ private:
     Vector4f * dp_tsc_h_p;
     Vector3f * sXY_sp;
 
-    const DataLine & GetOffsetInput(void) const { return GetInputs()[0]; }
-    const DataLine & GetNormalInput(void) const { return GetInputs()[1]; }
+    const DataLine & GetObjectPosInput(void) const { return GetInputs()[0]; }
 };
 
 
@@ -746,65 +750,4 @@ RenderingPass GetSeededHeightRenderer(void)
                 \n\
                 out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
             }");
-}
-
-void Water::Update(float elapsed)
-{
-    switch (waterType)
-    {
-    case WaterTypes::Rippling:
-
-        //Keep in mind that negative time values indicate the ripple source was stopped and is disappearing.
-        for (int i = 0; i < maxRipples; ++i)
-            if (dp_tsc_h_p[i].y >= 0.0f)
-                dp_tsc_h_p[i].y += elapsed;
-            else dp_tsc_h_p[i].y -= elapsed;
-
-        break;
-
-
-    case WaterTypes::Directed:
-
-        break;
-
-
-    case WaterTypes::SeededHeightmap:
-
-        break;
-
-    default: assert(false);
-    }
-}
-bool Water::Render(const RenderInfo & info)
-{
-    //Set uniforms.
-    switch (waterType)
-    {
-    case WaterTypes::Rippling:
-        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
-        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
-        break;
-
-    case WaterTypes::Directed:
-
-        break;
-
-    case WaterTypes::SeededHeightmap:
-
-        break;
-
-    default: assert(false);
-    }
-
-
-    //Render.
-    std::vector<const Mesh*> meshes;
-    meshes.insert(meshes.end(), &waterMesh);
-    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshes))
-    {
-        errorMsg = "Error rendering water: ";
-        errorMsg += waterMat->GetErrorMsg();
-        return false;
-    }
-    else return true;
 }

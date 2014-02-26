@@ -4,6 +4,7 @@
 #include "../../Math/HigherMath.hpp"
 #include "../Texture Management/TextureManager.h"
 #include "../Materials/Data Nodes/DataNode.h"
+#include "../../OptionalValue.h"
 
 
 //Represents a flowing body of water.
@@ -12,18 +13,6 @@ class Water
 public:
 
     typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
-
-
-    //Different kinds of water motion.
-    enum WaterTypes
-    {
-        //Moves in a direction.
-        Directed,
-        //Ripples outward from several spots.
-        Rippling,
-        //Ripples wildly; uses a "heightmap" as a seed value for each vertex's rippling.
-        SeededHeightmap,
-    };
 
     //Data that only applies to directional water.
     struct DirectionalWaterArgs
@@ -68,13 +57,33 @@ public:
     const TransformObject & GetTransform(void) const { return waterMesh.Transform; }
 
 
-    //Makes a new Water object that uses circular ripples.
-    Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
-    //Makes a new Water object that uses directional water.
-    Water(unsigned int size, unsigned int maxRipples, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
-    //Makes a new Water object that uses seeded heightmap water. The heightmap must be square.
-    Water(const Fake2DArray<float> & seedValues, TextureManager & texManager, Vector3f pos, RenderingModes mode, bool useLighting, LightSettings settings);
-
+    struct RippleWaterCreationArgs
+    {
+    public:
+        unsigned int MaxRipples;
+        RippleWaterCreationArgs(unsigned int maxRipples) : MaxRipples(maxRipples) { }
+    };
+    struct DirectionalWaterCreationArgs
+    {
+    public:
+        unsigned int MaxFlows;
+        DirectionalWaterCreationArgs(unsigned int maxFlows) : MaxFlows(maxFlows) { }
+    };
+    struct SeedmapWaterCreationArgs
+    {
+    public:
+        const Fake2DArray<float> & SeedValues;
+        TextureManager & TexManager;
+        SeedmapWaterCreationArgs(const Fake2DArray<float> & seedValues, TextureManager & texManager) : SeedValues(seedValues), TexManager(texManager) { }
+    };
+    //Creates a new Water object.
+    Water(unsigned int size, Vector3f pos,
+          OptionalValue<RippleWaterCreationArgs> rippleArgs,
+          OptionalValue<DirectionalWaterCreationArgs> directionArgs,
+          OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,
+          RenderingModes mode, bool useLighting, LightSettings settings,
+          RenderChannels & channels);
+    //Destroys this water, releasing all related rendering memory (Material, index/vertex buffers, etc.)
     ~Water(void);
     
 
@@ -85,33 +94,27 @@ public:
     const Mesh & GetMesh(void) const { return waterMesh; }
     Mesh & GetMesh(void) { return waterMesh; }
 
-    WaterTypes GetWaterType(void) const { return waterType; }
-
 
     //Adds another ripple to the water.
-    //This function only applies to rippling water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
     int AddRipple(const RippleWaterArgs & args);
-    //Changes the water ripples with the given ID.
-    //Returns false if this water isn't Rippling or the given id isn't found; returns true otherwise.
+    //Changes the water ripple with the given ID.
+    //Returns false if the given id isn't found; returns true otherwise.
     bool ChangeRipple(int element, const RippleWaterArgs & args);
 
     //Adds a new flow to the water.
-    //This function only applies to directional water.
     //Returns the id for the created flow, or -1 if this water isn't Directional water.
     int AddFlow(const DirectionalWaterArgs & args);
-    //Changes he water flow with the given ID.
-    //Returns false if this water isn't Directional or the given id isn't found; returns true otherwise.
+    //Changes the water flow with the given ID.
+    //Returns false if the given id isn't found; returns true otherwise.
     bool ChangeFlow(int element, const DirectionalWaterArgs & args);
 
     //Changes the properties of the water.
-    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
-    bool SetSeededWater(const SeededWaterArgs & args);
+    void SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
-    //Returns false if this water isn't SeededHeightmap; returns true otherwise.
-    bool SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
+    void SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
 
-    //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped. Maybe use negative "TimeSinceCreated" values?
+    //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
     void SetLighting(const DirectionalLight & light);
 
@@ -122,7 +125,7 @@ public:
 
 private:
 
-    WaterTypes waterType;
+    //WaterTypes waterType;
     std::string errorMsg;
 
     //Ripple stuff.
@@ -145,17 +148,4 @@ private:
 
     Mesh waterMesh;
     Material * waterMat;
-
-
-
-    //TODO: Implement the following three functions:
-
-    struct MaterialShaderData { public: std::string VS, FS; UniformDictionary Uniforms; };
-
-    //Gets the rippling water shader.
-    static MaterialShaderData GetRippleWaterShaderData(unsigned int maxRipples, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
-    //Gets the directional water shader.
-    static MaterialShaderData GetDirectionalWaterShaderData(unsigned int maxFlows, RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
-    //Gets the seeded heightmap water shader.
-    static MaterialShaderData GetSeededHeightmapWaterShaderData(RenderingModes mode, bool useLighting, const LightSettings & settings, RenderChannels channels);
 };

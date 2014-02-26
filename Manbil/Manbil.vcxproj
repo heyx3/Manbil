@@ -221,6 +221,7 @@
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Math\Vectors.h" />
     <ClInclude Include="MGameMaterialManager.h" />
+    <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

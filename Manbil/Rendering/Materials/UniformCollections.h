@@ -13,6 +13,7 @@
 typedef std::shared_ptr<sf::Texture> SFTexPtr;
 
 
+//TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms.
 
 
 //Represents a single float/vec2/vec3/vec4 uniform.
