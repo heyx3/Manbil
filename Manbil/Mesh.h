@@ -3,6 +3,7 @@
 #include "ShaderHandler.h"
 #include "Math/Higher Math/TransformObject.h"
 #include "Rendering/Materials/UniformCollections.h"
+#include "RenderDataHandler.h"
 
 //TODO: Use the array of VertexIndexData as an LOD system -- each LOD is one VertexIndexData instance.
 

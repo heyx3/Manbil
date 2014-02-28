@@ -198,4 +198,5 @@ public:
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSamplerValue) TextureUniforms;
+    void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);
 };

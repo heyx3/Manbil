@@ -6,7 +6,7 @@
 #include "Mesh.h"
 #include "RenderTarget.h"
 #include "Math/Higher Math/Lighting.h"
-#include "Rendering/Helper Classes/DrawingQuad.h"
+#include "Rendering/Objects/Water.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -38,11 +38,8 @@ private:
 
 	void RenderWorldGeometry(const RenderInfo & info);
 
-    Terrain * terr;
-    Vector3f * terrPoses;
-    Mesh terrMesh;
-
-    Material * mat;
+    Water * water;
+    Water::RenderChannels channels;
 
 	MovingCamera cam;
 	DirectionalLight dirLight;

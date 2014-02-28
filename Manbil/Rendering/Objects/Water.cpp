@@ -15,6 +15,166 @@
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
 //TODO: Use two normal maps and interpolate between them using the per-vertex random seed.
 
+
+
+
+
+//Calculates the height and surface normal for water.
+//TODO: Add support for seeded heightmap. Fix Water's interface so that it uses one big shader that combines flow, ripples, and seeded heightmap.
+class WaterNode : public DataNode
+{
+public:
+
+    static unsigned int GetVertexOffsetOutputIndex(void) { return 0; }
+    static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
+
+
+    virtual std::string GetName(void) const override { return "rippleHeightNode"; }
+    virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
+
+    WaterNode(unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
+              unsigned int _maxFlows = 0)
+        : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3, 3)),
+        maxRipples(_maxRipples), dp_tsc_h_p(_dp_tsc_h_p), sXY_sp(_sXY_sp),
+        maxFlows(_maxFlows)
+    {
+    }
+
+protected:
+
+    //TODO: Finish these functions.
+
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
+    {
+        if (maxRipples > 0)
+        {
+            outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
+            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp, maxRipples, 3, 0, "sourcesXY_speeds");
+        }
+        if (maxFlows > 0)
+        {
+
+        }
+    }
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
+    {
+        std::string func =
+"float getWaveHeight(vec2 horizontalPos)\n\
+{\n\
+    float offset = 0.0;\n";
+        if (maxRipples > 0)
+        {
+            std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
+                        sxysp = "sourcesXY_speeds[i]";
+            func +=
+"    //Ripples.                                                                                     \n\
+    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                                    \n\
+    {                                                                                               \n\
+        float dropoffPoint = " + dptschp + ".x;                                                     \n\
+        float timeSinceCreated = " + dptschp + ".y;                                                 \n\
+        float height = " + dptschp + ".z;                                                           \n\
+        float period = " + dptschp + ".w;                                                           \n\
+        vec2 source = " + sxysp + ".xy;                                                             \n\
+        float speed = " + sxysp + ".z;                                                              \n\
+                                                                                                    \n\
+        float dist = distance(source, horizontalPos);                                               \n\
+        float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));                     \n\
+        heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
+                                                                                                    \n\
+        float cutoff = period * speed * timeSinceCreated;                                           \n\
+        cutoff = max(0, (cutoff - dist) / cutoff); //TODO: Test that this is a smooth dropoff.      \n\
+                                                                                                    \n\
+        float innerVal = (dist / period) + (-timeSinceCreated * speed);                             \n\
+        float waveScale = height * heightScale * cutoff;                                            \n\
+                                                                                                    \n\
+        float heightOffset = sin(innerVal);                                                         \n\
+        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.     \n\
+        offset += waveScale * heightOffset;                                                         \n\
+    }\n";
+        }
+        if (maxFlows > 0)
+        {
+
+        }
+        func +=
+"    return offset;                                                                                 \n\
+}\n";
+        outDecls.insert(outDecls.end(), func);
+
+        if (GetShaderType() == Shaders::SH_Fragment_Shader)
+        {
+            func = std::string() +
+"struct NormalData                                                                      \n\
+{                                                                                       \n\
+    vec3 normal, tangent, bitangent;                                                    \n\
+};                                                                                      \n\
+NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
+{                                                                                       \n\
+    NormalData dat;                                                                     \n\
+    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
+    dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
+    dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
+                                                                                        \n\
+    vec2 epsilon = vec2(0.1);                                                           \n\
+                                                                                        \n\
+    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                        \n\
+    {                                                                                   \n\
+        //Get the height at nearby vertices and compute the normal via cross-product.   \n\
+                                                                                        \n\
+        vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                          \n\
+             nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                        \n\
+             zero_one = horizontalPos + vec2(0.0f, epsilon.y),                          \n\
+             zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                        \n\
+                                                                                        \n\
+        vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));           \n\
+        vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                      \n\
+             p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                   \n\
+             p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                      \n\
+             p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                   \n\
+                                                                                        \n\
+        vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                         \n\
+                           normalize(p_zero_one - p_zero_zero)),                        \n\
+             norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                        \n\
+                           normalize(p_zero_nOne - p_zero_zero)),                       \n\
+             normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));  \n\
+                                                                                        \n\
+        dat.normal += normFinal;                                                        \n\
+    }                                                                                   \n\
+    dat.normal = normalize(dat.normal);                                                 \n\
+    return dat;                                                                         \n\
+}                                                                                       \n\
+";
+            outDecls.insert(outDecls.end(), func);
+        }
+    }
+    virtual void WriteMyOutputs(std::string & outCode) const override
+    {
+        switch (GetShaderType())
+        {
+            case Shaders::SH_Vertex_Shader:
+                outCode += "\tvec3 " + GetOutputName(GetVertexOffsetOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosInput().GetValue() + ".xy));\n";
+                break;
+            case Shaders::SH_Fragment_Shader:
+                outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosInput().GetValue() + ".xy).normal;\n";
+                break;
+
+            default: assert(false);
+        }
+    }
+
+private:
+
+    unsigned int maxRipples, maxFlows;
+    Vector4f * dp_tsc_h_p;
+    Vector3f * sXY_sp;
+
+    const DataLine & GetObjectPosInput(void) const { return GetInputs()[0]; }
+};
+
+
+
+
+
 void CreateWaterMesh(unsigned int size, Mesh & outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
@@ -102,12 +262,6 @@ Water::Water(unsigned int size, Vector3f pos,
     CreateWaterMesh(size, waterMesh);
     waterMesh.Transform.SetPosition(pos);
 
-    //Generate shader code.
-    std::string vertexShader, fragmentShader;
-    UniformDictionary uniforms;
-    //TODO: Implement.
-    waterMesh.Uniforms = uniforms;
-
     //Set up ripples.
     if (rippleArgs.HasValue())
     {
@@ -152,20 +306,20 @@ Water::Water(unsigned int size, Vector3f pos,
     {
         SeedmapWaterCreationArgs seedArgs = seedmapArgs.GetValue();
 
-        assert(seedArgs.SeedValues.GetWidth() == seedArgs.SeedValues.GetHeight());
+        assert(seedArgs.SeedValues->GetWidth() == seedArgs.SeedValues->GetHeight());
 
         waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
-        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight()), 0, "seedMapResolution");
+        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), 0, "seedMapResolution");
 
 
         //Create a texture from the seed map.
 
         sf::Image img;
-        img.create(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight());
-        TextureConverters::ToImage<float>(seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
+        img.create(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
+        TextureConverters::ToImage<float>(*seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
 
-        unsigned int id = seedArgs.TexManager.CreateTexture(seedArgs.SeedValues.GetWidth(), seedArgs.SeedValues.GetHeight());
-        sf::Texture * seedHeightmap = seedArgs.TexManager.GetTexture(id);
+        unsigned int id = seedArgs.TexManager->CreateTexture(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
+        sf::Texture * seedHeightmap = seedArgs.TexManager->GetTexture(id);
         seedHeightmap->loadFromImage(img);
         seedHeightmap->setSmooth(false);
         seedHeightmap->setRepeated(true);
@@ -178,6 +332,17 @@ Water::Water(unsigned int size, Vector3f pos,
         SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
     }
 
+    //Generate shader code.
+    std::string vertexShader, fragmentShader;
+    DataNodePtr waterNode(new WaterNode(maxRipples, dp_tsc_h_p, sXY_sp, maxFlows));
+    ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
+    channels[RenderingChannels::RC_ObjectVertexOffset] =
+        DataLine(DataNodePtr(new AddNode(channels[RenderingChannels::RC_ObjectVertexOffset], DataLine(waterNode, WaterNode::GetVertexOffsetOutputIndex()))), 0);
+    channels[RenderingChannels::RC_Normal] = //TODO: Figure out how to combine previous normal channel value with water channel.
+        DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex());
+    UniformDictionary dict;
+    ShaderGenerator::GenerateShaders(vertexShader, fragmentShader, dict, mode, useLighting, settings, channels);
+    waterMesh.Uniforms.AddUniforms(dict, false);
 
     //Create the material.
     waterMat = new Material(vertexShader, fragmentShader, waterMesh.Uniforms, mode, useLighting, settings);
@@ -347,162 +512,6 @@ bool Water::Render(const RenderInfo & info)
 
 
 
-
-//Calculates the height and surface normal for water.
-//TODO: Add support for seeded heightmap. Fix Water's interface so that it uses one big shader that combines flow, ripples, and seeded heightmap.
-class WaterNode : public DataNode
-{
-public:
-
-    static unsigned int GetVertexOffsetOutputIndex(void) { return 0; }
-    static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
-
-
-    virtual std::string GetName(void) const override { return "rippleHeightNode"; }
-    virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
-
-    WaterNode(unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
-              unsigned int _maxFlows = 0)
-        : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3, 3)),
-        maxRipples(_maxRipples), dp_tsc_h_p(_dp_tsc_h_p), sXY_sp(_sXY_sp),
-        maxFlows(_maxFlows)
-    {
-        assert(inOffset.GetDataLineSize() == 3);
-    }
-
-protected:
-
-    //TODO: Finish these functions.
-
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
-    {
-        if (maxRipples > 0)
-        {
-            outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
-            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp, maxRipples, 3, 0, "sourcesXY_speeds");
-        }
-        if (maxFlows > 0)
-        {
-
-        }
-    }
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
-    {
-        std::string func =
-"float getWaveHeight(vec2 horizontalPos)\n\
-{\n\
-    float offset = 0.0;";
-        if (maxRipples > 0)
-        {
-            std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
-                        sxysp = "sourcesXY_speeds[i]";
-            func +=
-"    //Ripples.                                                                                     \n\
-    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                                    \n\
-    {                                                                                               \n\
-        float dropoffPoint = " + dptschp + ".x;                                                     \n\
-        float timeSinceCreated = " + dptschp + ".y;                                                 \n\
-        float height = " + dptschp + ".z;                                                           \n\
-        float period = " + dptschp + ".w;                                                           \n\
-        vec2 source = " + sxysp + ".xy;                                                             \n\
-        float speed = " + sxysp + ".z;                                                              \n\
-                                                                                                    \n\
-        float dist = distance(source, horizontalPos);                                               \n\
-        float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));                     \n\
-        heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
-                                                                                                    \n\
-        float cutoff = period * speed * timeSinceCreated;                                           \n\
-        cutoff = max(0, (cutoff - dist) / cutoff); //TODO: Test that this is a smooth dropoff.      \n\
-                                                                                                    \n\
-        float innerVal = (dist / period) + (-timeSinceCreated * speed);                             \n\
-        float waveScale = height * heightScale * cutoff;                                            \n\
-                                                                                                    \n\
-        float heightOffset = sin(innerVal);                                                         \n\
-        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.     \n\
-        offset += waveScale * heightOffset;                                                         \n\
-    }\n";
-        }
-        if (maxFlows > 0)
-        {
-
-        }
-        func +=
-"    return offset;                                                                                 \n\
-}\n";
-        outDecls.insert(outDecls.end(), func);
-
-        if (GetShaderType() == Shaders::SH_Fragment_Shader)
-        {
-            func = std::string() +
-"struct NormalData                                                                      \n\
-{                                                                                       \n\
-    vec3 normal, tangent, bitangent;                                                    \n\
-};                                                                                      \n\
-NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
-{                                                                                       \n\
-    NormalData dat;                                                                     \n\
-    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
-    dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
-    dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
-                                                                                        \n\
-    vec2 epsilon = vec2(0.1);                                                           \n\
-                                                                                        \n\
-    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                        \n\
-    {                                                                                   \n\
-        //Get the height at nearby vertices and compute the normal via cross-product.   \n\
-                                                                                        \n\
-        vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                          \n\
-             nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                        \n\
-             zero_one = horizontalPos + vec2(0.0f, epsilon.y),                          \n\
-             zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                        \n\
-                                                                                        \n\
-        vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));           \n\
-        vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                      \n\
-             p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                   \n\
-             p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                      \n\
-             p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                   \n\
-                                                                                        \n\
-        vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                         \n\
-                           normalize(p_zero_one - p_zero_zero)),                        \n\
-             norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                        \n\
-                           normalize(p_zero_nOne - p_zero_zero)),                       \n\
-             normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));  \n\
-                                                                                        \n\
-        dat.normal += normFinal;                                                        \n\
-    }                                                                                   \n\
-    dat.normal = normalize(dat.normal);                                                 \n\
-    return dat;                                                                         \n\
-}                                                                                       \n\
-";
-            outDecls.insert(outDecls.end(), func);
-        }
-    }
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        switch (GetShaderType())
-        {
-            case Shaders::SH_Vertex_Shader:
-                outCode += "\tvec3 " + GetOutputName(GetVertexOffsetOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosInput().GetValue() + ".xy));\n";
-                break;
-            case Shaders::SH_Fragment_Shader:
-                outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosInput().GetValue() + ".xy).normal;\n";
-                break;
-
-            default: assert(false);
-        }
-    }
-
-private:
-
-    unsigned int maxRipples, maxFlows;
-    Vector4f * dp_tsc_h_p;
-    Vector3f * sXY_sp;
-
-    const DataLine & GetObjectPosInput(void) const { return GetInputs()[0]; }
-};
-
-
-
 struct RenderingPass { public: std::string vs, fs; RenderingPass(std::string _vs, std::string _fs) : vs(_vs), fs(_fs) { } };
 RenderingPass GetRippleWaterRenderer(int maxRipples)
 {
@@ -663,7 +672,7 @@ RenderingPass GetRippleWaterRenderer(int maxRipples)
 }
 RenderingPass GetDirectionalWaterRenderer(int maxFlows)
 {
-    return Materials::LitTexture;
+    return RenderingPass("", "");
 }
 RenderingPass GetSeededHeightRenderer(void)
 {

@@ -139,7 +139,7 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
 
 void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
                          RenderingModes mode, bool useLighting, const LightSettings & settings,
-                         std::unordered_map<RenderingChannels, DataLine> channels)
+                         std::unordered_map<RenderingChannels, DataLine> & channels)
 {
     RemoveUnusedChannels(channels, mode, useLighting, settings);
     AddMissingChannels(channels, mode, useLighting, settings);
@@ -249,14 +249,14 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
     if (vertexFunctionDecls.size() > 0)
     {
-        vertShader += "\n\n//Helper functions.";
+        vertShader += "\n\n//Helper functions.\n";
         for (unsigned int i = 0; i < vertexFunctionDecls.size(); ++i)
             vertShader += vertexFunctionDecls[i] + "\n";
         vertShader += "\n\n\n";
     }
     if (fragmentFunctionDecls.size() > 0)
     {
-        fragShader += "\n\n//Helper functions.";
+        fragShader += "\n\n//Helper functions.\n";
         for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
             fragShader += fragmentFunctionDecls[i] + "\n";
     }

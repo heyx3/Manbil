@@ -61,20 +61,20 @@ public:
     {
     public:
         unsigned int MaxRipples;
-        RippleWaterCreationArgs(unsigned int maxRipples) : MaxRipples(maxRipples) { }
+        RippleWaterCreationArgs(unsigned int maxRipples = 0) : MaxRipples(maxRipples) { }
     };
     struct DirectionalWaterCreationArgs
     {
     public:
         unsigned int MaxFlows;
-        DirectionalWaterCreationArgs(unsigned int maxFlows) : MaxFlows(maxFlows) { }
+        DirectionalWaterCreationArgs(unsigned int maxFlows = 0) : MaxFlows(maxFlows) { }
     };
     struct SeedmapWaterCreationArgs
     {
     public:
-        const Fake2DArray<float> & SeedValues;
-        TextureManager & TexManager;
-        SeedmapWaterCreationArgs(const Fake2DArray<float> & seedValues, TextureManager & texManager) : SeedValues(seedValues), TexManager(texManager) { }
+        const Fake2DArray<float> * SeedValues;
+        TextureManager * TexManager;
+        SeedmapWaterCreationArgs(const Fake2DArray<float> * seedValues = 0, TextureManager * texManager = 0) : SeedValues(seedValues), TexManager(texManager) { }
     };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos,

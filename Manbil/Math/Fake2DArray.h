@@ -28,7 +28,7 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-	Fake2DArray(const Fake2DArray<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
+    Fake2DArray(const Fake2DArray<ArrayType> & cpy) { assert(false); } //Don't implement this function -- prevent accidental copying.
 
 	~Fake2DArray(void)
 	{
@@ -85,7 +85,7 @@ public:
 	//Fills every element with the given value.
 	void Fill(const ArrayType & value)
 	{
-        for (unsigned int i = (width * height) - 1; i >= 0; --i)
+        for (int i = (width * height) - 1; i >= 0; --i)
 		{
 			arrayVals[i] = value;
 		}
