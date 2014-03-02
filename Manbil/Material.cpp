@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 
-Material::Material(std::string & vs, std::string & fs, const UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
+Material::Material(std::string & vs, std::string & fs, UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
     : isLit(il), lightSettings(ls), mode(m)
 {
     ShaderHandler::CreateShaderProgram(shaderProg);
@@ -41,6 +41,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.FloatUniforms.insert(uniforms.FloatUniforms.end(),
                                           UniformList::Uniform(iterator->first, tempLoc));
+            dict.FloatUniforms[iterator->first].Location = tempLoc;
         }
     }
     for (auto iterator = dict.FloatArrayUniforms.begin(); iterator != dict.FloatArrayUniforms.end(); ++iterator)
@@ -49,6 +50,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.FloatArrayUniforms.insert(uniforms.FloatArrayUniforms.end(),
                                                UniformList::Uniform(iterator->first, tempLoc));
+            dict.FloatArrayUniforms[iterator->first].Location = tempLoc;
         }
     }
     for (auto iterator = dict.IntUniforms.begin(); iterator != dict.IntUniforms.end(); ++iterator)
@@ -57,6 +59,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.IntUniforms.insert(uniforms.IntUniforms.end(),
                                         UniformList::Uniform(iterator->first, tempLoc));
+            dict.IntUniforms[iterator->first].Location = tempLoc;
         }
     }
     for (auto iterator = dict.IntArrayUniforms.begin(); iterator != dict.IntArrayUniforms.end(); ++iterator)
@@ -65,6 +68,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.IntArrayUniforms.insert(uniforms.IntArrayUniforms.end(),
                                              UniformList::Uniform(iterator->first, tempLoc));
+            dict.IntArrayUniforms[iterator->first].Location = tempLoc;
         }
     }
     for (auto iterator = dict.MatrixUniforms.begin(); iterator != dict.MatrixUniforms.end(); ++iterator)
@@ -73,6 +77,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.MatrixUniforms.insert(uniforms.MatrixUniforms.end(),
                                            UniformList::Uniform(iterator->first, tempLoc));
+            dict.MatrixUniforms[iterator->first].Location = tempLoc;
         }
     }
     for (auto iterator = dict.TextureUniforms.begin(); iterator != dict.TextureUniforms.end(); ++iterator)
@@ -81,6 +86,7 @@ Material::Material(std::string & vs, std::string & fs, const UniformDictionary &
         {
             uniforms.TextureUniforms.insert(uniforms.TextureUniforms.end(),
                                             UniformList::Uniform(iterator->first, tempLoc));
+            dict.TextureUniforms[iterator->first].Location = tempLoc;
         }
     }
 
@@ -160,6 +166,15 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
                 RenderDataHandler::SetMatrixValue(iterator->second.Location, iterator->second.Value);
 
+
+        //Check for rendering errors.
+        errorMsg = GetCurrentRenderingError();
+        if (HasError())
+        {
+            errorMsg = std::string() + "Error setting uniforms, mesh " + std::to_string(i) + ": " + errorMsg;
+            return false;
+        }
+
         //Setting mesh texture sampler uniforms is a little more involved.
         unsigned int texUnit = 0;
         for (auto iterator = mesh.Uniforms.TextureUniforms.begin(); iterator != mesh.Uniforms.TextureUniforms.end(); ++iterator)
@@ -170,6 +185,15 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
                 texUnit += 1;
                 sf::Texture::bind(iterator->second.Texture);
             }
+        }
+
+
+        //Check for rendering errors.
+        errorMsg = GetCurrentRenderingError();
+        if (HasError())
+        {
+            errorMsg = std::string() + "Error setting textures, mesh " + std::to_string(i) + ": " + errorMsg;
+            return false;
         }
 
 

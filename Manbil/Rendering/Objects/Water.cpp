@@ -48,8 +48,8 @@ protected:
     {
         if (maxRipples > 0)
         {
-            outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
-            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp, maxRipples, 3, 0, "sourcesXY_speeds");
+            outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
+            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp, maxRipples, 3, "sourcesXY_speeds");
         }
         if (maxFlows > 0)
         {
@@ -277,8 +277,8 @@ Water::Water(unsigned int size, Vector3f pos,
             dp_tsc_h_p[i].x = 0.001f;
             sXY_sp[i].z = 0.001f;
         }
-        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, 0, "dropoffPoints_timesSinceCreated_heights_periods");
-        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, 0, "sourcesXY_speeds");
+        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
+        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, "sourcesXY_speeds");
     }
     else
     {
@@ -308,8 +308,8 @@ Water::Water(unsigned int size, Vector3f pos,
 
         assert(seedArgs.SeedValues->GetWidth() == seedArgs.SeedValues->GetHeight());
 
-        waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "amplitude_period_speed");
-        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), 0, "seedMapResolution");
+        waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "amplitude_period_speed");
+        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), "seedMapResolution");
 
 
         //Create a texture from the seed map.
@@ -323,7 +323,7 @@ Water::Water(unsigned int size, Vector3f pos,
         seedHeightmap->loadFromImage(img);
         seedHeightmap->setSmooth(false);
         seedHeightmap->setRepeated(true);
-        waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, 0, "seedMap");
+        waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
     }
 
     //Set up lighting.
@@ -366,6 +366,8 @@ Water::~Water(void)
 
 int Water::AddRipple(const RippleWaterArgs & args)
 {
+    assert(maxRipples > 0);
+
     RippleWaterArgs cpy(args);
 
     //Translate the source into object space.
@@ -400,6 +402,8 @@ int Water::AddRipple(const RippleWaterArgs & args)
 }
 bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
 {
+    assert(maxRipples > 0);
+
     for (int i = 0; i < maxRipples; ++i)
     {
         if (rippleIDs[i] == element)
@@ -424,6 +428,8 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
 
 int Water::AddFlow(const DirectionalWaterArgs & args)
 {
+    assert(maxFlows > 0);
+
     //Convert the flow direction from world space into object space.
     Matrix4f inv;
     waterMesh.Transform.GetWorldTransform(inv);
@@ -435,6 +441,8 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
 }
 bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
 {
+    assert(maxFlows > 0);
+
     for (int i = 0; i < flows.size(); ++i)
     {
         if (flows[i].Element == element)
@@ -461,10 +469,10 @@ void Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
 
 void Water::SetLighting(const DirectionalLight & light)
 {
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(light.AmbientIntensity, 0, MaterialConstants::DirectionalLight_AmbientName);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(light.DiffuseIntensity, 0, MaterialConstants::DirectionalLight_DiffuseName);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(light.Direction, 0, MaterialConstants::DirectionalLight_DirName);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(light.Color, 0, MaterialConstants::DirectionalLight_ColorName);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName].SetValue(light.AmbientIntensity);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName].SetValue(light.DiffuseIntensity);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName].SetValue(light.Direction);
+    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName].SetValue(light.Color);
 }
 
 void Water::Update(float elapsed)

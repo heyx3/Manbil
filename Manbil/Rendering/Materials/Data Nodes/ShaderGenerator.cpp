@@ -238,10 +238,10 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     }
     if (useLighting)
     {
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), 0, "dirLight.Col");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), 0, "dirLight.Dir");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(0.2f, 0, "dirLight.Ambient");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(0.8f, 0, "dirLight.Diffuse");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "dirLight.Col");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), "dirLight.Dir");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(0.2f, "dirLight.Ambient");
+        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(0.8f, "dirLight.Diffuse");
     }
 
 

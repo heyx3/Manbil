@@ -32,8 +32,8 @@ public:
 
     Material(const Material & cpy); //Intentionally not implemented.
 
-    Material(std::string & vShader, std::string & fShader, const UniformDictionary & uniforms,
-        RenderingModes mode, bool isLit, LightSettings lightSettings);
+    Material(std::string & vShader, std::string & fShader, UniformDictionary & uniforms,
+             RenderingModes mode, bool isLit, LightSettings lightSettings);
     ~Material(void) { glDeleteProgram(shaderProg); }
 
 

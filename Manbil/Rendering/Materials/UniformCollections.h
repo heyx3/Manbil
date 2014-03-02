@@ -24,15 +24,15 @@ public:
     unsigned int NData;
     std::string Name;
     UniformLocation Location;
-    UniformValueF(float value, UniformLocation loc, std::string name)
+    UniformValueF(float value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(1) { Value[0] = value; }
-    UniformValueF(Vector2f value, UniformLocation loc, std::string name)
+    UniformValueF(Vector2f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
-    UniformValueF(Vector3f value, UniformLocation loc, std::string name)
+    UniformValueF(Vector3f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    UniformValueF(Vector4f value, UniformLocation loc, std::string name)
+    UniformValueF(Vector4f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValueF(const float * value = 0, unsigned int nData = 0, UniformLocation loc = -1, std::string name = "")
+    UniformValueF(const float * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
     {
         for (int i = 0; i < nData; ++i) Value[i] = value[i];
@@ -52,7 +52,7 @@ public:
     unsigned int NumbValues, BasicTypesPerValue;
     UniformLocation Location;
     std::string Name;
-    UniformArrayValueF(const float * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, UniformLocation loc = 0, std::string name = "")
+    UniformArrayValueF(const float * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), Values(0), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue)
     {
         if (values != 0)
@@ -62,7 +62,7 @@ public:
             for (unsigned int i = 0; i < count; ++i) Values[i] = values[i];
         }
     }
-    UniformArrayValueF(const UniformArrayValueF & cpy) : UniformArrayValueF(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Location, cpy.Name) { }
+    UniformArrayValueF(const UniformArrayValueF & cpy) : UniformArrayValueF(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
     ~UniformArrayValueF(void) { if (Values != 0) delete[] Values; }
     void SetData(const float * values = 0, int nValues = -1, int nBasicTypesPerValue = -1)
     {
@@ -87,15 +87,15 @@ public:
     unsigned int NData;
     std::string Name;
     UniformLocation Location;
-    UniformValueI(int value, UniformLocation loc, std::string name)
+    UniformValueI(int value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(1) { Value[0] = value; }
-    UniformValueI(Vector2f value, UniformLocation loc, std::string name)
+    UniformValueI(Vector2f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
-    UniformValueI(Vector3f value, UniformLocation loc, std::string name)
+    UniformValueI(Vector3f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    UniformValueI(Vector4f value, UniformLocation loc, std::string name)
+    UniformValueI(Vector4f value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValueI(const int * value = 0, unsigned int nData = 0, UniformLocation loc = -1, std::string name = "")
+    UniformValueI(const int * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
     {
         for (int i = 0; i < nData; ++i) Value[i] = value[i];
@@ -115,7 +115,7 @@ public:
     unsigned int NumbValues, BasicTypesPerValue;
     UniformLocation Location;
     std::string Name;
-    UniformArrayValueI(const int * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, UniformLocation loc = 0, std::string name = "")
+    UniformArrayValueI(const int * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), Values(0), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue)
     {
         if (values != 0)
@@ -125,7 +125,7 @@ public:
             for (unsigned int i = 0; i < count; ++i) Values[i] = values[i];
         }
     }
-    UniformArrayValueI(const UniformArrayValueI & cpy) : UniformArrayValueI(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Location, cpy.Name) { }
+    UniformArrayValueI(const UniformArrayValueI & cpy) : UniformArrayValueI(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
     ~UniformArrayValueI(void) { if (Values != 0) delete[] Values; }
     void SetData(const int * values = 0, int nValues = -1, int nBasicTypesPerValue = -1)
     {
@@ -149,7 +149,7 @@ public:
     UniformLocation Location;
     std::string Name;
     UniformMatrixValue(void) { }
-    UniformMatrixValue(const Matrix4f & value, UniformLocation loc, std::string name)
+    UniformMatrixValue(const Matrix4f & value, std::string name, UniformLocation loc)
         : Name(name), Location(loc), Value(value) { }
     std::string GetDeclaration(void) const { return "uniform mat4 " + Name + ";"; }
 };
@@ -161,7 +161,7 @@ public:
     sf::Texture * Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(sf::Texture * texture = 0, UniformLocation loc = 0, std::string name = "")
+    UniformSamplerValue(sf::Texture * texture = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
