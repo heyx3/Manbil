@@ -277,6 +277,8 @@ Water::Water(unsigned int size, Vector3f pos,
             dp_tsc_h_p[i].x = 0.001f;
             sXY_sp[i].z = 0.001f;
         }
+        //waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Name = "dropoffPoints_timesSinceCreated_heights_periods";
+        //waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
         waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
         waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, "sourcesXY_speeds");
     }
@@ -338,8 +340,9 @@ Water::Water(unsigned int size, Vector3f pos,
     ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
     channels[RenderingChannels::RC_ObjectVertexOffset] =
         DataLine(DataNodePtr(new AddNode(channels[RenderingChannels::RC_ObjectVertexOffset], DataLine(waterNode, WaterNode::GetVertexOffsetOutputIndex()))), 0);
-    channels[RenderingChannels::RC_Normal] = //TODO: Figure out how to combine previous normal channel value with water channel.
-        DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex());
+    if (ShaderGenerator::IsChannelUsed(RenderingChannels::RC_Normal, mode, useLighting, settings))
+        channels[RenderingChannels::RC_Normal] = //TODO: Figure out how to combine previous normal channel value with water channel.
+            DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex());
     UniformDictionary dict;
     ShaderGenerator::GenerateShaders(vertexShader, fragmentShader, dict, mode, useLighting, settings, channels);
     waterMesh.Uniforms.AddUniforms(dict, false);

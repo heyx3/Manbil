@@ -62,8 +62,13 @@ public:
             for (unsigned int i = 0; i < count; ++i) Values[i] = values[i];
         }
     }
-    UniformArrayValueF(const UniformArrayValueF & cpy) : UniformArrayValueF(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
-    ~UniformArrayValueF(void) { if (Values != 0) delete[] Values; }
+    UniformArrayValueF(const UniformArrayValueF & cpy)
+        : UniformArrayValueF(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
+    ~UniformArrayValueF(void)
+    {
+        if (Values != 0)
+            delete[] Values;
+    }
     void SetData(const float * values = 0, int nValues = -1, int nBasicTypesPerValue = -1)
     {
         if (nValues > 0 && nBasicTypesPerValue > 0)
@@ -74,6 +79,22 @@ public:
             values = new float[nValues * nBasicTypesPerValue];
         }
         for (unsigned int i = 0; i < NumbValues * BasicTypesPerValue; ++i) Values[i] = values[i];
+    }
+    UniformArrayValueF & operator=(const UniformArrayValueF & cpy)
+    {
+        Name = cpy.Name;
+        Location = cpy.Location;
+        NumbValues = cpy.NumbValues;
+        BasicTypesPerValue = cpy.BasicTypesPerValue;
+        
+        if (cpy.Values != 0)
+        {
+            unsigned int count = NumbValues * BasicTypesPerValue;
+            Values = new float[count];
+            for (unsigned int i = 0; i < count; ++i) Values[i] = cpy.Values[i];
+        }
+
+        return *this;
     }
     std::string GetDeclaration(void) const { return "uniform " + VectorF(BasicTypesPerValue).GetGLSLType() + " " + Name + "[" + std::to_string(NumbValues) + "];"; }
 };
@@ -137,6 +158,22 @@ public:
             values = new int[nValues * nBasicTypesPerValue];
         }
         for (unsigned int i = 0; i < NumbValues * BasicTypesPerValue; ++i) Values[i] = values[i];
+    }
+    UniformArrayValueI & operator=(const UniformArrayValueI & cpy)
+    {
+        Name = cpy.Name;
+        Location = cpy.Location;
+        NumbValues = cpy.NumbValues;
+        BasicTypesPerValue = cpy.BasicTypesPerValue;
+
+        if (cpy.Values != 0)
+        {
+            unsigned int count = NumbValues * BasicTypesPerValue;
+            Values = new int[count];
+            for (unsigned int i = 0; i < count; ++i) Values[i] = cpy.Values[i];
+        }
+
+        return *this;
     }
     std::string GetDeclaration(void) const { return "uniform " + VectorI(BasicTypesPerValue).GetGLSLType() + " " + Name + "[" + std::to_string(NumbValues) + "];"; }
 };

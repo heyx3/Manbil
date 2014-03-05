@@ -42,23 +42,23 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(1000, 1000);
+Vector2i windowSize(700, 700);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
-    if (!diffuseTex.loadFromFile("Content/Textures/Water.png"))
+    if (!myTex.loadFromFile("Content/Textures/Normalmap.png"))
     {
-        std::cout << "Failed to load 'Water.png'.\n";
+        std::cout << "Failed to load 'Normalmap.png'.\n";
         Pause();
         EndWorld();
         return;
     }
-    diffuseTex.setRepeated(true);
-    diffuseTex.setSmooth(true);
-    sf::Texture::bind(&diffuseTex);
+    myTex.setRepeated(true);
+    myTex.setSmooth(true);
+    sf::Texture::bind(&myTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
@@ -66,9 +66,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
-    channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.0f, 0.0f, 1.0f)));
-    channels[RC::RC_Specular] = DataLine(VectorF(1.0f));
-    channels[RC::RC_SpecularIntensity] = DataLine(VectorF(100.0f));
+    channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.5f, 0.5f, 1.0f)));
+    channels[RC::RC_Specular] = DataLine(VectorF(2.0f));
+    channels[RC::RC_SpecularIntensity] = DataLine(VectorF(150.0f));
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -77,7 +77,7 @@ void OpenGLTestWorld::InitializeObjects(void)
           worldHeight = 15.0f;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(1)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
@@ -90,6 +90,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     }
 
     water->SetLighting(dirLight);
+
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 300.0f, 10.0f, 10.0f, 4.0f));
 }
 
 

@@ -44,5 +44,5 @@ private:
 	MovingCamera cam;
 	DirectionalLight dirLight;
 
-    sf::Texture diffuseTex;
+    sf::Texture myTex;
 };
