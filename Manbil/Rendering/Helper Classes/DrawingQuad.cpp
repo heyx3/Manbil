@@ -40,6 +40,13 @@ DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
     meshes.insert(meshes.end(), &quad);
 }
 
+DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
+{
+    quad.Transform = cpy.quad.Transform;
+    quad.Uniforms = cpy.quad.Uniforms;
+    origin = cpy.origin;
+}
+
 bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, Material & mat)
 {
     Vector3f scale = quad.Transform.GetScale();

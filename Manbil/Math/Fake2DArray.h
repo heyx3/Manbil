@@ -28,7 +28,8 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-    Fake2DArray(const Fake2DArray<ArrayType> & cpy) { assert(false); } //Don't implement this function -- prevent accidental copying.
+    Fake2DArray(const Fake2DArray<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
+    Fake2DArray & operator=(const Fake2DArray<ArrayType> & other); //Don't implement this one either.
 
 	~Fake2DArray(void)
 	{

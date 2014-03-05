@@ -23,17 +23,20 @@ public:
     DrawingQuad(void);
     DrawingQuad(const DrawingQuad & cpy);
 
+    DrawingQuad & operator=(const DrawingQuad & cpy);
+
     bool Render(RenderPasses pass, const RenderInfo & info, Material & mat);
 
 private:
-
-    static const Vertex vertices[4];
-    static const unsigned int indices[6];
 
     Mesh quad;
     std::vector<const Mesh*> meshes;
 
     Vector2f origin;
+
+
+    static const Vertex vertices[4];
+    static const unsigned int indices[6];
 
     static VertexIndexData vid;
 };

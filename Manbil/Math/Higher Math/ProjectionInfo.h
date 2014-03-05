@@ -14,5 +14,7 @@ public:
 	ProjectionInfo(float fov, float width, float height, float _zNear, float _zFar) : FOV(fov), Width(width), Height(height), zNear(_zNear), zFar(_zFar) { }
 	ProjectionInfo(const ProjectionInfo & cpy) : FOV(cpy.FOV), Width(cpy.Width), Height(cpy.Height), zNear(cpy.zNear), zFar(cpy.zFar) { }
 
+    ProjectionInfo & operator=(const ProjectionInfo & cpy) { FOV = cpy.FOV; Width = cpy.Width; Height = cpy.Height; zNear = cpy.zNear; zFar = cpy.zFar; return *this; }
+
 	float GetAspectRatio(void) const { return Width / Height; }
 };

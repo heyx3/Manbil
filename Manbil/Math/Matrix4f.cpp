@@ -52,7 +52,7 @@ public:
 		}
 	}
 
-	float Determinant(void) const
+	float GetDeterminant(void) const
 	{
 		return (El(0, 0) * El(1, 1)) - (El(1, 0) * El(0, 1));
 	}
@@ -105,7 +105,7 @@ public:
 		}
 	}
 
-	float Determinant(void) const
+	float GetDeterminant(void) const
 	{
 		//Use a recursive algorithm by splitting this matrix into smaller 2x2 matrices.
 		
@@ -123,7 +123,7 @@ public:
 
 			if (value != 0.0f)
 			{
-				determinant += value * (negative ? -1 : 1) * Matrix2f(values, l).Determinant();
+				determinant += value * (negative ? -1 : 1) * Matrix2f(values, l).GetDeterminant();
 			}
 
 			negative = !negative;
@@ -278,7 +278,7 @@ void Matrix4f::SetAsWVP(const Matrix4f & projM, const Matrix4f & camM, const Mat
 	SetValues(&finalM);
 }
 
-float Matrix4f::Determinant(void) const
+float Matrix4f::GetDeterminant(void) const
 {
 	//Use a recursive algorithm for finding it by splitting the matrix into smaller matrices.
 
@@ -299,7 +299,7 @@ float Matrix4f::Determinant(void) const
 		if (value != 0.0f)
 		{
 			temp = Matrix3f(values, l);
-			determinant += value * (negative ? -1 : 1) * temp.Determinant();
+			determinant += value * (negative ? -1 : 1) * temp.GetDeterminant();
 		}
 
 		negative = !negative;
@@ -307,12 +307,12 @@ float Matrix4f::Determinant(void) const
 
 	return determinant;
 }
-Matrix4f Matrix4f::Inverse(void) const
+Matrix4f Matrix4f::GetInverse(void) const
 {
 	Matrix4f ret;
 
 	// Compute the reciprocal determinant
-	float det = Determinant();
+	float det = GetDeterminant();
 	if(det == 0.0f) 
 	{
 		// Matrix not invertible. Setting all elements to nan is not really

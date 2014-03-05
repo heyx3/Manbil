@@ -42,6 +42,8 @@ public:
 
 	float& operator[](Vector2i l) { return values[l.y][l.x]; }
 	const float& operator[](Vector2i l) const { return values[l.y][l.x]; }
+
+    Matrix4f & operator=(const Matrix4f & cpy) { SetValues(&cpy); return *this; }
     
 	
 	//Matrix math.
@@ -50,8 +52,8 @@ public:
 	static Matrix4f Multiply(const Matrix4f & lhs, const Matrix4f & rhs);
 	static Vector4f Multiply(const Matrix4f & lhs, const Vector4f & rhs);
 
-	float Determinant(void) const;
-	Matrix4f Inverse(void) const;
+	float GetDeterminant(void) const;
+	Matrix4f GetInverse(void) const;
 	Matrix4f GetTranspose(void) const;
 
 	//Rounds all the elements in this matrix to the given number of decimals.

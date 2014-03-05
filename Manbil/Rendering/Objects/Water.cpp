@@ -376,7 +376,7 @@ int Water::AddRipple(const RippleWaterArgs & args)
     //Translate the source into object space.
     Matrix4f inv;
     waterMesh.Transform.GetWorldTransform(inv);
-    inv = inv.Inverse();
+    inv = inv.GetInverse();
     cpy.Source = inv.Apply(args.Source);
     
 
@@ -414,7 +414,7 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
             //Translate the source into object space.
             Matrix4f inv;
             waterMesh.Transform.GetWorldTransform(inv);
-            inv = inv.Inverse();
+            inv = inv.GetInverse();
             Vector3f sourcePos = args.Source;
             sourcePos = inv.Apply(sourcePos);
 
@@ -436,7 +436,7 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
     //Convert the flow direction from world space into object space.
     Matrix4f inv;
     waterMesh.Transform.GetWorldTransform(inv);
-    inv = inv.Inverse();
+    inv = inv.GetInverse();
 
     //TODO: Apply the transformation after putting the flow into the list.
 

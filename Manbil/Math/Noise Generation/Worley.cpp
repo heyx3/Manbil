@@ -10,9 +10,15 @@
 
 const float BadWADDistance = -1.0f;
 //Stores a generated point in a cell and the distance to that point.
-struct WorleyAlgorithmData { Vector2f Pos; float Distance; WorleyAlgorithmData(Vector2f pos = Vector2f(), float distance = BadWADDistance) : Pos(pos), Distance(distance) { } void operator=(WorleyAlgorithmData & copy) { Pos = copy.Pos; Distance = copy.Distance; } };
+struct WorleyAlgorithmData
+{
+    Vector2f Pos;
+    float Distance;
+    WorleyAlgorithmData(Vector2f pos = Vector2f(), float distance = BadWADDistance) : Pos(pos), Distance(distance) { }
+};
 typedef WorleyAlgorithmData WAD;
 bool IsGoodData(WAD & dat) { return dat.Distance != BadWADDistance; }
+
 
 void Insert(WorleyAlgorithmData* toInsertInto, WorleyAlgorithmData & toInsert)
 {

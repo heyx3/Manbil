@@ -23,5 +23,7 @@ public:
 	Perlin(float scale = 1.0f, Smoothness amount = Smoothness::Linear, int seed = 12345) : Scale(scale), SmoothAmount(amount), RandSeed(seed) { }
 	Perlin(const Perlin & cpy) : Scale(cpy.Scale), SmoothAmount(cpy.SmoothAmount), RandSeed(cpy.RandSeed) { }
 
+    Perlin & operator=(const Perlin & cpy) { Scale = cpy.Scale; SmoothAmount = cpy.SmoothAmount; RandSeed = cpy.RandSeed; return *this; }
+
 	virtual void Generate(Fake2DArray<float> & outValues) const override;
 };
