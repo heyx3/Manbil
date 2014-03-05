@@ -91,7 +91,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->SetLighting(dirLight);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 300.0f, 10.0f, 10.0f, 4.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 100.0f, 0.5f, 1.1f, 20.0f));
 }
 
 
