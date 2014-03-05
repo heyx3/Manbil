@@ -34,7 +34,7 @@ public:
     static void ToImage(const Fake2DArray<float> & channelIn, ChannelsOut channel, sf::Image & finalImg, float defaultColor = 0.0f, float defaultAlpha = 0.0f);
 
     template<typename ArrayType>
-    static void ToImage(const Fake2DArray<ArrayType> inData, sf::Image & outImg, void* pData, sf::Color (*DataToColor)(void* pData, ArrayType imgDataElement))
+    static void ToImage(const Fake2DArray<ArrayType> & inData, sf::Image & outImg, void* pData, sf::Color (*DataToColor)(void* pData, ArrayType imgDataElement))
     {
         WriteImg(inData, outImg, pData, DataToColor);
     }

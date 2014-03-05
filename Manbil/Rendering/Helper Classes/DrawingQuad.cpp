@@ -45,6 +45,8 @@ DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
     quad.Transform = cpy.quad.Transform;
     quad.Uniforms = cpy.quad.Uniforms;
     origin = cpy.origin;
+
+    return *this;
 }
 
 bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, Material & mat)
