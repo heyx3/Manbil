@@ -69,10 +69,10 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                           DataLine(VectorF(0.01f, 0.01f)));
     texSamplerName = normalMap->GetSamplerUniformName();
 
-    channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.5f, 0.5f, 1.0f)));
+    channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.275f, 0.275f, 1.0f)));
     channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RC::RC_Specular] = DataLine(VectorF(2.0f));
-    channels[RC::RC_SpecularIntensity] = DataLine(VectorF(150.0f));
+    channels[RC::RC_SpecularIntensity] = DataLine(VectorF(256.0f));
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -81,7 +81,7 @@ void OpenGLTestWorld::InitializeObjects(void)
           worldHeight = 15.0f;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(1)),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(5)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
@@ -99,7 +99,10 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 2.5f, 5.0f, 8.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 300.0f, 2.5f, 5.0f, 3.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(-50.0f, -50.0f, 0.0f), 300.0f, 2.5f, 5.0f, 4.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(100.0f, -45.0f, 0.0f), 350.0f, 2.5f, 5.0f, 1.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(-150.0f, 0.0f, 0.0f), 350.0f, 2.5f, 5.0f, 2.0f));
 }
 
 
