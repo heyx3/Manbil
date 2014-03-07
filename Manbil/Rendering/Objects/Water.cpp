@@ -212,6 +212,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
 
     Terrain terr(size);
     //Put the noise into the terrain heightmap so that the terrain class will automatically put each noise value into the correct vertex.
+    //However, because we're putting noise into the z coordinate, don't calculate normals until after the noise is extracted.
     terr.SetHeightmap(noise);
     int nVs = terr.GetVerticesCount(),
         nIs = terr.GetIndicesCount();
@@ -231,9 +232,17 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
         vertices[i] = Vertex(Vector3f(poses[i].x, poses[i].y, 0.0f) + offset,
                              texCoords[i],
                              Vector4f(0.0f, 0.0f, poses[i].z, fr.GetZeroToOne()),
-                             normals[i]);
+                             Vector3f());
+        poses[i].z = 0.0f;
     }
-    delete[] poses, texCoords, normals;
+    delete[] texCoords;
+
+    terr.CreateVertexNormals(normals, poses, Vector3f(1, 1, 1));
+    for (int i = 0; i < nVs; ++i)
+    {
+        vertices[i].Normal = normals[i];
+    }
+    delete[] normals, poses;
 
     unsigned int * indices = new unsigned int[nIs];
     terr.CreateVertexIndices(indices);
@@ -277,8 +286,6 @@ Water::Water(unsigned int size, Vector3f pos,
             dp_tsc_h_p[i].x = 0.001f;
             sXY_sp[i].z = 0.001f;
         }
-        //waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Name = "dropoffPoints_timesSinceCreated_heights_periods";
-        //waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
         waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
         waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, "sourcesXY_speeds");
     }
@@ -340,9 +347,12 @@ Water::Water(unsigned int size, Vector3f pos,
     ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
     channels[RenderingChannels::RC_ObjectVertexOffset] =
         DataLine(DataNodePtr(new AddNode(channels[RenderingChannels::RC_ObjectVertexOffset], DataLine(waterNode, WaterNode::GetVertexOffsetOutputIndex()))), 0);
+    //TODO: Figure out how to combine previous normal channel value with water channel.
     if (ShaderGenerator::IsChannelUsed(RenderingChannels::RC_Normal, mode, useLighting, settings))
-        channels[RenderingChannels::RC_Normal] = //TODO: Figure out how to combine previous normal channel value with water channel.
-            DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex());
+        channels[RenderingChannels::RC_Normal] = DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new AddNode(DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()),
+                                                                                                                         channels[RenderingChannels::RC_Normal])),
+                                                                                        0))),
+                                                          0);
     UniformDictionary dict;
     ShaderGenerator::GenerateShaders(vertexShader, fragmentShader, dict, mode, useLighting, settings, channels);
     waterMesh.Uniforms.AddUniforms(dict, false);

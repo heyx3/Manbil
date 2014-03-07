@@ -56,8 +56,6 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    myTex.setRepeated(true);
-    myTex.setSmooth(true);
     sf::Texture::bind(&myTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
 }
@@ -66,7 +64,13 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
+    TextureSampleNode * normalMap = new TextureSampleNode(DataLine(DataNodePtr(new UVNode()), 0),
+                                                          DataLine(VectorF(20.0f, 20.0f)),
+                                                          DataLine(VectorF(0.01f, 0.01f)));
+    texSamplerName = normalMap->GetSamplerUniformName();
+
     channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.5f, 0.5f, 1.0f)));
+    channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RC::RC_Specular] = DataLine(VectorF(2.0f));
     channels[RC::RC_SpecularIntensity] = DataLine(VectorF(150.0f));
 }
@@ -90,15 +94,19 @@ void OpenGLTestWorld::InitializeObjects(void)
     }
 
     water->SetLighting(dirLight);
+    const Material * waterMat = water->GetMaterial();
+    water->GetMesh().Uniforms.TextureUniforms[texSamplerName] =
+        UniformSamplerValue(&myTex, texSamplerName,
+                            waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 100.0f, 0.5f, 1.1f, 20.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 2.5f, 5.0f, 8.0f));
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0)
 {
-	dirLight.Direction = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
+	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
 
 	dirLight.AmbientIntensity = 0.1f;
@@ -128,6 +136,8 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
+    cam.SetMoveSpeed(30.0f);
+    cam.SetRotSpeed(0.25f);
 }
 
 OpenGLTestWorld::~OpenGLTestWorld(void)

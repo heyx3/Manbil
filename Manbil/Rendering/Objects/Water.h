@@ -94,6 +94,9 @@ public:
     const Mesh & GetMesh(void) const { return waterMesh; }
     Mesh & GetMesh(void) { return waterMesh; }
 
+    const Material * GetMaterial(void) const { return waterMat; }
+    Material * GetMaterial(void) { return waterMat; }
+
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
