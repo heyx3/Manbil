@@ -502,7 +502,12 @@ void Water::Update(float elapsed)
 
     if (maxFlows > 0)
     {
-
+        for (int i = 0; i < maxFlows; ++i)
+        {
+            if (flows[i].Args.TimeSinceCreated > 0.0f)
+                flows[i].Args.TimeSinceCreated += elapsed;
+            else flows[i].Args.TimeSinceCreated -= elapsed;
+        }
     }
 }
 bool Water::Render(const RenderInfo & info)

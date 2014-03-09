@@ -21,8 +21,10 @@ public:
         //The direction and magnitude of the water flow (in object space).
         //The magnitude is in units per second.
         Vector2f Flow;
-        float Amplitude;
-        DirectionalWaterArgs(Vector2f flow, float amplitude) : Flow(flow), Amplitude(amplitude) { }
+        float Amplitude, Period;
+        float TimeSinceCreated;
+        DirectionalWaterArgs(Vector2f flow, float amplitude, float period, float speed)
+            : Flow(flow), Amplitude(amplitude), Period(period), TimeSinceCreated(0.0f) { }
     };
 
     //Data that only applies to rippling water.
@@ -41,7 +43,8 @@ public:
         float Period;
         //The speed of the waves.
         float Speed;
-        RippleWaterArgs(Vector3f source, float dropoffPoint, float height, float period, float speed) : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
+        RippleWaterArgs(Vector3f source, float dropoffPoint, float height, float period, float speed)
+            : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
     //Data that only applies to seeded heightmap water.
