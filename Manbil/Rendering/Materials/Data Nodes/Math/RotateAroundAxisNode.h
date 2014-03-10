@@ -23,6 +23,8 @@ protected:
 
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
     {
+        //TODO: Each instance of this node has its own function that takes in the axis and angle. However, if the axis or angle is a constant value, DON'T take it in -- just use it.
+
         std::string getFN = GetGetQuatRotFuncName(),
                     applyFN = GetApplyQuatRotFuncName();
 
