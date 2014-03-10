@@ -275,6 +275,7 @@
     <ClInclude Include="Rendering\Materials\RenderingModes.h" />
     <ClInclude Include="Rendering\Materials\UniformCollections.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
+    <ClInclude Include="Rendering\PostProcessing\PostProcessData.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />

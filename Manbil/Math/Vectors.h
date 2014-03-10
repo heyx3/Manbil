@@ -68,7 +68,8 @@ namespace MyVectors
         const int & operator[](int index) const { return (&x)[index]; }
         int & operator[](int index) { return (&x)[index]; }
 
-		bool operator==(const Vector2i& rhs) const { return Equals(rhs); }
+        bool operator==(const Vector2i& rhs) const { return Equals(rhs); }
+        bool operator!=(const Vector2i& other) const { return x != other.x || y != other.y; }
 		bool Equals(Vector2i v) const { return x == v.x && y == v.y; }
 
         Vector2i Clamp(int min, int max) const
@@ -123,6 +124,7 @@ namespace MyVectors
         int & operator[](int index) { return (&x)[index]; }
 	
         bool operator==(const Vector3i& other) const { return Equals(other); }
+        bool operator!=(const Vector3i& other) const { return x != other.x || y != other.y || z != other.z; }
 		bool Equals(Vector3i v) const { return x == v.x && y == v.y && z == v.z; }
 
         Vector3i Clamp(int min, int max) const
@@ -178,6 +180,7 @@ namespace MyVectors
         Vector4i operator-(void) const { return Vector4i(-x, -y, -z, -w); }
 
         bool operator==(const Vector4i& other) const { return Equals(other); }
+        bool operator!=(const Vector4i& other) const { return x != other.x || y != other.y || z != other.z || w != other.w; }
         bool Equals(Vector4i v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
 
         const int & operator[](int index) const { return (&x)[index]; }
@@ -252,6 +255,7 @@ namespace MyVectors
 		float & operator[](int index) { return (&x)[index]; }
 
         bool operator==(const Vector2f & other) const { return Equals(other); }
+        bool operator!=(const Vector2f& other) const { return x != other.x || y != other.y; }
 		bool Equals(Vector2f v) const { return x == v.x && y == v.y; }
 
         Vector2f Clamp(float min, float max) const
@@ -325,6 +329,7 @@ namespace MyVectors
 		float & operator[](int index) { return (&x)[index]; }
 	
         bool operator==(const Vector3f& other) const { return Equals(other); }
+        bool operator!=(const Vector3f& other) const { return x != other.x || y != other.y || z != other.z; }
 		bool Equals(Vector3f v) const { return x == v.x && y == v.y && z == v.z; }
 
         Vector3f Clamp(float min, float max)
@@ -396,6 +401,7 @@ namespace MyVectors
 		Vector4f operator-(void) const { return Vector4f(-x, -y, -z, -w); }
 	
         bool operator==(const Vector4f& other) const { return Equals(other); }
+        bool operator!=(const Vector4f& other) const { return x != other.x || y != other.y || z != other.z || w != other.w; }
 		bool Equals(Vector4f v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
 
 		const float & operator[](int index) const { return (&x)[index]; }

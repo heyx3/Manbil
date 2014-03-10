@@ -632,6 +632,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\PostProcessing\PostProcessData.h">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
