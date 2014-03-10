@@ -18,12 +18,12 @@ public:
     struct DirectionalWaterArgs
     {
     public:
-        //The direction and magnitude of the water flow (in object space).
+        //The direction and magnitude of the water flow in object space.
         //The magnitude is in units per second.
         Vector2f Flow;
         float Amplitude, Period;
         float TimeSinceCreated;
-        DirectionalWaterArgs(Vector2f flow, float amplitude, float period, float speed)
+        DirectionalWaterArgs(Vector2f flow, float amplitude, float period)
             : Flow(flow), Amplitude(amplitude), Period(period), TimeSinceCreated(0.0f) { }
     };
 
@@ -140,16 +140,19 @@ private:
     int nextRippleID;
     int totalRipples;
     int * rippleIDs;
-    Vector4f * dp_tsc_h_p; //If you want an explanation for the weird names, look at the shader.
+    //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
+    Vector4f * dp_tsc_h_p;
     Vector3f * sXY_sp;
 
     //Flow stuff.
-    struct DirectionalWaterArgsElement { public: DirectionalWaterArgs Args; int Element; DirectionalWaterArgsElement(const DirectionalWaterArgs & a, int e) : Args(a), Element(e) { } };
     int currentFlowIndex;
     int maxFlows;
     int nextFlowID;
     int totalFlows;
-    std::vector<DirectionalWaterArgsElement> flows;
+    int * flowIDs;
+    //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
+    Vector4f * f_a_p;
+    float * tsc;
 
 
     Mesh waterMesh;

@@ -33,10 +33,10 @@ public:
     virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
 
     WaterNode(unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
-              unsigned int _maxFlows = 0)
+              unsigned int _maxFlows = 0, Vector4f * f_a_p = 0, float * _tsc = 0)
         : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3, 3)),
         maxRipples(_maxRipples), dp_tsc_h_p(_dp_tsc_h_p), sXY_sp(_sXY_sp),
-        maxFlows(_maxFlows)
+        maxFlows(_maxFlows), fl_am_per(f_a_p), tsc(_tsc)
     {
     }
 
@@ -49,11 +49,12 @@ protected:
         if (maxRipples > 0)
         {
             outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
-            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp, maxRipples, 3, "sourcesXY_speeds");
+            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&sXY_sp[0][0], maxRipples, 3, "sourcesXY_speeds");
         }
         if (maxFlows > 0)
         {
-
+            outUniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF(&fl_am_per[0][0], maxFlows, 4, "flows_amplitudes_periods");
+            outUniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
         }
     }
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
@@ -82,7 +83,7 @@ protected:
         heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
                                                                                                     \n\
         float cutoff = period * speed * timeSinceCreated;                                           \n\
-        cutoff = max(0, (cutoff - dist) / cutoff); //TODO: Test that this is a smooth dropoff.      \n\
+        cutoff = max(0, (cutoff - dist) / cutoff);                                                  \n\
                                                                                                     \n\
         float innerVal = (dist / period) + (-timeSinceCreated * speed);                             \n\
         float waveScale = height * heightScale * cutoff;                                            \n\
@@ -167,6 +168,8 @@ private:
     unsigned int maxRipples, maxFlows;
     Vector4f * dp_tsc_h_p;
     Vector3f * sXY_sp;
+    Vector4f * fl_am_per;
+    float * tsc;
 
     const DataLine & GetObjectPosInput(void) const { return GetInputs()[0]; }
 };
@@ -300,10 +303,17 @@ Water::Water(unsigned int size, Vector3f pos,
         DirectionalWaterCreationArgs dirArgs = directionArgs.GetValue();
         maxFlows = dirArgs.MaxFlows;
 
-        DirectionalWaterArgs initialArgs(Vector2f(1.0f, 0.0f), 0.0f);
-        DirectionalWaterArgsElement argsE(initialArgs, -1);
+        flowIDs = new int[maxFlows];
+        f_a_p = new Vector4f[maxFlows];
+        tsc = new float[maxFlows];
+
         for (unsigned int i = 0; i < maxFlows; ++i)
-            flows.insert(flows.end(), argsE);
+        {
+            f_a_p[i] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
+            tsc[i] = 0.0f;
+        }
+        waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
+        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(&tsc[0][0], maxFlows, 1, "timesSinceCreated");
     }
     else
     {
@@ -375,6 +385,10 @@ Water::~Water(void)
     {
         delete[] rippleIDs, dp_tsc_h_p, sXY_sp;
     }
+    if (flowIDs != 0)
+    {
+        delete[] flowIDs, f_a_p, tsc;
+    }
 }
 
 int Water::AddRipple(const RippleWaterArgs & args)
@@ -443,12 +457,24 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
 {
     assert(maxFlows > 0);
 
-    //Convert the flow direction from world space into object space.
-    Matrix4f inv;
-    waterMesh.Transform.GetWorldTransform(inv);
-    inv = inv.GetInverse();
+    //Create a copy of the arguments so that any invalid uniform values can be changed.
+    DirectionalWaterArgs cpy(args);
+    if (cpy.Flow == Vector2f())
+        cpy.Flow = Vector2f(0.001f, 0.0f);
+    if (cpy.Period <= 0.0f)
+        cpy.Period = 0.001f;
 
-    //TODO: Apply the transformation after putting the flow into the list.
+    //Update tracking values.
+    int flowID = nextFlowID;
+    nextFlowID += 1;
+    int index = currentFlowIndex;
+    currentFlowIndex += 1;
+    currentFlowIndex %= maxFlows;
+
+    //Set the uniforms.
+    f_a_p[index] = Vector4f(cpy.Flow.x, cpy.Flow.y, cpy.Amplitude, cpy.Period);
+    tsc[index] = cpy.TimeSinceCreated;
+
 
     return -1;
 }
@@ -456,11 +482,14 @@ bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
 {
     assert(maxFlows > 0);
 
-    for (int i = 0; i < flows.size(); ++i)
+    for (int i = 0; i < maxFlows; ++i)
     {
-        if (flows[i].Element == element)
+        if (flowIDs[i] == element)
         {
-            flows[i].Args = args;
+            //Set the uniforms.
+            f_a_p[i] = Vector4f(args.Flow.x, args.Flow.y, args.Amplitude, args.Period);
+            tsc[i] = args.TimeSinceCreated;
+
             return true;
         }
     }
@@ -504,9 +533,9 @@ void Water::Update(float elapsed)
     {
         for (int i = 0; i < maxFlows; ++i)
         {
-            if (flows[i].Args.TimeSinceCreated > 0.0f)
-                flows[i].Args.TimeSinceCreated += elapsed;
-            else flows[i].Args.TimeSinceCreated -= elapsed;
+            if (tsc[i] > 0.0f)
+                tsc[i] += elapsed;
+            else tsc[i] -= elapsed;
         }
     }
 }
@@ -520,7 +549,8 @@ bool Water::Render(const RenderInfo & info)
     }
     if (maxFlows > 0)
     {
-
+        waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"].SetData(&f_a_p[0][0]);
+        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"].SetData(tsc);
     }
 
 

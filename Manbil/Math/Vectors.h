@@ -53,27 +53,29 @@ namespace MyVectors
 		Vector2i BelowLeft(void) const { return Vector2i(x - 1, y + 1); }
 		Vector2i BelowRight(void) const { return Vector2i(x + 1, y + 1); }
 
-		bool operator==(Vector2i other) { return (x == other.x && y == other.y); }
-
-		Vector2i& operator+=(Vector2i other) { x += other.x; y += other.y; return *this; }
-		Vector2i& operator-=(Vector2i other) { x -= other.x; y -= other.y; return *this; }
+        Vector2i& operator+=(const Vector2i& other) { x += other.x; y += other.y; return *this; }
+        Vector2i& operator-=(const Vector2i& other) { x -= other.x; y -= other.y; return *this; }
 		Vector2i& operator*=(int i) { x *= i; y *= i; return *this; }
 		Vector2i& operator/=(int i) { x /= i; y /= i; return *this; }
 
-		Vector2i operator+(Vector2i other) const { return Vector2i(x + other.x, y + other.y); }
-		Vector2i operator-(Vector2i other) const { return Vector2i(x - other.x, y - other.y); }
+        Vector2i operator+(const Vector2i& other) const { return Vector2i(x + other.x, y + other.y); }
+        Vector2i operator-(const Vector2i& other) const { return Vector2i(x - other.x, y - other.y); }
 		Vector2i operator*(int i) const { return Vector2i(x * i, y * i); }
-		Vector2i operator/(const int i) const { return Vector2i(x / i, y / i); }
+		Vector2i operator/(int i) const { return Vector2i(x / i, y / i); }
 	
         Vector2i operator-(void) const { return Vector2i(-x, -y); }
 
         const int & operator[](int index) const { return (&x)[index]; }
         int & operator[](int index) { return (&x)[index]; }
 
+		bool operator==(const Vector2i& rhs) const { return Equals(rhs); }
 		bool Equals(Vector2i v) const { return x == v.x && y == v.y; }
 
-        Vector2i Clamp(int min, int max) { return Vector2i(BasicMath::Max(min, BasicMath::Min(max, x)),
-                                                           BasicMath::Max(min, BasicMath::Min(max, y))); }
+        Vector2i Clamp(int min, int max) const
+        {
+            return Vector2i(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)));
+        }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		int LengthSquared(void) const { return (x * x) + (y * y); }
@@ -102,8 +104,7 @@ namespace MyVectors
 
 		Vector3i(void) : x(0), y(0), z(0) { }
 		Vector3i(int _x, int _y, int _z) : x(_x), y(_y), z(_z) { }
-		Vector3i(Vector2i copy) : x(copy.x), y(copy.y), z(0) { }
-		Vector3i(Vector2i copy, int zValue) : x(copy.x), y(copy.y), z(zValue) { }
+		Vector3i(Vector2i copy, int zValue = 0) : x(copy.x), y(copy.y), z(zValue) { }
 		Vector3i(const Vector3i & copy) : x(copy.x), y(copy.y), z(copy.z) { }
 
 		Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
@@ -111,19 +112,20 @@ namespace MyVectors
 		Vector3i& operator*=(int f) { x *= f; y *= f; z *= f; return *this; }
 		Vector3i& operator/=(int f) { x /= f; y /= f; z /= f; return *this; }
 
-		Vector3i operator+(const Vector3i other) const { return Vector3i(x + other.x, y + other.y, z + other.z); }
-		Vector3i operator-(const Vector3i other) const { return Vector3i(x - other.x, y - other.y, z - other.z); }
-		Vector3i operator*(const int scale) const { return Vector3i(x * scale, y * scale, z * scale); }
-		Vector3i operator/(const int invScale) const { return Vector3i(x / invScale, y / invScale, z / invScale); }
+		Vector3i operator+(const Vector3i& other) const { return Vector3i(x + other.x, y + other.y, z + other.z); }
+		Vector3i operator-(const Vector3i& other) const { return Vector3i(x - other.x, y - other.y, z - other.z); }
+		Vector3i operator*(int scale) const { return Vector3i(x * scale, y * scale, z * scale); }
+		Vector3i operator/(int invScale) const { return Vector3i(x / invScale, y / invScale, z / invScale); }
 	
         Vector3i operator-(void) const { return Vector3i(-x, -y, -z); }
 
         const int & operator[](int index) const { return (&x)[index]; }
         int & operator[](int index) { return (&x)[index]; }
 	
+        bool operator==(const Vector3i& other) const { return Equals(other); }
 		bool Equals(Vector3i v) const { return x == v.x && y == v.y && z == v.z; }
 
-        Vector3i Clamp(int min, int max)
+        Vector3i Clamp(int min, int max) const
         {
             return Vector3i(BasicMath::Max(min, BasicMath::Min(max, x)),
                             BasicMath::Max(min, BasicMath::Min(max, y)),
@@ -168,20 +170,20 @@ namespace MyVectors
         Vector4i& operator*=(int f) { x *= f; y *= f; z *= f; w *= f; return *this; }
         Vector4i& operator/=(int f) { x /= f; y /= f; z /= f; w /= f; return *this; }
 
-        Vector4i operator+(const Vector4i other) const { return Vector4i(x + other.x, y + other.y, z + other.z, w + other.w); }
-        Vector4i operator-(const Vector4i other) const { return Vector4i(x - other.x, y - other.y, z - other.z, w - other.w); }
-        Vector4i operator*(const int scale) const { return Vector4i(x * scale, y * scale, z * scale, w * scale); }
-        Vector4i operator/(const int invScale) const { return Vector4i(x / invScale, y / invScale, z / invScale, w / invScale); }
+        Vector4i operator+(const Vector4i& other) const { return Vector4i(x + other.x, y + other.y, z + other.z, w + other.w); }
+        Vector4i operator-(const Vector4i& other) const { return Vector4i(x - other.x, y - other.y, z - other.z, w - other.w); }
+        Vector4i operator*(int scale) const { return Vector4i(x * scale, y * scale, z * scale, w * scale); }
+        Vector4i operator/(int invScale) const { return Vector4i(x / invScale, y / invScale, z / invScale, w / invScale); }
 
         Vector4i operator-(void) const { return Vector4i(-x, -y, -z, -w); }
 
-        bool operator==(Vector4i other) { return Equals(other); }
+        bool operator==(const Vector4i& other) const { return Equals(other); }
         bool Equals(Vector4i v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
 
         const int & operator[](int index) const { return (&x)[index]; }
         int & operator[](int index) { return (&x)[index]; }
 
-        Vector4i Clamp(int min, int max)
+        Vector4i Clamp(int min, int max) const
         {
             return Vector4i(BasicMath::Max(min, BasicMath::Min(max, x)),
                             BasicMath::Max(min, BasicMath::Min(max, y)),
@@ -234,26 +236,25 @@ namespace MyVectors
 		Vector2f(float _x, float _y) : x(_x), y(_y) { }
 		Vector2f(Vector2i copy) : x((float)copy.x), y((float)copy.y) { }
 	
-		bool operator==(Vector2f other) { return (x == other.x && y == other.y); }
+		Vector2f& operator+=(const Vector2f& other) { x += other.x; y += other.y; return *this; }
+		Vector2f& operator-=(const Vector2f& other) { x -= other.x; y -= other.y; return *this; }
+		Vector2f& operator*=(float f) { x *= f; y *= f; return *this; }
+		Vector2f& operator/=(float f) { x /= f; y /= f; return *this; }
 
-		Vector2f& operator+=(const Vector2f other) { x += other.x; y += other.y; return *this; }
-		Vector2f& operator-=(const Vector2f other) { x -= other.x; y -= other.y; return *this; }
-		Vector2f& operator*=(const float f) { x *= f; y *= f; return *this; }
-		Vector2f& operator/=(const float f) { x /= f; y /= f; return *this; }
-
-		Vector2f operator+(const Vector2f other) const { return Vector2f(x + other.x, y + other.y); }
-		Vector2f operator-(const Vector2f other) const { return Vector2f(x - other.x, y - other.y); }
-		Vector2f operator*(const float f) const { return Vector2f(x * f, y * f); }
-		Vector2f operator/(const float f) const { return Vector2f(x / f, y / f); }
+		Vector2f operator+(const Vector2f& other) const { return Vector2f(x + other.x, y + other.y); }
+		Vector2f operator-(const Vector2f& other) const { return Vector2f(x - other.x, y - other.y); }
+		Vector2f operator*(float f) const { return Vector2f(x * f, y * f); }
+		Vector2f operator/(float f) const { return Vector2f(x / f, y / f); }
 
 		Vector2f operator-(void) const { return Vector2f(-x, -y); }
 	
 		const float & operator[](int index) const { return (&x)[index]; }
 		float & operator[](int index) { return (&x)[index]; }
 
+        bool operator==(const Vector2f & other) const { return Equals(other); }
 		bool Equals(Vector2f v) const { return x == v.x && y == v.y; }
 
-        Vector2f Clamp(float min, float max)
+        Vector2f Clamp(float min, float max) const
         {
             return Vector2f(BasicMath::Max(min, BasicMath::Min(max, x)),
                             BasicMath::Max(min, BasicMath::Min(max, y)));
@@ -307,24 +308,23 @@ namespace MyVectors
 		Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z) { }
 		Vector3f(Vector2f copy) : x(copy.x), y(copy.y), z(0) { }
 		Vector3f(Vector2f copy, float zValue) : x(copy.x), y(copy.y), z(zValue) { }
-	
-		bool operator==(Vector3f other) { return Equals(other); }
 
 		Vector3f& operator+=(const Vector3f& r) { x += r.x; y += r.y; z += r.z; return *this; }
 		Vector3f& operator-=(const Vector3f& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
 		Vector3f& operator*=(float f) { x *= f; y *= f; z *= f; return *this; }
 		Vector3f& operator/=(float f) { x /= f; y /= f; z /= f; return *this; }
 
-		Vector3f operator+(const Vector3f other) const { return Vector3f(x + other.x, y + other.y, z + other.z); }
-		Vector3f operator-(const Vector3f other) const { return Vector3f(x - other.x, y - other.y, z - other.z); }
-		Vector3f operator*(const float scale) const { return Vector3f(x * scale, y * scale, z * scale); }
-		Vector3f operator/(const float invScale) const { return Vector3f(x / invScale, y / invScale, z / invScale); }
+		Vector3f operator+(const Vector3f& other) const { return Vector3f(x + other.x, y + other.y, z + other.z); }
+		Vector3f operator-(const Vector3f& other) const { return Vector3f(x - other.x, y - other.y, z - other.z); }
+		Vector3f operator*(float scale) const { return Vector3f(x * scale, y * scale, z * scale); }
+		Vector3f operator/(float invScale) const { return Vector3f(x / invScale, y / invScale, z / invScale); }
 	
 		Vector3f operator-(void) const { return Vector3f(-x, -y, -z); }
 	
 		const float & operator[](int index) const { return (&x)[index]; }
 		float & operator[](int index) { return (&x)[index]; }
-
+	
+        bool operator==(const Vector3f& other) const { return Equals(other); }
 		bool Equals(Vector3f v) const { return x == v.x && y == v.y && z == v.z; }
 
         Vector3f Clamp(float min, float max)
@@ -388,14 +388,14 @@ namespace MyVectors
 		Vector4f& operator*=(float f) { x *= f; y *= f; z *= f; w *= f; return *this; }
 		Vector4f& operator/=(float f) { x /= f; y /= f; z /= f; w /= f; return *this; }
 
-		Vector4f operator+(const Vector4f other) const { return Vector4f(x + other.x, y + other.y, z + other.z, w + other.w); }
-		Vector4f operator-(const Vector4f other) const { return Vector4f(x - other.x, y - other.y, z - other.z, w - other.w); }
-		Vector4f operator*(const float scale) const { return Vector4f(x * scale, y * scale, z * scale, w * scale); }
-		Vector4f operator/(const float invScale) const { return Vector4f(x / invScale, y / invScale, z / invScale, w / invScale); }
+		Vector4f operator+(const Vector4f& other) const { return Vector4f(x + other.x, y + other.y, z + other.z, w + other.w); }
+		Vector4f operator-(const Vector4f& other) const { return Vector4f(x - other.x, y - other.y, z - other.z, w - other.w); }
+		Vector4f operator*(float scale) const { return Vector4f(x * scale, y * scale, z * scale, w * scale); }
+		Vector4f operator/(float invScale) const { return Vector4f(x / invScale, y / invScale, z / invScale, w / invScale); }
 	
 		Vector4f operator-(void) const { return Vector4f(-x, -y, -z, -w); }
 	
-		bool operator==(Vector4f other) { return Equals(other); }
+        bool operator==(const Vector4f& other) const { return Equals(other); }
 		bool Equals(Vector4f v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
 
 		const float & operator[](int index) const { return (&x)[index]; }
