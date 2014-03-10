@@ -204,28 +204,26 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     Noise2D noise(size, size);
 
     //Layered Perin noise.
-    Perlin per1(32.0f, Perlin::Smoothness::Quintic, 135213),
-           per2(16.0f, Perlin::Smoothness::Quintic, 135213),
-           per3(8.0f, Perlin::Smoothness::Quintic, 135213),
-           per4(4.0f, Perlin::Smoothness::Quintic, 135213),
-           per5(2.0f, Perlin::Smoothness::Quintic, 135213),
-           per6(1.0f, Perlin::Smoothness::Quintic, 135213);
-    Generator * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6 };
-    float weights[6];
-    float weight = 0.5f; for (int i = 0; i < 6; ++i) { weights[i] = weight; weight *= 0.5f; }
-    LayeredOctave octaves(6, weights, gens);
+    int scale = (size > 256 ? 8 : (size > 128 ? 4 : (size > 64 ? 2 : 1)));
+    Perlin per1(scale * 32.0f, Perlin::Smoothness::Quintic, 135213),
+           per2(scale * 16.0f, Perlin::Smoothness::Quintic, 3523),
+           per3(scale * 8.0f, Perlin::Smoothness::Quintic, 24623),
+           per4(scale * 4.0f, Perlin::Smoothness::Quintic, 136),
+           per5(scale * 2.0f, Perlin::Smoothness::Quintic, 24675476),
+           per6(scale * 1.0f, Perlin::Smoothness::Quintic, 3463);
+    Generator * gens[] = { &per3, &per4, &per5, &per6 };
+    float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.1f };
+    LayeredOctave octaves(4, weights, gens);
 
     //Filter the layered Perlin noise to have less contrast.
     NoiseFilterer nf;
     MaxFilterRegion mfr;
-    mfr.StrengthLerp = 0.25f;
+    mfr.StrengthLerp = 0.0f;
     nf.FillRegion = &mfr;
     nf.NoiseToFilter = &octaves;
     nf.FilterFunc = &NoiseFilterer::Average;
 
     nf.Generate(noise);
-
-    Value2D().Generate(noise);
 
 
     //Just create a flat terrain and let it do the math.
@@ -240,7 +238,6 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     Vector2f * texCoords = new Vector2f[nVs];
     Vector3f * normals = new Vector3f[nVs];
     terr.CreateVertexPositions(poses);
-    terr.CreateVertexNormals(normals, poses, Vector3f(1, 1, 1));
     terr.CreateVertexTexCoords(texCoords);
 
     Vertex * vertices = new Vertex[nVs];
@@ -251,7 +248,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
         //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
         vertices[i] = Vertex(Vector3f(poses[i].x, poses[i].y, 0.0f) + offset,
                              texCoords[i],
-                             Vector4f(0.0f, 0.0f, poses[i].z, fr.GetZeroToOne()),
+                             Vector4f(0.0f, 0.0f, -1.0f + (2.0f * poses[i].z), 0.65f * fr.GetZeroToOne()),
                              Vector3f());
         poses[i].z = 0.0f;
     }

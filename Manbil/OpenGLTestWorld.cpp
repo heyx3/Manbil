@@ -42,7 +42,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(100, 100);
+Vector2i windowSize(200, 200);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
@@ -65,8 +65,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef RenderingChannels RC;
 
     TextureSampleNode * normalMap = new TextureSampleNode(DataLine(DataNodePtr(new UVNode()), 0),
-                                                          DataLine(VectorF(20.0f, 20.0f)),
-                                                          DataLine(VectorF(0.01f, 0.01f)));
+                                                          DataLine(VectorF(10.0f, 10.0f)),
+                                                          DataLine(VectorF(0.00f, 0.00f)),
+                                                          DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0));
     texSamplerName = normalMap->GetSamplerUniformName();
 
     channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.275f, 0.275f, 1.0f)));
@@ -97,16 +98,16 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
-    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
-    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
+    //water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
+    //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
+    //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0)
 {
-	dirLight.Direction = Vector3f(0.6f, 0.6f, -1.0f).Normalized();
+	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
 
 	dirLight.AmbientIntensity = 0.0f;

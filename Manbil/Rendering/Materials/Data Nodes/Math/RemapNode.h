@@ -36,7 +36,7 @@ protected:
                     dMi = GetDestMinInput().GetValue(),
                     dMa = GetDestMaxInput().GetValue();
         outOutputs += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = " +
-                        dMi + " + ((" + val + " - " + sMi + ") * (" + dMa + " - " + dMi + ") /\n\t\t(" + sMa + " - " + sMi + "));";
+                        dMi + " + ((" + val + " - " + sMi + ") * (" + dMa + " - " + dMi + ") /\n\t\t(" + sMa + " - " + sMi + "));\n";
     }
 
 

@@ -18,6 +18,7 @@
 #include "Math//RemapNode.h"
 
 #include "Miscellaneous/CombineVectorNode.h"
+#include "Miscellaneous/SwizzleNode.h"
 #include "Miscellaneous/SimpleFunctionNodes.h"
 #include "Miscellaneous/VectorComponentsNode.h"
 #include "Miscellaneous/WhiteNoiseNode.h"

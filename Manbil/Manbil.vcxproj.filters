@@ -629,6 +629,9 @@
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
     <ClInclude Include="OptionalValue.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
