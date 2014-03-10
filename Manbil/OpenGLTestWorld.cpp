@@ -79,8 +79,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     const unsigned int size = 300;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(0)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(1)),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(1)),
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
     if (water->HasError())
@@ -97,8 +97,9 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    //water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
-    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 2.0f, 10.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
+    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
+    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
 }
 
 
