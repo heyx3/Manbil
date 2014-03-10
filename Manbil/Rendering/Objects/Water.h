@@ -14,6 +14,7 @@
 
 
 //Represents a flowing body of water.
+//TODO: Try optionally using displacement mapping instead of actually moving the vertices, and see if there is a performance difference.
 class Water
 {
 public:
