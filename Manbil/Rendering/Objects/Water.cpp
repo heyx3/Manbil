@@ -109,11 +109,9 @@ protected:
          float timeSinceCreated = " + tsc + ";                                                      \n\
                                                                                                     \n\
          float dist = dot(flowDir, horizontalPos);                                                  \n\
-         float cutoff = period * length(flowDir) * timeSinceCreated;                                \n\
-         cutoff = max(0.0, (cutoff - dist) / cutoff);                                               \n\
                                                                                                     \n\
          float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
-         float waveScale = amplitude * cutoff;                                                      \n\
+         float waveScale = amplitude;                                                               \n\
                                                                                                     \n\
          float heightOffset = sin(innerVal);                                                        \n\
          heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
@@ -141,30 +139,26 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
                                                                                         \n\
     vec2 epsilon = vec2(0.1);                                                           \n\
                                                                                         \n\
-    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                        \n\
-    {                                                                                   \n\
-        //Get the height at nearby vertices and compute the normal via cross-product.   \n\
+    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
                                                                                         \n\
-        vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                          \n\
-             nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                        \n\
-             zero_one = horizontalPos + vec2(0.0f, epsilon.y),                          \n\
-             zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                        \n\
+    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
+         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
+         zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
+         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
                                                                                         \n\
-        vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));           \n\
-        vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                      \n\
-             p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                   \n\
-             p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                      \n\
-             p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                   \n\
+    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
+    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
+         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
+         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
+         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
                                                                                         \n\
-        vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                         \n\
-                           normalize(p_zero_one - p_zero_zero)),                        \n\
-             norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                        \n\
-                           normalize(p_zero_nOne - p_zero_zero)),                       \n\
-             normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));  \n\
+    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
+                       normalize(p_zero_one - p_zero_zero)),                            \n\
+         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
+                       normalize(p_zero_nOne - p_zero_zero)),                           \n\
+         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
                                                                                         \n\
-        dat.normal += normFinal;                                                        \n\
-    }                                                                                   \n\
-    dat.normal = normalize(dat.normal);                                                 \n\
+    dat.normal = normFinal;                                                             \n\
     return dat;                                                                         \n\
 }                                                                                       \n\
 ";
@@ -290,7 +284,9 @@ Water::Water(unsigned int size, Vector3f pos,
              RenderingModes mode, bool useLighting, LightSettings settings,
              RenderChannels & channels)
     : currentRippleIndex(0), totalRipples(0), nextRippleID(0),
+      currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
+      flowIDs(0), f_a_p(0), tsc(0),
       waterMat(0), waterMesh(PrimitiveTypes::Triangles)
 {
     //Create mesh.
@@ -380,7 +376,7 @@ Water::Water(unsigned int size, Vector3f pos,
     ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
     channels[RenderingChannels::RC_ObjectVertexOffset] =
         DataLine(DataNodePtr(new AddNode(channels[RenderingChannels::RC_ObjectVertexOffset], DataLine(waterNode, WaterNode::GetVertexOffsetOutputIndex()))), 0);
-    //TODO: Figure out how to combine previous normal channel value with water channel.
+    //TODO: Figure out how to correctly combine previous normal channel value with water channel.
     if (ShaderGenerator::IsChannelUsed(RenderingChannels::RC_Normal, mode, useLighting, settings))
         channels[RenderingChannels::RC_Normal] = DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new AddNode(DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()),
                                                                                                                          channels[RenderingChannels::RC_Normal])),

@@ -42,7 +42,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(700, 700);
+Vector2i windowSize(100, 100);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
@@ -77,12 +77,10 @@ void OpenGLTestWorld::InitializeMaterials(void)
 void OpenGLTestWorld::InitializeObjects(void)
 {
     const unsigned int size = 300;
-    float worldSize = 1.0f,
-          worldHeight = 15.0f;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(5)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(0)),
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(1)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
     if (water->HasError())
@@ -99,21 +97,19 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 300.0f, 2.5f, 5.0f, 3.0f));
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(-50.0f, -50.0f, 0.0f), 300.0f, 2.5f, 5.0f, 4.0f));
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(100.0f, -45.0f, 0.0f), 350.0f, 2.5f, 5.0f, 1.0f));
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(-150.0f, 0.0f, 0.0f), 350.0f, 2.5f, 5.0f, 2.0f));
+    //water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
+    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 2.0f, 10.0f));
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0)
 {
-	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
+	dirLight.Direction = Vector3f(0.6f, 0.6f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
 
-	dirLight.AmbientIntensity = 0.1f;
-	dirLight.DiffuseIntensity = 0.8f;
+	dirLight.AmbientIntensity = 0.0f;
+	dirLight.DiffuseIntensity = 1.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {

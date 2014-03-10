@@ -4,6 +4,7 @@
 
 
 //Rotates a vector around an axis.
+//TODO: If the rotation axis and angle is constant, precompute the quaternion when generating the GLSL code.
 class RotateAroundAxisNode : public DataNode
 {
 public:
