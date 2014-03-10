@@ -1,6 +1,5 @@
 #pragma once
 
-/*
 
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
@@ -13,9 +12,9 @@ public:
 
     //Takes in the size of the target.
     RenderTarget(unsigned int width, unsigned int height, bool useColor, bool useDepth);
-	RenderTarget(void); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
 	~RenderTarget(void);
 
+	RenderTarget(void); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
 	void operator=(const RenderTarget & other); //This function intentionally not implemented so as to give a compile-time error if somebody tries to use it.
 
 
@@ -53,5 +52,3 @@ private:
 
 	mutable std::string errorMsg;
 };
-
-*/

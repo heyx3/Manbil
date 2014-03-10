@@ -1,6 +1,42 @@
 #pragma once
 
 #include "../Rendering.hpp"
+#include "PostProcessData.h"
+#include "../Helper Classes/DrawingQuad.h"
+
+
+
+//Represents a special kind of material (actually an arbitrary number of materials)
+//   that applies a series of post-processing effects to the screen.
+class PostProcessEffect
+{
+public:
+
+    RenderTarget RenderingTarget;
+
+    //If 
+    PostProcessEffect(std::unordered_map<RenderingChannels, DataLine> channels);
+
+
+
+    const Material & GetMaterial(void) const { return mat; }
+    Material & GetMaterial(void) { return mat; }
+
+    const DrawingQuad & GetQuad(void) const { return quad; }
+    DrawingQuad & GetQuad(void) { return quad; }
+
+
+private:
+
+    Material mat;
+    DrawingQuad quad;
+};
+
+
+
+
+
+
 
 /*
 

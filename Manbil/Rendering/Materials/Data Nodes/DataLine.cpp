@@ -13,13 +13,19 @@ std::string DataLine::GetValue(void) const
 {
     if (isConstantValue)
     {
-        std::string ret = constantValue.GetGLSLType() + "(";
+        std::string ret = "";
+        if (constantValue.GetSize() > 1)
+            constantValue.GetGLSLType() + "(";
+
         for (int i = 0; i < constantValue.GetSize(); ++i)
         {
             if (i > 0) ret += ", ";
             ret += std::to_string(constantValue.GetValue()[i]);
         }
-        ret += ")";
+
+        if (constantValue.GetSize() > 1)
+            ret += ")";
+
         return ret;
     }
     else

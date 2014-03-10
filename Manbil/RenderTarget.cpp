@@ -1,7 +1,5 @@
 #include "RenderTarget.h"
 
-/*
-
 #include <assert.h>
 
 #include "Vertices.h"
@@ -199,5 +197,3 @@ void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, w, h);
 }
-
-*/

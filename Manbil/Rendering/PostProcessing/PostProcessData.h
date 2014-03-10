@@ -24,7 +24,12 @@ public:
     unsigned int CurrentPass;
 
     PostProcessEffect(DataLine colorDepthIn, std::vector<DataLine> otherInputs, unsigned int numbPasses = 1)
-        : DataNode(MakeVector(colorDepthIn, otherInputs), DataNode::MakeVector(4)), NumbPasses(numbPasses), CurrentPass(0) { }
+        : DataNode(MakeVector(colorDepthIn, otherInputs), DataNode::MakeVector(4)), NumbPasses(numbPasses), CurrentPass(0)
+    {
+        assert(colorDepthIn.GetDataLineSize() == 4 &&
+               GetColorInput().GetDataLineSize() == 3 &&
+               GetDepthInput().GetDataLineSize() == 1);
+    }
 
 
 protected:
@@ -101,7 +106,6 @@ public:
         : PostProcessEffect(colorDepthIn, std::vector<DataLine>()), Strength(strength), Iterations(iterations) { }
 
 
-
 protected:
 
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
@@ -115,6 +119,40 @@ class FogEffect : public PostProcessEffect
 {
 public:
     
-    float Dropoff, StartDistance;
+    virtual std::string GetName(void) const override { return "fogEffect"; }
+    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_foggy"; }
+
+
+    float Dropoff;
     Vector3f FogColor;
+
+    FogEffect(DataLine colorDepthIn = ColorDepthSamplerIn(), float dropoff = 1.0f, Vector3f fogColor = Vector3f(1.0f, 1.0f, 1.0f))
+        : PostProcessEffect(colorDepthIn, std::vector<DataLine>()),
+          Dropoff(dropoff), FogColor(fogColor)
+    {
+    }
+
+
+protected:
+
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
+    {
+        outDecls.insert(outDecls.end(),
+"vec3 blendWithFog" + std::to_string(GetUniqueID()) + "(vec3 colorIn, float depthIn)\n\
+{                                                          \n\
+    float fogLerp = pow(depthIn, " + DataLine(VectorF(Dropoff)).GetValue() + ");                 \n\
+    return mix(colorIn, " +
+               DataLine(VectorF(FogColor)).GetValue() + ", " +
+               "depthIn);                                  \n\
+                                                           \n\
+}                                                          \n\
+");
+    }
+
+    virtual void WriteMyOutputs(std::string & strOut) const override
+    {
+        strOut += "\tvec4 " + GetOutputName(0) + " = vec4(blendWithFog(" + GetColorInput().GetValue() + ", " +
+                                                                            GetDepthInput().GetValue() + "), " +
+                                                          GetDepthInput().GetValue() + ");\n";
+    }
 };
