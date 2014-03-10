@@ -95,7 +95,30 @@ protected:
         }
         if (maxFlows > 0)
         {
-
+            std::string fap = "flows_amplitudes_periods[i]",
+                        tsc = "timesSinceCreated[i]";
+            func +=
+"    //Directional flows.                                                                           \n\
+     for (int i = 0; i < " + std::to_string(maxFlows) + "; ++i)                                     \n\
+     {                                                                                              \n\
+         vec2 flowDir = " + fap + ".xy;                                                             \n\
+         float speed = length(flowDir);                                                             \n\
+         flowDir /= speed;                                                                          \n\
+         float amplitude = " + fap + ".z;                                                           \n\
+         float period = " + fap + ".w;                                                              \n\
+         float timeSinceCreated = " + tsc + ";                                                      \n\
+                                                                                                    \n\
+         float dist = dot(flowDir, horizontalPos);                                                  \n\
+         float cutoff = period * length(flowDir) * timeSinceCreated;                                \n\
+         cutoff = max(0.0, (cutoff - dist) / cutoff);                                               \n\
+                                                                                                    \n\
+         float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
+         float waveScale = amplitude * cutoff;                                                      \n\
+                                                                                                    \n\
+         float heightOffset = sin(innerVal);                                                        \n\
+         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
+         offset += waveScale * heightOffset;                                                        \n\
+     }\n";
         }
         func +=
 "    return offset;                                                                                 \n\
@@ -313,7 +336,7 @@ Water::Water(unsigned int size, Vector3f pos,
             tsc[i] = 0.0f;
         }
         waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
-        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(&tsc[0][0], maxFlows, 1, "timesSinceCreated");
+        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
     }
     else
     {

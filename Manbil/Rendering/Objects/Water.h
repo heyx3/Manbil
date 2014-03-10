@@ -120,7 +120,7 @@ public:
     //Changes the heightmap used to seed this water.
     void SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
 
-    //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
+    //TODO: Allow ripples and flows to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
     void SetLighting(const DirectionalLight & light);
 
@@ -131,7 +131,7 @@ public:
 
 private:
 
-    //WaterTypes waterType;
+
     std::string errorMsg;
 
     //Ripple stuff.
