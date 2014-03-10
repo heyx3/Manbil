@@ -110,11 +110,11 @@ public:
     UniformLocation Location;
     UniformValueI(int value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(1) { Value[0] = value; }
-    UniformValueI(Vector2f value, std::string name, UniformLocation loc = -1)
+    UniformValueI(Vector2i value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
-    UniformValueI(Vector3f value, std::string name, UniformLocation loc = -1)
+    UniformValueI(Vector3i value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    UniformValueI(Vector4f value, std::string name, UniformLocation loc = -1)
+    UniformValueI(Vector4i value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
     UniformValueI(const int * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
@@ -192,14 +192,19 @@ public:
 };
 
 //Represents a 2D texture sampler uniform.
+//The sampler can either be an SFML texture or an OpenGL texture object.
 struct UniformSamplerValue
 {
 public:
-    sf::Texture * Texture;
+    sf::Texture * SFMLTexture;
+    RenderObjHandle GLTexture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(sf::Texture * texture = 0, std::string name = "", UniformLocation loc = -1)
-        : Name(name), Location(loc), Texture(texture) { }
+    UniformSamplerValue(sf::Texture * sfmlTexture, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), SFMLTexture(sfmlTexture), GLTexture(0) { }
+    UniformSamplerValue(RenderObjHandle glTexture, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), SFMLTexture(0), GLTexture(glTexture) { }
+    UniformSamplerValue(void) : Name(""), Location(-1), SFMLTexture(0), GLTexture(0) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
@@ -210,7 +215,7 @@ public:
 struct UniformList
 {
 public:
-    struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc) : Name(name), Loc(loc) { } };
+    struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
                          MatrixUniforms, TextureUniforms,
                          IntUniforms, IntArrayUniforms;

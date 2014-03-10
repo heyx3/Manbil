@@ -13,10 +13,11 @@ class TextureSampleNode : public DataNode
 public:
 
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
-    std::string GetSamplerUniformName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_" + "sampler"; }
+    std::string GetSamplerUniformName(void) const { return samplerName; }
 
 
-    TextureSampleNode(DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
+    TextureSampleNode(std::string _samplerName = "",
+                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
                       DataLine uvScale = DataLine(VectorF(1.0f)),
                       DataLine uvPan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
                       DataLine uvOffset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
@@ -26,6 +27,10 @@ public:
         assert(UVs.GetDataLineSize() == 2 && uvScale.GetDataLineSize() <= 2 &&
                uvPan.GetDataLineSize() == 2 && uvOffset.GetDataLineSize() == 2 &&
                timeInput.GetDataLineSize() == 1);
+
+        samplerName = _samplerName;
+        if (samplerName.empty())
+            samplerName = GetName() + std::to_string(GetUniqueID()) + "_" + "sample";
     }
 
     virtual std::string GetOutputName(unsigned int index) const override
@@ -116,4 +121,7 @@ private:
             default: assert(false);
         }
     }
+
+
+    std::string samplerName;
 };

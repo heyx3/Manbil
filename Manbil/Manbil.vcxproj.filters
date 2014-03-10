@@ -257,6 +257,9 @@
     <ClCompile Include="Rendering\Materials\UniformCollections.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

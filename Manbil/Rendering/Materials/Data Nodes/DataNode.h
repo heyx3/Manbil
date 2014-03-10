@@ -11,7 +11,7 @@
 
 
 //Represents a basic, atomic operation in a shader.
-//TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
+//TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable. Do this by changing the "WriteMyOutputs" function to add entries to a data structure instead of blindly appending GLSL code to a string.
 //TODO: Error message system instead of asserts.
 class DataNode
 {
