@@ -126,7 +126,7 @@ public:
     //Changes the heightmap used to seed this water.
     void SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
 
-    //TODO: Allow ripples and flows to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
+    //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
     void SetLighting(const DirectionalLight & light);
 
@@ -166,6 +166,10 @@ private:
 };
 
 
+
+
+
+
 //A DataNode that outputs an offset for UV coordinates that creates an interesting water surface distortion effect.
 class WaterSurfaceDistortNode : public DataNode
 {
@@ -189,7 +193,7 @@ public:
     //Takes in a seed value. By default, uses an input that will work well for a Water object.
     //Also takes in the amplitude and period of the random shifting around of the surface.
     WaterSurfaceDistortNode(DataLine shiftAmplitude = DataLine(VectorF(0.01f)),
-                            DataLine shiftPeriod = DataLine(VectorF(1.0f)),
+                            DataLine shiftPeriod = DataLine(VectorF(0.5f)),
                             DataLine seedIn = GetWaterSeedIn(),
                             DataLine timeValue = DataLine(DataNodePtr(new AddNode(DataLine(DataNodePtr(new TimeNode()), 0),
                                                                                   DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new ObjectColorNode()), 0))), 3))), 0))

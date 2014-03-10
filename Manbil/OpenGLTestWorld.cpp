@@ -66,7 +66,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     TextureSampleNode * normalMap = new TextureSampleNode(DataLine(DataNodePtr(new UVNode()), 0),
                                                           DataLine(VectorF(10.0f, 10.0f)),
-                                                          DataLine(VectorF(0.00f, 0.00f)),
+                                                          DataLine(VectorF(0.0025f, 0.0025f)),
                                                           DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0));
     texSamplerName = normalMap->GetSamplerUniformName();
 
