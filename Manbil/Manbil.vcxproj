@@ -153,7 +153,8 @@
     <ClCompile Include="Rendering\Materials\UniformCollections.cpp" />
     <ClCompile Include="Rendering\Objects\Water.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp" />
-    <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp" />
+    <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp" />
+    <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScreenClearer.cpp" />
@@ -277,8 +278,9 @@
     <ClInclude Include="Rendering\Materials\UniformCollections.h" />
     <ClInclude Include="Rendering\Objects\Water.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessData.h" />
-    <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h" />
+    <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
+    <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
     <ClInclude Include="Rendering\Texture Management\TextureManager.h" />

@@ -2,34 +2,51 @@
 
 #include "../Rendering.hpp"
 #include "PostProcessData.h"
+#include "../Texture Management/RenderTargetManager.h"
 #include "../Helper Classes/DrawingQuad.h"
 
 
 
 //Represents a special kind of material (actually an arbitrary number of materials)
 //   that applies a series of post-processing effects to the screen.
-class PostProcessEffect
+class PostProcessChain
 {
 public:
 
-    RenderTarget RenderingTarget;
-
-    //If 
-    PostProcessEffect(std::unordered_map<RenderingChannels, DataLine> channels);
-
+    PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
+                     unsigned int screenWidth, unsigned int screenHeight,
+                     RenderTargetManager & manager);
 
 
-    const Material & GetMaterial(void) const { return mat; }
-    Material & GetMaterial(void) { return mat; }
+    bool HasError(void) const { return !errorMsg.empty(); }
+    std::string GetError(void) const { return errorMsg; }
+
+    //Gets the render target that will hold the final screen after this chain is done rendering.
+    RenderTarget * GetFinalRender(void) const { return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2]; }
+
+    const std::vector<std::shared_ptr<Material>> & GetMaterials(void) const { return materials; }
+    std::vector<std::shared_ptr<Material>> & GetMaterials(void) { return materials; }
 
     const DrawingQuad & GetQuad(void) const { return quad; }
     DrawingQuad & GetQuad(void) { return quad; }
 
 
+    //Takes in a texture whose rgb values are the screen color,
+    //    and whose alpha value is the screen depth.
+    //Returns whether or not the render was successful.
+    bool RenderChain(const RenderTarget * inColorDepth);
+
+
 private:
 
-    Material mat;
+    std::string errorMsg;
+
+    std::vector<std::shared_ptr<Material>> materials;
     DrawingQuad quad;
+
+    RenderTargetManager & rtManager;
+    unsigned int rt1, rt2;
+    unsigned int totalPasses;
 };
 
 

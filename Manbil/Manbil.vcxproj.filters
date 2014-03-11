@@ -167,9 +167,6 @@
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp">
       <Filter>Math\Shapes</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\PostProcessing\PostProcessEffect.cpp">
-      <Filter>Rendering\Post-Processing</Filter>
-    </ClCompile>
     <ClCompile Include="Foliage.cpp">
       <Filter>Rendering\Objects</Filter>
     </ClCompile>
@@ -259,6 +256,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp">
       <Filter>Rendering\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -481,9 +484,6 @@
     <ClInclude Include="Math\NoiseGeneration.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\PostProcessing\PostProcessEffect.h">
-      <Filter>Rendering\Post-Processing</Filter>
-    </ClInclude>
     <ClInclude Include="Foliage.h">
       <Filter>Rendering\Objects</Filter>
     </ClInclude>
@@ -637,6 +637,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\PostProcessing\PostProcessData.h">
       <Filter>Rendering\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h">
+      <Filter>Rendering\Post-Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

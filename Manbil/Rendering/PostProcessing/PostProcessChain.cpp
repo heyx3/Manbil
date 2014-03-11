@@ -1,4 +1,48 @@
-#include "PostProcessEffect.h"
+#include "PostProcessChain.h"
+
+#include "../Materials/Data Nodes/ShaderGenerator.h"
+
+
+PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
+: rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
+{
+    //TODO: Write this algorithm.
+
+    Material * tempMat = 0;
+
+    std::unordered_map<RenderingChannels, DataLine> channels;
+
+
+    totalPasses = 0;
+    for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
+    {
+        if (tempMat == 0)
+        {
+            channels[RenderingChannels::RC_Diffuse] = 
+        }
+
+        //If the effect is just a single pass, don't create a whole new material for it.
+
+        //Otherwise, create new materials for each pass after the first one.
+        for (unsigned int pass = 0; pass < effectChain[effect]->NumbPasses; ++pass)
+        {
+            totalPasses += 1;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 PostProcessEffect::PostProcessEffect(unsigned int w, unsigned int h, std::vector<RenderingPass> passes)
