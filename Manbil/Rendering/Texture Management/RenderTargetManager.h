@@ -27,8 +27,8 @@ public:
     bool DeleteRenderTarget(unsigned int id);
 
     //Gets the render target with the given ID.
-    //   Returns 0 and sets the error message if there was an error finding it.
-    RenderTarget * operator[](unsigned int index);
+    //   Returns 0 if there was an error finding it.
+    RenderTarget * operator[](unsigned int id) const;
 
 
 private:

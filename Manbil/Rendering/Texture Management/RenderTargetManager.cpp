@@ -31,11 +31,10 @@ bool RenderTargetManager::DeleteRenderTarget(unsigned int id)
     return true;
 }
 
-RenderTarget * RenderTargetManager::operator[](unsigned int index)
+RenderTarget * RenderTargetManager::operator[](unsigned int index) const
 {
     if (targets.find(index) == targets.end())
     {
-        errorMsg = "Error accessing render target with ID " + std::to_string(index) + ": ID wasn't found";
         return 0;
     }
 
