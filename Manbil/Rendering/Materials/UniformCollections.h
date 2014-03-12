@@ -205,6 +205,8 @@ public:
     UniformSamplerValue(RenderObjHandle glTexture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), SFMLTexture(0), GLTexture(glTexture) { }
     UniformSamplerValue(void) : Name(""), Location(-1), SFMLTexture(0), GLTexture(0) { }
+    void SetData(sf::Texture * sfmlTexture) { GLTexture = 0; SFMLTexture = sfmlTexture; }
+    void SetData(RenderObjHandle glTexture) { GLTexture = glTexture; SFMLTexture = 0; }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
@@ -241,4 +243,5 @@ public:
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSamplerValue) TextureUniforms;
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);
+    void ClearUniforms(void);
 };

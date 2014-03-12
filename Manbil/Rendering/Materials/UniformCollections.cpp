@@ -16,3 +16,12 @@ void UniformDictionary::AddUniforms(const UniformDictionary & other, bool overwr
     UD_RUN_ITERATE(other.MatrixUniforms, MatrixUniforms, overwrite);
     UD_RUN_ITERATE(other.TextureUniforms, TextureUniforms, overwrite);
 }
+void UniformDictionary::ClearUniforms(void)
+{
+    FloatUniforms.clear();
+    FloatArrayUniforms.clear();
+    IntUniforms.clear();
+    IntArrayUniforms.clear();
+    MatrixUniforms.clear();
+    TextureUniforms.clear();
+}
