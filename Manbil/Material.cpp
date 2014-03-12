@@ -96,6 +96,11 @@ Material::Material(std::string & vs, std::string & fs, UniformDictionary & dict,
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraForwardName.c_str(), camForwardL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraUpName.c_str(), camUpL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraSideName.c_str(), camSideL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraWidthName.c_str(), camWidthL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraHeightName.c_str(), camHeightL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraZNearName.c_str(), camZNearL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraZFarName.c_str(), camZFarL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraFovName.c_str(), camFovL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::WorldMatName.c_str(), worldMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ViewMatName.c_str(), viewMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ProjMatName.c_str(), projMatL);
@@ -109,6 +114,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
     ShaderHandler::UseShader(shaderProg);
 
     //Set basic uniforms.
+    //TODO: Remove all these conditionals for simple uniforms (i.e. not the world/wvp transformation matrix) by creating an std::vector in the constructor that holds all the valid locations for built-in uniforms and how to compute them.
     float time = info.World->GetTotalElapsedSeconds();
     if (RenderDataHandler::UniformLocIsValid(timeL))
         RenderDataHandler::SetUniformValue(timeL, 1, &time);
@@ -124,6 +130,16 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
     Vector3f camS = info.Cam->GetSideways();
     if (RenderDataHandler::UniformLocIsValid(camSideL))
         RenderDataHandler::SetUniformValue(camSideL, 3, &camS[0]);
+    if (RenderDataHandler::UniformLocIsValid(camWidthL))
+        RenderDataHandler::SetUniformValue(camWidthL, 1, &info.Cam->Info.Width);
+    if (RenderDataHandler::UniformLocIsValid(camHeightL))
+        RenderDataHandler::SetUniformValue(camHeightL, 1, &info.Cam->Info.Height);
+    if (RenderDataHandler::UniformLocIsValid(camZNearL))
+        RenderDataHandler::SetUniformValue(camZNearL, 1, &info.Cam->Info.zNear);
+    if (RenderDataHandler::UniformLocIsValid(camZFarL))
+        RenderDataHandler::SetUniformValue(camZFarL, 1, &info.Cam->Info.zFar);
+    if (RenderDataHandler::UniformLocIsValid(camFovL))
+        RenderDataHandler::SetUniformValue(camFovL, 1, &info.Cam->Info.FOV);
     if (RenderDataHandler::UniformLocIsValid(viewMatL))
         RenderDataHandler::SetMatrixValue(viewMatL, *(info.mView));
     if (RenderDataHandler::UniformLocIsValid(projMatL))
@@ -176,11 +192,12 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
         }
 
         //Setting mesh texture sampler uniforms is a little more involved.
-        unsigned int texUnit = 0;
+        int texUnit = 0;
         for (auto iterator = mesh.Uniforms.TextureUniforms.begin(); iterator != mesh.Uniforms.TextureUniforms.end(); ++iterator)
         {
             if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
             {
+                RenderDataHandler::SetUniformValue(iterator->second.Location, 1, &texUnit);
                 RenderDataHandler::ActivateTextureUnit(texUnit);
                 texUnit += 1;
 

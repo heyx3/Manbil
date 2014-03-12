@@ -42,7 +42,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(700, 700);
+Vector2i windowSize(200, 200);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
@@ -89,7 +89,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     //ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 0.25f)))));
     //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 1)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect()));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(5.0f, Vector3f(0.0f, 0.0f, 0.1f))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -178,7 +178,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 5000.0f;
+    cam.Info.zFar = 500.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
@@ -248,7 +248,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, manager[worldRenderID]))
+    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();

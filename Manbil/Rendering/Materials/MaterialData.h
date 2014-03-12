@@ -17,6 +17,7 @@ public:
     static const std::string ElapsedTimeName,
                              WorldMatName, ViewMatName, ProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
+                             CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName,
                              InObjPos, InWorldPos, InUV, InObjNormal, InWorldNormal, InColor,
                              OutObjPos, OutWorldPos, OutUV, OutObjNormal, OutWorldNormal, OutColor,
                              FinalOutColor;
@@ -36,13 +37,6 @@ public:
             default: assert(false); return "";
         }
     }
-};
-
-//Required data declarations at the top of all shaders.
-struct ShaderHeaders
-{
-public:
-
 };
 
 

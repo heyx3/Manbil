@@ -221,13 +221,13 @@ public:
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
                          MatrixUniforms, TextureUniforms,
                          IntUniforms, IntArrayUniforms;
-    //Returns "Uniform("", 0)" if the given name isn't found.
+    //Returns "Uniform("", -1)" if the given name isn't found.
     static Uniform FindUniform(std::string name, const std::vector<Uniform> & toSearch)
     {
         for (int i = 0; i < toSearch.size(); ++i)
             if (toSearch[i].Name == name)
                 return toSearch[i];
-        return Uniform("", 0);
+        return Uniform("");
     }
 };
 

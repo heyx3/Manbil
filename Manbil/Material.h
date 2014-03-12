@@ -73,6 +73,7 @@ private:
     RenderObjHandle shaderProg;
 
     UniformLocation camPosL, camForwardL, camUpL, camSideL,
+                    camZNearL, camZFarL, camWidthL, camHeightL, camFovL,
                     wvpMatL, worldMatL, viewMatL, projMatL,
                     timeL;
 };

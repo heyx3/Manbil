@@ -5,8 +5,33 @@
 
 
 
+//Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
+//      and linearizes it based on the camera's zFar and zNear.
+class LinearDepthSampleNode : public DataNode
+{
+public:
+
+    virtual std::string GetName(void) const override { return "linearDepthSampleNode"; }
+    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_linearized"; }
+
+    LinearDepthSampleNode(const DataLine & depthSampleInput) : DataNode(MakeVector(depthSampleInput), MakeVector(1)) { }
+
+
+protected:
+
+    virtual void WriteMyOutputs(std::string & outStr) const override
+    {
+        std::string zn = MaterialConstants::CameraZNearName,
+                    zf = MaterialConstants::CameraZFarName;
+        outStr += "\tfloat " + GetOutputName(0) + " = (2.0 * " + zn + ") / (" + zf + " + " + zn + " - (" +
+                                                                      GetInputs()[0].GetValue() + " * (" + zf + " - " + zn + ")));\n";
+    }
+};
+
+
+
 //Abstract class representing a post-process effect as a DataNode.
-//Outputs 0: the color output as a vec3, 1: the depth output as a float from 0 to 1.
+//Outputs 0: the color output as a vec3, 1: the linear depth output as a float from 0 to 1.
 class PostProcessEffect : public DataNode
 {
 public:
@@ -52,8 +77,10 @@ public:
     static DataLine DepthSamplerIn(void)
     {
         //TODO: Make DataNodes that get the max/min z distance from the camera (using built-in uniforms in Material). Remap depth from 0 to 1 using the equation from http://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
-        return DataLine(DataNodePtr(new TextureSampleNode(DepthSampler)),
-                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+        DataLine depthTex(DataNodePtr(new TextureSampleNode(DepthSampler)),
+                          TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+        DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
+        return linearDepth;
     }
 
 protected:
@@ -182,6 +209,7 @@ public:
 
     float Dropoff;
     Vector3f FogColor;
+    //TODO: More parameters (max fog thickness, start distance, etc), and optimize so that parameters that are set to default values aren't actually used in computation.
 
     FogEffect(float dropoff = 1.0f, Vector3f fogColor = Vector3f(1.0f, 1.0f, 1.0f),
               DataLine colorIn = ColorSamplerIn(),

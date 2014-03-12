@@ -64,10 +64,9 @@ void FogEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) c
     outDecls.insert(outDecls.end(),
 "vec3 blendWithFog" + std::to_string(GetUniqueID()) + "(vec3 colorIn, float depthIn)\n\
 {                                                          \n\
-    float fogLerp = pow(depthIn, " + DataLine(VectorF(Dropoff)).GetValue() + ");                 \n\
-    return mix(colorIn, " +
-               DataLine(VectorF(FogColor)).GetValue() + ", " +
-               "depthIn);                                  \n\
+    float fogLerp = pow(1.0 - depthIn, " + DataLine(VectorF(Dropoff)).GetValue() + ");                 \n\
+    return mix(" + DataLine(VectorF(FogColor)).GetValue() + ", " +
+               "colorIn, fogLerp);                         \n\
                                                            \n\
 }                                                          \n\
 ");
@@ -78,4 +77,5 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
     strOut += "\tvec3 " + GetOutputName(0) + " = blendWithFog" + std::to_string(GetUniqueID()) + "(" + GetColorInput().GetValue() + ", " +
                                                                                                        GetDepthInput().GetValue() + ");\n";
     strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
+    //strOut += "\t " + GetOutputName(0) + " = vec3(pow(" + GetDepthInput().GetValue() + ", 1.0));\n";
 }

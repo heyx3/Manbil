@@ -12,7 +12,7 @@
 
 //Represents a basic, atomic operation in a shader.
 //TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable. Do this by changing the "WriteMyOutputs" function to add entries to a data structure instead of blindly appending GLSL code to a string.
-//TODO: Error message system instead of asserts.
+//TODO: Error message system instead of asserts. Instead of returning bools or whatever, throw an exception -- we're not concerned here about speed, and this removes the need to recursively check for child nodes returning false -- just put a try/catch block around the outside.
 class DataNode
 {
 public:

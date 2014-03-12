@@ -8,10 +8,10 @@ class CameraDataNode : public DataNode
 {
 public:
 
-    static unsigned int GetCamPosOutput(void) { return 0; }
-    static unsigned int GetCamForwardOutput(void) { return 1; }
-    static unsigned int GetCamUpwardOutput(void) { return 2; }
-    static unsigned int GetCamSidewaysOutput(void) { return 3; }
+    static unsigned int GetCamPosOutputIndex(void) { return 0; }
+    static unsigned int GetCamForwardOutputIndex(void) { return 1; }
+    static unsigned int GetCamUpwardOutputIndex(void) { return 2; }
+    static unsigned int GetCamSidewaysOutputIndex(void) { return 3; }
 
     virtual std::string GetName(void) const override { return "cameraDataNode"; }
 

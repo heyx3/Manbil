@@ -263,6 +263,9 @@
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -643,6 +646,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

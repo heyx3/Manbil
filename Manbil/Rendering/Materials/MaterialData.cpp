@@ -10,6 +10,11 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraForwardName = "u_cam_forward",
                   MaterialConstants::CameraUpName = "u_cam_upward",
                   MaterialConstants::CameraSideName = "u_cam_sideways",
+                  MaterialConstants::CameraWidthName = "u_cam_width",
+                  MaterialConstants::CameraHeightName = "u_cam_height",
+                  MaterialConstants::CameraZNearName = "u_cam_zNear",
+                  MaterialConstants::CameraZFarName = "u_cam_zFar",
+                  MaterialConstants::CameraFovName = "u_cam_fov",
 
                   MaterialConstants::DirectionalLightName = "u_dir_light",
                   MaterialConstants::DirectionalLight_ColorName = "u_dir_light.Col",
@@ -71,6 +76,11 @@ uniform vec3 " + CameraPosName + ", " +
                  CameraForwardName + ", " +
                  CameraUpName + ", " +
                  CameraSideName + ";                             \n\
+uniform float " + CameraWidthName + ", " +
+                  CameraHeightName + ", " +
+                  CameraZNearName + ", " +
+                  CameraZFarName + ", " + 
+                  CameraFovName + ";                             \n\
 uniform mat4 " + WorldMatName + ", " +
                  ViewMatName + ", " +
                  ProjMatName + ", " +
@@ -97,6 +107,11 @@ uniform vec3 " + CameraPosName + ", " +
                  CameraForwardName + ", " +
                  CameraUpName + ", " +
                  CameraSideName + ";                             \n\
+uniform float " + CameraWidthName + ", " +
+                  CameraHeightName + ", " +
+                  CameraZNearName + ", " +
+                  CameraZFarName + ", " + 
+                  CameraFovName + ";                             \n\
 uniform mat4 " + WorldMatName + ", " +
                  ViewMatName + ", " +
                  ProjMatName + ", " +
