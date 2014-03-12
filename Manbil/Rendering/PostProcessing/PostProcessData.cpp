@@ -1,20 +1,7 @@
 #include "PostProcessData.h"
 
-const std::string PostProcessEffect::ColorAndDepthSampler = "u_colorDepthTex";
-
-
-std::vector<DataLine> PostProcessEffect::MakeVector(DataLine colDepthIn, const std::vector<DataLine> & otherInputs)
-{
-    std::vector<DataLine> ret = otherInputs;
-
-    ret.insert(ret.end(), DataLine(DataNodePtr(new SwizzleNode(colDepthIn,
-        SwizzleNode::Components::C_X,
-        SwizzleNode::Components::C_Y,
-        SwizzleNode::Components::C_Z)), 0));
-    ret.insert(ret.end(), DataLine(DataNodePtr(new SwizzleNode(colDepthIn, SwizzleNode::Components::C_W)), 0));
-
-    return ret;
-}
+const std::string PostProcessEffect::ColorSampler = "u_colorTex",
+                  PostProcessEffect::DepthSampler = "u_depthTex";
 
 
 void ContrastEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
@@ -68,4 +55,26 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 
 
     strOut += "\tvec4 " + GetOutputName(0) + " = vec4(" + func + "(" + GetColorInput().GetValue() + "), " + GetDepthInput().GetValue() + ");";
+}
+
+
+void FogEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
+{
+    outDecls.insert(outDecls.end(),
+"vec3 blendWithFog" + std::to_string(GetUniqueID()) + "(vec3 colorIn, float depthIn)\n\
+{                                                          \n\
+    float fogLerp = pow(depthIn, " + DataLine(VectorF(Dropoff)).GetValue() + ");                 \n\
+    return mix(colorIn, " +
+               DataLine(VectorF(FogColor)).GetValue() + ", " +
+               "depthIn);                                  \n\
+                                                           \n\
+}                                                          \n\
+");
+}
+
+void FogEffect::WriteMyOutputs(std::string & strOut) const
+{
+    strOut += "\tvec4 " + GetOutputName(0) + " = vec4(blendWithFog(" + GetColorInput().GetValue() + ", " +
+                                                                        GetDepthInput().GetValue() + "), " +
+                                                      GetDepthInput().GetValue() + ");\n";
 }

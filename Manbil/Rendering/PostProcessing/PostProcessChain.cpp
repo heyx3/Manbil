@@ -6,32 +6,160 @@
 PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
 : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
 {
-    //TODO: Write this algorithm.
-
-    Material * tempMat = 0;
-
     std::unordered_map<RenderingChannels, DataLine> channels;
-
 
     totalPasses = 0;
     for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
     {
-        if (tempMat == 0)
+        totalPasses += effectChain[effect]->NumbPasses;
+
+        //If there's more than one pass, we have to create a new material for each pass.
+        if (effectChain[effect]->NumbPasses > 1)
         {
-            channels[RenderingChannels::RC_Diffuse] = 
+            for (unsigned int pass = 0; pass < effectChain[effect]->NumbPasses; ++pass)
+            {
+                //If this is the first pass, just build on top of the previous effect as usual.
+                if (pass == 0)
+                {
+                    //If this is the first effect in a new material, use the default input.
+                    if (channels.find(RenderingChannels::RC_Diffuse) == channels.end())
+                        channels[RenderingChannels::RC_Diffuse] = DataLine(effectChain[effect]->ReplaceWithDefaultInput(), 0);
+                    //Otherwise, use the previous effect's output as the input into this effect.
+                    else channels[RenderingChannels::RC_Diffuse] = DataLine(effectChain[effect], 0);
+                }
+                //Otherwise, create a new material and then reset the diffuse channel.
+                else
+                {
+                    std::string vs, fs;
+                    UniformDictionary uns;
+                    ShaderGenerator::GenerateShaders(vs, fs, uns, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
+                    materials.insert(materials.end(),
+                                     std::shared_ptr<Material>(new Material(vs, fs, uns,
+                                                                            RenderingModes::RM_Opaque, false, LightSettings(false))));
+                    uniforms.insert(uniforms.end(), uns);
+
+                    //Check for shader errors.
+                    if (materials[materials.size() - 1]->HasError())
+                    {
+                        errorMsg = std::string() + "Error creating material #" + std::to_string(materials.size()) +
+                                   ", pass " + std::to_string(pass) + " for node " + effectChain[effect]->GetName() +
+                                   ": " + materials[materials.size() - 1]->GetErrorMsg();
+                        return;
+                    }
+
+                    channels[RenderingChannels::RC_Diffuse] = DataLine(effectChain[effect]->ReplaceWithDefaultInput(), 0);
+                }
+            }
         }
-
-        //If the effect is just a single pass, don't create a whole new material for it.
-
-        //Otherwise, create new materials for each pass after the first one.
-        for (unsigned int pass = 0; pass < effectChain[effect]->NumbPasses; ++pass)
+        //Otherwise, just add this effect on top of the previous effect.
+        else
         {
-            totalPasses += 1;
+            //If this is the first effect in a new material, use the default input.
+            if (channels.find(RenderingChannels::RC_Diffuse) == channels.end())
+                channels[RenderingChannels::RC_Diffuse] = DataLine(effectChain[effect]->ReplaceWithDefaultInput(), 0);
+            //Otherwise, use the previous effect's output as the input into this effect.
+            else channels[RenderingChannels::RC_Diffuse] = DataLine(effectChain[effect], 0);
+        }
+    }
+
+    //Create a material from the last pass.
+    if (channels.find(RenderingChannels::RC_Diffuse) != channels.end())
+    {
+        std::string vs, fs;
+        UniformDictionary uns;
+        ShaderGenerator::GenerateShaders(vs, fs, uns, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
+        materials.insert(materials.end(),
+                         std::shared_ptr<Material>(new Material(vs, fs, uns,
+                                                   RenderingModes::RM_Opaque, false, LightSettings(false))));
+        uniforms.insert(uniforms.end(), uns);
+
+        //Check for shader errors.
+        if (materials[materials.size() - 1]->HasError())
+        {
+            errorMsg = std::string() + "Error creating final material for node " + effectChain[effectChain.size() - 1]->GetName() +
+                ": " + materials[materials.size() - 1]->GetErrorMsg();
+            return;
+        }
+    }
+
+    //Create needed render targets for rendering the post-process effect.
+    if (materials.size() > 0)
+    {
+        rt1 = rtManager.CreateRenderTarget(width, height, true, true);
+        if (rt1 == RenderTargetManager::ERROR_ID)
+        {
+            errorMsg = "Error creating first render target (" + std::to_string(width) + "x" +
+                        std::to_string(height) + "): " + rtManager.GetError();
+            return;
+        }
+    }
+    if (materials.size() > 1)
+    {
+        rt2 = rtManager.CreateRenderTarget(width, height, true, true);
+        if (rt1 == RenderTargetManager::ERROR_ID)
+        {
+            errorMsg = "Error creating second render target (" + std::to_string(width) + "x" +
+                        std::to_string(height) + "): " + rtManager.GetError();
+            return;
         }
     }
 }
 
 
+bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const RenderTarget * inWorld)
+{
+    //Set up the RenderInfo struct.
+    Camera cam;
+    TransformObject trans;
+    Matrix4f identity;
+    identity.SetAsIdentity();
+    RenderInfo info(world, &cam, &trans, &identity, &identity, &identity);
+
+    const RenderTarget * first = rtManager[rt1],
+                       * second = rtManager[rt2];
+
+    //The input and output render targets for a single material render.
+    const RenderTarget * source = inWorld,
+                       * dest = first;
+
+    UniformDictionary oldUniforms = quad.GetMesh().Uniforms;
+
+    //Render each material in turn.
+    for (unsigned int i = 0; i < materials.size(); ++i)
+    {
+        if (source == inWorld || source == second)
+            dest = first;
+        else dest = second;
+
+        //Set up the uniforms for this pass.
+        quad.GetMesh().Uniforms.ClearUniforms();
+        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::ColorSampler].SetData(source->GetColorTexture());
+        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler].SetData(source->GetDepthTexture());
+        quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
+        quad.GetMesh().Uniforms.AddUniforms(uniforms[i], true);
+
+        //Set up the render target.
+        dest->EnableDrawingInto();
+
+        //Render.
+        if (!quad.Render(RenderPasses::BaseComponents, info, *materials[i]))
+        {
+            errorMsg = "Error rendering material " + std::to_string(i) + ": " + materials[i]->GetErrorMsg();
+            return false;
+        }
+
+        //Disable the render target.
+        dest->DisableDrawingInto(world->GetWindow()->getSize().x, world->GetWindow()->getSize().y);
+
+        //Prepare for the next iteration.
+        if (dest == first) source = first;
+        else source = second;
+    }
+
+    quad.GetMesh().Uniforms = oldUniforms;
+
+    return true;
+}
 
 
 

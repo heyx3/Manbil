@@ -9,6 +9,10 @@
 
 //Represents a special kind of material (actually an arbitrary number of materials)
 //   that applies a series of post-processing effects to the screen.
+//This class holds a DrawingQuad instance used for rendering the effects.
+//The quad viewport is in the range {-1, -1} to {1, 1}.
+//Note that the uniforms this chain stores for each material will overwrite
+//    any duplicate uniforms set in the drawing quad.
 class PostProcessChain
 {
 public:
@@ -16,25 +20,38 @@ public:
     PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
                      unsigned int screenWidth, unsigned int screenHeight,
                      RenderTargetManager & manager);
+    ~PostProcessChain(void)
+    {
+        if (rt1 != RenderTargetManager::ERROR_ID)
+            rtManager.DeleteRenderTarget(rt1);
+        if (rt2 != RenderTargetManager::ERROR_ID)
+            rtManager.DeleteRenderTarget(rt2);
+    }
 
 
     bool HasError(void) const { return !errorMsg.empty(); }
     std::string GetError(void) const { return errorMsg; }
 
-    //Gets the render target that will hold the final screen after this chain is done rendering.
-    RenderTarget * GetFinalRender(void) const { return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2]; }
 
     const std::vector<std::shared_ptr<Material>> & GetMaterials(void) const { return materials; }
     std::vector<std::shared_ptr<Material>> & GetMaterials(void) { return materials; }
 
+    const std::vector<UniformDictionary> & GetUniforms(void) const { return uniforms; }
+    std::vector<UniformDictionary> & GetUniforms(void) { return uniforms; }
+
     const DrawingQuad & GetQuad(void) const { return quad; }
     DrawingQuad & GetQuad(void) { return quad; }
 
+    const TransformObject & GetTransform(void) const { return quad.GetMesh().Transform; }
+    TransformObject & GetTransform(void) { return quad.GetMesh().Transform; }
 
-    //Takes in a texture whose rgb values are the screen color,
-    //    and whose alpha value is the screen depth.
+
+    //Gets the render target that will hold the final result after this chain is done rendering.
+    RenderTarget * GetFinalRender(void) const { return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2]; }
+
+    //Takes in the render target that this chain should be rendered onto.
     //Returns whether or not the render was successful.
-    bool RenderChain(const RenderTarget * inColorDepth);
+    bool RenderChain(SFMLOpenGLWorld * world, const RenderTarget * inWorld);
 
 
 private:
@@ -42,6 +59,8 @@ private:
     std::string errorMsg;
 
     std::vector<std::shared_ptr<Material>> materials;
+    std::vector<UniformDictionary> uniforms;
+
     DrawingQuad quad;
 
     RenderTargetManager & rtManager;
