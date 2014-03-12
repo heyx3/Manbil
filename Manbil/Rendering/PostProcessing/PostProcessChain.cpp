@@ -1,6 +1,7 @@
 #include "PostProcessChain.h"
 
 #include "../Materials/Data Nodes/ShaderGenerator.h"
+#include "../../ScreenClearer.h"
 
 
 PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
@@ -141,6 +142,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const RenderTarget *
 
         //Set up the render target.
         dest->EnableDrawingInto();
+        ScreenClearer().ClearScreen();
 
         //Render.
         if (!quad.Render(RenderPasses::BaseComponents, info, *materials[i]))

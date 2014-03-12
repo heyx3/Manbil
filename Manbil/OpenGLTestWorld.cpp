@@ -122,6 +122,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         EndWorld();
         return;
     }
+    water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
     water->SetLighting(dirLight);
     const Material * waterMat = water->GetMaterial();
@@ -134,14 +135,14 @@ void OpenGLTestWorld::InitializeObjects(void)
     //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
 
 
-    //ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
-    //if (ppc->HasError())
-    //{
-    //    std::cout << "Error creating post-process chain: " << ppc->GetError() << "\n";
-    //    Pause();
-    //    EndWorld();
-    //    return;
-    //}
+    ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
+    if (ppc->HasError())
+    {
+        std::cout << "Error creating post-process chain: " << ppc->GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 }
 
 
@@ -223,6 +224,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     //Render the world into a render target.
 
     manager[worldRenderID]->EnableDrawingInto();
+    ScreenClearer().ClearScreen();
 
     if (!water->Render(info))
     {
@@ -244,21 +246,21 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 
     //Render post-process effects on top of the world.
-    //if (!ppc->RenderChain(this, manager[worldRenderID]))
-    //{
-    //    std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
-    //    Pause();
-     //   EndWorld();
-    //    return;
-    //}
+    if (!ppc->RenderChain(this, manager[worldRenderID]))
+    {
+        std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
     
+    ScreenClearer().ClearScreen();
     //Render the final image.
     Camera cam;
     TransformObject trans;
     Matrix4f identity;
     identity.SetAsIdentity();
-    //finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(ppc->GetFinalRender()->GetColorTexture());
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(manager[worldRenderID]->GetColorTexture());
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(ppc->GetFinalRender()->GetColorTexture());
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
@@ -279,7 +281,8 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
     //cam.GetOrthoProjection(projM);
 
 	RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
-	
+    RenderInfo basic(this, (Camera*)&cam, &dummy, &worldM, &worldM, &worldM);
+
     //Draw the world.
 	ScreenClearer().ClearScreen();
     worldRenderState.EnableState();
