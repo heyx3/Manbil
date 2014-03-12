@@ -32,6 +32,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 {
                     std::string vs, fs;
                     UniformDictionary uns;
+                    effectChain[effect]->CurrentPass = pass - 1;
                     ShaderGenerator::GenerateShaders(vs, fs, uns, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
                     materials.insert(materials.end(),
                                      std::shared_ptr<Material>(new Material(vs, fs, uns,
@@ -157,6 +158,29 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const RenderTarget *
     }
 
     quad.GetMesh().Uniforms = oldUniforms;
+
+    return true;
+}
+
+
+bool PostProcessChain::ResizeRenderTargets(unsigned int newWidth, unsigned int newHeight)
+{
+    if (rt1 != RenderTargetManager::ERROR_ID)
+    {
+        if (!rtManager.ResizeTarget(rt1, newWidth, newHeight))
+        {
+            errorMsg = "Error resizing first render target: " + rtManager.GetError();
+            return false;
+        }
+    }
+    if (rt2 != RenderTargetManager::ERROR_ID)
+    {
+        if (!rtManager.ResizeTarget(rt2, newWidth, newHeight))
+        {
+            errorMsg = "Error resizing second render target: " + rtManager.GetError();
+            return false;
+        }
+    }
 
     return true;
 }

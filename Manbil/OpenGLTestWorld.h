@@ -50,5 +50,9 @@ private:
     unsigned int worldRenderID;
     std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
 
+    DrawingQuad * finalScreenQuad;
+    std::unordered_map<RenderingChannels, DataLine> finalScreenMatChannels;
+    Material * finalScreenMat;
+
     sf::Texture myTex;
 };

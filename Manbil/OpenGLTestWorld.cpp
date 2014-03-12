@@ -42,13 +42,22 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(200, 200);
+Vector2i windowSize(700, 700);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
+    worldRenderID = manager.CreateRenderTarget(windowSize.x, windowSize.y, true, true);
+    if (worldRenderID == RenderTargetManager::ERROR_ID)
+    {
+        std::cout << "Error creating world render target: " << manager.GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
     if (!myTex.loadFromFile("Content/Textures/Normalmap.png"))
     {
         std::cout << "Failed to load 'Normalmap.png'.\n";
@@ -58,15 +67,14 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
     sf::Texture::bind(&myTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
-
-    worldRenderID = manager.CreateRenderTarget(windowSize.x, windowSize.y, true, true);
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
-    TextureSampleNode * normalMap = new TextureSampleNode("", DataLine(DataNodePtr(new UVNode()), 0),
+    TextureSampleNode * normalMap = new TextureSampleNode("u_normalMapTex",
+                                                          DataLine(DataNodePtr(new UVNode()), 0),
                                                           DataLine(VectorF(10.0f, 10.0f)),
                                                           DataLine(VectorF(0.0025f, 0.0025f)),
                                                           DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0));
@@ -81,6 +89,22 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(0.0f, 0.0f, 1.0f)))));
 
+
+    finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    std::string vs, fs;
+    UniformDictionary uniformDict;
+    ShaderGenerator::GenerateShaders(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false), finalScreenMatChannels);
+    finalScreenMat = new Material(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (finalScreenMat->HasError())
+    {
+        std::cout << "final screen material creation error: " << finalScreenMat->GetErrorMsg() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    finalScreenQuad = new DrawingQuad();
+    finalScreenQuad->GetMesh().Uniforms = uniformDict;
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -108,11 +132,22 @@ void OpenGLTestWorld::InitializeObjects(void)
     //water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
     //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
     //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
+
+
+    //ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
+    //if (ppc->HasError())
+    //{
+    //    std::cout << "Error creating post-process chain: " << ppc->GetError() << "\n";
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
 }
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0), ppc(0)
+: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
+  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0)
 {
 	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
@@ -152,11 +187,15 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 {
     DeleteAndSetToNull(water);
     DeleteAndSetToNull(ppc);
+    DeleteAndSetToNull(finalScreenQuad);
+    DeleteAndSetToNull(finalScreenMat);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
     DeleteAndSetToNull(water);
     DeleteAndSetToNull(ppc);
+    DeleteAndSetToNull(finalScreenQuad);
+    DeleteAndSetToNull(finalScreenMat);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -181,9 +220,48 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
+    //Render the world into a render target.
+
+    manager[worldRenderID]->EnableDrawingInto();
+
     if (!water->Render(info))
     {
         std::cout << "Error rendering world geometry: " << water->GetErrorMessage() << ".\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
+
+    std::string err = GetCurrentRenderingError();
+    if (!err.empty())
+    {
+        std::cout << "Error rendering world geometry: " << err << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    //Render post-process effects on top of the world.
+    //if (!ppc->RenderChain(this, manager[worldRenderID]))
+    //{
+    //    std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
+    //    Pause();
+     //   EndWorld();
+    //    return;
+    //}
+    
+    //Render the final image.
+    Camera cam;
+    TransformObject trans;
+    Matrix4f identity;
+    identity.SetAsIdentity();
+    //finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(ppc->GetFinalRender()->GetColorTexture());
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(manager[worldRenderID]->GetColorTexture());
+    if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
+    {
+        std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
         Pause();
         EndWorld();
         return;
@@ -218,5 +296,18 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	cam.Info.Height = newH;
     windowSize.x = newW;
     windowSize.y = newH;
-    manager.ResizeTarget(worldRenderID, newW, newH);
+    if (!manager.ResizeTarget(worldRenderID, newW, newH))
+    {
+        std::cout << "Error resizing world render target: " << manager.GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!ppc->ResizeRenderTargets(newW, newH))
+    {
+        std::cout << "Error resizing PPC render target: " << manager.GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 }

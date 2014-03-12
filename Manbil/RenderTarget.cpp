@@ -171,7 +171,7 @@ bool RenderTarget::IsValid(void) const
 		errorMsg = std::string(GetCurrentRenderingError());
 	}
 
-	return goodFBO && errorMsg.compare("") == 0;
+	return goodFBO && errorMsg.empty();
 }
 
 

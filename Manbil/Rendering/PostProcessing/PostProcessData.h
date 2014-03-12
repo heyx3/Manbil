@@ -31,8 +31,8 @@ public:
         : DataNode(MakeVector(colorIn, depthIn, otherInputs), DataNode::MakeVector(3, 1)),
           NumbPasses(numbPasses), CurrentPass(0)
     {
-        assert(GetColorInput().GetDataLineSize() == 3 &&
-               GetDepthInput().GetDataLineSize() == 1);
+        assert(GetColorInput().GetDataLineSize() == 3);
+        assert(GetDepthInput().GetDataLineSize() == 1);
     }
 
     //Creates a copy of this effect but with the default texture sampler as the color/depth input.
@@ -44,7 +44,7 @@ public:
     static DataLine ColorSamplerIn(void)
     {
         return DataLine(DataNodePtr(new TextureSampleNode(ColorSampler)),
-                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
     //This should be the value for the first post-process effect's "depthIn" constructor argument.
@@ -52,7 +52,7 @@ public:
     static DataLine DepthSamplerIn(void)
     {
         return DataLine(DataNodePtr(new TextureSampleNode(DepthSampler)),
-                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
     }
 
 protected:
@@ -91,7 +91,12 @@ class ColorTintEffect : public PostProcessEffect
 public:
 
     virtual std::string GetName(void) const override { return "colorTintEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_tinted"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        assert(index <= 1);
+        return GetName() + std::to_string(GetUniqueID()) +
+               (index == 0 ? "_tinted" : "_unchangedDepth");
+    }
 
     ColorTintEffect(DataLine colorScales = DataLine(VectorF(1.0f, 1.0f, 1.0f)),
                     DataLine colorIn = ColorSamplerIn(),
@@ -109,7 +114,8 @@ protected:
     virtual void WriteMyOutputs(std::string & strOut) const override
     {
         //Tint the color, leave the depth unchanged.
-        strOut += "\tvec4 " + GetOutputName(0) + " = vec4(" + GetInputs()[0].GetValue() + " * " + GetColorInput().GetValue() + ", " + GetDepthInput().GetValue() + ");\n";
+        strOut += "\tvec3 " + GetOutputName(0) + " = " + GetInputs()[0].GetValue() + " * " + GetColorInput().GetValue() + ";\n";
+        strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
     }
 };
 
@@ -121,7 +127,12 @@ class ContrastEffect : public PostProcessEffect
 public:
 
     virtual std::string GetName(void) const override { return "contrastEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_upContrast"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        assert(index <= 1);
+        return GetName() + std::to_string(GetUniqueID()) +
+            (index == 0 ? "_upContrast" : "_unchangedDepth");
+    }
 
 
     //Different kinds of contrast amounts.
@@ -160,7 +171,12 @@ class FogEffect : public PostProcessEffect
 public:
     
     virtual std::string GetName(void) const override { return "fogEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_foggy"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        assert(index <= 1);
+        return GetName() + std::to_string(GetUniqueID()) +
+            (index == 0 ? "_foggy" : "_unchangedDepth");
+    }
 
 
     float Dropoff;

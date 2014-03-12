@@ -10,6 +10,13 @@ unsigned int RenderTargetManager::CreateRenderTarget(unsigned int width, unsigne
             ": " + newTarget->GetErrorMessage();
         return ERROR_ID;
     }
+    if (!newTarget->IsValid())
+    {
+        errorMsg = "Error validating render target of size { " + std::to_string(width) + ", " + std::to_string(height) +
+            " using " + (useColor && useDepth ? "color and depth" : (useColor ? "color" : (useDepth ? "depth" : "neither color nor depth"))) +
+            ": " + newTarget->GetErrorMessage();
+        return ERROR_ID;
+    }
 
     targets[nextID] = newTarget;
     nextID += 1;

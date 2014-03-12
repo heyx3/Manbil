@@ -10,7 +10,7 @@
 //Represents a special kind of material (actually an arbitrary number of materials)
 //   that applies a series of post-processing effects to the screen.
 //This class holds a DrawingQuad instance used for rendering the effects.
-//The quad viewport is in the range {-1, -1} to {1, 1}.
+//The quad viewport is in the range {-1, -1, -1} to {1, 1, 1}.
 //Note that the uniforms this chain stores for each material will overwrite
 //    any duplicate uniforms set in the drawing quad.
 class PostProcessChain
@@ -48,6 +48,10 @@ public:
 
     //Gets the render target that will hold the final result after this chain is done rendering.
     RenderTarget * GetFinalRender(void) const { return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2]; }
+
+    //Resizes the render targets used to render this chain's effects.
+    //Returns whether or not the resizing was successful.
+    bool ResizeRenderTargets(unsigned int newWidth, unsigned int newHeight);
 
     //Takes in the render target that this chain should be rendered onto.
     //Returns whether or not the render was successful.
