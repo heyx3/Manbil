@@ -4,6 +4,11 @@
 #include <assert.h>
 #include "tinyxml2.h"
 
+
+//TODO: Abstract the serialization system so that the XML part can be easily swapped out for a different child class that uses something else, e.x. networking, plain text, or JSON.
+
+
+
 template<class Type>
 //Represents a value that may or may not exist.
 class MaybeValue
