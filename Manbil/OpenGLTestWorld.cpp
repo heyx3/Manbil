@@ -88,6 +88,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     //ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 0.25f)))));
+    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 1)));
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect()));
 
 
@@ -177,7 +178,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 100.0f;
+    cam.Info.zFar = 5000.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;

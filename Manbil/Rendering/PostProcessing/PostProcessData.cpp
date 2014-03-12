@@ -29,7 +29,7 @@ void ContrastEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDec
                one = vec3(1.0, 1.0, 1.0);                                                 \n\
     for (int i = 0; i < " + std::to_string(Iterations) + "; ++i)                          \n\
     {                                                                                     \n\
-        interp = interp * interp * interp * (10.0 + (interp * (-15.0 + (interp * 6.0))))) \n\
+        interp = interp * interp * interp * (10.0 + (interp * (-15.0 + (interp * 6.0)))); \n\
     }                                                                                     \n\
     return interp;                                                                        \n\
 }\n");
@@ -54,7 +54,7 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
     func += std::to_string(GetUniqueID());
 
 
-    strOut += "\tvec3 " + GetOutputName(0) + " = " + func + "(" + GetColorInput().GetValue() + "));\n";
+    strOut += "\tvec3 " + GetOutputName(0) + " = " + func + "(" + GetColorInput().GetValue() + ");\n";
     strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
 }
 
