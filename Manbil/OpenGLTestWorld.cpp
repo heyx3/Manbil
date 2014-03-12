@@ -58,13 +58,15 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
     sf::Texture::bind(&myTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
+
+    worldRenderID = manager.CreateRenderTarget(windowSize.x, windowSize.y, true, true);
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
-    TextureSampleNode * normalMap = new TextureSampleNode(DataLine(DataNodePtr(new UVNode()), 0),
+    TextureSampleNode * normalMap = new TextureSampleNode("", DataLine(DataNodePtr(new UVNode()), 0),
                                                           DataLine(VectorF(10.0f, 10.0f)),
                                                           DataLine(VectorF(0.0025f, 0.0025f)),
                                                           DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0));
@@ -74,6 +76,11 @@ void OpenGLTestWorld::InitializeMaterials(void)
     channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RC::RC_Specular] = DataLine(VectorF(2.0f));
     channels[RC::RC_SpecularIntensity] = DataLine(VectorF(256.0f));
+
+
+    typedef std::shared_ptr<PostProcessEffect> PpePtr;
+    ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(0.0f, 0.0f, 1.0f)))));
+
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -105,7 +112,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0)
+: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 4, 3, 3)), water(0), ppc(0)
 {
 	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
 	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
@@ -144,10 +151,12 @@ void OpenGLTestWorld::InitializeWorld(void)
 OpenGLTestWorld::~OpenGLTestWorld(void)
 {
     DeleteAndSetToNull(water);
+    DeleteAndSetToNull(ppc);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
     DeleteAndSetToNull(water);
+    DeleteAndSetToNull(ppc);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -209,4 +218,5 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	cam.Info.Height = newH;
     windowSize.x = newW;
     windowSize.y = newH;
+    manager.ResizeTarget(worldRenderID, newW, newH);
 }

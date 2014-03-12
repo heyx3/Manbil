@@ -7,6 +7,7 @@
 #include "RenderTarget.h"
 #include "Math/Higher Math/Lighting.h"
 #include "Rendering/Objects/Water.h"
+#include "Rendering/PostProcessing/PostProcessChain.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -43,6 +44,11 @@ private:
 
 	MovingCamera cam;
 	DirectionalLight dirLight;
+    RenderTargetManager manager;
+
+    PostProcessChain * ppc;
+    unsigned int worldRenderID;
+    std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
 
     sf::Texture myTex;
 };
