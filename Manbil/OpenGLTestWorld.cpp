@@ -87,7 +87,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(0.5f, 0.0f, 0.25f)))));
+    //ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 0.25f)))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect()));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -176,7 +177,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 10000.0f;
+    cam.Info.zFar = 100.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
@@ -260,7 +261,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     TransformObject trans;
     Matrix4f identity;
     identity.SetAsIdentity();
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(manager[worldRenderID]->GetColorTexture());
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(ppc->GetFinalRender()->GetColorTexture());
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

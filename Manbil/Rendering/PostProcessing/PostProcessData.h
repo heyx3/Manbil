@@ -6,7 +6,7 @@
 
 
 //Abstract class representing a post-process effect as a DataNode.
-//Outputs a vec4: the pixel color in xyz, and the pixel depth in w.
+//Outputs 0: the color output as a vec3, 1: the depth output as a float from 0 to 1.
 class PostProcessEffect : public DataNode
 {
 public:
@@ -51,6 +51,7 @@ public:
     //Subsequent effects should use the previous effect's depth output.
     static DataLine DepthSamplerIn(void)
     {
+        //TODO: Make DataNodes that get the max/min z distance from the camera (using built-in uniforms in Material). Remap depth from 0 to 1 using the equation from http://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
         return DataLine(DataNodePtr(new TextureSampleNode(DepthSampler)),
                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
     }
