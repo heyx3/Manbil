@@ -26,6 +26,9 @@ public:
     RenderObjHandle GetColorTexture(void) const { return colorTex; }
     RenderObjHandle GetDepthTexture(void) const { return depthTex; }
 
+    bool GetUsesColor(void) const { return usesCol; }
+    bool GetUsesDepth(void) const { return usesDepth; }
+
     RenderObjHandle GetFramebuffer(void) const { return frameBuffer; }
 
     Vector2i GetSize(void) const { return Vector2i(width, height); }

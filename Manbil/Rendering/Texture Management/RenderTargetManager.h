@@ -26,9 +26,14 @@ public:
     //Otherwise, returns "true".
     bool DeleteRenderTarget(unsigned int id);
 
+    //Resizes the given render target.
+    bool ResizeTarget(unsigned int id, unsigned int newWidth, unsigned int newHeight);
+
+
+
     //Gets the render target with the given ID.
     //   Returns 0 if there was an error finding it.
-    RenderTarget * operator[](unsigned int id) const;
+    RenderTarget * operator[](unsigned int id);
 
 
 private:

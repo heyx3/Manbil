@@ -521,7 +521,7 @@ void Water::SetSeededWater(const SeededWaterArgs & args)
 void Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
 {
     waterMesh.Uniforms.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
-    waterMesh.Uniforms.TextureUniforms["seedMap"].Texture = image;
+    waterMesh.Uniforms.TextureUniforms["seedMap"].SetData(image);
 }
 
 

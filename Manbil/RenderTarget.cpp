@@ -87,7 +87,7 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 
 void RenderTarget::ChangeSize(int newW, int newH)
 {
-    //TODO: Fix.
+    //TODO: Either remove this function, or both 1) delete and recreate the frame buffer entirely and 2) change RenderTargetManager to call "ChangeSize". Preferably the latter.
 
 	width = newW;
 	height = newH;

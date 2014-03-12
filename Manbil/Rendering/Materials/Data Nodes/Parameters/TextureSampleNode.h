@@ -69,7 +69,7 @@ protected:
 
     virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override
     {
-        uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSamplerValue(0, GetSamplerUniformName());
+        uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSamplerValue(GetSamplerUniformName());
     }
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
