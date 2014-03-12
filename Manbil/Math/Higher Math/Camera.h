@@ -12,8 +12,9 @@ public:
 	ProjectionInfo Info;
     Vector3f MinOrthoBounds, MaxOrthoBounds;
 
-	Camera(void);
-	Camera(Vector3f pos, Vector3f forward = Vector3f(1.0f, 0.0f, 0.0f), Vector3f up = Vector3f(0.0f, 0.0f, 1.0f), bool alreadyNormalized = false);
+	Camera(Vector3f pos = Vector3f(0.0f, 0.0f, 0.0f),
+           Vector3f forward = Vector3f(1.0f, 0.0f, 0.0f),
+           Vector3f up = Vector3f(0.0f, 0.0f, 1.0f));
 
 	Vector3f GetPosition(void) const { return pos; }
 	Vector3f GetForward(void) const { return forward; }

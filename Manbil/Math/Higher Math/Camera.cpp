@@ -1,19 +1,11 @@
 #include "Camera.h"
 
-
-Camera::Camera(void)
-    : forward(Vector3f(1.0f, 0.0f, 0.0f)), up(Vector3f(0.0f, 0.0f, 1.0f)), closestDotVariance(0.01f),
-    MinOrthoBounds(-50.0f, -50.0f, -100.0f), MaxOrthoBounds(50.0f, 50.0f, 100.0f)
-{
-	IncrementPosition(Vector3f());
-	SetRotation(forward, up, true);
-}
-Camera::Camera(Vector3f _pos, Vector3f _forward, Vector3f _up, bool alreadyNormalized)
+Camera::Camera(Vector3f _pos, Vector3f _forward, Vector3f _up)
 	: pos(_pos), forward(_forward), up(_up), closestDotVariance(0.01f),
       MinOrthoBounds(-50.0f, -50.0f, 0.0f), MaxOrthoBounds(50.0f, 50.0f, 1000.0f)
 {
 	IncrementPosition(Vector3f());
-	SetRotation(forward, up, alreadyNormalized);
+	SetRotation(forward, up, false);
 }
 
 
