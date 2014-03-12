@@ -38,7 +38,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                     materials.insert(materials.end(),
                                      std::shared_ptr<Material>(new Material(vs, fs, uns,
                                                                             RenderingModes::RM_Opaque, false, LightSettings(false))));
-                    uniforms.insert(uniforms.end(), uns);
+                    uniforms.insert(uniforms.end(), UniformDictionary());
 
                     //Check for shader errors.
                     if (materials[materials.size() - 1]->HasError())
@@ -73,7 +73,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
         materials.insert(materials.end(),
                          std::shared_ptr<Material>(new Material(vs, fs, uns,
                                                    RenderingModes::RM_Opaque, false, LightSettings(false))));
-        uniforms.insert(uniforms.end(), uns);
+        uniforms.insert(uniforms.end(), UniformDictionary());
 
         //Check for shader errors.
         if (materials[materials.size() - 1]->HasError())
@@ -133,10 +133,17 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const RenderTarget *
             dest = first;
         else dest = second;
 
+        assert(source != 0 && dest != 0);
+
         //Set up the uniforms for this pass.
+        const UniformList & matUniforms = materials[i]->GetUniforms(RenderPasses::BaseComponents);
         quad.GetMesh().Uniforms.ClearUniforms();
-        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::ColorSampler].SetData(source->GetColorTexture());
-        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler].SetData(source->GetDepthTexture());
+        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::ColorSampler] =
+            UniformSamplerValue(source->GetColorTexture(), PostProcessEffect::ColorSampler,
+                                matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.TextureUniforms).Loc);
+        quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler] =
+            UniformSamplerValue(source->GetDepthTexture(), PostProcessEffect::DepthSampler,
+                                matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
         quad.GetMesh().Uniforms.AddUniforms(uniforms[i], true);
 
