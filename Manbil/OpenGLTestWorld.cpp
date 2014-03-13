@@ -42,7 +42,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(200, 200);
+Vector2i windowSize(500, 500);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
@@ -89,7 +89,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     //ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 0.25f)))));
     //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 1)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(5.0f, Vector3f(0.0f, 0.0f, 0.1f))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(3.0f, Vector3f(0.4f, 0.4f, 0.5f))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -112,7 +112,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 {
     const unsigned int size = 300;
 
-    water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f),
+    water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(1)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
@@ -132,8 +132,8 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    //water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
-    //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
+    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
     //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
 
 

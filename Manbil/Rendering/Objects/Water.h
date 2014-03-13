@@ -87,7 +87,7 @@ public:
         SeedmapWaterCreationArgs(const Fake2DArray<float> * seedValues = 0, TextureManager * texManager = 0) : SeedValues(seedValues), TexManager(texManager) { }
     };
     //Creates a new Water object.
-    Water(unsigned int size, Vector3f pos,
+    Water(unsigned int size, Vector3f pos, Vector3f scale,
           OptionalValue<RippleWaterCreationArgs> rippleArgs,
           OptionalValue<DirectionalWaterCreationArgs> directionArgs,
           OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,

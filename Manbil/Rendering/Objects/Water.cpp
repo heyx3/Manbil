@@ -195,7 +195,7 @@ private:
 
 
 
-void CreateWaterMesh(unsigned int size, Mesh & outM)
+void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
@@ -246,7 +246,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     {
         //Red and Green color channels are already used to store the object-space vertex position.
         //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
-        vertices[i] = Vertex(Vector3f(poses[i].x, poses[i].y, 0.0f) + offset,
+        vertices[i] = Vertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
                              texCoords[i],
                              Vector4f(0.0f, 0.0f, -1.0f + (2.0f * poses[i].z), 0.65f * fr.GetZeroToOne()),
                              Vector3f());
@@ -254,7 +254,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     }
     delete[] texCoords;
 
-    terr.CreateVertexNormals(normals, poses, Vector3f(1, 1, 1));
+    terr.CreateVertexNormals(normals, poses, scle);
     for (int i = 0; i < nVs; ++i)
     {
         vertices[i].Normal = normals[i];
@@ -274,7 +274,7 @@ void CreateWaterMesh(unsigned int size, Mesh & outM)
     delete[] vertices, indices;
 }
 
-Water::Water(unsigned int size, Vector3f pos,
+Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
              OptionalValue<RippleWaterCreationArgs> rippleArgs,
              OptionalValue<DirectionalWaterCreationArgs> directionArgs,
              OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,
@@ -287,7 +287,7 @@ Water::Water(unsigned int size, Vector3f pos,
       waterMat(0), waterMesh(PrimitiveTypes::Triangles)
 {
     //Create mesh.
-    CreateWaterMesh(size, waterMesh);
+    CreateWaterMesh(size, scale, waterMesh);
     waterMesh.Transform.SetPosition(pos);
 
     //Set up ripples.
