@@ -82,14 +82,14 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.275f, 0.275f, 1.0f)));
     channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    channels[RC::RC_Specular] = DataLine(VectorF(2.0f));
+    channels[RC::RC_Specular] = DataLine(VectorF(3.0f));
     channels[RC::RC_SpecularIntensity] = DataLine(VectorF(256.0f));
 
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     //ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 0.25f)))));
-    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 1)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(3.0f, Vector3f(0.4f, 0.4f, 0.5f))));
+    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 2)));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(0.5f, Vector3f(0.4f, 0.4f, 0.5f))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -113,7 +113,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     const unsigned int size = 300;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(1)),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(10)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
@@ -219,6 +219,9 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 		EndWorld();
 	}
     water->Update(elapsedSeconds);
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 1000.0f, 10.0f, 70.0f, 1.0f));
 }
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
