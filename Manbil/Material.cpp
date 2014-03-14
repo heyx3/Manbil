@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 
-Material::Material(std::string & vs, std::string & fs, UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
+Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
     : isLit(il), lightSettings(ls), mode(m)
 {
     ShaderHandler::CreateShaderProgram(shaderProg);

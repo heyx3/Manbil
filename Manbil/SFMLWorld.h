@@ -4,6 +4,8 @@
 #include "SFML/Window.hpp"
 #include "SFML/Graphics.hpp"
 #include "Input/InputManager.h"
+#include "Rendering/Texture Management/TextureManager.h"
+#include "Events/Timing.h"
 
 //A basic world using SFML. Also initializes the SFGUI library upon creation.
 class SFMLWorld
@@ -44,6 +46,8 @@ public:
 protected:
 
     InputManager<unsigned int> Input;
+    TimerManager Timers;
+    TextureManager Textures;
 
 	template<class SomeClass>
 	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }

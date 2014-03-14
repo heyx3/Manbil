@@ -39,7 +39,7 @@ public:
 	}
 
 
-    //If 0 is passed in, just uses the currently-bound texture.
+    //If 0 is passed in, this method just uses the currently-bound texture.
 	void SetData(RenderObjHandle tex = 0) const;
 
 

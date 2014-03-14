@@ -1,5 +1,0 @@
-Fixed pipeline Post-process effects:
-Gaussian Blur
-Color tint
-Fog
-Contrast

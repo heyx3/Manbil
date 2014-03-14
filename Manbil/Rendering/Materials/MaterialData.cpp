@@ -143,3 +143,21 @@ vec3 getLight(vec3 surfaceNormal, vec3 fragToCamNormal, float specular, float sp
 
     return ret;
 }
+
+void MaterialConstants::GetDefaultUniforms(UniformDictionary & outDict)
+{
+    outDict.FloatUniforms[ElapsedTimeName] = UniformValueF(0.0f, ElapsedTimeName);
+    
+    outDict.FloatUniforms[CameraPosName] = UniformValueF(Vector3f(), CameraPosName);
+    outDict.FloatUniforms[CameraForwardName] = UniformValueF(Vector3f(1.0f, 0.0f, 0.0f), CameraForwardName);
+    outDict.FloatUniforms[CameraUpName] = UniformValueF(Vector3f(0.0f, 0.0f, 1.0f), CameraUpName);
+    outDict.FloatUniforms[CameraSideName] = UniformValueF(Vector3f(0.0f, 1.0f, 0.0f), CameraSideName);
+
+    outDict.FloatUniforms[CameraZNearName] = UniformValueF(0.1f, CameraZNearName);
+    outDict.FloatUniforms[CameraZFarName] = UniformValueF(1000.0f, CameraZFarName);
+    outDict.FloatUniforms[CameraWidthName] = UniformValueF(200.0f, CameraWidthName);
+    outDict.FloatUniforms[CameraHeightName] = UniformValueF(200.0, CameraHeightName);
+    outDict.FloatUniforms[CameraFovName] = UniformValueF(55.0f, CameraFovName);
+
+    //outDict.MatrixUniforms[WorldMatName]
+}

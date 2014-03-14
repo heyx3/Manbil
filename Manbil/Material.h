@@ -32,9 +32,9 @@ public:
 
     Material(const Material & cpy); //Intentionally not implemented.
 
-    Material(std::string & vShader, std::string & fShader, UniformDictionary & uniforms,
+    Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
              RenderingModes mode, bool isLit, LightSettings lightSettings);
-    ~Material(void) { glDeleteProgram(shaderProg); }
+    ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
 
 
     RenderObjHandle GetShaderProgram(void) const { return shaderProg; }
