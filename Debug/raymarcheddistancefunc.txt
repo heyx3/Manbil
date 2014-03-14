@@ -1,5 +1,5 @@
 //Written by Billy Manning.
-//A ray-marcher using a distance function.
+//A  ray-marcher using a distance function.
 //With help from http://www.geeks3d.com/20130524/building-worlds-with-distance-functions-in-glsl-raymarching-glslhacker-tutorial-opengl/2/
 
 
@@ -16,12 +16,6 @@ float distanceToSphere(vec3 sphereCenter, float sphereRadius, vec3 outsidePos)
 {
 	return abs(sphereRadius - distance(sphereCenter, outsidePos));
 }
-vec3 getSphereNormal(vec3 sphereCenter, float sphereRadius, vec3 pos)
-{
-	return normalize(pos - sphereCenter);
-}
-
-
 //Gets the distance from any given position to the surface of a given AABB.
 float distanceToAABB(vec3 boxCenter, vec3 boxHalfDimensions, vec3 outsidePos)
 {
@@ -81,72 +75,183 @@ vec3 getAABBNormal(vec3 boxCenter, vec3 boxHalfDimensions, vec3 pos)
 }
 
 
-vec3 modPos(vec3 pos)
-{
-	return vec3(mod(abs(pos.x), 10.0),
-			    pos.y, pos.z);
+//Right now, the world geometry is just a sphere, a box, and a floor.
+	
+vec3 getSpherePos() { return vec3(2.0, 0.0, 0.0); }
+float getSphereRadius() { return 1.5; }
+float getFloorHeight() { return 0.0; }
+vec3 getBoxPos() { return vec3(-4.0, 4.0, 0.0); }
+vec3 getBoxHalfDims() { return vec3(1.0, 1.0, 1.0); }
 
+const float SPHERE_FLAG = 0.0,
+			BOX_FLAG = 0.5,
+			FLOOR_FLAG = 1.0;
 
-	return mod(abs(pos), 10.0);
-}
 
 //Gets the distance from any given position to the closest surface of the world geometry.
 //The X component of the return value is the distance, and the Y component is a flag representing
 //    which object in the world is closest to the given position.
 vec2 distanceToWorldGeometry(vec3 pos)
 {
-	pos = modPos(pos);
-	return vec2(distanceToAABB(vec3(4.5, 0.0, 0.0), vec3(3.0), pos), 1);
+	float sphereDist = distanceToSphere(getSpherePos(), getSphereRadius(), pos);
+	float boxDist = distanceToAABB(getBoxPos(), getBoxHalfDims(), pos);
+	float floorDist = abs(pos.y - getFloorHeight());
+
+	if (sphereDist < floorDist)
+	{
+		if (sphereDist < boxDist)
+		{
+			return vec2(sphereDist, SPHERE_FLAG);
+		}
+		
+		return vec2(boxDist, BOX_FLAG);
+	}
+	if (boxDist < floorDist)
+	{
+		return vec2(boxDist, BOX_FLAG);
+	}
+	
+	return vec2(floorDist, FLOOR_FLAG);
 }
+
+const float TILE_ONE = 0.0,
+			TILE_TWO = 1.0;
+struct TilePosData { float tileObject; vec2 toEdge; float edgeDist; };
+//Takes the position along the plane of the floor, and returns data about what tile the position is in.
+TilePosData getTileData(vec2 posAlongFloor)
+{
+	TilePosData ret;
+
+	const vec2 floorTileSpacing = vec2(1.5, 1.5);
+	vec2 floorTileSpacing_2 = 2.0 * floorTileSpacing,
+		 floorTileSpacing_1_5 = 1.5 * floorTileSpacing,
+		 floorTileSpacing_0_5 = 0.5 * floorTileSpacing;
+
+	vec2 floorPos = mod(abs(posAlongFloor), floorTileSpacing_2);
+
+
+	bool xGreater = (floorPos.x > floorTileSpacing.x),
+		 yGreater = (floorPos.y > floorTileSpacing.y);
+
+	if (xGreater)
+	{
+		ret.toEdge.x = (floorPos.x > floorTileSpacing_1_5.x) ?
+						  (floorTileSpacing_2.x - floorPos.x) :
+						  (floorPos.x - floorTileSpacing.x);
+	}
+	else
+	{
+		ret.toEdge.x = (floorPos.x > floorTileSpacing_0_5.x) ?
+						  (floorTileSpacing.x - floorPos.x) :
+						  (floorPos.x);
+	}
+	if (yGreater)
+	{
+		ret.toEdge.y = (floorPos.y > floorTileSpacing_1_5.y) ?
+						  (floorTileSpacing_2.y - floorPos.y) :
+						  (floorPos.y - floorTileSpacing.y);
+	}
+	else
+	{
+		ret.toEdge.y = (floorPos.y > floorTileSpacing_0_5.y) ?
+							(floorTileSpacing.y - floorPos.y) :
+							(floorPos.y);
+	}
+
+	if ((xGreater && !yGreater) || (!xGreater && yGreater))
+	{
+		ret.tileObject = TILE_ONE;
+	}
+	else
+	{
+		ret.tileObject = TILE_TWO;
+	}
+
+
+	vec2 toEdgeAbs = abs(ret.toEdge);
+	ret.edgeDist = (toEdgeAbs.x > toEdgeAbs.y) ? (toEdgeAbs.y / floorTileSpacing.y) : (toEdgeAbs.x / floorTileSpacing.x);
+
+
+	return ret;
+}
+
+
+const float tileEdgeWidth = 0.1,
+			halfTileEdgeWidth = 0.05;
 
 //Gets the surface normal for a position already known to be part of the world geometry.
 //The second argument should be the Y component of the return result of "distanceToWorldGeometry()"
 vec3 getNormal(vec3 pos, float objectFlag)
 {
-	const vec2 sampleEpsilon = vec2(0.001, 0.0);
+	//Sphere.
+	if (objectFlag == SPHERE_FLAG)
+		return normalize(pos - getSpherePos());
 
-	float xNeg = distanceToWorldGeometry(pos - sampleEpsilon.xyy).x,
-	      xPos = distanceToWorldGeometry(pos + sampleEpsilon.xyy).x,
-		  yNeg = distanceToWorldGeometry(pos - sampleEpsilon.yxy).x,
-	      yPos = distanceToWorldGeometry(pos + sampleEpsilon.yxy).x,
-		  zNeg = distanceToWorldGeometry(pos - sampleEpsilon.yyx).x,
-	      zPos = distanceToWorldGeometry(pos + sampleEpsilon.yyx).x;
-
-	vec3 ret = sampleEpsilon.yyy;
-	if (xNeg > xPos)
+	//Box.
+	if (objectFlag == BOX_FLAG)
 	{
-		ret.x = -xNeg;
-	}
-	else
-	{
-		ret.x = xPos;
-	}
-	if (yNeg > yPos)
-	{
-		ret.y = -yNeg;
-	}
-	else
-	{
-		ret.y = yPos;
-	}
-	if (zNeg > zPos)
-	{
-		ret.z = -zNeg;
-	}
-	else
-	{
-		ret.z = zPos;
-	}
+		return getAABBNormal(getBoxPos(), getBoxHalfDims(), pos);
 
-	return normalize(ret);
+		vec3 boxCenter = getBoxPos(),
+			 boxHalfDimensions = getBoxHalfDims();
 
 
+		//Get which face in each direction is closest.
+		vec3 faces = sign(pos - boxCenter);
+		vec3 faceValues = boxCenter + (faces * boxHalfDimensions);
+
+		vec3 corner1 = boxCenter - boxHalfDimensions,
+			 corner2 = boxCenter + boxHalfDimensions;
+
+		//Get the closest point on each face to the outside point.
+		vec3 clampedPos = clamp(pos, corner1, corner2);
+		vec3 closestPointXZ = vec3(clampedPos.x, faceValues.y, clampedPos.z),
+			 closestPointXY = vec3(clampedPos.x, clampedPos.y, faceValues.z),
+			 closestPointYZ = vec3(faceValues.x, clampedPos.y, clampedPos.z);
+
+		float distanceXZ = distance(closestPointXZ, pos),
+			  distanceXY = distance(closestPointXY, pos),
+			  distanceYZ = distance(closestPointYZ, pos);
 
 
-		  
+		if (distanceXZ < distanceXY)
+		{
+			if (distanceXZ < distanceYZ)
+			{
+				return vec3(0.0, faces.y, 0.0);
+			}
+			return vec3(faces.x, 0.0, 0.0);
+		}
+		else
+		{
+			if (distanceXY < distanceYZ)
+			{
+				return vec3(0.0, 0.0, faces.z);
+			}
+			return vec3(faces.x, 0.0, 0.0);
+		}
 
-	pos = modPos(pos);
-	return getAABBNormal(vec3(4.5, 0.0, 0.0), vec3(3.0), pos);
+		//Normal is pointing straight along one of the axes.
+		//GPUs handle branching very badly, to the point where it is usually better
+		//     to do some floating-point math instead of branching.
+		float smallest = min(distanceXZ, min(distanceXY, distanceYZ));
+		vec3 normal = vec3(-0.001 + max(-0.001, smallest - distanceYZ),
+						   -0.001 + max(-0.001, smallest - distanceXZ),
+						   -0.001 + max(-0.001, smallest - distanceXY));
+		return normalize(normal);
+	}
+
+	//Floor.
+	TilePosData dat = getTileData(pos.xz);
+	return vec3(0.0, 1.0, 0.0);
+
+	
+	//Add little slants in the spaces between tiles.
+	//if (dat.edgeDist > halfTileEdgeWidth) return centerNormal;
+
+	//return smoothstep(normalize(vec3(dat.toEdge.x, 0.0, dat.toEdge.y)),
+	//			      vec3(0.0, 1.0, 0.0),
+	//			      dat.edgeDist);
 }
 
 
@@ -154,8 +259,23 @@ vec3 getNormal(vec3 pos, float objectFlag)
 //The second argument should be the Y component of the return result of "distanceToWorldGeometry()"
 vec3 getDiffuse(vec3 pos, float objectFlag)
 {
-	if (pos.x > 0.0) return vec3(0.0, 1.0, 0.0);
-	else return vec3(0.0, 0.0, 1.0);
+	if (objectFlag == SPHERE_FLAG)
+		return vec3(1.0, 1.0, 1.0);
+		
+	if (objectFlag == BOX_FLAG)
+		return vec3(0.1, 0.5, 0.8);
+
+
+
+	//The object is the floor.
+
+	TilePosData dat = getTileData(pos.xz);
+
+	vec3 col = (dat.tileObject == TILE_ONE) ? vec3(1.0, 0.25, 0.25) : vec3(0.25, 0.25, 1.0);
+
+	if (dat.edgeDist > halfTileEdgeWidth) return col;
+
+	return vec3(0.5, 0.5, 0.5);
 }
 
 
@@ -329,7 +449,7 @@ vec3 marchRay(vec3 rayStart, vec3 rayDir, vec3 camPos)
 	
 	for (int i = 0; i < maxIterations; ++i)
 	{
-		posCounter = rayStart + (rayDir * (totalDistTraveled - (2.0 * distanceEpsilon)));
+		posCounter = rayStart + (rayDir * totalDistTraveled);
 	
 		tempDist = distanceToWorldGeometry(posCounter);
 
@@ -370,8 +490,8 @@ CameraData getCamera()
 
 	dat.pos = u_cam_pos + vec3(0.0, 5.0, 0.0);
 	dat.forward = u_cam_forward;
-	dat.up = u_cam_up;
-	dat.sideways = u_cam_side;
+	dat.up = u_cam_upward;
+	dat.sideways = u_cam_sideways;
 	dat.up = normalize(cross(dat.forward, dat.sideways));
 	return dat;
 }
@@ -394,7 +514,8 @@ CameraData getCamera()
 void main(void)
 {
 	//Map the screen coords to the range (-1, -1) : (1, 1).
-	vec2 uv = in_uv_coords;
+	vec2 uv = out_uv;
+	uv = vec2(uv.x, -uv.y);
 	uv *= 2.0;
 	uv -= vec2(1.0, 1.0);
 	
@@ -406,9 +527,9 @@ void main(void)
 	//Scale the y value using the aspect ratio so that the image isn't stretched.
 	vec3 fragStart = (camDat.pos + camDat.forward) +
                      (uv.x * camDat.sideways) +
-		             (uv.y * camDat.up * u_resolution.y / u_resolution.x);
+		             (uv.y * camDat.up * u_cam_height / u_cam_width);
 	vec3 fragDir = normalize(fragStart - camDat.pos);
 	
 	
-	out_color4 = vec4(marchRay(fragStart, fragDir, camDat.pos), 1.0);
+	FinalOut_Color = vec4(marchRay(fragStart, fragDir, camDat.pos), 1.0);
 }

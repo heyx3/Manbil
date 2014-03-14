@@ -234,9 +234,6 @@ const Vector2i windowSize(500, 500);
 float shaderLoadedTime = 0.0f;
 bool isInFocus = true;
 
-bool shouldCaptureMouse = false,
-     mousePressedLastFrame = false;
-
 
 void SetUpInput(InputManager<unsigned int> & input)
 {
@@ -279,8 +276,6 @@ void TTW::InitializeWorld(void)
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
 
-	GetWindow()->setMouseCursorVisible(!shouldCaptureMouse);
-
     //Create the quad and the material.
     CreateQuad();
     GetCreateMaterial();
@@ -292,6 +287,7 @@ void TTW::InitializeWorld(void)
     //Set up camera.
 	worldCam.SetPosition(Vector3f());
     worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), true);
+    worldCam.Window = GetWindow();
 
     RenderingState(false, false, true, RenderingState::Cullables::C_FRONT).EnableState();
 }
@@ -329,7 +325,6 @@ void TTW::OnOtherWindowEvent(sf::Event & event)
 void TTW::UpdateWorld(float elapsedSeconds)
 {
     //Update camera.
-    worldCam.Window = (shouldCaptureMouse ? GetWindow() : 0);
     if (isInFocus) worldCam.Update(elapsedSeconds);
 
     //Update time.
@@ -358,24 +353,6 @@ void TTW::UpdateWorld(float elapsedSeconds)
             LoadTextures(DoesMatUseCustomTex(), true);
         }
     }
-
-    //Update mouse capturing.
-    if (Input.GetBoolInputValue(5))
-    {
-        shouldCaptureMouse = false;
-        GetWindow()->setMouseCursorVisible(!shouldCaptureMouse);
-    }
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-    {
-        if (!mousePressedLastFrame)
-        {
-            shouldCaptureMouse = !shouldCaptureMouse;
-            GetWindow()->setMouseCursorVisible(!shouldCaptureMouse);
-        }
-
-        mousePressedLastFrame = true;
-    }
-    else mousePressedLastFrame = false;
 }
 
 void TTW::RenderOpenGL(float elapsedSeconds)

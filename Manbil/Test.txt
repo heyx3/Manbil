@@ -1,4 +1,0 @@
-void main()
-{
-	FinalOut_Color = vec4((0.5 + 0.5 * sin(u_shader_seconds)) * texture2D(u_noiseSampler, out_uv).xyz, 1.0);
-}

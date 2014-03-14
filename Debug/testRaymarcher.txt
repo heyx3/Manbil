@@ -6,9 +6,9 @@ Ray getPixelRay(vec2 uv)
 
 	//Get the camera position and orientation.
 	vec3 camPos = vec3(0.0, 15.0, 0.0);
-	vec3 camForward = normalize(vec3(cos(u_elapsed_seconds),
+	vec3 camForward = normalize(vec3(cos(u_shader_seconds),
 									 -0.5,
-									 sin(u_elapsed_seconds)));
+									 sin(u_shader_seconds)));
 	vec3 camUpward = vec3(0.0, 1.0, 0.0);
 	vec3 camSideways = normalize(cross(camForward, camUpward));
 
@@ -21,13 +21,14 @@ Ray getPixelRay(vec2 uv)
 
 	//Map the screen coordinates from the range (0, 0):(1, 1) to (-1, -1):(1, 1).
 	uv = (2.0 * uv) - vec2(1.0, 1.0);
+	uv = vec2(uv.x, -uv.y);
 
 
 	//Get the pixel position.
 	const float viewScale = 0.8;
 	returnVal.pos = (camPos + camForward) +
 					(viewScale * uv.x * camSideways) +
-					(viewScale * uv.y * camUpward * u_resolution.y / u_resolution.x);
+					(viewScale * uv.y * camUpward * u_cam_height / u_cam_width);
 
 	//Get the pixel ray direction.
 	returnVal.dir = normalize(returnVal.pos - camPos);
@@ -41,7 +42,7 @@ Ray getPixelRay(vec2 uv)
 
 float rnd(float n)
 {
-    return fract(sin(n * 43758.5453123));
+    return fract(sin(n * 363.263));
 }
 
 const float terrainHeight = 10.0;
@@ -166,6 +167,6 @@ vec3 doRaymarch(Ray ray)
 
 void main()
 {
-	Ray ray = getPixelRay(in_uv_coords);
-	out_color4 = vec4(doRaymarch(ray), 1.0);
+	Ray ray = getPixelRay(out_uv);
+	FinalOut_Color = vec4(doRaymarch(ray), 1.0);
 }
