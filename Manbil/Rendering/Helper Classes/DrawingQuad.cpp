@@ -10,7 +10,7 @@ const Vertex DrawingQuad::vertices[4] =
 const unsigned int DrawingQuad::indices[6] =
 {
     0, 1, 3,
-    0, 2, 3,
+    0, 3, 2,
 };
 
 VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);

@@ -14,9 +14,9 @@ public:
     //An ID that will never be assigned to a texture. Is used as a "default" or "error" value.
     static const unsigned int UNUSED_ID = 0;
 
-
+    TextureManager(void) : id(1) { }
     //Intentionally not implemented -- can't copy texture managers!
-    TextureManager(const TextureManager & cpy) { id = 1; }
+    TextureManager(const TextureManager & cpy);
 
     //Deletes all textures.
     ~TextureManager(void) { for (auto iterator = texturesByID.begin(); iterator != texturesByID.end(); ++iterator) delete iterator->second; }

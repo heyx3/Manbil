@@ -354,7 +354,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         TextureConverters::ToImage<float>(*seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
 
         unsigned int id = seedArgs.TexManager->CreateTexture(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
-        sf::Texture * seedHeightmap = seedArgs.TexManager->GetTexture(id);
+        sf::Texture * seedHeightmap = seedArgs.TexManager->operator[](id);
         seedHeightmap->loadFromImage(img);
         seedHeightmap->setSmooth(false);
         seedHeightmap->setRepeated(true);

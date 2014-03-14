@@ -12,7 +12,7 @@ class TwoTrianglesWorld : public SFMLOpenGLWorld
 {
 public:
 
-    static const std::string CustomSamplerName, NoiseSamplerName;
+    static const std::string CustomSamplerName, NoiseSamplerName, ShaderElapsedName;
 
 	TwoTrianglesWorld(void);
 	~TwoTrianglesWorld(void);

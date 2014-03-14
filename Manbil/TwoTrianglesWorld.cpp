@@ -15,7 +15,7 @@ typedef TwoTrianglesWorld TTW;
 //Debug printing stuff.
 namespace TTWPrints
 {
-	void Pause(void) { std::cout << "Enter any character to continue.\n"; char dummy; std::cin >> dummy; }
+	void Pause(void) { std::cout << "Enter any character to continue.\n"; std::string dummy; std::getline(std::cin, dummy); }
 	void PrintData(std::string datIntro, std::string dat, bool useLineBreak = true)
 	{
 		std::cout << datIntro << ": " << dat;
@@ -39,21 +39,25 @@ using namespace TTWPrints;
 
 
 
+#pragma region Material and quad
+
+
 Material * mat = 0;
 DrawingQuad * quad = 0;
 std::string shaderPath = "";
 
+void CreateQuad(void)
+{
+    if (quad != 0) delete quad;
+    quad = new DrawingQuad();
+    quad->SetSize(Vector2f(1.0f, -1.0f));
+}
 bool CreateMaterial(const std::string & vs, const std::string & fs, UniformDictionary & uniforms)
 {
     if (mat != 0) delete mat;
     mat = new Material(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false));
 
     return !mat->HasError();
-}
-void CreateQuad(void)
-{
-    if (quad != 0) delete quad;
-    quad = new DrawingQuad();
 }
 
 //Continuously asks the user for a valid shader and tries to create the material.
@@ -69,11 +73,13 @@ void GetCreateMaterial(bool askForFile = true)
     vs = MC::GetVertexHeader(false) + "\n\n\
 void main()                              \n\
 {                                        \n\
-    gl_Position = " + MC::InObjPos + ";  \n\
+    gl_Position = " + MC::WorldMatName + " * vec4(" + MC::InObjPos + ", 1.0);  \n\
     " + MC::OutUV + " = " + MC::InUV + ";\n\
 }";
     //Add any custom QuadWorld uniforms.
-    uniforms.FloatUniforms["u_shader_seconds"] = UniformValueF(0.0f, "u_shader_seconds");
+    uniforms.FloatUniforms[TTW::ShaderElapsedName] = UniformValueF(0.0f, TTW::ShaderElapsedName);
+    uniforms.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue((sf::Texture*)0, TTW::CustomSamplerName);
+    uniforms.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue((sf::Texture*)0, TTW::NoiseSamplerName);
 
     bool first = true;
 
@@ -106,7 +112,10 @@ void main()                              \n\
 
         //Read in the shader.
         fs = MC::GetFragmentHeader(false);
-        fs += "\nuniform float u_shader_seconds;\n\n";
+        fs += "\n\
+uniform float " + TTW::ShaderElapsedName + ";   \n\
+uniform sampler2D " + TTW::CustomSamplerName + ";\n\
+uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
         std::string line = "";
         while (std::getline(reader, line))
             fs += line + "\n";
@@ -122,6 +131,7 @@ void main()                              \n\
             continue;
         }
 
+        quad->GetMesh().Uniforms.AddUniforms(uniforms, true);
         valid = true;
     }
 }
@@ -133,11 +143,16 @@ bool DoesMatUseCustomTex(void)
     auto location = std::find_if(uniforms.begin(), uniforms.end(),
                                  [](const UniformList::Uniform & unf)
                                  {
-                                     return unf.Name == TwoTrianglesWorld::CustomSamplerName;
+                                     return unf.Name == TTW::CustomSamplerName;
                                  });
     return location != uniforms.end();
 }
 
+
+#pragma endregion
+
+
+#pragma region Textures
 
 
 TextureManager * tManager;
@@ -151,18 +166,18 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 {
     //Get the noise texture.
 
-    noiseTexID = tManager->CreateTexture("NoiseTex.png");
+    noiseTexID = tManager->CreateTexture("Content/Textures/NoiseTex.png");
     if (noiseTexID == TextureManager::UNUSED_ID)
     {
-        PrintData("Error loading 'NoiseTex.png'", "SFML could not find or load the file.");
+        PrintData("Error loading 'Content/Textures/NoiseTex.png'", "SFML could not find or load the file.");
         Pause();
     }
     else
     {
         sf::Texture::bind((*tManager)[noiseTexID]);
         TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-        quad->GetMesh().Uniforms.TextureUniforms[TwoTrianglesWorld::NoiseSamplerName] =
-            UniformSamplerValue((*tManager)[noiseTexID], TwoTrianglesWorld::NoiseSamplerName);
+        quad->GetMesh().Uniforms.TextureUniforms[TTW::NoiseSamplerName] =
+            UniformSamplerValue((*tManager)[noiseTexID], TTW::NoiseSamplerName);
     }
 
 
@@ -202,22 +217,16 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
     }
 
     TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-    quad->GetMesh().Uniforms.TextureUniforms[TwoTrianglesWorld::CustomSamplerName] =
-        UniformSamplerValue((*tManager)[customTexID], TwoTrianglesWorld::CustomSamplerName);
+    quad->GetMesh().Uniforms.TextureUniforms[TTW::CustomSamplerName] =
+        UniformSamplerValue((*tManager)[customTexID], TTW::CustomSamplerName);
 }
 
 
-void SetUpInput(InputManager<unsigned int> & input)
-{
-    input.AddBoolInput(1, BoolInputPtr(new KeyboardBoolInput(KeyboardBoolInput::Key::Num1, BoolInput::JustPressed)));
-    input.AddBoolInput(2, BoolInputPtr(new KeyboardBoolInput(KeyboardBoolInput::Key::Num2, BoolInput::JustPressed)));
-    input.AddBoolInput(3, BoolInputPtr(new KeyboardBoolInput(KeyboardBoolInput::Key::Num3, BoolInput::JustPressed)));
-    input.AddBoolInput(4, BoolInputPtr(new KeyboardBoolInput(KeyboardBoolInput::Key::Num4, BoolInput::JustPressed)));
-
-    input.AddBoolInput(5, BoolInputPtr(new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::JustPressed)));
-}
+#pragma endregion
 
 
+
+//Miscellaneous world data.
 
 MovingCamera worldCam(10.0f, 0.03f);
 
@@ -227,6 +236,22 @@ bool isInFocus = true;
 
 bool shouldCaptureMouse = false,
      mousePressedLastFrame = false;
+
+
+void SetUpInput(InputManager<unsigned int> & input)
+{
+    input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num1, BoolInput::JustPressed)));
+    input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num2, BoolInput::JustPressed)));
+    input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num3, BoolInput::JustPressed)));
+    input.AddBoolInput(4, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num4, BoolInput::JustPressed)));
+
+    input.AddBoolInput(5, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::JustPressed)));
+}
+
+
+const std::string TTW::CustomSamplerName = "u_mySampler",
+                  TTW::NoiseSamplerName = "u_noiseSampler",
+                  TTW::ShaderElapsedName = "u_shader_seconds";
 
 
 TTW::TwoTrianglesWorld(void)
@@ -264,10 +289,11 @@ void TTW::InitializeWorld(void)
     LoadTextures(DoesMatUseCustomTex());
 
 
-    //Set up cameras.
-    
+    //Set up camera.
 	worldCam.SetPosition(Vector3f());
     worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), true);
+
+    RenderingState(false, false, true, RenderingState::Cullables::C_FRONT).EnableState();
 }
 
 void TTW::OnWorldEnd(void)
@@ -308,7 +334,7 @@ void TTW::UpdateWorld(float elapsedSeconds)
 
     //Update time.
     shaderLoadedTime += elapsedSeconds;
-    quad->GetMesh().Uniforms.FloatUniforms["u_shader_seconds"].SetValue(shaderLoadedTime);
+    quad->GetMesh().Uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(shaderLoadedTime);
 
     //Reload materials/textures based on player input.
     if (isInFocus)

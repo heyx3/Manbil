@@ -2,7 +2,7 @@
 
 //#include "NoiseTest.h"
 #include "OpenGLTestWorld.h"
-//#include "TwoTrianglesWorld.h"
+#include "TwoTrianglesWorld.h"
 //#include "Tests/TwoDOpenGLTest.h"
 
 
@@ -107,7 +107,7 @@ int main()
     //TestDataNodes();
 
     //NoiseTest().RunWorld();
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     //TwoDOpenGLTest().RunWorld();
-    //TwoTrianglesWorld().RunWorld();
+    TwoTrianglesWorld().RunWorld();
 }

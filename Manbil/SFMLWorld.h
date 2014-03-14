@@ -1,6 +1,5 @@
 #pragma once
 
-//#include <SFGUI/SFGUI.hpp>
 #include "SFML/Window.hpp"
 #include "SFML/Graphics.hpp"
 #include "Input/InputManager.h"
@@ -33,16 +32,6 @@ public:
 	//Starts running this world in an endless loop until it's finished.
 	void RunWorld(void);
 
-	//Gets the object that manages the SFGUI system.
-	//sfg::SFGUI & GetSFGUI(void) { return sfgui; }
-	//Gets the object that manages SFGUI windows.
-	//sfg::Desktop & GetGUIDesktop(void) { return sfguiDesktop; }
-	//Gets the object that manages a set of GUI elements.
-	//sfg::Window::Ptr & GetGUIWindow(void) { return sfguiWindow; }
-
-	//Draws SFGUI elements onto this world's window.
-	//void DrawGUI(void) { sfgui.Display(*window); }
-
 protected:
 
     InputManager<unsigned int> Input;
@@ -64,10 +53,6 @@ protected:
 	virtual void OnWorldEnd(void) { }
 
 private:
-
-	//sfg::SFGUI sfgui;
-	//sfg::Desktop sfguiDesktop;
-	//sfg::Window::Ptr sfguiWindow;
 
 	float totalElapsedSeconds;
 	sf::RenderWindow * window;

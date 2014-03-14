@@ -5,14 +5,14 @@
 #include "EventManager.h"
 
 
-//Allows events to go off.
+//Counts down a clock, then notifies "subscribers" of the clock going off.
 class Timer
 {
 public:
 
+    float TimeLeft, TimeLength;
     int EventID;
     void* pArgs;
-    float TimeLeft, TimeLength;
 
     std::vector<EventResponder*> ToNotify;
 
@@ -43,7 +43,7 @@ public:
     //   whether the timer is 1) removed or 2) reset when it goes off.
     void AddTimer(const Timer & t, bool destroyAfterEvent)
     {
-        timers.insert(timers.begin(), TimerElement(t, destroyAfterEvent));
+        timers.insert(timers.end(), TimerElement(t, destroyAfterEvent));
     }
     //Removes all timers with the given event type.
     //Returns the number of timers that were removed.
@@ -55,6 +55,7 @@ public:
     //Updates all timers and returns the number of them that went off.
     unsigned int UpdateTimers(float elapsedTime);
 
+
 private:
 
     struct TimerElement
@@ -62,5 +63,7 @@ private:
     public: Timer T; bool DestroyAfterEvent;
             TimerElement(Timer t, bool destroy) : T(t), DestroyAfterEvent(destroy) { }
     };
+
     std::vector<TimerElement> timers;
+    //TODO: Add "toRemove" and "toAdd" lists and use them during "UpdateTimers", so that timers that go off can remove/add other timers without causing a problem.
 };
