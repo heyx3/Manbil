@@ -1,10 +1,9 @@
 #include "TwoTrianglesWorld.h"
 
-#include "Vertices.h"
-#include "MovingCamera.h"
 #include "TextureSettings.h"
 #include "RenderingState.h"
 #include "ScreenClearer.h"
+#include "Rendering/Texture Management/RenderTargetManager.h"
 #include <iostream>
 #include <fstream>
 
@@ -15,7 +14,7 @@ typedef TwoTrianglesWorld TTW;
 namespace TTWPrints
 {
 	void Pause(void) { char dummy; std::cin >> dummy; }
-	void PrintData(string datIntro, string dat, bool useLineBreak = true)
+	void PrintData(std::string datIntro, std::string dat, bool useLineBreak = true)
 	{
 		std::cout << datIntro << ": " << dat;
 		if (useLineBreak) std::cout << "\n";
@@ -38,166 +37,25 @@ using namespace TTWPrints;
 
 
 
-
-//Fragment shader loading code.
-
-string shaderPath = "";
-
-//Continuously asks the user for a fragment shader file.
-//Returns the contents of the first valid text file the user entered.
-//Does NOT try to compile or otherwise verify that the actual shader code is valid code.
-string GetFragmentShader()
-{
-	std::ifstream file;
-
-
-	//Keep asking until the user provides a valid path.
-
-	while (true)
-	{
-		//Get the file path.
-
-		if (strcmp(shaderPath.c_str(), "") == 0)
-		{
-			std::cout << "Enter the path of the fragment shader to use:\n";
-			std::cin >> shaderPath;
-		}
-
-
-
-		//Attempt to open the file.
-
-		file.open(shaderPath.c_str());
-		if (!file.is_open())
-		{
-			std::cout << "Sorry, that file could not be accessed.\n\n";
-			shaderPath = "";
-			continue;
-		}
-
-
-
-		//Read the file.
-
-		string text = "";
-		string line;
-		while (std::getline(file, line))
-		{
-			text += line;
-			text += "\n";
-		}
-		file.close();
-		return text;
-	}
-}
-
-//Gets a shader from the user, then allocates a new TTF material using it.
-//Continues doing this until a valid material is succesfully created.
-void LoadTTFShader(TwoTrianglesMaterial * & tMat)
-{
-	while (true)
-	{
-		if (tMat != 0) delete tMat;
-		tMat = 0;
-
-		tMat = new TwoTrianglesMaterial(GetFragmentShader());
-		if (strcmp(tMat->GetErrorMessage(), "") != 0)
-		{
-			std::cout << "\nSorry, that is not a valid GLSL program. Compilation errors:\n" << tMat->GetErrorMessage() << "\n\n";
-			shaderPath = "";
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	//Now output instructions.
-	std::cout << "\n\n\n\n\n\n\n\n";
-	std::cout << "Press '1' to reload the shader.\n" <<
-				 "Press '2' to choose a new shader.\n" <<
-				 "Press '3' to reload the loaded image into 'u_sampler_1'.\n" <<
-				 "Press '4' to load a new image into 'u_sampler_1'.\n";
-}
-
-
-
-
-//Texture loading code.
-
-string texPath = "";
-RenderObjHandle texObjLoaded = RenderDataHandler::INVALID_UNIFORM_LOCATION,
-				noiseObjLoaded = RenderDataHandler::INVALID_UNIFORM_LOCATION;
-
-//Continuously asks the user fora texture until a valid one is supplied.
-void GetLoadedTexture(void)
-{
-	sf::Image img;
-
-	while (true)
-	{
-		//Get the file path.
-
-		if (strcmp(texPath.c_str(), "") == 0)
-		{
-			std::cout << "Enter the path of the texture for u_sampler_1:\n";
-			std::cin >> texPath;
-		}
-
-
-
-		//Attempt to read the image.
-
-		if (!img.loadFromFile(texPath))
-		{
-			std::cout << "Sorry, that image could not be read.\n\n";
-			texPath = "";
-			continue;
-		}
-
-		break;
-	}
-
-	//Try to delete the previous texture whether or not it existed, then just ignore the potential resuling OpenGL error --
-	//     if GL generated an error, that just means the texture doesn't need to be deleted.
-	RenderDataHandler::DeleteTexture2D(texObjLoaded);
-	ClearAllRenderingErrors();
-
-	//Create a new replacement texture.
-	RenderDataHandler::CreateTexture2D(texObjLoaded, img);
-	if (!PrintRenderError("Error creating a new 2d texture")) return;
-}
-
-void SetUpLoadedTexture(TwoTrianglesMaterial * mat)
-{
-	GetLoadedTexture();
-	
-	TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureFiltering::TF_LINEAR,
-					TextureSettings::TextureWrapping::TW_CLAMP, TextureSettings::TextureWrapping::TW_CLAMP).SetData(texObjLoaded);
-	PrintRenderError("Error occurred setting texture info for custom image.");
-
-	mat->SetTexture(TwoTrianglesMaterial::FileSampler, texObjLoaded);
-}
-
-
-
-
-
 const Vector2i windowSize(500, 500);
 float shaderLoadedTime = 0.0f;
 bool isInFocus = true;
 
 
-
-MovingCamera shaderCam;
-
 bool shouldCaptureMouse = false,
 	 mousePressedLastFrame = false;
 
 
-TTW::TwoTrianglesWorld(void) : SFMLOpenGLWorld(windowSize.x, windowSize.y), mat(0)
-{
+Material * mat;
+DrawingQuad * quad;
+RenderTargetManager targManager;
 
+
+
+TTW::TwoTrianglesWorld(void) : SFMLOpenGLWorld(windowSize.x, windowSize.y)
+{
+    mat = 0;
+    quad = 0;
 }
 
 void TTW::InitializeWorld(void)

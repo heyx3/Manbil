@@ -1,16 +1,18 @@
 #pragma once
 
 #include "sfmlopenglworld.h"
-#include "TwoTrianglesMaterial.h"
+#include "Material.h"
+#include "Rendering/Materials/MaterialData.h"
+#include "Rendering/Helper Classes/DrawingQuad.h"
 
-//TODO: Rewrite all the rendering to use the new rendering system.
 
+//A world that draws a quad.
 class TwoTrianglesWorld : public SFMLOpenGLWorld
 {
 public:
 
 	TwoTrianglesWorld(void);
-	~TwoTrianglesWorld(void) { DeleteAndSetToNull(mat); }
+	~TwoTrianglesWorld(void) { DeleteAndSetToNull(mat); DeleteAndSetToNull(quad); }
 
 protected:
 
@@ -26,8 +28,4 @@ protected:
 	virtual void OnWorldEnd(void) override;
 
 	virtual void OnOtherWindowEvent(sf::Event & event) override;
-
-private:
-
-	TwoTrianglesMaterial * mat;
 };

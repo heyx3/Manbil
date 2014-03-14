@@ -165,7 +165,6 @@
     <ClCompile Include="TerrainWalkCamera.cpp" />
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp" />
     <ClCompile Include="TextureSettings.cpp" />
-    <ClCompile Include="TwoTrianglesMaterial.cpp" />
     <ClCompile Include="TwoTrianglesWorld.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Vertices.cpp" />
@@ -294,7 +293,6 @@
     <ClInclude Include="TerrainWalkCamera.h" />
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
     <ClInclude Include="TextureSettings.h" />
-    <ClInclude Include="TwoTrianglesMaterial.h" />
     <ClInclude Include="TwoTrianglesWorld.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Vertices.h" />
