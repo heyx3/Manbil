@@ -78,8 +78,8 @@ void main()                              \n\
 }";
     //Add any custom QuadWorld uniforms.
     uniforms.FloatUniforms[TTW::ShaderElapsedName] = UniformValueF(0.0f, TTW::ShaderElapsedName);
-    uniforms.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue((sf::Texture*)0, TTW::CustomSamplerName);
-    uniforms.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue((sf::Texture*)0, TTW::NoiseSamplerName);
+    uniforms.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue(TTW::CustomSamplerName);
+    uniforms.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue(TTW::NoiseSamplerName);
 
     bool first = true;
 
@@ -172,12 +172,16 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         PrintData("Error loading 'Content/Textures/NoiseTex.png'", "SFML could not find or load the file.");
         Pause();
     }
-    else
+    else if ((*tManager)[noiseTexID].BindTexture())
     {
-        sf::Texture::bind((*tManager)[noiseTexID]);
         TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
         quad->GetMesh().Uniforms.TextureUniforms[TTW::NoiseSamplerName] =
             UniformSamplerValue((*tManager)[noiseTexID], TTW::NoiseSamplerName);
+    }
+    else
+    {
+        std::cout << "Error: couldn't access noise texture ID after creating it.\n";
+        Pause();
     }
 
 

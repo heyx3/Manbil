@@ -1,10 +1,11 @@
 #include "TwoDOpenGLTest.h"
 
-/*
 
 #include "../ScreenClearer.h"
 #include "../TextureSettings.h"
 #include "../Input/Input Objects/KeyboardBoolInput.h"
+#include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
 
 
 #include <iostream>
@@ -20,33 +21,35 @@ namespace TwoDOpenGLTestStuff
 }
 using namespace TwoDOpenGLTestStuff;
 
+
+
 sf::Font font;
 
 TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
-                      sf::ContextSettings(24, 0, 1, 3, 3)),
-      cam(0), foreQuad(0), backQuad(0), backMat(0), foreMat(0)
+                      sf::ContextSettings(24, 0, 0, 3, 3)),
+      cam(0), foreQuad(0), backQuad(0), quadMat(0)
 {
 
 }
 
 void TwoDOpenGLTest::InitializeWorld(void)
 {
+    //Basic OpenGL/world initialization.
     SFMLOpenGLWorld::InitializeWorld();
-
-    if (!font.loadFromFile("Content/Fonts/Candara.ttf"))
-    {
-        std::cout << "Error loading 'Candara.ttf'\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-
     GetWindow()->setVerticalSyncEnabled(true);
     GetWindow()->setMouseCursorVisible(true);
-
     glViewport(0, 0, windowSize.x, windowSize.y);
 
+
+    //Camera.
+    cam = new Camera(Vector3f(0, 0, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+    cam->MinOrthoBounds = Vector3f(-500.0f, -500.0f, -100.0f);
+    cam->MaxOrthoBounds = Vector3f(500.0f, 500.0f, 0.01f);
+    cam->Info = ProjectionInfo(ToRadian(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
+
+
+    //Input.
     Input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::W, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(0, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::S, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Down, BoolInput::ValueStates::IsDown)));
@@ -54,35 +57,51 @@ void TwoDOpenGLTest::InitializeWorld(void)
     Input.AddBoolInput(1234, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Escape, BoolInput::ValueStates::IsDown)));
 
 
-    RenderingState(true, true, true).EnableState();
+    //Drawing quads.
+    foreQuad = new DrawingQuad();
+    foreQuad->SetPos(Vector2f());
+    foreQuad->SetSize(Vector2f(1.0f, 1.0f));
+    foreQuad->SetDepth(1.0f);
+    backQuad = new DrawingQuad();
+    backQuad->SetPos(Vector2f());
+    backQuad->SetSize(Vector2f(3.0f, 3.0f));
+    backQuad->SetDepth(-1.0f);
 
-    sf::Image background, foreground;
-    if (!background.loadFromFile("Content/Textures/Water.png"))
+
+    //Textures.
+    foreTex = Textures.CreateTexture("Content/Textures/shrub.png");
+    if (foreTex == TextureManager::UNUSED_ID)
     {
-        std::cout << "Error loading 'Water.png'\n";
+        std::cout << "Error loading 'Content/Textures/shrub.png'\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!foreground.loadFromFile("Content/Textures/shrub.png"))
+    backTex = Textures.CreateTexture("Content/Textures/Water.png");
+    if (backTex == TextureManager::UNUSED_ID)
     {
-        std::cout << "Error loading 'shrub.png'\n";
+        std::cout << "Error loading 'Content/Textures/Water.png'\n";
         Pause();
         EndWorld();
         return;
     }
-
 
     TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false);
-    RenderObjHandle foreTex, backTex;
-
-    RenderDataHandler::CreateTexture2D(foreTex, foreground);
     setts.SetData(foreTex);
-    RenderDataHandler::CreateTexture2D(backTex, background);
     setts.SetData(backTex);
 
+
+    //Fonts.
+    ClearAllRenderingErrors();
+    if (!font.loadFromFile("Content/Fonts/Candara.ttf"))
+    {
+        std::cout << "Error loading 'Candara.ttf'\n";
+        Pause();
+        EndWorld();
+        return;
+    }
     const sf::Texture & fontTex = font.getTexture(20);
-    sf::Glyph glyph = font.getGlyph()
+    sf::Glyph glyph = font.getGlyph((unsigned int)'H', 12, false);
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
@@ -93,50 +112,28 @@ void TwoDOpenGLTest::InitializeWorld(void)
         return;
     }
 
-    backMat = new Material(Materials::UnlitTexture);
-    backMat->AddUniform("brightness");
-    if (backMat->HasError())
+
+    //Materials.
+
+    std::unordered_map<RenderingChannels, DataLine> channels;
+    channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_myTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    std::string vs, fs;
+    UniformDictionary uniformDict;
+    ShaderGenerator::GenerateShaders(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
+
+    quadMat = new Material(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (quadMat->HasError())
     {
-        std::cout << "Error creating background mat: " << backMat->GetErrorMessage();
+        std::cout << "Error creating quad mat: " << quadMat->GetErrorMsg();
         Pause();
         EndWorld();
         return;
     }
-    backMat->SetTexture(0, backTex);
-    foreMat = new Material(Materials::UnlitTexture);
-    foreMat->AddUniform("brightness");
-    if (foreMat->HasError())
-    {
-        std::cout << "Error creating foreground mat: " << foreMat->GetErrorMessage();
-        Pause();
-        EndWorld();
-        return;
-    }
-    foreMat->SetTexture(0, backTex);
 
-
-    PassSamplers foreSamplers, backSamplers;
-    foreSamplers[0] = foreTex;
-    backSamplers[0] = backTex;
-
-    foreQuad = new DrawingQuad();
-    foreQuad->SetPos(Vector2f());
-    foreQuad->SetSize(Vector2f(1.0f, 1.0f));
-    foreQuad->SetDepth(1.0f);
-    foreQuad->GetMesh().TextureSamplers.insert(foreQuad->GetMesh().TextureSamplers.end(), foreSamplers);
-    foreQuad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
-    backQuad = new DrawingQuad();
-    backQuad->SetPos(Vector2f());
-    backQuad->SetSize(Vector2f(3.0f, 3.0f));
-    backQuad->SetDepth(-1.0f);
-    backQuad->GetMesh().TextureSamplers.insert(backQuad->GetMesh().TextureSamplers.end(), backSamplers);
-    backQuad->GetMesh().FloatUniformValues["brightness"] = Mesh::UniformValue<float>(1.0f);
-
-
-    cam = new Camera(Vector3f(0, 0, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f), true);
-    cam->MinOrthoBounds = Vector3f(-500.0f, -500.0f, -100.0f);
-    cam->MaxOrthoBounds = Vector3f(500.0f, 500.0f, 0.01f);
-    cam->Info = ProjectionInfo(ToRadian(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
+    foreQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
+    foreQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].SetData(Textures[foreTex]);
+    backQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
+    backQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].SetData(Textures[backTex]);
 }
 
 void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)
@@ -151,8 +148,7 @@ void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)
 
 void TwoDOpenGLTest::CleanUp(void)
 {
-    DeleteAndSetToNull(backMat);
-    DeleteAndSetToNull(foreMat);
+    DeleteAndSetToNull(quadMat);
     DeleteAndSetToNull(foreQuad);
     DeleteAndSetToNull(backQuad);
     DeleteAndSetToNull(cam);
@@ -161,34 +157,28 @@ void TwoDOpenGLTest::CleanUp(void)
 
 void TwoDOpenGLTest::UpdateWorld(float elapsedSeconds)
 {
-    foreQuad->SetSize(Vector2f(1.0f, 1.0f));
-
     if (Input.GetBoolInputValue(1))
     {
         cam->SetPositionZ(cam->GetPosition().z - (elapsedSeconds * 25.0f));
-        std::cout << cam->GetPosition().z << "\n";
     }
     if (Input.GetBoolInputValue(0))
     {
         cam->SetPositionZ(cam->GetPosition().z + (elapsedSeconds * 25.0f));
-        std::cout << cam->GetPosition().z << "\n";
     }
 
     if (Input.GetBoolInputValue(2))
     {
-        float br = foreQuad->GetMesh().FloatUniformValues["brightness"].Data[0];
-        br -= 0.5f * elapsedSeconds;
-        std::cout << br << "\n";
-        foreQuad->GetMesh().FloatUniformValues["brightness"].Data[0] = br;
-        backQuad->GetMesh().FloatUniformValues["brightness"].Data[0] = 1.0f - br;
+        foreQuad->SetSize(Vector2f(foreQuad->GetMesh().Transform.GetScale().x * 1.01f,
+                                   foreQuad->GetMesh().Transform.GetScale().y * 1.01f));
+        backQuad->SetSize(Vector2f(backQuad->GetMesh().Transform.GetScale().x * 1.01f,
+                                   backQuad->GetMesh().Transform.GetScale().y * 1.01f));
     }
     if (Input.GetBoolInputValue(3))
     {
-        float br = foreQuad->GetMesh().FloatUniformValues["brightness"].Data[0];
-        br += 0.5f * elapsedSeconds;
-        std::cout << br << "\n";
-        foreQuad->GetMesh().FloatUniformValues["brightness"].Data[0] = br;
-        backQuad->GetMesh().FloatUniformValues["brightness"].Data[0] = 1.0f - br;
+        foreQuad->SetSize(Vector2f(foreQuad->GetMesh().Transform.GetScale().x * 0.99f,
+                                   foreQuad->GetMesh().Transform.GetScale().y * 0.99f));
+        backQuad->SetSize(Vector2f(backQuad->GetMesh().Transform.GetScale().x * 0.99f,
+                                   backQuad->GetMesh().Transform.GetScale().y * 0.99f));
     }
 
     if (Input.GetBoolInputValue(1234))
@@ -209,20 +199,21 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
     projM.SetAsPerspProj(cam->Info);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
+    RenderingState(true, true, true).EnableState();
 
 
     ScreenClearer(true, true, true, Vector4f(0.2f, 0.0f, 0.0f, 1.0f)).ClearScreen();
 
-    if (!backQuad->Render(info, *backMat))
+    if (!backQuad->Render(RenderPasses::BaseComponents,info, *quadMat))
     {
-        std::cout << "Error rendering background: " << backMat->GetErrorMessage();
+        std::cout << "Error rendering background: " << quadMat->GetErrorMsg();
         Pause();
         EndWorld();
         return;
     }
-    if (!foreQuad->Render(info, *foreMat))
+    if (!foreQuad->Render(RenderPasses::BaseComponents, info, *quadMat))
     {
-        std::cout << "Error rendering foreground: " << foreMat->GetErrorMessage();
+        std::cout << "Error rendering foreground: " << quadMat->GetErrorMsg();
         Pause();
         EndWorld();
         return;
@@ -236,5 +227,3 @@ void TwoDOpenGLTest::OnWindowResized(unsigned int w, unsigned int h)
     cam->Info.Width = w;
     cam->Info.Height = h;
 }
-
-*/
