@@ -1,14 +1,14 @@
 #pragma once
 
 #include "OpenGLIncludes.h"
+#include "RenderDataHandler.h"
+#include <SFML/Graphics/Texture.hpp>
 
 
 //Handles manipulation of OpenGL textures.
 class TextureSettings
 {
 public:
-
-    //TODO: Create a "Texture2D" class to handle creation, copying, settings, and everything else.
 
 	enum TextureFiltering
 	{
@@ -39,8 +39,35 @@ public:
 	}
 
 
-    //If 0 is passed in, this method just uses the currently-bound texture.
-	void SetData(RenderObjHandle tex = 0) const;
+    //Uses the currently-bound texture.
+    static void SetWrappingData(TextureWrapping horizontal, TextureWrapping vertical);
+    //Uses the currently-bound texture.
+    static void SetWrappingData(TextureWrapping wrap) { SetWrappingData(wrap, wrap); }
+    //Uses the currently-bound texture.
+    static void SetFilteringData(TextureFiltering minFilter, TextureFiltering magFilter, bool usesMipmaps);
+    //Uses the currently-bound texture.
+    static void SetFilteringData(TextureFiltering filter, bool usesMipmaps) { SetFilteringData(filter, filter, usesMipmaps); }
+    //Uses the currently-bound texture.
+    static void GenMipmaps(void);
+
+    //Uses the currently-bound texture.
+    void SetData(void) const;
+    //Uses the currently-bound texture.
+    void SetWrappingData(void) const { SetWrappingData(HorWrap, VertWrap); }
+    //Uses the currently-bound texture.
+    void SetFilteringData(void) const { SetFilteringData(MinFilter, MagFilter); }
+    //Uses the currently-bound texture.
+    void SetMipmaps(void) const { if (GenerateMipmaps) GenMipmaps(); }
+
+    void SetData(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetData(); }
+    void SetWrappingData(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetWrappingData(); }
+    void SetFilteringData(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetFilteringData(); }
+    void SetMipmaps(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetMipmaps(); }
+
+    void SetData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetData(); }
+    void SetWrappingData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetWrappingData(); }
+    void SetFilteringData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetFilteringData(); }
+    void SetMipmaps(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetMipmaps(); }
 
 
 private:

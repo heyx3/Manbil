@@ -196,17 +196,12 @@ public:
 struct UniformSamplerValue
 {
 public:
-    sf::Texture * SFMLTexture;
-    RenderObjHandle GLTexture;
+    ManbilTexture Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(sf::Texture * sfmlTexture, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), SFMLTexture(sfmlTexture), GLTexture(0) { }
-    UniformSamplerValue(RenderObjHandle glTexture, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), SFMLTexture(0), GLTexture(glTexture) { }
-    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), SFMLTexture(0), GLTexture(0) { }
-    void SetData(sf::Texture * sfmlTexture) { GLTexture = 0; SFMLTexture = sfmlTexture; }
-    void SetData(RenderObjHandle glTexture) { GLTexture = glTexture; SFMLTexture = 0; }
+    UniformSamplerValue(ManbilTexture texture, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(texture) { }
+    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture() { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 

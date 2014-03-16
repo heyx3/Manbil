@@ -130,22 +130,41 @@ void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 	glUniformMatrix4fv(lc, 1, GL_TRUE, (const GLfloat*)(&mat));
 }
 
-void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle, sf::Image & img, bool genMipmaps)
+void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle)
 {
-	glGenTextures(1, &texObjectHandle);
-	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
-    if (genMipmaps)
-    {
-        glEnable(GL_TEXTURE_2D);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
+    glGenTextures(1, &texObjectHandle);
 }
+
 void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size)
 {
 	glGenTextures(1, &texObjectHandle);
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+}
+
+void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color)
+{
+    unsigned char * colors = new unsigned char[texSize.x * 4 * texSize.y];
+    for (unsigned int x = 0; x < texSize.x; x += 4)
+        for (unsigned int y = 0; y < texSize.y; ++y)
+            memcpy(&colors[(y * texSize.x) + x], &color, sizeof(Vector4b));
+
+    glBindTexture(GL_TEXTURE_2D, texObjectHandle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texSize.x, texSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)colors);
+
+    delete colors;
+}
+void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4f color)
+{
+    float * colors = new float[texSize.x * 4 * texSize.y];
+    for (unsigned int x = 0; x < texSize.x; x += 4)
+        for (unsigned int y = 0; y < texSize.y; ++y)
+            memcpy(&colors[(y * texSize.x) + x], &color, sizeof(Vector4f));
+
+    glBindTexture(GL_TEXTURE_2D, texObjectHandle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texSize.x, texSize.y, 0, GL_RGBA, GL_FLOAT, (GLvoid*)colors);
+
+    delete colors;
 }
 void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, Vector2i size)
 {
@@ -154,18 +173,18 @@ void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 }
 
-void RenderDataHandler::SetTexture2DDataFloats(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
+void RenderDataHandler::SetTexture2DDataFloats(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize.x, texSize.y, 0, GL_RGBA, GL_FLOAT, pixelData);
 }
-void RenderDataHandler::SetTexture2DDataUBytes(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData)
+void RenderDataHandler::SetTexture2DDataUBytes(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texSize.x, texSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, pixelData);
 }
 
-void RenderDataHandler::SetDepthTexture2DSize(const RenderObjHandle & texObjHandle, Vector2i texSize)
+void RenderDataHandler::SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i texSize)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texSize.x, texSize.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);

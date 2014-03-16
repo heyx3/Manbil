@@ -1,9 +1,9 @@
 #pragma once
 
 #include "OpenGLIncludes.h"
-#include "SFML/Graphics.hpp"
 #include "Math/Matrix4f.h"
 #include "Math/Fake2DArray.h"
+#include <SFML/Graphics/Image.hpp>
 
 //Manages different kinds of data being passed between CPU and GPU.
 class RenderDataHandler
@@ -37,8 +37,6 @@ public:
 	//Sets a matrix value. Assumes the correct shader program is already bound.
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
 	
-	//Creates a texture object for passing to a shader.
-	static void CreateTexture2D(RenderObjHandle & texObjectHandle, sf::Image & img, bool createMipmaps = false);
     template<typename Data>
     //Creates a texture object for passing to a shader.
     static void CreateTexture2D(RenderObjHandle & texObjectHandle, const Fake2DArray<Data> & imgData,
@@ -75,21 +73,27 @@ public:
             glGenerateMipmap(GL_TEXTURE_2D);
         }
     }
-	//Creates a texture object for passing to a shader.
+    //Creates a texture object for passing to a shader.
+    static void CreateTexture2D(RenderObjHandle & texObjectHandle);
+	//Creates and initializes a texture object for passing to a shader.
 	static void CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
 	//Creates a depth texture object for passing to a shader.
 	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
     //Generates mipmaps for a texture that has already been created.
     static void GenerateTexture2DMipmaps(RenderObjHandle texture);
 
+    //Sets the texture data using a default color.
+    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color);
+    //Sets the texture data using a default color.
+    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4f color);
 	//Sets the texture data using float4 color.
-	static void SetTexture2DDataFloats(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+	static void SetTexture2DDataFloats(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData = 0);
 	//Sets the texture data using unsigned byte4 color.
-	static void SetTexture2DDataUBytes(const RenderObjHandle & texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+	static void SetTexture2DDataUBytes(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData = 0);
 	//Sets the texture data using an SFML Image.
-	static void SetTexture2DData(const RenderObjHandle & texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
+	static void SetTexture2DData(RenderObjHandle texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
 	//Sets the given depth texture to the given size.
-	static void SetDepthTexture2DSize(const RenderObjHandle & texObjHandle, Vector2i size);
+	static void SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i size);
 	//Deletes a texture object.
 	static void DeleteTexture2D(RenderObjHandle & texObjHandle);
 	//Sets a texture object as the active one.

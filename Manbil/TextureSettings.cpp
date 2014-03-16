@@ -1,14 +1,23 @@
 #include "TextureSettings.h"
 
-void TextureSettings::SetData(RenderObjHandle tex) const
+void TextureSettings::SetData(void) const
 {
-	if (tex != 0) glBindTexture(GL_TEXTURE_2D, tex);
+    SetWrappingData();
+    SetFilteringData();
+    SetMipmaps();
+}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, GenerateMipmaps));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, GenerateMipmaps));
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(HorWrap));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
-
-    if (GenerateMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+void TextureSettings::SetWrappingData(TextureWrapping horizontal, TextureWrapping vertical)
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(horizontal));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(vertical));
+}
+void TextureSettings::SetFilteringData(TextureFiltering minFilter, TextureFiltering magFilter, bool mips)
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(magFilter, false, mips));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(minFilter, true, mips));
+}
+void TextureSettings::GenMipmaps(void)
+{
+    glGenerateMipmap(GL_TEXTURE_2D);
 }

@@ -1,15 +1,18 @@
 #pragma once
 
-
 #include "GL/glew.h"
 #include "GL/wglew.h"
 #include "SFML/OpenGL.hpp"
 
 
+//An OpenGL pointer to some kind of data (buffer, texture, etc).
 typedef GLuint RenderObjHandle;
+//An OpenGL pointer to the location of a uniform in a shader.
 typedef GLint UniformLocation;
+
 typedef GLchar Char;
 typedef GLvoid Void;
+
 
 //TODO: Use this for all classes that should use error message handling.
 #define ERROR_MESSAGE_HANDLING \
