@@ -100,8 +100,8 @@ void TwoDOpenGLTest::InitializeWorld(void)
         EndWorld();
         return;
     }
-    const sf::Texture & fontTex = font.getTexture(20);
-    sf::Glyph glyph = font.getGlyph((unsigned int)'H', 12, false);
+    //const sf::Texture & fontTex = font.getTexture(20);
+    //sf::Glyph glyph = font.getGlyph((unsigned int)'H', 12, false);
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())

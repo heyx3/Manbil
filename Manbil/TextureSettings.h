@@ -55,7 +55,7 @@ public:
     //Uses the currently-bound texture.
     void SetWrappingData(void) const { SetWrappingData(HorWrap, VertWrap); }
     //Uses the currently-bound texture.
-    void SetFilteringData(void) const { SetFilteringData(MinFilter, MagFilter); }
+    void SetFilteringData(void) const { SetFilteringData(MinFilter, MagFilter, GenerateMipmaps); }
     //Uses the currently-bound texture.
     void SetMipmaps(void) const { if (GenerateMipmaps) GenMipmaps(); }
 
