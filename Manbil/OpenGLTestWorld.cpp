@@ -182,7 +182,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
-    cam.SetMoveSpeed(30.0f);
+    cam.SetMoveSpeed(60.0f);
     cam.SetRotSpeed(0.25f);
 }
 
@@ -221,7 +221,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
     water->Update(elapsedSeconds);
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 1000.0f, 10.0f, 70.0f, 1.0f));
+        water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 10.0f, 120.0f, 1.0f));
 }
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)

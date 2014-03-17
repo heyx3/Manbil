@@ -13,7 +13,7 @@
 
 
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
-//TODO: Use two normal maps and interpolate between them using the per-vertex random seed.
+//TODO: Take several "seed maps" and use them for things like horiontalPos offset, base height offset, etc.
 
 
 
@@ -62,7 +62,7 @@ protected:
         std::string func =
 "float getWaveHeight(vec2 horizontalPos)\n\
 {\n\
-    float offset = 0.0;\n";
+    float offset = 0.0f;                                                                           \n";
         if (maxRipples > 0)
         {
             std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
@@ -248,7 +248,7 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
         //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
         vertices[i] = Vertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
                              texCoords[i],
-                             Vector4f(0.0f, 0.0f, -1.0f + (2.0f * poses[i].z), 0.65f * fr.GetZeroToOne()),
+                             Vector4f(0.0f, 0.0f, -1.0f + (2.0f * poses[i].z), (12.0f * poses[i].z)),
                              Vector3f());
         poses[i].z = 0.0f;
     }

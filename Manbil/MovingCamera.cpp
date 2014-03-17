@@ -24,11 +24,11 @@ bool MovingCamera::Update(float elapsedTime)
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 	{
-		IncrementPosition(GetUpward() * moveSpeed * elapsedTime);
+		IncrementPosition(Vector3f(0.0f, 0.0f, 1.0f) * moveSpeed * elapsedTime);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
 	{
-		IncrementPosition(GetUpward() * -moveSpeed * elapsedTime);
+		IncrementPosition(Vector3f(0.0f, 0.0f, 1.0f) * -moveSpeed * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
