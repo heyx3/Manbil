@@ -23,8 +23,6 @@ using namespace TwoDOpenGLTestStuff;
 
 
 
-sf::Font font;
-
 TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
                       sf::ContextSettings(24, 0, 0, 3, 3)),
@@ -86,22 +84,12 @@ void TwoDOpenGLTest::InitializeWorld(void)
         return;
     }
 
-    TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false);
+    TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, true);
     Textures[foreTex].SetData(setts);
     Textures[backTex].SetData(setts);
 
 
     //Fonts.
-    ClearAllRenderingErrors();
-    if (!font.loadFromFile("Content/Fonts/Candara.ttf"))
-    {
-        std::cout << "Error loading 'Candara.ttf'\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    //const sf::Texture & fontTex = font.getTexture(20);
-    //sf::Glyph glyph = font.getGlyph((unsigned int)'H', 12, false);
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
