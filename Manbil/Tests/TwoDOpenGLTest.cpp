@@ -52,8 +52,8 @@ void TwoDOpenGLTest::InitializeWorld(void)
     //Input.
     Input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::W, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(0, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::S, BoolInput::ValueStates::IsDown)));
-    Input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Down, BoolInput::ValueStates::IsDown)));
-    Input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Up, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Up, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Down, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(1234, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Escape, BoolInput::ValueStates::IsDown)));
 
 
@@ -87,8 +87,8 @@ void TwoDOpenGLTest::InitializeWorld(void)
     }
 
     TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false);
-    setts.SetData(foreTex);
-    setts.SetData(backTex);
+    Textures[foreTex].SetData(setts);
+    Textures[backTex].SetData(setts);
 
 
     //Fonts.
@@ -199,7 +199,7 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
     projM.SetAsPerspProj(cam->Info);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
-    RenderingState(true, true, true).EnableState();
+    RenderingState(true, false, true).EnableState();
 
 
     ScreenClearer(true, true, true, Vector4f(0.2f, 0.0f, 0.0f, 1.0f)).ClearScreen();

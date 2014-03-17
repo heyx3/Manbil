@@ -49,6 +49,23 @@ public:
 
 
     //Returns false if neither texture type is set to a valid texture.
+    bool SetData(const TextureSettings & settings) const
+    {
+        if (GLTex != 0)
+        {
+            settings.SetData(GLTex);
+            return true;
+        }
+        else if (SFMLTex != 0)
+        {
+            settings.SetData(SFMLTex);
+            return true;
+        }
+
+        return false;
+    }
+
+    //Returns false if neither texture type is set to a valid texture.
     bool SetWrapping(TextureSettings::TextureWrapping wrap) const
     {
         if (!BindTexture()) return false;
