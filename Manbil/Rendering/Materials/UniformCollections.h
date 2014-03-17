@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include "../../OpenGLIncludes.h"
-#include <SFML/Graphics/Texture.hpp>
+#include "../Texture Management/ManbilTexture.h"
 #include "../../Math/Matrix4f.h"
 #include "Data Nodes/Vector.h"
 

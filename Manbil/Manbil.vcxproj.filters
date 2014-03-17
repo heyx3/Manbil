@@ -77,9 +77,6 @@
     <ClCompile Include="IO\DataSerializer.cpp">
       <Filter>XML IO</Filter>
     </ClCompile>
-    <ClCompile Include="NoiseToTexture.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="MovingCamera.cpp">
       <Filter>Input</Filter>
     </ClCompile>
@@ -269,6 +266,9 @@
     <ClCompile Include="Rendering\Texture Management\ManbilTexture.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
+    <ClCompile Include="NoiseToTexture.cpp">
+      <Filter>Rendering\Helper Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -369,9 +369,6 @@
     </ClInclude>
     <ClInclude Include="IO\DataSerializer.h">
       <Filter>XML IO</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseToTexture.h">
-      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MovingCamera.h">
       <Filter>Input</Filter>
@@ -652,6 +649,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\ManbilTexture.h">
       <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseToTexture.h">
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

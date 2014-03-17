@@ -35,8 +35,8 @@ public:
     //Binds this texture. Returns whether or not this texture is valid.
     bool BindTexture(void) const
     {
-        if (UsesGLTex()) RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, GLTex);
-        else if (UsesSFMLTex()) sf::Texture::bind(SFMLTex);
+        if (GLTex != 0) RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, GLTex);
+        else if (SFMLTex != 0) sf::Texture::bind(SFMLTex);
         else return false;
         return true;
     }

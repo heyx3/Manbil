@@ -183,14 +183,6 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
                 RenderDataHandler::SetMatrixValue(iterator->second.Location, iterator->second.Value);
 
 
-        //Check for rendering errors.
-        errorMsg = GetCurrentRenderingError();
-        if (HasError())
-        {
-            errorMsg = std::string() + "Error setting uniforms, mesh " + std::to_string(i) + ": " + errorMsg;
-            return false;
-        }
-
         //Setting mesh texture sampler uniforms is a little more involved.
         int texUnit = 0;
         for (auto iterator = mesh.Uniforms.TextureUniforms.begin(); iterator != mesh.Uniforms.TextureUniforms.end(); ++iterator)
@@ -201,21 +193,9 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
                 RenderDataHandler::ActivateTextureUnit(texUnit);
                 texUnit += 1;
 
-                //Samplers can use either an SFML Texture object or an OpenGL texture object.
-                if (iterator->second.SFMLTexture != 0)
-                    sf::Texture::bind(iterator->second.SFMLTexture);
-                else if (iterator->second.GLTexture != 0)
-                    RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, iterator->second.GLTexture);
+                if (iterator->second.Texture.BindTexture())
+                    continue;
             }
-        }
-
-
-        //Check for rendering errors.
-        errorMsg = GetCurrentRenderingError();
-        if (HasError())
-        {
-            errorMsg = std::string() + "Error setting textures, mesh " + std::to_string(i) + ": " + errorMsg;
-            return false;
         }
 
 
@@ -239,16 +219,16 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             }
 
             Vertex::DisableVertexAttributes();
-
-
-            //Check for rendering errors.
-            errorMsg = GetCurrentRenderingError();
-            if (HasError())
-            {
-                errorMsg = std::string() + "Error rendering material, mesh " + std::to_string(i) + ", VertexIndexData " + std::to_string(v) + ": " + errorMsg;
-                return false;
-            }
         }
+    }
+
+
+    //Check for rendering errors.
+    errorMsg = GetCurrentRenderingError();
+    if (HasError())
+    {
+        errorMsg = std::string() + "Error rendering material: " + errorMsg;
+        return false;
     }
 
     return true;

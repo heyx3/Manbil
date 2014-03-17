@@ -2,18 +2,20 @@
 
 bool ManbilTexture::DeleteTexture(void)
 {
+    bool hasAny = false;
+
+    if (UsesGLTex())
+    {
+        RenderDataHandler::DeleteTexture2D(GLTex);
+        GLTex = 0;
+        hasAny = true;
+    }
     if (UsesSFMLTex())
     {
         delete SFMLTex;
         SFMLTex = 0;
-        return true;
-    }
-    else if (UsesGLTex())
-    {
-        RenderDataHandler::DeleteTexture2D(GLTex);
-        GLTex = 0;
-        return true;
+        hasAny = true;
     }
 
-    return false;
+    return hasAny;
 }

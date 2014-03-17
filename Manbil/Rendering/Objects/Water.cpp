@@ -353,8 +353,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         img.create(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
         TextureConverters::ToImage<float>(*seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
 
-        unsigned int id = seedArgs.TexManager->CreateTexture(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
-        sf::Texture * seedHeightmap = seedArgs.TexManager->operator[](id);
+        sf::Texture * seedHeightmap = (*seedArgs.TexManager)[seedArgs.TexManager->CreateSFMLTexture()].SFMLTex;
         seedHeightmap->loadFromImage(img);
         seedHeightmap->setSmooth(false);
         seedHeightmap->setRepeated(true);
@@ -518,10 +517,12 @@ void Water::SetSeededWater(const SeededWaterArgs & args)
     Vector3f data(args.Amplitude, args.Period, args.Speed);
     waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"].SetValue(data);
 }
-void Water::SetSeededWaterSeed(sf::Texture * image, Vector2i resolution)
+void Water::SetSeededWaterSeed(sf::Texture * image, bool deletePrevious, Vector2i resolution)
 {
     waterMesh.Uniforms.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
-    waterMesh.Uniforms.TextureUniforms["seedMap"].SetData(image);
+    if (deletePrevious)
+        waterMesh.Uniforms.TextureUniforms["seedMap"].Texture.DeleteTexture();
+    waterMesh.Uniforms.TextureUniforms["seedMap"].Texture.SetData(image);
 }
 
 

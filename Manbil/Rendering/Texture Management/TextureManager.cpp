@@ -34,14 +34,19 @@ unsigned int TextureManager::CreateTexture(const ManbilTexture & tex)
 
     return thisID;
 }
-unsigned int TextureManager::CreateTexture(unsigned int width, unsigned int height)
+unsigned int TextureManager::CreateTexture(unsigned int width, unsigned int height, Vector4b color)
 {
     unsigned int thisID = id;
     id += 1;
 
-    texturesByID[thisID].SetData(new sf::Texture());
+    ClearAllRenderingErrors();
+    RenderObjHandle tex;
+    RenderDataHandler::CreateTexture2D(tex);
+    RenderDataHandler::SetTexture2DDataColor(tex, Vector2i(width, height), color);
 
-    if (!texturesByID[thisID].SFMLTex->create(width, height))
+    texturesByID[thisID].SetData(tex);
+
+    if (strcmp(GetCurrentRenderingError(), "") != 0)
     {
         delete texturesByID[thisID].SFMLTex;
         texturesByID.erase(texturesByID.find(thisID));

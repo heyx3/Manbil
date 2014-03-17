@@ -131,9 +131,9 @@ void TwoDOpenGLTest::InitializeWorld(void)
     }
 
     foreQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
-    foreQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].SetData(Textures[foreTex]);
+    foreQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].Texture = Textures[foreTex];
     backQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
-    backQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].SetData(Textures[backTex]);
+    backQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].Texture = Textures[backTex];
 }
 
 void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)

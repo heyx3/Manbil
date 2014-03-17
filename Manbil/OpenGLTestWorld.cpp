@@ -265,7 +265,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     TransformObject trans;
     Matrix4f identity;
     identity.SetAsIdentity();
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].SetData(ppc->GetFinalRender()->GetColorTexture());
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(ppc->GetFinalRender()->GetColorTexture());
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

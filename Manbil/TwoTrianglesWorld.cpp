@@ -189,7 +189,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 
     if (!getUserTex) return;
 
-    customTexID = tManager->CreateTexture();
+    customTexID = tManager->CreateSFMLTexture();
     bool valid = false;
     bool first = true;
 
@@ -207,7 +207,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 
         first = false;
 
-        if (!(*tManager)[customTexID]->loadFromFile(customTexPath))
+        if (!(*tManager)[customTexID].SFMLTex->loadFromFile(customTexPath))
         {
             PrintData("Error loading texture '" + customTexPath + "'", "SFML could not find or load the file.");
             std::cout << "\n\n";

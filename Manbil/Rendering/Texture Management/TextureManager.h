@@ -32,7 +32,7 @@ public:
     unsigned int CreateGLTexture(void);
     //Creates a new initialized texture and returns its index.
     //Returns UNUSED_ID if the creation was a failure.
-    unsigned int CreateTexture(unsigned int width, unsigned int height);
+    unsigned int CreateTexture(unsigned int width, unsigned int height, Vector4b color = Vector4b((unsigned char)255, (unsigned char)255, (unsigned char)255, (unsigned char)255));
     //Creates a new texture from the given file.
     //Returns UNUSED_ID if the file wasn't loaded successfully.
     unsigned int CreateTexture(std::string filePath);

@@ -125,7 +125,7 @@ public:
     //Changes the properties of the water.
     void SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
-    void SetSeededWaterSeed(sf::Texture * image, Vector2i resolution);
+    void SetSeededWaterSeed(sf::Texture * image, bool deletePreviousSeedTex, Vector2i resolution);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
