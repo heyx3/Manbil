@@ -653,6 +653,9 @@
     <ClInclude Include="NoiseToTexture.h">
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
+      <Filter>Rendering\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
