@@ -92,6 +92,8 @@ public:
 
 	void GetBoundingCube(Cube & cOut) const;
 };
+
+//TODO: Make sure Capsule functions work (use RayTracer program).
 class Capsule : public Shape
 {
 public:
@@ -129,3 +131,5 @@ private:
 
 	Vector3f l1, l2;
 };
+
+//TODO: Add Plane and Polygon shapes.

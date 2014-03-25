@@ -61,7 +61,13 @@ public:
 		}
 
 		return result;
-	}
+    }
+
+    template <typename T>
+    static int Sign(T val)
+    {
+        return (T(0) < val) - (val < T(0));
+    }
 
 	static int Abs(int i) { return (i < 0) ? -i : i; }
 	static float Abs(float f) { int f2 = (int&)f & 0x7FFFFFFF; return (float&)f2; }
@@ -89,11 +95,15 @@ public:
 	static float Root(float value, float root) { return powf(value, 1.0f / root); }
 
 	static float Clamp(float val, float min = 0.0f, float max = 1.0f) { return (val < min ? min : (val > max ? max : val)); }
-	
-	template<class ComparableClass>
-	static ComparableClass Max(ComparableClass one, ComparableClass two) { return (one < two) ? two : one; }
-	template<class ComparableClass>
-	static ComparableClass Min(ComparableClass one, ComparableClass two) { return (one > two) ? two : one; }
+
+    template<class ComparableClass>
+    static ComparableClass Max(ComparableClass one, ComparableClass two) { return (one < two) ? two : one; }
+    template<class ComparableClass>
+    static ComparableClass Max(ComparableClass one, ComparableClass two, ComparableClass three) { return Max(one, Max(two, three)); }
+    template<class ComparableClass>
+    static ComparableClass Min(ComparableClass one, ComparableClass two) { return (one > two) ? two : one; }
+    template<class ComparableClass>
+    static ComparableClass Min(ComparableClass one, ComparableClass two, ComparableClass three) { return Min(one, Min(two, three)); }
 
 	//Gets the given value clamped to the closest value of (intervalStart + (n * intervalSize)) for some integer n.
 	static inline float ClampInterval(float intervalStart, float intervalSize, float value)
