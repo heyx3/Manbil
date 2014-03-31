@@ -1,5 +1,5 @@
 u_mySampler -- custom texture that will be specified by the user when the shader is compiled (if the shader uses it)
-u_noiseSampler -- texture containing random noise. Can be specified by the user.
+u_noiseSampler -- texture containing random noise.
 
 u_elapsed_seconds -- elapsed time since world start, as a float
 u_shader_seconds -- elapsed time since shader start, as a float
