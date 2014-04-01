@@ -56,4 +56,14 @@ void RenderingState::EnableState(void) const
 
 		default: assert(false);
 	}
+
+    if (UsesAlphaTesting())
+    {
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(ToEnum(AlphaTest), AlphaTestValue);
+    }
+    else
+    {
+        glDisable(GL_ALPHA_TEST);
+    }
 }
