@@ -36,6 +36,18 @@ class PostProcessEffect : public DataNode
 {
 public:
 
+    //The names of the color/depth texture sampler uniforms.
+    static const std::string ColorSampler, DepthSampler;
+
+    static unsigned int GetColorOutputIndex(void) { return 0; }
+    static unsigned int GetDepthOutputIndex(void) { return 1; }
+
+
+    //The number of passes needed to do this effect.
+    unsigned int NumbPasses;
+    //The current pass. Used when generating GLSL code.
+    unsigned int CurrentPass;
+
     virtual std::string GetName(void) const override { return "unknownPostProcessEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
@@ -43,14 +55,6 @@ public:
         return GetName() + std::to_string(GetUniqueID()) + "_UNKNOWN" + std::to_string(index);
     }
 
-    //The names of the color/depth texture sampler uniforms.
-    static const std::string ColorSampler, DepthSampler;
-
-
-    //The number of passes needed to do this effect.
-    unsigned int NumbPasses;
-    //The current pass. Used when generating GLSL code.
-    unsigned int CurrentPass;
 
     PostProcessEffect(DataLine colorIn, DataLine depthIn, std::vector<DataLine> otherInputs, unsigned int numbPasses = 1)
         : DataNode(MakeVector(colorIn, depthIn, otherInputs), DataNode::MakeVector(3, 1)),
@@ -83,12 +87,14 @@ public:
         return linearDepth;
     }
 
-protected:
 
     //Gets the color input (either the framebuffer or the previous post-process effect's output).
     const DataLine & GetColorInput(void) const { return GetInputs()[GetInputs().size() - 2]; }
     //Gets the depth input (either the framebuffer or the previous post-process effect's output).
     const DataLine & GetDepthInput(void) const { return GetInputs()[GetInputs().size() - 1]; }
+
+
+protected:
 
     //Gets all inputs in the correct order not including the color and depth input.
     std::vector<DataLine> GetNonColorDepthInputs(void) const

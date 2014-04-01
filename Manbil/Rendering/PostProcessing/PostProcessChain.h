@@ -47,7 +47,10 @@ public:
 
 
     //Gets the render target that will hold the final result after this chain is done rendering.
-    RenderTarget * GetFinalRender(void) const { return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2]; }
+    RenderTarget * GetFinalRender(void) const
+    {
+        return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2];
+    }
 
     //Resizes the render targets used to render this chain's effects.
     //Returns whether or not the resizing was successful.

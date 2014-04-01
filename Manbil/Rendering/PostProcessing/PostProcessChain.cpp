@@ -9,10 +9,10 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 {
     std::unordered_map<RenderingChannels, DataLine> channels;
 
-    totalPasses = 0;
+    totalPasses = BasicMath::Sign(effectChain.size());
     for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
     {
-        totalPasses += effectChain[effect]->NumbPasses;
+        totalPasses += BasicMath::Max((unsigned int)0, effectChain[effect]->NumbPasses - 1);
 
         //If there's more than one pass, we have to create a new material for each pass.
         if (effectChain[effect]->NumbPasses > 1)
