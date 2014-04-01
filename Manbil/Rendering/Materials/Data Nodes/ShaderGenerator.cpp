@@ -60,6 +60,7 @@ void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSetti
 {
     outChannels.insert(outChannels.end(), RC::RC_Diffuse);
     outChannels.insert(outChannels.end(), RC::RC_DiffuseIntensity);
+    outChannels.insert(outChannels.end(), RC::RC_Opacity);
     outChannels.insert(outChannels.end(), RC::RC_ObjectVertexOffset);
     //outChannels.insert(outChannels.end(), RC::RC_WorldVertexOffset);
 
@@ -73,7 +74,6 @@ void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSetti
     if (IsModeTransparent(mode))
     {
         outChannels.insert(outChannels.end(), RC::RC_Distortion);
-        outChannels.insert(outChannels.end(), RC::RC_Opacity);
     }
 }
 
@@ -317,23 +317,11 @@ void main()                                                                     
                             ", " + channels[RC::RC_SpecularIntensity].GetValue() +
                             ", " + MaterialConstants::DirectionalLightName + ");              \n\n";
         }
-    //Now change how the final color is computed based on rendering mode.
-    switch (mode)
-    {
-    case RenderingModes::RM_Opaque:
-        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, 1.0);\n";
-        break;
-    case RenderingModes::RM_Transluscent:
-        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n";
-        break;
-    case RenderingModes::RM_Additive:
-        fragShader += "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n";
-        break;
 
-    default: assert(false);
-    }
-
-    fragShader += "}";
+    //Now output the final color.
+    fragShader +=
+    "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n\
+}";
 
 
     outVShader += vertShader;
