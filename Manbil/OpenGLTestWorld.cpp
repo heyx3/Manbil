@@ -87,10 +87,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(0.1f, 1.0f, 1.0f)))));
-    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 2)));
+    ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 2)));
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(2.2f, Vector3f(1.0f, 1.0f, 1.0f), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
-    ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(VectorF(10.0f, 1.0f, 1.0f)), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -133,7 +131,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 4.0f, 5.0f, 10.0f));
+    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 6.0f, 5.0f, 10.0f));
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
     //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
 

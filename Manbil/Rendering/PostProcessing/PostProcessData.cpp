@@ -55,7 +55,6 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 
 
     strOut += "\tvec3 " + GetOutputName(0) + " = " + func + "(" + GetColorInput().GetValue() + ");\n";
-    strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
 }
 
 
@@ -76,6 +75,4 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
 {
     strOut += "\tvec3 " + GetOutputName(0) + " = blendWithFog" + std::to_string(GetUniqueID()) + "(" + GetColorInput().GetValue() + ", " +
                                                                                                        GetDepthInput().GetValue() + ");\n";
-    strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
-    //strOut += "\t " + GetOutputName(0) + " = vec3(pow(" + GetDepthInput().GetValue() + ", 1.0));\n";
 }

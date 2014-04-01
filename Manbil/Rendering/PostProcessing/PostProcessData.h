@@ -124,12 +124,13 @@ class ColorTintEffect : public PostProcessEffect
 {
 public:
 
-    virtual std::string GetName(void) const override { return "colorTintEffect"; }
+    virtual std::string GetName(void) const override { return "tintEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index <= 1);
-        return GetName() + std::to_string(GetUniqueID()) +
-               (index == 0 ? "_tinted" : "_unchangedDepth");
+        return (index == 0 ?
+                  (GetName() + std::to_string(GetUniqueID()) + "_tinted") :
+                   GetDepthInput().GetValue());
     }
 
     ColorTintEffect(DataLine colorScales = DataLine(VectorF(1.0f, 1.0f, 1.0f)),
@@ -149,7 +150,6 @@ protected:
     {
         //Tint the color, leave the depth unchanged.
         strOut += "\tvec3 " + GetOutputName(0) + " = " + GetInputs()[0].GetValue() + " * " + GetColorInput().GetValue() + ";\n";
-        strOut += "\tfloat " + GetOutputName(1) + " = " + GetDepthInput().GetValue() + ";\n";
     }
 };
 
@@ -164,8 +164,9 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index <= 1);
-        return GetName() + std::to_string(GetUniqueID()) +
-            (index == 0 ? "_upContrast" : "_unchangedDepth");
+        return (index == 0 ?
+                (GetName() + std::to_string(GetUniqueID()) + "_upContrast") :
+                GetDepthInput().GetValue());
     }
 
 
@@ -204,12 +205,15 @@ class FogEffect : public PostProcessEffect
 {
 public:
     
+    //TODO: Turn every parameter into a DataLine.
+
     virtual std::string GetName(void) const override { return "fogEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index <= 1);
-        return GetName() + std::to_string(GetUniqueID()) +
-            (index == 0 ? "_foggy" : "_unchangedDepth");
+        return (index == 0 ?
+                (GetName() + std::to_string(GetUniqueID()) + "_foggy") :
+                GetDepthInput().GetValue());
     }
 
 
@@ -235,6 +239,3 @@ protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override;
 };
-
-
-//TODO: Parameterized fog -- identical to FogEffect but uses DataLines for dropoff and color instead of constants.
