@@ -4,8 +4,7 @@
 #include "../MaterialData.h"
 
 
-//Represents the node data needed for a shader generator
-
+class Material;
 
 //Generates GLSL code from DataNode DAGs.
 class ShaderGenerator
@@ -28,4 +27,9 @@ public:
     static void GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
                                 RenderingModes mode, bool useLighting, const LightSettings & settings,
                                 std::unordered_map<RenderingChannels, DataLine> & channels);
+
+    //Generates the shaders and allocates a new material from them.
+    static Material * GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
+                                       UniformDictionary & outUniforms,
+                                       RenderingModes mode, bool useLighting, const LightSettings & settings);
 };

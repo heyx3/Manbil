@@ -88,14 +88,12 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 2)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(2.2f, Vector3f(1.0f, 1.0f, 1.0f), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(2.2f)), DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    std::string vs, fs;
     UniformDictionary uniformDict;
-    ShaderGenerator::GenerateShaders(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false), finalScreenMatChannels);
-    finalScreenMat = new Material(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    finalScreenMat = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (finalScreenMat->HasError())
     {
         std::cout << "final screen material creation error: " << finalScreenMat->GetErrorMsg() << "\n";

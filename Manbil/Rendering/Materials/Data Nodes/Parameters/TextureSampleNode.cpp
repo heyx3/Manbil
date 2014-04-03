@@ -7,8 +7,20 @@ void TextureSampleNode::WriteMyOutputs(std::string & outCode) const
                 uvPan = GetUVPanInput().GetValue(),
                 uvOffset = GetUVOffsetInput().GetValue(),
                 time = GetTimeInput().GetValue();
-    std::string uvFinal = std::string() + "(" + uvScale + " * (" + uv + " + (" + uvOffset + " + (" + time + " * " + uvPan + "))))";
+
+    bool usesScale = !GetUVScaleInput().IsConstant() ||
+                     GetUVScaleInput().GetConstantValue() != VectorF(1.0f, 1.0f),
+         usesPan = !GetUVPanInput().IsConstant() ||
+                    GetUVPanInput().GetConstantValue() != VectorF(0.0f, 0.0f),
+         usesOffset = !GetUVOffsetInput().IsConstant() ||
+                      GetUVOffsetInput().GetConstantValue() != VectorF(0.0f, 0.0f);
 
 
+    std::string uvFinal = std::string() +
+                          (usesScale ? "(" + uvScale + " * " : "") +
+                              "(" + uv +
+                                   (usesOffset ? " + (" + uvOffset + " + " : "") +
+                                   (usesPan ? "(" + time + " * " + uvPan + ")" : "") +
+                              ")" + (usesPan ? ")" : "") + (usesOffset ? ")" : "") + (usesScale ? ")" : "");
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + GetSamplerUniformName() + ", " + uvFinal + ");\n";
 }

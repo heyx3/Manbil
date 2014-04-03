@@ -47,6 +47,30 @@ public:
     //Assumes both vectors are the same size. Divides this VectorF's components by the other's components.
     VectorF operator/(const VectorF & other) const;
 
+    bool operator==(const VectorF& other) const
+    {
+        if (size != other.size)
+            return false;
+
+        for (unsigned int i = 0; i < size; ++i)
+            if (values[i] != other.values[i])
+                return false;
+
+        return true;
+    }
+    bool operator!=(const VectorF& other) const
+    {
+        if (size == other.size)
+            return false;
+
+        for (unsigned int i = 0; i < size; ++i)
+            if (values[i] == other.values[i])
+                return false;
+
+        return true;
+    }
+
+
     std::string GetGLSLType(void) const;
 
 private:
@@ -98,6 +122,30 @@ public:
     VectorI operator*(const VectorI & other) const;
     //Assumes both VectorIs are the same size. Divides this VectorI's components by the other's components.
     VectorI operator/(const VectorI & other) const;
+
+    bool operator==(const VectorI& other) const
+    {
+        if (size != other.size)
+            return false;
+
+        for (unsigned int i = 0; i < size; ++i)
+            if (values[i] != other.values[i])
+                return false;
+
+        return true;
+    }
+    bool operator!=(const VectorI& other) const
+    {
+        if (size == other.size)
+            return false;
+
+        for (unsigned int i = 0; i < size; ++i)
+            if (values[i] == other.values[i])
+                return false;
+
+        return true;
+    }
+
 
     std::string GetGLSLType(void) const;
 

@@ -7,7 +7,8 @@
 
 
 //Outputs the result of sampling a texture.
-//TODO: Output a vec4, and expose a function "unsigned int GetOutputIndex(ChannelsOut outs)".
+//TODO: Move most of these into the .cpp file.
+//TODO: Remove scaling, panning, and offset -- just let the user do those things manually through the data node system.
 class TextureSampleNode : public DataNode
 {
 public:
@@ -95,7 +96,7 @@ private:
         return ints;
     }
 
-    std::string GetSampleOutputName(void) const { return GetName() + std::to_string(GetUniqueID()) + "_sample"; }
+    std::string GetSampleOutputName(void) const { return samplerName + "_sample" + std::to_string(GetUniqueID()); }
 
     const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
     const DataLine & GetUVScaleInput(void) const { return GetInputs()[1]; }

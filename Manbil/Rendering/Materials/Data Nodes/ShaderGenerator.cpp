@@ -2,6 +2,7 @@
 
 #include "DataNodeIncludes.h"
 #include "../../../Math/Higher Math/Lighting.h"
+#include "../../../Material.h"
 
 
 typedef ShaderGenerator SG;
@@ -352,4 +353,14 @@ void main()                                                                     
     for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
         if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
             outUniforms.TextureUniforms[iterator->first] = iterator->second;
+}
+
+Material * ShaderGenerator::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
+                                             UniformDictionary & uniforms,
+                                             RenderingModes mode, bool useLighting, const LightSettings & settings)
+{
+    std::string vs, fs;
+    GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
+    
+    return new Material(vs, fs, uniforms, mode, useLighting, settings);
 }

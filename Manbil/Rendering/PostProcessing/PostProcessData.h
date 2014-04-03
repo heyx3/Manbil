@@ -80,7 +80,6 @@ public:
     //Subsequent effects should use the previous effect's depth output.
     static DataLine DepthSamplerIn(void)
     {
-        //TODO: Make DataNodes that get the max/min z distance from the camera (using built-in uniforms in Material). Remap depth from 0 to 1 using the equation from http://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
         DataLine depthTex(DataNodePtr(new TextureSampleNode(DepthSampler)),
                           TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
         DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
@@ -205,8 +204,6 @@ class FogEffect : public PostProcessEffect
 {
 public:
     
-    //TODO: Turn every parameter into a DataLine.
-
     virtual std::string GetName(void) const override { return "fogEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
@@ -217,20 +214,18 @@ public:
     }
 
 
-    float Dropoff;
-    Vector3f FogColor;
     //TODO: More parameters (max fog thickness, start distance, etc), and optimize so that parameters that are set to default values aren't actually used in computation.
 
-    FogEffect(float dropoff = 1.0f, Vector3f fogColor = Vector3f(1.0f, 1.0f, 1.0f),
-              DataLine colorIn = ColorSamplerIn(),
-              DataLine depthIn = DepthSamplerIn())
-        : PostProcessEffect(colorIn, depthIn, std::vector<DataLine>()), Dropoff(dropoff), FogColor(fogColor)
+    FogEffect(DataLine dropoff = DataLine(VectorF(1.0f)),
+              DataLine fogColor = DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))),
+              DataLine colorIn = ColorSamplerIn(), DataLine depthIn = DepthSamplerIn())
+        : PostProcessEffect(colorIn, depthIn, BuildInputs(dropoff, fogColor))
     {
     }
 
     virtual std::unique_ptr<DataNode> ReplaceWithDefaultInput(void) const
     {
-        return std::unique_ptr<DataNode>(new FogEffect(Dropoff, FogColor));
+        return std::unique_ptr<DataNode>(new FogEffect(GetDropoffInput(), GetColorInput()));
     }
 
 protected:
@@ -238,4 +233,17 @@ protected:
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
 
     virtual void WriteMyOutputs(std::string & strOut) const override;
+
+private:
+
+    const DataLine & GetDropoffInput(void) const { return GetInputs()[0]; }
+    const DataLine & GetColorInput(void) const { return GetInputs()[1]; }
+
+    static std::vector<DataLine> BuildInputs(const DataLine & fogDropoff, const DataLine & fogColor)
+    {
+        std::vector<DataLine> ret;
+        ret.insert(ret.end(), fogDropoff);
+        ret.insert(ret.end(), fogColor);
+        return ret;
+    }
 };
