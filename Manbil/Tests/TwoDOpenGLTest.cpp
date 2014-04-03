@@ -187,7 +187,7 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
     projM.SetAsPerspProj(cam->Info);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
-    RenderingState(true, false, true).EnableState();
+    RenderingState().EnableState();
 
 
     ScreenClearer(true, true, true, Vector4f(0.2f, 0.0f, 0.0f, 1.0f)).ClearScreen();

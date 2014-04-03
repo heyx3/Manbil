@@ -293,7 +293,7 @@ void TTW::InitializeWorld(void)
     worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), true);
     worldCam.Window = GetWindow();
 
-    RenderingState(false, false, true, RenderingState::Cullables::C_FRONT).EnableState();
+    RenderingState(false, false, RenderingState::Cullables::C_FRONT).EnableState();
 }
 
 void TTW::OnWorldEnd(void)

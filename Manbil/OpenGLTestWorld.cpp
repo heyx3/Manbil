@@ -42,7 +42,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(500, 500);
+Vector2i windowSize(250, 250);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 
@@ -112,8 +112,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     const unsigned int size = 300;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(10)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(3)),
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(1)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
     if (water->HasError())

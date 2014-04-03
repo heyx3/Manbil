@@ -7,34 +7,23 @@
 void RenderingState::EnableState(void) const
 {
 	if (UseDepthTesting)
-	{
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-	}
-	else
-	{
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(GL_FALSE);
-	}
+        glEnable(GL_DEPTH_TEST);
+	else glDisable(GL_DEPTH_TEST);
+
+    if (WriteToDepthBuffer)
+        glDepthMask(GL_TRUE);
+    else glDepthMask(GL_FALSE);
 
 	if (UseBlending)
 	{
 		glEnable(GL_BLEND);
         glBlendFunc(ToEnum(SourceBlend), ToEnum(DestBlend));
 	}
-	else
-	{
-		glDisable(GL_BLEND);
-	}
+	else glDisable(GL_BLEND);
 
 	if (UseTextures)
-	{
 		glEnable(GL_TEXTURE_2D);
-	}
-	else
-	{
-		glDisable(GL_TEXTURE_2D);
-	}
+	else glDisable(GL_TEXTURE_2D);
 
 	switch (ToCull)
 	{

@@ -37,9 +37,6 @@ public:
             default: assert(false); return "";
         }
     }
-
-    //TODO: Remove this function; it's not needed.
-    static void GetDefaultUniforms(UniformDictionary & outDict);
 };
 
 

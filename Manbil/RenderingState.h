@@ -7,6 +7,7 @@ struct RenderingState
 {
 public:
 
+    //Surfaces that can be culled.
 	enum Cullables
 	{
 		C_FRONT,
@@ -18,22 +19,30 @@ public:
 
     enum BlendingExpressions
     {
-        Zero,
-        One,
+        BE_ZERO,
+        BE_ONE,
 
-        SourceColor,
-        DestColor,
+        //Fragment color.
+        BE_SOURCE_COLOR,
+        //Back buffer color.
+        BE_DEST_COLOR,
 
-        OneMinusSourceColor,
-        OneMinusDestColor,
+        //Inverse of fragment color.
+        BE_ONE_MINUS_SOURCE_COLOR,
+        //Inverse of back buffer color.
+        BE_ONE_MINUS_DEST_COLOR,
 
-        SourceAlpha,
-        DestAlpha,
+        //Fragment alpha.
+        BE_SOURCE_ALPHA,
+        //Back buffer alpha.
+        BE_DESTALPHA,
 
-        OneMinusSourceAlpha,
-        OneMinusDestAlpha,
+        //Inverse of fragment alpha.
+        BE_ONE_MINUS_SOURCE_ALPHA,
+        //Inverse of back buffer alpha.
+        BE_ONE_MINUS_DEST_ALPHA,
 
-        SourceAlphaSaturate,
+        BE_SOURCE_ALHPA_SATURATE,
     };
     //These values will only be applicable if "UseBlending" is true. They represent how the source is blended with the current framebuffer data.
     BlendingExpressions SourceBlend, DestBlend;
@@ -65,25 +74,42 @@ public:
     //The value used for certain kinds of alpha tests.
     float AlphaTestValue;
 
+    //Whether to use depth testing.
+	bool UseDepthTesting;
+    //Whether to write new fragments to the depth buffer.
+    bool WriteToDepthBuffer;
+    //Whether to use blending (for objects that are partially see-through).
+    bool UseBlending;
+    //Whether to enable the use of textures.
+    bool UseTextures;
 
-	bool UseDepthTesting, UseBlending, UseTextures;
-
-
+    //Rendering state that uses blending.
     RenderingState(Cullables toCull,
-                   BlendingExpressions source = BlendingExpressions::SourceAlpha,
-                   BlendingExpressions dest = BlendingExpressions::OneMinusSourceAlpha,
-                   bool useDepthTesting = true,
+                   BlendingExpressions source = BlendingExpressions::BE_SOURCE_ALPHA,
+                   BlendingExpressions dest = BlendingExpressions::BE_ONE_MINUS_SOURCE_ALPHA,
+                   bool useDepthTesting = true, bool writeDepthBuffer = true,
                    AlphaTests test = AlphaTests::AT_ALWAYS, float testValue = 0.0f,
                    bool useTextures = true)
-        : UseDepthTesting(useDepthTesting), UseBlending(true), UseTextures(useTextures),
-          ToCull(toCull), SourceBlend(source), DestBlend(dest),
+        : UseDepthTesting(useDepthTesting), WriteToDepthBuffer(writeDepthBuffer),
+          UseBlending(true),
+          UseTextures(useTextures),
+          ToCull(toCull),
+          SourceBlend(source), DestBlend(dest),
           AlphaTest(test), AlphaTestValue(testValue)
     {
 
     }
-    RenderingState(bool useDepthTesting = true, Cullables toCull = Cullables::C_NONE, AlphaTests test = AlphaTests::AT_ALWAYS, float testValue = 0.0f, bool useTextures = true)
-        : UseDepthTesting(useDepthTesting), UseBlending(false), UseTextures(useTextures),
-          ToCull(toCull), SourceBlend(BlendingExpressions::SourceAlpha), DestBlend(BlendingExpressions::OneMinusSourceAlpha),
+    //Rendering state that doesn't use blending.
+    RenderingState(bool useDepthTesting = true, bool writeDepthBuffer = true,
+                   Cullables toCull = Cullables::C_NONE,
+                   AlphaTests test = AlphaTests::AT_ALWAYS, float testValue = 0.0f,
+                   bool useTextures = true)
+        : UseDepthTesting(useDepthTesting), WriteToDepthBuffer(writeDepthBuffer),
+          UseBlending(false),
+          UseTextures(useTextures),
+          ToCull(toCull),
+          SourceBlend(BlendingExpressions::BE_SOURCE_ALPHA),
+          DestBlend(BlendingExpressions::BE_ONE_MINUS_SOURCE_ALPHA),
           AlphaTest(test), AlphaTestValue(testValue)
     {
 
@@ -104,22 +130,22 @@ private:
     {
         switch (expression)
         {
-            case BlendingExpressions::Zero: return GL_ZERO;
-            case BlendingExpressions::One: return GL_ONE;
+            case BlendingExpressions::BE_ZERO: return GL_ZERO;
+            case BlendingExpressions::BE_ONE: return GL_ONE;
                
-            case BlendingExpressions::SourceColor: return GL_SRC_COLOR;
-            case BlendingExpressions::DestColor: return GL_DST_COLOR;
+            case BlendingExpressions::BE_SOURCE_COLOR: return GL_SRC_COLOR;
+            case BlendingExpressions::BE_DEST_COLOR: return GL_DST_COLOR;
 
-            case BlendingExpressions::OneMinusSourceColor: return GL_ONE_MINUS_SRC_COLOR;
-            case BlendingExpressions::OneMinusDestColor: return GL_ONE_MINUS_DST_COLOR;
+            case BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR: return GL_ONE_MINUS_SRC_COLOR;
+            case BlendingExpressions::BE_ONE_MINUS_DEST_COLOR: return GL_ONE_MINUS_DST_COLOR;
 
-            case BlendingExpressions::SourceAlpha: return GL_SRC_ALPHA;
-            case BlendingExpressions::DestAlpha: return GL_DST_ALPHA;
+            case BlendingExpressions::BE_SOURCE_ALPHA: return GL_SRC_ALPHA;
+            case BlendingExpressions::BE_DESTALPHA: return GL_DST_ALPHA;
 
-            case BlendingExpressions::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
-            case BlendingExpressions::OneMinusDestAlpha: return GL_ONE_MINUS_SRC_COLOR;
+            case BlendingExpressions::BE_ONE_MINUS_SOURCE_ALPHA: return GL_ONE_MINUS_SRC_ALPHA;
+            case BlendingExpressions::BE_ONE_MINUS_DEST_ALPHA: return GL_ONE_MINUS_SRC_COLOR;
 
-            case BlendingExpressions::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+            case BlendingExpressions::BE_SOURCE_ALHPA_SATURATE: return GL_SRC_ALPHA_SATURATE;
 
             default: return GL_INVALID_ENUM;
         }
