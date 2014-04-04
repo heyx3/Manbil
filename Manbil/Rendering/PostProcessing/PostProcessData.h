@@ -248,6 +248,8 @@ private:
 };
 
 
+
+
 class TestMultiPassEffect : public PostProcessEffect
 {
 public:
@@ -262,16 +264,35 @@ public:
     }
 
     TestMultiPassEffect(PpePtr prevEffect = PpePtr())
-        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 2) { }
+        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 4) { }
 
 protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override
     {
-        assert(CurrentPass == 1 || CurrentPass == 2);
+        assert(CurrentPass >= 1 && CurrentPass <= 4);
 
-        if (CurrentPass == 1)
-            strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 0.5;\n";
-        else strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 2.0;\n";
+        strOut += "\tvec3 " + GetOutputName(0) + " = ";
+        std::string col = GetColorInput().GetValue();
+
+        switch (CurrentPass)
+        {
+        case 1:
+            strOut += col + " * 0.5";
+            break;
+        case 2:
+            strOut += col + " * 2.0";
+            break;
+        case 3:
+            strOut += col + " * 0.5";
+            break;
+        case 4:
+            strOut += col + " * 2.0";
+            break;
+
+        default: assert(false);
+        }
+
+        strOut += ";\n";
     }
 };
