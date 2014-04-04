@@ -9,7 +9,7 @@
 
 template<typename Data>
 //Takes data on some kind of 2D grid and splits it up into discrete space-filling rectangular regions.
-struct RegionSplitter
+class RegionSplitter
 {
 	//The output -- the data, split into rectangular regions inside the grid.
 	typedef Fake2DArray<std::vector<Data*>> SplitRegions;

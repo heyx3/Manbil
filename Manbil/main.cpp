@@ -26,8 +26,8 @@ void WriteToConsole(const std::string & outStr)
 
 int main()
 {
+    OpenGLTestWorld().RunWorld();
+    //TwoDOpenGLTest().RunWorld();
     //NoiseTest().RunWorld();
-    //OpenGLTestWorld().RunWorld();
-    TwoDOpenGLTest().RunWorld();
     //TwoTrianglesWorld().RunWorld();
 }

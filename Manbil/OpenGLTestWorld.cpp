@@ -85,9 +85,11 @@ void OpenGLTestWorld::InitializeMaterials(void)
     channels[RC::RC_SpecularIntensity] = DataLine(VectorF(256.0f));
 
 
-    typedef std::shared_ptr<PostProcessEffect> PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 0)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(1.0f)), DataLine(VectorF(Vector3f(0.0f, 1.0f, 1.0f))), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
+    typedef PostProcessEffect::PpePtr PpePtr;
+    //ppcChain.insert(ppcChain.end(), PpePtr(new TestMultiPassEffect()));
+    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 0)));
+    //ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(3.0f)), DataLine(VectorF(Vector3f(0.0f, 1.0f, 1.0f))), DataLine(VectorF(0.5f)),
+    //                                                     DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));

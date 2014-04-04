@@ -56,6 +56,13 @@ public:
     //Gets this node's output lines. Each element represents the size of that output line's VectorF.
     std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
+    //Replaces the given input with the given line.
+    void ReplaceInput(unsigned int inputIndex, const DataLine & replacement)
+    {
+        inputs[inputIndex] = replacement;
+    }
+
+
     //Gets the variable name for this node's given output.
     virtual std::string GetOutputName(unsigned int outputIndex) const { assert(outputIndex < outputs.size()); return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
 

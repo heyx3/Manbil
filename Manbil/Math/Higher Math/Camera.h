@@ -38,7 +38,7 @@ public:
 	void AddRoll(float radians);
 
 	void GetViewTransform(Matrix4f & outM) const;
-    void GetOrthoProjection(Matrix4f & outM, bool inWorld) const;
+    void GetOrthoProjection(Matrix4f & outM) const;
 	
 private:
 

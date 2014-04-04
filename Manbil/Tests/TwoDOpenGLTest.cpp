@@ -203,8 +203,7 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
 
     trans.GetWorldTransform(worldM);
     cam->GetViewTransform(viewM);
-    cam->GetOrthoProjection(projM, false);
-    //projM.SetAsPerspProj(cam->Info);
+    cam->GetOrthoProjection(projM);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
     RenderingState().EnableState();
