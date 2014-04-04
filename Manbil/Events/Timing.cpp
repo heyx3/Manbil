@@ -1,5 +1,8 @@
 #include "Timing.h"
 
+#include "../Math/BasicMath.h"
+
+
 bool Timer::Update(float timeElapsed)
 {
     if (TimeLeft <= 0.0f) return true;
@@ -15,37 +18,9 @@ bool Timer::Update(float timeElapsed)
     else return false;
 }
 
-unsigned int TimerManager::RemoveTimers(int eventType)
-{
-    unsigned int count = 0;
-    for (int i = 0; i < timers.size(); ++i)
-    {
-        if (timers[i].T.EventID == eventType)
-        {
-            timers.erase(timers.begin() + i);
-            count += 1;
-            i -= 1;
-        }
-    }
-    return count;
-}
-unsigned int TimerManager::RemoveTimers(bool(*predicate)(const Timer & t, bool wbd, void* args), void* args)
-{
-    unsigned int count = 0;
-    for (int i = 0; i < timers.size(); ++i)
-    {
-        if (predicate(timers[i].T, timers[i].DestroyAfterEvent, args))
-        {
-            timers.erase(timers.begin() + 1);
-            count += 1;
-            i -= 1;
-        }
-    }
-    return count;
-}
-
 unsigned int TimerManager::UpdateTimers(float elapsedTime)
 {
+    //Update timers.
     unsigned int count = 0;
     for (int i = 0; i < timers.size(); ++i)
     {
@@ -63,5 +38,30 @@ unsigned int TimerManager::UpdateTimers(float elapsedTime)
             }
         }
     }
+
+    //Add new timers.
+    for (unsigned int i = 0; i < toAdd.size(); ++i)
+        timers.insert(timers.end(), toAdd[i]);
+    toAdd.clear();
+
+    //Remove timers based on event id and predicates.
+    for (unsigned int i = 0; i < BasicMath::Max(toRemoveByEventType.size(), toRemoveByPredicate.size()); ++i)
+    {
+        for (unsigned int j = 0; j < timers.size(); ++j)
+        {
+            if ((i < toRemoveByEventType.size() && timers[j].T.EventID == toRemoveByEventType[i]) ||
+                (i < toRemoveByPredicate.size() && toRemoveByPredicate[i].Predicate(timers[j].T,
+                                                                                    timers[j].DestroyAfterEvent,
+                                                                                    toRemoveByPredicate[i].pArgs)))
+            {
+                timers.erase(timers.begin() + j);
+            }
+
+        }
+    }
+    toRemoveByEventType.clear();
+    toRemoveByPredicate.clear();
+
+
     return count;
 }

@@ -39,19 +39,27 @@ class TimerManager
 {
 public:
 
+    //Evaluates a timer.
+    typedef bool(*TimerPredicate)(const Timer & t, bool willBeDestroyedAfterEvent, void* pArgs);
+
+
     //Adds a timer to this manager. "destroyAfterEvent" determines
     //   whether the timer is 1) removed or 2) reset when it goes off.
     void AddTimer(const Timer & t, bool destroyAfterEvent)
     {
-        timers.insert(timers.end(), TimerElement(t, destroyAfterEvent));
+        toAdd.insert(timers.end(), TimerElement(t, destroyAfterEvent));
     }
     //Removes all timers with the given event type.
-    //Returns the number of timers that were removed.
-    unsigned int RemoveTimers(int eventType);
+    void RemoveTimers(int eventType) { toRemoveByEventType.insert(toRemoveByEventType.end(), eventType); }
     //Removes all timers that pass the given predicate function.
     //The predicate function may optionally be passed some extra information to use.
-    //Returns the number of timers that were removed.
-    unsigned int RemoveTimers(bool(*predicate)(const Timer & t, bool willBeDestroyedAfterEvent, void* args), void* args = 0);
+    void RemoveTimers(bool(*predicate)(const Timer & t, bool willBeDestroyedAfterEvent, void* args), void* args = 0)
+    {
+        PredicateData pd;
+        pd.Predicate = predicate;
+        pd.pArgs = args;
+        toRemoveByPredicate.insert(toRemoveByPredicate.end(), pd);
+    }
     //Updates all timers and returns the number of them that went off.
     unsigned int UpdateTimers(float elapsedTime);
 
@@ -64,6 +72,9 @@ private:
             TimerElement(Timer t, bool destroy) : T(t), DestroyAfterEvent(destroy) { }
     };
 
-    std::vector<TimerElement> timers;
-    //TODO: Add "toRemove" and "toAdd" lists and use them during "UpdateTimers", so that timers that go off can remove/add other timers without causing a problem.
+    std::vector<TimerElement> timers, toAdd;
+
+    std::vector<int> toRemoveByEventType;
+    struct PredicateData { public: TimerPredicate Predicate; void* pArgs; };
+    std::vector<PredicateData> toRemoveByPredicate;
 };
