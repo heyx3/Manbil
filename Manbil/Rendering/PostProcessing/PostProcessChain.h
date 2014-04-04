@@ -47,8 +47,10 @@ public:
 
 
     //Gets the render target that will hold the final result after this chain is done rendering.
+    //Returns 0 if this PostProcessChain doesn't apply any effects.
     RenderTarget * GetFinalRender(void) const
     {
+        if (totalPasses == 0) return 0;
         return rtManager[(totalPasses % 2 == 1) ? rt1 : rt2];
     }
 

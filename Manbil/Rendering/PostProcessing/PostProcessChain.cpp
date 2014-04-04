@@ -110,6 +110,8 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
 bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & pInfo, const RenderTarget * inWorld)
 {
+    if (totalPasses == 0) return true;
+
     //Set up the RenderInfo struct.
     Camera cam;
     cam.Info = pInfo;

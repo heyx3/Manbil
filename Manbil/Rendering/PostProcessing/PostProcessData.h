@@ -219,7 +219,7 @@ public:
     FogEffect(DataLine dropoff = DataLine(VectorF(1.0f)),
               DataLine fogColor = DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))),
               DataLine colorIn = ColorSamplerIn(), DataLine depthIn = DepthSamplerIn())
-        : PostProcessEffect(colorIn, depthIn, BuildInputs(dropoff, fogColor))
+        : PostProcessEffect(colorIn, depthIn, DataNode::MakeVector(dropoff, fogColor))
     {
     }
 
@@ -230,20 +230,10 @@ public:
 
 protected:
 
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
-
     virtual void WriteMyOutputs(std::string & strOut) const override;
 
 private:
 
     const DataLine & GetDropoffInput(void) const { return GetInputs()[0]; }
-    const DataLine & GetColorInput(void) const { return GetInputs()[1]; }
-
-    static std::vector<DataLine> BuildInputs(const DataLine & fogDropoff, const DataLine & fogColor)
-    {
-        std::vector<DataLine> ret;
-        ret.insert(ret.end(), fogDropoff);
-        ret.insert(ret.end(), fogColor);
-        return ret;
-    }
+    const DataLine & GetFogColorInput(void) const { return GetInputs()[1]; }
 };

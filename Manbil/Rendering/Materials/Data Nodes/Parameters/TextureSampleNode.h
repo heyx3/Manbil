@@ -8,26 +8,26 @@
 
 //Outputs the result of sampling a texture.
 //TODO: Move most of these into the .cpp file.
-//TODO: Remove scaling, panning, and offset -- just let the user do those things manually through the data node system.
 class TextureSampleNode : public DataNode
 {
 public:
+
+    static DataNodePtr CreateComplexTexture(std::string samplerName = "",
+                                            DataLine scale = DataLine(VectorF(Vector2f(1.0f, 1.0f))),
+                                            DataLine pan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
+                                            DataLine offset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
+                                            DataLine uvs = DataLine(DataNodePtr(new UVNode()), 0));
+
 
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
     std::string GetSamplerUniformName(void) const { return samplerName; }
 
 
     TextureSampleNode(std::string _samplerName = "",
-                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0),
-                      DataLine uvScale = DataLine(VectorF(1.0f)),
-                      DataLine uvPan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                      DataLine uvOffset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                      DataLine timeInput = DataLine(DataNodePtr(new TimeNode()), 0))
-    : DataNode(makeVector(UVs, uvScale, uvPan, uvOffset, timeInput), makeVector())
+                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0))
+    : DataNode(MakeVector(UVs), makeVector())
     {
-        assert(UVs.GetDataLineSize() == 2 && uvScale.GetDataLineSize() <= 2 &&
-               uvPan.GetDataLineSize() == 2 && uvOffset.GetDataLineSize() == 2 &&
-               timeInput.GetDataLineSize() == 1);
+        assert(UVs.GetDataLineSize() == 2);
 
         samplerName = _samplerName;
         if (samplerName.empty())
@@ -77,13 +77,6 @@ protected:
 
 private:
 
-    static std::vector<DataLine> makeVector(const DataLine & uv, const DataLine & uvScale, const DataLine & uvPan,
-                                            const DataLine & uvOffset, const DataLine & time)
-    {
-        std::vector<DataLine> dats = MakeVector(uv, uvScale, uvPan, uvOffset);
-        dats.insert(dats.end(), time);
-        return dats;
-    }
     static std::vector<unsigned int> makeVector(void)
     {
         std::vector<unsigned int> ints;
@@ -99,10 +92,6 @@ private:
     std::string GetSampleOutputName(void) const { return samplerName + "_sample" + std::to_string(GetUniqueID()); }
 
     const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
-    const DataLine & GetUVScaleInput(void) const { return GetInputs()[1]; }
-    const DataLine & GetUVPanInput(void) const { return GetInputs()[2]; }
-    const DataLine & GetUVOffsetInput(void) const { return GetInputs()[3]; }
-    const DataLine & GetTimeInput(void) const { return GetInputs()[4]; }
 
     //Gets the size of the output VectorF for the given sampling channel.
     static unsigned int GetSize(ChannelsOut channel)

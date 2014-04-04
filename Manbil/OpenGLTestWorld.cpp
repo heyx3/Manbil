@@ -73,12 +73,11 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
-    TextureSampleNode * normalMap = new TextureSampleNode("u_normalMapTex",
-                                                          DataLine(DataNodePtr(new UVNode()), 0),
-                                                          DataLine(VectorF(10.0f, 10.0f)),
-                                                          DataLine(VectorF(0.0025f, 0.0025f)),
-                                                          DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0));
-    texSamplerName = normalMap->GetSamplerUniformName();
+    DataNodePtr normalMap(TextureSampleNode::CreateComplexTexture("u_normalMapTex",
+                                                                  DataLine(VectorF(10.0f, 10.0f)),
+                                                                  DataLine(VectorF(0.025f, 0.025f)),
+                                                                  DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0)));
+    texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
     channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.275f, 0.275f, 1.0f)));
     channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -87,8 +86,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     typedef std::shared_ptr<PostProcessEffect> PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 2)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(2.2f)), DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 0)));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(1.0f)), DataLine(VectorF(Vector3f(0.0f, 1.0f, 1.0f))), DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -111,7 +110,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(3)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(1)),
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
     if (water->HasError())
@@ -129,9 +128,7 @@ void OpenGLTestWorld::InitializeObjects(void)
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
-    water->AddRipple(Water::RippleWaterArgs(Vector3f(), 150.0f, 6.0f, 5.0f, 10.0f));
-    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(4.0f, 0.0f), 5.0f, 10.0f));
-    //water->AddFlow(Water::DirectionalWaterArgs(Vector2f(0.0f, -16.0f), 0.1f, 1.5f));
+    water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
 
 
     ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
@@ -161,6 +158,9 @@ void OpenGLTestWorld::InitializeWorld(void)
 	if (IsGameOver()) return;
 	
 
+    Input.AddBoolInput(666, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Button::Left, BoolInput::ValueStates::JustPressed)));
+
+
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
 
@@ -169,7 +169,6 @@ void OpenGLTestWorld::InitializeWorld(void)
     InitializeObjects();
 
 
-    //Camera.
     Vector3f pos(2.0f, 2.0f, 10.0f);
     cam.SetPosition(pos);
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
@@ -217,7 +216,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 	}
     water->Update(elapsedSeconds);
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (Input.GetBoolInputValue(666))
         water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 10.0f, 120.0f, 1.0f));
 }
 
@@ -262,7 +261,9 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     TransformObject trans;
     Matrix4f identity;
     identity.SetAsIdentity();
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(ppc->GetFinalRender()->GetColorTexture());
+    RenderTarget * finalRend = ppc->GetFinalRender();
+    if (finalRend == 0) finalRend = manager[worldRenderID];
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTexture());
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

@@ -58,21 +58,13 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 }
 
 
-void FogEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
-{
-    outDecls.insert(outDecls.end(),
-"vec3 blendWithFog" + std::to_string(GetUniqueID()) + "(vec3 colorIn, float depthIn)\n\
-{                                                          \n\
-    float fogLerp = pow(1.0 - depthIn, " + GetDropoffInput().GetValue() + ");                 \n\
-    return mix(" + GetColorInput().GetValue() + ", " +
-               "colorIn, fogLerp);                         \n\
-                                                           \n\
-}                                                          \n\
-");
-}
-
 void FogEffect::WriteMyOutputs(std::string & strOut) const
 {
-    strOut += "\tvec3 " + GetOutputName(0) + " = blendWithFog" + std::to_string(GetUniqueID()) + "(" + GetColorInput().GetValue() + ", " +
-                                                                                                       GetDepthInput().GetValue() + ");\n";
+    std::string lerpVal = (GetDropoffInput().IsConstant(1.0f) ?
+                              std::string("(1.0 - ") + GetDepthInput().GetValue() + ")" :
+                              std::string("pow(1.0 - ") + GetDepthInput().GetValue() + ", " + GetDropoffInput().GetValue() + ")");
+    strOut += "\n\
+    vec3 " + GetOutputName(0) + " = mix(" + GetFogColorInput().GetValue() + ", " +
+                                        GetColorInput().GetValue() + ", \n\
+                                        " + lerpVal + ");\n";
 }

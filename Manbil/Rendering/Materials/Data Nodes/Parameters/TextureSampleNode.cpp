@@ -1,26 +1,26 @@
 #include "TextureSampleNode.h"
 
+#include "../DataNodeIncludes.h"
+
+
+DataNodePtr TextureSampleNode::CreateComplexTexture(std::string samplerName, DataLine scale, DataLine pan, DataLine offset, DataLine uvs)
+{
+    DataLine scaled = (!scale.IsConstant(Vector2f(1.0f, 1.0f)) ?
+                          DataLine(DataNodePtr(new MultiplyNode(uvs, scale)), 0) :
+                          uvs);
+    DataLine offsetted = (!offset.IsConstant(Vector2f(0.0f, 0.0f)) ?
+                             DataLine(DataNodePtr(new AddNode(scaled, offset)), 0) :
+                             scaled);
+    DataLine panned = (!pan.IsConstant(Vector2f(0.0f, 0.0f)) ?
+                          DataLine(DataNodePtr(new AddNode(offsetted,
+                                                           DataLine(DataNodePtr(new MultiplyNode(pan,
+                                                                                                 DataLine(DataNodePtr(new TimeNode()), 0))), 0))), 0) :
+                          offsetted);
+
+    return DataNodePtr(new TextureSampleNode(samplerName, panned));
+}
+
 void TextureSampleNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string uv = GetUVInput().GetValue(),
-                uvScale = GetUVScaleInput().GetValue(),
-                uvPan = GetUVPanInput().GetValue(),
-                uvOffset = GetUVOffsetInput().GetValue(),
-                time = GetTimeInput().GetValue();
-
-    bool usesScale = !GetUVScaleInput().IsConstant() ||
-                     GetUVScaleInput().GetConstantValue() != VectorF(1.0f, 1.0f),
-         usesPan = !GetUVPanInput().IsConstant() ||
-                    GetUVPanInput().GetConstantValue() != VectorF(0.0f, 0.0f),
-         usesOffset = !GetUVOffsetInput().IsConstant() ||
-                      GetUVOffsetInput().GetConstantValue() != VectorF(0.0f, 0.0f);
-
-
-    std::string uvFinal = std::string() +
-                          (usesScale ? "(" + uvScale + " * " : "") +
-                              "(" + uv +
-                                   (usesOffset ? " + (" + uvOffset + " + " : "") +
-                                   (usesPan ? "(" + time + " * " + uvPan + ")" : "") +
-                              ")" + (usesPan ? ")" : "") + (usesOffset ? ")" : "") + (usesScale ? ")" : "");
-    outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + GetSamplerUniformName() + ", " + uvFinal + ");\n";
+    outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + GetSamplerUniformName() + ", " + GetUVInput().GetValue() + ");\n";
 }

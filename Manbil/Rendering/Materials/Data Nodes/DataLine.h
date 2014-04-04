@@ -10,7 +10,7 @@ class DataNode;
 typedef std::shared_ptr<DataNode> DataNodePtr;
 
 
-//Represents an input into a DataNode.
+//Represents an input into a DataNode. Its value is either a constant or the output of a DataNode.
 struct DataLine
 {
 public:
@@ -23,8 +23,18 @@ public:
     //Creates a DataLine with the default value { 0, 0, 0, 0 }.
     DataLine(void) : isConstantValue(true), constantValue(VectorF(Vector4f(0.0f, 0.0f, 0.0f, 0.0f))) { }
 
-    //This data line either feeds in a constant input, or gets the input value from a DataNode's output.
+    //Does this DataLine have a constant value?
     bool IsConstant(void) const { return isConstantValue; }
+
+    //Does this DataLine have the given constant value?
+    bool IsConstant(float val) const { return IsConstant() && constantValue == val; }
+    //Does this DataLine have the given constant value?
+    bool IsConstant(Vector2f val) const { return IsConstant() && constantValue == val; }
+    //Does this DataLine have the given constant value?
+    bool IsConstant(Vector3f val) const { return IsConstant() && constantValue == val; }
+    //Does this DataLine have the given constant value?
+    bool IsConstant(Vector4f val) const { return IsConstant() && constantValue == val; }
+
 
     //Gets the number of floats in this data line.
     unsigned int GetDataLineSize(void) const;

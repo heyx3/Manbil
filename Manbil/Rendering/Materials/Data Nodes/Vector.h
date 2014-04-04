@@ -69,6 +69,38 @@ public:
 
         return true;
     }
+    bool operator==(float f) const
+    {
+        return (size == 1 && values[0] == f);
+    }
+    bool operator!=(float f) const
+    {
+        return (size != 1 || values[0] != f);
+    }
+    bool operator==(Vector2f f) const
+    {
+        return (size == 2 && values[0] == f.x && values[1] == f.y);
+    }
+    bool operator!=(Vector2f f) const
+    {
+        return (size != 2 || values[0] != f.x || values[1] != f.y);
+    }
+    bool operator==(Vector3f f) const
+    {
+        return (size == 3 && values[0] == f.x && values[1] == f.y && values[2] == f.z);
+    }
+    bool operator!=(Vector3f f) const
+    {
+        return (size != 3 || values[0] != f.x || values[1] != f.y || values[2] != f.z);
+    }
+    bool operator==(Vector4f f) const
+    {
+        return (size == 4 && values[0] == f.x && values[1] == f.y && values[2] == f.z && values[3] == f.w);
+    }
+    bool operator!=(Vector4f f) const
+    {
+        return (size != 4 || values[0] != f.x || values[1] != f.y || values[2] != f.z || values[3] != f.w);
+    }
 
 
     std::string GetGLSLType(void) const;
@@ -145,6 +177,39 @@ public:
 
         return true;
     }
+    bool operator==(int i) const
+    {
+        return (size == 1 && values[0] == i);
+    }
+    bool operator!=(int i) const
+    {
+        return (size != 1 || values[0] != i);
+    }
+    bool operator==(Vector2i i) const
+    {
+        return (size == 2 && values[0] == i.x && values[1] == i.y);
+    }
+    bool operator!=(Vector2i i) const
+    {
+        return (size != 2 || values[0] != i.x || values[1] != i.y);
+    }
+    bool operator==(Vector3i i) const
+    {
+        return (size == 3 && values[0] == i.x && values[1] == i.y && values[2] == i.z);
+    }
+    bool operator!=(Vector3i i) const
+    {
+        return (size != 3 || values[0] != i.x || values[1] != i.y || values[2] != i.z);
+    }
+    bool operator==(Vector4i i) const
+    {
+        return (size == 4 && values[0] == i.x && values[1] == i.y && values[2] == i.z && values[3] == i.w);
+    }
+    bool operator!=(Vector4i i) const
+    {
+        return (size != 4 || values[0] != i.x || values[1] != i.y || values[2] != i.z || values[3] != i.w);
+    }
+
 
 
     std::string GetGLSLType(void) const;
