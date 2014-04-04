@@ -162,7 +162,7 @@ void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, V
             memcpy(&colors[(y * texSize.x) + x], &color, sizeof(Vector4f));
 
     glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texSize.x, texSize.y, 0, GL_RGBA, GL_FLOAT, (GLvoid*)colors);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texSize.x, texSize.y, 0, GL_RGBA, GL_FLOAT, (GLvoid*)colors);
 
     delete colors;
 }

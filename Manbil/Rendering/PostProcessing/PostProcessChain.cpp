@@ -31,7 +31,8 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
         //Otherwise, create a new pass group just for this effect.
         else
         {
-            totalPasses += effectChain[effect]->NumbPasses - 1;
+            totalPasses += effectChain[effect]->NumbPasses - 2;
+            if (effect == effectChain.size() - 1) totalPasses += 1;
 
             if (passGroups[passGroup].size() > 0)
             {
@@ -62,7 +63,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             //If there is a group before/after this, skip the first/last pass, since it will be lumped in with that other group.
             unsigned int startPass = 1,
-                endPass = effct->NumbPasses;
+                         endPass = effct->NumbPasses;
             if (passGroup > 0)
                 startPass += 1;
             if (passGroup < passGroups.size() - 1)
@@ -194,7 +195,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
             UniformSamplerValue(source->GetColorTexture(), PostProcessEffect::ColorSampler,
                                 matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler] =
-            UniformSamplerValue(source->GetDepthTexture(), PostProcessEffect::DepthSampler,
+            UniformSamplerValue(inWorld->GetDepthTexture(), PostProcessEffect::DepthSampler,
                                 matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
         quad.GetMesh().Uniforms.AddUniforms(uniforms[i], true);

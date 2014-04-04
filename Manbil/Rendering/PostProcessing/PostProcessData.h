@@ -72,8 +72,14 @@ public:
         PrevEffect = newPrevEffect;
 
         if (newPrevEffect.get() == 0)
+        {
             ReplaceInput(GetInputs().size() - 2, ColorSamplerIn());
-        else ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
+        }
+        else
+        {
+            ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
+            ReplaceInput(GetInputs().size() - 1, newPrevEffect->GetDepthInput());
+        }
     }
 
     //The number of passes needed to do this effect.
@@ -278,7 +284,7 @@ protected:
         switch (CurrentPass)
         {
         case 1:
-            strOut += col + " * 0.5";
+            strOut += col + " * 0.05";
             break;
         case 2:
             strOut += col + " * 2.0";
