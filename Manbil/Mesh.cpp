@@ -30,7 +30,7 @@ Mesh::Mesh(const Mesh & cpy)
     }
 
     viData = new VertexIndexData[nVIData];
-    for (int i = 0; i < nVIData; ++i)
+    for (unsigned int i = 0; i < nVIData; ++i)
         viData[i] = cpy.viData[i];
 }
 
@@ -39,7 +39,7 @@ void Mesh::SetVertexIndexData(const VertexIndexData * toCopy, int numbToCopy)
     if (viData != 0) delete[] viData;
     nVIData = numbToCopy;
     viData = new VertexIndexData[nVIData];
-    for (int i = 0; i < nVIData; ++i)
+    for (unsigned int i = 0; i < nVIData; ++i)
         viData[i] = VertexIndexData(toCopy[i]);
 }
 

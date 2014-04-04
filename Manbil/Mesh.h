@@ -29,9 +29,9 @@ public:
     }
     
 
-	int GetNumbVertexIndexData(void) const { return nVIData; }
+	unsigned int GetNumbVertexIndexData(void) const { return nVIData; }
 
-	const VertexIndexData & GetVertexIndexData(int datNumb) const { return viData[datNumb]; }
+	const VertexIndexData & GetVertexIndexData(unsigned int datNumb) const { return viData[datNumb]; }
     void SetVertexIndexData(const VertexIndexData & toCopy) { SetVertexIndexData(&toCopy, 1); }
 	void SetVertexIndexData(const VertexIndexData * toCopy, int numbToCopy);
 
@@ -44,5 +44,5 @@ private:
 	PrimitiveTypes primType;
 
 	VertexIndexData * viData;
-	int nVIData;
+	unsigned int nVIData;
 };

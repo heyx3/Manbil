@@ -296,7 +296,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         RippleWaterCreationArgs ripArgs = rippleArgs.GetValue();
         maxRipples = ripArgs.MaxRipples;
 
-        rippleIDs = new int[maxRipples];
+        rippleIDs = new unsigned int[maxRipples];
         dp_tsc_h_p = new Vector4f[maxRipples];
         sXY_sp = new Vector3f[maxRipples];
         for (unsigned int i = 0; i < maxRipples; ++i)
@@ -319,7 +319,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         DirectionalWaterCreationArgs dirArgs = directionArgs.GetValue();
         maxFlows = dirArgs.MaxFlows;
 
-        flowIDs = new int[maxFlows];
+        flowIDs = new unsigned int[maxFlows];
         f_a_p = new Vector4f[maxFlows];
         tsc = new float[maxFlows];
 
@@ -406,7 +406,7 @@ Water::~Water(void)
     }
 }
 
-int Water::AddRipple(const RippleWaterArgs & args)
+unsigned int Water::AddRipple(const RippleWaterArgs & args)
 {
     assert(maxRipples > 0);
 
@@ -420,9 +420,9 @@ int Water::AddRipple(const RippleWaterArgs & args)
     
 
     //Update tracking values.
-    int rippleID = nextRippleID;
+    unsigned int rippleID = nextRippleID;
     nextRippleID += 1;
-    int index = currentRippleIndex;
+    unsigned int index = currentRippleIndex;
     currentRippleIndex += 1;
     currentRippleIndex %= maxRipples;
 
@@ -442,7 +442,7 @@ int Water::AddRipple(const RippleWaterArgs & args)
 
     return rippleID;
 }
-bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
+bool Water::ChangeRipple(unsigned int element, const RippleWaterArgs & args)
 {
     assert(maxRipples > 0);
 
@@ -468,7 +468,7 @@ bool Water::ChangeRipple(int element, const RippleWaterArgs & args)
     return false;
 }
 
-int Water::AddFlow(const DirectionalWaterArgs & args)
+unsigned int Water::AddFlow(const DirectionalWaterArgs & args)
 {
     assert(maxFlows > 0);
 
@@ -480,9 +480,9 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
         cpy.Period = 0.001f;
 
     //Update tracking values.
-    int flowID = nextFlowID;
+    unsigned int flowID = nextFlowID;
     nextFlowID += 1;
-    int index = currentFlowIndex;
+    unsigned int index = currentFlowIndex;
     currentFlowIndex += 1;
     currentFlowIndex %= maxFlows;
 
@@ -491,9 +491,9 @@ int Water::AddFlow(const DirectionalWaterArgs & args)
     tsc[index] = cpy.TimeSinceCreated;
 
 
-    return -1;
+    return flowID;
 }
-bool Water::ChangeFlow(int element, const DirectionalWaterArgs & args)
+bool Water::ChangeFlow(unsigned int element, const DirectionalWaterArgs & args)
 {
     assert(maxFlows > 0);
 
@@ -539,7 +539,7 @@ void Water::Update(float elapsed)
     if (maxRipples > 0)
     {
         //Keep in mind that negative time values indicate the ripple source was stopped and is fading out.
-        for (int i = 0; i < maxRipples; ++i)
+        for (unsigned int i = 0; i < maxRipples; ++i)
             if (dp_tsc_h_p[i].y >= 0.0f)
                 dp_tsc_h_p[i].y += elapsed;
             else dp_tsc_h_p[i].y -= elapsed;
@@ -548,7 +548,7 @@ void Water::Update(float elapsed)
 
     if (maxFlows > 0)
     {
-        for (int i = 0; i < maxFlows; ++i)
+        for (unsigned int i = 0; i < maxFlows; ++i)
         {
             if (tsc[i] > 0.0f)
                 tsc[i] += elapsed;
@@ -581,257 +581,4 @@ bool Water::Render(const RenderInfo & info)
         return false;
     }
     else return true;
-}
-
-
-
-struct RenderingPass { public: std::string vs, fs; RenderingPass(std::string _vs, std::string _fs) : vs(_vs), fs(_fs) { } };
-RenderingPass GetRippleWaterRenderer(int maxRipples)
-{
-    std::string n = std::to_string(maxRipples);
-    
-    std::string commonGround = std::string() + "\
-             //Keep uniforms compacted into vectors so they can be sent to the GPU quicker.\n\
-             uniform vec4 dropoffPoints_timesSinceCreated_heights_periods[" + n + "];\n\
-             uniform vec3 sourcesXY_speeds[" + n + "];\n\
-             \n\
-             float getWaveHeight(vec2 horizontalPos)\n\
-             {\n\
-                float offset = 0.0;\n\
-                for (int i = 0; i < " + n + "; ++i)\n\
-                {\n\
-                    //Extract the uniform data.\n\
-                    float dropoffPoint = dropoffPoints_timesSinceCreated_heights_periods[i].x;\n\
-                    float timeSinceCreated = dropoffPoints_timesSinceCreated_heights_periods[i].y;\n\
-                    float height = dropoffPoints_timesSinceCreated_heights_periods[i].z;\n\
-                    float period = dropoffPoints_timesSinceCreated_heights_periods[i].w;\n\
-                    vec2 source = sourcesXY_speeds[i].xy;\n\
-                    float speed = sourcesXY_speeds[i].z;\n\
-                    \n\
-                    float dist = distance(source, horizontalPos);\n\
-                    float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
-                    //TODO: Turn the dropoff exponent into a uniform.\n\
-                    heightScale = heightScale * heightScale * heightScale;\n\
-                    //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
-                    //TODO: Smooth cutoff, not a binary 1/0 thing.\n\
-                    float cutoff = period * speed * timeSinceCreated;\n\
-                    cutoff = max(0, sign(cutoff - dist));\n\
-                    \n\
-                    float innerVal = (dist / period) + (-timeSinceCreated * speed);\n\
-                    float waveScale = height * heightScale * cutoff;\n\
-                    \n\
-                    float heightOffset = sin(innerVal);\n\
-                    //TODO: Add uniform 'waveSharpness' for this 'pow' function.\n\
-                    heightOffset = -1.0 + 2.0 * pow(0.5 + 0.5 * heightOffset, 2.0);\n\
-                    offset += waveScale * heightOffset;\n\
-                }\n\
-                return offset;\n\
-             }\n\
-             \n\
-             struct NormalData\n\
-             {\n\
-                vec3 normal, tangent, bitangent;\n\
-             };\n\
-             NormalData getWaveNormal(vec2 horizontalPos)\n\
-             {\n\
-                NormalData dat;\n\
-                dat.normal = vec3(0.0, 0.0, 0.001);\n\
-                dat.tangent = vec3(0.001, 0.0, 0.0);\n\
-                dat.bitangent = vec3(0.0, 0.001, 0.0);\n\
-                \n\
-                vec2 epsilon = vec2(0.1);\n\
-                \n\
-                for (int i = 0; i < " + n + "; ++i)\n\
-                {\n\
-                    //Get the height at nearby vertices and compute the normal via cross-product.\n\
-                    \n\
-                    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),\n\
-                         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),\n\
-                         zero_one = horizontalPos + vec2(0.0f, epsilon.y),\n\
-                         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);\n\
-                    \n\
-                    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));\n\
-                    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),\n\
-                         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),\n\
-                         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),\n\
-                         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));\n\
-                    \n\
-                    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),\n\
-                                       normalize(p_zero_one - p_zero_zero)),\n\
-                         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),\n\
-                                       normalize(p_zero_nOne - p_zero_zero)),\n\
-                         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));\n\
-                    \n\
-                    dat.normal += normFinal;\n\
-                    if (false) {\n\
-                    //Extract the uniform data.\n\
-                    //float dropoffPoint = dropoffPoints_timesSinceCreated_heights_periods[i].x;\n\
-                    //float timeSinceCreated = dropoffPoints_timesSinceCreated_heights_periods[i].y;\n\
-                    //float height = dropoffPoints_timesSinceCreated_heights_periods[i].z;\n\
-                    //float period = dropoffPoints_timesSinceCreated_heights_periods[i].w;\n\
-                    //vec2 source = sourcesXY_speeds[i].xy;\n\
-                    //float speed = sourcesXY_speeds[i].z;\n\
-                    \n\
-                    //float dist = distance(source, horizontalPos);\n\
-                    //float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));\n\
-                    //'cutoff' will be either 0 or 1 based on how far away this vertex is.\n\
-                    //float cutoff = timeSinceCreated * speed * 3.0;\n\
-                    //cutoff = max(0, sign(cutoff - dist));\n\
-                    \n\
-                    //float innerVal = (dist / period) + (-u_elapsed_seconds * speed);\n\
-                    //float waveScale = height * heightScale * cutoff;\n\
-                    \n\
-                    //float derivative = cos(innerVal);\n\
-                    //vec3 toSource = vec3(normalize(source.xy - horizontalPos.xy), 0.001);\n\
-                    \n\
-                    //norm += height * heightScale * cutoff * normalize(mix(vec3(0.0, 0.0, 1.0), toSource, derivative));\n\
-                    }\n\
-                }\n\
-                dat.normal = normalize(dat.normal);\n\
-                return dat;\n\
-             }\n";
-
-
-    return RenderingPass(commonGround + "\
-             void main()\n\
-             {\n\
-                out_tex = in_tex;\n\
-                out_col = vec4(in_pos.xy, in_col.zw);\n\
-                \n\
-                float heightOffset = getWaveHeight(in_pos.xy);\n\
-                vec3 finalPos = in_pos + vec3(0.0, 0.0, heightOffset);\n\
-                gl_Position = worldTo4DScreen(finalPos);\n\
-                \n\
-                vec4 out_pos4 = (u_world * vec4(finalPos, 1.0));\n\
-                out_pos = out_pos4.xyz / out_pos4.w;\n\
-             }",
-
-           commonGround + "\
-            struct DirectionalLightStruct\n\
-			{\n\
-				vec3 Dir, Col;\n\
-				float Ambient, Diffuse, Specular;\n\
-				float SpecularIntensity;\n\
-			};\n\
-			uniform DirectionalLightStruct DirectionalLight;\n\
-            \n\
-            void main()\n\
-            {\n\
-                //Remap the random seed from [0, 1] to [-1, 1].\n\
-                vec2 f2 = -1.0 + (2.0 * out_col.zw);\n\
-                \n\
-                //Get the normal and the normal map sample.\n\
-                vec3 norm = getWaveNormal(out_col.xy).normal;\n\
-                \n\
-                //TODO: Take this math involving 'out_col.z' and turn it into two uniforms.\n\
-                vec2 specialOffset = vec2(f2.x * 0.01 * sin(0.25 * f2.x * u_elapsed_seconds));\n\
-                vec3 normalMap = sampleTex(1, out_tex, specialOffset).xyz;\n\
-                \n\
-                //Remap the normal map so that the horizontal coordinates are in the range [-1, 1] instead of [0, 1].\n\
-                normalMap = vec3(-1.0 + (2.0 * normalMap.xy), abs(normalMap.z));\n\
-                \n\
-                //Combine the normal maps.\n\
-                //TODO: Adding the normal map to the wave normal is incorrect. You have to rotate the normal map so it is relative to the wave normal.\n\
-                norm = normalize(norm + normalMap);\n\
-                \n\
-                float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
-                                                 DirectionalLight.Dir, DirectionalLight.Ambient,\n\
-                                                 DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
-                                                 DirectionalLight.SpecularIntensity);\n\
-                vec4 texCol = sampleTex(0, out_tex);\n\
-                \n\
-                out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
-            }");
-}
-RenderingPass GetDirectionalWaterRenderer(int maxFlows)
-{
-    return RenderingPass("", "");
-}
-RenderingPass GetSeededHeightRenderer(void)
-{
-    std::string commonGround = std::string() + "\
-                uniform vec3 amplitude_period_speed;\n\
-                uniform vec2 seedMapResolution;\n\
-                uniform sampler2D seedMap;\n\
-                \n\
-                float getWaveHeight(vec2 horizontalPos)\n\
-                {\n\
-                    float amp = amplitude_period_speed.x,\n\
-                          per = amplitude_period_speed.y,\n\
-                          spd = amplitude_period_speed.z;\n\
-                    \n\
-                    vec2 uvLookup = in_tex + (u_elapsed_seconds * seedMapPanDir);\n\
-                    \n\
-                    float seed = 6346.1634 * sampleTex(2, in_tex).x;]\n\
-                    return amp * sin((seed / per) + (u_elapsed_seconds * spd));\n\
-                }\n\
-                vec3 getWaveNormal(vec2 horizontalPos)\n\
-                {\n\
-                    //Get the height at nearby vertices and compute the normal via cross-product.\n\
-                    vec2 epsilon = 1.0 / seedMapResolution;\n\
-                    \n\
-                    vec2 one_zero = horizontalPos + vec2(epsilon, 0.0f),\n\
-                         nOne_zero = horizontalPos + vec2(-epsilon, 0.0f),\n\
-                         zero_one = horizontalPos + vec2(0.0f, epsilon),\n\
-                         zero_nOne = horizontalPos + vec2(0.0f, -epsilon);\n\
-                    \n\
-                    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));\n\
-                    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),\n\
-                         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),\n\
-                         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),\n\
-                         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));\n\
-                    \n\
-                    //TODO: See if we can remove the outer 'normalize()' here without messing anything up.\n\
-                    vec3 norm1 = normalize(cross(normalize(p_one_zero - p_zero_zero),\n\
-                                                 normalize(p_zero_one - p_zero_zero))),\n\
-                         norm2 = normalize(cross(normalize(p_nOne_zero - p_zero_zero),\n\
-                                                 normalize(p_zero_nOne - p_zero_zero))),\n\
-                         normFinal = normalize(norm1 + norm2);\n\
-                    //Make sure it's positive along the vertical axis.\n\
-                    normFinal *= sign(normFinal.z);\n\
-                    \n\
-                    return normFinal;\n\
-                }\n\
-                ";
-
-    return RenderingPass(
-        commonGround + "\
-            void main()\n\
-            {\n\
-               out_tex = in_tex;\n\
-               out_col = vec4(in_pos, 0.0);\n\
-               \n\
-               float heightOffset = getWaveHeight(in_pos.xy);\n\
-               vec3 finalPos = in_pos + vec3(0.0, 0.0, heightOffset);\n\
-               gl_Position = worldTo4DScreen(finalPos);\n\
-               \n\
-               vec4 out_pos4 = (u_world * vec4(finalPos, 1.0));\n\
-               out_pos = out_pos4.xyz / out_pos4.w;\n\
-            }",
-        commonGround + "\
-            struct DirectionalLightStruct\n\
-			{\n\
-				vec3 Dir, Col;\n\
-				float Ambient, Diffuse, Specular;\n\
-				float SpecularIntensity;\n\
-			};\n\
-			uniform DirectionalLightStruct DirectionalLight;\n\
-            \n\
-            uniform vec2 texturePanDir;\n\
-            uniform vec2 normalmapTexturePanDir;\n\
-            \n\
-            void main()\n\
-            {\n\
-                vec3 norm = getWaveNormal(out_col.xy);\n\
-                vec3 normalMap = sampleTex(1, out_tex).xyz;\n\
-                norm = normalize(norm + vec3(-1.0 + (2.0 * normalMap.xy), normalMap.z));\n\
-                \n\
-                float brightness = getBrightness(normalize(norm), normalize(out_pos - u_cam_pos),\n\
-                                                 DirectionalLight.Dir, DirectionalLight.Ambient,\n\
-                                                 DirectionalLight.Diffuse, DirectionalLight.Specular,\n\
-                                                 DirectionalLight.SpecularIntensity);\n\
-                vec4 texCol = sampleTex(0, out_tex);\n\
-                \n\
-                out_finalCol = vec4(brightness * DirectionalLight.Col * texCol.xyz, 1.0);\n\
-            }");
 }

@@ -4,7 +4,7 @@ unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & bas
 {
     DataLine max = baseValue;
 
-    for (int i = 0; i < toDivide.size(); ++i)
+    for (unsigned int i = 0; i < toDivide.size(); ++i)
         if (toDivide[i].GetDataLineSize() > max.GetDataLineSize())
             max = toDivide[i];
 
@@ -35,7 +35,7 @@ void DivideNode::WriteMyOutputs(std::string & outCode) const
     std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
-    for (int i = 0; i < GetInputs().size(); ++i)
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
     {
         outCode += GetInputs()[i].GetValue();
 

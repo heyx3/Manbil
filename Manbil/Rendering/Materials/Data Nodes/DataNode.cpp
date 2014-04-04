@@ -11,7 +11,7 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
         return;
 
     //First get the parameter declarations for all the child nodes.
-    for (int i = 0; i < inputs.size(); ++i)
+    for (unsigned int i = 0; i < inputs.size(); ++i)
     {
         if (!inputs[i].IsConstant())
         {
@@ -31,7 +31,7 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
         return;
 
     //First get the function declarations for all the child nodes.
-    for (int i = 0; i < inputs.size(); ++i)
+    for (unsigned int i = 0; i < inputs.size(); ++i)
     {
         if (!inputs[i].IsConstant())
         {
@@ -51,7 +51,7 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
         return;
 
     //First get the outputs for all the child nodes.
-    for (int i = 0; i < inputs.size(); ++i)
+    for (unsigned int i = 0; i < inputs.size(); ++i)
     {
         if (!inputs[i].IsConstant())
         {

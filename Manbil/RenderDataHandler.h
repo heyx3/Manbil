@@ -166,20 +166,22 @@ private:
 	
 	static GLenum ToEnum(BufferPurpose p)
 	{
-		switch (p)
-		{
-			case BufferPurpose::UPDATE_ONCE_AND_DRAW: return GL_STATIC_DRAW;
-			case BufferPurpose::UPDATE_ONCE_AND_COPY: return GL_STATIC_COPY;
-			case BufferPurpose::UPDATE_ONCE_AND_READ: return GL_STATIC_READ;
+        switch (p)
+        {
+            case BufferPurpose::UPDATE_ONCE_AND_DRAW: return GL_STATIC_DRAW;
+            case BufferPurpose::UPDATE_ONCE_AND_COPY: return GL_STATIC_COPY;
+            case BufferPurpose::UPDATE_ONCE_AND_READ: return GL_STATIC_READ;
 
-			case BufferPurpose::UPDATE_RARELY_AND_DRAW: return GL_DYNAMIC_DRAW;
-			case BufferPurpose::UPDATE_RARELY_AND_COPY: return GL_DYNAMIC_COPY;
-			case BufferPurpose::UPDATE_RARELY_AND_READ: return GL_DYNAMIC_READ;
+            case BufferPurpose::UPDATE_RARELY_AND_DRAW: return GL_DYNAMIC_DRAW;
+            case BufferPurpose::UPDATE_RARELY_AND_COPY: return GL_DYNAMIC_COPY;
+            case BufferPurpose::UPDATE_RARELY_AND_READ: return GL_DYNAMIC_READ;
 
-			case BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW: return GL_STREAM_DRAW;
-			case BufferPurpose::UPDATE_CONSTANTLY_AND_COPY: return GL_STREAM_COPY;
-			case BufferPurpose::UPDATE_CONSTANTLY_AND_READ: return GL_STREAM_READ;
-		}
+            case BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW: return GL_STREAM_DRAW;
+            case BufferPurpose::UPDATE_CONSTANTLY_AND_COPY: return GL_STREAM_COPY;
+            case BufferPurpose::UPDATE_CONSTANTLY_AND_READ: return GL_STREAM_READ;
+
+            default: return GL_INVALID_ENUM;
+        }
 	}
 
 

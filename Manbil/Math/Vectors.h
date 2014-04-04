@@ -195,24 +195,21 @@ namespace MyVectors
         }
 
         int Dot(Vector4i other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
-        int AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+        float AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
-        int Length(void) const { return sqrtf(LengthSquared()); }
+        float Length(void) const { return sqrtf(LengthSquared()); }
         int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
-        int FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
+        float FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
 
-        int Distance(Vector4i other) const { return sqrtf(DistanceSquared(other)); }
+        float Distance(Vector4i other) const { return sqrtf(DistanceSquared(other)); }
         int DistanceSquared(Vector4i other) const { int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z, f4 = w - other.w; return (f1 * f1) + (f2 * f2) + (f3 * f3) + (f4 * f4); }
         int ManhattanDistance(Vector4i other) const { return BasicMath::Abs(x - other.x) + BasicMath::Abs(y - other.y) + BasicMath::Abs(z - other.z) + BasicMath::Abs(w - other.w); }
-        int FastInvDistance(Vector4i other) const { return BasicMath::FastInvSqrt1(DistanceSquared(other)); }
+        float FastInvDistance(Vector4i other) const { return BasicMath::FastInvSqrt1(DistanceSquared(other)); }
 
         //Scales this Vector4i's x, y, z, and w components by the given Vector4i's x, y, z, and w components.
         void MultiplyComponents(Vector4i scale) { x *= scale.x; y *= scale.y; z *= scale.z; w *= scale.w; }
         //Scales this Vector4i's x, y, z, and w components by the given Vector4i's x, y, z, and w components.
         Vector4i ComponentProduct(Vector4i scale) const { Vector4i v(x, y, z, w); v.MultiplyComponents(scale); return v; }
-
-        void Round(int decimals) { x = BasicMath::Round(x, decimals); y = BasicMath::Round(y, decimals); z = BasicMath::Round(z, decimals); w = BasicMath::Round(w, decimals); }
-        Vector4i Rounded(int decimals) const { return Vector4i(BasicMath::Round(x, decimals), BasicMath::Round(y, decimals), BasicMath::Round(z, decimals), BasicMath::Round(w, decimals)); }
 
         void Normalize(void);
         Vector4i Normalized(void) const;

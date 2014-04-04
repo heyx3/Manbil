@@ -110,17 +110,17 @@ public:
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
-    int AddRipple(const RippleWaterArgs & args);
+    unsigned int AddRipple(const RippleWaterArgs & args);
     //Changes the water ripple with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
-    bool ChangeRipple(int element, const RippleWaterArgs & args);
+    bool ChangeRipple(unsigned int element, const RippleWaterArgs & args);
 
     //Adds a new flow to the water.
     //Returns the id for the created flow, or -1 if this water isn't Directional water.
-    int AddFlow(const DirectionalWaterArgs & args);
+    unsigned int AddFlow(const DirectionalWaterArgs & args);
     //Changes the water flow with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
-    bool ChangeFlow(int element, const DirectionalWaterArgs & args);
+    bool ChangeFlow(unsigned int element, const DirectionalWaterArgs & args);
 
     //Changes the properties of the water.
     void SetSeededWater(const SeededWaterArgs & args);
@@ -142,21 +142,21 @@ private:
     std::string errorMsg;
 
     //Ripple stuff.
-    int currentRippleIndex;
-    int maxRipples;
-    int nextRippleID;
-    int totalRipples;
-    int * rippleIDs;
+    unsigned int currentRippleIndex;
+    unsigned int maxRipples;
+    unsigned int nextRippleID;
+    unsigned int totalRipples;
+    unsigned int * rippleIDs;
     //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
     Vector4f * dp_tsc_h_p;
     Vector3f * sXY_sp;
 
     //Flow stuff.
-    int currentFlowIndex;
-    int maxFlows;
-    int nextFlowID;
-    int totalFlows;
-    int * flowIDs;
+    unsigned int currentFlowIndex;
+    unsigned int maxFlows;
+    unsigned int nextFlowID;
+    unsigned int totalFlows;
+    unsigned int * flowIDs;
     //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
     Vector4f * f_a_p;
     float * tsc;

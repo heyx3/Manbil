@@ -4,7 +4,7 @@
 
 
 //Represents a DataNode that outputs some user-defined
-//     parameter that can be changed at run-time.
+//     vector that can be changed at run-time.
 class ParamNode : public DataNode
 {
 public:
@@ -20,7 +20,7 @@ public:
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
     {
         float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValueF(0.0f, GetOutputName(0));
+        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValueF(data, vSize, GetOutputName(0));
     }
 
     virtual std::string GetOutputName(unsigned int outputIndex) const override

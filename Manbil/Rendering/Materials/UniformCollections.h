@@ -35,7 +35,7 @@ public:
     UniformValueF(const float * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
     {
-        for (int i = 0; i < nData; ++i) Value[i] = value[i];
+        for (unsigned int i = 0; i < nData; ++i) Value[i] = value[i];
     }
     void SetValue(float value) { NData = 1; Value[0] = value; }
     void SetValue(Vector2f value) { NData = 2; Value[0] = value.x; Value[1] = value.y; }
@@ -119,7 +119,7 @@ public:
     UniformValueI(const int * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
     {
-        for (int i = 0; i < nData; ++i) Value[i] = value[i];
+        for (unsigned int i = 0; i < nData; ++i) Value[i] = value[i];
     }
     void SetValue(int value) { NData = 1; Value[0] = value; }
     void SetValue(Vector2i value) { NData = 2; Value[0] = value.x; Value[1] = value.y; }
@@ -219,7 +219,7 @@ public:
     //Returns "Uniform("", -1)" if the given name isn't found.
     static Uniform FindUniform(std::string name, const std::vector<Uniform> & toSearch)
     {
-        for (int i = 0; i < toSearch.size(); ++i)
+        for (unsigned int i = 0; i < toSearch.size(); ++i)
             if (toSearch[i].Name == name)
                 return toSearch[i];
         return Uniform("");

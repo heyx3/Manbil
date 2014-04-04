@@ -98,7 +98,7 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
 {
     std::vector<RC> validChannels;
     GetUsedChannels(mode, useLighting, settings, validChannels);
-    for (int i = 0; i < validChannels.size(); ++i)
+    for (unsigned int i = 0; i < validChannels.size(); ++i)
     {
         if (channels.find(validChannels[i]) == channels.end())
         {
@@ -171,7 +171,7 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
                               vertexFunctions, fragmentFunctions,
                               vertexCodes, fragmentCodes;
 
-    for (int i = 0; i < validChannels.size(); ++i)
+    for (unsigned int i = 0; i < validChannels.size(); ++i)
     {
         const DataLine & data = channels[validChannels[i]];
         if (!data.IsConstant())

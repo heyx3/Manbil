@@ -53,9 +53,9 @@ public:
     //Gets the texture with the given ID, or an invalid texture
     //   if the given id does not belong to a texture.
     ManbilTexture & operator[](unsigned int id);
-    //Gets the texture with the given ID, or an invalid texture
+    //Gets a copy of the texture with the given ID, or an invalid texture
     //   if the given id does not belong to a texture.
-    const ManbilTexture & operator[](unsigned int id) const;
+    ManbilTexture operator[](unsigned int id) const;
 
 
 private:

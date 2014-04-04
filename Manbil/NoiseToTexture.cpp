@@ -6,7 +6,7 @@ bool NoiseToTexture::GetImage(sf::Image & img) const
 	Fake2DArray<sf::Uint8> outP(NoiseToUse->GetWidth() * 4, NoiseToUse->GetHeight(), 255);
 	
 	//Some temp variables.
-	int x, y, pixX, pixY;
+	unsigned int x, y, pixX, pixY;
 	sf::Uint8 noiseVal;
 	Vector4f col;
 	Vector4b colB;

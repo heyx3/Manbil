@@ -75,7 +75,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     DataNodePtr normalMap(TextureSampleNode::CreateComplexTexture("u_normalMapTex",
                                                                   DataLine(VectorF(10.0f, 10.0f)),
-                                                                  DataLine(VectorF(0.025f, 0.025f)),
+                                                                  DataLine(VectorF(1.0f, 1.0f)),
                                                                   DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0)));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
@@ -87,7 +87,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     typedef PostProcessEffect::PpePtr PpePtr;
     //ppcChain.insert(ppcChain.end(), PpePtr(new TestMultiPassEffect()));
-    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 0)));
+    ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Light, 0)));
     //ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(3.0f)), DataLine(VectorF(Vector3f(0.0f, 1.0f, 1.0f))), DataLine(VectorF(0.5f)),
     //                                                     DataLine(ppcChain[0], PostProcessEffect::GetColorOutputIndex()), DataLine(ppcChain[0], PostProcessEffect::GetDepthOutputIndex()))));
 

@@ -150,7 +150,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
              finalWorld, finalWVP;
 
     //Render each mesh.
-    for (int i = 0; i < meshes.size(); ++i)
+    for (unsigned int i = 0; i < meshes.size(); ++i)
     {
         const Mesh & mesh = *meshes[i];
 
@@ -199,7 +199,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
 
 
         //Now render the mesh.
-        for (int v = 0; v < mesh.GetNumbVertexIndexData(); ++v)
+        for (unsigned int v = 0; v < mesh.GetNumbVertexIndexData(); ++v)
         {
             const VertexIndexData & vid = mesh.GetVertexIndexData(v);
 

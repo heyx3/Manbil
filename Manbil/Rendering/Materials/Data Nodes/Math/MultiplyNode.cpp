@@ -3,7 +3,7 @@
 unsigned int GetMax(const std::vector<DataLine> & lines)
 {
     unsigned int max = lines[0].GetDataLineSize();
-    for (int i = 1; i < lines.size(); ++i)
+    for (unsigned int i = 1; i < lines.size(); ++i)
     {
         max = BasicMath::Max(max, lines[i].GetDataLineSize());
     }
@@ -31,7 +31,7 @@ void MultiplyNode::WriteMyOutputs(std::string & outCode) const
     std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
-    for (int i = 0; i < GetInputs().size(); ++i)
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
     {
         outCode += GetInputs()[i].GetValue();
 

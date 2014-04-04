@@ -79,15 +79,12 @@ unsigned int TextureManager::CreateTexture(std::string filePath)
 
 ManbilTexture & TextureManager::operator[](unsigned int id)
 {
-    auto loc = texturesByID.find(id);
-    if (loc == texturesByID.end())
-        return ManbilTexture();
-    return loc->second;
+    assert(texturesByID.find(id) != texturesByID.end());
+    return texturesByID[id];
 }
-const ManbilTexture & TextureManager::operator[](unsigned int id) const
+ManbilTexture TextureManager::operator[](unsigned int id) const
 {
     auto loc = texturesByID.find(id);
-    if (loc == texturesByID.end())
-        return ManbilTexture();
-    return loc->second;
+    if (loc == texturesByID.end()) return ManbilTexture();
+    else return loc->second;
 }

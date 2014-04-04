@@ -28,6 +28,7 @@ public:
     {
         if (boolInputs.find(key) != boolInputs.end()) return false;
         boolInputs[key] = input;
+        return true;
     }
     //Returns whether or not this function succeeded.
     //It will fail if the given key already exists for another FloatInput.
@@ -35,6 +36,7 @@ public:
     {
         if (floatInputs.find(key) != floatInputs.end()) return false;
         floatInputs[key] = input;
+        return true;
     }
     //Returns whether or not this function succeeded.
     //It will fail if the given key already exists for another Vector2Input.
@@ -42,6 +44,7 @@ public:
     {
         if (v2Inputs.find(key) != v2Inputs.end()) return false;
         v2Inputs[key] = input;
+        return true;
     }
 
     //Removes the BoolInput for the given key and returns it.

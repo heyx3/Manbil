@@ -33,7 +33,6 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
     std::string vType = VectorF(GetMinInput().GetDataLineSize()).GetGLSLType();
     std::string vType2 = VectorF(GetInterpInput().GetDataLineSize()).GetGLSLType();
     std::string funcName = GetName() + "_verySmoothStep";
-    bool floatInterp = (GetInputs()[2].GetDataLineSize() == 1);
 
     std::string str = vType + funcName + "(" + vType + " minV, " + vType + " maxV, " + vType2 + " interpolantV)\n\
                       {\n\

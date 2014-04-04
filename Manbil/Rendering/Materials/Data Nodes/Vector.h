@@ -130,7 +130,7 @@ public:
     void SetValue(void) { size = 0; }
 
 
-    VectorI(void) : size(0) { values[0] = 0.0f; values[1] = 0.0f; values[2] = 0.0f; values[3] = 0.0f; }
+    VectorI(void) : size(0) { values[0] = 0; values[1] = 0; values[2] = 0; values[3] = 0; }
 
     VectorI(int value) { SetValue(value); }
     VectorI(Vector2i value) { SetValue(value); }

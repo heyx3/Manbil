@@ -46,9 +46,9 @@ private:
     template<typename ArrayType>
     static void WriteArray(const sf::Image & img, Fake2DArray<ArrayType> & outData, ArrayType (*GetArrayElement)(sf::Color texColor))
     {
-        for (int x = 0; x < outData.GetWidth(); ++x)
+        for (unsigned int x = 0; x < outData.GetWidth(); ++x)
         {
-            for (int y = 0; y < outData.GetHeight(); ++y)
+            for (unsigned int y = 0; y < outData.GetHeight(); ++y)
             {
                 outData[Vector2i(x, y)] = GetArrayElement(img.getPixel(x, y));
             }
@@ -59,9 +59,9 @@ private:
     {
         img.create(imgData.GetWidth(), imgData.GetHeight());
 
-        for (int x = 0; x < imgData.GetWidth(); ++x)
+        for (unsigned int x = 0; x < imgData.GetWidth(); ++x)
         {
-            for (int y = 0; y < imgData.GetHeight(); ++y)
+            for (unsigned int y = 0; y < imgData.GetHeight(); ++y)
             {
                 img.setPixel(x, y, GetImgColor(data, imgData[Vector2i(x, y)]));
             }

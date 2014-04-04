@@ -112,7 +112,7 @@ public:
 
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		for (int i = 0; i < Deadzones.size(); ++i)
+		for (unsigned int i = 0; i < Deadzones.size(); ++i)
 			inV = Deadzones[i]->Filter(inV);
 		return inV;
 	}

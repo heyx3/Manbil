@@ -33,7 +33,7 @@ std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
 
 void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
 {
-    for (int i = 0; i < GetVectorInput().GetDataLineSize(); ++i)
+    for (unsigned int i = 0; i < GetVectorInput().GetDataLineSize(); ++i)
     {
         outCode += "\tfloat " + GetOutputName(i) + " = " + GetVectorInput().GetValue();
 

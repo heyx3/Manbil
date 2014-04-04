@@ -27,13 +27,13 @@ std::string TextureSampleNode::GetOutputName(unsigned int index) const
 
     switch (index)
     {
-    case 0: return base + ".x";
-    case 1: return base + ".y";
-    case 2: return base + ".z";
-    case 3: return base + ".w";
-    case 4: return base + ".xyz";
-    case 5: return base;
-    default: assert(false);
+        case 0: return base + ".x";
+        case 1: return base + ".y";
+        case 2: return base + ".z";
+        case 3: return base + ".w";
+        case 4: return base + ".xyz";
+        case 5: return base;
+        default: assert(false);
     }
 }
 
@@ -41,14 +41,14 @@ unsigned int TextureSampleNode::GetOutputIndex(ChannelsOut channel)
 {
     switch (channel)
     {
-    case ChannelsOut::CO_Red: return 0;
-    case ChannelsOut::CO_Green: return 1;
-    case ChannelsOut::CO_Blue: return 2;
-    case ChannelsOut::CO_Alpha: return 3;
-    case ChannelsOut::CO_AllColorChannels: return 4;
-    case ChannelsOut::CO_AllChannels: return 5;
+        case ChannelsOut::CO_Red: return 0;
+        case ChannelsOut::CO_Green: return 1;
+        case ChannelsOut::CO_Blue: return 2;
+        case ChannelsOut::CO_Alpha: return 3;
+        case ChannelsOut::CO_AllColorChannels: return 4;
+        case ChannelsOut::CO_AllChannels: return 5;
 
-    default: assert(false);
+        default: assert(false);
     }
 }
 
