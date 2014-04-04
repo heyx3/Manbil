@@ -66,7 +66,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
                 UniformDictionary unfs;
                 materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
-                uniforms.insert(uniforms.end(), unfs);
+                uniforms.insert(uniforms.end(), UniformDictionary());
                 if (materials[materials.size() - 1]->HasError())
                 {
                     errorMsg = std::string() + "Error creating pass #" + std::to_string(pass) + " of multi-pass effect '" + effct->GetName() + "': " + materials[materials.size() - 1]->GetErrorMsg();
@@ -115,7 +115,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             //Now create the material.
             UniformDictionary unfs;
             materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
-            uniforms.insert(uniforms.end(), unfs);
+            uniforms.insert(uniforms.end(), UniformDictionary());
             if (materials[materials.size() - 1]->HasError())
             {
                 errorMsg = std::string() + "Error creating material #" + std::to_string(materials.size()) + ": " + materials[materials.size() - 1]->GetErrorMsg();
