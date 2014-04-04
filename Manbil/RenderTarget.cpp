@@ -11,6 +11,9 @@
 RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool useDepth)
 	: width(w), height(h)
 {
+
+    //TODO: parameterize the size of the color/depth buffers.
+
 	ClearAllRenderingErrors();
 
     //Create frame buffer object.
@@ -29,7 +32,7 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, w, h, 0, GL_RGBA, GL_FLOAT, 0);
 
         //Attach the texture to the frame buffer.
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
@@ -83,75 +86,6 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 
 
 	glViewport(0, 0, width, height);
-}
-
-void RenderTarget::ChangeSize(int newW, int newH)
-{
-    //TODO: Either remove this function, or both 1) delete and recreate the frame buffer entirely and 2) change RenderTargetManager to call "ChangeSize". Preferably the latter.
-
-	width = newW;
-	height = newH;
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glViewport(0, 0, width, height);
-
-    //Recreate the color texture and set properties.
-    if (usesCol)
-    {
-        glBindTexture(GL_TEXTURE_2D, colorTex);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newW, newH, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-    }
-	
-    //Recreate the depth texture and set properties.
-    if (usesDepth)
-    {
-        glBindTexture(GL_TEXTURE_2D, depthTex);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-       // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        //glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-    }
-    else
-    {
-        glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-    }
-
-
-	//Re-attach the objects to the frame buffer.
-
-
-    if (usesCol)
-    {
-        glBindTexture(GL_TEXTURE_2D, colorTex);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
-    }
-    if (usesDepth)
-    {
-        glBindTexture(GL_TEXTURE_2D, depthTex);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
-    }
-    else
-    {
-        //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
-    }
-
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, width, height);
-
-    std::string str = GetCurrentRenderingError();
-    if (!str.empty())
-    {
-        errorMsg = "Error resizing render target: ";
-        errorMsg += str;
-    }
 }
 
 bool RenderTarget::IsValid(void) const

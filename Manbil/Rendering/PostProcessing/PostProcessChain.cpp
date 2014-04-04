@@ -137,7 +137,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     //Create needed render targets for rendering the post-process effect.
     if (materials.size() > 0)
     {
-        rt1 = rtManager.CreateRenderTarget(width, height, true, true);
+        rt1 = rtManager.CreateRenderTarget(width, height, true, false);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating first render target (" + std::to_string(width) + "x" +
@@ -147,7 +147,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
     if (materials.size() > 1)
     {
-        rt2 = rtManager.CreateRenderTarget(width, height, true, true);
+        rt2 = rtManager.CreateRenderTarget(width, height, true, false);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating second render target (" + std::to_string(width) + "x" +

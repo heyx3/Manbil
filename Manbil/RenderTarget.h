@@ -33,9 +33,6 @@ public:
 
     Vector2i GetSize(void) const { return Vector2i(width, height); }
 
-	//Resizes this render target.
-	void ChangeSize(int newWidth, int newHeight);
-
 	//Gets whether this render target is ready to be used.
 	bool IsValid(void) const;
 
