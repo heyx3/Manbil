@@ -60,9 +60,12 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 
 void FogEffect::WriteMyOutputs(std::string & strOut) const
 {
+    std::string innerLerpVal = (GetFogThicknessInput().IsConstant(1.0f) ?
+                                    std::string() + GetDepthInput().GetValue() :
+                                    std::string() + "(" + GetDepthInput().GetValue() + " * " + GetFogThicknessInput().GetValue() + ")");
     std::string lerpVal = (GetDropoffInput().IsConstant(1.0f) ?
-                              std::string("(1.0 - ") + GetDepthInput().GetValue() + ")" :
-                              std::string("pow(1.0 - ") + GetDepthInput().GetValue() + ", " + GetDropoffInput().GetValue() + ")");
+                              std::string("(1.0 - ") + innerLerpVal + ")" :
+                              std::string("pow(1.0 - ") + innerLerpVal + ", " + GetDropoffInput().GetValue() + ")");
     strOut += "\n\
     vec3 " + GetOutputName(0) + " = mix(" + GetFogColorInput().GetValue() + ", " +
                                         GetColorInput().GetValue() + ", \n\

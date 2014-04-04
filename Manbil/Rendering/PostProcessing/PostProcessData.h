@@ -32,40 +32,19 @@ protected:
 
 //Abstract class representing a post-process effect as a DataNode.
 //Outputs 0: the color output as a vec3, 1: the linear depth output as a float from 0 to 1.
+//The depth output should never change after an effect is applied.
 class PostProcessEffect : public DataNode
 {
 public:
+
+    typedef std::shared_ptr<PostProcessEffect> PpePtr;
+
 
     //The names of the color/depth texture sampler uniforms.
     static const std::string ColorSampler, DepthSampler;
 
     static unsigned int GetColorOutputIndex(void) { return 0; }
     static unsigned int GetDepthOutputIndex(void) { return 1; }
-
-
-    //The number of passes needed to do this effect.
-    unsigned int NumbPasses;
-    //The current pass. Used when generating GLSL code.
-    unsigned int CurrentPass;
-
-    virtual std::string GetName(void) const override { return "unknownPostProcessEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        assert(index < GetOutputs().size());
-        return GetName() + std::to_string(GetUniqueID()) + "_UNKNOWN" + std::to_string(index);
-    }
-
-
-    PostProcessEffect(DataLine colorIn, DataLine depthIn, std::vector<DataLine> otherInputs, unsigned int numbPasses = 1)
-        : DataNode(MakeVector(colorIn, depthIn, otherInputs), DataNode::MakeVector(3, 1)),
-          NumbPasses(numbPasses), CurrentPass(0)
-    {
-        assert(GetColorInput().GetDataLineSize() == 3);
-        assert(GetDepthInput().GetDataLineSize() == 1);
-    }
-
-    //Creates a copy of this effect but with the default texture sampler as the color/depth input.
-    virtual std::unique_ptr<DataNode> ReplaceWithDefaultInput(void) const = 0;
 
     //Returns a DataLine that samples the color texture.
     //This should be the value for the first post-process effect's "colorIn" constructor argument.
@@ -76,14 +55,47 @@ public:
                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
-    //This should be the value for the first post-process effect's "depthIn" constructor argument.
-    //Subsequent effects should use the previous effect's depth output.
     static DataLine DepthSamplerIn(void)
     {
         DataLine depthTex(DataNodePtr(new TextureSampleNode(DepthSampler)),
                           TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
         DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
         return linearDepth;
+    }
+
+
+    //The effect that came before this one.
+    PpePtr GetPreviousEffect(void) const { return PrevEffect; }
+    //Switches out the effect this effect builds off of.
+    void ChangePreviousEffect(PpePtr newPrevEffect)
+    {
+        ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
+        PrevEffect = newPrevEffect;
+    }
+
+    //The number of passes needed to do this effect.
+    unsigned int NumbPasses;
+    //The current pass. Used when generating GLSL code.
+    unsigned int CurrentPass;
+
+    //Default name for a post-processing effect.
+    virtual std::string GetName(void) const override { return "unknownPostProcessEffect"; }
+    //Gets the depth output name only.
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        assert(index == 1);
+        if (PreviousEffect.get() == 0)
+            return GetDepthInput().GetValue();
+        else return PreviousEffect->GetOutputName(index);
+    }
+
+
+    PostProcessEffect(PpePtr previousEffect = PpePtr(), std::vector<DataLine> otherInputs = std::vector<DataLine>(), unsigned int numbPasses = 1)
+        : DataNode(MakeVector(previousEffect, otherInputs), DataNode::MakeVector(3, 1)),
+          PrevEffect(previousEffect), NumbPasses(numbPasses), CurrentPass(0)
+    {
+        assert(GetColorInput().GetDataLineSize() == 3);
+        assert(GetDepthInput().GetDataLineSize() == 1);
     }
 
 
@@ -95,6 +107,8 @@ public:
 
 protected:
 
+    PpePtr PrevEffect;
+
     //Gets all inputs in the correct order not including the color and depth input.
     std::vector<DataLine> GetNonColorDepthInputs(void) const
     {
@@ -104,14 +118,23 @@ protected:
         return inputs;
     }
 
+
 private:
 
-    //Creates the input std::vector for this node (by appending the color and depth inputs to the given vector).
-    static std::vector<DataLine> MakeVector(DataLine colorIn, DataLine depthIn, const std::vector<DataLine> & otherInputs)
+    //Creates the input std::vector for this node (by appending the correct color and depth inputs to the given vector).
+    static std::vector<DataLine> MakeVector(PpePtr prevEffect, const std::vector<DataLine> & otherInputs)
     {
         std::vector<DataLine> ret = otherInputs;
-        ret.insert(ret.end(), colorIn);
-        ret.insert(ret.end(), depthIn);
+        if (prevEffect.get() == 0)
+        {
+            ret.insert(ret.end(), ColorSamplerIn());
+            ret.insert(ret.end(), DepthSamplerIn());
+        }
+        else
+        {
+            ret.insert(ret.end(), DataLine(prevEffect, GetColorOutputIndex()));
+            ret.insert(ret.end(), prevEffect->GetDepthInput());
+        }
         return ret;
     }
 };
@@ -129,25 +152,18 @@ public:
         assert(index <= 1);
         return (index == 0 ?
                   (GetName() + std::to_string(GetUniqueID()) + "_tinted") :
-                   GetDepthInput().GetValue());
+                   PostProcessEffect::GetOutputName(index));
     }
 
     ColorTintEffect(DataLine colorScales = DataLine(VectorF(1.0f, 1.0f, 1.0f)),
-                    DataLine colorIn = ColorSamplerIn(),
-                    DataLine depthIn = DepthSamplerIn())
-        : PostProcessEffect(colorIn, depthIn, DataNode::MakeVector(colorScales)) { }
+                    PpePtr previousEffect = PpePtr())
+        : PostProcessEffect(previousEffect, DataNode::MakeVector(colorScales)) { }
     
-    virtual std::unique_ptr<DataNode> ReplaceWithDefaultInput(void) const
-    {
-        return std::unique_ptr<DataNode>(new ColorTintEffect(GetInputs()[0]));
-    }
-
-
 protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override
     {
-        //Tint the color, leave the depth unchanged.
+        //Tint the color.
         strOut += "\tvec3 " + GetOutputName(0) + " = " + GetInputs()[0].GetValue() + " * " + GetColorInput().GetValue() + ";\n";
     }
 };
@@ -165,7 +181,7 @@ public:
         assert(index <= 1);
         return (index == 0 ?
                 (GetName() + std::to_string(GetUniqueID()) + "_upContrast") :
-                GetDepthInput().GetValue());
+                PostProcessEffect::GetOutputName(index));
     }
 
 
@@ -182,14 +198,8 @@ public:
     unsigned int Iterations;
 
     ContrastEffect(Strengths strength, unsigned int iterations,
-                   DataLine colorIn = ColorSamplerIn(),
-                   DataLine depthIn = DepthSamplerIn())
-        : PostProcessEffect(colorIn, depthIn, std::vector<DataLine>()), Strength(strength), Iterations(iterations) { }
-
-    virtual std::unique_ptr<DataNode> ReplaceWithDefaultInput(void) const
-    {
-        return std::unique_ptr<DataNode>(new ContrastEffect(Strength, Iterations));
-    }
+                   PpePtr prevEffect = PpePtr())
+        : PostProcessEffect(prevEffect, std::vector<DataLine>()), Strength(strength), Iterations(iterations) { }
 
 protected:
 
@@ -197,6 +207,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override;
 };
+
 
 
 
@@ -210,23 +221,17 @@ public:
         assert(index <= 1);
         return (index == 0 ?
                 (GetName() + std::to_string(GetUniqueID()) + "_foggy") :
-                GetDepthInput().GetValue());
+                PostProcessEffect::GetOutputName(index));
     }
 
 
-    //TODO: More parameters (max fog thickness, start distance, etc), and optimize so that parameters that are set to default values aren't actually used in computation.
+    //TODO: More parameters (e.x. fog start distance), and optimize so that parameters that are set to default values aren't actually used in computation.
 
     FogEffect(DataLine dropoff = DataLine(VectorF(1.0f)),
               DataLine fogColor = DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))),
-              DataLine colorIn = ColorSamplerIn(), DataLine depthIn = DepthSamplerIn())
-        : PostProcessEffect(colorIn, depthIn, DataNode::MakeVector(dropoff, fogColor))
-    {
-    }
-
-    virtual std::unique_ptr<DataNode> ReplaceWithDefaultInput(void) const
-    {
-        return std::unique_ptr<DataNode>(new FogEffect(GetDropoffInput(), GetColorInput()));
-    }
+              DataLine fogThickness = DataLine(VectorF(1.0f)),
+              PpePtr prevEffect = PpePtr())
+        : PostProcessEffect(prevEffect, DataNode::MakeVector(dropoff, fogColor, fogThickness)) { }
 
 protected:
 
@@ -236,4 +241,32 @@ private:
 
     const DataLine & GetDropoffInput(void) const { return GetInputs()[0]; }
     const DataLine & GetFogColorInput(void) const { return GetInputs()[1]; }
+    const DataLine & GetFogThicknessInput(void) const { return GetInputs()[2]; }
+};
+
+
+class TestMultiPassEffect : public PostProcessEffect
+{
+public:
+
+    virtual std::string GetName(void) const override { return "titsEffect"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        assert(index <= 1);
+        return (index == 0 ?
+                (GetName() + std::to_string(GetUniqueID()) + "_effect") :
+                PostProcessEffect::GetOutputName(index));
+    }
+
+    TestMultiPassEffect(PpePtr prevEffect = PpePtr())
+        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 2) { }
+
+protected:
+
+    virtual void WriteMyOutputs(std::string & strOut) const override
+    {
+        if (CurrentPass == 0)
+            strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 0.5;\n";
+        else strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 2.0;\n";
+    }
 };
