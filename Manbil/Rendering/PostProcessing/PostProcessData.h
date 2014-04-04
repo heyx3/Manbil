@@ -256,49 +256,33 @@ private:
 
 
 
-class TestMultiPassEffect : public PostProcessEffect
+class GaussianBlurEffect : public PostProcessEffect
 {
 public:
 
-    virtual std::string GetName(void) const override { return "titsEffect"; }
+    virtual std::string GetName(void) const override { "return gaussBlurEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index <= 1);
         return (index == 0 ?
-                (GetName() + std::to_string(GetUniqueID()) + "_effect") :
+                (GetName() + std::to_string(GetUniqueID()) + "_blurred") :
                 PostProcessEffect::GetOutputName(index));
     }
 
-    TestMultiPassEffect(PpePtr prevEffect = PpePtr())
-        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 4) { }
+    //Uses three passes -- the first pass is a dummy pass to make sure the blur has a pass all to itself.
+    GaussianBlurEffect(PpePtr prevEffect = PpePtr())
+        : PostProcessEffect(prevEffect, BuildInputs(), 3)
+    {
+
+    }
+
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & strOut) const override
-    {
-        assert(CurrentPass >= 1 && CurrentPass <= 4);
+    virtual void WriteMyOutputs(std::string & strOut) const override;
 
-        strOut += "\tvec3 " + GetOutputName(0) + " = ";
-        std::string col = GetColorInput().GetValue();
 
-        switch (CurrentPass)
-        {
-        case 1:
-            strOut += col + " * 0.05";
-            break;
-        case 2:
-            strOut += col + " * 2.0";
-            break;
-        case 3:
-            strOut += col + " * 0.5";
-            break;
-        case 4:
-            strOut += col + " * 2.0";
-            break;
+private:
 
-        default: assert(false);
-        }
-
-        strOut += ";\n";
-    }
+    static std::vector<DataLine> BuildInputs(void);
 };

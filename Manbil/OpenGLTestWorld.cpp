@@ -86,10 +86,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     typedef PostProcessEffect::PpePtr PpePtr;
-    //ppcChain.insert(ppcChain.end(), PpePtr(new ContrastEffect(ContrastEffect::Strengths::S_Heavy, 1)));
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(3.0f)), DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))))));
-    ppcChain.insert(ppcChain.end(), PpePtr(new TestMultiPassEffect()));
-    ppcChain.insert(ppcChain.end(), PpePtr(new ColorTintEffect(DataLine(Vector3f(2.0f, 2.0f, 0.05f)))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(1.5f)), DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))))));
 
 
     finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));

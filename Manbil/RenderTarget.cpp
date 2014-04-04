@@ -12,7 +12,7 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 	: width(w), height(h)
 {
 
-    //TODO: parameterize the size of the color/depth buffers.
+    //TODO: parameterize the size of the color/depth buffers. Extend this parameterization to RenderTargetManager.
 
 	ClearAllRenderingErrors();
 

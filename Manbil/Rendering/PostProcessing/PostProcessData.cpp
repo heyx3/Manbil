@@ -71,3 +71,18 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
                                         GetColorInput().GetValue() + ", \n\
                                         " + lerpVal + ");\n";
 }
+
+
+void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
+{
+
+}
+
+std::vector<DataLine> GaussianBlurEffect::BuildInputs(void)
+{
+    std::vector<DataLine> ret;
+
+    //TODO: Calculate the correct lookup locations for the color sampler, either with constants or DataNodes.
+
+    return ret;
+}
