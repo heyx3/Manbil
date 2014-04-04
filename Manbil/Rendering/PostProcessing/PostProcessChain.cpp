@@ -9,6 +9,72 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 {
     std::unordered_map<RenderingChannels, DataLine> channels;
 
+    //Build each pass.
+    std::vector<std::vector<std::shared_ptr<PostProcessEffect>>> passGroups;
+    unsigned int passGroup = 0;
+    for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
+    {
+        //If this is the start of a new pass, create the collection of effects for it.
+        if (passGroup >= passGroups.size())
+            passGroups.insert(passGroups.end(), std::vector<std::shared_ptr<PostProcessEffect>>());
+
+        //If this effect only has one pass, just put it in the current pass group.
+        if (effectChain[effect]->NumbPasses == 1)
+        {
+            passGroups[passGroup].insert(passGroups[passGroup].end(), effectChain[effect]);
+        }
+        //Otherwise, create a new pass group just for this effect.
+        else
+        {
+            passGroup += 1;
+            passGroups.insert(passGroups.end(), std::vector<std::shared_ptr<PostProcessEffect>>());
+            passGroups[passGroup].insert(passGroups[passGroup].end(), effectChain[effect]);
+
+            passGroup += 1;
+        }
+    }
+
+    //Assemble each pass group into a material.
+    totalPasses = passGroups.size();
+    for (unsigned int pass = 0; pass < passGroups.size(); ++pass)
+    {
+        channels.clear();
+        
+        //If there was a multi-pass effect before this pass group, lump its final pass into this group.
+        //Otherwise, just start with the first effect in this group.
+        unsigned int groupStart;
+        if (pass > 0 && passGroups[pass - 1][0]->NumbPasses > 1)
+        {
+            channels[RenderingChannels::RC_Diffuse] = DataLine(passGroups[pass - 1][0], PostProcessEffect::GetColorOutputIndex());
+            passGroups[pass - 1][0]->CurrentPass = passGroups[pass - 1][0]->NumbPasses - 1;
+            groupStart = 0;
+        }
+        else
+        {
+            channels[RenderingChannels::RC_Diffuse] = DataLine(passGroups[pass][0], PostProcessEffect::GetColorOutputIndex());
+            passGroups[pass][0]->CurrentPass = 0;
+            groupStart = 1;
+
+            //If this is a multi-pass effect, create several passes just for it.
+            if (passGroups[pass][0]->NumbPasses > 1)
+            {
+                //TODO: Implement.
+
+                continue;
+            }
+        }
+
+        //Iterate through every effect in this group.
+        //TODO: Implement.
+
+        //If the next pass is a multi-pass effect, apply its first pass at the end of this pass group.
+        if (pass < passGroups.size() - 1 && passGroups[pass + 1][0]->NumbPasses > 1)
+        {
+            channels[RenderingChannels::RC_Diffuse] = DataLine(passGroups[pass + 1][0])
+        }
+    }
+
+
     totalPasses = BasicMath::Sign(effectChain.size());
     for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
     {
@@ -35,6 +101,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                     UniformDictionary uns;
                     effectChain[effect]->CurrentPass = pass - 1;
                     ShaderGenerator::GenerateShaders(vs, fs, uns, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
+                    effectChain[effect]->CurrentPass = pass;
                     materials.insert(materials.end(),
                                      std::shared_ptr<Material>(new Material(vs, fs, uns,
                                                                             RenderingModes::RM_Opaque, false, LightSettings(false))));
