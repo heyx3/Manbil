@@ -41,17 +41,21 @@ void TwoDOpenGLTest::InitializeWorld(void)
 
 
     //Camera.
-    cam = new Camera(Vector3f(0, 0, 5.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-    cam->MinOrthoBounds = Vector3f(-500.0f, -500.0f, -100.0f);
-    cam->MaxOrthoBounds = Vector3f(500.0f, 500.0f, 0.01f);
+    cam = new Camera(Vector3f(0, 0, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+    cam->MinOrthoBounds = Vector3f(-5.0f, -5.0f, -5.0f);
+    cam->MaxOrthoBounds = Vector3f(5.0f, 5.0f, 5.0f);
     cam->Info = ProjectionInfo(ToRadian(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
 
 
     //Input.
-    Input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::W, BoolInput::ValueStates::IsDown)));
-    Input.AddBoolInput(0, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::S, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(0, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::E, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Q, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Up, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Down, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(5, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::W, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(6, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::S, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(7, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::A, BoolInput::ValueStates::IsDown)));
+    Input.AddBoolInput(8, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::D, BoolInput::ValueStates::IsDown)));
     Input.AddBoolInput(1234, BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Escape, BoolInput::ValueStates::IsDown)));
 
 
@@ -153,6 +157,22 @@ void TwoDOpenGLTest::UpdateWorld(float elapsedSeconds)
     {
         cam->SetPositionZ(cam->GetPosition().z + (elapsedSeconds * 25.0f));
     }
+    if (Input.GetBoolInputValue(5))
+    {
+        cam->SetPositionY(cam->GetPosition().y + (elapsedSeconds * 25.0f));
+    }
+    if (Input.GetBoolInputValue(6))
+    {
+        cam->SetPositionY(cam->GetPosition().y - (elapsedSeconds * 25.0f));
+    }
+    if (Input.GetBoolInputValue(7))
+    {
+        cam->SetPositionX(cam->GetPosition().x + (elapsedSeconds * 25.0f));
+    }
+    if (Input.GetBoolInputValue(8))
+    {
+        cam->SetPositionX(cam->GetPosition().x - (elapsedSeconds * 25.0f));
+    }
 
     if (Input.GetBoolInputValue(2))
     {
@@ -183,16 +203,16 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
 
     trans.GetWorldTransform(worldM);
     cam->GetViewTransform(viewM);
-    //cam->GetOrthoProjection(projM);
-    projM.SetAsPerspProj(cam->Info);
+    cam->GetOrthoProjection(projM, false);
+    //projM.SetAsPerspProj(cam->Info);
 
     RenderInfo info(this, cam, &trans, &worldM, &viewM, &projM);
     RenderingState().EnableState();
 
 
-    ScreenClearer(true, true, true, Vector4f(0.2f, 0.0f, 0.0f, 1.0f)).ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 1.0f)).ClearScreen();
 
-    if (!backQuad->Render(RenderPasses::BaseComponents,info, *quadMat))
+    if (!backQuad->Render(RenderPasses::BaseComponents, info, *quadMat))
     {
         std::cout << "Error rendering background: " << quadMat->GetErrorMsg();
         Pause();

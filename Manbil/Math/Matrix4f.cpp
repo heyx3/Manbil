@@ -261,13 +261,11 @@ void Matrix4f::SetAsPerspProj(const ProjectionInfo& p)
 }
 void Matrix4f::SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds)
 {
-	//TODO: Test.
-
 	float width = maxBounds.x - minBounds.x,
 		  height = maxBounds.y - minBounds.y,
 		  depth = maxBounds.z - minBounds.z;
 	
-	El(0, 0) = 2 / width;	El(1, 0) = 0;			El(2, 0) = 0;			El(3, 0) = -(maxBounds.x + minBounds.x)/width;
+	El(0, 0) = 2 / width;	El(1, 0) = 0;			El(2, 0) = 0;			El(3, 0) = -(maxBounds.x + minBounds.x) / width;
     El(0, 1) = 0;			El(1, 1) = 2 / height;	El(2, 1) = 0;			El(3, 1) = -(maxBounds.y + minBounds.y) / height;
     El(0, 2) = 0;			El(1, 2) = 0;			El(2, 2) = 2 / depth;	El(3, 2) = -(maxBounds.z + minBounds.z) / depth;
 	El(0, 3) = 0;			El(1, 3) = 0;			El(2, 3) = 0;			El(3, 3) = 1;
