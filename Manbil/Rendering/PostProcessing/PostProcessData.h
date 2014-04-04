@@ -67,15 +67,18 @@ public:
     //The effect that came before this one.
     PpePtr GetPreviousEffect(void) const { return PrevEffect; }
     //Switches out the effect this effect builds off of.
-    void ChangePreviousEffect(PpePtr newPrevEffect)
+    void ChangePreviousEffect(PpePtr newPrevEffect = PpePtr())
     {
-        ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
         PrevEffect = newPrevEffect;
+
+        if (newPrevEffect.get() == 0)
+            ReplaceInput(GetInputs().size() - 2, ColorSamplerIn());
+        else ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
     }
 
     //The number of passes needed to do this effect.
     unsigned int NumbPasses;
-    //The current pass. Used when generating GLSL code.
+    //The current pass, starting at 1. Used when generating GLSL code.
     unsigned int CurrentPass;
 
     //Default name for a post-processing effect.
@@ -84,15 +87,15 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index == 1);
-        if (PreviousEffect.get() == 0)
+        if (PrevEffect.get() == 0)
             return GetDepthInput().GetValue();
-        else return PreviousEffect->GetOutputName(index);
+        else return PrevEffect->GetOutputName(index);
     }
 
 
     PostProcessEffect(PpePtr previousEffect = PpePtr(), std::vector<DataLine> otherInputs = std::vector<DataLine>(), unsigned int numbPasses = 1)
         : DataNode(MakeVector(previousEffect, otherInputs), DataNode::MakeVector(3, 1)),
-          PrevEffect(previousEffect), NumbPasses(numbPasses), CurrentPass(0)
+          PrevEffect(previousEffect), NumbPasses(numbPasses), CurrentPass(1)
     {
         assert(GetColorInput().GetDataLineSize() == 3);
         assert(GetDepthInput().GetDataLineSize() == 1);
@@ -265,7 +268,9 @@ protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override
     {
-        if (CurrentPass == 0)
+        assert(CurrentPass == 1 || CurrentPass == 2);
+
+        if (CurrentPass == 1)
             strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 0.5;\n";
         else strOut += "\tvec3 " + GetOutputName(0) + " = " + GetColorInput().GetValue() + " * 2.0;\n";
     }
