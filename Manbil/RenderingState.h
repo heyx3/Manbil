@@ -120,6 +120,20 @@ public:
     bool UsesAlphaTesting(void) const { return AlphaTest != AlphaTests::AT_ALWAYS; }
 
 
+    //Sets OpenGL to use this instance's culling state.
+    void EnableCullState(void) const;
+    //Sets OpenGL to use this instance's blending state.
+    void EnableBlendState(void) const;
+    //Sets OpenGL to use this instance's alpha test state.
+    void EnableAlphaTestState(void) const;
+    //Sets OpenGL to use this instance's depth testing state.
+    void EnableDepthTestState(void) const;
+    //Sets OpenGL to use this instance's depth writing state.
+    void EnableDepthWriteState(void) const;
+    //Sets OpenGL to use this instance's texture use state.
+    void EnableTexturesState(void) const;
+
+
 	//Sets OpenGL to use this state.
 	void EnableState(void) const;
 
