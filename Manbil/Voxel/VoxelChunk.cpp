@@ -285,13 +285,25 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
     //For every empty voxel, create the triangles for any solid voxels touching it.
 
     Vector3i startLoc;
+    Vector3f worldOffset = ToWorldSpace(MinCorner);
+
+    Vector3f voxelStart, voxelEnd;
     int startingIndex = 0;
     for (startLoc.x = 0; startLoc.x < ChunkSize; ++startLoc.x)
     {
+        voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
+        voxelEnd.x = voxelStart.x + VoxelSizeF;
+
         for (startLoc.y = 0; startLoc.y < ChunkSize; ++startLoc.y)
         {
+            voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
+            voxelEnd.y = voxelStart.y + VoxelSizeF;
+
             for (startLoc.z = 0; startLoc.z < ChunkSize; ++startLoc.z)
             {
+                voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
+                voxelEnd.z = voxelStart.z + VoxelSizeF;
+
                 if (!voxels[startLoc])
                 {
                     //TODO: For each side, create its quad.
@@ -301,35 +313,108 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
                              yMax = Vector3i(startLoc.x, startLoc.y + 1, startLoc.z),
                              zMin = Vector3i(startLoc.x, startLoc.y, startLoc.z - 1),
                              zMax = Vector3i(startLoc.x, startLoc.y, startLoc.z + 1);
+
                     if ((xMin.x >= 0 && !voxels[xMin]) ||
                         (xMin.x < 0 && !gMinX(xMin, beforeMinX)))
                     {
+                        vertices.insert(vertices.end(), voxelStart);
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                     if ((yMin.y >= 0 && !voxels[yMin]) ||
                         (yMin.y < 0 && !gMinY(yMin, beforeMinY)))
                     {
+                        vertices.insert(vertices.end(), voxelStart);
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                     if ((zMin.z >= 0 && !voxels[zMin]) ||
                         (zMin.z < 0 && !gMinZ(zMin, beforeMinZ)))
                     {
+                        vertices.insert(vertices.end(), voxelStart);
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelStart.z));
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                     if ((xMax.x < ChunkSize && !voxels[xMax]) ||
                         (xMax.x >= ChunkSize && !gMaxX(xMax, afterMaxX)))
                     {
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), voxelEnd);
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                     if ((yMax.y < ChunkSize && !voxels[yMax]) ||
                         (yMax.y >= ChunkSize && !gMaxY(yMax, afterMaxY)))
                     {
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), voxelEnd);
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                     if ((zMax.z < ChunkSize && !voxels[zMax]) ||
                         (zMax.z >= ChunkSize && !gMaxZ(zMax, afterMaxZ)))
                     {
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), voxelEnd);
 
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 1);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex);
+                        indices.insert(indices.end(), startingIndex + 3);
+                        indices.insert(indices.end(), startingIndex + 2);
+
+                        startingIndex += 4;
                     }
                 }
             }

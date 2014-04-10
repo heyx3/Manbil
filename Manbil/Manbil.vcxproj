@@ -171,6 +171,7 @@
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Vertices.cpp" />
     <ClCompile Include="Voxel\VoxelChunk.cpp" />
+    <ClCompile Include="Voxel\VoxelWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />

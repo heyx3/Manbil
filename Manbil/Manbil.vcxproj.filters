@@ -272,6 +272,9 @@
     <ClCompile Include="Voxel\VoxelChunk.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\VoxelWorld.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

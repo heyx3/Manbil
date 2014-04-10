@@ -2,12 +2,17 @@
 
 #include "../SFMLOpenGLWorld.h"
 #include "VoxelChunk.h"
+#include "../MovingCamera.h"
+#include "../RenderingState.h"
+#include "../Material.h"
 
 
 //A world full of voxels.
 class VoxelWorld : public SFMLOpenGLWorld
 {
 public:
+
+    VoxelWorld(void);
 
 
 protected:
@@ -24,4 +29,8 @@ protected:
 private:
 
     VoxelChunk chunk;
+    MovingCamera cam;
+
+    RenderingState renderState;
+    Material * voxelMat;
 };
