@@ -5,6 +5,8 @@
 #include "../MovingCamera.h"
 #include "../RenderingState.h"
 #include "../Material.h"
+#include "../Mesh.h"
+#include "../Math/Higher Math/Lighting.h"
 
 
 //A world full of voxels.
@@ -32,5 +34,8 @@ private:
     MovingCamera cam;
 
     RenderingState renderState;
+    DirectionalLight light;
+    
     Material * voxelMat;
+    Mesh voxelMesh;
 };

@@ -189,6 +189,7 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
     //    from the last ray spot to the current ray spot.
 
     Vector3i lastRayPos = Clamp(ToLocalVoxelIndex(rayStart));
+    float distTraveled = 0.0f;
     Vector3f moveIncrement = rayDir * tIncrement;
 
     typedef bool(*FloatChecker)(float vec);
@@ -203,7 +204,7 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
         isZTooFar = ([](float rayPos) -> bool { return rayPos >= ChunkSizeF; });
     else isZTooFar = ([](float rayPos) -> bool { return rayPos < 0.0f; });
 
-    while (!isXTooFar(rayStart.x) && !isYTooFar(rayStart.y) && !isZTooFar(rayStart.z))
+    while (distTraveled <= maxDist && !isXTooFar(rayStart.x) && !isYTooFar(rayStart.y) && !isZTooFar(rayStart.z))
     {
         Vector3i currentRayPos = Clamp(ToLocalVoxelIndex(rayStart));
 
@@ -216,12 +217,13 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 
         lastRayPos = currentRayPos;
         rayStart += moveIncrement;
+        distTraveled += tIncrement;
     }
 
     return Vector3i(-1, -1, -1);
 }
 
-void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & indices,
+void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const
@@ -306,7 +308,6 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                 if (!voxels[startLoc])
                 {
-                    //TODO: For each side, create its quad.
                     Vector3i xMin = Vector3i(startLoc.x - 1, startLoc.y, startLoc.z),
                              xMax = Vector3i(startLoc.x + 1, startLoc.y, startLoc.z),
                              yMin = Vector3i(startLoc.x, startLoc.y - 1, startLoc.z),
@@ -314,13 +315,13 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
                              zMin = Vector3i(startLoc.x, startLoc.y, startLoc.z - 1),
                              zMax = Vector3i(startLoc.x, startLoc.y, startLoc.z + 1);
 
-                    if ((xMin.x >= 0 && !voxels[xMin]) ||
-                        (xMin.x < 0 && !gMinX(xMin, beforeMinX)))
+                    if ((xMin.x >= 0 && voxels[xMin]) ||
+                        (xMin.x < 0 && gMinX(xMin, beforeMinX)))
                     {
                         vertices.insert(vertices.end(), voxelStart);
                         vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y,   voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y,   voxelEnd.z));
 
                         indices.insert(indices.end(), startingIndex);
                         indices.insert(indices.end(), startingIndex + 1);
@@ -331,13 +332,13 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                         startingIndex += 4;
                     }
-                    if ((yMin.y >= 0 && !voxels[yMin]) ||
-                        (yMin.y < 0 && !gMinY(yMin, beforeMinY)))
+                    if ((yMin.y >= 0 && voxels[yMin]) ||
+                        (yMin.y < 0 && gMinY(yMin, beforeMinY)))
                     {
                         vertices.insert(vertices.end(), voxelStart);
                         vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelStart.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelStart.y, voxelEnd.z));
 
                         indices.insert(indices.end(), startingIndex);
                         indices.insert(indices.end(), startingIndex + 1);
@@ -348,13 +349,13 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                         startingIndex += 4;
                     }
-                    if ((zMin.z >= 0 && !voxels[zMin]) ||
-                        (zMin.z < 0 && !gMinZ(zMin, beforeMinZ)))
+                    if ((zMin.z >= 0 && voxels[zMin]) ||
+                        (zMin.z < 0 && gMinZ(zMin, beforeMinZ)))
                     {
                         vertices.insert(vertices.end(), voxelStart);
-                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y,   voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelStart.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelEnd.y,   voxelStart.z));
 
                         indices.insert(indices.end(), startingIndex);
                         indices.insert(indices.end(), startingIndex + 1);
@@ -365,12 +366,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                         startingIndex += 4;
                     }
-                    if ((xMax.x < ChunkSize && !voxels[xMax]) ||
-                        (xMax.x >= ChunkSize && !gMaxX(xMax, afterMaxX)))
+                    if ((xMax.x < ChunkSize && voxels[xMax]) ||
+                        (xMax.x >= ChunkSize && gMaxX(xMax, afterMaxX)))
                     {
                         vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelStart.z));
                         vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y,   voxelStart.z));
                         vertices.insert(vertices.end(), voxelEnd);
 
                         indices.insert(indices.end(), startingIndex);
@@ -382,12 +383,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                         startingIndex += 4;
                     }
-                    if ((yMax.y < ChunkSize && !voxels[yMax]) ||
-                        (yMax.y >= ChunkSize && !gMaxY(yMax, afterMaxY)))
+                    if ((yMax.y < ChunkSize && voxels[yMax]) ||
+                        (yMax.y >= ChunkSize && gMaxY(yMax, afterMaxY)))
                     {
                         vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelStart.z));
                         vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelEnd.y, voxelStart.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelEnd.y, voxelStart.z));
                         vertices.insert(vertices.end(), voxelEnd);
 
                         indices.insert(indices.end(), startingIndex);
@@ -399,12 +400,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
 
                         startingIndex += 4;
                     }
-                    if ((zMax.z < ChunkSize && !voxels[zMax]) ||
-                        (zMax.z >= ChunkSize && !gMaxZ(zMax, afterMaxZ)))
+                    if ((zMax.z < ChunkSize && voxels[zMax]) ||
+                        (zMax.z >= ChunkSize && gMaxZ(zMax, afterMaxZ)))
                     {
                         vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelStart.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y, voxelEnd.z));
-                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x, voxelStart.y, voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelStart.x, voxelEnd.y,   voxelEnd.z));
+                        vertices.insert(vertices.end(), Vector3f(voxelEnd.x,   voxelStart.y, voxelEnd.z));
                         vertices.insert(vertices.end(), voxelEnd);
 
                         indices.insert(indices.end(), startingIndex);
