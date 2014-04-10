@@ -295,8 +295,45 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<int> & ind
                 if (!voxels[startLoc])
                 {
                     //TODO: For each side, create its quad.
+                    Vector3i xMin = Vector3i(startLoc.x - 1, startLoc.y, startLoc.z),
+                             xMax = Vector3i(startLoc.x + 1, startLoc.y, startLoc.z),
+                             yMin = Vector3i(startLoc.x, startLoc.y - 1, startLoc.z),
+                             yMax = Vector3i(startLoc.x, startLoc.y + 1, startLoc.z),
+                             zMin = Vector3i(startLoc.x, startLoc.y, startLoc.z - 1),
+                             zMax = Vector3i(startLoc.x, startLoc.y, startLoc.z + 1);
+                    if ((xMin.x >= 0 && !voxels[xMin]) ||
+                        (xMin.x < 0 && !gMinX(xMin, beforeMinX)))
+                    {
+
+                    }
+                    if ((yMin.y >= 0 && !voxels[yMin]) ||
+                        (yMin.y < 0 && !gMinY(yMin, beforeMinY)))
+                    {
+
+                    }
+                    if ((zMin.z >= 0 && !voxels[zMin]) ||
+                        (zMin.z < 0 && !gMinZ(zMin, beforeMinZ)))
+                    {
+
+                    }
+                    if ((xMax.x < ChunkSize && !voxels[xMax]) ||
+                        (xMax.x >= ChunkSize && !gMaxX(xMax, afterMaxX)))
+                    {
+
+                    }
+                    if ((yMax.y < ChunkSize && !voxels[yMax]) ||
+                        (yMax.y >= ChunkSize && !gMaxY(yMax, afterMaxY)))
+                    {
+
+                    }
+                    if ((zMax.z < ChunkSize && !voxels[zMax]) ||
+                        (zMax.z >= ChunkSize && !gMaxZ(zMax, afterMaxZ)))
+                    {
+
+                    }
                 }
             }
         }
     }
+    //TODO: Go through every chunk side and build all quads along that side.
 }

@@ -57,12 +57,12 @@ public:
 		}
 	}
 
-    Vector3i Clamp(Vector3i in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetDepth() - 1, in.z))); }
-    Vector3f Clamp(Vector3f in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetDepth() - 1, in.z)));
+    Vector3i Clamp(Vector3i in) const { return Vector3i(BasicMath::Max<int>(0, BasicMath::Min<int>(GetWidth() - 1, in.x)),
+                                                        BasicMath::Max<int>(0, BasicMath::Min<int>(GetHeight() - 1, in.y)),
+                                                        BasicMath::Max<int>(0, BasicMath::Min<int>(GetDepth() - 1, in.z))); }
+    Vector3f Clamp(Vector3f in) const { return Vector3f(BasicMath::Max<float>(0, BasicMath::Min<float>(GetWidth() - 1, in.x)),
+                                                        BasicMath::Max<float>(0, BasicMath::Min<float>(GetHeight() - 1, in.y)),
+                                                        BasicMath::Max<float>(0, BasicMath::Min<float>(GetDepth() - 1, in.z)));
     }
     Vector3i Wrap(Vector3i in) const
     {
@@ -107,21 +107,22 @@ public:
 	{
         unsigned int x, y, z;
 		Vector3i loc, offsetLoc;
-		for (x = 0; x < width; ++x)
+        for (loc.x = 0; loc.x < width; ++loc.x)
 		{
-			loc.x = x;
+            offsetLoc.x = loc.x + copyOffset.x;
 
-			for (y = 0; y < height; ++y)
-			{
-				loc.y = y;
+            for (loc.y = 0; loc.y < height; ++loc.y)
+            {
+                offsetLoc.y = loc.y + copyOffset.y;
 
-                for (z = 0; z < depth; ++z)
+                for (loc.z = 0; loc.z < depth; ++loc.z)
                 {
-                    offsetLoc = loc + copyOffset;
+                    offsetLoc.z = loc.z + copyOffset.z;
+
                     if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.z < 0 ||
                         offsetLoc.x > width || offsetLoc.y > height || offsetLoc.z > depth)
                         operator[](loc) = defaultValue;
-                    else operator[](loc) = toCopy[loc + copyOffset];
+                    else operator[](loc) = toCopy[offsetLoc];
                 }
 			}
 		}

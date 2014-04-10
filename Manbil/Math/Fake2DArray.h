@@ -56,7 +56,7 @@ public:
 
     Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
                                                         BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y))); }
-    Vector2f Clamp(Vector2f in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
+    Vector2f Clamp(Vector2f in) const { return Vector2f(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
                                                         BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y))); }
     Vector2i Wrap(Vector2i in) const
     {
