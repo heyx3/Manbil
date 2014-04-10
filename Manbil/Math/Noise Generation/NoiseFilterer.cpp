@@ -240,7 +240,7 @@ void NF::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2i 
 		}
 
 		//Lerp between the old and new value using the strength value.
-		dt->Noise->operator[](loc) = BasicMath::Clamp(BasicMath::Lerp(orgVal, preVal, strength));
+		dt->Noise->operator[](loc) = BasicMath::Clamp(BasicMath::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
 	},
 	*noise, Vector2i(noise->GetWidth(), noise->GetHeight()));
 }
