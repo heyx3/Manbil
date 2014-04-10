@@ -18,7 +18,7 @@ bool NoiseToTexture::GetImage(sf::Image & img) const
 		for (y = 0; y < NoiseToUse->GetHeight(); ++y)
 		{
 			tempF = (*NoiseToUse)[Vector2i(x, y)];
-			readNoise = BasicMath::Clamp(tempF);
+            readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
 
 			//Convert to a byte value.
 			noiseVal = (sf::Uint8)BasicMath::RoundToInt(readNoise * 255.0f);

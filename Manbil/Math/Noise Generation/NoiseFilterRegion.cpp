@@ -105,11 +105,11 @@ float CircularFilterRegion::GetStrengthDropoffScale(Vector2f pos) const
         dist = pos.Distance(Center);
     if (DropoffRadiusPercent > 0.0f)
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 1.0f, 0.0f, dist));
+        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
     }
     else
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 0.0f, 1.0f, dist));
+        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 0.0f, 1.0f, dist), 0.0f, 1.0f);
     }
 }
 

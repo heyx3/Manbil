@@ -79,11 +79,12 @@ public:
     {
         float multiplier = pow(10.0f, decimals),
             f1 = (v * multiplier),
-            f2 = (v > 0) ? (f1 + 0.5f) : (f1 - 0.5f),
+            f2 = (f1 + (0.5f * Sign(v))),
             f3 = (float)((int)f2 / multiplier);
         return f3;
     }
-    static int RoundToInt(float v) { return (int)Round(v, 0); }
+    static int RoundToInt(float v) { return (int)(v + (0.4999f * Sign(v))); }
+
 
     template<class MultipliableClass>
     static MultipliableClass Square(MultipliableClass f) { return f * f; }
@@ -94,7 +95,8 @@ public:
 
     static float Root(float value, float root) { return powf(value, 1.0f / root); }
 
-    static float Clamp(float val, float min = 0.0f, float max = 1.0f) { return (val < min ? min : (val > max ? max : val)); }
+    template<typename ComparableType>
+    static float Clamp(ComparableType val, ComparableType min, ComparableType max) { return (val < min ? min : (val > max ? max : val)); }
 
     template<class ComparableClass>
     static ComparableClass Max(ComparableClass one, ComparableClass two) { return (one < two) ? two : one; }

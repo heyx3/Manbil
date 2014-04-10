@@ -269,6 +269,9 @@
     <ClCompile Include="NoiseToTexture.cpp">
       <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\VoxelChunk.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -656,6 +659,15 @@
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="Voxel\VoxelWorld.h">
+      <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\VoxelChunk.h">
+      <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Fake3DArray.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -750,6 +762,9 @@
     </Filter>
     <Filter Include="Rendering\Materials\Data Nodes\Miscellaneous">
       <UniqueIdentifier>{cbed0f25-2a3e-49c5-99d3-90316bb497bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Voxels">
+      <UniqueIdentifier>{8ab7af21-70a9-4b01-b23e-8ef373245d7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

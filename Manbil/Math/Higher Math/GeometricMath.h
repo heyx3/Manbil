@@ -156,8 +156,8 @@ public:
 
 		if (!areLinesInfinite)
 		{
-			sc = BasicMath::Clamp(sc);
-			tc = BasicMath::Clamp(tc);
+			sc = BasicMath::Clamp(sc, 0.0f, 1.0f);
+            tc = BasicMath::Clamp(tc, 0.0f, 1.0f);
 		}
 
 		return ClosestValues<Vector>(p0 + (u * sc), q0 + (v * tc));

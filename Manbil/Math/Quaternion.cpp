@@ -20,7 +20,7 @@ Quaternion Quaternion::Slerp(Quaternion one, Quaternion two, float zeroToOne, bo
 		return result.Normalized();
 	}
 
-	dot = BasicMath::Clamp(dot, -1.0f);
+	dot = BasicMath::Clamp(dot, -1.0f, 1.0f);
 	float theta = acosf(dot) * zeroToOne;
 
 	Quaternion finalQ = one - (two * dot);

@@ -261,6 +261,15 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, y)));
         }
 
+        //Casts this vector's components to integers, dropping any fractional values.
+        Vector2i CastToInt(void) const { return Vector2i((int)x, (int)y); }
+        //Rounds this vector's components to integers.
+        Vector2i RoundToInt(void) const { return Vector2i(BasicMath::RoundToInt(x), BasicMath::RoundToInt(y)); }
+        //Floors this vector's components (towards negative infinity).
+        Vector2i Floored(void) const { return Vector2i((int)floor(x), (int)floor(y)); }
+        //'Ceil's this vector's components (towards positive infinity).
+        Vector2i Ceil(void) const { return Vector2i((int)ceil(x), (int)ceil(y)); }
+
 		float Dot(Vector2f other) const { return (x * other.x) + (y * other.y); }
 		float AngleBetween(Vector2f other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
@@ -335,6 +344,15 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, y)),
                             BasicMath::Max(min, BasicMath::Min(max, z)));
         }
+
+        //Casts this vector's components to integers, dropping any fractional values.
+        Vector3i CastToInt(void) const { return Vector3i((int)x, (int)y, (int)z); }
+        //Rounds this vector's components to integers.
+        Vector3i RoundToInt(void) const { return Vector3i(BasicMath::RoundToInt(x), BasicMath::RoundToInt(y), BasicMath::RoundToInt(z)); }
+        //Floors this vector's components (towards negative infinity).
+        Vector3i Floored(void) const { return Vector3i((int)floor(x), (int)floor(y), (int)floor(z)); }
+        //'Ceil's this vector's components (towards positive infinity).
+        Vector3i Ceil(void) const { return Vector3i((int)ceil(x), (int)ceil(y), (int)ceil(z)); }
 
 		float Dot(Vector3f other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 		float AngleBetween(Vector3f other) const { return acosf(Dot(other) / (Length() * other.Length())); }
@@ -411,6 +429,15 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, z)), 
                             BasicMath::Max(min, BasicMath::Min(max, w)));
         }
+
+        //Casts this vector's components to integers, dropping any fractional values.
+        Vector4i CastToInt(void) const { return Vector4i((int)x, (int)y, (int)z, (int)w); }
+        //Rounds this vector's components to integers.
+        Vector4i RoundToInt(void) const { return Vector4i(BasicMath::RoundToInt(x), BasicMath::RoundToInt(y), BasicMath::RoundToInt(z), BasicMath::RoundToInt(w)); }
+        //Floors this vector's components (towards negative infinity).
+        Vector4i Floored(void) const { return Vector4i((int)floor(x), (int)floor(y), (int)floor(z), (int)floor(w)); }
+        //'Ceil's this vector's components (towards positive infinity).
+        Vector4i Ceil(void) const { return Vector4i((int)ceil(x), (int)ceil(y), (int)ceil(z), (int)ceil(w)); }
 
 		float Dot(Vector4f other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
 		float AngleBetween(Vector4f other) const { return acosf(Dot(other) / (Length() * other.Length())); }

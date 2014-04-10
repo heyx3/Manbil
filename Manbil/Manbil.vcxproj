@@ -170,6 +170,7 @@
     <ClCompile Include="TwoTrianglesWorld.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Vertices.cpp" />
+    <ClCompile Include="Voxel\VoxelChunk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Math\BasicMath.h" />
     <ClInclude Include="Math\CachedFunc.h" />
     <ClInclude Include="Math\Fake2DArray.h" />
+    <ClInclude Include="Math\Fake3DArray.h" />
     <ClInclude Include="Math\FastRand.h" />
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h" />
     <ClInclude Include="Math\Higher Math\Camera.h" />
@@ -301,6 +303,8 @@
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="RenderInfo.h" />
+    <ClInclude Include="Voxel\VoxelChunk.h" />
+    <ClInclude Include="Voxel\VoxelWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fbm.txt" />

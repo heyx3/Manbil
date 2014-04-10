@@ -3,7 +3,7 @@
 #include "Vectors.h"
 
 template<class ArrayType>
-//Wraps a one-dimensional array so it can be treated like a two-dimensional array.
+//Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a two-dimensional array.
 class Fake2DArray
 {
 public:
