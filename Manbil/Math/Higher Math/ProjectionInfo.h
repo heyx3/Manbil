@@ -17,4 +17,7 @@ public:
     ProjectionInfo & operator=(const ProjectionInfo & cpy) { FOV = cpy.FOV; Width = cpy.Width; Height = cpy.Height; zNear = cpy.zNear; zFar = cpy.zFar; return *this; }
 
 	float GetAspectRatio(void) const { return Width / Height; }
+
+    void SetFOVDegrees(float degrees) { FOV = degrees * 0.0174532925f; }
+    void SetFOVRadians(float radians) { FOV = radians; }
 };

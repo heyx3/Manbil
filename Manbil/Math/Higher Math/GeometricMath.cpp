@@ -1,9 +1,9 @@
 #include "GeometricMath.h"
 
-void GeometricMath::CalculateNormals(const Vector3f * vertices, const int * indices, int nVertices, int nIndices, Vector3f * outNormals)
+void GeometricMath::CalculateNormals(const Vector3f * vertices, const unsigned int * indices, int nVertices, int nIndices, Vector3f * outNormals)
 {
 	int * nNormals = new int[nVertices];
-	int i;
+	unsigned int i;
 
 	//Clear out the "out" array.
 	for (i = 0; i < nVertices; ++i)

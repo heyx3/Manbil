@@ -154,6 +154,16 @@ public:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
 	}
 
+    template<class VertexClass>
+    static void UpdateVertexBuffer(RenderObjHandle & vbo, const VertexClass * vertices, int nVertices, BufferPurpose usage)
+    {
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass)* nVertices, vertices, ToEnum(usage));
+    }
+    static void UpdateIndexBuffer(RenderObjHandle & ibo, const unsigned int * indices, int nIndices, BufferPurpose usage)
+    {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
+    }
+
 	//Sets the given vertex buffer as active.
 	static void BindVertexBuffer(RenderObjHandle vbo = 0) { glBindBuffer(GL_ARRAY_BUFFER, vbo); }
 	//Sets the given index buffer as active.
