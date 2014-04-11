@@ -140,27 +140,35 @@ public:
 
 	template<class VertexClass>
 	//Creates a vertex buffer.
-	static void CreateVertexBuffer(RenderObjHandle & vbo, const VertexClass * vertices, int nVertices, BufferPurpose usage)
+	static void CreateVertexBuffer(RenderObjHandle & vbo, const VertexClass * vertices = 0, int nVertices = 0, BufferPurpose usage = BufferPurpose::UPDATE_ONCE_AND_DRAW)
 	{
 		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass) * nVertices, vertices, ToEnum(usage));
+        if (vertices != 0)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass)* nVertices, vertices, ToEnum(usage));
+        }
 	}
 	//Creates an index buffer.
-	static void CreateIndexBuffer(RenderObjHandle & ibo, const unsigned int * indices, int nIndices, BufferPurpose usage)
+    static void CreateIndexBuffer(RenderObjHandle & ibo, const unsigned int * indices = 0, int nIndices = 0, BufferPurpose usage = BufferPurpose::UPDATE_ONCE_AND_DRAW)
 	{
 		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
+        if (indices != 0)
+        {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
+        }
 	}
 
     template<class VertexClass>
-    static void UpdateVertexBuffer(RenderObjHandle & vbo, const VertexClass * vertices, int nVertices, BufferPurpose usage)
+    static void UpdateVertexBuffer(RenderObjHandle vbo, const VertexClass * vertices, int nVertices, BufferPurpose usage)
     {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass)* nVertices, vertices, ToEnum(usage));
+        BindVertexBuffer(vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexClass) * nVertices, vertices, ToEnum(usage));
     }
-    static void UpdateIndexBuffer(RenderObjHandle & ibo, const unsigned int * indices, int nIndices, BufferPurpose usage)
+    static void UpdateIndexBuffer(RenderObjHandle ibo, const unsigned int * indices, int nIndices, BufferPurpose usage)
     {
+        BindIndexBuffer(ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * nIndices, indices, ToEnum(usage));
     }
 

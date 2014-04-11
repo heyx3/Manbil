@@ -25,7 +25,7 @@ protected:
     {
         std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
 
-        outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + GetGLSLFunc() + "(" + GetInputs()[0].GetValue() + ");\n";
+        outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + GetGLSLFunc() + "(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
     }
 
 
