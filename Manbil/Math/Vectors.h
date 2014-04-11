@@ -37,21 +37,50 @@ namespace MyVectors
 	{
 	public:
 
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector2i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
 		int x;
 		int y;
 
 		Vector2i(void) : x(0), y(0) { }
 		Vector2i(int X, int Y) : x(X), y(Y) { }
 
-		Vector2i Left(void) const { return Vector2i(x - 1, y); }
-		Vector2i Right(void) const { return Vector2i(x + 1, y); }
-		Vector2i Above(void) const { return Vector2i(x, y - 1); }
-		Vector2i Below(void) const { return Vector2i(x, y + 1); }
+        Vector2i(Vector2i&& other)
+            : x(0), y(0)
+        {
+            x = other.x;
+            y = other.y;
+
+            other.x = 0;
+            other.y = 0;
+        }
+        Vector2i & operator=(Vector2i&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+
+                other.x = 0;
+                other.y = 0;
+            }
+
+            return *this;
+        }
+
+        
+		Vector2i LessX(void) const { return Vector2i(x - 1, y); }
+		Vector2i MoreX(void) const { return Vector2i(x + 1, y); }
+		Vector2i LessY(void) const { return Vector2i(x, y - 1); }
+		Vector2i MoreY(void) const { return Vector2i(x, y + 1); }
 		
-		Vector2i AboveLeft(void) const { return Vector2i(x - 1, y - 1); }
-		Vector2i AboveRight(void) const { return Vector2i(x + 1, y - 1); }
-		Vector2i BelowLeft(void) const { return Vector2i(x - 1, y + 1); }
-		Vector2i BelowRight(void) const { return Vector2i(x + 1, y + 1); }
+		Vector2i LessXY(void) const { return Vector2i(x - 1, y - 1); }
+		Vector2i MoreXLessY(void) const { return Vector2i(x + 1, y - 1); }
+		Vector2i LessXMoreY(void) const { return Vector2i(x - 1, y + 1); }
+		Vector2i MoreXY(void) const { return Vector2i(x + 1, y + 1); }
 
         Vector2i& operator+=(const Vector2i& other) { x += other.x; y += other.y; return *this; }
         Vector2i& operator-=(const Vector2i& other) { x -= other.x; y -= other.y; return *this; }
@@ -101,14 +130,47 @@ namespace MyVectors
 	{
 	public:
 
-		int x, y, z;
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector3i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
+        int x, y, z;
 
 		Vector3i(void) : x(0), y(0), z(0) { }
 		Vector3i(int _x, int _y, int _z) : x(_x), y(_y), z(_z) { }
 		Vector3i(Vector2i copy, int zValue = 0) : x(copy.x), y(copy.y), z(zValue) { }
-		Vector3i(const Vector3i & copy) : x(copy.x), y(copy.y), z(copy.z) { }
+        Vector3i(const Vector3i & copy) : x(copy.x), y(copy.y), z(copy.z) { }
 
-		Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
+        Vector3i(Vector3i&& other)
+            : x(0), y(0), z(0)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+        }
+        Vector3i & operator=(Vector3i&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+
+                other.x = 0;
+                other.y = 0;
+                other.z = 0;
+            }
+
+            return *this;
+        }
+
+
+        Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
 		Vector3i& operator-=(const Vector3i& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
 		Vector3i& operator*=(int f) { x *= f; y *= f; z *= f; return *this; }
 		Vector3i& operator/=(int f) { x /= f; y /= f; z /= f; return *this; }
@@ -158,6 +220,12 @@ namespace MyVectors
     class Vector4i
     {
     public:
+        
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector4i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
         int x;
         int y;
         int z;
@@ -166,6 +234,38 @@ namespace MyVectors
         Vector4i(void) : x(0), y(0), z(0), w(0) { }
         Vector4i(int _x, int _y, int _z, int _w) : x(_x), y(_y), z(_z), w(_w) { }
         Vector4i(Vector3i v3, int _w = 1.0f) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
+
+        Vector4i(Vector4i&& other)
+            : x(0), y(0), z(0), w(0)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            w = other.w;
+
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+            other.w = 0;
+        }
+        Vector4i & operator=(Vector4i&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+                w = other.w;
+
+                other.x = 0;
+                other.y = 0;
+                other.z = 0;
+                other.w = 0;
+            }
+
+            return *this;
+        }
+
 
         Vector4i& operator+=(const Vector4i& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
         Vector4i& operator-=(const Vector4i& r) { x -= r.x; y -= r.y; z -= r.z; w -= r.w; return *this; }
@@ -229,14 +329,43 @@ namespace MyVectors
 	{
 	public:
 
-		float x;
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector2f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
+        float x;
 		float y;
 
 		Vector2f(void): x(0), y(0) { }
 		Vector2f(float _x, float _y) : x(_x), y(_y) { }
-		Vector2f(Vector2i copy) : x((float)copy.x), y((float)copy.y) { }
-	
-		Vector2f& operator+=(const Vector2f& other) { x += other.x; y += other.y; return *this; }
+        Vector2f(Vector2i copy) : x((float)copy.x), y((float)copy.y) { }
+
+        Vector2f(Vector2f&& other)
+            : x(0.0f), y(0.0f)
+        {
+            x = other.x;
+            y = other.y;
+
+            other.x = 0.0f;
+            other.y = 0.0f;
+        }
+        Vector2f & operator=(Vector2f&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+
+                other.x = 0.0f;
+                other.y = 0.0f;
+            }
+
+            return *this;
+        }
+
+
+        Vector2f& operator+=(const Vector2f& other) { x += other.x; y += other.y; return *this; }
 		Vector2f& operator-=(const Vector2f& other) { x -= other.x; y -= other.y; return *this; }
 		Vector2f& operator*=(float f) { x *= f; y *= f; return *this; }
 		Vector2f& operator/=(float f) { x /= f; y /= f; return *this; }
@@ -310,16 +439,49 @@ namespace MyVectors
 	{
 	public:
 
-		float x;
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector3f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
+        float x;
 		float y;
 		float z;
 
 		Vector3f(void) : x(0), y(0), z(0) { }
 		Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z) { }
 		Vector3f(Vector2f copy) : x(copy.x), y(copy.y), z(0) { }
-		Vector3f(Vector2f copy, float zValue) : x(copy.x), y(copy.y), z(zValue) { }
+        Vector3f(Vector2f copy, float zValue) : x(copy.x), y(copy.y), z(zValue) { }
 
-		Vector3f& operator+=(const Vector3f& r) { x += r.x; y += r.y; z += r.z; return *this; }
+        Vector3f(Vector3f&& other)
+            : x(0.0f), y(0.0f), z(0.0f)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+
+            other.x = 0.0f;
+            other.y = 0.0f;
+            other.z = 0.0f;
+        }
+        Vector3f & operator=(Vector3f&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+
+                other.x = 0.0f;
+                other.y = 0.0f;
+                other.z = 0.0f;
+            }
+
+            return *this;
+        }
+
+
+        Vector3f& operator+=(const Vector3f& r) { x += r.x; y += r.y; z += r.z; return *this; }
 		Vector3f& operator-=(const Vector3f& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
 		Vector3f& operator*=(float f) { x *= f; y *= f; z *= f; return *this; }
 		Vector3f& operator/=(float f) { x /= f; y /= f; z /= f; return *this; }
@@ -394,16 +556,54 @@ namespace MyVectors
 	class Vector4f
 	{
 	public:
-		float x;
+		
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector4f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+
+
+        float x;
 		float y;
 		float z;
 		float w;
 
 		Vector4f(void) : x(0), y(0), z(0), w(0) { }
 		Vector4f(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) { }
-		Vector4f(Vector3f v3, float _w = 1.0f) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
+        Vector4f(Vector3f v3, float _w = 1.0f) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
 
-		Vector4f& operator+=(const Vector4f& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
+        Vector4f(Vector4f&& other)
+            : x(0.0f), y(0.0f), z(0.0f), w(0.0f)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            w = other.w;
+
+            other.x = 0.0f;
+            other.y = 0.0f;
+            other.z = 0.0f;
+            other.w = 0.0f;
+        }
+        Vector4f & operator=(Vector4f&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+                w = other.w;
+
+                other.x = 0.0f;
+                other.y = 0.0f;
+                other.z = 0.0f;
+                other.w = 0.0f;
+            }
+
+            return *this;
+        }
+
+
+        Vector4f& operator+=(const Vector4f& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
 		Vector4f& operator-=(const Vector4f& r) { x -= r.x; y -= r.y; z -= r.z; w -= r.w; return *this; }
 		Vector4f& operator*=(float f) { x *= f; y *= f; z *= f; w *= f; return *this; }
 		Vector4f& operator/=(float f) { x /= f; y /= f; z /= f; w /= f; return *this; }

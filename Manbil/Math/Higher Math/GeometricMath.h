@@ -102,6 +102,49 @@ public:
 	}
 
 
+    //Gets the largest-magnitude axis of the given vector.
+    template<class Vector>
+    static unsigned int GetLongestAxis(Vector v)
+    {
+        unsigned int size = NumbDimensions(v),
+                     largestAxis = 0,
+                     float largestValue = BasicMath::Abs(v[0]);
+        for (unsigned int axis = 1; axis < size; ++axis)
+        {
+            float tempValue = BasicMath::Abs(v[axis]);
+            if (tempValue > largestValue)
+            {
+                largestAxis = axis;
+                largestValue = tempValue;
+            }
+        }
+        return largestAxis;
+    }
+    template<>
+    static unsigned int GetLongestAxis(Vector2f v)
+    {
+        Vector2f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y));
+        if (abs.x > abs.y) return 0;
+        return 1;
+    }
+    template<>
+    static unsigned int GetLongestAxis(Vector3f v)
+    {
+        Vector3f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y), BasicMath::Abs(v.z));
+        if (abs.x > abs.y && abs.x > abs.z) return 0;
+        else if (abs.y > abs.x && abs.y > abs.z) return 1;
+        else return 2;
+    }
+    template<>
+    static unsigned int GetLongestAxis(Vector4f v)
+    {
+        Vector4f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y), BasicMath::Abs(v.z), BasicMath::Abs(v.w));
+        if (abs.x > abs.y && abs.x > abs.z && abs.x > abs.w) return 0;
+        else if (abs.y > abs.x && abs.y > abs.z && abs.y > abs.w) return 1;
+        else if (abs.z > abs.x && abs.z > abs.y && abs.z > abs.w) return 2;
+        else return 3;
+    }
+
 
 	template<class Vector>
 	//Given a line/segment and a separate third point, finds the point on the line/segment closest to the third point.
@@ -259,7 +302,6 @@ public:
 	//2) p[dimension] = targetValue
 	//For example, this function could be used to find the point with Y value 5.25f for some line.
 	//0 = X axis, 1 = Y axis, 2 = Z axis, 3 = W axis.
-	//"vLineDir" does not need to be normalized.
 	//Assumes that "vLineDir" is not 0 in the given dimension.
 	static PointOnLineAtValueResult<Vector> GetPointOnLineAtValue(Vector vOnLine, Vector vLineDir, int dimension, float targetValue)
 	{

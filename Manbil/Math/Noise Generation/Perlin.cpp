@@ -102,9 +102,9 @@ void Perlin::Generate(Fake2DArray<float> & outValues) const
 
 			//Get the dot of each grid corner's gradient and the vector from the coordinate to that grid corner.
 			Vector2f tl = gradients[gradients.Wrap(tlGrid)],
-					 tr = gradients[gradients.Wrap(tlGrid.Right())],
-					 bl = gradients[gradients.Wrap(tlGrid.Below())],
-                     br = gradients[gradients.Wrap(tlGrid.BelowRight())];
+					 tr = gradients[gradients.Wrap(tlGrid.MoreX())],
+					 bl = gradients[gradients.Wrap(tlGrid.MoreY())],
+                     br = gradients[gradients.Wrap(tlGrid.MoreXY())];
 			Vector2f tTL = relGrid,
 					 tTR = relGrid - Vector2f(1.0f, 0.0f),
 					 tBL = relGrid - Vector2f(0.0f, 1.0f),
