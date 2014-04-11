@@ -275,6 +275,9 @@
     <ClCompile Include="Voxel\VoxelWorld.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\VoxelChunkManager.cpp">
+      <Filter>Two Triangles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -670,6 +673,9 @@
     </ClInclude>
     <ClInclude Include="Math\Fake3DArray.h">
       <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\VoxelChunkManager.h">
+      <Filter>Voxels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

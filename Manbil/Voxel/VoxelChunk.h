@@ -30,6 +30,12 @@ public:
     //TODO: Would a run-time conversion actually be needed anyway? Size is a compile-time constant.
     static const float VoxelSizeF;
 
+    //Local Chunk Space bounding values.
+    struct MinMaxI { public: Vector3i Min, Max; };
+    //Local Chunk Space bounding values.
+    struct MinMaxF { public: Vector3f Min, Max; };
+
+
 
     //The world position of the top-left-back corner.
     Vector3i MinCorner;
@@ -38,31 +44,59 @@ public:
     VoxelChunk(Vector3i minCorner) : MinCorner(minCorner), nSolidVoxels(0), voxels(ChunkSize, ChunkSize, ChunkSize, false) { }
 
 
+    //Converters between World Space and World Chunk Space.
+
     //Converts world chunk coordinates to world coordinates.
     static Vector3f ToWorldSpace(Vector3i chunkCoord) { return ToWorldSpace(Vector3f(chunkCoord.x, chunkCoord.y, chunkCoord.z)); }
     //Converts world chunk coordinates to world coordinates.
     static Vector3f ToWorldSpace(Vector3f chunkCoord) { return chunkCoord * VoxelSizeF; }
 
+    //Converts world coordinates to world Chunk coordinates.
+    static Vector3f ToWorldChunkSpace(Vector3f worldSpace) { return worldSpace / VoxelSizeF; }
+    //Converts world coordinates to the world chunk coordinate of the nearest voxel.
+    static Vector3i ToWorldVoxelIndex(Vector3f worldSpace) { return (worldSpace / VoxelSizeF).Floored(); }
+
+    //Converts the given shape's bounding box to World-Chunk-Space indices.
+    static MinMaxI GetShapeBoundsI(const Shape & shpe);
+    //Converts the given shape's bounding box to World-Chunk-Space indices.
+    static MinMaxF GetShapeBoundsF(const Shape & shpe);
+
+
+    //Converters between World Space and Local Chunk Space.
+
     //Converts local chunk coordinates to world Coordinates.
     Vector3f LocalToWorldSpace(Vector3i chunkCoord) const { return LocalToWorldSpace(Vector3f(chunkCoord.x, chunkCoord.y, chunkCoord.z)); }
     //Converts local chunk coordinates to world Coordinates.
-    Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord + Vector3f(MinCorner.x, MinCorner.y, MinCorner.z)) * VoxelSizeF; }
+    Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord * VoxelSizeF) + Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
 
-    //Converts world coordinates to world Chunk coordinates.
-    static Vector3f ToChunkSpace(Vector3f worldSpace) { return worldSpace / VoxelSizeF; }
     //Converts world coordinates to local Chunk coordinates.
-    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToChunkSpace(worldSpace) - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
-    
-    //Converts world coordinates to the world chunk coordinate of the nearest voxel.
-    static Vector3i ToVoxelIndex(Vector3f worldSpace) { return (worldSpace / VoxelSizeF).Floored(); }
+    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace) - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
     //Converts world coordinates to the coordinate of the nearest local voxel.
-    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToVoxelIndex(worldSpace) - MinCorner; }
+    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace) - MinCorner; }
+
 
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3i Clamp(Vector3i inV) const { return inV.Clamp(0, ChunkSize); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3f Clamp(Vector3f inV) const { return inV.Clamp(0.0f, ChunkSizeF); }
 
+    //Converts the given shape's bounding box to Local-Chunk-Space indices.
+    MinMaxI GetLocalShapeBoundsI(const Shape & shpe) const;
+    //Converts the given shape's bounding box to Local-Chunk-Space indices.
+    MinMaxF GetLocalShapeBoundsF(const Shape & shpe) const;
+
+
+    //Basic voxel getters/setters.
+
+    //Gets the number of solid voxels in this chunk.
+    unsigned int GetNumbSolidVoxels(void) const { return nSolidVoxels; }
+    //Gets whether or not this chunk is empty.
+    bool IsEmpty(void) const { return nSolidVoxels == 0; }
+    //Gets whether or not this chunk is full.
+    bool IsFull(void) const { return nSolidVoxels == (ChunkSize * ChunkSize * ChunkSize); }
+
+    //Gets the voxels.
+    const Fake3DArray<bool> & GetVoxels(void) const { return voxels; }
 
     //'location' is in world coordinates.
     bool GetVoxelWorld(Vector3f location) const { return GetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
@@ -95,6 +129,9 @@ public:
         }
     }
 
+
+    //More advanced Voxel getters/setters.
+
     //Gets whether ANY voxels with the majority of their volume inside the given Shape are solid.
     bool GetAnyVoxels(const Shape & shpe) const;
     //Gets whether ALL voxels with the majority of their volume inside the given Shape are solid.
@@ -103,6 +140,90 @@ public:
     void ToggleVoxels(const Shape & shpe);
     //Sets all voxels with the majority of their volume inside the given Shape.
     void SetVoxels(const Shape & shpe, bool value);
+
+
+    //Iterators through a box of voxels.
+
+    template<typename Func>
+    //"Func" must have the signature "bool Func(Vector3i localIndex)".
+    //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Returns whether or not "todo" ever returned "true".
+    bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    {
+        int xStart = BasicMath::Max(0, start.x),
+            yStart = BasicMath::Max(0, start.y),
+            zStart = BasicMath::Max(0, start.z);
+        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
+            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
+            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                    if (todo(loc))
+                        return true;
+        return false;
+    }
+    template<typename Func>
+    //"Func" must have the signature "void Func(Vector3i localIndex)".
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    {
+        int xStart = BasicMath::Max(0, start.x),
+            yStart = BasicMath::Max(0, start.y),
+            zStart = BasicMath::Max(0, start.z);
+        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
+            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
+            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                    todo(loc);
+    }
+    template<typename Func>
+    //"Func" must have the signature "bool Func(Vector3i localIndex)".
+    //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Returns whether or not "todo" ever returned "true".
+    bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    {
+        int xStart = BasicMath::Max(0, start.x),
+            yStart = BasicMath::Max(0, start.y),
+            zStart = BasicMath::Max(0, start.z);
+        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
+            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
+            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                    if (todo(loc))
+                        return true;
+        return false;
+    }
+    template<typename Func>
+    //"Func" must have the signature "void Func(Vector3i localIndex)".
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    bool DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    {
+        int xStart = BasicMath::Max(0, start.x),
+            yStart = BasicMath::Max(0, start.y),
+            zStart = BasicMath::Max(0, start.z);
+        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
+            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
+            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                    todo(loc);
+    }
 
 
 
@@ -118,19 +239,20 @@ public:
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const;
 
 
-    //Gets the voxels.
-    const Fake3DArray<bool> & GetVoxels(void) const { return voxels; }
-
-    //Gets the number of solid voxels in this chunk.
-    unsigned int GetNumbSolidVoxels(void) const { return nSolidVoxels; }
-    //Gets whether or not this chunk is empty.
-    bool IsEmpty(void) const { return nSolidVoxels == 0; }
-    //Gets whether or not this chunk is full.
-    bool IsFull(void) const { return nSolidVoxels == (ChunkSize * ChunkSize * ChunkSize); }
-
-
-    //Gets the bounds around this chunk.
-    Box3D GetBounds(void) const { return Box3D(MinCorner.x, MinCorner.y, MinCorner.z, Vector3f(ChunkSizeF, ChunkSizeF, ChunkSizeF)); }
+    //Gets the world-space bounds around this chunk.
+    Box3D GetBounds(void) const
+    {
+        return Box3D(MinCorner.x, MinCorner.y, MinCorner.z,
+                     Vector3f(ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF));
+    }
+    //Gets the world-space bounds around the given voxel (local chunk space).
+    Box3D GetBounds(Vector3i chunkIndex) const
+    {
+        Vector3f dims(VoxelSizeF, VoxelSizeF, VoxelSizeF),
+                 minCorner = LocalToWorldSpace(chunkIndex);
+        return Box3D(minCorner.x, minCorner.y, minCorner.z,
+                     Vector3f(VoxelSizeF, VoxelSizeF, VoxelSizeF));
+    }
 
 
 private:

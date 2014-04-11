@@ -46,7 +46,7 @@ void VoxelWorld::InitializeWorld(void)
 
     //Input.
 
-    Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr(new MouseBoolInput(sf::Mouse::Left, BoolInput::ValueStates::JustPressed)));
+    Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left, BoolInput::ValueStates::JustPressed)));
 
 
     //Initialize the chunk mesh.
@@ -122,6 +122,8 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
     glViewport(0, 0, w, h);
     vWindowSize.x = w;
     vWindowSize.y = h;
+    cam.Info.Width = w;
+    cam.Info.Height = h;
 }
 
 void VoxelWorld::UpdateWorld(float elapsed)
