@@ -5,13 +5,12 @@
 typedef VoxelChunk VC;
 typedef VoxelChunkManager VCM;
 
-
 VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 {
     //Find the axis that moves the most, and figure out what
     //   't' increment is needed to move the ray one chunk length along that axis.
     unsigned int largestRayAxis = GeometricMath::GetLongestAxis(rayDir);
-    float destination = rayDir[largestRayAxis] + (VC::ChunkSizeF * VC::VoxelSizeF);
+    float destination = rayStart[largestRayAxis] + (BasicMath::Sign(rayDir[largestRayAxis]) * (VC::ChunkSizeF * VC::VoxelSizeF));
     float chunkMoveLength = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis, destination).t;
 
 
@@ -19,31 +18,49 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
 
     Vector3i oldChunkIndex = ToChunkIndex(rayStart);
     Vector3i newChunkIndex;
-    VoxelChunk * rayInside = GetChunk(oldChunkIndex);
     Vector3i chunkCast;
 
     Vector3f moveIncrement = rayDir * chunkMoveLength;
-    rayStart += moveIncrement;
-    maxDist -= chunkMoveLength;
 
-    while (rayInside != 0 && maxDist >= 0.0f)
+    int interations = 0;
+    while ((GetChunk(oldChunkIndex) != 0 || GetChunk(newChunkIndex) != 0) && maxDist >= 0.0f)
     {
-        newChunkIndex = ToChunkIndex(rayStart);
+        if (interations++ > 10)
+        {
+            return RayCastResult(0, chunkCast);
+        }
+
+        newChunkIndex = ToChunkIndex(rayStart + moveIncrement);
 
         //Check every chunk that the ray intersected with
         //   (don't check the very last one, since that will be checked next iteration).
-        Vector3i tempChunk;
-        for (tempChunk.z = oldChunkIndex.z; tempChunk.z <= newChunkIndex.z; tempChunk.z++)
-            for (tempChunk.y = oldChunkIndex.y; tempChunk.y <= newChunkIndex.y; tempChunk.y++)
-                for (tempChunk.x = oldChunkIndex.x; tempChunk.x <= newChunkIndex.x; tempChunk.x++)
-                {
-                    if (tempChunk != newChunkIndex)
-                    {
-                        Vector3i chunkCast = rayInside->CastRay(rayStart, rayDir, maxDist);
-                        if (chunkCast.x != -1)
-                            return RayCastResult(rayInside, chunkCast);
-                    }
-                }
+        RayCastResult castRes;
+        if (DoToEveryChunkPredicate([&castRes, rayStart, rayDir, maxDist](Vector3i cIndex, VoxelChunk * cnk)
+        {
+            Vector3i tempChunk = cnk->CastRay(rayStart, rayDir, maxDist);
+            if (tempChunk.x != -1)
+            {
+                castRes = RayCastResult(cnk, tempChunk);
+                return true;
+            }
+            return false;
+        }, oldChunkIndex, newChunkIndex))
+            return castRes;
+       // for (tempChunk.z = oldChunkIndex.z; tempChunk.z <= newChunkIndex.z; tempChunk.z++)
+       //     for (tempChunk.y = oldChunkIndex.y; tempChunk.y <= newChunkIndex.y; tempChunk.y++)
+        //        for (tempChunk.x = oldChunkIndex.x; tempChunk.x <= newChunkIndex.x; tempChunk.x++)
+        //        {
+        //            if (tempChunk != newChunkIndex)
+        //            {
+        //                Vector3i chunkCast = rayInside->CastRay(rayStart, rayDir, maxDist);
+        //                if (chunkCast.x != -1)
+        //                    return RayCastResult(rayInside, chunkCast);
+        //            }
+        //        }
+
+        rayStart += moveIncrement;
+        maxDist -= chunkMoveLength;
+        oldChunkIndex = newChunkIndex;
     }
 
     return RayCastResult();

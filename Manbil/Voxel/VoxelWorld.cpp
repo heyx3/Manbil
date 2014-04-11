@@ -34,9 +34,9 @@ const unsigned int INPUT_AddVoxel = 123753;
 
 VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
-        chunk(Vector3i(0, 0, 0)), voxelMat(0), renderState(),
+        voxelMat(0), renderState(),
         cam(5.0f, 0.06), voxelMesh(PrimitiveTypes::Triangles),
-        light(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(-1, -1, -1).Normalized())
+        light(0.7f, 0.3f, Vector3f(1, 1, 1), Vector3f(-1, -1, -10).Normalized())
 {
 }
 
@@ -50,32 +50,16 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the chunk mesh.
-
-    chunk.SetVoxelLocal(Vector3i(0, 0, 0), true);
+    VoxelChunk * chunk = GetCreateChunk(Vector3i());
+    chunk->SetVoxelLocal(Vector3i(0, 0, 0), true);
     Sphere spher(Vector3f(15.0f, 15.0f, 15.0f), 5.0f);
-    chunk.SetVoxels(spher, true);
+    chunk->SetVoxels(spher, true);
     Capsule caps(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 15.0f), 3.0f);
-    chunk.SetVoxels(caps, true);
+    chunk->SetVoxels(caps, true);
 
-    std::vector<Vector3f> vertices;
-    std::vector<unsigned int> indices;
-    chunk.BuildTriangles(vertices, indices, 0, 0, 0, 0, 0, 0);
+    chunkMeshes[Vector3i()]->RebuildMesh(true);
 
-    Vector3f * normals = new Vector3f[vertices.size()];
-    GeometricMath::CalculateNormals(vertices.data(), indices.data(), vertices.size(), indices.size(), normals);
-    Vertex * verts = new Vertex[vertices.size()];
-    for (int i = 0; i < vertices.size(); ++i)
-    {
-        verts[i] = Vertex(vertices[i], Vector2f(), normals[i]);
-    }
-    delete[] normals;    
-
-    RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, verts, vertices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    delete[] verts;
-
-    voxelMesh.SetVertexIndexData(VertexIndexData(vertices.size(), vbo, indices.size(), ibo));
+    voxelMesh.SetVertexIndexData(chunkMeshes[Vector3i()]->GetVID());
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName].SetValue(light.AmbientIntensity);
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName].SetValue(light.DiffuseIntensity);
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName].SetValue(light.Direction);
@@ -85,6 +69,7 @@ void VoxelWorld::InitializeWorld(void)
     //Initialize the material.
     std::unordered_map<RenderingChannels, DataLine> channels;
     channels[RenderingChannels::RC_Diffuse] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
+    //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(Vector3f(0.0f, 0.0f, 0.0f)), true)), 0);
     channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
     channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
     UniformDictionary dict;
@@ -115,6 +100,8 @@ void VoxelWorld::InitializeWorld(void)
 void VoxelWorld::OnWorldEnd(void)
 {
     if (voxelMat != 0) delete voxelMat;
+    for (auto element = chunkMeshes.begin(); element != chunkMeshes.end(); ++element)
+        delete element->second;
 }
 
 void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
@@ -137,7 +124,10 @@ void VoxelWorld::UpdateWorld(float elapsed)
 void VoxelWorld::RenderOpenGL(float elapsed)
 {
     renderState.EnableState();
-    ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+    //if (manager.GetChunk(Vector3i())->CastRay(cam.GetPosition(), cam.GetForward()).x == -1)
+    if (manager.CastRay(cam.GetPosition(), cam.GetForward(), 50.0f).Chunk == 0)
+        ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+    else ScreenClearer(true, true, false, Vector4f(0.5f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &voxelMesh);

@@ -275,8 +275,11 @@
     <ClCompile Include="Voxel\VoxelWorld.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\ChunkMesh.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
     <ClCompile Include="Voxel\VoxelChunkManager.cpp">
-      <Filter>Two Triangles</Filter>
+      <Filter>Voxels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -675,6 +678,9 @@
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Voxel\VoxelChunkManager.h">
+      <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\ChunkMesh.h">
       <Filter>Voxels</Filter>
     </ClInclude>
   </ItemGroup>

@@ -147,16 +147,16 @@ public:
     template<typename Func>
     //"Func" must have the signature "bool Func(Vector3i localIndex)".
     //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
-    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Max(0, start.x),
-            yStart = BasicMath::Max(0, start.y),
-            zStart = BasicMath::Max(0, start.z);
-        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
-            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
-            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
+            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
+            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
+        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
+            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
+            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
 
         Vector3i loc;
         for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
@@ -168,15 +168,15 @@ public:
     }
     template<typename Func>
     //"Func" must have the signature "void Func(Vector3i localIndex)".
-    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Max(0, start.x),
-            yStart = BasicMath::Max(0, start.y),
-            zStart = BasicMath::Max(0, start.z);
-        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
-            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
-            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
+            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
+            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
+        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
+            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
+            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
 
         Vector3i loc;
         for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
@@ -187,16 +187,16 @@ public:
     template<typename Func>
     //"Func" must have the signature "bool Func(Vector3i localIndex)".
     //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
-    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Max(0, start.x),
-            yStart = BasicMath::Max(0, start.y),
-            zStart = BasicMath::Max(0, start.z);
-        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
-            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
-            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
+            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
+            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
+        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
+            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
+            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
 
         Vector3i loc;
         for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
@@ -208,15 +208,15 @@ public:
     }
     template<typename Func>
     //"Func" must have the signature "void Func(Vector3i localIndex)".
-    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     bool DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Max(0, start.x),
-            yStart = BasicMath::Max(0, start.y),
-            zStart = BasicMath::Max(0, start.z);
-        int xEnd = BasicMath::Min(ChunkSize - 1, end.x),
-            yEnd = BasicMath::Min(ChunkSize - 1, end.y),
-            zEnd = BasicMath::Min(ChunkSize - 1, end.z);
+        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
+            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
+            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
+        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
+            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
+            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
 
         Vector3i loc;
         for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
@@ -233,7 +233,7 @@ public:
 
     //Builds the world-space triangles/indices for this chunk, given all surrounding chunks.
     //Any of the surrounding chunks passed in may have values of 0 if they don't exist.
-    void BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned int> & indices,
+    void BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const;

@@ -170,6 +170,7 @@
     <ClCompile Include="TwoTrianglesWorld.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Vertices.cpp" />
+    <ClCompile Include="Voxel\ChunkMesh.cpp" />
     <ClCompile Include="Voxel\VoxelChunk.cpp" />
     <ClCompile Include="Voxel\VoxelChunkManager.cpp" />
     <ClCompile Include="Voxel\VoxelWorld.cpp" />
@@ -307,6 +308,7 @@
     <ClInclude Include="RenderInfo.h" />
     <ClInclude Include="Voxel\VoxelChunk.h" />
     <ClInclude Include="Voxel\VoxelChunkManager.h" />
+    <ClInclude Include="Voxel\ChunkMesh.h" />
     <ClInclude Include="Voxel\VoxelWorld.h" />
   </ItemGroup>
   <ItemGroup>

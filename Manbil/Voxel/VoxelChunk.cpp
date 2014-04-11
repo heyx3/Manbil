@@ -124,7 +124,9 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
     //Find the axis that moves the fastest, and figure out what
     //   't' increment is needed to move the ray one unit along that axis.
 
-    float tIncrement = 1.0f / rayDir[GeometricMath::GetLongestAxis(rayDir)];
+    int axis = GeometricMath::GetLongestAxis(rayDir);
+    float tIncrement = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, axis,
+                                                            rayStart[axis] + BasicMath::Sign(rayDir[axis])).t;
 
 
     //March the ray in increments of that amount and check the bounding area
@@ -150,9 +152,15 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
         isZTooFar = ([](float rayPos) -> bool { return rayPos >= ChunkSizeF; });
     else isZTooFar = ([](float rayPos) -> bool { return rayPos < 0.0f; });
 
+    unsigned int iterations = 0;
     while (distTraveled - 0.5f <= maxDist &&
            (!isXTooFar(rayStart.x) || !isYTooFar(rayStart.y) || !isZTooFar(rayStart.z)))
     {
+        if (iterations++ == 10)
+        {
+            //return Vector3i(-1, -1, -1);
+        }
+
         currentRayPos = ToLocalVoxelIndex(rayStart);
 
         //Go through every voxel between the previous ray position and the current.
@@ -177,7 +185,7 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
     return Vector3i(-1, -1, -1);
 }
 
-void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned int> & indices,
+void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const
@@ -285,6 +293,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 2);
 
                         startingIndex += 4;
+
+                        Vector3f norm(1.0f, 0.0f, 0.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                     if ((yMin.y >= 0 && voxels[yMin]) ||
                         (yMin.y < 0 && gMinY(yMin, beforeMinY)))
@@ -302,6 +316,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 2);
 
                         startingIndex += 4;
+
+                        Vector3f norm(0.0f, 1.0f, 0.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                     if ((zMin.z >= 0 && voxels[zMin]) ||
                         (zMin.z < 0 && gMinZ(zMin, beforeMinZ)))
@@ -319,6 +339,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 2);
 
                         startingIndex += 4;
+
+                        Vector3f norm(0.0f, 0.0f, 1.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                     if ((xMax.x < ChunkSize && voxels[xMax]) ||
                         (xMax.x >= ChunkSize && gMaxX(xMax, afterMaxX)))
@@ -332,10 +358,16 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 1);
                         indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex);
-                        indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex + 2);
+                        indices.insert(indices.end(), startingIndex + 3);
 
                         startingIndex += 4;
+
+                        Vector3f norm(-1.0f, 0.0f, 0.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                     if ((yMax.y < ChunkSize && voxels[yMax]) ||
                         (yMax.y >= ChunkSize && gMaxY(yMax, afterMaxY)))
@@ -349,10 +381,16 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 1);
                         indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex);
-                        indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex + 2);
+                        indices.insert(indices.end(), startingIndex + 3);
 
                         startingIndex += 4;
+
+                        Vector3f norm(0.0f, -1.0f, 0.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                     if ((zMax.z < ChunkSize && voxels[zMax]) ||
                         (zMax.z >= ChunkSize && gMaxZ(zMax, afterMaxZ)))
@@ -366,10 +404,16 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<unsigned i
                         indices.insert(indices.end(), startingIndex + 1);
                         indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex);
-                        indices.insert(indices.end(), startingIndex + 3);
                         indices.insert(indices.end(), startingIndex + 2);
+                        indices.insert(indices.end(), startingIndex + 3);
 
                         startingIndex += 4;
+
+                        Vector3f norm(0.0f, 0.0f, -1.0f);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
+                        normals.insert(normals.end(), norm);
                     }
                 }
             }

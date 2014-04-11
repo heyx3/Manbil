@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../SFMLOpenGLWorld.h"
-#include "VoxelChunk.h"
+#include "VoxelChunkManager.h"
+#include "ChunkMesh.h"
 #include "../MovingCamera.h"
 #include "../RenderingState.h"
 #include "../Material.h"
@@ -30,7 +31,33 @@ protected:
 
 private:
 
-    VoxelChunk chunk;
+    VoxelChunk * GetCreateChunk(Vector3i location)
+    {
+        if (manager.DoesChunkExist(location))
+            return manager.GetChunk(location);
+
+        VoxelChunk * chnk = manager.GetCreateChunk(location);
+        chunkMeshes[location] = new ChunkMesh(manager, chnk);
+        return manager.GetChunk(location);
+    }
+    bool DestroyChunk(Vector3i location)
+    {
+        if (manager.DestroyChunk(location))
+        {
+            auto loc = chunkMeshes.find(location);
+
+            delete loc->second;
+            chunkMeshes.erase(loc);
+
+            return true;
+        }
+        return false;
+    }
+    VertexIndexData GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetVID(); }
+
+    VoxelChunkManager manager;
+    std::unordered_map<Vector3i, ChunkMesh*, Vector3i> chunkMeshes;
+
     MovingCamera cam;
 
     RenderingState renderState;

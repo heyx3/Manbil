@@ -55,6 +55,117 @@ public:
 
         return chunks[index];
     }
+    //Removes the chunk with the given index if it exists.
+    //Returns whether or not it existed.
+    bool DestroyChunk(Vector3i index)
+    {
+        auto location = chunks.find(index);
+        if (location == chunks.end()) return false;
+
+        delete location->second;
+        chunks.erase(location);
+        return true;
+    }
+
+
+    template<typename Func>
+    //"Func" must have the signature "bool Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //"Func" returns whether to exit "DoToEveryChunk" after calling it.
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Assume the "chunk" parameter in Func is never 0.
+    //Returns whether or not "todo" ever returned "true".
+    bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    {
+        int xStart = BasicMath::Min(start.x, end.x),
+            yStart = BasicMath::Min(start.y, end.y),
+            zStart = BasicMath::Min(start.z, end.z);
+        int xEnd = BasicMath::Max(start.x, end.x),
+            yEnd = BasicMath::Max(start.y, end.y),
+            zEnd = BasicMath::Max(start.z, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                {
+                    VoxelChunk * cnk = GetChunk(loc);
+                    if (cnk != 0 && todo(loc, cnk))
+                        return true;
+                }
+        return false;
+    }
+    template<typename Func>
+    //"Func" must have the signature "void Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Assume the "chunk" parameter in Func is never 0.
+    void DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    {
+        int xStart = BasicMath::Min(start.x, end.x),
+            yStart = BasicMath::Min(start.y, end.y),
+            zStart = BasicMath::Min(start.z, end.z);
+        int xEnd = BasicMath::Max(start.x, end.x),
+            yEnd = BasicMath::Max(start.y, end.y),
+            zEnd = BasicMath::Max(start.z, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                {
+                    VoxelChunk * cnk = GetChunk(loc);
+                    if (cnk != 0) todo(loc, cnk);
+                }
+    }
+    template<typename Func>
+    //"Func" must have the signature "bool Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //"Func" returns whether to exit "DoToEveryChunkPredicate" after calling it.
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Assume the "chunk" parameter in Func is never 0.
+    //Returns whether or not "todo" ever returned "true".
+    bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    {
+        int xStart = BasicMath::Min(start.x, end.x),
+            yStart = BasicMath::Min(start.y, end.y),
+            zStart = BasicMath::Min(start.z, end.z);
+        int xEnd = BasicMath::Max(start.x, end.x),
+            yEnd = BasicMath::Max(start.y, end.y),
+            zEnd = BasicMath::Max(start.z, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                {
+                    VoxelChunk * cnk = GetChunk(loc);
+                    if (cnk != 0 && todo(loc, cnk))
+                        return true;
+                }
+        return false;
+    }
+    template<typename Func>
+    //"Func" must have the signature "void Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
+    //Assume the "chunk" parameter in Func is never 0.
+    bool DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    {
+        int xStart = BasicMath::Min(start.x, end.x),
+            yStart = BasicMath::Min(start.y, end.y),
+            zStart = BasicMath::Min(start.z, end.z);
+        int xEnd = BasicMath::Max(start.x, end.x),
+            yEnd = BasicMath::Max(start.y, end.y),
+            zEnd = BasicMath::Max(start.z, end.z);
+
+        Vector3i loc;
+        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
+            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
+                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+                {
+                    VoxelChunk * cnk = GetChunk(loc);
+                    if (cnk != 0) todo(loc, cnk);
+                }
+    }
+
+
 
 
 private:
