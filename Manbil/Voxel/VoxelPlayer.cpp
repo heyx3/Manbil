@@ -15,7 +15,7 @@ void VoxelPlayer::Update(float el, float tot)
              worldMoveSideways = Cam.GetSideways() * movement.x,
              finalMove = worldMoveForward + worldMoveSideways;
 
-    finalMove.z = 0.0f;
+    //finalMove.z = 0.0f;
     float len = finalMove.Length();
     if (len > 0.0f)
     {

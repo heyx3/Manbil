@@ -61,8 +61,8 @@ void VoxelWorld::InitializeWorld(void)
     chunk->SetVoxels(spher, true);
     Capsule caps(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 15.0f), 3.0f);
     chunk->SetVoxels(caps, true);
-    Cube cbe(Box3D(15.0f, 15.0f, 15.0f, Vector3f(15.0f, 15.0f, 15.0f)));
-    chunk->ToggleVoxels(cbe);
+    Cube cbe(Box3D(15.0f, 15.0f, 15.0f, Vector3f(15, 15, 15)));
+    chunk->SetVoxels(cbe, true);
 
     chunkMeshes[Vector3i()]->RebuildMesh(true);
 
@@ -87,6 +87,7 @@ void VoxelWorld::InitializeWorld(void)
     //Initialize the material.
     std::unordered_map<RenderingChannels, DataLine> channels;
     channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
     channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
     UniformDictionary dict;
@@ -174,8 +175,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 {
     renderState.EnableState();
     if (manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f).Chunk == 0)
-        ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
-    else ScreenClearer(true, true, false, Vector4f(0.5f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+        ScreenClearer(true, true, false, Vector4f(0.0f, 0.1f, 0.0f, 0.0f)).ClearScreen();
+    else ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &voxelMesh);
