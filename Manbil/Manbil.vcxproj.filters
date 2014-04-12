@@ -281,6 +281,15 @@
     <ClCompile Include="Voxel\VoxelChunkManager.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\VoxelCamera.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\LookRotation.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel\VoxelPlayer.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -682,6 +691,18 @@
     </ClInclude>
     <ClInclude Include="Voxel\ChunkMesh.h">
       <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\VoxelCamera.h">
+      <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\LookRotation.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\VoxelPlayer.h">
+      <Filter>Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input Objects\TwoButtonInput.h">
+      <Filter>Input\Input Objects\Float Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

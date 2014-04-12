@@ -166,6 +166,8 @@ public:
     }
 
 
+    //TODO: Add the same Shape functionality that is in VoxelChunk.
+
 
 
 private:

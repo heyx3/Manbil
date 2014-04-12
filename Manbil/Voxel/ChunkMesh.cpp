@@ -35,8 +35,9 @@ void ChunkMesh::RebuildMesh(bool buildNow)
 
 
     std::vector<Vector3f> poses;
+    std::vector<Vector2f> texCoords;
     std::vector<Vector3f> normals;
-    chnk->BuildTriangles(poses, normals, indices,
+    chnk->BuildTriangles(poses, normals, texCoords, indices,
                          manager.GetChunk(Vector3i(ChunkIndex.x - 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x + 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y - 1, ChunkIndex.z)),
@@ -46,7 +47,7 @@ void ChunkMesh::RebuildMesh(bool buildNow)
 
     for (unsigned int i = 0; i < poses.size(); ++i)
     {
-        vertices.insert(vertices.end(), Vertex(poses[i], Vector2f(), normals[i]));
+        vertices.insert(vertices.end(), Vertex(poses[i], texCoords[i], normals[i]));
     }
 
 

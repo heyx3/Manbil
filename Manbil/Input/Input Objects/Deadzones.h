@@ -44,7 +44,12 @@ public:
 	HorizontalDeadzone(float cutoff = 0.01f) : Cutoff(cutoff) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		if (abs(inV.y) < Cutoff) inV.y = 0.0f;
+        float sign = BasicMath::Sign(inV.y);
+        Interval goodRange(Cutoff, 1.0f, 0.0001f);
+
+        inV.y = goodRange.Clamp(sign * inV.y);
+        inV.y = sign * goodRange.MapValue(Interval(0.0f, 1.0f, 0.0001f), inV.y);
+
 		return inV;
 	}
 };
@@ -56,8 +61,13 @@ public:
 	VerticalDeadzone(float cutoff = 0.01f) : Cutoff(cutoff) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		if (abs(inV.x) < Cutoff) inV.x = 0.0f;
-		return inV;
+        float sign = BasicMath::Sign(inV.x);
+        Interval goodRange(Cutoff, 1.0f, 0.0001f);
+
+        inV.x = goodRange.Clamp(sign * inV.x);
+        inV.x = sign * goodRange.MapValue(Interval(0.0f, 1.0f, 0.0001f), inV.x);
+
+        return inV;
 	}
 };
 
@@ -73,8 +83,13 @@ public:
 	HorizontalCrossDeadzone(Interval yRange) : YRange(yRange) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		float yLimit = YRange.RangeLerp(abs(inV.x));
-		if (abs(inV.y) < yLimit) inV.y = 0.0f;
+		float yLimit = YRange.RangeLerp(BasicMath::Abs(inV.x));
+        float sign = BasicMath::Sign(inV.y);
+
+        Interval goodRange(yLimit, 1.0f, 0.0001f);
+        inV.y = goodRange.Clamp(sign * inV.y);
+        inV.y = sign * goodRange.MapValue(Interval(0.0f, 1.0f, 0.0001f), inV.y);
+
 		return inV;
 	}
 };
@@ -89,9 +104,14 @@ public:
 	VerticalCrossDeadzone(Interval xRange) : XRange(xRange) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		float xLimit = XRange.RangeLerp(abs(inV.y));
-		if (abs(inV.x) < xLimit) inV.x = 0.0f;
-		return inV;
+        float xLimit = XRange.RangeLerp(BasicMath::Abs(inV.y));
+        float sign = BasicMath::Sign(inV.x);
+
+        Interval goodRange(xLimit, 1.0f, 0.0001f);
+        inV.x = goodRange.Clamp(sign * inV.x);
+        inV.x = sign * goodRange.MapValue(Interval(0.0f, 1.0f, 0.0001f), inV.x);
+
+        return inV;
 	}
 };
 

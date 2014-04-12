@@ -3,7 +3,7 @@
 #include "../SFMLOpenGLWorld.h"
 #include "VoxelChunkManager.h"
 #include "ChunkMesh.h"
-#include "../MovingCamera.h"
+#include "VoxelPlayer.h"
 #include "../RenderingState.h"
 #include "../Material.h"
 #include "../Mesh.h"
@@ -58,11 +58,12 @@ private:
     VoxelChunkManager manager;
     std::unordered_map<Vector3i, ChunkMesh*, Vector3i> chunkMeshes;
 
-    MovingCamera cam;
+    VoxelPlayer player;
 
     RenderingState renderState;
     DirectionalLight light;
     
     Material * voxelMat;
     Mesh voxelMesh;
+    unsigned int voxelTex;
 };

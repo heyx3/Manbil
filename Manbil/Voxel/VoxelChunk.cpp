@@ -185,7 +185,8 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
     return Vector3i(-1, -1, -1);
 }
 
-void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<unsigned int> & indices,
+void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords,
+                        std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const
@@ -299,6 +300,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                     if ((yMin.y >= 0 && voxels[yMin]) ||
                         (yMin.y < 0 && gMinY(yMin, beforeMinY)))
@@ -322,6 +328,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                     if ((zMin.z >= 0 && voxels[zMin]) ||
                         (zMin.z < 0 && gMinZ(zMin, beforeMinZ)))
@@ -345,6 +356,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                     if ((xMax.x < ChunkSize && voxels[xMax]) ||
                         (xMax.x >= ChunkSize && gMaxX(xMax, afterMaxX)))
@@ -368,6 +384,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                     if ((yMax.y < ChunkSize && voxels[yMax]) ||
                         (yMax.y >= ChunkSize && gMaxY(yMax, afterMaxY)))
@@ -391,6 +412,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                     if ((zMax.z < ChunkSize && voxels[zMax]) ||
                         (zMax.z >= ChunkSize && gMaxZ(zMax, afterMaxZ)))
@@ -414,6 +440,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
                         normals.insert(normals.end(), norm);
+
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(0.0f, 1.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 0.0f));
+                        texCoords.insert(texCoords.end(), Vector2f(1.0f, 1.0f));
                     }
                 }
             }

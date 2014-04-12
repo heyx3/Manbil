@@ -30,7 +30,7 @@ public:
 		switch (mode)
 		{
 			case Modes::Clamp:
-				value = source.ClampValueToInterval(val);
+				value = source.Clamp(val);
 				break;
 			case Modes::Map:
 				value = source.MapValue(Interval(0.0f, 1.0f, 0.001f), value);
