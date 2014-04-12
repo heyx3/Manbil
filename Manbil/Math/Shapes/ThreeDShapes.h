@@ -102,7 +102,7 @@ public:
 
     virtual bool IsPointInside(Vector3f point) const override
     {
-        return Bounds.IsPointInside(point);
+        return Bounds.PointTouches(point);
     }
 
     void GetBoundingSphere(Sphere & sOut) const;

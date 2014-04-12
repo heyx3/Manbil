@@ -66,6 +66,11 @@ public:
     void SetCenterOfBox(Vector2f pos) { x = pos.x - (width * 0.5f); y = pos.y - (height * 0.5f); }
     void Move(float deltaX, float deltaY) { x += deltaX; y += deltaY; }
 
+    //Moves the min and max corners of this box out by half the given amount.
+    void Inflate(Vector2f amount) { x -= amount.x * 0.5f; y -= amount.y * 0.5f; width += amount.x; height += amount.y; }
+    //Scales the size of this box by the given amount.
+    void Scale(Vector2f amount) { Inflate(Vector2f(width * amount.x, height * amount.y) - Vector2f(width, height)); }
+
     float GetXSize(void) const { return width; }
     float GetYSize(void) const { return height; }
     Vector2f GetDimensions(void) const { return Vector2f(width, height); }
@@ -160,6 +165,11 @@ public:
     void SetCenterOfBox(Vector3f pos) { minCorner += (pos - GetCenter()); }
     void Move(Vector3f amount) { minCorner += amount; }
 
+    //Moves the min and max corners of this box out by half the given amount.
+    void Inflate(Vector3f amount) { minCorner -= (amount * 0.5f); dimensions += amount; }
+    //Scales the size of this box by the given amount.
+    void Scale(Vector3f amount) { Inflate(dimensions.ComponentProduct(amount) - dimensions); }
+
     float GetXSize(void) const { return dimensions.x; }
     float GetYSize(void) const { return dimensions.y; }
     float GetZSize(void) const { return dimensions.z; }
@@ -187,6 +197,7 @@ public:
     Interval GetXInterval(void) const { return Interval(GetXMin(), GetXMax(), 0.001f, true, true); }
     Interval GetYInterval(void) const { return Interval(GetYMin(), GetYMax(), 0.001f, true, true); }
     Interval GetZInterval(void) const { return Interval(GetZMin(), GetZMax(), 0.001f, true, true); }
+
 
 private:
 
