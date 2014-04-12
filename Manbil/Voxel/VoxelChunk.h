@@ -112,6 +112,7 @@ public:
     {
         bool old = voxels[location];
         voxels[location] = !voxels[location];
+
         if (old) nSolidVoxels -= 1;
         else nSolidVoxels += 1;
         return !old;
