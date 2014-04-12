@@ -86,6 +86,9 @@ public:
     }
     static int RoundToInt(float v) { return (int)(v + (0.4999f * Sign(v))); }
 
+    static float RadToDeg(float radians) { return radians * 57.2957f; }
+    static float DegToRad(float degrees) { return degrees * 0.0174532f; }
+
 
     template<class MultipliableClass>
     static MultipliableClass Square(MultipliableClass f) { return f * f; }

@@ -22,7 +22,7 @@ public:
 	void SetMoveSpeed(float newVal) { moveSpeed = newVal; }
 	void SetRotSpeed(float newVal) { rotSpeed = newVal; }
 
-	bool Update(float elapsedTime);
+	virtual bool Update(float elapsedTime);
 
 private:
 

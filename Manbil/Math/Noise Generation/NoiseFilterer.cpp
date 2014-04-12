@@ -38,7 +38,7 @@ void NF::RemapValues(Noise2D * nse) const
 	{
 		RemapValuesStruct * rvS = (RemapValuesStruct*)pDat;
 		float * fOut = &(*(rvS->nse))[loc];
-		*fOut = rvS->newVs.ClampValueToInterval(rvS->oldVs.MapValue(rvS->newVs, *fOut));
+		*fOut = rvS->newVs.Clamp(rvS->oldVs.MapValue(rvS->newVs, *fOut));
 	},
 	*noise, Vector2i(noise->GetWidth(), noise->GetHeight()));
 }

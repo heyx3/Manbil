@@ -42,7 +42,7 @@ public:
 	Interval GetThirdQuarterInterval(void) const { return GetSecondHalfInterval().GetSecondHalfInterval(); }
 	Interval GetFourthQuarterInterval(void) const { return GetSecondHalfInterval().GetSecondHalfInterval(); }
 
-	float ClampValueToInterval(float value) const { if (range == 0) return center; return (value > GetEnd()) ? GetEnd() : (value < GetStart() ? GetStart() : value); }
+	float Clamp(float value) const { if (range == 0) return center; return (value > GetEnd()) ? GetEnd() : (value < GetStart() ? GetStart() : value); }
 	float WrapValueAroundInterval(float value) const { if (range == 0) return center; return fmodf(value - GetStart(), GetRange()) + GetStart(); }
 	
 	float GetLerpComponent(float value) const { if (range == 0) return 0.0f; return (value - GetStart()) / GetEnd(); }

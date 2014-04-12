@@ -411,9 +411,9 @@ namespace MyVectors
 		float ManhattanDistance(Vector2f other) const { return BasicMath::Abs(x - other.x) + BasicMath::Abs(y - other.y); }
 		float FastInvDistance(Vector2f other) const { return BasicMath::FastInvSqrt1(DistanceSquared(other)); }
 
-        //Scales this Vector2f's x, and y components by the given Vector2f's x and y components.
+        //Scales this Vector2f's x and y components by the given Vector2f's x and y components.
         void MultiplyComponents(Vector2f scale) { x *= scale.x; y *= scale.y; }
-        //Scales this Vector2f's x, and y components by the given Vector2f's x and y components.
+        //Scales this Vector2f's x and y components by the given Vector2f's x and y components.
         Vector2f ComponentProduct(Vector2f scale) const { Vector2f v(x, y); v.MultiplyComponents(scale); return v; }
 
 		void Round(int decimals) { x = BasicMath::Round(x, decimals); y = BasicMath::Round(y, decimals); }
