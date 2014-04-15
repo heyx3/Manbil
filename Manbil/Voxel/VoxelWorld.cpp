@@ -60,7 +60,6 @@ void VoxelWorld::SetUpVoxels(void)
     Sphere spher2(Vector3f(30.0f, 0.0f, 15.0f), 10.0f);
     manager.SetVoxels(spher2, true);
     //chunk2->SetVoxels(spher2, true);
-
 }
 
 void VoxelWorld::InitializeWorld(void)

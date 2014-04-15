@@ -3,7 +3,9 @@
 #include "../LowerMath.hpp"
 
 typedef Fake2DArray<float> Noise2D;
+typedef Fake3DArray<float> Noise3D;
 
+//TODO: Fix all generators to optimize cache usage by iterating through y in outer loops and x in inner loops.
 
 //******************************************************************************************
 //All noise values in this generation system are assumed to generate values between 0 and 1.
@@ -13,10 +15,17 @@ typedef Fake2DArray<float> Noise2D;
 //Analysis of 2D noise.
 namespace NoiseAnalysis2D
 {
-	struct MinMax { float Min, Max; MinMax(float min, float max) : Min(min), Max(max) { } };
-	MinMax GetMinAndMax(Noise2D & noise);
+    struct MinMax { float Min, Max; MinMax(float min, float max) : Min(min), Max(max) { } };
+    MinMax GetMinAndMax(Noise2D & noise);
 
-	float GetAverage(Noise2D & noise);
+    float GetAverage(Noise2D & noise);
+}
+namespace NoiseAnalysis3D
+{
+    struct MinMax { float Min, Max; MinMax(float min, float max) : Min(min), Max(max) { } };
+    MinMax GetMinAndMax(Noise3D & noise);
+
+    float GetAverage(Noise3D & noise);
 }
 
 

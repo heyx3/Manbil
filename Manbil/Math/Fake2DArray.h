@@ -2,6 +2,8 @@
 
 #include "Vectors.h"
 
+//TODO: Better cache usage by iterating through y in the outer loop, then x in the inner.
+
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a two-dimensional array.
 class Fake2DArray

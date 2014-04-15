@@ -205,12 +205,12 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 
     //Layered Perin noise.
     int scale = (size > 256 ? 8 : (size > 128 ? 4 : (size > 64 ? 2 : 1)));
-    Perlin per1(scale * 32.0f, Perlin::Smoothness::Quintic, 135213),
-           per2(scale * 16.0f, Perlin::Smoothness::Quintic, 3523),
-           per3(scale * 8.0f, Perlin::Smoothness::Quintic, 24623),
-           per4(scale * 4.0f, Perlin::Smoothness::Quintic, 136),
-           per5(scale * 2.0f, Perlin::Smoothness::Quintic, 24675476),
-           per6(scale * 1.0f, Perlin::Smoothness::Quintic, 3463);
+    Perlin2D per1(scale * 32.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 135213),
+             per2(scale * 16.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 3523),
+             per3(scale * 8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 24623),
+             per4(scale * 4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 136),
+             per5(scale * 2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 24675476),
+             per6(scale * 1.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 3463);
     Generator * gens[] = { &per3, &per4, &per5, &per6 };
     float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.1f };
     LayeredOctave octaves(4, weights, gens);

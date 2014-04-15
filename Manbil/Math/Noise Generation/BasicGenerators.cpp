@@ -6,29 +6,22 @@ namespace NoiseAnalysis2D
 	{
 		MinMax ret(999999.0f, -999999.0f);
 
-	    int x, y;
-		Vector2i loc;
+
 		float tempVal;
-		for (x = 0; x < nse.GetWidth(); ++x)
-		{
-			loc.x = x;
+        int size = nse.GetWidth() * nse.GetHeight();
+        for (int i = 0; i < size; ++i)
+        {
+            tempVal = nse.GetArray()[i];
 
-			for (y = 0; y < nse.GetHeight(); ++y)
-			{
-				loc.y = y;
-
-				tempVal = nse[loc];
-
-				if (tempVal > ret.Max)
-				{
-					ret.Max = tempVal;
-				}
-				if (tempVal < ret.Min)
-				{
-					ret.Min = tempVal;
-				}
-			}
-		}
+            if (tempVal > ret.Max)
+            {
+                ret.Max = tempVal;
+            }
+            if (tempVal < ret.Min)
+            {
+                ret.Min = tempVal;
+            }
+        }
 
 		return ret;
 	}
@@ -36,20 +29,45 @@ namespace NoiseAnalysis2D
 	{
 		float av = 0.0f;
 
-		int x, y;
-		Vector2i loc;
-		for (x = 0; x < nse.GetWidth(); ++x)
-		{
-			loc.x = x;
-
-			for (y = 0; y < nse.GetHeight(); ++y)
-			{
-				loc.y = y;
-
-				av += nse[loc];
-			}
-		}
+        int size = nse.GetWidth() * nse.GetHeight();
+        for (int i = 0; i < size; ++i)
+            av += nse.GetArray()[i];
 
 		return av / (float)(nse.GetWidth() * nse.GetHeight());
 	}
+}
+namespace NoiseAnalysis3D
+{
+    MinMax GetMinAndMax(Noise3D & nse)
+    {
+        MinMax ret(std::numeric_limits<float>::max(), std::numeric_limits<float>::min());
+
+        Vector3i loc;
+        float tempVal;
+        int size = nse.GetWidth() * nse.GetHeight() * nse.GetDepth();
+        for (int i = 0; i < size; ++i)
+        {
+            tempVal = nse.GetArray()[i];
+            if (tempVal > ret.Max)
+            {
+                ret.Max = tempVal;
+            }
+            if (tempVal < ret.Min)
+            {
+                ret.Min = tempVal;
+            }
+        }
+
+        return ret;
+    }
+    float GetAverage(Noise3D & nse)
+    {
+        float avg = 0.0f;
+
+        int size = nse.GetWidth() * nse.GetHeight() * nse.GetDepth();
+        for (int i = 0; i < size; ++i)
+            avg += nse.GetArray()[i];
+
+        return avg / (float)size;
+    }
 }

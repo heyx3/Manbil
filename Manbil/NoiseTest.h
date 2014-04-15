@@ -1,7 +1,5 @@
 #pragma once
 
-/*
-
 #include "sfmlworld.h"
 #include "SFML/Graphics.hpp"
 
@@ -33,5 +31,3 @@ private:
 	sf::Texture * renderedNoiseTex;
 	sf::Sprite * renderedNoise;
 };
-
-*/

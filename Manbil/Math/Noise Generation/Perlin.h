@@ -1,9 +1,11 @@
 #pragma once
 
 #include "BasicGenerators.h"
+#include "../Fake3DArray.h"
 
-//Perlin noise generator.
-class Perlin : public Generator
+
+//2D Perlin noise generator.
+class Perlin2D : public Generator
 {
 public:
 	
@@ -19,11 +21,35 @@ public:
 
 	int RandSeed;
 	float Scale;
+    Vector3i Offset;
 
-	Perlin(float scale = 1.0f, Smoothness amount = Smoothness::Linear, int seed = 12345) : Scale(scale), SmoothAmount(amount), RandSeed(seed) { }
-	Perlin(const Perlin & cpy) : Scale(cpy.Scale), SmoothAmount(cpy.SmoothAmount), RandSeed(cpy.RandSeed) { }
-
-    Perlin & operator=(const Perlin & cpy) { Scale = cpy.Scale; SmoothAmount = cpy.SmoothAmount; RandSeed = cpy.RandSeed; return *this; }
+	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
+        : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 
 	virtual void Generate(Fake2DArray<float> & outValues) const override;
+};
+
+//3D Perlin noise generator.
+class Perlin3D
+{
+public:
+
+    //The different qualities of interpolation.
+    //Better interpolations mean worse performance.
+    enum Smoothness
+    {
+        Linear,
+        Cubic,
+        Quintic,
+    };
+    Smoothness SmoothAmount;
+
+    int RandSeed;
+    float Scale;
+    Vector3i Offset;
+
+    Perlin3D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345)
+        : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
+
+    void Generate(Fake3DArray<float> & outValues) const;
 };

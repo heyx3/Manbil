@@ -170,6 +170,14 @@ namespace MyVectors
         }
 
 
+        Vector3i LessX(void) const { return Vector3i(x - 1, y, z); }
+        Vector3i LessY(void) const { return Vector3i(x, y - 1, z); }
+        Vector3i LessZ(void) const { return Vector3i(x, y, z - 1); }
+        Vector3i MoreX(void) const { return Vector3i(x + 1, y, z); }
+        Vector3i MoreY(void) const { return Vector3i(x, y + 1, z); }
+        Vector3i MoreZ(void) const { return Vector3i(x, y, z + 1); }
+
+
         Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
 		Vector3i& operator-=(const Vector3i& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
 		Vector3i& operator*=(int f) { x *= f; y *= f; z *= f; return *this; }
