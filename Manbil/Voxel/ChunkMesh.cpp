@@ -5,8 +5,8 @@
 
 
 
-ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, VoxelChunk * chunk)
-: vertices(0), indices(0), manager(mangr), status(ThreadStatus::TS_OFF)
+ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, Vector3i chunkIndex, VoxelChunk * chunk)
+: vertices(0), indices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex)
 {
     RenderObjHandle vbo, ibo;
     RenderDataHandler::CreateVertexBuffer<Vertex>(vbo);

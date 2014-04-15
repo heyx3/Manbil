@@ -1,5 +1,4 @@
 #include "VoxelChunk.h"
-#include "../Math/Shapes/ThreeDShapes.h"
 
 typedef VoxelChunk VC;
 
@@ -108,10 +107,16 @@ void VC::SetVoxels(const Shape & shpe, bool value)
     }, bounds.Min, bounds.Max);
 }
 
-Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
+VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 {
+    VoxelRayHit vrh;
+
+    Vector3f worldRayStart = rayStart;
     rayStart = ToLocalChunkSpace(rayStart);
     maxDist /= VoxelSizeF;
+
+    Box3D bounds = GetBounds();
+
 
     //If the ray isn't even pointing towards the chunk, don't bother raycasting.
     if (IsEmpty() ||
@@ -122,11 +127,8 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
         (rayStart.y >= ChunkSizeF && rayDir.y >= 0.0f) ||
         (rayStart.z >= ChunkSizeF && rayDir.z >= 0.0f))
     {
-        return Vector3i(-1, -1, -1);
+        return vrh;
     }
-
-
-    Box3D bounds = GetBounds();
 
 
     //Find the axis that moves the fastest, and figure out what
@@ -141,7 +143,7 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
     //    from the last ray spot to the current ray spot.
 
     const VoxelChunk * thisVC = this;
-    Vector3i lastRayPos = ToLocalVoxelIndex(rayStart);
+    Vector3i lastRayPos = rayStart.Floored();
     Vector3i currentRayPos;
 
     float distTraveled = 0.0f;
@@ -160,37 +162,36 @@ Vector3i VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
         isZTooFar = ([](float rayPos) -> bool { return rayPos >= ChunkSizeF; });
     else isZTooFar = ([](float rayPos) -> bool { return rayPos < 0.0f; });
 
-    unsigned int iterations = 0;
     while (distTraveled - 0.5f <= maxDist &&
            (!isXTooFar(rayStart.x) || !isYTooFar(rayStart.y) || !isZTooFar(rayStart.z)))
     {
-        if (iterations++ == 10)
-        {
-            //return Vector3i(-1, -1, -1);
-        }
-
-        currentRayPos = ToLocalVoxelIndex(rayStart);
+        currentRayPos = rayStart.Floored();
 
         //Go through every voxel between the previous ray position and the current.
         //If any of them have a solid voxel, return that voxel's index.
-        Vector3i checkPos;
-        if (DoToEveryVoxelPredicate([&checkPos, thisVC](Vector3i loc)
+        if (DoToEveryVoxelPredicate([&vrh, thisVC, worldRayStart, rayDir](Vector3i loc)
         {
             if (thisVC->GetVoxelLocal(loc))
             {
-                checkPos = loc;
-                return true;
+                Shape::RayTraceResult res = Cube(thisVC->GetBounds(loc)).RayHitCheck(worldRayStart, rayDir);
+                if (res.DidHitTarget)
+                {
+                    vrh.VoxelIndex = loc;
+                    vrh.CastResult = res;
+                    return true;
+                }
             }
             return false;
         }, lastRayPos, currentRayPos))
-            return checkPos;
+            break;
 
         lastRayPos = currentRayPos;
         rayStart += moveIncrement;
+        worldRayStart += moveIncrement;
         distTraveled += tIncrement;
     }
 
-    return Vector3i(-1, -1, -1);
+    return vrh;
 }
 
 
@@ -341,37 +342,37 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
     if (beforeMinX == 0) gMinX = noVal;
     else gMinX = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x - ChunkSize, loc.y, loc.z));
+        return other->GetVoxelLocal(Vector3i(loc.x + ChunkSize, loc.y, loc.z));
     };
 
     if (beforeMinY == 0) gMinY = noVal;
     else gMinY = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x, loc.y - ChunkSize, loc.z));
+        return other->GetVoxelLocal(Vector3i(loc.x, loc.y + ChunkSize, loc.z));
     };
 
     if (beforeMinZ == 0) gMinZ = noVal;
     else gMinZ = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z - ChunkSize));
+        return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z + ChunkSize));
     };
 
     if (afterMaxX == 0) gMaxX = noVal;
     else gMaxX = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x + ChunkSize, loc.y, loc.z));
+        return other->GetVoxelLocal(Vector3i(loc.x - ChunkSize, loc.y, loc.z));
     };
 
     if (afterMaxY == 0) gMaxY = noVal;
     else gMaxY = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x, loc.y + ChunkSize, loc.z));
+        return other->GetVoxelLocal(Vector3i(loc.x, loc.y - ChunkSize, loc.z));
     };
 
     if (afterMaxZ == 0) gMaxZ = noVal;
     else gMaxZ = [](Vector3i loc, const VoxelChunk * other)
     {
-        return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z + ChunkSize));
+        return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z - ChunkSize));
     };
 
 

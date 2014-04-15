@@ -37,7 +37,7 @@ private:
             return manager.GetChunk(location);
 
         VoxelChunk * chnk = manager.GetCreateChunk(location);
-        chunkMeshes[location] = new ChunkMesh(manager, chnk);
+        chunkMeshes[location] = new ChunkMesh(manager, location, chnk);
         return manager.GetChunk(location);
     }
     bool DestroyChunk(Vector3i location)
@@ -54,6 +54,9 @@ private:
         return false;
     }
     VertexIndexData GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetVID(); }
+
+    void SetUpVoxels(void);
+
 
     VoxelChunkManager manager;
     std::unordered_map<Vector3i, ChunkMesh*, Vector3i> chunkMeshes;

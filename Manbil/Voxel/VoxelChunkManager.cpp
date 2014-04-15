@@ -1,9 +1,11 @@
 #include "VoxelChunkManager.h"
 
 #include "../Math/Higher Math/GeometricMath.h"
+#include "../Math/Shapes/ThreeDShapes.h"
 
 typedef VoxelChunk VC;
 typedef VoxelChunkManager VCM;
+
 
 VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 {
@@ -22,14 +24,8 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
 
     Vector3f moveIncrement = rayDir * chunkMoveLength;
 
-    int interations = 0;
     while ((GetChunk(oldChunkIndex) != 0 || GetChunk(newChunkIndex) != 0) && maxDist >= 0.0f)
     {
-        if (interations++ > 10)
-        {
-            return RayCastResult(0, chunkCast);
-        }
-
         newChunkIndex = ToChunkIndex(rayStart + moveIncrement);
 
         //Check every chunk that the ray intersected with
@@ -37,26 +33,20 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         RayCastResult castRes;
         if (DoToEveryChunkPredicate([&castRes, rayStart, rayDir, maxDist](Vector3i cIndex, VoxelChunk * cnk)
         {
-            Vector3i tempChunk = cnk->CastRay(rayStart, rayDir, maxDist);
-            if (tempChunk.x != -1)
+            //Only do any testing if the ray actually hit the chunk.
+            if (Cube(cnk->GetBounds()).RayHitCheck(rayStart, rayDir).DidHitTarget)
             {
-                castRes = RayCastResult(cnk, tempChunk);
-                return true;
+                //If any voxels were hit, return the hit.
+                VoxelChunk::VoxelRayHit tempChunk = cnk->CastRay(rayStart, rayDir, maxDist);
+                if (tempChunk.CastResult.DidHitTarget)
+                {
+                    castRes = RayCastResult(cnk, tempChunk);
+                    return true;
+                }
             }
             return false;
         }, oldChunkIndex, newChunkIndex))
             return castRes;
-       // for (tempChunk.z = oldChunkIndex.z; tempChunk.z <= newChunkIndex.z; tempChunk.z++)
-       //     for (tempChunk.y = oldChunkIndex.y; tempChunk.y <= newChunkIndex.y; tempChunk.y++)
-        //        for (tempChunk.x = oldChunkIndex.x; tempChunk.x <= newChunkIndex.x; tempChunk.x++)
-        //        {
-        //            if (tempChunk != newChunkIndex)
-        //            {
-        //                Vector3i chunkCast = rayInside->CastRay(rayStart, rayDir, maxDist);
-        //                if (chunkCast.x != -1)
-        //                    return RayCastResult(rayInside, chunkCast);
-        //            }
-        //        }
 
         rayStart += moveIncrement;
         maxDist -= chunkMoveLength;
@@ -64,39 +54,74 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
     }
 
     return RayCastResult();
+}
 
 
+//Gets whether ANY voxels with the majority of their volume inside the given Shape are solid.
+bool VCM::GetAnyVoxels(const Shape & shpe) const
+{
+    VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
-
-
-    /*
-    Vector3i oldChunkIndex = ToChunkIndex(rayStart),
-             newChunkIndex;
-    Vector3i rayHit;
-    VoxelChunk * rayInside = GetChunk(oldChunkIndex);
-    float movedDist = 0.0f;
-
-    //Find the axis that moves the most, and figure out what
-    //   't' increment is needed to move the ray one chunk length along that axis.
-
-    unsigned int largestRayAxis = GeometricMath::GetLongestAxis(rayDir);
-    float chunkMoveLength = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis,
-                                                                 rayDir[largestRayAxis] + (VC::ChunkSizeF * VC::VoxelSizeF)).t;
-    Vector3f rayMoveIncrement = rayDir * chunkMoveLength;
-
-    while (rayInside != 0 && movedDist <= maxDist)
+    return DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
-        //newChunkIndex = 
+        Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
+        return chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3i localVoxel)
+        {
+            return shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)) &&
+                   chnk->GetVoxelLocal(localVoxel);
+        }, bounds.Min - voxelIndexOffset,
+           bounds.Max - voxelIndexOffset);
+    }, bounds.Min / VC::ChunkSize,
+       bounds.Max / VC::ChunkSize);
+}
+//Gets whether ALL voxels with the majority of their volume inside the given Shape are solid.
+bool VCM::GetAllVoxels(const Shape & shpe) const
+{
+    VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
-        rayHit = rayInside->CastRay(rayStart, rayDir, maxDist);
-        if (rayHit.x != -1) return RayCastResult(rayInside, rayHit);
-        
-        movedDist += chunkMoveLength;
-        rayStart += rayMoveIncrement;
-        
-        //rayInside = GetChunk()
-    }
+    return !DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
+    {
+        Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
+        return !chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3i localVoxel)
+        {
+            return shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)) &&
+                   !chnk->GetVoxelLocal(localVoxel);
+        }, bounds.Min - voxelIndexOffset,
+           bounds.Max - voxelIndexOffset);
+    }, bounds.Min / VC::ChunkSize,
+       bounds.Max / VC::ChunkSize);
+}
+//Toggles all voxels with the majority of their volume inside the given Shape.
+void VCM::ToggleVoxels(const Shape & shpe)
+{
+    VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
-    return RayCastResult();
-    */
+    DoToEveryChunk([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
+    {
+        Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
+        chnk->DoToEveryVoxel([&shpe, chnk](Vector3i localVoxel)
+        {
+            if (shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)))
+                chnk->ToggleVoxelLocal(localVoxel);
+        }, bounds.Min - voxelIndexOffset,
+           bounds.Max - voxelIndexOffset);
+    }, bounds.Min / VC::ChunkSize,
+       bounds.Max / VC::ChunkSize);
+}
+//Sets all voxels with the majority of their volume inside the given Shape.
+void VCM::SetVoxels(const Shape & shpe, bool value)
+{
+    VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
+
+    DoToEveryChunk([&shpe, bounds, value](Vector3i lc, VoxelChunk * chnk)
+    {
+        Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
+        chnk->DoToEveryVoxel([&shpe, chnk, value](Vector3i localVoxel)
+        {
+            if (shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)))
+                chnk->SetVoxelLocal(localVoxel, value);
+        }, bounds.Min - voxelIndexOffset,
+           bounds.Max - voxelIndexOffset);
+    }, bounds.Min / VC::ChunkSize,
+       bounds.Max / VC::ChunkSize);
 }

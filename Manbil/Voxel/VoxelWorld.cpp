@@ -6,7 +6,6 @@
 #include "../ScreenClearer.h"
 #include "../Math/Shapes/ThreeDShapes.h"
 #include "../Input/Input.hpp"
-#include "../Rendering/Materials/Data Nodes/Parameters/TextureSampleNode.h"
 
 
 #include <iostream>
@@ -44,6 +43,26 @@ VoxelWorld::VoxelWorld(void)
 {
 }
 
+void VoxelWorld::SetUpVoxels(void)
+{
+    VoxelChunk * chunk = GetCreateChunk(Vector3i());
+    for (int i = 0; i < VoxelChunk::ChunkSize; ++i)
+        chunk->SetVoxelLocal(Vector3i(i, i, i), true);
+
+    Sphere spher(Vector3f(15.0f, 15.0f, 15.0f), 5.0f);
+    //chunk->SetVoxels(spher, true);
+    Capsule caps(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 15.0f), 3.0f);
+    //chunk->SetVoxels(caps, true);
+    Cube cbe(Box3D(15.0f, 15.0f, 15.0f, Vector3f(15, 15, 15)));
+    //chunk->SetVoxels(cbe, true);
+
+    VoxelChunk * chunk2 = GetCreateChunk(Vector3i(1, 0, 0));
+    Sphere spher2(Vector3f(30.0f, 0.0f, 15.0f), 10.0f);
+    manager.SetVoxels(spher2, true);
+    //chunk2->SetVoxels(spher2, true);
+
+}
+
 void VoxelWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
@@ -55,18 +74,23 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the chunk mesh.
-    VoxelChunk * chunk = GetCreateChunk(Vector3i());
-    chunk->SetVoxelLocal(Vector3i(0, 0, 0), true);
-    Sphere spher(Vector3f(15.0f, 15.0f, 15.0f), 5.0f);
-    chunk->SetVoxels(spher, true);
-    Capsule caps(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 15.0f), 3.0f);
-    chunk->SetVoxels(caps, true);
-    Cube cbe(Box3D(15.0f, 15.0f, 15.0f, Vector3f(15, 15, 15)));
-    chunk->SetVoxels(cbe, true);
 
-    chunkMeshes[Vector3i()]->RebuildMesh(true);
+    SetUpVoxels();
 
-    voxelMesh.SetVertexIndexData(chunkMeshes[Vector3i()]->GetVID());
+    VertexIndexData * vids = new VertexIndexData[chunkMeshes.size()];
+    unsigned int index = 0;
+    for (auto entry = manager.GetAllChunks().begin(); entry != manager.GetAllChunks().end(); ++entry)
+    {
+        assert(chunkMeshes[entry->first] != 0);
+        chunkMeshes[entry->first]->RebuildMesh(true);
+
+        vids[index] = chunkMeshes[entry->first]->GetVID();
+        index += 1;
+    }
+    voxelMesh.SetVertexIndexData(vids, chunkMeshes.size());
+    delete[] vids;
+
+    voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(Vector3f(0.0f, 0.0f, 0.0f));
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName].SetValue(light.AmbientIntensity);
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName].SetValue(light.DiffuseIntensity);
     voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName].SetValue(light.Direction);
@@ -86,7 +110,17 @@ void VoxelWorld::InitializeWorld(void)
 
     //Initialize the material.
     std::unordered_map<RenderingChannels, DataLine> channels;
+    DataLine dist = DataLine(DataNodePtr(new DistanceNode(DataLine(DataNodePtr(new WorldPosNode()), 0),
+                                                          DataLine(DataNodePtr(new ParamNode(3, "u_castPos")), 0))), 0);
+    DataLine distMultiplier = DataLine(DataNodePtr(new ClampNode(DataLine(0.1f), DataLine(1.0f),
+                                                                 DataLine(
+                                                                    DataNodePtr(
+                                                                        new MultiplyNode(DataLine(0.25f),
+                                                                                         DataLine(
+                                                                                            DataNodePtr(
+                                                                                                new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
     channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Diffuse], distMultiplier)), 0);
     //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
     channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
@@ -102,6 +136,7 @@ void VoxelWorld::InitializeWorld(void)
     std::unordered_map<std::string, UniformValueF> & fUnis = voxelMesh.Uniforms.FloatUniforms;
     std::unordered_map<std::string, UniformSamplerValue> & tUnis = voxelMesh.Uniforms.TextureUniforms;
     const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
+    fUnis["u_castPos"].Location = UniformList::FindUniform("u_castPos", unis).Loc;
     fUnis[MaterialConstants::DirectionalLight_AmbientName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_AmbientName, unis).Loc;
     fUnis[MaterialConstants::DirectionalLight_DiffuseName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_DiffuseName, unis).Loc;
     fUnis[MaterialConstants::DirectionalLight_ColorName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_ColorName, unis).Loc;
@@ -112,7 +147,8 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());//HorizontalCrossDeadzone(Interval(0.05f, 0.1f, 0.001f)));
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(15.0f, 15.0f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(2.0f, 2.0f, 20.0f), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)));
+    player.Cam = VoxelCamera(Vector3f(2, 2, 2), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+                             Vector3f(-1, -1, -1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
     player.Cam.Info.Width = vWindowSize.x;
@@ -173,10 +209,18 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
 void VoxelWorld::RenderOpenGL(float elapsed)
 {
+    VoxelChunkManager::RayCastResult cast =
+        manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f);
+    Vector3f pos;
+    if (cast.ChunkRayCastResult.CastResult.DidHitTarget != 0)
+    {
+        pos = cast.ChunkRayCastResult.CastResult.HitPos;
+        std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << "\n";
+    }
+    voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(pos);
+
     renderState.EnableState();
-    if (manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f).Chunk == 0)
-        ScreenClearer(true, true, false, Vector4f(0.0f, 0.1f, 0.0f, 0.0f)).ClearScreen();
-    else ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+    ScreenClearer().ClearScreen();
 
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &voxelMesh);

@@ -5,9 +5,15 @@
 
 
 //Manages a bunch of chunks.
+//There are two different coordinate spaces used:
+//-World Space: regular world space.
+//-World Chunk Space: a scaled version of world space where every unit represents one voxel length.
 class VoxelChunkManager
 {
 public:
+
+    typedef std::unordered_map<Vector3i, VoxelChunk*, Vector3i> VoxelChunkDictionary;
+
 
     //Converts the given world position to a chunk index value (in between actual indices).
     static Vector3f ToChunkIndexF(Vector3f worldPos) { return (worldPos / (VoxelChunk::VoxelSizeF * VoxelChunk::ChunkSizeF)); }
@@ -19,13 +25,17 @@ public:
     {
     public:
         VoxelChunk * Chunk;
-        Vector3i LocalChunkIndex;
-        RayCastResult(VoxelChunk * chunk = 0, Vector3i localChunkIndex = Vector3i(-1, -1, -1)) : Chunk(chunk), LocalChunkIndex(localChunkIndex) { }
+        VoxelChunk::VoxelRayHit ChunkRayCastResult;
+        RayCastResult(VoxelChunk * chunk = 0, VoxelChunk::VoxelRayHit chunkRayCastResult = VoxelChunk::VoxelRayHit())
+            : Chunk(chunk), ChunkRayCastResult(chunkRayCastResult) { }
     };
     //Casts a ray and returns the voxel that was hit.
     //If nothing was hit, returns RayCastResult(0, Vector3i(-1, -1, -1)).
     //The ray cast fails if it runs into a missing chunk.
     RayCastResult CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist = 999999.0f) const;
+
+
+    const VoxelChunkDictionary & GetAllChunks(void) const { return chunks; }
 
 
     //Gets whether a chunk exists for the given chunk index.
@@ -50,7 +60,7 @@ public:
         auto loc = chunks.find(index);
         if (loc == chunks.end())
         {
-            chunks[index] = new VoxelChunk(index);
+            chunks[index] = new VoxelChunk(index * VoxelChunk::ChunkSize * VoxelChunk::VoxelSize);
         }
 
         return chunks[index];
@@ -76,17 +86,15 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Min(start.x, end.x),
-            yStart = BasicMath::Min(start.y, end.y),
-            zStart = BasicMath::Min(start.z, end.z);
-        int xEnd = BasicMath::Max(start.x, end.x),
-            yEnd = BasicMath::Max(start.y, end.y),
-            zEnd = BasicMath::Max(start.z, end.z);
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = start.z; (sign.z > 0 && loc.z <= end.z) || (sign.z < 0 && loc.z >= end.z); loc.z += sign.z)
+            for (loc.y = start.y; (sign.y > 0 && loc.y <= end.y) || (sign.y < 0 && loc.y >= end.y); loc.y += sign.y)
+                for (loc.x = start.x; (sign.x > 0 && loc.x <= end.x) || (sign.x < 0 && loc.x >= end.x); loc.x += sign.x)
                 {
                     VoxelChunk * cnk = GetChunk(loc);
                     if (cnk != 0 && todo(loc, cnk))
@@ -100,17 +108,15 @@ public:
     //Assume the "chunk" parameter in Func is never 0.
     void DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Min(start.x, end.x),
-            yStart = BasicMath::Min(start.y, end.y),
-            zStart = BasicMath::Min(start.z, end.z);
-        int xEnd = BasicMath::Max(start.x, end.x),
-            yEnd = BasicMath::Max(start.y, end.y),
-            zEnd = BasicMath::Max(start.z, end.z);
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = start.z; (sign.z > 0 && loc.z <= end.z) || (sign.z < 0 && loc.z >= end.z); loc.z += sign.z)
+            for (loc.y = start.y; (sign.y > 0 && loc.y <= end.y) || (sign.y < 0 && loc.y >= end.y); loc.y += sign.y)
+                for (loc.x = start.x; (sign.x > 0 && loc.x <= end.x) || (sign.x < 0 && loc.x >= end.x); loc.x += sign.x)
                 {
                     VoxelChunk * cnk = GetChunk(loc);
                     if (cnk != 0) todo(loc, cnk);
@@ -124,17 +130,15 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Min(start.x, end.x),
-            yStart = BasicMath::Min(start.y, end.y),
-            zStart = BasicMath::Min(start.z, end.z);
-        int xEnd = BasicMath::Max(start.x, end.x),
-            yEnd = BasicMath::Max(start.y, end.y),
-            zEnd = BasicMath::Max(start.z, end.z);
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = start.z; (sign.z > 0 && loc.z <= end.z) || (sign.z < 0 && loc.z >= end.z); loc.z += sign.z)
+            for (loc.y = start.y; (sign.y > 0 && loc.y <= end.y) || (sign.y < 0 && loc.y >= end.y); loc.y += sign.y)
+                for (loc.x = start.x; (sign.x > 0 && loc.x <= end.x) || (sign.x < 0 && loc.x >= end.x); loc.x += sign.x)
                 {
                     VoxelChunk * cnk = GetChunk(loc);
                     if (cnk != 0 && todo(loc, cnk))
@@ -148,17 +152,15 @@ public:
     //Assume the "chunk" parameter in Func is never 0.
     bool DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Min(start.x, end.x),
-            yStart = BasicMath::Min(start.y, end.y),
-            zStart = BasicMath::Min(start.z, end.z);
-        int xEnd = BasicMath::Max(start.x, end.x),
-            yEnd = BasicMath::Max(start.y, end.y),
-            zEnd = BasicMath::Max(start.z, end.z);
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = start.z; (sign.z > 0 && loc.z <= end.z) || (sign.z < 0 && loc.z >= end.z); loc.z += sign.z)
+            for (loc.y = start.y; (sign.y > 0 && loc.y <= end.y) || (sign.y < 0 && loc.y >= end.y); loc.y += sign.y)
+                for (loc.x = start.x; (sign.x > 0 && loc.x <= end.x) || (sign.x < 0 && loc.x >= end.x); loc.x += sign.x)
                 {
                     VoxelChunk * cnk = GetChunk(loc);
                     if (cnk != 0) todo(loc, cnk);
@@ -166,11 +168,17 @@ public:
     }
 
 
-    //TODO: Add the same Shape functionality that is in VoxelChunk.
-
+    //Gets whether ANY voxels with the majority of their volume inside the given Shape are solid.
+    bool GetAnyVoxels(const Shape & shpe) const;
+    //Gets whether ALL voxels with the majority of their volume inside the given Shape are solid.
+    bool GetAllVoxels(const Shape & shpe) const;
+    //Toggles all voxels with the majority of their volume inside the given Shape.
+    void ToggleVoxels(const Shape & shpe);
+    //Sets all voxels with the majority of their volume inside the given Shape.
+    void SetVoxels(const Shape & shpe, bool value);
 
 
 private:
 
-    std::unordered_map<Vector3i, VoxelChunk*, Vector3i> chunks;
+    VoxelChunkDictionary chunks;
 };

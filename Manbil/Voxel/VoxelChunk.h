@@ -4,8 +4,8 @@
 #include "../Math/Shapes/Boxes.h"
 #include "../Math/Fake2DArray.h"
 #include "../Math/Fake3DArray.h"
+#include "../Math/Shapes/ThreeDShapes.h"
 
-class Shape;
 
 //Represents a grid of voxels.
 //There are three different coordinate spaces used:
@@ -44,6 +44,7 @@ public:
     VoxelChunk(Vector3i minCorner) : MinCorner(minCorner), nSolidVoxels(0), voxels(ChunkSize, ChunkSize, ChunkSize, false) { }
 
 
+    //TODO: Move all these space conversions into their own class, except maybe the local chunk space ones.
     //Converters between World Space and World Chunk Space.
 
     //Converts world chunk coordinates to world coordinates.
@@ -152,17 +153,22 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
-            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
-            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
-        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
-            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
-            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
+
+        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
+            for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
+                for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
                     if (todo(loc))
                         return true;
         return false;
@@ -172,17 +178,22 @@ public:
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
-            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
-            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
-        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
-            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
-            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
+
+        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
+            for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
+                for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
                     todo(loc);
     }
     template<typename Func>
@@ -192,17 +203,22 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
-            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
-            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
-        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
-            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
-            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
+
+        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
+            for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
+                for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
                     if (todo(loc))
                         return true;
         return false;
@@ -212,26 +228,38 @@ public:
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     bool DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        int xStart = BasicMath::Max(0, BasicMath::Min(start.x, end.x)),
-            yStart = BasicMath::Max(0, BasicMath::Min(start.y, end.y)),
-            zStart = BasicMath::Max(0, BasicMath::Min(start.z, end.z));
-        int xEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.x, end.x)),
-            yEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.y, end.y)),
-            zEnd = BasicMath::Min(ChunkSize - 1, BasicMath::Max(start.z, end.z));
+        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        if (sign.x == 0) sign.x = 1;
+        if (sign.y == 0) sign.y = 1;
+        if (sign.z == 0) sign.z = 1;
+
+        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
-        for (loc.z = zStart; loc.z <= zEnd; ++loc.z)
-            for (loc.y = yStart; loc.y <= yEnd; ++loc.y)
-                for (loc.x = xStart; loc.x <= xEnd; ++loc.x)
+        for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
+            for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
+                for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
                     todo(loc);
     }
 
 
+    struct VoxelRayHit
+    {
+    public:
+        Vector3i VoxelIndex;
+        Shape::RayTraceResult CastResult;
+        VoxelRayHit(void) : VoxelIndex(-1, -1, -1) { }
+    };
+    //Returns the ray cast and the index of the first voxel that is hit by the given ray
+    //    (in Local Chunk space), or Vector3i(-1, -1, -1) if nothing was hit.
+    VoxelRayHit CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist = ChunkSizeF + ChunkSizeF) const;
 
-    //Returns the index of the first voxel that is hit by the given ray (in Local Chunk space),
-    //    or Vector3i(-1, -1, -1) if nothing was hit.
-    Vector3i CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist = ChunkSizeF + ChunkSizeF) const;
-
+    //TODO: Put thsi into "VoxelMesh" class.
     //Builds the world-space triangles/indices for this chunk, given all surrounding chunks.
     //Any of the surrounding chunks passed in may have values of 0 if they don't exist.
     void BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords,
