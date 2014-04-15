@@ -4,6 +4,8 @@
 #include "../Fake3DArray.h"
 
 
+//TODO: Make wrapping around optional.
+
 //2D Perlin noise generator.
 class Perlin2D : public Generator
 {
