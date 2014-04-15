@@ -53,7 +53,7 @@ private:
         return ints;
     }
 
-    std::string GetSampleOutputName(void) const { return samplerName + "_sample" + std::to_string(GetUniqueID()); }
+    std::string GetSampleOutputName(void) const { return samplerName; }
 
     const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
 

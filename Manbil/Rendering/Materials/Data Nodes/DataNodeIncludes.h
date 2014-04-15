@@ -15,7 +15,8 @@
 #include "Math/ReflectNode.h"
 #include "Math/RefractNode.h"
 #include "Math/RotateAroundAxisNode.h"
-#include "Math//RemapNode.h"
+#include "Math/RemapNode.h"
+#include "Math/SubtractNode.h"
 
 #include "Miscellaneous/CombineVectorNode.h"
 #include "Miscellaneous/SwizzleNode.h"

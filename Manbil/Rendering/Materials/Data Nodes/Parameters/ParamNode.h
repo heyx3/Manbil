@@ -26,7 +26,7 @@ public:
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
         assert(outputIndex == 0);
-        return GetName() + std::to_string(GetUniqueID()) + "_" + name;
+        return name;
     }
 
     virtual void WriteMyOutputs(std::string & outCode) const override
