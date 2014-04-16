@@ -2,7 +2,6 @@
 
 #include "Vectors.h"
 
-//TODO: Better cache usage by iterating through z in the outmost loop, then y in the middle loop, then x in the inner.
 
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a three-dimensional array.
@@ -59,13 +58,12 @@ public:
 		}
 	}
 
-    Vector3i Clamp(Vector3i in) const { return Vector3i(BasicMath::Max<int>(0, BasicMath::Min<int>(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max<int>(0, BasicMath::Min<int>(GetHeight() - 1, in.y)),
-                                                        BasicMath::Max<int>(0, BasicMath::Min<int>(GetDepth() - 1, in.z))); }
-    Vector3f Clamp(Vector3f in) const { return Vector3f(BasicMath::Max<float>(0, BasicMath::Min<float>(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max<float>(0, BasicMath::Min<float>(GetHeight() - 1, in.y)),
-                                                        BasicMath::Max<float>(0, BasicMath::Min<float>(GetDepth() - 1, in.z)));
-    }
+    Vector3i Clamp(Vector3i in) const { return Vector3i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
+                                                        BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1),
+                                                        BasicMath::Clamp<int>(in.z, 0, GetDepth() - 1)); }
+    Vector3f Clamp(Vector3f in) const { return Vector3f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth - 1),
+                                                        BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1),
+                                                        BasicMath::Clamp<float>(in.z, 0.0f, GetDepth() - 1)); }
     Vector3i Wrap(Vector3i in) const
     {
         while (in.x < 0) in.x += GetWidth();
@@ -105,46 +103,47 @@ public:
 		}
 	}
 	//Copies the given array into this one. Optionally specifies an offset for the min position of "toCopy".
-	void Fill(const Fake3DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
-	{
+    void Fill(const Fake3DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
+    {
         unsigned int x, y, z;
-		Vector3i loc, offsetLoc;
-        for (loc.x = 0; loc.x < width; ++loc.x)
-		{
-            offsetLoc.x = loc.x + copyOffset.x;
+        Vector3i loc, offsetLoc;
+
+        for (loc.z = 0; loc.z < depth; ++loc.z)
+        {
+            offsetLoc.z = loc.z + copyOffset.z;
 
             for (loc.y = 0; loc.y < height; ++loc.y)
             {
                 offsetLoc.y = loc.y + copyOffset.y;
 
-                for (loc.z = 0; loc.z < depth; ++loc.z)
+                for (loc.x = 0; loc.x < width; ++loc.x)
                 {
-                    offsetLoc.z = loc.z + copyOffset.z;
+                    offsetLoc.x = loc.x + copyOffset.x;
 
                     if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.z < 0 ||
                         offsetLoc.x > width || offsetLoc.y > height || offsetLoc.z > depth)
                         operator[](loc) = defaultValue;
                     else operator[](loc) = toCopy[offsetLoc];
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 	template<typename Func>
 	//Fills every element using the given function.
 	//The function must have signature "void getValue(Vector3i loc, ArrayType * outValue)".
 	void Fill(Func getValue)
 	{
-        unsigned int x, y, z;
-		for (x = 0; x < width; ++x)
-		{
-			for (y = 0; y < height; ++y)
-			{
-                for (z = 0; z < depth; ++z)
+        Vector3i loc;
+        for (loc.z = 0; loc.z < depth; ++loc.z)
+        {
+            for (loc.y = 0; loc.y < height; ++loc.y)
+            {
+                for (loc.x = 0; loc.x < width; ++loc.x)
                 {
-                    getValue(Vector2i(x, y, z), &arrayVals[GetIndex(x, y, z)]);
+                    getValue(loc, &arrayVals[GetIndex(loc.x, loc.y, loc.z)]);
                 }
-			}
-		}
+            }
+        }
 	}
 
 	ArrayType * GetArray(void) const { return arrayVals; }

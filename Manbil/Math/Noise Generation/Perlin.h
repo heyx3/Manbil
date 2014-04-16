@@ -4,8 +4,6 @@
 #include "../Fake3DArray.h"
 
 
-//TODO: Make wrapping around optional.
-
 //2D Perlin noise generator.
 class Perlin2D : public Generator
 {
@@ -23,7 +21,7 @@ public:
 
 	int RandSeed;
 	float Scale;
-    Vector3i Offset;
+    Vector2i Offset;
 
 	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }

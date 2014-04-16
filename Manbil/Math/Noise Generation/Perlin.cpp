@@ -37,12 +37,19 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
         outValues.Fill(0.0f);
         return;
     }
-	Fake2DArray<Vector2f> gradients(gradientWidth, gradientHeight);
+	Fake2DArray<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
 
+    Vector2i offLoc;
+    Vector2i scaledOffset((int)(Offset.x / Scale), (int)(Offset.y / Scale));
     for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
     {
+        offLoc.y = loc.y + scaledOffset.y;
+
         for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
-		{
+        {
+            offLoc.x = loc.x + scaledOffset.x;
+
+            fr.Seed = offLoc.GetHashCode() + RandSeed;
 			gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
 		}
 	}
@@ -71,32 +78,35 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
 	Vector2i tlGrid;
 	float invScale = 1.0f / Scale;
 	float tlDot, trDot, blDot, brDot;
+    Vector2f withinGridOffset(fmodf(Offset.x, Scale), fmodf(Offset.y, Scale));
 
     for (loc.y = 0; loc.y < height; ++loc.y)
     {
-        lerpGrid.y = loc.y * invScale;
+        lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale;
+
         tlGrid.y = (int)lerpGrid.y;
         relGrid.y = lerpGrid.y - tlGrid.y;
 
         for (loc.x = 0; loc.x < width; ++loc.x)
         {
-            lerpGrid.x = loc.x * invScale;
+            lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale;
+
             tlGrid.x = (int)lerpGrid.x;
             relGrid.x = lerpGrid.x - tlGrid.x;
 
             //TODO: This bit caused artifacts in the 3D version. See if this can be removed.
             //The noise value at every grid point is 0.
-            if (relGrid.x == 0.0f && relGrid.y == 0.0f)
+            if (false && relGrid.x == 0.0f && relGrid.y == 0.0f)
             {
                 outValues[loc] = 0.0f;
                 continue;
             }
 
             //Get the dot of each grid corner's gradient and the vector from the coordinate to that grid corner.
-            Vector2f tl = gradients[gradients.Wrap(tlGrid)],
-                     tr = gradients[gradients.Wrap(tlGrid.MoreX())],
-                     bl = gradients[gradients.Wrap(tlGrid.MoreY())],
-                     br = gradients[gradients.Wrap(tlGrid.MoreXY())];
+            Vector2f tl = gradients[gradients.Clamp(tlGrid)],
+                     tr = gradients[gradients.Clamp(tlGrid.MoreX())],
+                     bl = gradients[gradients.Clamp(tlGrid.MoreY())],
+                     br = gradients[gradients.Clamp(tlGrid.MoreXY())];
             Vector2f tTL = relGrid,
                      tTR = relGrid - Vector2f(1.0f, 0.0f),
                      tBL = relGrid - Vector2f(0.0f, 1.0f),
@@ -159,31 +169,28 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
         Vector3f(0, -1, -1),
     };
 
-    Vector3i gradientDims(BasicMath::RoundToInt(dimensions.x / Scale),
-                          BasicMath::RoundToInt(dimensions.y / Scale),
-                          BasicMath::RoundToInt(dimensions.z / Scale));
-    if (gradientDims.x == 0 || gradientDims.y == 0 || gradientDims.z == 0)
-    {
-        outNoise.Fill(0.0f);
-        return;
-    }
+    Vector3i gradientDims(BasicMath::RoundToInt(dimensions.x / Scale) + 2,
+                          BasicMath::RoundToInt(dimensions.y / Scale) + 2,
+                          BasicMath::RoundToInt(dimensions.z / Scale) + 2);
 
     Fake3DArray<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
 
     Vector3i loc, offLoc;
+    Vector3i scaledOffset((int)(Offset.x / Scale), (int)(Offset.y / Scale), (int)(Offset.z / Scale));
     for (loc.z = 0; loc.z < gradients.GetDepth(); ++loc.z)
     {
-        offLoc.z = loc.z + Offset.z;
+        offLoc.z = loc.z + scaledOffset.z;
 
         for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
         {
-            offLoc.y = loc.y + Offset.y;
+            offLoc.y = loc.y + scaledOffset.y;
 
             for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
             {
-                offLoc.x = loc.x + Offset.x;
+                offLoc.x = loc.x + scaledOffset.x;
 
-                gradients[loc] = gradientTable[BasicMath::Abs(FastRand(offLoc.GetHashCode()).GetRandInt()) % numGradients];
+                fr.Seed = offLoc.GetHashCode() + RandSeed;
+                gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
             }
         }
     }
@@ -194,17 +201,17 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
     float(*smoothStepper)(float inF);
     switch (SmoothAmount)
     {
-    case Smoothness::Linear:
-        smoothStepper = [](float inF) { return inF; };
-        break;
-    case Smoothness::Cubic:
-        smoothStepper = &BasicMath::Smooth;
-        break;
-    case Smoothness::Quintic:
-        smoothStepper = &BasicMath::Supersmooth;
-        break;
+        case Smoothness::Linear:
+            smoothStepper = [](float inF) { return inF; };
+            break;
+        case Smoothness::Cubic:
+            smoothStepper = &BasicMath::Smooth;
+            break;
+        case Smoothness::Quintic:
+            smoothStepper = &BasicMath::Supersmooth;
+            break;
 
-    default: assert(false);
+        default: assert(false);
     }
 
 
@@ -213,45 +220,43 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
     float invScale = 1.0f / Scale;
     float minXYZ_dot, minXY_maxZ_dot, minX_maxY_minZ_dot, minX_maxYZ_dot,
           maxX_minYZ_dot, maxX_minY_maxZ_dot, maxXY_minZ_dot, maxXYZ_dot;
+    Vector3f withinGridOffset(fmodf(Offset.x, Scale), fmodf(Offset.y, Scale), fmodf(Offset.z, Scale));
 
     for (loc.z = 0; loc.z < dimensions.z; ++loc.z)
     {
-        offLoc.z = loc.z + Offset.z;
+        lerpGrid.z = ((float)loc.z + withinGridOffset.z) * invScale;
 
-        lerpGrid.z = offLoc.z * invScale;
         minGrid.z = (int)lerpGrid.z;
         relGrid.z = lerpGrid.z - minGrid.z;
         relGridLess.z = relGrid.z - 1.0f;
 
         for (loc.y = 0; loc.y < dimensions.y; ++loc.y)
         {
-            offLoc.y = loc.y + Offset.y;
+            lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale;
 
-            lerpGrid.y = offLoc.y * invScale;
             minGrid.y = (int)lerpGrid.y;
             relGrid.y = lerpGrid.y - minGrid.y;
             relGridLess.y = relGrid.y - 1.0f;
 
             for (loc.x = 0; loc.x < dimensions.x; ++loc.x)
             {
-                offLoc.x = loc.x + Offset.x;
+                lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale;
 
-                lerpGrid.x = offLoc.x * invScale;
                 minGrid.x = (int)lerpGrid.x;
                 relGrid.x = lerpGrid.x - minGrid.x;
                 relGridLess.x = relGrid.x - 1.0f;
 
                 //Get the dot of each grid corner's gradient and the vector from the coordinate to that grid corner.
 
-                minXYZ_dot = gradients[gradients.Wrap(minGrid)].Dot(relGrid);
-                minXY_maxZ_dot = gradients[gradients.Wrap(minGrid.MoreZ())].Dot(Vector3f(relGrid.x, relGrid.y, relGridLess.z));
-                minX_maxY_minZ_dot = gradients[gradients.Wrap(minGrid.MoreY())].Dot(Vector3f(relGrid.x, relGridLess.y, relGrid.z));
-                minX_maxYZ_dot = gradients[gradients.Wrap(minGrid.MoreY().MoreZ())].Dot(Vector3f(relGrid.x, relGridLess.y, relGridLess.z));
+                minXYZ_dot = gradients[gradients.Clamp(minGrid)].Dot(relGrid);
+                minXY_maxZ_dot = gradients[gradients.Clamp(minGrid.MoreZ())].Dot(Vector3f(relGrid.x, relGrid.y, relGridLess.z));
+                minX_maxY_minZ_dot = gradients[gradients.Clamp(minGrid.MoreY())].Dot(Vector3f(relGrid.x, relGridLess.y, relGrid.z));
+                minX_maxYZ_dot = gradients[gradients.Clamp(minGrid.MoreY().MoreZ())].Dot(Vector3f(relGrid.x, relGridLess.y, relGridLess.z));
                 
-                maxX_minYZ_dot = gradients[gradients.Wrap(minGrid.MoreX())].Dot(Vector3f(relGridLess.x, relGrid.y, relGrid.z));
-                maxX_minY_maxZ_dot = gradients[gradients.Wrap(minGrid.MoreX().MoreZ())].Dot(Vector3f(relGridLess.x, relGrid.y, relGridLess.z));
-                maxXY_minZ_dot = gradients[gradients.Wrap(minGrid.MoreX().MoreY())].Dot(Vector3f(relGridLess.x, relGridLess.y, relGrid.z));
-                maxXYZ_dot = gradients[gradients.Wrap(minGrid.MoreX().MoreY().MoreZ())].Dot(relGridLess);
+                maxX_minYZ_dot = gradients[gradients.Clamp(minGrid.MoreX())].Dot(Vector3f(relGridLess.x, relGrid.y, relGrid.z));
+                maxX_minY_maxZ_dot = gradients[gradients.Clamp(minGrid.MoreX().MoreZ())].Dot(Vector3f(relGridLess.x, relGrid.y, relGridLess.z));
+                maxXY_minZ_dot = gradients[gradients.Clamp(minGrid.MoreX().MoreY())].Dot(Vector3f(relGridLess.x, relGridLess.y, relGrid.z));
+                maxXYZ_dot = gradients[gradients.Clamp(minGrid.MoreX().MoreY().MoreZ())].Dot(relGridLess);
 
                 //Interpolate the values one axis at a time.
                 Vector3f smoothed(smoothStepper(relGrid.x), smoothStepper(relGrid.y), smoothStepper(relGrid.z));
@@ -266,6 +271,9 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
             }
         }
     }
+
+
+    return;
 
     //Remap to the range [0, 1].
 

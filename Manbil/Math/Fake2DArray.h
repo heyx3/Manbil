@@ -56,10 +56,8 @@ public:
 		}
 	}
 
-    Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y))); }
-    Vector2f Clamp(Vector2f in) const { return Vector2f(BasicMath::Max(0, BasicMath::Min(GetWidth() - 1, in.x)),
-                                                        BasicMath::Max(0, BasicMath::Min(GetHeight() - 1, in.y))); }
+    Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1), BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1)); }
+    Vector2f Clamp(Vector2f in) const { return Vector2f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth() - 1), BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1)); }
     Vector2i Wrap(Vector2i in) const
     {
         while (in.x < 0) in.x += GetWidth();

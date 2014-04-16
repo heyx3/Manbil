@@ -231,9 +231,13 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	}
     else if (false)
     {
-        #pragma region Regular Perlin
+        #pragma region TwoD Perlin
 
-        Perlin2D perl(64.0f, Perlin2D::Quintic, Vector2i(), fr.Seed);
+        float offset = GetTotalElapsedSeconds() * 25.0f;
+        Vector2i offsetVal((int)offset, (int)offset);
+        std::cout << "Offset: " << offset << "\n";
+
+        Perlin2D perl(64.0f, Perlin2D::Quintic, offsetVal, 6432235);
         perl.Generate(finalNoise);
 
         #pragma endregion
@@ -242,23 +246,36 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
     {
         #pragma region ThreeD Perlin
 
-        Perlin3D perl3(16.0f, Perlin3D::Quintic, Vector3i(), 123456);
-        const int depth = 16;
+        float currentTime = GetTotalElapsedSeconds();
+        Vector3f offset(currentTime, currentTime, currentTime);
+        offset *= 20.0f;
+
+        Perlin3D perl3(32.0f, Perlin3D::Cubic, offset.CastToInt(), 123456);
+        const int depth = 5;
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
-        float currentTime = GetTotalElapsedSeconds();
-        const float timeScale = 6.0f;
-        finalNoise.Fill([&tempNoise, currentTime, timeScale, depth](Vector2i loc, float * outFl)
+
+        finalNoise.Fill([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
         {
+        const float timeScale = 6.0f;
             //Get the Z layer.
             float z = currentTime * timeScale;
             z = std::fmodf(z, (float)(depth - 1));
+            z = 3.0f;
 
             //Interpolate between layers to get the value.
             *outFl = BasicMath::Lerp(tempNoise[Vector3i(loc.x, loc.y, (int)floorf(z))],
                                      tempNoise[Vector3i(loc.x, loc.y, (int)ceilf(z))],
                                      BasicMath::Supersmooth(z - (int)floorf(z)));
         });
+
+        NoiseFilterer filter;
+        MaxFilterRegion mfr;
+        filter.FillRegion = &mfr;
+        filter.Increase_Amount = 0.2f;
+        filter.Increase(&finalNoise);
+        filter.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        filter.UpContrast(&finalNoise);
 
         #pragma endregion
     }
