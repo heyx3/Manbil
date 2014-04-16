@@ -17,15 +17,19 @@ public:
 	{
 		RemapValues_OldVals = Interval::GetZeroToOneInterval();
 		InvertFunc = false;
-		Flatten_FlatValue = 0.0f;
-		Noise_Amount = 1.0f;
-		Noise_Seed = 12345;
-		Increase_Amount = 1.0f;
-		UpContrast_Power = UpContrastPowers::CUBIC;
-
 		FillRegion = 0;
 		NoiseToFilter = 0;
 		FilterFunc = 0;
+
+		Flatten_FlatValue = 0.0f;
+
+		Noise_Amount = 1.0f;
+		Noise_Seed = 12345;
+
+		Increase_Amount = 1.0f;
+
+		UpContrast_Power = UpContrastPowers::CUBIC;
+        UpContrast_Passes = 1;
 	}
 
 
@@ -52,6 +56,8 @@ public:
 		QUINTIC,
 	};
 	UpContrastPowers UpContrast_Power;
+    //The number of times the effect is applied.
+    unsigned int UpContrast_Passes;
 	//Increases the contrast in the noise.
     void UpContrast(Noise2D * nse = 0) const;
 

@@ -20,11 +20,13 @@ public:
 	Smoothness SmoothAmount;
 
 	int RandSeed;
-	float Scale;
+    Vector2f Scale;
     Vector2i Offset;
-
-	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
+    
+	Perlin2D(Vector2f scale = Vector2f(1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
+	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
+        : Scale(scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 
 	virtual void Generate(Fake2DArray<float> & outValues) const override;
 };
@@ -45,10 +47,12 @@ public:
     Smoothness SmoothAmount;
 
     int RandSeed;
-    float Scale;
+    Vector3f Scale;
     Vector3i Offset;
 
     Perlin3D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345)
+        : Scale(scale, scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
+    Perlin3D(Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345)
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 
     void Generate(Fake3DArray<float> & outValues) const;

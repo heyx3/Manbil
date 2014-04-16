@@ -235,9 +235,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         float offset = GetTotalElapsedSeconds() * 25.0f;
         Vector2i offsetVal((int)offset, (int)offset);
-        std::cout << "Offset: " << offset << "\n";
 
-        Perlin2D perl(64.0f, Perlin2D::Quintic, offsetVal, 6432235);
+        Perlin2D perl(Vector2f(64.0f, 12.0f), Perlin2D::Quintic, offsetVal, 6432235);
         perl.Generate(finalNoise);
 
         #pragma endregion
@@ -250,14 +249,15 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Vector3f offset(currentTime, currentTime, currentTime);
         offset *= 20.0f;
 
-        Perlin3D perl3(32.0f, Perlin3D::Cubic, offset.CastToInt(), 123456);
+        Perlin3D perl3(Vector3f(32.0f, 16.0f, 5.0f), Perlin3D::Cubic, offset.CastToInt(), 123456);
         const int depth = 5;
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
 
         finalNoise.Fill([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
         {
-        const float timeScale = 6.0f;
+            const float timeScale = 6.0f;
+
             //Get the Z layer.
             float z = currentTime * timeScale;
             z = std::fmodf(z, (float)(depth - 1));
@@ -272,9 +272,10 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         NoiseFilterer filter;
         MaxFilterRegion mfr;
         filter.FillRegion = &mfr;
-        filter.Increase_Amount = 0.2f;
+        filter.Increase_Amount = 0.35f;
         filter.Increase(&finalNoise);
         filter.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        filter.UpContrast_Passes = 10;
         filter.UpContrast(&finalNoise);
 
         #pragma endregion

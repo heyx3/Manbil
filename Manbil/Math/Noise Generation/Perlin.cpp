@@ -30,8 +30,8 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
 		Vector2f(0.0f, -1.0f),
 	};
 
-	int gradientWidth = BasicMath::RoundToInt(width / Scale),
-		gradientHeight = BasicMath::RoundToInt(height / Scale);
+	int gradientWidth = BasicMath::RoundToInt(width / Scale.x),
+		gradientHeight = BasicMath::RoundToInt(height / Scale.y);
     if (gradientWidth == 0 || gradientHeight == 0)
     {
         outValues.Fill(0.0f);
@@ -40,7 +40,7 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
 	Fake2DArray<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
 
     Vector2i offLoc;
-    Vector2i scaledOffset((int)(Offset.x / Scale), (int)(Offset.y / Scale));
+    Vector2i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y));
     for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
     {
         offLoc.y = loc.y + scaledOffset.y;
@@ -76,20 +76,20 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
 
 	Vector2f lerpGrid, relGrid;
 	Vector2i tlGrid;
-	float invScale = 1.0f / Scale;
+	Vector2f invScale(1.0f / Scale.x, 1.0f / Scale.y);
 	float tlDot, trDot, blDot, brDot;
-    Vector2f withinGridOffset(fmodf(Offset.x, Scale), fmodf(Offset.y, Scale));
+    Vector2f withinGridOffset(fmodf(Offset.x, Scale.x), fmodf(Offset.y, Scale.y));
 
     for (loc.y = 0; loc.y < height; ++loc.y)
     {
-        lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale;
+        lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale.y;
 
         tlGrid.y = (int)lerpGrid.y;
         relGrid.y = lerpGrid.y - tlGrid.y;
 
         for (loc.x = 0; loc.x < width; ++loc.x)
         {
-            lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale;
+            lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale.x;
 
             tlGrid.x = (int)lerpGrid.x;
             relGrid.x = lerpGrid.x - tlGrid.x;
@@ -124,13 +124,6 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
             outValues[loc] = val;
         }
     }
-
-
-	NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(outValues);
-
-    int size = outValues.GetWidth() * outValues.GetHeight();
-    for (int i = 0; i < size; ++i)
-        outValues.GetArray()[i] = BasicMath::Remap(mm.Min, mm.Max, 0.0f, 1.0, outValues.GetArray()[i]);
 }
 
 
@@ -169,14 +162,14 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
         Vector3f(0, -1, -1),
     };
 
-    Vector3i gradientDims(BasicMath::RoundToInt(dimensions.x / Scale) + 2,
-                          BasicMath::RoundToInt(dimensions.y / Scale) + 2,
-                          BasicMath::RoundToInt(dimensions.z / Scale) + 2);
+    Vector3i gradientDims(BasicMath::RoundToInt(dimensions.x / Scale.x) + 2,
+                          BasicMath::RoundToInt(dimensions.y / Scale.y) + 2,
+                          BasicMath::RoundToInt(dimensions.z / Scale.z) + 2);
 
     Fake3DArray<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
 
     Vector3i loc, offLoc;
-    Vector3i scaledOffset((int)(Offset.x / Scale), (int)(Offset.y / Scale), (int)(Offset.z / Scale));
+    Vector3i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y), (int)(Offset.z / Scale.z));
     for (loc.z = 0; loc.z < gradients.GetDepth(); ++loc.z)
     {
         offLoc.z = loc.z + scaledOffset.z;
@@ -217,14 +210,14 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
 
     Vector3f lerpGrid, relGrid, relGridLess;
     Vector3i minGrid;
-    float invScale = 1.0f / Scale;
+    Vector3f invScale(1.0f / Scale.x, 1.0f / Scale.y, 1.0f / Scale.z);
     float minXYZ_dot, minXY_maxZ_dot, minX_maxY_minZ_dot, minX_maxYZ_dot,
           maxX_minYZ_dot, maxX_minY_maxZ_dot, maxXY_minZ_dot, maxXYZ_dot;
-    Vector3f withinGridOffset(fmodf(Offset.x, Scale), fmodf(Offset.y, Scale), fmodf(Offset.z, Scale));
+    Vector3f withinGridOffset(fmodf(Offset.x, Scale.x), fmodf(Offset.y, Scale.y), fmodf(Offset.z, Scale.z));
 
     for (loc.z = 0; loc.z < dimensions.z; ++loc.z)
     {
-        lerpGrid.z = ((float)loc.z + withinGridOffset.z) * invScale;
+        lerpGrid.z = ((float)loc.z + withinGridOffset.z) * invScale.z;
 
         minGrid.z = (int)lerpGrid.z;
         relGrid.z = lerpGrid.z - minGrid.z;
@@ -232,7 +225,7 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
 
         for (loc.y = 0; loc.y < dimensions.y; ++loc.y)
         {
-            lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale;
+            lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale.y;
 
             minGrid.y = (int)lerpGrid.y;
             relGrid.y = lerpGrid.y - minGrid.y;
@@ -240,7 +233,7 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
 
             for (loc.x = 0; loc.x < dimensions.x; ++loc.x)
             {
-                lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale;
+                lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale.x;
 
                 minGrid.x = (int)lerpGrid.x;
                 relGrid.x = lerpGrid.x - minGrid.x;
@@ -271,21 +264,4 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
             }
         }
     }
-
-
-    return;
-
-    //Remap to the range [0, 1].
-
-    NoiseAnalysis3D::MinMax mm = NoiseAnalysis3D::GetMinAndMax(outNoise);
-
-    if (mm.Min == mm.Max)
-    {
-        outNoise.Fill(0.5f);
-        return;
-    }
-
-    int size = outNoise.GetWidth() * outNoise.GetHeight() * outNoise.GetDepth();
-    for (int i = 0; i < size; ++i)
-        outNoise.GetArray()[i] = BasicMath::Remap(mm.Min, mm.Max, 0.0f, 1.0, outNoise.GetArray()[i]);
 }

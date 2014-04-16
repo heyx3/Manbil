@@ -47,24 +47,38 @@ void NF::UpContrast(Noise2D * nse) const
 {
     if (nse != 0) noise = nse;
 
-	//Get the smoothing function to use.
-	float (*smoothStepper)(float inF);
+    //Struct to pass into the lambda.
+    struct UpContrastArgs
+    {
+    public:
+        float(*SmoothStepper)(float inF);
+        unsigned int Iterations;
+    };
+
+    UpContrastArgs args;
+    args.Iterations = UpContrast_Passes;
 	switch (UpContrast_Power)
 	{
 		case UpContrastPowers::CUBIC:
-			smoothStepper = &BasicMath::Smooth;
+			args.SmoothStepper = &BasicMath::Smooth;
 			break;
 		case UpContrastPowers::QUINTIC:
-			smoothStepper = &BasicMath::Supersmooth;
+			args.SmoothStepper = &BasicMath::Supersmooth;
 			break;
 
 		default: assert(false);
 	}
+    
 
-
-	SetAtEveryPoint((void*)smoothStepper, [](void * pDat, Vector2i loc, Noise2D * noise)
+	SetAtEveryPoint((void*)(&args), [](void * pDat, Vector2i loc, Noise2D * noise)
 	{
-		return ((float (*)(float inF))pDat)((*noise)[loc]);
+        UpContrastArgs rgs = *(UpContrastArgs*)pDat;
+        float val = (*noise)[loc];
+
+        for (unsigned int pass = 0; pass < rgs.Iterations; ++pass)
+            val = rgs.SmoothStepper(val);
+
+        return val;
 	});
 }
 
