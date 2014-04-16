@@ -6,6 +6,7 @@
 #include "../ScreenClearer.h"
 #include "../Math/Shapes/ThreeDShapes.h"
 #include "../Input/Input.hpp"
+#include "../Math/NoiseGeneration.hpp"
 
 
 #include <iostream>
@@ -28,7 +29,7 @@ using namespace VWErrors;
 
 
 
-Vector2i vWindowSize(400, 400);
+Vector2i vWindowSize(300, 300);
 const unsigned int INPUT_AddVoxel = 123753,
                    INPUT_Quit = 6666666,
                    INPUT_MouseCap = 1337;
@@ -45,21 +46,44 @@ VoxelWorld::VoxelWorld(void)
 
 void VoxelWorld::SetUpVoxels(void)
 {
-    VoxelChunk * chunk = GetCreateChunk(Vector3i());
-    for (int i = 0; i < VoxelChunk::ChunkSize; ++i)
-        chunk->SetVoxelLocal(Vector3i(i, i, i), true);
+    //Width/height/depth of the world in chunks.
+    const int worldLength = 10;
 
-    Sphere spher(Vector3f(15.0f, 15.0f, 15.0f), 5.0f);
-    //chunk->SetVoxels(spher, true);
-    Capsule caps(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 15.0f), 3.0f);
-    //chunk->SetVoxels(caps, true);
-    Cube cbe(Box3D(15.0f, 15.0f, 15.0f, Vector3f(15, 15, 15)));
-    //chunk->SetVoxels(cbe, true);
+    //Create the chunks.
+    Vector3i loc;
+    for (loc.z = 0; loc.z < worldLength; ++loc.z)
+        for (loc.y = 0; loc.y < worldLength; ++loc.y)
+            for (loc.x = 0; loc.x < worldLength; ++loc.x)
+                GetCreateChunk(loc);
 
-    VoxelChunk * chunk2 = GetCreateChunk(Vector3i(1, 0, 0));
-    Sphere spher2(Vector3f(30.0f, 0.0f, 15.0f), 10.0f);
-    manager.SetVoxels(spher2, true);
-    //chunk2->SetVoxels(spher2, true);
+
+    //Generate 3D noise to be converted to voxels.
+
+    Noise3D noise(VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength);
+    
+    Perlin3D perl(Vector3f(40.0f, 40.0f, 100.0f), Perlin3D::Smoothness::Quintic, Vector3i(), 12654);
+    perl.Generate(noise);
+
+    NoiseFilterer3D nf3;
+    MaxFilterVolume mfv;
+    nf3.FillVolume = &mfv;
+
+    nf3.Increase_Amount = 0.3f;
+    nf3.Increase(&noise);
+
+    nf3.Smooth(&noise);
+    nf3.Smooth(&noise);
+
+
+    //Generate voxels from noise.
+    for (auto location = manager.GetAllChunks().begin(); location != manager.GetAllChunks().end(); ++location)
+    {
+        location->second->DoToEveryVoxel([&noise, &location](Vector3i localIndex)
+        {
+            Vector3i noiseIndex = localIndex + (location->first * VoxelChunk::ChunkSize);
+            location->second->SetVoxelLocal(localIndex, noise[noiseIndex] > 0.5f);
+        });
+    }
 }
 
 void VoxelWorld::InitializeWorld(void)
@@ -119,7 +143,7 @@ void VoxelWorld::InitializeWorld(void)
                                                                                             DataNodePtr(
                                                                                                 new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
     channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Diffuse], distMultiplier)), 0);
+    //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Diffuse], distMultiplier)), 0);
     //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
     channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
@@ -146,7 +170,7 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());//HorizontalCrossDeadzone(Interval(0.05f, 0.1f, 0.001f)));
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(15.0f, 15.0f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(2, 2, 2), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+    player.Cam = VoxelCamera(Vector3f(90, 90, 90), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
                              Vector3f(-1, -1, -1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
@@ -155,7 +179,7 @@ void VoxelWorld::InitializeWorld(void)
     player.Cam.Info.zNear = 0.1f;
     player.Cam.Info.zFar = 1000.0f;
 
-
+    player.MoveSpeed = 15.0f;
     player.CamOffset = Vector3f(0.0f, 0.0f, 0.5f);
     player.Movement = Vector2InputPtr((Vector2Input*)new FourButtonVector2Input(BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::D)),
                                                                                 BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::A)),
@@ -208,15 +232,20 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
 void VoxelWorld::RenderOpenGL(float elapsed)
 {
-    VoxelChunkManager::RayCastResult cast =
-        manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f);
-    Vector3f pos;
-    if (cast.ChunkRayCastResult.CastResult.DidHitTarget != 0)
+    //Ray-casting test.
+    if (false)
     {
-        pos = cast.ChunkRayCastResult.CastResult.HitPos;
-        std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << "\n";
+        VoxelChunkManager::RayCastResult cast =
+            manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f);
+        Vector3f pos;
+        if (cast.ChunkRayCastResult.CastResult.DidHitTarget)
+        {
+            pos = cast.ChunkRayCastResult.CastResult.HitPos;
+            std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << "\n";
+        }
+        voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(pos);
     }
-    voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(pos);
+
 
     renderState.EnableState();
     ScreenClearer().ClearScreen();

@@ -45,9 +45,9 @@ int main()
     //OpenGLTestWorld().RunWorld();
     //TwoDOpenGLTest().RunWorld();
 
-    NoiseTest().RunWorld();
+    //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }
