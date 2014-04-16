@@ -486,7 +486,7 @@ void NF3::SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * p
 
         //Lerp between the old and new value using the strength value.
         dt->Noise->operator[](loc) = BasicMath::Clamp(BasicMath::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
-    }, *nse, Vector2i(nse->GetWidth(), nse->GetHeight()));
+    }, *nse, Vector3i(nse->GetWidth(), nse->GetHeight(), nse->GetDepth()));
 }
 
 #pragma endregion
