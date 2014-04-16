@@ -2,17 +2,19 @@
 
 #include "BasicGenerators.h"
 #include "NoiseFilterRegion.h"
+#include "NoiseFilterVolume.h"
 
-#include <iostream>
 
-//Filters floating-point noise using different algorithms.
+#pragma region TwoD Noise
+
+//Filters 2D floating-point noise using different algorithms.
 //Either a generator can be specified in "NoiseToFilter",
 //     or a Noise2D can be supplied directly to the desired filter function.
-class NoiseFilterer : public Generator
+class NoiseFilterer2D : public Generator
 {
 public:
 
-	NoiseFilterer(void) { InitData(); }
+	NoiseFilterer2D(void) { InitData(); }
 	void InitData(void)
 	{
 		RemapValues_OldVals = Interval::GetZeroToOneInterval();
@@ -36,7 +38,7 @@ public:
 	NoiseFilterRegion * FillRegion;
 	Generator * NoiseToFilter;
 	bool InvertFunc;
-	typedef void (NoiseFilterer::*MemberFunc)(Noise2D * nse) const;
+	typedef void (NoiseFilterer2D::*MemberFunc)(Noise2D * nse) const;
 	MemberFunc FilterFunc;
 
 
@@ -109,3 +111,101 @@ private:
 	
 	mutable Noise2D * noise;
 };
+
+#pragma endregion
+
+
+#pragma region ThreeD Noise
+
+//Filters 3D floating-point noise using different algorithms.
+class NoiseFilterer3D
+{
+public:
+
+    NoiseFilterer3D(void) { InitData(); }
+    void InitData(void)
+    {
+        RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        InvertFunc = false;
+        FillVolume = 0;
+
+        Set_Value = 0.5f;
+
+        Noise_Amount = 1.0f;
+        Noise_Seed = 12345;
+
+        Increase_Amount = 1.0f;
+
+        UpContrast_Power = UpContrastPowers::CUBIC;
+        UpContrast_Passes = 1;
+    }
+
+
+    NoiseFilterVolume * FillVolume;
+    bool InvertFunc;
+    //typedef void (NoiseFilterer3D::*MemberFunc)(Noise3D * nse) const;
+
+
+    Interval RemapValues_OldVals;
+    //Remaps the noise from the given original range to the range 0.0-1.0.
+    void RemapValues(Noise3D * nse = 0) const;
+
+
+    //Reflects the noise's values around the center of the noise range. The strength will always be 1.0 regardless of what is passed in.
+    void ReflectValues(Noise3D * nse = 0) const;
+
+
+    //The higher the power, the more expensive the function.
+    enum UpContrastPowers
+    {
+        CUBIC,
+        QUINTIC,
+    };
+    UpContrastPowers UpContrast_Power;
+    //The number of times the effect is applied.
+    unsigned int UpContrast_Passes;
+    //Increases the contrast in the noise.
+    void UpContrast(Noise3D * nse = 0) const;
+
+
+    //Gets the average of the area and pushes all noise values to that average.
+    void Average(Noise3D * nse = 0) const;
+
+
+    float Set_Value;
+    //Sets the noise to a specific value.
+    void Set(Noise3D * nse = 0) const;
+
+
+    float Min_Value, Max_Value;
+    //Performs the operation "BasicMath::Min(Min_Value, x)" on each noise value.
+    void Min(Noise3D * nse = 0) const;
+    //Performs the operation "BasicMath::Max(Max_Value, x)" on each noise value.
+    void Max(Noise3D * nse = 0) const;
+    //Performs the operation "BasicMath::Clamp(x, Min_Value, Max_Value)" on each noise value.
+    void Clamp(Noise3D * nse = 0) const;
+
+
+    //Smooths an area.
+    void Smooth(Noise3D * nse = 0) const;
+
+
+    float Noise_Amount;
+    int Noise_Seed;
+    //Adds random noise to an area.
+    void Noise(Noise3D * nse = 0) const;
+
+
+    float Increase_Amount;
+    //Increases the value of noise in an area by "Increase_Amount".
+    void Increase(Noise3D * nse = 0) const;
+
+  
+    //Iterates through every spot in the noise and sets it to a value. Note:
+    //   1) The given function should return the new noise value at full strength (1.0f) and not inverted;
+    //   2) The new value at the given noise point will be set to
+    //      lerp([original value], [function value], [function strength]).
+    void SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * pData, Vector3i loc, Noise3D * noise)) const;
+};
+
+#pragma endregion

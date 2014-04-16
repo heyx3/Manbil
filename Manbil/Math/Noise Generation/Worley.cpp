@@ -188,7 +188,7 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	}
 
 	//Remap values to 0-1.
-	NoiseFilterer nf;
+	NoiseFilterer2D nf;
     RectangularFilterRegion mfr(Vector2i(), Vector2i(noise.GetWidth(), noise.GetHeight()));
 	nf.FillRegion = &mfr;
 	nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.001f, true, true);

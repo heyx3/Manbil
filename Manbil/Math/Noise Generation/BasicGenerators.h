@@ -6,6 +6,7 @@ typedef Fake2DArray<float> Noise2D;
 typedef Fake3DArray<float> Noise3D;
 
 //TODO: Fix all generators to optimize cache usage by iterating through y in outer loops and x in inner loops.
+//TODO: Add 3D generator interface.
 
 //******************************************************************************************
 //All noise values in this generation system are assumed to generate values between 0 and 1.

@@ -157,7 +157,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	
 	Noise2D finalNoise(noiseSize, noiseSize);
 
-	NoiseFilterer nf;
+	NoiseFilterer2D nf;
 	MaxFilterRegion mfr;
 	nf.FillRegion = &mfr;
 
@@ -186,8 +186,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         LayeredOctave layers(7, weights, gens);
 
         
-		nf.FilterFunc = &NoiseFilterer::UpContrast;
-        nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+		nf.FilterFunc = &NoiseFilterer2D::UpContrast;
+        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
         nf.NoiseToFilter = &layers;
 		nf.Generate(finalNoise);
 
@@ -216,13 +216,13 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Interpolator interpNoise(&basicNoise, noiseSize, noiseSize, 10.0);
         interpNoise.Generate(finalNoise);
 
-        NoiseFilterer nf;
+        NoiseFilterer2D nf;
         MaxFilterRegion mfr(1.0f, Interval(0.0f, 1.0f, 0.0001f, true, true));
         nf.FillRegion = &mfr;
         //nf.Increase_Amount = -1.0f;
         //nf.Increase(&finalNoise);
 
-        nf.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
         //nf.UpContrast(&finalNoise);
         //nf.UpContrast(&finalNoise);
         //nf.UpContrast(&finalNoise);
@@ -269,12 +269,12 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                                      BasicMath::Supersmooth(z - (int)floorf(z)));
         });
 
-        NoiseFilterer filter;
+        NoiseFilterer2D filter;
         MaxFilterRegion mfr;
         filter.FillRegion = &mfr;
         filter.Increase_Amount = 0.35f;
         filter.Increase(&finalNoise);
-        filter.UpContrast_Power = NoiseFilterer::UpContrastPowers::QUINTIC;
+        filter.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
         filter.UpContrast_Passes = 10;
         filter.UpContrast(&finalNoise);
 

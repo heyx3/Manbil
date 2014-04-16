@@ -290,6 +290,9 @@
     <ClCompile Include="Voxel\VoxelPlayer.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp">
+      <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -703,6 +706,9 @@
     </ClInclude>
     <ClInclude Include="Input\Input Objects\TwoButtonInput.h">
       <Filter>Input\Input Objects\Float Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\NoiseFilterVolume.h">
+      <Filter>Math\Noise Generation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

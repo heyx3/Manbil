@@ -2,6 +2,9 @@
 
 #include "../LowerMath.hpp"
 
+
+//TODO: Fix all the spacial iteration in the cpp file. Use NoiseFilterVolume as a reference.
+
 //Represents a way to select a region of 2D noise to be filtered.
 class NoiseFilterRegion
 {

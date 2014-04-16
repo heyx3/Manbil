@@ -216,12 +216,12 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
     LayeredOctave octaves(4, weights, gens);
 
     //Filter the layered Perlin noise to have less contrast.
-    NoiseFilterer nf;
+    NoiseFilterer2D nf;
     MaxFilterRegion mfr;
     mfr.StrengthLerp = 0.0f;
     nf.FillRegion = &mfr;
     nf.NoiseToFilter = &octaves;
-    nf.FilterFunc = &NoiseFilterer::Average;
+    nf.FilterFunc = &NoiseFilterer2D::Average;
 
     nf.Generate(noise);
 
