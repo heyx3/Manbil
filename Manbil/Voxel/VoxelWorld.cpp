@@ -61,7 +61,7 @@ void VoxelWorld::SetUpVoxels(void)
 
     Noise3D noise(VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength);
     
-    Perlin3D perl(Vector3f(40.0f, 40.0f, 100.0f), Perlin3D::Smoothness::Quintic, Vector3i(), 12654);
+    Perlin3D perl(Vector3f(100.0f, 100.0f, 100.0f), Perlin3D::Smoothness::Quintic, Vector3i(), 12654);
     perl.Generate(noise);
 
     NoiseFilterer3D nf3;
@@ -71,8 +71,9 @@ void VoxelWorld::SetUpVoxels(void)
     nf3.Increase_Amount = 0.3f;
     nf3.Increase(&noise);
 
-    nf3.Smooth(&noise);
-    nf3.Smooth(&noise);
+    //TODO: New array to smooth into.
+    //nf3.Smooth(&noise);
+    //nf3.Smooth(&noise);
 
 
     //Generate voxels from noise.
