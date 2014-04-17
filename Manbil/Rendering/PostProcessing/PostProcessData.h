@@ -255,7 +255,17 @@ private:
 
 
 
-
+//Applies a Gaussian blur to the world render.
+//Until the data node system is improved and made more flexible,
+//   this node has to use some workarounds in the system.
+//First, it says that it has 3 passes, but the first pass doesn't
+//   actually do anything; it's just there because the first real
+//   pass needs to be in its own group.
+//Same situation with the "fourth" pass -- it's just a dummy placeholder.
+//Also, this node does some computation in the vertex shader, so it provides a dummy
+//   position offset output that always outputs vec3(0.0). That way, this node can be an input to
+//   the vertex offset channel, letting it do its vertex shader processing stuff.
+//TODO: Fix the hackiness.
 class GaussianBlurEffect : public PostProcessEffect
 {
 public:
@@ -264,14 +274,26 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override
     {
         assert(index <= 1);
-        return (index == 0 ?
-                (GetName() + std::to_string(GetUniqueID()) + "_blurred") :
-                PostProcessEffect::GetOutputName(index));
+        if (index == 1) return PostProcessEffect::GetOutputName(index);
+
+        switch (CurrentPass)
+        {
+            case 1:
+            case 4:
+                return GetColorInput().GetValue();
+            case 2:
+            case 3:
+                return GetName() + std::to_string(GetUniqueID()) + "_blurred";
+
+            default: assert(false);
+        }
+
+        return "ERROR DANGER DANGER";
     }
 
     //Uses three passes -- the first pass is a dummy pass to make sure the blur has a pass all to itself.
     GaussianBlurEffect(PpePtr prevEffect = PpePtr())
-        : PostProcessEffect(prevEffect, BuildInputs(), 3)
+        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 3)
     {
 
     }
@@ -279,10 +301,8 @@ public:
 
 protected:
 
+    //Used to declare "out" variables for optimized gaussian blur calculations.
+    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
+
     virtual void WriteMyOutputs(std::string & strOut) const override;
-
-
-private:
-
-    static std::vector<DataLine> BuildInputs(void);
 };
