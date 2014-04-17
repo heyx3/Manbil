@@ -42,7 +42,7 @@ public:
 
 protected:
 
-    //TODO: Finish these functions.
+    //TODO: Continue to tweak/improve the water, as well as the water surface distortion node.
 
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
     {

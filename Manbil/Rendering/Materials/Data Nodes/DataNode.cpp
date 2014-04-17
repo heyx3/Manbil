@@ -1,9 +1,18 @@
 #include "DataNode.h"
 
+
 unsigned int DataNode::nextID = 0;
 DataNode::Shaders DataNode::shaderType = DataNode::Shaders::SH_Vertex_Shader;
 
 
+void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
+{
+    assert(outputIndex < outputs.size());
+
+    for (unsigned int input = 0; input < inputs.size(); ++input)
+        if (!inputs[input].IsConstant() && UsesInput(input, outputIndex))
+            inputs[input].GetDataNodeValue()->SetFlags(flags, inputs[input].GetDataNodeLineIndex());
+}
 void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const
 {
     //Exit if this node has already been used.
@@ -64,7 +73,6 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
     writtenNodeIDs.insert(writtenNodeIDs.end(), GetUniqueID());
     WriteMyOutputs(outCode);
 }
-
 
 
 std::vector<DataLine> DataNode::MakeVector(const DataLine & dat)

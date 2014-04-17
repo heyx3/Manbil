@@ -5,6 +5,7 @@
 
 //Some secondary shader input stuff.
 
+//TODO: Use when refactoring shader generator stuff.
 
 //The screen position of the vertex/fragment position.
 class ScreenPosNode : public DataNode

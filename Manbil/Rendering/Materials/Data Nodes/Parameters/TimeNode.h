@@ -19,6 +19,11 @@ public:
 
 protected:
 
+    virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
+    {
+        flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_TIME);
+    }
+
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No outputting needed.

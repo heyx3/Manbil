@@ -21,6 +21,27 @@ public:
 
 protected:
 
+    virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
+    {
+        switch (outputIndex)
+        {
+        case 0:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_CAM_POS);
+            break;
+        case 1:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_CAM_FORWARD);
+            break;
+        case 2:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_CAM_UPWARDS);
+            break;
+        case 3:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_CAM_SIDEWAYS);
+            break;
+
+        default: assert(false);
+        }
+    }
+
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No output writing needed.

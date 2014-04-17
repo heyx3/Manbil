@@ -4,6 +4,9 @@
 #include "../MaterialData.h"
 
 
+//TOOD: Remove all unused vertex shader outputs.
+//TODO: Allow nodes to define custom vertex shader outputs.
+
 class Material;
 
 //Generates GLSL code from DataNode DAGs.
