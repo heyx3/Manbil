@@ -8,7 +8,7 @@
 #include "../Material.h"
 #include "../Mesh.h"
 #include "../Math/Higher Math/Lighting.h"
-
+/*
 
 //A world full of voxels.
 class VoxelWorld : public SFMLOpenGLWorld
@@ -70,3 +70,5 @@ private:
     Mesh voxelMesh;
     unsigned int voxelTex;
 };
+
+*/

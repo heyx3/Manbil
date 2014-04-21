@@ -27,7 +27,7 @@ namespace VWErrors
 }
 using namespace VWErrors;
 
-
+/*
 
 Vector2i vWindowSize(300, 300);
 const unsigned int INPUT_AddVoxel = 123753,
@@ -143,9 +143,9 @@ void VoxelWorld::InitializeWorld(void)
                                                                                          DataLine(
                                                                                             DataNodePtr(
                                                                                                 new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
-    channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Diffuse], distMultiplier)), 0);
-    //channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Color], distMultiplier)), 0);
+    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
     channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
     UniformDictionary dict;
@@ -268,3 +268,5 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         EndWorld();
     }
 }
+
+*/
