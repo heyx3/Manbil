@@ -7,8 +7,6 @@
 #include "../Texture Management/TextureManager.h"
 #include "../../OptionalValue.h"
 
-class Material;
-
 
 //Represents a flowing body of water.
 class Water
@@ -88,13 +86,10 @@ public:
     //Destroys this water, releasing all related rendering memory (Material, index/vertex buffers, etc.)
     ~Water(void);
     
-
-    bool HasError(void) const { return !errorMsg.empty(); }
-    const std::string & GetErrorMessage(void) const { return errorMsg; }
-    void ClearErrorMessage(void) { errorMsg.clear(); }
-
+    //Gets the water mesh without updating its uniforms.
     const Mesh & GetMesh(void) const { return waterMesh; }
-    Mesh & GetMesh(void) { return waterMesh; }
+    //Updates the water mesh's uniforms with the current ripple/flow data and then returns the mesh.
+    Mesh & UpdateGetMesh() { UpdateMeshUniforms(); return waterMesh; }
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
@@ -118,13 +113,11 @@ public:
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
     void Update(float elapsedTime);
-    bool Render(Material * material, const RenderInfo & info);
 
 
 private:
 
-
-    std::string errorMsg;
+    void UpdateMeshUniforms(void);
 
     //Ripple stuff.
     unsigned int currentRippleIndex;

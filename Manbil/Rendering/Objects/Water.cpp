@@ -209,7 +209,6 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 }
 Water::~Water(void)
 {
-    //delete waterMat;
     waterMesh.DeleteVertexIndexBuffers();
 
     if (rippleIDs != 0)
@@ -364,9 +363,9 @@ void Water::Update(float elapsed)
         }
     }
 }
-bool Water::Render(Material * mat, const RenderInfo & info)
+
+void Water::UpdateMeshUniforms(void)
 {
-    //Set water uniforms.
     if (maxRipples > 0)
     {
         waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
@@ -377,16 +376,4 @@ bool Water::Render(Material * mat, const RenderInfo & info)
         waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"].SetData(&f_a_p[0][0]);
         waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"].SetData(tsc);
     }
-
-
-    //Render.
-    std::vector<const Mesh*> meshes;
-    meshes.insert(meshes.end(), &waterMesh);
-    if (!mat->Render(RenderPasses::BaseComponents, info, meshes))
-    {
-        errorMsg = "Error rendering water: ";
-        errorMsg += mat->GetErrorMsg();
-        return false;
-    }
-    else return true;
 }
