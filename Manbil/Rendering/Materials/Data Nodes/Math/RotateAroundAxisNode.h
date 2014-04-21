@@ -5,6 +5,7 @@
 
 //Rotates a vector around an axis.
 //TODO: If the rotation axis and angle is constant, precompute the quaternion when generating the GLSL code.
+//TODO: Put functions into a .cpp file.
 class RotateAroundAxisNode : public DataNode
 {
 public:
@@ -14,9 +15,9 @@ public:
     RotateAroundAxisNode(const DataLine & toRotate, const DataLine & rotateAxis, const DataLine & rotateAmount)
         : DataNode(MakeVector(toRotate, rotateAxis, rotateAmount), MakeVector(3))
     {
-        assert(toRotate.GetDataLineSize() == 3 &&
-               rotateAxis.GetDataLineSize() == 3 &&
-               rotateAmount.GetDataLineSize() == 1);
+        Assert(toRotate.GetDataLineSize() == 3, "Value to rotate is not a vec3!");
+        Assert(rotateAxis.GetDataLineSize() == 3, "Axis to rotate around is not a vec3!");
+        Assert(rotateAmount.GetDataLineSize() == 1, "Amount to rotate by is not a vec3!");
     }
 
 protected:

@@ -15,15 +15,18 @@ MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply)
 {
     unsigned int size = GetOutputs()[0];
     for (unsigned int i = 0; i < toMultiply.size(); ++i)
-        assert(toMultiply[i].GetDataLineSize() == size ||
-               toMultiply[i].GetDataLineSize() == 1);
+    {
+        Assert(toMultiply[i].GetDataLineSize() == size || toMultiply[i].GetDataLineSize() == 1,
+               "Input #" + std::to_string(i) + " is not size 1 or " + std::to_string(size));
+    }
 }
 MultiplyNode::MultiplyNode(DataLine toMultiply1, DataLine toMultiply2)
 : DataNode(MakeVector(toMultiply1, toMultiply2), MakeVector(BasicMath::Max(toMultiply1.GetDataLineSize(), toMultiply2.GetDataLineSize())))
 {
-    assert(toMultiply1.GetDataLineSize() == toMultiply2.GetDataLineSize() ||
-           toMultiply1.GetDataLineSize() == 1 ||
-           toMultiply2.GetDataLineSize() == 1);
+    unsigned int size1 = toMultiply1.GetDataLineSize(),
+                 size2 = toMultiply2.GetDataLineSize();
+    Assert(size1 == size2 || size1 == 1 || size2 == 1,
+           "The first multiply input is size " + std::to_string(size1) + ", and the second input is size " + std::to_string(size2) + "!");
 }
 
 void MultiplyNode::WriteMyOutputs(std::string & outCode) const

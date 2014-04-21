@@ -16,11 +16,16 @@ public:
     {
         unsigned int size = GetOutputs()[0];
 
-        assert((toRemap.GetDataLineSize() == 1 || toRemap.GetDataLineSize() == size) &&
-               (srcMin.GetDataLineSize() == 1 || srcMin.GetDataLineSize() == size) &&
-               (srcMax.GetDataLineSize() == 1 || srcMax.GetDataLineSize() == size) &&
-               (destMin.GetDataLineSize() == 1 || destMin.GetDataLineSize() == size) &&
-               (destMax.GetDataLineSize() == 1 || destMax.GetDataLineSize() == size));
+        Assert(toRemap.GetDataLineSize() == 1 || toRemap.GetDataLineSize() == size,
+               "'toRemap' input value isn't size 1 or " + std::to_string(size) + "!");
+        Assert(srcMin.GetDataLineSize() == 1 || srcMin.GetDataLineSize() == size,
+               "'srcMin' input value isn't size 1 or " + std::to_string(size) + "!");
+        Assert(srcMax.GetDataLineSize() == 1 || srcMax.GetDataLineSize() == size,
+               "'srcMax' input value isn't size 1 or " + std::to_string(size) + "!");
+        Assert(destMin.GetDataLineSize() == 1 || destMin.GetDataLineSize() == size,
+               "'destMin' input value isn't size 1 or " + std::to_string(size) + "!");
+        Assert(destMax.GetDataLineSize() == 1 || destMax.GetDataLineSize() == size,
+               "'destMax' input value isn't size 1 or " + std::to_string(size) + "!");
     }
 
     virtual std::string GetOutputName(unsigned int output) const override { assert(output == 0); return GetName() + std::to_string(GetUniqueID()) + "_remapped"; }

@@ -13,7 +13,8 @@ public:
     CrossNode(const DataLine & firstL, const DataLine & secondL)
         : DataNode(MakeVector(firstL, secondL), MakeVector(3))
     {
-
+        Assert(GetInputs()[0].GetDataLineSize() == 3, "First input isn't a vec3!");
+        Assert(GetInputs()[1].GetDataLineSize() == 3, "Second input isn't a vec3!");
     }
 
 protected:

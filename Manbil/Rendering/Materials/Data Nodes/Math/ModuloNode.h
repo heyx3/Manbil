@@ -13,8 +13,10 @@ public:
     ModuloNode(const DataLine & numerator, const DataLine & divisor)
         : DataNode(MakeVector(numerator, divisor), MakeVector(numerator.GetDataLineSize()))
     {
-        assert(numerator.GetDataLineSize() == divisor.GetDataLineSize() ||
-               divisor.GetDataLineSize() == 1);
+        Assert(numerator.GetDataLineSize() == divisor.GetDataLineSize() ||
+               divisor.GetDataLineSize() == 1,
+               "Divisor must be size 1 or " + std::to_string(numerator.GetDataLineSize()) +
+               ", but it is size " + std::to_string(divisor.GetDataLineSize()) + "!");
     }
 
 

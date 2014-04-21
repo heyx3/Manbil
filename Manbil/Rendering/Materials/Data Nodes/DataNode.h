@@ -8,10 +8,14 @@
 //Represents a basic, atomic operation in a shader.
 //TOOD: Create protected function "bool IsInputUsed(unsigned int inputIndex)" so that unnecessary inputs for the given shader type/PPE pass aren't used.
 //TODO: Get all child nodes that are only used once (using "IsInputUsed()" from above), and for those nodes, directly use the output instead of writing it to a temp variable.
-//TODO: Error message system instead of asserts. Instead of returning bools or whatever, just throw an exception -- we're not concerned here about speed, and this removes the need to recursively check for child nodes returning false -- just put a try/catch block around the outside.
 class DataNode
 {
 public:
+
+    //Thrown when something about this DataNode (or an attempt to input/output this DataNode)
+    //    is found to be invalid.
+    static int EXCEPTION_ASSERT_FAILED;
+
 
     typedef ShaderHandler::Shaders Shaders;
     typedef std::shared_ptr<DataNode> DataNodePtr;
@@ -22,6 +26,10 @@ public:
     DataNode(const std::vector<DataLine> & _inputs, const std::vector<unsigned int> & outputSizes)
         : id(GetNextID()), inputs(_inputs), outputs(outputSizes) { }
     DataNode(const DataNode & cpy); // Intentionally left blank.
+
+    bool HasError(void) const { return !errorMsg.empty(); }
+    std::string GetError(void) const { return errorMsg; }
+
 
     //Marks any applicable info about this data node, given the output index.
     //By default, doesn't set anything and calls "SetFlags" for all inputs.
@@ -62,7 +70,11 @@ public:
 
 
     //Gets the variable name for this node's given output.
-    virtual std::string GetOutputName(unsigned int outputIndex) const { assert(outputIndex < outputs.size()); return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex); }
+    virtual std::string GetOutputName(unsigned int outputIndex) const
+    {
+        Assert(outputIndex < outputs.size(), "");
+        return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex);
+    }
 
 
 protected:
@@ -81,8 +93,22 @@ protected:
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3);
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
 
-
     static Shaders GetShaderType(void) { return shaderType; }
+
+
+    mutable std::string errorMsg;
+
+    //If the given value is false:
+    //1) Sets this DataNode's error message to the given message.
+    //2) Throws EXCEPTION_ASSERT_FAILED.
+    void Assert(bool value, std::string error) const
+    {
+        if (!value)
+        {
+            errorMsg = error;
+            throw EXCEPTION_ASSERT_FAILED;
+        }
+    }
 
     //Gets whether the given input is used when calculating the given output.
     //By default, returns true.

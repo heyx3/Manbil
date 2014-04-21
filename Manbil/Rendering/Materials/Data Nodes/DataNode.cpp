@@ -4,14 +4,30 @@
 unsigned int DataNode::nextID = 0;
 DataNode::Shaders DataNode::shaderType = DataNode::Shaders::SH_Vertex_Shader;
 
+int DataNode::EXCEPTION_ASSERT_FAILED = 1;
+
 
 void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
     assert(outputIndex < outputs.size());
 
     for (unsigned int input = 0; input < inputs.size(); ++input)
+    {
         if (!inputs[input].IsConstant() && UsesInput(input, outputIndex))
-            inputs[input].GetDataNodeValue()->SetFlags(flags, inputs[input].GetDataNodeLineIndex());
+        {
+            try
+            {
+                inputs[input].GetDataNodeValue()->SetFlags(flags, inputs[input].GetDataNodeLineIndex());
+            }
+            catch (int ex)
+            {
+                assert(ex == EXCEPTION_ASSERT_FAILED);
+                errorMsg = "Error with setting flags for input #" + std::to_string(input + 1) + ", " +
+                            inputs[input].GetDataNodeValue()->GetName() + ": " + inputs[input].GetDataNodeValue()->errorMsg;
+                throw EXCEPTION_ASSERT_FAILED;
+            }
+        }
+    }
 
     SetMyFlags(flags, outputIndex);
 }
@@ -26,8 +42,18 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
     {
         if (!inputs[i].IsConstant())
         {
-            const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-            dataN->GetParameterDeclarations(outUniforms, writtenNodeIDs);
+            try
+            {
+                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
+                dataN->GetParameterDeclarations(outUniforms, writtenNodeIDs);
+            }
+            catch (int ex)
+            {
+                assert(ex == EXCEPTION_ASSERT_FAILED);
+                errorMsg = "Error with declaring uniforms for input #" + std::to_string(i + 1) + ", " +
+                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                throw EXCEPTION_ASSERT_FAILED;
+            }
         }
     }
 
@@ -46,8 +72,18 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
     {
         if (!inputs[i].IsConstant())
         {
-            const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-            dataN->GetFunctionDeclarations(outDecls, writtenNodeIDs);
+            try
+            {
+                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
+                dataN->GetFunctionDeclarations(outDecls, writtenNodeIDs);
+            }
+            catch (int ex)
+            {
+                assert(ex == EXCEPTION_ASSERT_FAILED);
+                errorMsg = "Error with declaring functions for input #" + std::to_string(i + 1) + ", " +
+                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                throw EXCEPTION_ASSERT_FAILED;
+            }
         }
     }
 
@@ -66,8 +102,18 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
     {
         if (!inputs[i].IsConstant())
         {
-            const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
-            dataN->WriteOutputs(outCode, writtenNodeIDs);
+            try
+            {
+                const DataNodePtr & dataN = inputs[i].GetDataNodeValue();
+                dataN->WriteOutputs(outCode, writtenNodeIDs);
+            }
+            catch (int ex)
+            {
+                assert(ex == EXCEPTION_ASSERT_FAILED);
+                errorMsg = "Error with writing outputs for input #" + std::to_string(i + 1) + ", " +
+                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                throw EXCEPTION_ASSERT_FAILED;
+            }
         }
     }
 

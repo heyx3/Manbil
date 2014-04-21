@@ -13,7 +13,8 @@ public:
     ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, bool isNormalNormalized)
         : DataNode(MakeVector(toReflect, reflectNormal), MakeVector(toReflect.GetDataLineSize())), isNormNormalized(isNormalNormalized)
     {
-        assert(toReflect.GetDataLineSize() == reflectNormal.GetDataLineSize());
+        Assert(toReflect.GetDataLineSize() == reflectNormal.GetDataLineSize(),
+               "'toReflect' isn't the same size as 'reflectNormal'!");
     }
 
 

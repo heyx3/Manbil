@@ -14,8 +14,9 @@ public:
         : DataNode(MakeVector(toRefract, refractNormal, indexOfRefraction), MakeVector(toRefract.GetDataLineSize())),
                    isNormNormalized(isNormalNormalized)
     {
-        assert(toRefract.GetDataLineSize() == refractNormal.GetDataLineSize() &&
-               indexOfRefraction.GetDataLineSize() == 1);
+        Assert(toRefract.GetDataLineSize() == refractNormal.GetDataLineSize(),
+               "'toRefract' doesn't have the same size as 'refractNormal'!");
+        Assert(indexOfRefraction.GetDataLineSize() == 1, "'indexOfRefraction' isn't a float!");
     }
 
 
