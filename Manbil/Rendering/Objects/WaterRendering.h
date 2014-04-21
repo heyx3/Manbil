@@ -41,6 +41,22 @@ public:
 
 protected:
 
+    virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
+    {
+        switch (GetShaderType())
+        {
+            case Shaders::SH_Vertex_Shader:
+                return (inputIndex == 0);
+
+            case Shaders::SH_Fragment_Shader:
+                return (inputIndex == 1);
+
+            default:
+                assert(false);
+                return DataNode::UsesInput(inputIndex, outputIndex);
+        }
+    }
+
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override;
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
     virtual void WriteMyOutputs(std::string & outCode) const override;

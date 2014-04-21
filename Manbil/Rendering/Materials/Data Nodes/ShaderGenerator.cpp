@@ -43,7 +43,7 @@ unsigned int SG::GetChannelInputSize(RC channel)
             return 1;
 
         default:
-            assert(false);
+            assert(IsChannelVertexOutput(channel, true));
             return 0;
     }
 }
@@ -121,8 +121,10 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
     {
         //Make sure each channel has a valid input size. Vertex outputs can be any size.
-        assert(IsChannelVertexOutput(iterator->first, false) ||
-               GetChannelInputSize(iterator->first) == iterator->second.GetDataLineSize());
+        bool isChanVertOut = IsChannelVertexOutput(iterator->first, false);
+        unsigned int channelSize = GetChannelInputSize(iterator->first),
+                     inputSize = iterator->second.GetDataLineSize();
+        assert(isChanVertOut || channelSize == inputSize);
     }
 
     //Get information about what each shader uses.
@@ -134,9 +136,11 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
         switch (GetShaderType(iterator->first))
         {
             case DataNode::Shaders::SH_Vertex_Shader:
+                DataNode::SetShaderType(Shaders::SH_Vertex_Shader);
                 iterator->second.GetDataNodeValue()->SetFlags(vertFlags, iterator->second.GetDataNodeLineIndex());
                 break;
             case DataNode::Shaders::SH_Fragment_Shader:
+                DataNode::SetShaderType(Shaders::SH_Fragment_Shader);
                 iterator->second.GetDataNodeValue()->SetFlags(fragFlags, iterator->second.GetDataNodeLineIndex());
                 break;
 

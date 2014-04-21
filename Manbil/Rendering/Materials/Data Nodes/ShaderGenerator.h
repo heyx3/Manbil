@@ -14,7 +14,7 @@ public:
     static DataNode::Shaders GetShaderType(RenderingChannels channel);
 
     //Gets the size of the data line input into the given rendering channel.
-    //Assumes the given channel isn't a vertex output.
+    //Returns 0 is the given channel is a vertex output.
     static unsigned int GetChannelInputSize(RenderingChannels channel);
     //Gets all channels used in the given rendering mode/settings.
     static void GetUsedChannels(RenderingModes mode, std::vector<RenderingChannels> & outChannels);

@@ -1,5 +1,6 @@
 #include "OpenGLTestWorld.h"
 
+
 #include <iostream>
 
 #include "Material.h"
@@ -98,7 +99,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                           DataLine(VectorF(-1.5f, 0.0f))));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
-    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, 0), DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
+    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
+                                                               DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
 
     DNP light(new LightingNode(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_4, 3)), 0),
                                DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0),
@@ -109,7 +111,19 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
                                                            DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
-    channels[RC::RC_ScreenVertexPosition] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))), 0);
+    channels[RC::RC_ScreenVertexPosition] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
+                                                     ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+
+
+    UniformDictionary unDict;
+    waterMat = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    if (waterMat->HasError())
+    {
+        std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 
 
     #pragma endregion
@@ -144,26 +158,10 @@ void OpenGLTestWorld::InitializeObjects(void)
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(maxRipples)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)),
-                      OptionalValue<Water::SeedmapWaterCreationArgs>());
-    if (water->HasError())
-    {
-        std::cout << "Error creating water: " << water->GetErrorMessage() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
+                      OptionalValue<Water::SeedmapWaterCreationArgs>());\
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
-    UniformDictionary unDict;
-    waterMat = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
-    if (waterMat->HasError())
-    {
-        std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    water->GetMesh().Uniforms.TextureUniforms[texSamplerName] =
+    water->UpdateGetMesh().Uniforms.TextureUniforms[texSamplerName] =
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
@@ -263,9 +261,11 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     manager[worldRenderID]->EnableDrawingInto();
     ScreenClearer().ClearScreen();
 
-    if (!water->Render(waterMat, info))
+    std::vector<const Mesh*> waterMesh;
+    waterMesh.insert(waterMesh.end(), &water->UpdateGetMesh());
+    if (!waterMat->Render(RenderPasses::BaseComponents, info, waterMesh))
     {
-        std::cout << "Error rendering world geometry: " << water->GetErrorMessage() << ".\n";
+        std::cout << "Error rendering water: " << waterMat->GetErrorMsg() << ".\n";
         Pause();
         EndWorld();
         return;
