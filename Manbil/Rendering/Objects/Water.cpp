@@ -6,9 +6,7 @@
 #include "../../TextureSettings.h"
 #include "../Texture Management/TextureConverters.h"
 #include "../../Math/NoiseGeneration.hpp"
-
-#include "../Materials/Data Nodes/DataNodeIncludes.h"
-#include "../Materials/Data Nodes/ShaderGenerator.h"
+#include "../../Material.h"
 
 
 

@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics/Texture.hpp>
 #include<unordered_map>
-#include <assert.h>
 #include "../../OpenGLIncludes.h"
 #include "ManbilTexture.h"
 

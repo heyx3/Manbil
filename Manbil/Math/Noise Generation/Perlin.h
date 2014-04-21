@@ -23,7 +23,7 @@ public:
     Vector2f Scale;
     Vector2i Offset;
     
-	Perlin2D(Vector2f scale = Vector2f(1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
+	Perlin2D(Vector2f scale, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
         : Scale(scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }

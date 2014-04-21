@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../DataNode.h"
 #include "ShaderInNodes.h"
 
 

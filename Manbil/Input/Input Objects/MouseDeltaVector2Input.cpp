@@ -3,10 +3,6 @@
 
 Vector2f MouseDeltaVector2Input::GetRawInput(float elapsedFrameTime, float elapsedTotalTime)
 {
-	//Update timing.
-	float deltaTime = elapsedTotalTime - prevTotalTime;
-	prevTotalTime = elapsedTotalTime;
-
 	//Calculate delta.
 	sf::Vector2i posI = sf::Mouse::getPosition();
 	Vector2f delta = Vector2f(posI.x - prevPos.x, posI.y - prevPos.y);

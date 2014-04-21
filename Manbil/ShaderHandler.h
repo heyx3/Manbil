@@ -22,14 +22,10 @@ public:
 	typedef std::vector<RenderObjHandle> ShaderObjectList;
 
 
-	//The size of the error message string.
-	static const int ERROR_MESSAGE_SIZE = 1024;
-
-
 	//Returns a string representing the most recent error to occur in the use of this class.
-	static const char* const GetErrorMessage(void) { return errorMsg; }
+	static std::string GetErrorMessage(void) { return errorMsg; }
 	//Clears the recorded error from this class.
-	static void ClearErrorMessage(void) { errorMsg[0] = '\0'; }
+	static void ClearErrorMessage(void) { errorMsg.clear(); }
 
 
 	//Returns whether or not the shader program was created successfully.
@@ -55,6 +51,5 @@ public:
 
 private:
 
-	static char errorMsg[ERROR_MESSAGE_SIZE];
-	static void SetErrorMsg(const char * error) { strncpy(errorMsg, error, ERROR_MESSAGE_SIZE); }
+	static std::string errorMsg;
 };

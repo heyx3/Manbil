@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "ShaderHandler.h"
 
-char RenderDataHandler::errorMsg[ERROR_MESSAGE_SIZE];
+std::string RenderDataHandler::errorMsg = "";
 const int RenderDataHandler::EXCEPTION_ELEMENTS_OUT_OF_RANGE = 1;
 
 bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
@@ -12,7 +12,7 @@ bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const 
 
 	if (!UniformLocIsValid(out_handle))
 	{
-		SetErrorMsg((std::string("Shader does not contain '") + name + "' (or it was optimized out in compilation).").c_str());
+		errorMsg = std::string("Shader does not contain '") + name + "' (or it was optimized out in compilation).";
 		return false;
 	}
 
@@ -21,6 +21,7 @@ bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const 
 
 void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const float * value)
 {
+    //TODO: Remove exception handling; just assert().
 	if (elements < 1 || elements > 4)
 	{
 		throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
@@ -46,6 +47,7 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 }
 void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int floatsPerElement, const float * valuesSplit)
 {
+    //TODO: Remove exception handling; just assert().
     if (floatsPerElement < 1 || floatsPerElement > 4)
     {
         throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
@@ -74,6 +76,7 @@ void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayEleme
 }
 void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const int * value)
 {
+    //TODO: Remove exception handling; just assert().
 	if (elements < 1 || elements > 4)
 	{
 		throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
@@ -99,6 +102,7 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 }
 void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit)
 {
+    //TODO: Remove exception handling; just assert().
     if (intsPerElement < 1 || intsPerElement > 4)
     {
         throw EXCEPTION_ELEMENTS_OUT_OF_RANGE;
@@ -106,23 +110,24 @@ void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayEleme
 
     switch (intsPerElement)
     {
-    case 1:
-        glUniform1iv(loc, arrayElements, valuesSplit);
-        break;
+        case 1:
+            glUniform1iv(loc, arrayElements, valuesSplit);
+            break;
 
-    case 2:
-        glUniform2iv(loc, arrayElements, valuesSplit);
-        break;
+        case 2:
+            glUniform2iv(loc, arrayElements, valuesSplit);
+            break;
 
-    case 3:
-        glUniform3iv(loc, arrayElements, valuesSplit);
-        break;
+        case 3:
+            glUniform3iv(loc, arrayElements, valuesSplit);
+            break;
 
-    case 4:
-        glUniform4iv(loc, arrayElements, valuesSplit);
-        break;
+        case 4:
+            glUniform4iv(loc, arrayElements, valuesSplit);
+            break;
 
-    default: assert(false);
+        default:
+            assert(false);
     }
 }
 void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
@@ -241,6 +246,6 @@ const char * RenderDataHandler::GetFrameBufferStatusMessage(const RenderObjHandl
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: return "Nothing is attached";
 		case GL_FRAMEBUFFER_UNSUPPORTED: return "This combination of texture and depth buffer is not supported on this platform.";
 
-		default: assert(false);
+		default: return "Unknown frame buffer error.";
 	}
 }

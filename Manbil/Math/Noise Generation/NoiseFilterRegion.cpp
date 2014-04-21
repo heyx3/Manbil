@@ -1,5 +1,6 @@
 #include "NoiseFilterRegion.h"
 
+
 void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrength)
 {
     int x, y;

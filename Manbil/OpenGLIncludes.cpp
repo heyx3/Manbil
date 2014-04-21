@@ -37,7 +37,9 @@ GLenum PrimitiveTypeToGLEnum(PrimitiveTypes t)
 		case PrimitiveTypes::Lines:
 			return GL_LINES;
 
-		default: assert(false);
+		default:
+            assert(false);
+            return GL_INVALID_ENUM;
 	}
 }
 
@@ -50,6 +52,8 @@ GLenum TextureTypeToGLEnum(TextureTypes t)
 		case TextureTypes::Tex_ThreeD: return GL_TEXTURE_3D;
 		case TextureTypes::Tex_Cube: return GL_TEXTURE_CUBE_MAP;
 
-		default: assert(false);
+		default:
+            assert(false);
+            return GL_INVALID_ENUM;
 	}
 }

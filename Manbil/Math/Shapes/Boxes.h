@@ -1,8 +1,7 @@
 #pragma once
 
-#include <math.h>
-#include "../Vectors.h"
 #include "../Interval.h"
+
 
 //Represents a rectangle shape useful for 2D collision.
 class Box2D

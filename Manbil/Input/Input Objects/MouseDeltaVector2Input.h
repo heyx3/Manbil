@@ -22,7 +22,7 @@ public:
 
     MouseDeltaVector2Input(Vector2f speedScale, DeadzonePtr deadzone,
 						   sf::Vector2i mouseResetPos = sf::Vector2i(-1, -1), Vector2f initialPos = Vector2f())
-		: Vector2Input(deadzone, initialPos), SpeedScale(speedScale), MouseResetPos(mouseResetPos), prevPos(mouseResetPos), prevTotalTime(-1.0f),
+		: Vector2Input(deadzone, initialPos), SpeedScale(speedScale), MouseResetPos(mouseResetPos), prevPos(mouseResetPos),
           UseHorizontal(true), UseVertical(true)
 	{
 
@@ -34,6 +34,5 @@ protected:
 
 private:
 
-	float prevTotalTime;
 	sf::Vector2i prevPos;
 };

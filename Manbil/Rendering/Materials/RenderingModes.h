@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 //Different kinds of materials.
 enum RenderingModes
 {

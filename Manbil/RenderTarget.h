@@ -1,9 +1,9 @@
 #pragma once
 
-
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
 #include <string>
+
 
 //Allows drawing into a texture.
 class RenderTarget

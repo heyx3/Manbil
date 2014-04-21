@@ -39,7 +39,7 @@ namespace MyVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector2i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector2i & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
 		int x;
@@ -132,7 +132,7 @@ namespace MyVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector3i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector3i & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         int x, y, z;
@@ -231,7 +231,7 @@ namespace MyVectors
         
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector4i & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector4i & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         int x;
@@ -339,7 +339,7 @@ namespace MyVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector2f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector2f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;
@@ -449,7 +449,7 @@ namespace MyVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector3f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector3f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;
@@ -567,7 +567,7 @@ namespace MyVectors
 		
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector4f & v) const { int i = GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector4f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;

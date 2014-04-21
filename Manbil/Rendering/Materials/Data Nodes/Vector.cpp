@@ -7,12 +7,13 @@ std::string VectorF::GetGLSLType(void) const
 {
     switch (size)
     {
-        case 0: return "invalid_type_name";
         case 1: return "float";
         case 2: return "vec2";
         case 3: return "vec3";
         case 4: return "vec4";
-        default: assert(false);
+        default:
+            assert(false);
+            return "invalid_type_name";
     }
 }
 
@@ -58,12 +59,13 @@ std::string VectorI::GetGLSLType(void) const
 {
     switch (size)
     {
-        case 0: return "invalid_type_name";
         case 1: return "int";
         case 2: return "ivec2";
         case 3: return "ivec3";
         case 4: return "ivec4";
-        default: assert(false);
+        default:
+            assert(false);
+            return "invalid_type_name";
     }
 }
 

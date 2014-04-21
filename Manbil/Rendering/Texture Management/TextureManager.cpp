@@ -1,5 +1,7 @@
 #include "TextureManager.h"
 
+#include <assert.h>
+
 
 TextureManager::~TextureManager(void)
 {

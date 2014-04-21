@@ -13,6 +13,8 @@ std::string ProjectionDataNode::GetOutputName(unsigned int index) const
         case 3: return MaterialConstants::CameraZFarName;
         case 4: return MaterialConstants::CameraFovName;
 
-        default: assert(false);
+        default:
+            assert(false);
+            return "INVALID_PROJECTION_DATA_NAME";
     }
 }

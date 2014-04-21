@@ -2,25 +2,18 @@
 
 #include "WaterRendering.h"
 
-#include "../Rendering.hpp"
+#include "../../Mesh.h"
 #include "../../Math/HigherMath.hpp"
 #include "../Texture Management/TextureManager.h"
 #include "../../OptionalValue.h"
 
-#include "../Materials/Data Nodes/Miscellaneous/VectorComponentsNode.h"
-#include "../Materials/Data Nodes/Math/RemapNode.h"
-#include "../Materials/Data Nodes/Parameters/ShaderInNodes.h"
-#include "../Materials/Data Nodes/Parameters/TimeNode.h"
-#include "../Materials/Data Nodes/Math/AddNode.h"
-
+class Material;
 
 
 //Represents a flowing body of water.
 class Water
 {
 public:
-
-    typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
     //Data that only applies to directional water.
     struct DirectionalWaterArgs

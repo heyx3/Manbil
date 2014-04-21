@@ -14,12 +14,10 @@ public:
 	static const UniformLocation INVALID_UNIFORM_LOCATION = 0xFFFFFFFF;
 	static bool UniformLocIsValid(UniformLocation loc) { return loc != INVALID_UNIFORM_LOCATION; }
 	
-	//The size of the error message string.
-	static const int ERROR_MESSAGE_SIZE = 1024;
 	//Returns a string representing the most recent error to occur in the use of this class.
-	static const char* const GetErrorMessage(void) { return errorMsg; }
+	static std::string GetErrorMessage(void) { return errorMsg; }
 	//Removes the current error message.
-	static void ClearErrorMessage(void) { errorMsg[0] = '\0'; }
+	static void ClearErrorMessage(void) { errorMsg.clear(); }
 
 	//Gets the location of a uniform variable in the given shader program. Returns whether or not it was successful.
 	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle);
@@ -203,8 +201,7 @@ private:
 	}
 
 
-	static char errorMsg[ERROR_MESSAGE_SIZE];
-	static void SetErrorMsg(const char * error) { strncpy(errorMsg, error, ERROR_MESSAGE_SIZE); }
+	static std::string errorMsg;
 
 	RenderDataHandler(void) { }
 	~RenderDataHandler(void) { }

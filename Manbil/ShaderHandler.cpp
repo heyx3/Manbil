@@ -4,7 +4,7 @@
 #include <assert.h>
 
 
-char ShaderHandler::errorMsg[ERROR_MESSAGE_SIZE];
+std::string ShaderHandler::errorMsg = "";
 
 
 bool ShaderHandler::CreateShaderProgram(RenderObjHandle & out_handle)
@@ -13,7 +13,7 @@ bool ShaderHandler::CreateShaderProgram(RenderObjHandle & out_handle)
 
 	if (out_handle == 0)
 	{
-		SetErrorMsg("Couldn't create shader program.");
+		errorMsg = "Couldn't create shader program.";
 		return false;
 	}
 
@@ -35,7 +35,7 @@ bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle&
 
 	if (out_handle == 0)
 	{
-		SetErrorMsg("Couldn't create shader type.");
+        errorMsg = "Couldn't create shader type.";
 		return false;
 	}
 
@@ -51,9 +51,9 @@ bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle&
 	glGetShaderiv(out_handle, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		Char infoLog[ERROR_MESSAGE_SIZE];
+		Char infoLog[1024];
 		glGetShaderInfoLog(out_handle, sizeof(infoLog), NULL, infoLog);
-		SetErrorMsg(infoLog);
+        errorMsg = infoLog;
 		return false;
 	}
 
@@ -65,14 +65,14 @@ bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle&
 bool ShaderHandler::FinalizeShaders(RenderObjHandle shaderProgram, bool validate)
 {
 	UniformLocation success;
-	char error[ERROR_MESSAGE_SIZE];
+	char error[1024];
 
 	glLinkProgram(shaderProgram);
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (success == 0)
 	{
 		glGetProgramInfoLog(shaderProgram, sizeof(error), NULL, error);
-		SetErrorMsg(error);
+		errorMsg = error;
 		return false;
 	}
 
@@ -83,7 +83,7 @@ bool ShaderHandler::FinalizeShaders(RenderObjHandle shaderProgram, bool validate
 		if (!success)
 		{
 			glGetProgramInfoLog(shaderProgram, sizeof(error), NULL, error);
-			SetErrorMsg(error);
+			errorMsg = error;
 			return false;
 		}
 	}

@@ -44,6 +44,7 @@ unsigned int SG::GetChannelInputSize(RC channel)
 
         default:
             assert(false);
+            return 0;
     }
 }
 

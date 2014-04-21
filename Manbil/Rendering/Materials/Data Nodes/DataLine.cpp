@@ -17,7 +17,7 @@ std::string DataLine::GetValue(void) const
         if (constantValue.GetSize() > 1)
             ret += constantValue.GetGLSLType() + "(";
 
-        for (int i = 0; i < constantValue.GetSize(); ++i)
+        for (unsigned int i = 0; i < constantValue.GetSize(); ++i)
         {
             if (i > 0) ret += ", ";
             ret += std::to_string(constantValue.GetValue()[i]);

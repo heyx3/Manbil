@@ -12,6 +12,8 @@ std::string CameraDataNode::GetOutputName(unsigned int index) const
         case 2: return MaterialConstants::CameraUpName;
         case 3: return MaterialConstants::CameraSideName;
 
-        default: assert(false);
+        default:
+            assert(false);
+            return "UNKNOWN_CAMERA_DAT_NAME";
     }
 }

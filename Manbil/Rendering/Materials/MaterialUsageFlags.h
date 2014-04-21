@@ -51,7 +51,7 @@ public:
     }
     void DisableFlag(Flags flag) { value &= ~((unsigned short)flag); }
 
-    void EnableAllFlags(void) { value = 0xffffffff; }
+    void EnableAllFlags(void) { value = 0xffff; }
     void ClearAllFlags(void) { value = 0; }
 
 

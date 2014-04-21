@@ -1,6 +1,5 @@
 #include "NoiseFilterer.h"
 
-#include <math.h>
 #include <assert.h>
 
 
@@ -9,7 +8,7 @@
 typedef NoiseFilterer2D NF2;
 
 const float sqrt2 = sqrt(2.0f),
-	sqrt2Inv = 1.0f / sqrt2;
+	        sqrt2Inv = 1.0f / sqrt2;
 
 void NF2::ReflectValues(Noise2D * nse) const
 {
