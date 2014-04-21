@@ -1,6 +1,5 @@
 #include "TwoDOpenGLTest.h"
 
-
 #include "../ScreenClearer.h"
 #include "../TextureSettings.h"
 #include "../Input/Input Objects/KeyboardBoolInput.h"

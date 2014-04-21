@@ -1,11 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <assert.h>
-#include <memory>
-#include "../../../Math/Vectors.h"
 #include "DataLine.h"
-#include "../../../ShaderHandler.h"
 #include "../UniformCollections.h"
 #include "../MaterialUsageFlags.h"
 
