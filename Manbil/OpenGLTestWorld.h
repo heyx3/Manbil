@@ -43,7 +43,6 @@ private:
     Water::RenderChannels channels;
 
 	MovingCamera cam;
-	DirectionalLight dirLight;
     RenderTargetManager manager;
 
     PostProcessChain * ppc;

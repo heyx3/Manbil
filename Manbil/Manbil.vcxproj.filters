@@ -212,12 +212,6 @@
     <ClCompile Include="Rendering\Materials\MaterialData.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\LogNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
@@ -292,6 +286,15 @@
     </ClCompile>
     <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp">
       <Filter>Math\Noise Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Objects\WaterRendering.cpp">
+      <Filter>Rendering\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -589,9 +592,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\MoreShaderInNodes.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
@@ -709,6 +709,21 @@
     </ClInclude>
     <ClInclude Include="Math\Noise Generation\NoiseFilterVolume.h">
       <Filter>Math\Noise Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\MaterialUsageFlags.h">
+      <Filter>Rendering\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexOutputNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Objects\WaterRendering.h">
+      <Filter>Rendering\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

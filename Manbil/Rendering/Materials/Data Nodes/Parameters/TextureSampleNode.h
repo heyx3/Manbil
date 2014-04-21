@@ -11,19 +11,17 @@ class TextureSampleNode : public DataNode
 {
 public:
 
-    static DataNodePtr CreateComplexTexture(std::string samplerName = "",
+    static DataNodePtr CreateComplexTexture(const DataLine & uvs, std::string samplerName = "",
                                             DataLine scale = DataLine(VectorF(Vector2f(1.0f, 1.0f))),
                                             DataLine pan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                                            DataLine offset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                                            DataLine uvs = DataLine(DataNodePtr(new UVNode()), 0));
+                                            DataLine offset = DataLine(VectorF(Vector2f(0.0f, 0.0f))));
 
 
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
     std::string GetSamplerUniformName(void) const { return samplerName; }
 
 
-    TextureSampleNode(std::string _samplerName = "",
-                      DataLine UVs = DataLine(DataNodePtr(new UVNode()), 0));
+    TextureSampleNode(const DataLine & UVs, std::string _samplerName = "");
 
     virtual std::string GetOutputName(unsigned int index) const override;
 

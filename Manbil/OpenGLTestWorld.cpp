@@ -41,10 +41,11 @@ namespace OGLTestPrints
 using namespace OGLTestPrints;
 
 
-
 Vector2i windowSize(250, 250);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
+const unsigned int maxRipples = 3,
+                   maxFlows = 2;
 
 
 void OpenGLTestWorld::InitializeTextures(void)
@@ -73,23 +74,55 @@ void OpenGLTestWorld::InitializeMaterials(void)
     typedef DataNodePtr DNP;
     typedef RenderingChannels RC;
 
-    DataNodePtr normalMap(TextureSampleNode::CreateComplexTexture("u_normalMapTex",
-                                                                  DataLine(VectorF(10.0f, 10.0f)),
-                                                                  DataLine(VectorF(-1.5f, 0.0f)),
-                                                                  DataLine(DataNodePtr(new WaterSurfaceDistortNode()), 0)));
+
+    #pragma region Water
+
+
+    //Vertex output 1: object-space position.
+    //Vertex output 2: UV coords.
+    //Vertex output 3: color.
+    //Vertex output 4: world-space position.
+
+    DNP waterNode(new WaterNode(RenderingChannels::RC_VERTEX_OUT_1, 3, 2));
+    channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
+    channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new UVNode()), 0);
+    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectColorNode()), 0);
+    channels[RC::RC_VERTEX_OUT_4] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_1])), 0);
+
+    DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
+                                                           DataLine(0.01f), DataLine(0.5f),
+                                                           WaterSurfaceDistortNode::GetTimeIn(RC::RC_VERTEX_OUT_3)));
+    DNP normalMap(TextureSampleNode::CreateComplexTexture(DataLine(waterSurfaceDistortion, 0),
+                                                          "u_normalMapTex",
+                                                          DataLine(VectorF(10.0f, 10.0f)),
+                                                          DataLine(VectorF(-1.5f, 0.0f))));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
-    channels[RC::RC_Diffuse] = DataLine(VectorF(Vector3f(0.275f, 0.275f, 1.0f)));
-    channels[RC::RC_Normal] = DataLine(DataNodePtr(normalMap), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    channels[RC::RC_Specular] = DataLine(VectorF(3.0f));
-    channels[RC::RC_SpecularIntensity] = DataLine(VectorF(256.0f));
+    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, 0), DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
+
+    DNP light(new LightingNode(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_4, 3)), 0),
+                               DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0),
+                               DataLine(Vector3f(-1, -1, -1).Normalized()),
+                               DataLine(0.35f), DataLine(0.65f), DataLine(3.0f), DataLine(256.0f)));
+
+    DNP finalColor(new MultiplyNode(DataLine(light, 0), DataLine(Vector3f(0.275f, 0.275f, 1.0f))));
+
+    channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
+                                                           DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
+    channels[RC::RC_ScreenVertexPosition] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))), 0);
 
 
+    #pragma endregion
+
+
+    //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(VectorF(1.5f)), DataLine(VectorF(Vector3f(1.0f, 1.0f, 1.0f))))));
 
 
-    finalScreenMatChannels[RC::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    //Final render.
+    //TODO: Finish.
+    finalScreenMatChannels[RC::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
     finalScreenMat = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (finalScreenMat->HasError())
@@ -108,8 +141,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     const unsigned int size = 300;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
-                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(3)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(2)),
+                      OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(maxRipples)),
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)),
                       OptionalValue<Water::SeedmapWaterCreationArgs>(),
                       RenderingModes::RM_Opaque, true, LightSettings(false), channels);
     if (water->HasError())
@@ -121,7 +154,6 @@ void OpenGLTestWorld::InitializeObjects(void)
     }
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
-    water->SetLighting(dirLight);
     const Material * waterMat = water->GetMaterial();
     water->GetMesh().Uniforms.TextureUniforms[texSamplerName] =
         UniformSamplerValue(&myTex, texSamplerName,
@@ -145,11 +177,6 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
   water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0)
 {
-	dirLight.Direction = Vector3f(0.1f, 0.1f, -1.0f).Normalized();
-	dirLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
-
-	dirLight.AmbientIntensity = 0.0f;
-	dirLight.DiffuseIntensity = 1.0f;
 }
 void OpenGLTestWorld::InitializeWorld(void)
 {

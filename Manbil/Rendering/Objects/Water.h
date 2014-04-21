@@ -1,5 +1,7 @@
 #pragma once
 
+#include "WaterRendering.h"
+
 #include "../Rendering.hpp"
 #include "../../Math/HigherMath.hpp"
 #include "../Texture Management/TextureManager.h"
@@ -14,7 +16,6 @@
 
 
 //Represents a flowing body of water.
-//TODO: Try optionally using displacement mapping instead of actually moving the vertices, and see if there is a performance difference.
 class Water
 {
 public:
@@ -90,9 +91,7 @@ public:
     Water(unsigned int size, Vector3f pos, Vector3f scale,
           OptionalValue<RippleWaterCreationArgs> rippleArgs,
           OptionalValue<DirectionalWaterCreationArgs> directionArgs,
-          OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,
-          RenderingModes mode, bool useLighting, LightSettings settings,
-          RenderChannels & channels);
+          OptionalValue<SeedmapWaterCreationArgs> seedmapArgs);
     //Destroys this water, releasing all related rendering memory (Material, index/vertex buffers, etc.)
     ~Water(void);
     
@@ -103,10 +102,6 @@ public:
 
     const Mesh & GetMesh(void) const { return waterMesh; }
     Mesh & GetMesh(void) { return waterMesh; }
-
-    const Material * GetMaterial(void) const { return waterMat; }
-    Material * GetMaterial(void) { return waterMat; }
-
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
@@ -129,11 +124,8 @@ public:
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
-    void SetLighting(const DirectionalLight & light);
-
-
     void Update(float elapsedTime);
-    bool Render(const RenderInfo & info);
+    bool Render(Material * material, const RenderInfo & info);
 
 
 private:
@@ -163,60 +155,4 @@ private:
 
 
     Mesh waterMesh;
-    Material * waterMat;
-};
-
-
-
-
-
-
-//A DataNode that outputs an offset for UV coordinates that creates an interesting water surface distortion effect.
-class WaterSurfaceDistortNode : public DataNode
-{
-public:
-
-    //Gets a value for the "seedIn" argument for this node's constructor that works well with the Water object.
-    static DataLine GetWaterSeedIn(void)
-    {
-        return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new ObjectColorNode()), 0))), 2);
-    }
-
-
-    std::string GetShiftAmplitudeUniform(void) const { return "u_shiftAmplitude" + std::to_string(GetUniqueID()); }
-    std::string GetShiftPeriodUniform(void) const { return "u_shiftPeriod" + std::to_string(GetUniqueID()); }
-
-    unsigned int GetUVOffsetOutputIndex(void) const { return 0; }
-
-    virtual std::string GetName(void) const override { return "waterSurfaceDistortNode"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_uvOffset"; }
-
-    //Takes in a seed value. By default, uses an input that will work well for a Water object.
-    //Also takes in the amplitude and period of the random shifting around of the surface.
-    WaterSurfaceDistortNode(DataLine shiftAmplitude = DataLine(VectorF(0.01f)),
-                            DataLine shiftPeriod = DataLine(VectorF(0.5f)),
-                            DataLine seedIn = GetWaterSeedIn(),
-                            DataLine timeValue = DataLine(DataNodePtr(new AddNode(DataLine(DataNodePtr(new TimeNode()), 0),
-                                                                                  DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new ObjectColorNode()), 0))), 3))), 0))
-        : DataNode(MakeVector(seedIn, shiftAmplitude, shiftPeriod, timeValue), MakeVector(2))
-    { 
-        assert(seedIn.GetDataLineSize() == 1 && shiftAmplitude.GetDataLineSize() == 1 && shiftPeriod.GetDataLineSize() == 1);
-    }
-
-
-protected:
-
-    virtual void WriteMyOutputs(std::string & strOut) const override
-    {
-        strOut += "\tvec2 " + GetOutputName(0) + " = vec2(" + GetSeedInput().GetValue() + " * " +
-                                                              GetAmplitudeInput().GetValue() +
-                                                          " * sin(" + GetPeriodInput().GetValue() + " * " +
-                                                                      GetTimeInput().GetValue() + "));\n";
-    }
-
-private:
-    const DataLine & GetSeedInput(void) const { return GetInputs()[0]; }
-    const DataLine & GetAmplitudeInput(void) const { return GetInputs()[1]; }
-    const DataLine & GetPeriodInput(void) const { return GetInputs()[2]; }
-    const DataLine & GetTimeInput(void) const { return GetInputs()[3]; }
 };

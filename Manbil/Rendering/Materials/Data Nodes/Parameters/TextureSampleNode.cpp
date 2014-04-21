@@ -4,7 +4,7 @@
 
 
 
-DataNodePtr TextureSampleNode::CreateComplexTexture(std::string samplerName, DataLine scale, DataLine pan, DataLine offset, DataLine uvs)
+DataNodePtr TextureSampleNode::CreateComplexTexture(const DataLine & uvs, std::string samplerName, DataLine scale, DataLine pan, DataLine offset)
 {
     DataLine scaled = (!scale.IsConstant(Vector2f(1.0f, 1.0f)) ?
                           DataLine(DataNodePtr(new MultiplyNode(uvs, scale)), 0) :
@@ -18,7 +18,7 @@ DataNodePtr TextureSampleNode::CreateComplexTexture(std::string samplerName, Dat
                                                                                                  DataLine(DataNodePtr(new TimeNode()), 0))), 0))), 0) :
                           offsetted);
 
-    return DataNodePtr(new TextureSampleNode(samplerName, panned));
+    return DataNodePtr(new TextureSampleNode(panned, samplerName));
 }
 
 std::string TextureSampleNode::GetOutputName(unsigned int index) const
@@ -53,10 +53,10 @@ unsigned int TextureSampleNode::GetOutputIndex(ChannelsOut channel)
 }
 
 
-TextureSampleNode::TextureSampleNode(std::string _samplerName, DataLine UVs)
-    : DataNode(MakeVector(UVs), makeVector())
+TextureSampleNode::TextureSampleNode(const DataLine & uvs, std::string _samplerName)
+    : DataNode(MakeVector(uvs), makeVector())
 {
-    assert(UVs.GetDataLineSize() == 2);
+    assert(uvs.GetDataLineSize() == 2);
 
     samplerName = _samplerName;
     if (samplerName.empty())

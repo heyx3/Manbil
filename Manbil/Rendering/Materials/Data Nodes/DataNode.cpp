@@ -12,6 +12,8 @@ void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) co
     for (unsigned int input = 0; input < inputs.size(); ++input)
         if (!inputs[input].IsConstant() && UsesInput(input, outputIndex))
             inputs[input].GetDataNodeValue()->SetFlags(flags, inputs[input].GetDataNodeLineIndex());
+
+    SetMyFlags(flags, outputIndex);
 }
 void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const
 {

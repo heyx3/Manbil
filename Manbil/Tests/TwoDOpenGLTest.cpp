@@ -108,12 +108,12 @@ void TwoDOpenGLTest::InitializeWorld(void)
     //Materials.
 
     std::unordered_map<RenderingChannels, DataLine> channels;
-    channels[RenderingChannels::RC_Diffuse] = DataLine(DataNodePtr(new TextureSampleNode("u_myTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    std::string vs, fs;
-    UniformDictionary uniformDict;
-    ShaderGenerator::GenerateShaders(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false), channels);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_myTex")),
+                                                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
 
-    quadMat = new Material(vs, fs, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    UniformDictionary uniformDict;
+    quadMat = ShaderGenerator::GenerateMaterial(channels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (quadMat->HasError())
     {
         std::cout << "Error creating quad mat: " << quadMat->GetErrorMsg();

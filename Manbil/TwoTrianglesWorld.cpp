@@ -9,8 +9,6 @@
 #include <iostream>
 #include <fstream>
 
-typedef TwoTrianglesWorld TTW;
-
 
 //Debug printing stuff.
 namespace TTWPrints
@@ -37,7 +35,9 @@ namespace TTWPrints
 }
 using namespace TTWPrints;
 
+/*
 
+typedef TwoTrianglesWorld TTW;
 
 #pragma region Material and quad
 
@@ -70,7 +70,10 @@ void GetCreateMaterial(bool askForFile = true)
     typedef MaterialConstants MC;
 
     //The vertex shader is a very simple, constant program.
-    vs = MC::GetVertexHeader(false) + "\n\n\
+    MaterialUsageFlags vertFlags;
+    vertFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_UV);
+    vertFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
+    vs = MC::GetVertexHeader(false, vertFlags) + "\n\n\
 void main()                              \n\
 {                                        \n\
     gl_Position = " + MC::WorldMatName + " * vec4(" + MC::InObjPos + ", 1.0);  \n\
@@ -110,8 +113,18 @@ void main()                              \n\
             continue;
         }
 
-        //Read in the shader.
-        fs = MC::GetFragmentHeader(false);
+        //Read in the shader. When setting the usage flags, just assume all uniforms are being used.
+        MaterialUsageFlags flags;
+        typedef MaterialUsageFlags::Flags FL;
+        flags.EnableFlag(FL::DNF_USES_TIME);
+        flags.EnableFlag(FL::DNF_USES_CAM_POS);
+        flags.EnableFlag(FL::DNF_USES_CAM_FORWARD);
+        flags.EnableFlag(FL::DNF_USES_CAM_UPWARDS);
+        flags.EnableFlag(FL::DNF_USES_CAM_SIDEWAYS);
+        flags.EnableFlag(FL::DNF_USES_WIDTH);
+        flags.EnableFlag(FL::DNF_USES_HEIGHT);
+        flags.EnableFlag(FL::DNF_USES_UV);
+        fs = MC::GetFragmentHeader(false, flags);
         fs += "\n\
 uniform float " + TTW::ShaderElapsedName + ";   \n\
 uniform sampler2D " + TTW::CustomSamplerName + ";\n\
@@ -383,3 +396,5 @@ void TTW::OnWindowResized(unsigned int newWidth, unsigned int newHeight)
     worldCam.Info.Width = newWidth;
     worldCam.Info.Height = newHeight;
 }
+
+*/

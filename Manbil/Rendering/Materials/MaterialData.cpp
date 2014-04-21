@@ -1,5 +1,7 @@
 #include "MaterialData.h"
 
+#include <assert.h>
+
 
 const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::WorldMatName = "u_matWorld",
@@ -16,6 +18,7 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
                   MaterialConstants::CameraFovName = "u_cam_fov",
 
+                  //TODO: Once lighting is removed from shader generator, remove these light names.
                   MaterialConstants::DirectionalLightName = "u_dir_light",
                   MaterialConstants::DirectionalLight_ColorName = "u_dir_light.Col",
                   MaterialConstants::DirectionalLight_DirName = "u_dir_light.Dir",
@@ -28,99 +31,54 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::InWorldNormal = "in_world_normal",
                   MaterialConstants::InObjNormal = "in_obj_normal",
                   MaterialConstants::InColor = "in_color",
-
-                  MaterialConstants::OutWorldPos = "out_world_pos",
-                  MaterialConstants::OutObjPos = "out_obj_pos",
-                  MaterialConstants::OutUV = "out_uv",
-                  MaterialConstants::OutWorldNormal = "out_world_normal",
-                  MaterialConstants::OutObjNormal = "out_obj_normal",
-                  MaterialConstants::OutColor = "out_color",
                   
+                  MaterialConstants::VertexOutNameBase = "out_vertexOutput",
+                  //MaterialConstants::OutNormalName = "out_vertexNormal",
+
                   MaterialConstants::FinalOutColor = "FinalOut_Color";
 
 RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
 {
     switch (mode)
     {
-    case RenderingModes::RM_Opaque:
-        return RenderingState();
-    case RenderingModes::RM_Transluscent:
-        return RenderingState(RenderingState::Cullables::C_NONE);
-    case RenderingModes::RM_Additive:
-        return RenderingState(RenderingState::C_NONE, RenderingState::BE_ONE, RenderingState::BE_ONE, true, false);
+        case RenderingModes::RM_Opaque:
+            return RenderingState();
+        case RenderingModes::RM_Transluscent:
+            //TODO: I think transluscent shouldn't write to the depth buffer, because then it removes the need for depth sorting? Test this.
+            return RenderingState(RenderingState::Cullables::C_NONE);
+        case RenderingModes::RM_Additive:
+            return RenderingState(RenderingState::C_NONE, RenderingState::BE_ONE, RenderingState::BE_ONE, true, false);
 
-    default: assert(false);
+        default:
+            assert(false);
+            return RenderingState();
     }
 }
-
-std::string MaterialConstants::GetVertexHeader(bool useLighting)
+std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags & flags)
 {
-    std::string ret = std::string() +
-"#version 330                                                    \n\
-                                                                 \n\
-layout (location = 0) in vec3 " + InObjPos + ";                  \n\
-layout (location = 1) in vec4 " + InColor + ";                   \n\
-layout (location = 2) in vec2 " + InUV + ";                      \n\
-layout (location = 3) in vec3 " + InObjNormal + ";               \n\
-                                                                 \n\
-out vec3 " + OutObjPos + ";                                      \n\
-out vec3 " + OutWorldPos + ";                                    \n\
-out vec4 " + OutColor + ";                                       \n\
-out vec2 " + OutUV + ";                                          \n\
-out vec3 " + OutObjNormal + ";                                   \n\
-out vec3 " + OutWorldNormal + ";                                 \n\
-                                                                 \n\
-uniform float " + ElapsedTimeName + ";                           \n\
-uniform vec3 " + CameraPosName + ", " +
-                 CameraForwardName + ", " +
-                 CameraUpName + ", " +
-                 CameraSideName + ";                             \n\
-uniform float " + CameraWidthName + ", " +
-                  CameraHeightName + ", " +
-                  CameraZNearName + ", " +
-                  CameraZFarName + ", " + 
-                  CameraFovName + ";                             \n\
-uniform mat4 " + WorldMatName + ", " +
-                 ViewMatName + ", " +
-                 ProjMatName + ", " +
-                 WVPMatName + ";\n\n";
+    typedef MaterialUsageFlags::Flags FL;
 
-    return ret;
-}
-std::string MaterialConstants::GetFragmentHeader(bool useLighting)
-{
-    std::string ret = std::string() +
-"#version 330                                                    \n\
-                                                                 \n\
-in vec3 " + OutObjPos + ";                                       \n\
-in vec3 " + OutWorldPos + ";                                     \n\
-in vec4 " + OutColor + ";                                        \n\
-in vec2 " + OutUV + ";                                           \n\
-in vec3 " + OutObjNormal + ";                                    \n\
-in vec3 " + OutWorldNormal + ";                                  \n\
-                                                                 \n\
-out vec4 " + FinalOutColor + ";                                  \n\
-                                                                 \n\
-uniform float " + ElapsedTimeName + ";                           \n\
-uniform vec3 " + CameraPosName + ", " +
-                 CameraForwardName + ", " +
-                 CameraUpName + ", " +
-                 CameraSideName + ";                             \n\
-uniform float " + CameraWidthName + ", " +
-                  CameraHeightName + ", " +
-                  CameraZNearName + ", " +
-                  CameraZFarName + ", " + 
-                  CameraFovName + ";                             \n\
-uniform mat4 " + WorldMatName + ", " +
-                 ViewMatName + ", " +
-                 ProjMatName + ", " +
-                 WVPMatName + ";\n\n";
+    std::string uniformDecls = (flags.GetFlag(FL::DNF_USES_TIME) ? "uniform float " + ElapsedTimeName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_CAM_POS) ? "uniform vec3 " + CameraPosName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_CAM_FORWARD) ? "uniform vec3 " + CameraForwardName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_CAM_UPWARDS) ? "uniform vec3 " + CameraUpName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_CAM_SIDEWAYS) ? "uniform vec3 " + CameraSideName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_WIDTH) ? "uniform float " + CameraWidthName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_HEIGHT) ? "uniform float " + CameraHeightName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_ZNEAR) ? "uniform float " + CameraZNearName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_ZFAR) ? "uniform float " + CameraZFarName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_FOV) ? "uniform float " + CameraFovName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_WORLD_MAT) ? "uniform mat4 " + WorldMatName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_VIEW_MAT) ? "uniform mat4 " + ViewMatName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_PROJ_MAT) ? "uniform mat4 " + ProjMatName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_WVP_MAT) ? "uniform mat4 " + WVPMatName + ";\n" : "");
+    if (!uniformDecls.empty())
+        uniformDecls = std::string() + "//Uniforms.\n" + uniformDecls + "\n\n\n";
 
-    
-    if (useLighting)
+    if (false)
     {
-        ret += "\n\
-struct DirectionalLight                       \n\
+        uniformDecls +=
+"struct DirectionalLight                       n\
 {                                             \n\
     vec3 Col, Dir;                            \n\
     float Ambient, Diffuse;                   \n\
@@ -137,8 +95,34 @@ vec3 getLight(vec3 surfaceNormal, vec3 fragToCamNormal, float specular, float sp
     specFactor = pow(specFactor, specularIntensity);\n\
     \n\
     return lightDir.Col * (lightDir.Ambient + (lightDir.Diffuse * dotted) + (specular * specFactor));\n\
-}\n";
+}\n\n";
     }
 
-    return ret;
+    return uniformDecls;
+}
+
+std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const MaterialUsageFlags & flags)
+{
+    return std::string() +
+"#version 330                                                    \n\
+                                                                 \n\
+layout (location = 0) in vec3 " + InObjPos + ";                  \n\
+layout (location = 1) in vec4 " + InColor + ";                   \n\
+layout (location = 2) in vec2 " + InUV + ";                      \n\
+layout (location = 3) in vec3 " + InObjNormal + ";               \n\
+                                                                 \n\
+" + outputDeclarations + "                                       \n\
+                                                                 \n\
+" + GetUniformDeclarations(flags);
+}
+std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations, const MaterialUsageFlags & flags)
+{
+    return std::string() +
+"#version 330                                                    \n\
+                                                                 \n\
+" + inputDeclarations + "                                        \n\
+                                                                 \n\
+out vec4 " + FinalOutColor + ";                                  \n\
+                                                                 \n\
+" + GetUniformDeclarations(flags);
 }

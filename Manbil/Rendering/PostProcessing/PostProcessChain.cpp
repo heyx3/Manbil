@@ -59,7 +59,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             PostProcessEffect::PpePtr effct = passGroups[passGroup][0];
             effct->ChangePreviousEffect();
-            channels[RenderingChannels::RC_Diffuse] = DataLine(effct, PostProcessEffect::GetColorOutputIndex());
+            channels[RenderingChannels::RC_Color] = DataLine(effct, PostProcessEffect::GetColorOutputIndex());
 
             //If there is a group before/after this, skip the first/last pass, since it will be lumped in with that other group.
             unsigned int startPass = 1,
@@ -73,6 +73,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             {
                 effct->CurrentPass = pass;
 
+                channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
                 UniformDictionary unfs;
                 materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
                 uniforms.insert(uniforms.end(), UniformDictionary());
@@ -118,10 +119,11 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             }
 
 
-            channels[RenderingChannels::RC_Diffuse] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
+            channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
 
 
             //Now create the material.
+            channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
             UniformDictionary unfs;
             materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
             uniforms.insert(uniforms.end(), UniformDictionary());

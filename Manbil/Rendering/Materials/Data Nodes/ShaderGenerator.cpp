@@ -11,131 +11,102 @@ typedef ShaderHandler::Shaders Shaders;
 typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
 
+
+DataNode::Shaders SG::GetShaderType(RC channel)
+{
+    switch (channel)
+    {
+        case RC::RC_ScreenVertexPosition:
+            return DataNode::Shaders::SH_Vertex_Shader;
+
+        case RC::RC_Color:
+        case RC::RC_Opacity:
+            return DataNode::Shaders::SH_Fragment_Shader;
+
+        default:
+            assert(IsChannelVertexOutput(channel, false));
+            return DataNode::Shaders::SH_Vertex_Shader;
+    }
+}
+
 unsigned int SG::GetChannelInputSize(RC channel)
 {
     switch (channel)
     {
-        case RC::RC_Diffuse:
-        case RC::RC_Normal:
-        case RC::RC_ObjectVertexOffset:
-        //case RC::RC_WorldVertexOffset:
+        case RC::RC_ScreenVertexPosition:
+            return 4;
+            
+        case RC::RC_Color:
             return 3;
 
-        case RC::RC_Distortion:
-            return 2;
-
-        case RC::RC_DiffuseIntensity:
         case RC::RC_Opacity:
-        case RC::RC_Specular:
-        case RC::RC_SpecularIntensity:
             return 1;
 
-        default: assert(false);
+        default:
+            assert(false);
     }
 }
 
-bool SG::IsChannelUsed(RC channel, RenderingModes mode, bool useLighting, const LightSettings & settings)
+void SG::GetUsedChannels(RenderingModes mode, std::vector<RenderingChannels> & outChannels)
 {
-    switch (channel)
-    {
-        case RC::RC_Diffuse:
-        case RC::RC_DiffuseIntensity:
-        case RC::RC_ObjectVertexOffset:
-        //case RC::RC_WorldVertexOffset:
-            return true;
-
-        case RC::RC_Normal:
-        case RC::RC_Specular:
-        case RC::RC_SpecularIntensity:
-            return useLighting;
-
-        case RC::RC_Distortion:
-        case RC::RC_Opacity:
-            return IsModeTransparent(mode);
-
-        default: assert(false);
-    }
-}
-
-void SG::GetUsedChannels(RenderingModes mode, bool useLighting, const LightSettings & settings, std::vector<RenderingChannels> & outChannels)
-{
-    outChannels.insert(outChannels.end(), RC::RC_Diffuse);
-    outChannels.insert(outChannels.end(), RC::RC_DiffuseIntensity);
+    outChannels.insert(outChannels.end(), RC::RC_Color);
     outChannels.insert(outChannels.end(), RC::RC_Opacity);
-    outChannels.insert(outChannels.end(), RC::RC_ObjectVertexOffset);
-    //outChannels.insert(outChannels.end(), RC::RC_WorldVertexOffset);
-
-    if (useLighting)
-    {
-        outChannels.insert(outChannels.end(), RC::RC_Normal);
-        outChannels.insert(outChannels.end(), RC::RC_Specular);
-        outChannels.insert(outChannels.end(), RC::RC_SpecularIntensity);
-    }
-
-    if (IsModeTransparent(mode))
-    {
-        outChannels.insert(outChannels.end(), RC::RC_Distortion);
-    }
+    outChannels.insert(outChannels.end(), RC::RC_ScreenVertexPosition);
 }
 
 void SG::RemoveUnusedChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
     //Because of the nature of this algorithm, we have to ensure the first channel is valid.
-    while (channels.size() > 0 && !IsChannelUsed(channels.begin()->first, mode, useLighting, settings))
+    while (channels.size() > 0 && !IsChannelUsed(channels.begin()->first, mode, settings, useLighting))
         channels.erase(channels.begin());
 
     //Remove all channels that aren't used.
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    for (auto iterator = channels.end(); iterator != channels.end(); ++iterator)
     {
-        if (!IsChannelUsed(iterator->first, mode, useLighting, settings))
+        if (!IsChannelUsed(iterator->first, mode, settings, useLighting) &&
+            !IsChannelVertexOutput(iterator->first, false))
         {
             channels.erase(iterator);
-            iterator = channels.begin();//Dictionaries aren't in any kind of numerical order, so start the search over.
+
+            //Dictionaries aren't in any kind of numerical order, so start the search over.
+            iterator = channels.begin();
         }
     }
 }
 void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
     std::vector<RC> validChannels;
-    GetUsedChannels(mode, useLighting, settings, validChannels);
+    GetUsedChannels(mode, validChannels);
     for (unsigned int i = 0; i < validChannels.size(); ++i)
     {
         if (channels.find(validChannels[i]) == channels.end())
         {
             switch (validChannels[i])
             {
-            case RC::RC_Diffuse:
-                channels[RC::RC_Diffuse] = DataLine(DataNodePtr(new ObjectColorNode()), 0);
-                break;
-            case RC::RC_DiffuseIntensity:
-                channels[RC::RC_DiffuseIntensity] = DataLine(VectorF(1.0f));
-                break;
-            case RC::RC_Distortion:
-                channels[RC::RC_Distortion] = DataLine(Vector2f(0.0f, 0.0f));
-                break;
-            case RC::RC_Normal:
-                channels[RC::RC_Normal] = DataLine(DataNodePtr(new WorldNormalNode()), 0);
-                break;
-            case RC::RC_ObjectVertexOffset:
-                channels[RC::RC_ObjectVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
-                break;
-            case RC::RC_Opacity:
-                channels[RC::RC_Opacity] = DataLine(1.0f);
-                break;
-            case RC::RC_Specular:
-                channels[RC::RC_Specular] = DataLine(0.0f);
-                break;
-            case RC::RC_SpecularIntensity:
-                channels[RC::RC_SpecularIntensity] = DataLine(32.0f);
-                break;
-                //case RC::RC_WorldVertexOffset:
-                //    channels[RC::RC_WorldVertexOffset] = DataLine(Vector3f(0.0f, 0.0f, 0.0f));
-                //    break;
+                case RC::RC_Color:
+                    channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
+                    break;
+                case RC::RC_ScreenVertexPosition:
+                    channels[RC::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode()), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+                    break;
+                case RC::RC_Opacity:
+                    channels[RC::RC_Opacity] = DataLine(1.0f);
+                    break;
 
-            default: assert(false);
+                default: assert(IsChannelVertexOutput(validChannels[i], false));
             }
         }
     }
+}
+
+Material * ShaderGenerator::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
+                                             UniformDictionary & uniforms,
+                                             RenderingModes mode, bool useLighting, const LightSettings & settings)
+{
+    std::string vs, fs;
+    GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
+    
+    return new Material(vs, fs, uniforms, mode, useLighting, settings);
 }
 
 void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
@@ -148,21 +119,53 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     //First, make sure the channels are all correctly set up.
     for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
     {
-        //Make sure each channel has a valid input data line size.
-        assert(GetChannelInputSize(iterator->first) == iterator->second.GetDataLineSize());
+        //Make sure each channel has a valid input size. Vertex outputs can be any size.
+        assert(IsChannelVertexOutput(iterator->first, false) ||
+               GetChannelInputSize(iterator->first) == iterator->second.GetDataLineSize());
+    }
+
+    //Get information about what each shader uses.
+    MaterialUsageFlags vertFlags, fragFlags;
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    {
+        if (iterator->second.IsConstant()) continue;
+
+        switch (GetShaderType(iterator->first))
+        {
+            case DataNode::Shaders::SH_Vertex_Shader:
+                iterator->second.GetDataNodeValue()->SetFlags(vertFlags, iterator->second.GetDataNodeLineIndex());
+                break;
+            case DataNode::Shaders::SH_Fragment_Shader:
+                iterator->second.GetDataNodeValue()->SetFlags(fragFlags, iterator->second.GetDataNodeLineIndex());
+                break;
+
+            default: assert(false);
+        }
     }
 
 
-    //Create the shaders.
+    //Generate the vertex output/fragment input declarations.
+    std::string vertOutput, fragInput;
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    {
+        if (IsChannelVertexOutput(iterator->first, false))
+        {
+            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(iterator->first));
+            vertOutput += "out " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
+            fragInput += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
+        }
+    }
 
-    std::string vertShader = MaterialConstants::GetVertexHeader(useLighting),
-                fragShader = MaterialConstants::GetFragmentHeader(useLighting);
+
+    //Generate the headers for each shader.
+    std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, vertFlags),
+                fragShader = MaterialConstants::GetFragmentHeader(fragInput, fragFlags);
 
 
-    //Collect data node uniforms, functions, and output.
+    //Generate uniforms, functions, and output calculations.
 
     std::vector<RC> validChannels;
-    GetUsedChannels(mode, useLighting, settings, validChannels);
+    GetUsedChannels(mode, validChannels);
 
     UniformDictionary vertexUniformDict, fragmentUniformDict;
     std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;
@@ -179,23 +182,16 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
             std::string oldVCode = vertexCode,
                         oldFCode = fragmentCode;
 
-            switch (validChannels[i])
+            switch (GetShaderType(validChannels[i]))
             {
-                //case RC::RC_WorldVertexOffset:
-                case RC::RC_ObjectVertexOffset:
+                case DataNode::Shaders::SH_Vertex_Shader:
                     DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
                     data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
                     data.GetDataNodeValue()->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
                     data.GetDataNodeValue()->WriteOutputs(vertexCode, vertexCodes);
                     break;
 
-                case RC::RC_Diffuse:
-                case RC::RC_DiffuseIntensity:
-                case RC::RC_Distortion:
-                case RC::RC_Normal:
-                case RC::RC_Opacity:
-                case RC::RC_Specular:
-                case RC::RC_SpecularIntensity:
+                case DataNode::Shaders::SH_Fragment_Shader:
                     DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
                     data.GetDataNodeValue()->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
                     data.GetDataNodeValue()->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
@@ -237,13 +233,6 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
         for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
             fragShader += iterator->second.GetDeclaration() + "\n";
     }
-    if (useLighting)
-    {
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_ColorName] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "dirLight.Col");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DirName] = UniformValueF(Vector3f(1.0f, 1.0f, -1.0f).Normalized(), "dirLight.Dir");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName] = UniformValueF(0.2f, "dirLight.Ambient");
-        fragmentUniformDict.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName] = UniformValueF(0.8f, "dirLight.Diffuse");
-    }
 
 
     //Add in the helper functions to the shader code.
@@ -265,32 +254,20 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
 
 
     //Set up the main() functions.
-    //TODO: Normal channel is relative to a surface pointing straight up.
-    //TODO: Create a separate rendering mode for distortion -- it is opaque, and blending is manually done in the fragment shader using a sampler for the rendered world.
-    //TODO: For vertex shader: calculate the screen depth of the vertex from 0 - 1 after transforming the position into clip space, pass it to the vertex shader, and expose it as a DataNode.
     vertShader += "\n\
 void main()                                                                                             \n\
 {                                                                                                       \n\
-    //Compute shader out data (except position, which will be changed by a channel).                    \n\
-    " + MaterialConstants::OutObjNormal + " = " + MaterialConstants::InObjNormal + ";                   \n\
-    " + MaterialConstants::OutWorldNormal + " = normalize(" + MaterialConstants::WorldMatName + " * " +
-                                                          "vec4(" + MaterialConstants::InObjNormal + ", 0.0)).xyz;\n\
-    vec3 " + MaterialConstants::InWorldNormal + " = " + MaterialConstants::OutWorldNormal + ";          \n\
-    " + MaterialConstants::OutUV + " = " + MaterialConstants::InUV + ";                                 \n\
-    " + MaterialConstants::OutColor + " = " + MaterialConstants::InColor + ";                           \n\
-                                                                                                        \n\
     //Compute outputs.                                                                                  \n\
     " + vertexCode + "                                                                                  \n\
                                                                                                         \n\
-                                                                                                        \n\
-    //Compute position out data.                                                                        \n\
-    " + MaterialConstants::OutObjPos + " = " + MaterialConstants::InObjPos + " + " + channels[RC::RC_ObjectVertexOffset].GetValue() + ";\n\
-    vec4 worldPos = (" + MaterialConstants::WorldMatName + " * vec4(" + MaterialConstants::OutObjPos + ", 1.0));                        \n\
-    " + //pos3 += " + "channels[RC::RC_WorldVertexOffset].GetValue() + ;                                \n
-    "                                                                                                   \n\
-    " + MaterialConstants::OutWorldPos + " = worldPos.xyz / worldPos.w;                                 \n\
-                                                                                                        \n\
-    gl_Position = " + MaterialConstants::WVPMatName + " * vec4(" + MaterialConstants::OutObjPos + ", 1.0);  \n\
+";
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+        if (IsChannelVertexOutput(iterator->first, false))
+            vertShader += "    " + (MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(iterator->first))) +
+                          " = " + iterator->second.GetValue() + ";\n";
+    vertShader += 
+"                                                                                                        \n\
+    gl_Position = " + channels[RenderingChannels::RC_ScreenVertexPosition].GetValue() + ";              \n\
 }";
 
     fragShader += "                                                                                     \n\
@@ -299,29 +276,22 @@ void main()                                                                     
     //Compute outputs.                                                                                  \n\
     " + fragmentCode + "                                                                                \n\
                                                                                                         \n";
-    //If diffuse intensity isn't used, don't bother computing it.
-    if (channels[RC::RC_DiffuseIntensity].IsConstant() && channels[RC::RC_DiffuseIntensity].GetConstantValue().GetValue()[0] == 1.0f)
-        fragShader += "\tvec3 diffuseCol = " + channels[RC::RC_Diffuse].GetValue() + ";\n";
-    else fragShader +=
-        "\tvec3 diffuseCol = vec3(pow(" + channels[RC::RC_Diffuse].GetValue() + ".x, " + channels[RC::RC_DiffuseIntensity].GetValue() + "), " +
-                                 "pow(" + channels[RC::RC_Diffuse].GetValue() + ".y, " + channels[RC::RC_DiffuseIntensity].GetValue() + "), " +
-                                 "pow(" + channels[RC::RC_Diffuse].GetValue() + ".z, " + channels[RC::RC_DiffuseIntensity].GetValue() + "));\n";
     //If this material uses lighting, calculate lighting stuff.
     if (useLighting)
     {
-        fragShader +=
-    "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
-     diffuseCol *= getLight(normalize(normalVal), " +
-                           "normalize(" + MaterialConstants::CameraPosName + " - " +
-                                           MaterialConstants::OutWorldPos + ")" +
-                            ", " + channels[RC::RC_Specular].GetValue() +
-                            ", " + channels[RC::RC_SpecularIntensity].GetValue() +
-                            ", " + MaterialConstants::DirectionalLightName + ");              \n\n";
-        }
+//        fragShader +=
+//    "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
+//     diffuseCol *= getLight(normalize(normalVal), " +
+//                           "normalize(" + MaterialConstants::CameraPosName + " - " +
+//                                           MaterialConstants::OutWorldPos + ")" +
+//                            ", " + channels[RC::RC_Specular].GetValue() +
+//                            ", " + channels[RC::RC_SpecularIntensity].GetValue() +
+//                            ", " + MaterialConstants::DirectionalLightName + ");              \n\n";
+    }
 
     //Now output the final color.
     fragShader +=
-    "\t" + MaterialConstants::FinalOutColor + " = vec4(diffuseCol, " + channels[RC::RC_Opacity].GetValue() + ");\n\
+    "\t" + MaterialConstants::FinalOutColor + " = vec4(" + channels[RC::RC_Color].GetValue() + ", " + channels[RC::RC_Opacity].GetValue() + ");\n\
 }";
 
 
@@ -353,14 +323,4 @@ void main()                                                                     
     for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
         if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
             outUniforms.TextureUniforms[iterator->first] = iterator->second;
-}
-
-Material * ShaderGenerator::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                             UniformDictionary & uniforms,
-                                             RenderingModes mode, bool useLighting, const LightSettings & settings)
-{
-    std::string vs, fs;
-    GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
-    
-    return new Material(vs, fs, uniforms, mode, useLighting, settings);
 }

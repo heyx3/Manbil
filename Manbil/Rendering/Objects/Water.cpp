@@ -1,6 +1,5 @@
 #include "Water.h"
 
-
 #include "../../OpenGLIncludes.h"
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
@@ -10,188 +9,6 @@
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Materials/Data Nodes/ShaderGenerator.h"
-
-
-//TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
-//TODO: Take several "seed maps" and use them for things like horiontalPos offset, base height offset, etc.
-
-
-
-
-
-//Calculates the height and surface normal for water.
-//TODO: Add support for seeded heightmap. Fix Water's interface so that it uses one big shader that combines flow, ripples, and seeded heightmap.
-class WaterNode : public DataNode
-{
-public:
-
-    static unsigned int GetVertexOffsetOutputIndex(void) { return 0; }
-    static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
-
-
-    virtual std::string GetName(void) const override { return "rippleHeightNode"; }
-    virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
-
-    WaterNode(unsigned int _maxRipples = 0, Vector4f * _dp_tsc_h_p = 0, Vector3f * _sXY_sp = 0,
-              unsigned int _maxFlows = 0, Vector4f * f_a_p = 0, float * _tsc = 0)
-        : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0)), MakeVector(3, 3)),
-        maxRipples(_maxRipples), dp_tsc_h_p(_dp_tsc_h_p), sXY_sp(_sXY_sp),
-        maxFlows(_maxFlows), fl_am_per(f_a_p), tsc(_tsc)
-    {
-    }
-
-protected:
-
-    //TODO: Continue to tweak/improve the water, as well as the water surface distortion node.
-
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
-    {
-        if (maxRipples > 0)
-        {
-            outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p, maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
-            outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&sXY_sp[0][0], maxRipples, 3, "sourcesXY_speeds");
-        }
-        if (maxFlows > 0)
-        {
-            outUniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF(&fl_am_per[0][0], maxFlows, 4, "flows_amplitudes_periods");
-            outUniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
-        }
-    }
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
-    {
-        std::string func =
-"float getWaveHeight(vec2 horizontalPos)\n\
-{\n\
-    float offset = 0.0f;                                                                           \n";
-        if (maxRipples > 0)
-        {
-            std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
-                        sxysp = "sourcesXY_speeds[i]";
-            func +=
-"    //Ripples.                                                                                     \n\
-    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                                    \n\
-    {                                                                                               \n\
-        float dropoffPoint = " + dptschp + ".x;                                                     \n\
-        float timeSinceCreated = " + dptschp + ".y;                                                 \n\
-        float height = " + dptschp + ".z;                                                           \n\
-        float period = " + dptschp + ".w;                                                           \n\
-        vec2 source = " + sxysp + ".xy;                                                             \n\
-        float speed = " + sxysp + ".z;                                                              \n\
-                                                                                                    \n\
-        float dist = distance(source, horizontalPos);                                               \n\
-        float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));                     \n\
-        heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
-                                                                                                    \n\
-        float cutoff = period * speed * timeSinceCreated;                                           \n\
-        cutoff = max(0, (cutoff - dist) / cutoff);                                                  \n\
-                                                                                                    \n\
-        float innerVal = (dist / period) + (-timeSinceCreated * speed);                             \n\
-        float waveScale = height * heightScale * cutoff;                                            \n\
-                                                                                                    \n\
-        float heightOffset = sin(innerVal);                                                         \n\
-        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.     \n\
-        offset += waveScale * heightOffset;                                                         \n\
-    }\n";
-        }
-        if (maxFlows > 0)
-        {
-            std::string fap = "flows_amplitudes_periods[i]",
-                        tsc = "timesSinceCreated[i]";
-            func +=
-"    //Directional flows.                                                                           \n\
-     for (int i = 0; i < " + std::to_string(maxFlows) + "; ++i)                                     \n\
-     {                                                                                              \n\
-         vec2 flowDir = " + fap + ".xy;                                                             \n\
-         float speed = length(flowDir);                                                             \n\
-         flowDir /= speed;                                                                          \n\
-         float amplitude = " + fap + ".z;                                                           \n\
-         float period = " + fap + ".w;                                                              \n\
-         float timeSinceCreated = " + tsc + ";                                                      \n\
-                                                                                                    \n\
-         float dist = dot(flowDir, horizontalPos);                                                  \n\
-                                                                                                    \n\
-         float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
-         float waveScale = amplitude;                                                               \n\
-                                                                                                    \n\
-         float heightOffset = sin(innerVal);                                                        \n\
-         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
-         offset += waveScale * heightOffset;                                                        \n\
-     }\n";
-        }
-        func +=
-"    return offset;                                                                                 \n\
-}\n";
-        outDecls.insert(outDecls.end(), func);
-
-        if (GetShaderType() == Shaders::SH_Fragment_Shader)
-        {
-            func = std::string() +
-"struct NormalData                                                                      \n\
-{                                                                                       \n\
-    vec3 normal, tangent, bitangent;                                                    \n\
-};                                                                                      \n\
-NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
-{                                                                                       \n\
-    NormalData dat;                                                                     \n\
-    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
-    dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
-    dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
-                                                                                        \n\
-    vec2 epsilon = vec2(0.1);                                                           \n\
-                                                                                        \n\
-    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
-                                                                                        \n\
-    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
-         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
-         zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
-         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
-                                                                                        \n\
-    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
-    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
-         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
-         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
-         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
-                                                                                        \n\
-    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
-                       normalize(p_zero_one - p_zero_zero)),                            \n\
-         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
-                       normalize(p_zero_nOne - p_zero_zero)),                           \n\
-         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
-                                                                                        \n\
-    dat.normal = normFinal;                                                             \n\
-    return dat;                                                                         \n\
-}                                                                                       \n\
-";
-            outDecls.insert(outDecls.end(), func);
-        }
-    }
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        switch (GetShaderType())
-        {
-            case Shaders::SH_Vertex_Shader:
-                outCode += "\tvec3 " + GetOutputName(GetVertexOffsetOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosInput().GetValue() + ".xy));\n";
-                break;
-            case Shaders::SH_Fragment_Shader:
-                outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosInput().GetValue() + ".xy).normal;\n";
-                break;
-
-            default: assert(false);
-        }
-    }
-
-private:
-
-    unsigned int maxRipples, maxFlows;
-    Vector4f * dp_tsc_h_p;
-    Vector3f * sXY_sp;
-    Vector4f * fl_am_per;
-    float * tsc;
-
-    const DataLine & GetObjectPosInput(void) const { return GetInputs()[0]; }
-};
-
-
 
 
 
@@ -277,18 +94,17 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
              OptionalValue<RippleWaterCreationArgs> rippleArgs,
              OptionalValue<DirectionalWaterCreationArgs> directionArgs,
-             OptionalValue<SeedmapWaterCreationArgs> seedmapArgs,
-             RenderingModes mode, bool useLighting, LightSettings settings,
-             RenderChannels & channels)
+             OptionalValue<SeedmapWaterCreationArgs> seedmapArgs)
     : currentRippleIndex(0), totalRipples(0), nextRippleID(0),
       currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
       flowIDs(0), f_a_p(0), tsc(0),
-      waterMat(0), waterMesh(PrimitiveTypes::Triangles)
+      waterMesh(PrimitiveTypes::Triangles)
 {
     //Create mesh.
     CreateWaterMesh(size, scale, waterMesh);
     waterMesh.Transform.SetPosition(pos);
+
 
     //Set up ripples.
     if (rippleArgs.HasValue())
@@ -360,18 +176,19 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
     }
 
-    //Set up lighting.
-    if (useLighting)
-    {
-        SetLighting(DirectionalLight(0.8f, 0.2f, Vector3f(1, 1, 1), Vector3f(1.0f, 1.0f, -1.0f).Normalized()));
-    }
 
     //Generate shader code.
-    std::string vertexShader, fragmentShader;
-    DataNodePtr waterNode(new WaterNode(maxRipples, dp_tsc_h_p, sXY_sp, maxFlows));
+    /*
+    //Make sure nothing is in screen vertex position channel already.
+    assert(channels.find(RenderingChannels::RC_ScreenVertexPosition) == channels.end());
+
+    //Create the water node and hook up its outputs.
+    DataNodePtr waterNode(new WaterNode(objectPosVertexOut, maxRipples, dp_tsc_h_p, sXY_sp, maxFlows));
+    channels[objectPosVertexOut] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
+    channels[RenderingChannels::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode(channels[objectPosVertexOut])), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+
     ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
-    channels[RenderingChannels::RC_ObjectVertexOffset] =
-        DataLine(DataNodePtr(new AddNode(channels[RenderingChannels::RC_ObjectVertexOffset], DataLine(waterNode, WaterNode::GetVertexOffsetOutputIndex()))), 0);
+
     //TODO: Figure out how to correctly combine previous normal channel value with water channel.
     if (ShaderGenerator::IsChannelUsed(RenderingChannels::RC_Normal, mode, useLighting, settings))
         channels[RenderingChannels::RC_Normal] = DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new AddNode(DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()),
@@ -390,10 +207,11 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         errorMsg += waterMat->GetErrorMsg();
         return;
     }
+    */
 }
 Water::~Water(void)
 {
-    delete waterMat;
+    //delete waterMat;
     waterMesh.DeleteVertexIndexBuffers();
 
     if (rippleIDs != 0)
@@ -526,14 +344,6 @@ void Water::SetSeededWaterSeed(sf::Texture * image, bool deletePrevious, Vector2
 }
 
 
-void Water::SetLighting(const DirectionalLight & light)
-{
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName].SetValue(light.AmbientIntensity);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName].SetValue(light.DiffuseIntensity);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName].SetValue(light.Direction);
-    waterMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName].SetValue(light.Color);
-}
-
 void Water::Update(float elapsed)
 {
     if (maxRipples > 0)
@@ -556,7 +366,7 @@ void Water::Update(float elapsed)
         }
     }
 }
-bool Water::Render(const RenderInfo & info)
+bool Water::Render(Material * mat, const RenderInfo & info)
 {
     //Set water uniforms.
     if (maxRipples > 0)
@@ -574,10 +384,10 @@ bool Water::Render(const RenderInfo & info)
     //Render.
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &waterMesh);
-    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshes))
+    if (!mat->Render(RenderPasses::BaseComponents, info, meshes))
     {
         errorMsg = "Error rendering water: ";
-        errorMsg += waterMat->GetErrorMsg();
+        errorMsg += mat->GetErrorMsg();
         return false;
     }
     else return true;

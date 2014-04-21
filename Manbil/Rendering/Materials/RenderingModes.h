@@ -1,6 +1,5 @@
 #pragma once
 
-#include <assert.h>
 
 
 //Different kinds of materials.
@@ -28,22 +27,55 @@ public:
 //Each channel may be computed through a constant uniform, a texture lookup, or an expression/function call.
 enum RenderingChannels
 {
-    RC_ObjectVertexOffset,
-    //RC_WorldVertexOffset,
+    //Screen-space position of vertex.
+    RC_ScreenVertexPosition,
 
-    RC_Diffuse,
-    RC_DiffuseIntensity,
+    //Base color of surface.
+    RC_Color,
 
-    RC_Specular,
-    RC_SpecularIntensity,
-
-    RC_Normal,
-
+    //Transparency of surface.
     RC_Opacity,
-    RC_Distortion,
 
-    RC_NumbChannels,
+    //An "invalid" vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_INVALID,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_1,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_2,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_3,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_4,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_5,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_6,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_7,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_8,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_9,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_10,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_11,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_12,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_13,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_14,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_15,
+    //Vertex output (interpolated fragment input).
+    RC_VERTEX_OUT_16,
 };
 
+//Gets whether the given channel is a vertex output.
+//"includeInvalidOutput" indicates what to return if the value is RC_VERTEX_OUT_INVALID.
+bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput);
 //Gets whether the given channel is used in the given rendering mode with the given material light settings.
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit);
+//Gets the index of the given vertex output channel (returns 0 for RC_VERTEX_OUT_INVALID).
+unsigned int GetVertexOutputNumber(RenderingChannels vertOutput);

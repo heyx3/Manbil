@@ -7,31 +7,53 @@
 
 //Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
 //      and linearizes it based on the camera's zFar and zNear.
+//TODO: Move out of "PostProcessData" and into one of the standard DataNode folders.
 class LinearDepthSampleNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "linearDepthSampleNode"; }
+    virtual std::string GetName(void) const override { return "depthLinearizerNode"; }
     virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_linearized"; }
 
-    LinearDepthSampleNode(const DataLine & depthSampleInput) : DataNode(MakeVector(depthSampleInput), MakeVector(1)) { }
+    LinearDepthSampleNode(const DataLine & depthSampleInput) : DataNode(BuildInputs(depthSampleInput), MakeVector(1)) { }
 
 
 protected:
 
     virtual void WriteMyOutputs(std::string & outStr) const override
     {
-        std::string zn = MaterialConstants::CameraZNearName,
-                    zf = MaterialConstants::CameraZFarName;
-        outStr += "\tfloat " + GetOutputName(0) + " = (2.0 * " + zn + ") / (" + zf + " + " + zn + " - (" +
-                                                                      GetInputs()[0].GetValue() + " * (" + zf + " - " + zn + ")));\n";
+        std::string zn = GetZNearInput().GetValue(),
+                    zf = GetZFarInput().GetValue();
+        outStr += "\tfloat " + GetOutputName(0) + " = (2.0 * " + zn + ") / " +
+                                                     "(" + zf + " + " + zn + " - " +
+                                                       "(" + GetInputs()[0].GetValue() + " * " +
+                                                            "(" + zf + " - " + zn + ")));\n";
     }
+
+private:
+
+    static std::vector<DataLine> BuildInputs(const DataLine & depthSampler)
+    {
+        DataNodePtr projDats(new ProjectionDataNode());
+
+        std::vector<DataLine> ret;
+        ret.insert(ret.end(), DataLine(projDats, ProjectionDataNode::GetZNearOutputIndex()));
+        ret.insert(ret.end(), DataLine(projDats, ProjectionDataNode::GetZFarOutputIndex()));
+        ret.insert(ret.end(), depthSampler);
+        return ret;
+    }
+
+    const DataLine & GetZNearInput(void) const { return GetInputs()[0]; }
+    const DataLine & GetZFarInput(void) const { return GetInputs()[1]; }
+    const DataLine & GetDepthSampleInput(void) const { return GetInputs()[2]; }
 };
 
 
 
 //Abstract class representing a post-process effect as a DataNode.
-//Outputs 0: the color output as a vec3, 1: the linear depth output as a float from 0 to 1.
+//Outputs:
+//0: the color output as a vec3.
+//1: the linear depth output as a float from 0 to 1.
 //The depth output should never change after an effect is applied.
 class PostProcessEffect : public DataNode
 {
@@ -51,13 +73,13 @@ public:
     //Subsequent effects should use the previous effect's color output.
     static DataLine ColorSamplerIn(void)
     {
-        return DataLine(DataNodePtr(new TextureSampleNode(ColorSampler)),
+        return DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), ColorSampler)),
                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
     static DataLine DepthSamplerIn(void)
     {
-        DataLine depthTex(DataNodePtr(new TextureSampleNode(DepthSampler)),
+        DataLine depthTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), DepthSampler)),
                           TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
         DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
         return linearDepth;
@@ -88,11 +110,11 @@ public:
     unsigned int CurrentPass;
 
     //Default name for a post-processing effect.
-    virtual std::string GetName(void) const override { return "unknownPostProcessEffect"; }
+    virtual std::string GetName(void) const override { return "UNKNOWN_POST_PROCESS_EFFECT"; }
     //Gets the depth output name only.
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index == 1);
+        assert(index == GetDepthOutputIndex());
         if (PrevEffect.get() == 0)
             return GetDepthInput().GetValue();
         else return PrevEffect->GetOutputName(index);
@@ -256,16 +278,12 @@ private:
 
 
 //Applies a Gaussian blur to the world render.
-//Until the data node system is improved and made more flexible,
-//   this node has to use some workarounds in the system.
-//First, it says that it has 3 passes, but the first pass doesn't
-//   actually do anything; it's just there because the first real
-//   pass needs to be in its own group.
-//Same situation with the "fourth" pass -- it's just a dummy placeholder.
-//Also, this node does some computation in the vertex shader, so it provides a dummy
-//   position offset output that always outputs vec3(0.0). That way, this node can be an input to
-//   the vertex offset channel, letting it do its vertex shader processing stuff.
-//TODO: Fix the hackiness.
+//Gaussian blurs are computationally complex, so some tricky things are done to make this effect faster.
+//First, it says that it has 4 passes, but the first and last passes don't
+//   actually do anything; they just exist because the real passes need
+//   to be in their own group, separate from any other effects.
+//NOTE: Does not work yet -- post-process chain automatically outputs UV channels to vertex output 1, and it doesn't let the effects do anything in the vertex shader.
+//TODO: Come up with a change to the post-processing system that allows each effect to define special vertex outputs, which automatically gives them their own passes.
 class GaussianBlurEffect : public PostProcessEffect
 {
 public:
@@ -291,9 +309,8 @@ public:
         return "ERROR DANGER DANGER";
     }
 
-    //Uses three passes -- the first pass is a dummy pass to make sure the blur has a pass all to itself.
     GaussianBlurEffect(PpePtr prevEffect = PpePtr())
-        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 3)
+        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 4)
     {
 
     }

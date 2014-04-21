@@ -1,33 +1,109 @@
 #include "RenderingModes.h"
 
+#include <assert.h>
+
+
 bool IsModeTransparent(RenderingModes mode)
 {
     return (mode == RM_Transluscent || mode == RM_Additive);
 }
 
+bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
+{
+    typedef RenderingChannels RCs;
+
+    switch (channel)
+    {
+        case RCs::RC_ScreenVertexPosition:
+        case RCs::RC_Color:
+        case RCs::RC_Opacity:
+            return false;
+
+        case RCs::RC_VERTEX_OUT_INVALID:
+            return includeInvalidOutput;
+
+        case RCs::RC_VERTEX_OUT_1:
+        case RCs::RC_VERTEX_OUT_2:
+        case RCs::RC_VERTEX_OUT_3:
+        case RCs::RC_VERTEX_OUT_4:
+        case RCs::RC_VERTEX_OUT_5:
+        case RCs::RC_VERTEX_OUT_6:
+        case RCs::RC_VERTEX_OUT_7:
+        case RCs::RC_VERTEX_OUT_8:
+        case RCs::RC_VERTEX_OUT_9:
+        case RCs::RC_VERTEX_OUT_10:
+        case RCs::RC_VERTEX_OUT_11:
+        case RCs::RC_VERTEX_OUT_12:
+        case RCs::RC_VERTEX_OUT_13:
+        case RCs::RC_VERTEX_OUT_14:
+        case RCs::RC_VERTEX_OUT_15:
+        case RCs::RC_VERTEX_OUT_16:
+            return true;
+
+        default:
+            assert(false);
+            return false;
+    }
+}
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit)
 {
     typedef RenderingChannels RCs;
 
-    if (channel == RCs::RC_NumbChannels) return false;
-
-    if (!isLit)
+    switch (channel)
     {
-        if (channel == RCs::RC_Specular || channel == RCs::RC_SpecularIntensity || channel == RCs::RC_Normal)
-            return false;
+        case RCs::RC_Color:
+        case RCs::RC_ScreenVertexPosition:
+        //Opacity is always used because you can still output to alpha channel even if the surface doesn't have transparency.
+        case RCs::RC_Opacity:
+            return true;
+
+
+        default:
+            assert(IsChannelVertexOutput(channel, false));
+            return true;
     }
+}
+unsigned int GetVertexOutputNumber(RenderingChannels vertOutput)
+{
+    typedef RenderingChannels RCs;
 
-    switch (mode)
+    switch (vertOutput)
     {
-    case RenderingModes::RM_Opaque:
-        return (channel == RenderingChannels::RC_Opacity || channel == RenderingChannels::RC_Distortion);
+        case RCs::RC_VERTEX_OUT_1:
+            return 1;
+        case RCs::RC_VERTEX_OUT_2:
+            return 2;
+        case RCs::RC_VERTEX_OUT_3:
+            return 3;
+        case RCs::RC_VERTEX_OUT_4:
+            return 4;
+        case RCs::RC_VERTEX_OUT_5:
+            return 5;
+        case RCs::RC_VERTEX_OUT_6:
+            return 6;
+        case RCs::RC_VERTEX_OUT_7:
+            return 7;
+        case RCs::RC_VERTEX_OUT_8:
+            return 8;
+        case RCs::RC_VERTEX_OUT_9:
+            return 9;
+        case RCs::RC_VERTEX_OUT_10:
+            return 10;
+        case RCs::RC_VERTEX_OUT_11:
+            return 11;
+        case RCs::RC_VERTEX_OUT_12:
+            return 12;
+        case RCs::RC_VERTEX_OUT_13:
+            return 13;
+        case RCs::RC_VERTEX_OUT_14:
+            return 14;
+        case RCs::RC_VERTEX_OUT_15:
+            return 15;
+        case RCs::RC_VERTEX_OUT_16:
+            return 16;
 
-    case RenderingModes::RM_Transluscent:
-        return true;
-
-    case RenderingModes::RM_Additive:
-        return true;
-
-    default: assert(false);
+        default:
+            assert(false);
+        return 0;
     }
 }

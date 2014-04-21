@@ -3,10 +3,6 @@
 #include "DataNode.h"
 #include "../MaterialData.h"
 
-
-//TOOD: Remove all unused vertex shader outputs.
-//TODO: Allow nodes to define custom vertex shader outputs.
-
 class Material;
 
 //Generates GLSL code from DataNode DAGs.
@@ -14,12 +10,14 @@ class ShaderGenerator
 {
 public:
 
+    //Gets which shader the given channel input is calculated in.
+    static DataNode::Shaders GetShaderType(RenderingChannels channel);
+
     //Gets the size of the data line input into the given rendering channel.
+    //Assumes the given channel isn't a vertex output.
     static unsigned int GetChannelInputSize(RenderingChannels channel);
-    //Gets whether or not the given channel is used, given the rendering mode/settings.
-    static bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, bool useLighting, const LightSettings & settings);
     //Gets all channels used in the given rendering mode/settings.
-    static void GetUsedChannels(RenderingModes mode, bool useLighting, const LightSettings & settings, std::vector<RenderingChannels> & outChannels);
+    static void GetUsedChannels(RenderingModes mode, std::vector<RenderingChannels> & outChannels);
 
     //Removes any unnecessary channels.
     static void RemoveUnusedChannels(std::unordered_map<RenderingChannels, DataLine> & channels, RenderingModes mode, bool useLighting, const LightSettings & settings);

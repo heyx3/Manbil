@@ -7,73 +7,7 @@
 #include "DataLine.h"
 #include "../../../ShaderHandler.h"
 #include "../UniformCollections.h"
-
-
-//Different kinds of data about what a material uses.
-//TODO: Once this is all done, remove all behavior from ShaderGeneration and move it out to data nodes (e.x. computing world position for output).
-struct MaterialUsageFlags
-{
-public:
-
-    enum Flags : unsigned
-    {
-        //Uses object-space position vertex output.
-        DNF_USES_OBJ_POS = 0x000001,
-        //Uses world-space position vertex output.
-        DNF_USES_WORLD_POS = 0x000002,
-        //Uses object-space normal vertex output.
-        DNF_USES_OBJ_NORMAL = 0x000004,
-        //Uses world-space normal vertex output.
-        DNF_USES_WORLD_NORMAL = 0x000008,
-
-        //Uses vertex color output.
-        DNF_USES_COLOR = 0x000010,
-        //Uses UV coord output.
-        DNF_USES_UV = 0x000020,
-
-        //Uses elapsed time uniform.
-        DNF_USES_TIME = 0x000040,
-
-        //Uses world matrix uniform.
-        DNF_USES_WORLD_MAT = 0x000080,
-        //Uses view matrix uniform.
-        DNF_USES_VIEW_MAT = 0x000100,
-        //Uses projection matrix uniform.
-        DNF_USES_PROJ_MAT = 0x000200,
-        //Uses WVP matrix uniform.
-        DNF_USES_WVP_MAT = 0x000400,
-
-        //Uses camera position uniform.
-        DNF_USES_CAM_POS = 0x000800,
-        //Uses camera forward vector uniform.
-        DNF_USES_CAM_FORWARD = 0x001000,
-        //Uses camera upwards vector uniform.
-        DNF_USES_CAM_UPWARDS = 0x002000,
-        //Uses camera sideways vector uniform.
-        DNF_USES_CAM_SIDEWAYS = 0x004000,
-
-        //Uses screen width uniform.
-        DNF_USES_WIDTH = 0x008000,
-        //Uses screen height uniform.
-        DNF_USES_HEIGHT = 0x010000,
-        //Uses screen z-near uniform.
-        DNF_USES_ZNEAR = 0x020000,
-        //Uses screen z-far uniform.
-        DNF_USES_ZFAR = 0x040000,
-        //Uses FOV uniform.
-        DNF_USES_FOV = 0x080000,
-    };
-
-    bool GetFlag(Flags flag) const { return (value & (unsigned int)flag) > 0; }
-    void EnableFlag(Flags flag) { value |= (unsigned int)flag; }
-    void DisableFlag(Flags flag) { value &= ~((unsigned int)flag); }
-
-private:
-
-    //TODO: Track the outputs taken from every input data node (an unordered_map indexed by pointer?), then use that information to remove any unnecessary lines of shader code in the data node shader code generation functions.
-
-    unsigned int value = 0;
-};
+#include "../MaterialUsageFlags.h"
 
 
 //Represents a basic, atomic operation in a shader.

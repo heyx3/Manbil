@@ -14,19 +14,3 @@ u_cam_height -- height of the screen in pixels, as a float
 out_uv -- UV coordinates for the quad as a vec2 in the range {0, 0} to {1, 1}.
 
 FinalOut_Color -- output color for the fragment shader, as a vec4. Must set this for the shader to be valid.
-
-
-
-Unused keywords (aren't used by QuadWorld, but also can't be used as variable names by the user):
-	u_matWorld
-	u_matView
-	u_matProj
-	u_matWVP
-	u_cam_zNear
-	u_cam_zFar
-	u_cam_fov
-	out_world_pos
-	out_obj_pos
-	out_world_normal
-	out_obj_normal
-	out_color
