@@ -121,8 +121,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     //Final render.
-    //TODO: Finish.
-    finalScreenMatChannels[RC::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_finalRenderSample")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new UVNode()), 0);
+    DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_finalRenderSample"));
+    finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
     finalScreenMat = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (finalScreenMat->HasError())
@@ -143,8 +144,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(maxRipples)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)),
-                      OptionalValue<Water::SeedmapWaterCreationArgs>(),
-                      RenderingModes::RM_Opaque, true, LightSettings(false), channels);
+                      OptionalValue<Water::SeedmapWaterCreationArgs>());
     if (water->HasError())
     {
         std::cout << "Error creating water: " << water->GetErrorMessage() << "\n";
@@ -154,7 +154,15 @@ void OpenGLTestWorld::InitializeObjects(void)
     }
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
-    const Material * waterMat = water->GetMaterial();
+    UniformDictionary unDict;
+    waterMat = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    if (waterMat->HasError())
+    {
+        std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
     water->GetMesh().Uniforms.TextureUniforms[texSamplerName] =
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
@@ -211,6 +219,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 OpenGLTestWorld::~OpenGLTestWorld(void)
 {
     DeleteAndSetToNull(water);
+    DeleteAndSetToNull(waterMat);
     DeleteAndSetToNull(ppc);
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
@@ -218,6 +227,7 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
 void OpenGLTestWorld::OnWorldEnd(void)
 {
     DeleteAndSetToNull(water);
+    DeleteAndSetToNull(waterMat);
     DeleteAndSetToNull(ppc);
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
@@ -253,7 +263,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     manager[worldRenderID]->EnableDrawingInto();
     ScreenClearer().ClearScreen();
 
-    if (!water->Render(info))
+    if (!water->Render(waterMat, info))
     {
         std::cout << "Error rendering world geometry: " << water->GetErrorMessage() << ".\n";
         Pause();

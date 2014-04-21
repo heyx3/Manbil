@@ -40,7 +40,8 @@ private:
 	void RenderWorldGeometry(const RenderInfo & info);
 
     Water * water;
-    Water::RenderChannels channels;
+    Material * waterMat;
+    std::unordered_map<RenderingChannels, DataLine> channels;
 
 	MovingCamera cam;
     RenderTargetManager manager;
