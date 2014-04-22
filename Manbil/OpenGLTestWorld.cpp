@@ -141,7 +141,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
-                                                         DataLine(0.5f))));
+                                                         DataLine(0.9f))));
 
 
     //Final render.
@@ -225,7 +225,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 500.0f;
+    cam.Info.zFar = 900.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
