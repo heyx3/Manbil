@@ -25,7 +25,7 @@ void ObjectPosToWorldPosCalcNode::WriteMyOutputs(std::string & outCode) const
     std::string output = GetOutputName(0),
                 tempOut = output + "_temp";
 
-    outCode += "\tvec4 " + tempOut + " = (" + MaterialConstants::WorldMatName + " * vec4(" + objPos + ", 0.0));\n";
+    outCode += "\tvec4 " + tempOut + " = (" + MaterialConstants::WorldMatName + " * vec4(" + objPos + ", 1.0));\n";
     outCode += "\tvec3 " + output + " = " + tempOut + ".xyz / " + tempOut + ".w;\n";
 }
 

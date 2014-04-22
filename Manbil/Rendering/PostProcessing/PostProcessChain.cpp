@@ -10,6 +10,12 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     //First separate the effects into "pass groups" -- a chain of effects grouped by pass.
     //Multi-pass effects are each in their own group.
 
+    //All passes don't need any kind of transformation for the vertices.
+    std::vector<DataLine> vectorBuilder;
+    vectorBuilder.insert(vectorBuilder.end(), DataLine(DataNodePtr(new ObjectPosNode()), 0));
+    vectorBuilder.insert(vectorBuilder.end(), DataLine(1.0f));
+    DataLine objectPos4(DataNodePtr(new CombineVectorNode(vectorBuilder)), 0);
+
     //Build each pass group.
     std::vector<std::vector<PostProcessEffect::PpePtr>> passGroups;
     unsigned int passGroup = 0;
@@ -74,6 +80,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 effct->CurrentPass = pass;
 
                 channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+                channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
                 UniformDictionary unfs;
                 ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
                 if (!genM.ErrorMessage.empty())
@@ -82,6 +89,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                     return;
                 }
                 materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
+                quad.GetMesh().Uniforms.AddUniforms(unfs, true);
                 uniforms.insert(uniforms.end(), UniformDictionary());
                 if (materials[materials.size() - 1]->HasError())
                 {
@@ -130,6 +138,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             //Now create the material.
             channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+            channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
             UniformDictionary unfs;
             ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
             if (!genM.ErrorMessage.empty())
@@ -138,6 +147,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 return;
             }
             materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
+            quad.GetMesh().Uniforms.AddUniforms(unfs, true);
             uniforms.insert(uniforms.end(), UniformDictionary());
             if (materials[materials.size() - 1]->HasError())
             {
@@ -205,13 +215,13 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         //Set up the uniforms for this pass.
         const UniformList & matUniforms = materials[i]->GetUniforms(RenderPasses::BaseComponents);
         quad.GetMesh().Uniforms.ClearUniforms();
+        quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
         quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::ColorSampler] =
             UniformSamplerValue(source->GetColorTexture(), PostProcessEffect::ColorSampler,
                                 matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler] =
             UniformSamplerValue(inWorld->GetDepthTexture(), PostProcessEffect::DepthSampler,
                                 matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.TextureUniforms).Loc);
-        quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
         quad.GetMesh().Uniforms.AddUniforms(uniforms[i], true);
 
         //Set up the render target.

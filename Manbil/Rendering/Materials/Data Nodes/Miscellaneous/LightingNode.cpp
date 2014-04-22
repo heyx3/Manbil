@@ -19,11 +19,12 @@ LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & su
 
 void LightingNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
+    //TODO: If no specular component, remove the "fragToCamNormal" argument.
         outDecls.insert(outDecls.end(), std::string() +
 "float " + GetFuncName() + "(float amb, float diff, float spec, float specInts,                                 \n\
                      vec3 lightDir, vec3 surfNormal, vec3 fragToCamNormal)                                      \n\
 {                                                                                                               \n\
-    float dotted = max(dot(-surfNormal, lightDir), 0.0);                                                        \n\
+    float dotted = max(dot(surfNormal, -lightDir), 0.0);                                                        \n\
                                                                                                                 \n\
     " +
       (!GetSpecularInput().IsConstant(0.0f) ?
@@ -45,7 +46,7 @@ void LightingNode::WriteMyOutputs(std::string & outCode) const
         GetSpecularIntensityInput().GetValue() + ", " +
         GetLightDirInput().GetValue() + ", " +
         GetSurfaceNormalInput().GetValue() + ", " +
-        GetCameraPosInput().GetValue() + " - " + GetSurfacePosInput().GetValue() +
+        "normalize(" + GetCameraPosInput().GetValue() + " - " + GetSurfacePosInput().GetValue() + ")" +
         ");\n";
 }
 

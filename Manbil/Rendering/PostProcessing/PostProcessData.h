@@ -13,7 +13,11 @@ class LinearDepthSampleNode : public DataNode
 public:
 
     virtual std::string GetName(void) const override { return "depthLinearizerNode"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_linearized"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
+        return GetName() + std::to_string(GetUniqueID()) + "_linearized";
+    }
 
     LinearDepthSampleNode(const DataLine & depthSampleInput) : DataNode(BuildInputs(depthSampleInput), MakeVector(1)) { }
 
@@ -26,7 +30,7 @@ protected:
                     zf = GetZFarInput().GetValue();
         outStr += "\tfloat " + GetOutputName(0) + " = (2.0 * " + zn + ") / " +
                                                      "(" + zf + " + " + zn + " - " +
-                                                       "(" + GetInputs()[0].GetValue() + " * " +
+                                                       "(" + GetDepthSampleInput().GetValue() + " * " +
                                                             "(" + zf + " - " + zn + ")));\n";
     }
 
@@ -114,7 +118,7 @@ public:
     //Gets the depth output name only.
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index == GetDepthOutputIndex());
+        Assert(index == GetDepthOutputIndex(), std::string() + "Output index is something other than " + ToString(GetDepthOutputIndex()) + ": " + ToString(index));
         if (PrevEffect.get() == 0)
             return GetDepthInput().GetValue();
         else return PrevEffect->GetOutputName(index);

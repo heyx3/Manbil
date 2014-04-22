@@ -139,16 +139,19 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
 }
 void WaterNode::WriteMyOutputs(std::string & outCode) const
 {
+    std::string posOutput = GetOutputName(GetVertexPosOutputIndex()),
+                normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
+
     switch (GetShaderType())
     {
         case Shaders::SH_Vertex_Shader:
-            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
-            outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
+            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
             break;
 
         case Shaders::SH_Fragment_Shader:
-            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
-            outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
+            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
             break;
 
         default: assert(false);
