@@ -9,7 +9,9 @@ int DataNode::EXCEPTION_ASSERT_FAILED = 1;
 
 void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
-    assert(outputIndex < outputs.size());
+    Assert(outputIndex < outputs.size(),
+           std::string() + "Output index " + std::to_string(outputIndex) +
+             " is too big. The max output index value is " + std::to_string(outputs.size() - 1));
 
     for (unsigned int input = 0; input < inputs.size(); ++input)
     {

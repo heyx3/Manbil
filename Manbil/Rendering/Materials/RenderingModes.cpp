@@ -8,6 +8,36 @@ bool IsModeTransparent(RenderingModes mode)
     return (mode == RM_Transluscent || mode == RM_Additive);
 }
 
+std::string ChannelToString(RenderingChannels channel)
+{
+    switch (channel)
+    {
+        case RenderingChannels::RC_Color: return "Color";
+        case RenderingChannels::RC_Opacity: return "Opacity";
+        case RenderingChannels::RC_ScreenVertexPosition: return "ScreenVertexPosition";
+
+        case RenderingChannels::RC_VERTEX_OUT_1:
+        case RenderingChannels::RC_VERTEX_OUT_2:
+        case RenderingChannels::RC_VERTEX_OUT_3:
+        case RenderingChannels::RC_VERTEX_OUT_4:
+        case RenderingChannels::RC_VERTEX_OUT_5:
+        case RenderingChannels::RC_VERTEX_OUT_6:
+        case RenderingChannels::RC_VERTEX_OUT_7:
+        case RenderingChannels::RC_VERTEX_OUT_8:
+        case RenderingChannels::RC_VERTEX_OUT_9:
+        case RenderingChannels::RC_VERTEX_OUT_10:
+        case RenderingChannels::RC_VERTEX_OUT_11:
+        case RenderingChannels::RC_VERTEX_OUT_12:
+        case RenderingChannels::RC_VERTEX_OUT_13:
+        case RenderingChannels::RC_VERTEX_OUT_14:
+        case RenderingChannels::RC_VERTEX_OUT_15:
+        case RenderingChannels::RC_VERTEX_OUT_16:
+            return "VertexOutput" + std::to_string(GetVertexOutputNumber(channel));
+
+        default: assert(false); return "UNKNOWN_CHANNEL";
+    }
+}
+
 bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
 {
     typedef RenderingChannels RCs;

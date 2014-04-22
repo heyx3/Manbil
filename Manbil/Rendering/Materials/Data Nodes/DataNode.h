@@ -110,6 +110,21 @@ protected:
         }
     }
 
+    static std::string ToString(Shaders shader)
+    {
+        switch (shader)
+        {
+            case Shaders::SH_Vertex_Shader: return "Vertex_Shader";
+            case Shaders::SH_Fragment_Shader: return "Fragment_Shader";
+            default: assert(false); return "UNKNOWN_SHADER_TYPE";
+        }
+    }
+    static std::string ToString(unsigned int value)
+    {
+        return std::to_string(value);
+    }
+
+
     //Gets whether the given input is used when calculating the given output.
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const { assert(inputIndex < inputs.size() && outputIndex < outputs.size()); return true; }

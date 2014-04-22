@@ -16,7 +16,7 @@ public:
 
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
+        Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
         return MaterialConstants::ElapsedTimeName;
     }
 

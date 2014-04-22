@@ -6,7 +6,9 @@
 unsigned int DataLine::GetDataLineSize(void) const
 {
     return (isConstantValue ? constantValue.GetSize() :
-                              nonConstantValue->GetOutputs()[nonConstantValueIndex]);
+                              (nonConstantValue->GetOutputs().size() <= nonConstantValueIndex ?
+                                    0 :
+                                    nonConstantValue->GetOutputs()[nonConstantValueIndex]));
 }
 
 std::string DataLine::GetValue(void) const

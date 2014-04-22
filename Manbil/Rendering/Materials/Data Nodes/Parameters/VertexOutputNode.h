@@ -16,7 +16,8 @@ public:
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
         Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
-        Assert(GetShaderType() == Shaders::SH_Fragment_Shader, std::string() + "Invalid shader type (must be Fragment): " + std::to_string(GetShaderType()));
+        Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
+               std::string() + "Invalid shader type (must be Fragment): " + ToString(GetShaderType()));
 
         return MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(vertOutput));
     }
@@ -25,7 +26,7 @@ public:
         : vertOutput(vertexOutput), DataNode(std::vector<DataLine>(), MakeVector(outputSize))
     {
         Assert(IsChannelVertexOutput(vertexOutput, false),
-               std::string() + "The vertex output argument isn't a vertex output! It is " + std::to_string(vertexOutput));
+               std::string() + "The vertex output argument isn't a vertex output! It is " + ToString(vertexOutput));
     }
 
 protected:
@@ -33,7 +34,7 @@ protected:
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
-               std::string() + "Invalid shader type (must be Fragment): " + std::to_string(GetShaderType()));
+               std::string() + "Invalid shader type (must be Fragment): " + ToString(GetShaderType()));
         //Don't do anything, since the output name is an "in" variable.
     }
     

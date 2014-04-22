@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 
 //Different kinds of materials.
 enum RenderingModes
@@ -70,6 +72,7 @@ enum RenderingChannels
     //Vertex output (interpolated fragment input).
     RC_VERTEX_OUT_16,
 };
+std::string ChannelToString(RenderingChannels channel);
 
 //Gets whether the given channel is a vertex output.
 //"includeInvalidOutput" indicates what to return if the value is RC_VERTEX_OUT_INVALID.

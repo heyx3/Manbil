@@ -1,6 +1,22 @@
 #include "LightingNode.h"
 
 
+LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
+                           DataLine ambient, DataLine diffuse, DataLine specular, DataLine specIntensity, DataLine camPos)
+    : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity, camPos, surfaceWorldPos, surfaceWorldNormal, lightDir),
+               MakeVector(1))
+{
+    Assert(ambient.GetDataLineSize() == 1, std::string() + "Ambient input must be size 1; is size " + ToString(ambient.GetDataLineSize()));
+    Assert(diffuse.GetDataLineSize() == 1, std::string() + "Diffuse input must be size 1; is size " + ToString(diffuse.GetDataLineSize()));
+    Assert(specular.GetDataLineSize() == 1, std::string() + "Specular input must be size 1; is size " + ToString(specular.GetDataLineSize()));
+    Assert(specIntensity.GetDataLineSize() == 1, std::string() + "Specular intensity input must be size 1; is size " + ToString(specIntensity.GetDataLineSize()));
+
+    Assert(camPos.GetDataLineSize() == 3, std::string() + "CamPos input must be size 3; is size " + ToString(camPos.GetDataLineSize()));
+    Assert(surfaceWorldPos.GetDataLineSize() == 3, std::string() + "SurfaceWorldPos input must be size 3; is size " + ToString(surfaceWorldPos.GetDataLineSize()));
+    Assert(surfaceWorldNormal.GetDataLineSize() == 3, std::string() + "SurfaceWorldNormal input must be size 3; is size " + ToString(surfaceWorldNormal.GetDataLineSize()));
+    Assert(lightDir.GetDataLineSize() == 3, std::string() + "LightDir input must be size 3; is size " + ToString(lightDir.GetDataLineSize()));
+}
+
 void LightingNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
         outDecls.insert(outDecls.end(), std::string() +

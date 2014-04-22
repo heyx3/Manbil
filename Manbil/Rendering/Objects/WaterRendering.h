@@ -26,7 +26,11 @@ public:
 
 
     virtual std::string GetName(void) const override { return "rippleHeightNode"; }
-    virtual std::string GetOutputName(unsigned int i) const override { assert(i < 2); return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal"); }
+    virtual std::string GetOutputName(unsigned int i) const override
+    {
+        Assert(i < 2, std::string() + "Invalid output index " + ToString(i));
+        return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal");
+    }
 
     //Takes as input the vertex output channel for object-space fragment position.
     //Also takes in the uniform values for ripples/flows.
@@ -36,7 +40,8 @@ public:
                    MakeVector(3, 3)),
           objPosVertOutput(objectPosVertexOutput), maxRipples(_maxRipples), maxFlows(_maxFlows)
     {
-        assert(IsChannelVertexOutput(objectPosVertexOutput, false));
+        Assert(IsChannelVertexOutput(objectPosVertexOutput, false),
+               "Input channel '" + ChannelToString(objectPosVertexOutput) + "' is not a vertex output!");
     }
 
 protected:
@@ -52,7 +57,7 @@ protected:
                 return (inputIndex == 1);
 
             default:
-                assert(false);
+                Assert(false, std::string() + "Invalid shader type " + ToString(GetShaderType()));
                 return DataNode::UsesInput(inputIndex, outputIndex);
         }
     }
@@ -99,7 +104,11 @@ public:
     unsigned int GetUVOffsetOutputIndex(void) const { return 0; }
 
     virtual std::string GetName(void) const override { return "waterSurfaceDistortNode"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_uvOffset"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
+        return GetName() + std::to_string(GetUniqueID()) + "_uvOffset";
+    }
 
     //Takes in a seed value. By default, uses an input that will work well for a Water object.
     //Also takes in the amplitude and period of the random shifting around of the surface.
@@ -111,7 +120,9 @@ public:
                             DataLine timeValue = GetTimeIn(RenderingChannels::RC_VERTEX_OUT_INVALID))
         : DataNode(MakeVector(seedIn, shiftAmplitude, shiftPeriod, timeValue), MakeVector(2))
     {
-        assert(seedIn.GetDataLineSize() == 1 && shiftAmplitude.GetDataLineSize() == 1 && shiftPeriod.GetDataLineSize() == 1);
+        Assert(seedIn.GetDataLineSize() == 1, std::string() + "seedIn input needs size 1, has size " + ToString(seedIn.GetDataLineSize()));
+        Assert(shiftAmplitude.GetDataLineSize() == 1, std::string() + "shiftAmplitude input needs size 1, has size " + ToString(shiftAmplitude.GetDataLineSize()));
+        Assert(shiftPeriod.GetDataLineSize() == 1, std::string() + "shiftPeriod input needs size 1, has size " + ToString(shiftPeriod.GetDataLineSize()));
     }
 
 
@@ -119,7 +130,8 @@ protected:
 
     virtual void WriteMyOutputs(std::string & strOut) const override
     {
-        assert(GetShaderType() == Shaders::SH_Fragment_Shader);
+        Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
+               std::string() + "This node is only applicable in the fragment shader, but is being used in " + ToString(GetShaderType()));
         strOut += "\tvec2 " + GetOutputName(0) + " = vec2(" + GetSeedInput().GetValue() + " * " +
                                                               GetAmplitudeInput().GetValue() + " * " +
                                                               "sin(" + GetPeriodInput().GetValue() + " * " +

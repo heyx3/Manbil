@@ -42,7 +42,7 @@ protected:
             flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_FOV);
             break;
 
-        default: Assert(false, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
         }
     }
 

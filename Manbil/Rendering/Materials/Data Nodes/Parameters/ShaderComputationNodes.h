@@ -21,9 +21,9 @@ public:
     virtual std::string GetName(void) const override { return "objToScreenPosNode"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        Assert(index <= 1, std::string() + "Invalid output index " + std::to_string(index));
+        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
 
-        return GetName() + std::to_string(GetUniqueID()) +
+        return GetName() + ToString(GetUniqueID()) +
                   (index == 0 ? "_pos" : "_homogenousPos");
     }
 
@@ -35,7 +35,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        Assert(outputIndex <= 1, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(outputIndex <= 1, std::string() + "Invalid output index " + ToString(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WVP_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -55,7 +55,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WVP_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -73,7 +73,7 @@ public:
     {
         Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
 
-        return GetName() + std::to_string(GetUniqueID()) + "_pos";
+        return GetName() + ToString(GetUniqueID()) + "_pos";
     }
 
     ObjectPosToWorldPosCalcNode(DataLine objectPos = DataLine(DataNodePtr(new ObjectPosNode()), 0))
@@ -84,7 +84,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        Assert(outputIndex <= 1, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(outputIndex <= 1, std::string() + "Invalid output index " + ToString(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -96,14 +96,15 @@ public:
 
     virtual std::string GetName(void) const override { return "objNormalToWorldNode"; }
 
-    ObjectNormalToWorldNormalCalcNode(DataLine objNormal = DataLine(DataNodePtr(new ObjectNormalNode()), 0)) : DataNode(MakeVector(objNormal), MakeVector(3)) { }
+    ObjectNormalToWorldNormalCalcNode(DataLine objNormal = DataLine(DataNodePtr(new ObjectNormalNode()), 0))
+        : DataNode(MakeVector(objNormal), MakeVector(3)) { }
 
 
 protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;

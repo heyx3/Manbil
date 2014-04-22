@@ -70,7 +70,7 @@ private:
             case ChannelsOut::CO_AllChannels:
                 return 4;
 
-            default: assert(false);
+            default: assert(false); return 0;
         }
     }
 

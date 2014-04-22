@@ -20,11 +20,7 @@ public:
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
                  DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
                  DataLine specular = DataLine(1.5f), DataLine specIntensity = DataLine(128.0f),
-                 DataLine camPos = DataLine(DataNodePtr(new CameraDataNode()), CameraDataNode::GetCamPosOutputIndex()))
-        : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity, camPos, surfaceWorldPos, surfaceWorldNormal, lightDir), MakeVector(1))
-    {
-
-    }
+                 DataLine camPos = DataLine(DataNodePtr(new CameraDataNode()), CameraDataNode::GetCamPosOutputIndex()));
 
 
 protected:

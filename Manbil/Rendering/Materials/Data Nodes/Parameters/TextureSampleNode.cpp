@@ -33,7 +33,7 @@ std::string TextureSampleNode::GetOutputName(unsigned int index) const
         case 3: return base + ".w";
         case 4: return base + ".xyz";
         case 5: return base;
-        default: Assert(false, std::string() + "Invalid output index: " + std::to_string(index));
+        default: Assert(false, std::string() + "Invalid output index: " + ToString(index));
     }
 }
 
@@ -57,11 +57,11 @@ TextureSampleNode::TextureSampleNode(const DataLine & uvs, std::string _samplerN
     : DataNode(MakeVector(uvs), makeVector())
 {
     Assert(uvs.GetDataLineSize() == 2,
-           std::string() + "UV input isn't size 2; it's size " + std::to_string(uvs.GetDataLineSize()));
+           std::string() + "UV input isn't size 2; it's size " + ToString(uvs.GetDataLineSize()));
 
     samplerName = _samplerName;
     if (samplerName.empty())
-        samplerName = GetName() + std::to_string(GetUniqueID()) + "_" + "sample";
+        samplerName = GetName() + ToString(GetUniqueID()) + "_" + "sample";
 }
 
 
