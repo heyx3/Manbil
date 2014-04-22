@@ -75,7 +75,13 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
                 channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
                 UniformDictionary unfs;
-                materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
+                ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
+                if (!genM.ErrorMessage.empty())
+                {
+                    errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + "of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
+                    return;
+                }
+                materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
                 uniforms.insert(uniforms.end(), UniformDictionary());
                 if (materials[materials.size() - 1]->HasError())
                 {
@@ -125,7 +131,13 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             //Now create the material.
             channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
             UniformDictionary unfs;
-            materials.insert(materials.end(), std::shared_ptr<Material>(ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false))));
+            ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
+            if (!genM.ErrorMessage.empty())
+            {
+                errorMsg = std::string() + "Error generating shaders for material #" + std::to_string(materials.size()) + ": " + genM.ErrorMessage;
+                return;
+            }
+            materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
             uniforms.insert(uniforms.end(), UniformDictionary());
             if (materials[materials.size() - 1]->HasError())
             {

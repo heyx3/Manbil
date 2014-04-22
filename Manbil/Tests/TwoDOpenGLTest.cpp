@@ -112,7 +112,15 @@ void TwoDOpenGLTest::InitializeWorld(void)
                                                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
 
     UniformDictionary uniformDict;
-    quadMat = ShaderGenerator::GenerateMaterial(channels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (!genM.ErrorMessage.empty())
+    {
+        std::cout << "Error generating quad mat shaders: " << genM.ErrorMessage;
+        Pause();
+        EndWorld();
+        return;
+    }
+    quadMat = genM.Mat;
     if (quadMat->HasError())
     {
         std::cout << "Error creating quad mat: " << quadMat->GetErrorMsg();

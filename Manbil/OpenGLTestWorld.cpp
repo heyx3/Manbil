@@ -116,7 +116,15 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     UniformDictionary unDict;
-    waterMat = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    if (!wM.ErrorMessage.empty())
+    {
+        std::cout << "Error generating water shaders: " << wM.ErrorMessage << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    waterMat = wM.Mat;
     if (waterMat->HasError())
     {
         std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
@@ -139,7 +147,15 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_finalRenderSample"));
     finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
-    finalScreenMat = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (!genM.ErrorMessage.empty())
+    {
+        std::cout << "Error generating shaders for final screen material: " << genM.ErrorMessage << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    finalScreenMat = genM.Mat;
     if (finalScreenMat->HasError())
     {
         std::cout << "final screen material creation error: " << finalScreenMat->GetErrorMsg() << "\n";

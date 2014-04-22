@@ -25,12 +25,26 @@ public:
     static void AddMissingChannels(std::unordered_map<RenderingChannels, DataLine> & channels, RenderingModes mode, bool useLighting, const LightSettings & settings);
 
     //Generates a vertex and fragment shader given data nodes.
-    static void GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                RenderingModes mode, bool useLighting, const LightSettings & settings,
-                                std::unordered_map<RenderingChannels, DataLine> & channels);
+    //Returns an error message, or an empty string if there was no error.
+    static std::string GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
+                                       RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                       std::unordered_map<RenderingChannels, DataLine> & channels);
 
-    //Generates the shaders and allocates a new material from them.
-    static Material * GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                       UniformDictionary & outUniforms,
-                                       RenderingModes mode, bool useLighting, const LightSettings & settings);
+
+    //The return type for GenerateMaterial.
+    //If the data nodes generated a shader successfully, the material will be a heap-allocated object and the error message will be empty.
+    //Otherwise, the material will be 0 and the error message will be non-empty.
+    struct GeneratedMaterial
+    {
+    public:
+        Material * Mat;
+        std::string ErrorMessage;
+        GeneratedMaterial(Material * mat) : Mat(mat), ErrorMessage("") { }
+        GeneratedMaterial(std::string errorMsg) : Mat(0), ErrorMessage(errorMsg) { }
+    };
+    //Generates the shaders and heap-allocates a new material from them.
+    //You are responsible for the material's memory management after it's created.
+    static GeneratedMaterial GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
+                                              UniformDictionary & outUniforms,
+                                              RenderingModes mode, bool useLighting, const LightSettings & settings);
 };

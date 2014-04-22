@@ -100,19 +100,20 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
     }
 }
 
-Material * ShaderGenerator::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                             UniformDictionary & uniforms,
-                                             RenderingModes mode, bool useLighting, const LightSettings & settings)
+SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
+                                           UniformDictionary & uniforms,
+                                           RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
     std::string vs, fs;
-    GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
-    
-    return new Material(vs, fs, uniforms, mode, useLighting, settings);
+    std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
+
+    if (!error.empty()) return GeneratedMaterial(error);
+    else return GeneratedMaterial(new Material(vs, fs, uniforms, mode, useLighting, settings));
 }
 
-void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                         RenderingModes mode, bool useLighting, const LightSettings & settings,
-                         std::unordered_map<RenderingChannels, DataLine> & channels)
+std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
+                                RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                std::unordered_map<RenderingChannels, DataLine> & channels)
 {
     RemoveUnusedChannels(channels, mode, useLighting, settings);
     AddMissingChannels(channels, mode, useLighting, settings);
@@ -133,18 +134,28 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
     {
         if (iterator->second.IsConstant()) continue;
 
-        switch (GetShaderType(iterator->first))
+        try
         {
-            case DataNode::Shaders::SH_Vertex_Shader:
-                DataNode::SetShaderType(Shaders::SH_Vertex_Shader);
-                iterator->second.GetDataNodeValue()->SetFlags(vertFlags, iterator->second.GetDataNodeLineIndex());
-                break;
-            case DataNode::Shaders::SH_Fragment_Shader:
-                DataNode::SetShaderType(Shaders::SH_Fragment_Shader);
-                iterator->second.GetDataNodeValue()->SetFlags(fragFlags, iterator->second.GetDataNodeLineIndex());
-                break;
+            switch (GetShaderType(iterator->first))
+            {
+                case DataNode::Shaders::SH_Vertex_Shader:
+                    DataNode::SetShaderType(Shaders::SH_Vertex_Shader);
+                    iterator->second.GetDataNodeValue()->SetFlags(vertFlags, iterator->second.GetDataNodeLineIndex());
+                    break;
+                case DataNode::Shaders::SH_Fragment_Shader:
+                    DataNode::SetShaderType(Shaders::SH_Fragment_Shader);
+                    iterator->second.GetDataNodeValue()->SetFlags(fragFlags, iterator->second.GetDataNodeLineIndex());
+                    break;
 
-            default: assert(false);
+                default: assert(false);
+            }
+        }
+        catch (int ex)
+        {
+            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+            return std::string() + "Error setting flags for channel " + std::to_string(iterator->first) +
+                       ", node " + iterator->second.GetDataNodeValue()->GetName() + ": " +
+                       iterator->second.GetDataNodeValue()->GetError();
         }
     }
 
@@ -186,24 +197,33 @@ void SG::GenerateShaders(std::string & outVShader, std::string & outFShader, Uni
         {
             std::string oldVCode = vertexCode,
                         oldFCode = fragmentCode;
-
-            switch (GetShaderType(validChannels[i]))
+            try
             {
-                case DataNode::Shaders::SH_Vertex_Shader:
-                    DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
-                    data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
-                    data.GetDataNodeValue()->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
-                    data.GetDataNodeValue()->WriteOutputs(vertexCode, vertexCodes);
-                    break;
+                switch (GetShaderType(validChannels[i]))
+                {
+                    case DataNode::Shaders::SH_Vertex_Shader:
+                        DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
+                        data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
+                        data.GetDataNodeValue()->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
+                        data.GetDataNodeValue()->WriteOutputs(vertexCode, vertexCodes);
+                        break;
 
-                case DataNode::Shaders::SH_Fragment_Shader:
-                    DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
-                    data.GetDataNodeValue()->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
-                    data.GetDataNodeValue()->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
-                    data.GetDataNodeValue()->WriteOutputs(fragmentCode, fragmentCodes);
-                    break;
+                    case DataNode::Shaders::SH_Fragment_Shader:
+                        DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
+                        data.GetDataNodeValue()->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
+                        data.GetDataNodeValue()->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
+                        data.GetDataNodeValue()->WriteOutputs(fragmentCode, fragmentCodes);
+                        break;
 
-                default: assert(false);
+                    default: assert(false);
+                }
+            }
+            catch (int ex)
+            {
+                assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+                return std::string() + "Error setting parameters, functions, and outputs for channel " +
+                    std::to_string(validChannels[i]) + ", node " + data.GetDataNodeValue()->GetName() + ": " +
+                    data.GetDataNodeValue()->GetError();
             }
 
             if (oldVCode != vertexCode) vertexCode += "\n";
@@ -328,4 +348,6 @@ void main()                                                                     
     for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
         if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
             outUniforms.TextureUniforms[iterator->first] = iterator->second;
+
+    return "";
 }

@@ -42,8 +42,8 @@ string ToString(Vector v)
 
 int main()
 {
-    OpenGLTestWorld().RunWorld();
-    //TwoDOpenGLTest().RunWorld();
+    //OpenGLTestWorld().RunWorld();
+    TwoDOpenGLTest().RunWorld();
 
     //NoiseTest().RunWorld();
 
