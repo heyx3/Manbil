@@ -13,7 +13,8 @@ public:
     CombineVectorNode(const std::vector<DataLine> & inputs) : DataNode(inputs, MakeVector(CountElements(inputs)))
     {
         count = GetOutputs()[0];
-        assert(count > 0 && count < 5);
+        Assert(count > 0, std::string() + "No elements in the output vector!");
+        Assert(count < 5, std::string() + "Too many elements in the output vector: " + std::to_string(count));
     }
 
 

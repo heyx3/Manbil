@@ -9,13 +9,17 @@ class className : public DataNode \
     public: \
         className(const DataLine & input) : DataNode(MakeVector(input), MakeVector(input.GetDataLineSize())) { } \
         virtual std::string GetName(void) const override { return #name ; } \
-        virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_" + #outputName ; } \
+        virtual std::string GetOutputName(unsigned int index) const override \
+        { \
+            Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index)); \
+            return GetName() + std::to_string(GetUniqueID()) + "_" + #outputName ; \
+        } \
     \
     protected: \
         virtual void WriteMyOutputs(std::string & outCode) const override \
         { \
-        std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType(); \
-        outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
+            std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType(); \
+            outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
         } \
     };
 

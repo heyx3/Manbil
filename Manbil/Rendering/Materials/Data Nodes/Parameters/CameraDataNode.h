@@ -38,7 +38,7 @@ protected:
             flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_CAM_SIDEWAYS);
             break;
 
-        default: assert(false);
+        default: Assert(false, std::string() + "Invalid output index " + std::to_string(outputIndex));
         }
     }
 

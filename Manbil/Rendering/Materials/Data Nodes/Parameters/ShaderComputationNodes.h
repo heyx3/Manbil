@@ -21,7 +21,7 @@ public:
     virtual std::string GetName(void) const override { return "objToScreenPosNode"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index <= 1);
+        Assert(index <= 1, std::string() + "Invalid output index " + std::to_string(index));
 
         return GetName() + std::to_string(GetUniqueID()) +
                   (index == 0 ? "_pos" : "_homogenousPos");
@@ -35,7 +35,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        assert(outputIndex <= 1);
+        Assert(outputIndex <= 1, std::string() + "Invalid output index " + std::to_string(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WVP_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -55,7 +55,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        assert(outputIndex == 0);
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WVP_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -71,7 +71,7 @@ public:
     virtual std::string GetName(void) const override { return "objPosToWorldNode"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index == 0);
+        Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
 
         return GetName() + std::to_string(GetUniqueID()) + "_pos";
     }
@@ -84,7 +84,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        assert(outputIndex <= 1);
+        Assert(outputIndex <= 1, std::string() + "Invalid output index " + std::to_string(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;
@@ -103,7 +103,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
     {
-        assert(outputIndex == 0);
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
     }
     virtual void WriteMyOutputs(std::string & outCode) const override;

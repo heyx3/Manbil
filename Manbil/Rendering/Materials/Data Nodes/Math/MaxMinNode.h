@@ -14,8 +14,9 @@ public:
     MaxMinNode(const DataLine & input1, const DataLine & input2, bool _isMax)
         : DataNode(MakeVector(input1, input2), MakeVector(BasicMath::Max(input1.GetDataLineSize(), input2.GetDataLineSize()))), isMax(_isMax)
     {
-        assert(input1.GetDataLineSize() == 1 || input2.GetDataLineSize() == 1 ||
-               input1.GetDataLineSize() == input2.GetDataLineSize());
+        Assert(input1.GetDataLineSize() == 1 || input2.GetDataLineSize() == 1 ||
+               input1.GetDataLineSize() == input2.GetDataLineSize(),
+               "Both inputs need to be either size 1 or the same size!");
     }
 
 

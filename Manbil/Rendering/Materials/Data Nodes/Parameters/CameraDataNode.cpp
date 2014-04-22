@@ -13,7 +13,7 @@ std::string CameraDataNode::GetOutputName(unsigned int index) const
         case 3: return MaterialConstants::CameraSideName;
 
         default:
-            assert(false);
+            Assert(false, std::string() + "Invalid output index " + std::to_string(index));
             return "UNKNOWN_CAMERA_DAT_NAME";
     }
 }

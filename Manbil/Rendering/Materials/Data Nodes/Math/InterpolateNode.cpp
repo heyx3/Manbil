@@ -3,14 +3,15 @@
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type)
     : DataNode(MakeVector(min, max, interp), MakeVector(BasicMath::Max(max.GetDataLineSize(), interp.GetDataLineSize())))
 {
-    assert(type != IT_Power);
+    Assert(type != IT_Power, "Used non-'Power' constructor for 'Power' interpolation!");
     intType = type;
 
     unsigned int minS = min.GetDataLineSize(),
                  maxS = max.GetDataLineSize(),
                  intS = interp.GetDataLineSize();
 
-    assert(minS == maxS && (intS == minS || intS == 1));
+    Assert(minS == maxS, "'min' and 'max' are different sizes!");
+    Assert(intS == minS || intS == 1, "interpolant must be size 1 or the size of the min/max inputs!");
 }
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, DataLine power)
@@ -22,7 +23,8 @@ InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, Da
                  maxS = max.GetDataLineSize(),
                  intS = interp.GetDataLineSize();
 
-    assert(minS == maxS && (intS == minS || intS == 1));
+    Assert(minS == maxS, "'min' and 'max' are different sizes!");
+    Assert(intS == minS || intS == 1, "interpolant must be size 1 or the size of the min/max inputs!");
 }
 
 
@@ -77,6 +79,7 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
                                                                                      GetPowerInput().GetValue() + "));\n";
         break;
 
-    default: assert(false);
+    default:
+        Assert(false, "Unknown interpolant type: " + std::to_string(intType));
     }
 }

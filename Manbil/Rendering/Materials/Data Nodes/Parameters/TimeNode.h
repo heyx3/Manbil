@@ -14,7 +14,11 @@ public:
 
     TimeNode(void) : DataNode(std::vector<DataLine>(), MakeVector(1)) { }
 
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return MaterialConstants::ElapsedTimeName; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
+        return MaterialConstants::ElapsedTimeName;
+    }
 
 
 protected:

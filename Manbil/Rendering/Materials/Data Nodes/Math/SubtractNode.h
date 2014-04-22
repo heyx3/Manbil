@@ -17,12 +17,15 @@ public:
     {
         unsigned int size = baseValue.GetDataLineSize();
         for (unsigned int i = 0; i < toSubtract.size(); ++i)
-            assert(toSubtract[i].GetDataLineSize() == size);
+            Assert(toSubtract[i].GetDataLineSize() == size,
+                   std::string() + "Element " + std::to_string(i + 1) +
+                   " is not the same size as the first element -- size " + std::to_string(size));
     }
     SubtractNode(const DataLine & baseValue, const DataLine & toSubtract)
         : DataNode(MakeVector(baseValue, toSubtract), MakeVector(baseValue.GetDataLineSize()))
     {
-        assert(baseValue.GetDataLineSize() == toSubtract.GetDataLineSize());
+        Assert(baseValue.GetDataLineSize() == toSubtract.GetDataLineSize(),
+               "The two inputs must be the same size!");
     }
 
 

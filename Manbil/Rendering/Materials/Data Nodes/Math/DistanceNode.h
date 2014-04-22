@@ -13,7 +13,8 @@ public:
     DistanceNode(const DataLine & pos1, const DataLine & pos2)
         : DataNode(MakeVector(pos1, pos2), MakeVector(1))
     {
-        assert(pos1.GetDataLineSize() == pos2.GetDataLineSize());
+        Assert(pos1.GetDataLineSize() == pos2.GetDataLineSize(),
+               "The two position inputs aren't the same size!");
     }
 
 

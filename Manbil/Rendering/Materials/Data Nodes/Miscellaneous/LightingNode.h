@@ -10,7 +10,11 @@ class LightingNode : public DataNode
 public:
 
     virtual std::string GetName(void) const override { return "lightingNode"; }
-    virtual std::string GetOutputName(unsigned int outputIndex) const override { assert(outputIndex == 0); return GetName() + std::to_string(GetUniqueID()) + "_brightness"; }
+    virtual std::string GetOutputName(unsigned int outputIndex) const override
+    {
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        return GetName() + std::to_string(GetUniqueID()) + "_brightness";
+    }
 
 
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,

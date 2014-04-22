@@ -11,7 +11,11 @@ public:
     enum Components { C_X, C_Y, C_Z, C_W, };
 
     virtual std::string GetName(void) const override { return "swizzleNode"; }
-    virtual std::string GetOutputName(unsigned int index) const override { assert(index == 0); return GetName() + std::to_string(GetUniqueID()) + "_swiz"; }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
+        return GetName() + std::to_string(GetUniqueID()) + "_swiz";
+    }
 
     SwizzleNode(const DataLine & in, Components newX)
         : DataNode(MakeVector(in), MakeVector(1)), nComps(1)

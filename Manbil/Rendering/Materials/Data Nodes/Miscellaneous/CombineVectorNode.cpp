@@ -22,7 +22,7 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
                     case 2: outCode += ".y"; break;
                     case 3: outCode += ".z"; break;
                     case 4: outCode += ".w"; break;
-                    default: assert(false);
+                    default: Assert(false, std::string() + "Invalid index: " + std::to_string(counter));
                 }
             }
 

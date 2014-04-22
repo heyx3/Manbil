@@ -13,7 +13,10 @@ public:
     ClampNode(const DataLine & min, const DataLine & max, const DataLine & value)
         : DataNode(MakeVector(min, max, value), MakeVector(min.GetDataLineSize()))
     {
-        assert(min.GetDataLineSize() == max.GetDataLineSize() && min.GetDataLineSize() == value.GetDataLineSize());
+        Assert(min.GetDataLineSize() == max.GetDataLineSize(),
+               "Min and max value aren't the same size!");
+        Assert(min.GetDataLineSize() == value.GetDataLineSize(),
+               "Min/max and value to clamp aren't the same size!");
     }
 
 protected:

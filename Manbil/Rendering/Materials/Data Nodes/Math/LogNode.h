@@ -13,7 +13,7 @@ public:
     LogNode(const DataLine & value, const DataLine & base)
         : DataNode(MakeVector(value, base), MakeVector(value.GetDataLineSize()))
     {
-        assert(base.GetDataLineSize() == 1);
+        Assert(base.GetDataLineSize() == 1, "base must have a size of 1! Instead it has size " + std::to_string(base.GetDataLineSize()));
     }
 
 

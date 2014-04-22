@@ -12,7 +12,8 @@ std::vector<unsigned int> VectorComponentsNode::buildOutputs(const DataLine & in
 
 std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
 {
-    assert(outputIndex < GetVectorInput().GetDataLineSize());
+    Assert(outputIndex < GetVectorInput().GetDataLineSize(),
+           std::string() + "Invalid output index " + std::to_string(outputIndex) + "!");
     
     std::string ret = GetName() + std::to_string(GetUniqueID()) + "_";
 
@@ -25,7 +26,7 @@ std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
             case 1: ret += "y"; break;
             case 2: ret += "z"; break;
             case 3: ret += "w"; break;
-            default: assert(false);
+            default: Assert(false, std::string() + "Invalid output index " + std::to_string(outputIndex) + "!");
         }
 
     return ret;
@@ -45,7 +46,7 @@ void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
                 case 1: outCode += ".y"; break;
                 case 2: outCode += ".z"; break;
                 case 3: outCode += ".w"; break;
-                default: assert(false);
+                default: Assert(false, std::string() + "Invalid output index " + std::to_string(i));
             }
         }
         outCode += ";\n";

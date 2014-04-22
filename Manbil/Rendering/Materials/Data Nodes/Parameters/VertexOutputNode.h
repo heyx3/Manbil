@@ -15,21 +15,25 @@ public:
     virtual std::string GetName(void) const override { return "vertexOutputNode"; }
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
-        assert(outputIndex == 0 && GetShaderType() == Shaders::SH_Fragment_Shader);
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(GetShaderType() == Shaders::SH_Fragment_Shader, std::string() + "Invalid shader type (must be Fragment): " + std::to_string(GetShaderType()));
+
         return MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(vertOutput));
     }
 
     VertexOutputNode(RenderingChannels vertexOutput, unsigned int outputSize)
         : vertOutput(vertexOutput), DataNode(std::vector<DataLine>(), MakeVector(outputSize))
     {
-        assert(IsChannelVertexOutput(vertexOutput, false));
+        Assert(IsChannelVertexOutput(vertexOutput, false),
+               std::string() + "The vertex output argument isn't a vertex output! It is " + std::to_string(vertexOutput));
     }
 
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        assert(GetShaderType() == Shaders::SH_Fragment_Shader);
+        Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
+               std::string() + "Invalid shader type (must be Fragment): " + std::to_string(GetShaderType()));
         //Don't do anything, since the output name is an "in" variable.
     }
     

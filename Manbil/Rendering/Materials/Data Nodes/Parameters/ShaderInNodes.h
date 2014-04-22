@@ -15,15 +15,17 @@ public:
         : input(inputName), DataNode(std::vector<DataLine>(), MakeVector(size)) { }
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
-        assert(outputIndex == 0);
-        assert(GetShaderType() == Shaders::SH_Vertex_Shader);
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
+        Assert(GetShaderType() == Shaders::SH_Vertex_Shader,
+               std::string() + "Invalid shader type (needs to be Vertex): " + std::to_string(GetShaderType()));
         return input;
     }
 
 protected:
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        assert(GetShaderType() == Shaders::SH_Vertex_Shader);
+        Assert(GetShaderType() == Shaders::SH_Vertex_Shader,
+               std::string() + "Invalid shader type (needs to be Vertex): " + std::to_string(GetShaderType()));
         //No need to write any output; the "output" for this node is just a vertex input.
     }
 

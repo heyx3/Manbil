@@ -14,7 +14,7 @@ std::string ProjectionDataNode::GetOutputName(unsigned int index) const
         case 4: return MaterialConstants::CameraFovName;
 
         default:
-            assert(false);
+            Assert(false, std::string() + "Invalid output index " + std::to_string(index));
             return "INVALID_PROJECTION_DATA_NAME";
     }
 }

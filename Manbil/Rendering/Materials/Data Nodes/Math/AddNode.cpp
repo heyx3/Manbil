@@ -5,12 +5,15 @@ AddNode::AddNode(const std::vector<DataLine> & toAdd)
 {
     unsigned int size = toAdd[0].GetDataLineSize();
     for (unsigned int i = 1; i < toAdd.size(); ++i)
-        assert(toAdd[i].GetDataLineSize() == size);
+        Assert(toAdd[i].GetDataLineSize() == size,
+               std::string() + "Input " + std::to_string(i + 1) +
+               " isn't the same size as the first input -- size " + std::to_string(size));
 }
 AddNode::AddNode(DataLine toAdd1, DataLine toAdd2)
     : DataNode(MakeVector(toAdd1, toAdd2), MakeVector(toAdd1.GetDataLineSize()))
 {
-    assert(toAdd1.GetDataLineSize() == toAdd2.GetDataLineSize());
+    Assert(toAdd1.GetDataLineSize() == toAdd2.GetDataLineSize(),
+           "The two items to add must be the same size!");
 }
 
 void AddNode::WriteMyOutputs(std::string & outCode) const

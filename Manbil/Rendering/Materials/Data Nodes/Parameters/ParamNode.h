@@ -25,7 +25,7 @@ public:
 
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
-        assert(outputIndex == 0);
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
         return name;
     }
 

@@ -13,7 +13,8 @@ public:
     DotNode(const DataLine & first, const DataLine & second)
         : DataNode(MakeVector(first, second), MakeVector(first.GetDataLineSize()))
     {
-        assert(first.GetDataLineSize() == second.GetDataLineSize());
+        Assert(first.GetDataLineSize() == second.GetDataLineSize(),
+               "The two inputs must be the same size!");
     }
 
 
