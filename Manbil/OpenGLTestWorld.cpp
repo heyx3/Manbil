@@ -84,7 +84,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Vertex output 3: color.
     //Vertex output 4: world-space position.
 
-    DNP waterNode(new WaterNode(RenderingChannels::RC_VERTEX_OUT_1, 3, 2));
+    DNP waterNode(new WaterNode(DataLine(DNP(new ObjectPosNode()), 0),
+                                DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_1, 3)), 0),
+                                3, 2));
     channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
     channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new UVNode()), 0);
     channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectColorNode()), 0);
@@ -93,7 +95,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
                                                            DataLine(0.01f), DataLine(0.5f),
                                                            WaterSurfaceDistortNode::GetTimeIn(RC::RC_VERTEX_OUT_3)));
-    DNP normalMap(TextureSampleNode::CreateComplexTexture(DataLine(waterSurfaceDistortion, 0),
+    DNP normalMap(TextureSampleNode::CreateComplexTexture(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
                                                           "u_normalMapTex",
                                                           DataLine(VectorF(10.0f, 10.0f)),
                                                           DataLine(VectorF(-1.5f, 0.0f))));
@@ -113,7 +115,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                            DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
     channels[RC::RC_ScreenVertexPosition] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
                                                      ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-
+    //channels.erase(channels.find(RC::RC_ScreenVertexPosition));
+    //channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
 
     UniformDictionary unDict;
     ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
@@ -177,6 +180,7 @@ void OpenGLTestWorld::InitializeObjects(void)
                       OptionalValue<Water::SeedmapWaterCreationArgs>());\
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
+    water->UpdateUniformLocations(waterMat);
     water->UpdateGetMesh().Uniforms.TextureUniforms[texSamplerName] =
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
@@ -274,9 +278,10 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
     //Render the world into a render target.
 
-    manager[worldRenderID]->EnableDrawingInto();
+    //manager[worldRenderID]->EnableDrawingInto();
     ScreenClearer().ClearScreen();
 
+    
     std::vector<const Mesh*> waterMesh;
     waterMesh.insert(waterMesh.end(), &water->UpdateGetMesh());
     if (!waterMat->Render(RenderPasses::BaseComponents, info, waterMesh))
@@ -287,7 +292,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
-    manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
+    //manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
@@ -299,15 +304,15 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]))
-    {
-        std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
+    //if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]))
+    //{
+    //    std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
     
-    ScreenClearer().ClearScreen();
+    //ScreenClearer().ClearScreen();
     //Render the final image.
     Camera cam;
     TransformObject trans;
@@ -316,13 +321,13 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     RenderTarget * finalRend = ppc->GetFinalRender();
     if (finalRend == 0) finalRend = manager[worldRenderID];
     finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTexture());
-    if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
-    {
-        std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
+    //if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
+    //{
+    //    std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
 }
 
 void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)

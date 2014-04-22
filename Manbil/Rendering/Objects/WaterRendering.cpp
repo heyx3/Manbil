@@ -27,7 +27,7 @@ void WaterNode::GetMyParameterDeclarations(UniformDictionary & outUniforms) cons
             tsc.get()[i] = 0.0001f;
         }
 
-        outUniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF((float*)fl_am_per.get(), maxFlows, 4, "flows_amplitudes_periods");
+        outUniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF((float*)fl_am_per.get(), maxFlows, 4, "flow_amplitude_period");
         outUniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc.get(), maxFlows, 1, "timesSinceCreated");
     }
 }
@@ -70,7 +70,7 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) c
     }
     if (maxFlows > 0)
     {
-        std::string fap = "flows_amplitudes_periods[i]",
+        std::string fap = "flow_amplitude_period[i]",
                     tsc = "timesSinceCreated[i]";
         func +=
 "    //Directional flows.                                                                           \n\
@@ -142,12 +142,12 @@ void WaterNode::WriteMyOutputs(std::string & outCode) const
     switch (GetShaderType())
     {
         case Shaders::SH_Vertex_Shader:
-            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
             outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
             break;
 
         case Shaders::SH_Fragment_Shader:
-            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(0.0, 0.0, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + GetOutputName(GetVertexPosOutputIndex()) + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
             outCode += "\tvec3 " + GetOutputName(GetSurfaceNormalOutputIndex()) + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
             break;
 

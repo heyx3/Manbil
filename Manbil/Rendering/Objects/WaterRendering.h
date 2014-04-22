@@ -7,6 +7,7 @@
 //TODO: Try optionally using displacement mapping instead of actually moving the vertices, and see if there is a performance difference.
 //TODO: Sample a "water floor" texture and for every water pixel cast a ray down to the ocean floor.
 //TODO: Take several "seed maps" and use them for things like horiontalPos offset, base height offset, etc.
+//TODO: Add support for seeded heightmap.
 //TODO: Continue to tweak/improve these nodes.
 
 
@@ -15,17 +16,16 @@
 //Outputs:
 //0: The object-space vertex position.
 //1: The object-space vertex normal.
+//TODO: Move some of this stuff into .cpp file.
 class WaterNode : public DataNode
 {
-    //TODO: Add support for seeded heightmap.
-
 public:
 
     static unsigned int GetVertexPosOutputIndex(void) { return 0; }
     static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
 
 
-    virtual std::string GetName(void) const override { return "rippleHeightNode"; }
+    virtual std::string GetName(void) const override { return "waterNode"; }
     virtual std::string GetOutputName(unsigned int i) const override
     {
         Assert(i < 2, std::string() + "Invalid output index " + ToString(i));
@@ -34,18 +34,35 @@ public:
 
     //Takes as input the vertex output channel for object-space fragment position.
     //Also takes in the uniform values for ripples/flows.
-    WaterNode(RenderingChannels objectPosVertexOutput, unsigned int _maxRipples = 0, unsigned int _maxFlows = 0)
-        : DataNode(MakeVector(DataLine(DataNodePtr(new ObjectPosNode()), 0),
-                              DataLine(DataNodePtr(new VertexOutputNode(objectPosVertexOutput, 3)), 0)),
+    WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
+              unsigned int _maxRipples = 0, unsigned int _maxFlows = 0)
+        : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput),
                    MakeVector(3, 3)),
-          objPosVertOutput(objectPosVertexOutput), maxRipples(_maxRipples), maxFlows(_maxFlows)
+          maxRipples(_maxRipples), maxFlows(_maxFlows)
     {
-        Assert(IsChannelVertexOutput(objectPosVertexOutput, false),
-               "Input channel '" + ChannelToString(objectPosVertexOutput) + "' is not a vertex output!");
+        Assert(vertexObjPosInput.GetDataLineSize() == 3,
+               std::string() + "vertex shader object-space position input must have size 3; has size " + ToString(vertexObjPosInput.GetDataLineSize()));
+        Assert(fragmentObjPosInput.GetDataLineSize() == 3,
+               std::string() + "fragment shader object-space position input must have size 3; has size " + ToString(fragmentObjPosInput.GetDataLineSize()));
     }
 
 protected:
 
+    virtual bool UsesInput(unsigned int inputIndex) const override
+    {
+        switch (GetShaderType())
+        {
+            case Shaders::SH_Vertex_Shader:
+                return &GetInputs()[inputIndex] == &GetObjectPosVInput();
+
+            case Shaders::SH_Fragment_Shader:
+                return &GetInputs()[inputIndex] == &GetObjectPosVOutput();
+
+            default:
+                Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
+                return DataNode::UsesInput(inputIndex);
+        }
+    }
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
     {
         switch (GetShaderType())
@@ -57,7 +74,7 @@ protected:
                 return (inputIndex == 1);
 
             default:
-                Assert(false, std::string() + "Invalid shader type " + ToString(GetShaderType()));
+                Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
                 return DataNode::UsesInput(inputIndex, outputIndex);
         }
     }
@@ -69,8 +86,6 @@ protected:
 private:
 
     unsigned int maxRipples, maxFlows;
-
-    RenderingChannels objPosVertOutput;
 
 
     const DataLine & GetObjectPosVInput(void) const { return GetInputs()[0]; }

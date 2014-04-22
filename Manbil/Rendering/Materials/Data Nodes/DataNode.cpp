@@ -25,7 +25,7 @@ void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) co
             {
                 assert(ex == EXCEPTION_ASSERT_FAILED);
                 errorMsg = "Error with setting flags for input #" + std::to_string(input + 1) + ", " +
-                            inputs[input].GetDataNodeValue()->GetName() + ": " + inputs[input].GetDataNodeValue()->errorMsg;
+                            inputs[input].GetDataNodeValue()->GetName() + ":\n  " + inputs[input].GetDataNodeValue()->errorMsg;
                 throw EXCEPTION_ASSERT_FAILED;
             }
         }
@@ -33,6 +33,7 @@ void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) co
 
     SetMyFlags(flags, outputIndex);
 }
+
 void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const
 {
     //Exit if this node has already been used.
@@ -42,7 +43,7 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
     //First get the parameter declarations for all the child nodes.
     for (unsigned int i = 0; i < inputs.size(); ++i)
     {
-        if (!inputs[i].IsConstant())
+        if (!inputs[i].IsConstant() && UsesInput(i))
         {
             try
             {
@@ -53,7 +54,7 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
             {
                 assert(ex == EXCEPTION_ASSERT_FAILED);
                 errorMsg = "Error with declaring uniforms for input #" + std::to_string(i + 1) + ", " +
-                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                           inputs[i].GetDataNodeValue()->GetName() + ":\n  " + inputs[i].GetDataNodeValue()->errorMsg;
                 throw EXCEPTION_ASSERT_FAILED;
             }
         }
@@ -72,7 +73,7 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
     //First get the function declarations for all the child nodes.
     for (unsigned int i = 0; i < inputs.size(); ++i)
     {
-        if (!inputs[i].IsConstant())
+        if (!inputs[i].IsConstant() && UsesInput(i))
         {
             try
             {
@@ -83,7 +84,7 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
             {
                 assert(ex == EXCEPTION_ASSERT_FAILED);
                 errorMsg = "Error with declaring functions for input #" + std::to_string(i + 1) + ", " +
-                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                           inputs[i].GetDataNodeValue()->GetName() + ":\n  " + inputs[i].GetDataNodeValue()->errorMsg;
                 throw EXCEPTION_ASSERT_FAILED;
             }
         }
@@ -102,7 +103,7 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
     //First get the outputs for all the child nodes.
     for (unsigned int i = 0; i < inputs.size(); ++i)
     {
-        if (!inputs[i].IsConstant())
+        if (!inputs[i].IsConstant() && UsesInput(i))
         {
             try
             {
@@ -113,7 +114,7 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<unsigned int> & w
             {
                 assert(ex == EXCEPTION_ASSERT_FAILED);
                 errorMsg = "Error with writing outputs for input #" + std::to_string(i + 1) + ", " +
-                           inputs[i].GetDataNodeValue()->GetName() + ": " + inputs[i].GetDataNodeValue()->errorMsg;
+                           inputs[i].GetDataNodeValue()->GetName() + ":\n  " + inputs[i].GetDataNodeValue()->errorMsg;
                 throw EXCEPTION_ASSERT_FAILED;
             }
         }

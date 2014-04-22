@@ -142,7 +142,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
             f_a_p[i] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
             tsc[i] = 0.0f;
         }
-        waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
+        waterMesh.Uniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
         waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
     }
     else
@@ -373,7 +373,7 @@ void Water::UpdateMeshUniforms(void)
     }
     if (maxFlows > 0)
     {
-        waterMesh.Uniforms.FloatArrayUniforms["flows_amplitudes_periods"].SetData(&f_a_p[0][0]);
+        waterMesh.Uniforms.FloatArrayUniforms["flow_amplitude_period"].SetData(&f_a_p[0][0]);
         waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"].SetData(tsc);
     }
 }

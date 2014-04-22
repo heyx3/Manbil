@@ -20,15 +20,17 @@ LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & su
 void LightingNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
         outDecls.insert(outDecls.end(), std::string() +
-"float " + GetFuncName() + "(float amb, float diff, float spec, float specInts,                                         \n\
+"float " + GetFuncName() + "(float amb, float diff, float spec, float specInts,                                 \n\
                      vec3 lightDir, vec3 surfNormal, vec3 fragToCamNormal)                                      \n\
 {                                                                                                               \n\
     float dotted = max(dot(-surfNormal, lightDir), 0.0);                                                        \n\
-    vec3 lightReflect = normalize(reflect(lightDir, surfNormal));                                               \n\
+                                                                                                                \n\
     " +
       (!GetSpecularInput().IsConstant(0.0f) ?
-"    float specFactor = max(0.0, dot(fragToCamNormal, lightReflect));                                     \n\
-    specFactor = pow(specFactor, specularIntensity);                                                      \n\
+    "vec3 lightReflect = normalize(reflect(lightDir, surfNormal));                                              \n\
+    float specFactor = max(0.0, dot(fragToCamNormal, lightReflect));                                            \n\
+    specFactor = pow(specFactor, specInts);                                                                     \n\
+                                                                                                                \n\
     return (amb + (diff * dotted)) + (spec * specFactor);\n" :
 "    return amb + (diff * dotted);\n") +
 "}\n\n");

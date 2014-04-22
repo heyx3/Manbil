@@ -21,7 +21,10 @@ public:
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode) const override;
+    virtual void WriteMyOutputs(std::string & outCode) const override
+    {
+        //No need to write anything; we're just pulling out components of another vector.
+    }
 
 private:
 

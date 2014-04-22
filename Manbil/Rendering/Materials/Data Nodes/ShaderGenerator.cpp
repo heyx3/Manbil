@@ -153,7 +153,7 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
         catch (int ex)
         {
             assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return std::string() + "Error setting flags for channel " + std::to_string(iterator->first) +
+            return std::string() + "Error setting flags for channel " + ChannelToString(iterator->first) +
                        ", node " + iterator->second.GetDataNodeValue()->GetName() + ": " +
                        iterator->second.GetDataNodeValue()->GetError();
         }
@@ -180,9 +180,6 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
 
     //Generate uniforms, functions, and output calculations.
 
-    std::vector<RC> validChannels;
-    GetUsedChannels(mode, validChannels);
-
     UniformDictionary vertexUniformDict, fragmentUniformDict;
     std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;
     std::string vertexCode, fragmentCode;
@@ -190,16 +187,16 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
                               vertexFunctions, fragmentFunctions,
                               vertexCodes, fragmentCodes;
 
-    for (unsigned int i = 0; i < validChannels.size(); ++i)
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
     {
-        const DataLine & data = channels[validChannels[i]];
+        const DataLine & data = iterator->second;
         if (!data.IsConstant())
         {
             std::string oldVCode = vertexCode,
                         oldFCode = fragmentCode;
             try
             {
-                switch (GetShaderType(validChannels[i]))
+                switch (GetShaderType(iterator->first))
                 {
                     case DataNode::Shaders::SH_Vertex_Shader:
                         DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
@@ -222,7 +219,7 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
             {
                 assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
                 return std::string() + "Error setting parameters, functions, and outputs for channel " +
-                    std::to_string(validChannels[i]) + ", node " + data.GetDataNodeValue()->GetName() + ": " +
+                    ChannelToString(iterator->first) + ", node " + data.GetDataNodeValue()->GetName() + ": " +
                     data.GetDataNodeValue()->GetError();
             }
 

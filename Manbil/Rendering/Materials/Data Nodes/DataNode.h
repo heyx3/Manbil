@@ -6,8 +6,7 @@
 
 
 //Represents a basic, atomic operation in a shader.
-//TOOD: Create protected function "bool IsInputUsed(unsigned int inputIndex)" so that unnecessary inputs for the given shader type/PPE pass aren't used.
-//TODO: Get all child nodes that are only used once (using "IsInputUsed()" from above), and for those nodes, directly use the output instead of writing it to a temp variable.
+//TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
 class DataNode
 {
 public:
@@ -34,6 +33,7 @@ public:
     //Marks any applicable info about this data node, given the output index.
     //By default, doesn't set anything and calls "SetFlags" for all inputs.
     void SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const;
+
     //Adds all needed parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls",
     //    including all child nodes' declarations.
     //Takes in a list of all nodes that have already added their parameters to "outUniforms".
@@ -125,7 +125,10 @@ protected:
     }
 
 
-    //Gets whether the given input is used when calculating the given output.
+    //Gets whether the given input is used at all, given the current state (i.e. shader type).
+    //By default, returns true.
+    virtual bool UsesInput(unsigned int inputIndex) const { assert(inputIndex < inputs.size()); return true; }
+    //Gets whether the given input is used in calculating the given output.
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const { assert(inputIndex < inputs.size() && outputIndex < outputs.size()); return true; }
 
