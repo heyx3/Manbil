@@ -27,7 +27,7 @@ namespace VWErrors
 }
 using namespace VWErrors;
 
-/*
+
 
 Vector2i vWindowSize(300, 300);
 const unsigned int INPUT_AddVoxel = 123753,
@@ -38,8 +38,9 @@ bool capMouse = true;
 
 VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
-        voxelMat(0), renderState(), voxelMesh(PrimitiveTypes::Triangles),
-        light(0.7f, 0.3f, Vector3f(1, 1, 1), Vector3f(-1, -1, -10).Normalized()),
+        voxelMat(0),
+        renderState(RenderingState::Cullables::C_BACK),
+        voxelMesh(PrimitiveTypes::Triangles),
         player(manager)
 {
 }
@@ -47,34 +48,40 @@ VoxelWorld::VoxelWorld(void)
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const int worldLength = 10;
+    const Vector3i worldLength(20, 20, 3);
 
     //Create the chunks.
     Vector3i loc;
-    for (loc.z = 0; loc.z < worldLength; ++loc.z)
-        for (loc.y = 0; loc.y < worldLength; ++loc.y)
-            for (loc.x = 0; loc.x < worldLength; ++loc.x)
+    for (loc.z = 0; loc.z < worldLength.z; ++loc.z)
+        for (loc.y = 0; loc.y < worldLength.y; ++loc.y)
+            for (loc.x = 0; loc.x < worldLength.x; ++loc.x)
                 GetCreateChunk(loc);
 
 
     //Generate 3D noise to be converted to voxels.
 
-    Noise3D noise(VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength, VoxelChunk::ChunkSize * worldLength);
+    Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z);
     
-    Perlin3D perl(Vector3f(100.0f, 100.0f, 100.0f), Perlin3D::Smoothness::Quintic, Vector3i(), 12654);
+    Perlin3D perl(Vector3f(30.0f, 30.0f, 60.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
     perl.Generate(noise);
 
     NoiseFilterer3D nf3;
     MaxFilterVolume mfv;
     nf3.FillVolume = &mfv;
 
-    nf3.Increase_Amount = 0.3f;
+    nf3.Increase_Amount = 0.2f;
     nf3.Increase(&noise);
 
-    //TODO: New array to smooth into.
+    //TODO: New array to smooth into, instead of reading from the same array that is being smoothed into!
     //nf3.Smooth(&noise);
     //nf3.Smooth(&noise);
 
+    //Add a floor.
+    const int floorHeight = 10;
+    CubeFilterVolume cfv(Vector3i(), Vector3i(worldLength.x * VoxelChunk::ChunkSize, worldLength.y * VoxelChunk::ChunkSize, floorHeight));
+    nf3.FillVolume = &cfv;
+    nf3.Set_Value = 1.0f;
+    nf3.Set(&noise);
 
     //Generate voxels from noise.
     for (auto location = manager.GetAllChunks().begin(); location != manager.GetAllChunks().end(); ++location)
@@ -85,6 +92,7 @@ void VoxelWorld::SetUpVoxels(void)
             location->second->SetVoxelLocal(localIndex, noise[noiseIndex] > 0.5f);
         });
     }
+
 }
 
 void VoxelWorld::InitializeWorld(void)
@@ -115,10 +123,6 @@ void VoxelWorld::InitializeWorld(void)
     delete[] vids;
 
     voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(Vector3f(0.0f, 0.0f, 0.0f));
-    voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_AmbientName].SetValue(light.AmbientIntensity);
-    voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DiffuseName].SetValue(light.DiffuseIntensity);
-    voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_DirName].SetValue(light.Direction);
-    voxelMesh.Uniforms.FloatUniforms[MaterialConstants::DirectionalLight_ColorName].SetValue(light.Color);
 
 
     //Initialize the texture.
@@ -129,50 +133,68 @@ void VoxelWorld::InitializeWorld(void)
         EndWorld();
         return;
     }
-    Textures[voxelTex].SetData(TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_CLAMP, true));
+    Textures[voxelTex].SetData(TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true));
 
 
     //Initialize the material.
     std::unordered_map<RenderingChannels, DataLine> channels;
-    DataLine dist = DataLine(DataNodePtr(new DistanceNode(DataLine(DataNodePtr(new WorldPosNode()), 0),
-                                                          DataLine(DataNodePtr(new ParamNode(3, "u_castPos")), 0))), 0);
-    DataLine distMultiplier = DataLine(DataNodePtr(new ClampNode(DataLine(0.1f), DataLine(1.0f),
-                                                                 DataLine(
-                                                                    DataNodePtr(
-                                                                        new MultiplyNode(DataLine(0.25f),
-                                                                                         DataLine(
-                                                                                            DataNodePtr(
-                                                                                                new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    //DataLine dist = DataLine(DataNodePtr(new DistanceNode(DataLine(DataNodePtr(new WorldPosNode()), 0),
+    //                                                      DataLine(DataNodePtr(new ParamNode(3, "u_castPos")), 0))), 0);
+    //DataLine distMultiplier = DataLine(DataNodePtr(new ClampNode(DataLine(0.1f), DataLine(1.0f),
+    //                                                             DataLine(
+    //                                                                DataNodePtr(
+    //                                                                    new MultiplyNode(DataLine(0.25f),
+    //                                                                                     DataLine(
+    //                                                                                        DataNodePtr(
+    //                                                                                            new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
+    /* Vertex outputs:
+     * 1 = world pos
+     * 2 = world normal
+     * 3 = UV
+    */
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new ObjectPosToWorldPosCalcNode()), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new ObjectNormalToWorldNormalCalcNode()), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new UVNode()), 0);
+    
+    DataLine lighting(DataNodePtr(new LightingNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 3)), 0),
+                                                   DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_2, 3)), 0),
+                                                   DataLine(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
+                                                   DataLine(0.25f), DataLine(0.75f), DataLine(3.0f), DataLine(64.0f))),
+                      0);
+    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_3, 2)), 0),
+                                                       "u_voxelTex")),
+                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, diffTex)), 0);
+    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Color], distMultiplier)), 0);
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
-    channels[RenderingChannels::RC_Specular] = DataLine(2.0f);
-    channels[RenderingChannels::RC_SpecularIntensity] = DataLine(128.0f);
     UniformDictionary dict;
-    voxelMat = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    if (!genM.ErrorMessage.empty())
+    {
+        PrintError("Error generating voxel material's shaders", genM.ErrorMessage);
+        EndWorld();
+        return;
+    }
+    voxelMat = genM.Mat;
     if (voxelMat->HasError())
     {
         PrintError("Error creating voxel material", voxelMat->GetErrorMsg());
         EndWorld();
         return;
     }
-    //TODO: Smoother mouse input. Make an Acceleration Vector2Input class?
     std::unordered_map<std::string, UniformValueF> & fUnis = voxelMesh.Uniforms.FloatUniforms;
     std::unordered_map<std::string, UniformSamplerValue> & tUnis = voxelMesh.Uniforms.TextureUniforms;
     const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
     fUnis["u_castPos"].Location = UniformList::FindUniform("u_castPos", unis).Loc;
-    fUnis[MaterialConstants::DirectionalLight_AmbientName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_AmbientName, unis).Loc;
-    fUnis[MaterialConstants::DirectionalLight_DiffuseName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_DiffuseName, unis).Loc;
-    fUnis[MaterialConstants::DirectionalLight_ColorName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_ColorName, unis).Loc;
-    fUnis[MaterialConstants::DirectionalLight_DirName].Location = UniformList::FindUniform(MaterialConstants::DirectionalLight_DirName, unis).Loc;
     voxelMesh.Uniforms.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
                                                                            UniformList::FindUniform("u_voxelTex",
                                                                                                     voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(90, 90, 90), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
-                             Vector3f(-1, -1, -1).Normalized());
+    player.Cam = VoxelCamera(Vector3f(-2, -2, -2), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+                             Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
     player.Cam.Info.Width = vWindowSize.x;
@@ -268,5 +290,3 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         EndWorld();
     }
 }
-
-*/

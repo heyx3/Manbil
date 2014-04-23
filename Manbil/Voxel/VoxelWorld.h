@@ -8,7 +8,7 @@
 #include "../Material.h"
 #include "../Mesh.h"
 #include "../Math/Higher Math/Lighting.h"
-/*
+
 
 //A world full of voxels.
 class VoxelWorld : public SFMLOpenGLWorld
@@ -64,11 +64,8 @@ private:
     VoxelPlayer player;
 
     RenderingState renderState;
-    DirectionalLight light;
     
     Material * voxelMat;
     Mesh voxelMesh;
     unsigned int voxelTex;
 };
-
-*/

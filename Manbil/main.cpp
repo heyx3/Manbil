@@ -42,12 +42,12 @@ string ToString(Vector v)
 
 int main()
 {
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     //TwoDOpenGLTest().RunWorld();
 
     //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }

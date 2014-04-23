@@ -6,8 +6,8 @@ typedef VoxelChunk VC;
 const int VC::ChunkSize = 30;
 const float VC::ChunkSizeF = 30.0f;
 
-const int VC::VoxelSize = 1;
-const float VC::VoxelSizeF = 1.0f;
+const int VC::VoxelSize = 3;
+const float VC::VoxelSizeF = 3.0f;
 
 
 VC::MinMaxI VC::GetShapeBoundsI(const Shape & shpe)
@@ -198,19 +198,20 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 
 //Creates a quad on the given x face of a cube bound by the given min/max points.
 void CreateXAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float x, float normSign, float texCoordScale = 1.0f)
+                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float x, int normSign, float texCoordScale = 1.0f)
 {
     poses.insert(poses.end(), Vector3f(x, minPos.y, minPos.z));
     poses.insert(poses.end(), Vector3f(x, minPos.y, maxPos.z));
     poses.insert(poses.end(), Vector3f(x, maxPos.y, minPos.z));
     poses.insert(poses.end(), Vector3f(x, maxPos.y, maxPos.z));
 
+    int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 1);
-    indices.insert(indices.end(), startingIndex + 3);
+    indices.insert(indices.end(), startingIndex + 2 - normSign);
+    indices.insert(indices.end(), startingIndex + 2 + normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 3);
-    indices.insert(indices.end(), startingIndex + 2);
+    indices.insert(indices.end(), startingIndex + 2 + max);
+    indices.insert(indices.end(), startingIndex + 3 - max);
 
     startingIndex += 4;
 
@@ -227,23 +228,24 @@ void CreateXAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
 }
 //Creates a quad on the given y face of a cube bound by the given min/max points.
 void CreateYAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float y, float normSign, float texCoordScale = 1.0f)
+                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float y, int normSign, float texCoordScale = 1.0f)
 {
     poses.insert(poses.end(), Vector3f(minPos.x, y, minPos.z));
     poses.insert(poses.end(), Vector3f(minPos.x, y, maxPos.z));
     poses.insert(poses.end(), Vector3f(maxPos.x, y, minPos.z));
     poses.insert(poses.end(), Vector3f(maxPos.x, y, maxPos.z));
 
+    int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 1);
-    indices.insert(indices.end(), startingIndex + 3);
+    indices.insert(indices.end(), startingIndex + 2 + normSign);
+    indices.insert(indices.end(), startingIndex + 2 - normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 3);
-    indices.insert(indices.end(), startingIndex + 2);
+    indices.insert(indices.end(), startingIndex + 3 - max);
+    indices.insert(indices.end(), startingIndex + 2 + max);
 
     startingIndex += 4;
 
-    Vector3f norm(0.0f, normSign, 0.0f);
+    Vector3f norm(0.0f, (float)normSign, 0.0f);
     normals.insert(normals.end(), norm);
     normals.insert(normals.end(), norm);
     normals.insert(normals.end(), norm);
@@ -256,19 +258,20 @@ void CreateYAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
 }
 //Creates a quad on the given z face of a cube bound by the given min/max points.
 void CreateZAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float z, float normSign, float texCoordScale = 1.0f)
+                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float z, int normSign, float texCoordScale = 1.0f)
 {
     poses.insert(poses.end(), Vector3f(minPos.x, minPos.y, z));
     poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, z));
     poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, z));
     poses.insert(poses.end(), Vector3f(maxPos.x, maxPos.y, z));
 
+    int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 1);
-    indices.insert(indices.end(), startingIndex + 3);
+    indices.insert(indices.end(), startingIndex + 2 - normSign);
+    indices.insert(indices.end(), startingIndex + 2 + normSign);
     indices.insert(indices.end(), startingIndex);
-    indices.insert(indices.end(), startingIndex + 3);
-    indices.insert(indices.end(), startingIndex + 2);
+    indices.insert(indices.end(), startingIndex + 2 + max);
+    indices.insert(indices.end(), startingIndex + 3 - max);
 
     startingIndex += 4;
 
@@ -301,27 +304,27 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
 
         if (beforeMinX == 0 || !beforeMinX->IsFull())
         {
-            CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.x, -1.0f, ChunkSizeF);
+            CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.x, -1, ChunkSizeF);
         }
         if (beforeMinY == 0 || !beforeMinY->IsFull())
         {
-            CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.y, -1.0f, ChunkSizeF);
+            CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.y, -1, ChunkSizeF);
         }
         if (beforeMinZ == 0 || !beforeMinZ->IsFull())
         {
-            CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.z, -1.0f, ChunkSizeF);
+            CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.z, -1, ChunkSizeF);
         }
         if (afterMaxX == 0 || !afterMaxX->IsFull())
         {
-            CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.x, 1.0f, ChunkSizeF);
+            CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.x, 1, ChunkSizeF);
         }
         if (afterMaxY == 0 || !afterMaxY->IsFull())
         {
-            CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.y, 1.0f, ChunkSizeF);
+            CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.y, 1, ChunkSizeF);
         }
         if (afterMaxZ == 0 || !afterMaxZ->IsFull())
         {
-            CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.z, 1.0f, ChunkSizeF);
+            CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.z, 1, ChunkSizeF);
         }
 
 
@@ -410,32 +413,32 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                     if ((xMin.x >= 0 && voxels[xMin]) ||
                         (xMin.x < 0 && gMinX(xMin, beforeMinX)))
                     {
-                        CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.x, 1.0f);
+                        CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.x, 1);
                     }
                     if ((yMin.y >= 0 && voxels[yMin]) ||
                         (yMin.y < 0 && gMinY(yMin, beforeMinY)))
                     {
-                        CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.y, 1.0f);
+                        CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.y, 1);
                     }
                     if ((zMin.z >= 0 && voxels[zMin]) ||
                         (zMin.z < 0 && gMinZ(zMin, beforeMinZ)))
                     {
-                        CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.z, 1.0f);
+                        CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.z, 1);
                     }
                     if ((xMax.x < ChunkSize && voxels[xMax]) ||
                         (xMax.x >= ChunkSize && gMaxX(xMax, afterMaxX)))
                     {
-                        CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.x, -1.0f);
+                        CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.x, -1);
                     }
                     if ((yMax.y < ChunkSize && voxels[yMax]) ||
                         (yMax.y >= ChunkSize && gMaxY(yMax, afterMaxY)))
                     {
-                        CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.y, -1.0f);
+                        CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.y, -1);
                     }
                     if ((zMax.z < ChunkSize && voxels[zMax]) ||
                         (zMax.z >= ChunkSize && gMaxZ(zMax, afterMaxZ)))
                     {
-                        CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.z, -1.0f);
+                        CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.z, -1);
                     }
                 }
             }
@@ -451,7 +454,7 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
     //The Z edges.
     for (startLoc.z = 0; startLoc.z < ChunkSize; startLoc.z += ChunkSize - 1)
     {
-        float sign = startLoc.z - (ChunkSizeF * 0.5f);
+        int sign = BasicMath::Sign(startLoc.z - (ChunkSizeF * 0.5f));
 
         voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
         voxelEnd.z = voxelStart.z + VoxelSizeF;
@@ -467,8 +470,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.x = voxelStart.x + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.z == 0 && !gMinZ(startLoc, beforeMinZ)) ||
-                     (startLoc.z == ChunkSize - 1 && !gMaxZ(startLoc, afterMaxZ))))
+                    ((startLoc.z == 0             && !gMinZ(Vector3i(startLoc.x, startLoc.y, startLoc.z - 1), beforeMinZ)) ||
+                     (startLoc.z == ChunkSize - 1 && !gMaxZ(Vector3i(startLoc.x, startLoc.y, startLoc.z + 1), afterMaxZ))))
                 {
                     float z = ((startLoc.z + BasicMath::Sign(startLoc.z)) * VoxelSizeF) + MinCorner.z;
                     CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, z, sign);
@@ -481,7 +484,7 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
     //The Y edges.
     for (startLoc.y = 0; startLoc.y < ChunkSize; startLoc.y += ChunkSize - 1)
     {
-        float sign = startLoc.y - (ChunkSizeF * 0.5f);
+        int sign = BasicMath::Sign(startLoc.y - (ChunkSizeF * 0.5f));
 
         voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
         voxelEnd.y = voxelStart.y + VoxelSizeF;
@@ -497,8 +500,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.x = voxelStart.x + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.y == 0 && !gMinY(startLoc, beforeMinY)) ||
-                     (startLoc.y == ChunkSize - 1 && !gMaxY(startLoc, afterMaxY))))
+                    ((startLoc.y == 0             && !gMinY(Vector3i(startLoc.x, startLoc.y - 1, startLoc.z), beforeMinY)) ||
+                     (startLoc.y == ChunkSize - 1 && !gMaxY(Vector3i(startLoc.x, startLoc.y + 1, startLoc.z), afterMaxY))))
                 {
                     float y = ((startLoc.y + BasicMath::Sign(startLoc.y)) * VoxelSizeF) + MinCorner.y;
                     CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, y, sign);
@@ -510,7 +513,7 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
     //The X edges.
     for (startLoc.x = 0; startLoc.x < ChunkSize; startLoc.x += ChunkSize - 1)
     {
-        float sign = startLoc.x - (ChunkSizeF * 0.5f);
+        int sign = BasicMath::Sign(startLoc.x - (ChunkSizeF * 0.5f));
 
         voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
         voxelEnd.x = voxelStart.x + VoxelSizeF;
@@ -526,8 +529,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.y = voxelStart.y + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.x == 0 && !gMinX(startLoc, beforeMinX)) ||
-                     (startLoc.x == ChunkSize - 1 && !gMaxX(startLoc, afterMaxX))))
+                    ((startLoc.x == 0             && !gMinX(Vector3i(startLoc.x - 1, startLoc.y, startLoc.z), beforeMinX)) ||
+                     (startLoc.x == ChunkSize - 1 && !gMaxX(Vector3i(startLoc.x + 1, startLoc.y, startLoc.z), afterMaxX))))
                 {
                     float x = ((startLoc.x + BasicMath::Sign(startLoc.x)) * VoxelSizeF) + MinCorner.x;
                     CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, x, sign);
