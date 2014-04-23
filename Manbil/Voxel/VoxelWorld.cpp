@@ -350,6 +350,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
     //Render the world.
     RenderTargets[worldRenderTarget]->EnableDrawingInto();
+    ScreenClearer().ClearScreen();
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes))
     {
         PrintError("Error rendering voxel material", voxelMat->GetErrorMsg());
@@ -357,6 +358,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         return;
     }
     RenderTargets[worldRenderTarget]->DisableDrawingInto(vWindowSize.x, vWindowSize.y);
+
 
     //Render the post-process chain.
     if (!postProcessing->RenderPostProcessing(*RenderTargets[worldRenderTarget], player.Cam.Info))
@@ -367,6 +369,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     
     //Render the final world info.
+    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTexture());
+    ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, *finalWorldRenderMat))
     {
         PrintError("Error rendering final world render", finalWorldRenderMat->GetErrorMsg());
