@@ -22,7 +22,6 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld & _world)
 
 bool VoxelWorldPPC::RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandle depthIn, const ProjectionInfo & info)
 {
-    //TODO: The post process chain should be able to take in color from one render target and depth from another.
     for (unsigned int chain = 0; chain < chains.size(); ++chain)
     {
         //Get the color source based on the current chain being rendered.
