@@ -5,8 +5,6 @@
 
 int DiamondSquare::NOISE_IS_BAD_SIZE_EXCEPTION = 1;
 
-#define NaN (BasicMath::NaN)
-#define IsNaN (BasicMath::IsNaN)
 
 void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * variances, Noise2D & noise) const
 {
@@ -26,7 +24,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 
 
 	//"Diamond" part of the algorithm.
-	if (IsNaN(noise[m]))
+	if (BasicMath::IsNaN(noise[m]))
 	{
 		f = noise[tl] + noise[tr] + noise[bl] + noise[br];
 		f *= 0.25f;
@@ -38,7 +36,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 	//"Square" part of the algorithm.
 
 	//Left point.
-	if (tl.x == 0 && IsNaN(noise[l]))
+	if (tl.x == 0 && BasicMath::IsNaN(noise[l]))
 	{
 		f = (noise[tl] + noise[bl]) * 0.5f;
 		f2 = var.RandomInsideRange(fr);
@@ -46,7 +44,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 	}
 
 	//Top point.
-	if (tl.y == 0 && IsNaN(noise[tm]))
+	if (tl.y == 0 && BasicMath::IsNaN(noise[tm]))
 	{
 		f = (noise[tl] + noise[tr]) * 0.5f;
 		f2 = var.RandomInsideRange(fr);
@@ -54,7 +52,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 	}
 
 	//Right point.
-	if (IsNaN(noise[r]))
+	if (BasicMath::IsNaN(noise[r]))
 	{
 		f = (noise[tr] + noise[br]) * 0.5f;
 		f2 = var.RandomInsideRange(fr);
@@ -62,7 +60,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 	}
 
 	//Bottom point.
-	if (IsNaN(noise[bm]))
+	if (BasicMath::IsNaN(noise[bm]))
 	{
 		f = (noise[bl] + noise[br]) * 0.5f;
 		f2 = var.RandomInsideRange(fr);
@@ -90,7 +88,7 @@ void DiamondSquare::Generate(Noise2D & noise) const
 
 	#pragma region Error-checking
 
-	//Make sure the noise arrayis a square.
+	//Make sure the noise array is a square.
 	if (noise.GetWidth() != noise.GetHeight())
 	{
 		throw NOISE_IS_BAD_SIZE_EXCEPTION;
@@ -148,19 +146,19 @@ void DiamondSquare::Generate(Noise2D & noise) const
 
 	#pragma endregion
 
-	if (IsNaN(noise[Vector2i(0, 0)]))
+	if (BasicMath::IsNaN(noise[Vector2i(0, 0)]))
 	{
 		noise[Vector2i(0, 0)] = StartingCornerValues;
 	}
-	if (IsNaN(noise[Vector2i(0, noiseSize - 1)]))
+	if (BasicMath::IsNaN(noise[Vector2i(0, noiseSize - 1)]))
 	{
 		noise[Vector2i(0, noiseSize - 1)] = StartingCornerValues;
 	}
-	if (IsNaN(noise[Vector2i(noiseSize - 1, 0)]))
+	if (BasicMath::IsNaN(noise[Vector2i(noiseSize - 1, 0)]))
 	{
 		noise[Vector2i(noiseSize - 1, 0)] = StartingCornerValues;
 	}
-	if (IsNaN(noise[Vector2i(noiseSize - 1, noiseSize - 1)]))
+	if (BasicMath::IsNaN(noise[Vector2i(noiseSize - 1, noiseSize - 1)]))
 	{
 		noise[Vector2i(noiseSize - 1, noiseSize - 1)] = StartingCornerValues;
 	}

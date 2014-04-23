@@ -2,7 +2,6 @@
 
 #include "Vectors.h"
 
-//TODO: Better cache usage by iterating through y in the outer loop, then x in the inner.
 
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a two-dimensional array.
@@ -94,36 +93,30 @@ public:
 	//Copies the given array into this one. Optionally specifies an offset for the top-left position of "toCopy".
 	void Fill(const Fake2DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector2i copyOffset = Vector2i(0, 0))
 	{
-        unsigned int x, y;
-		Vector2i loc, offsetLoc;
-		for (x = 0; x < width; ++x)
-		{
-			loc.x = x;
+		Vector2i offsetLoc;
 
-			for (y = 0; y < height; ++y)
-			{
-				loc.y = y;
+        for (Vector2i loc; loc.y < height; ++loc.y)
+        {
+            offsetLoc.y = loc.y + copyOffset.y;
 
-                offsetLoc = loc + copyOffset;
+            for (loc.x = 0; loc.x < width; ++loc.x)
+            {
+                offsetLoc.x = loc.x + copyOffset.x;
+
                 if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.x > width || offsetLoc.y > height)
                     operator[](loc) = defaultValue;
-                else operator[](loc) = toCopy[loc + copyOffset];
-			}
-		}
+                else operator[](loc) = toCopy[offsetLoc];
+            }
+        }
 	}
 	template<typename Func>
 	//Fills every element using the given function.
 	//The function must have signature "void getValue(Vector2i loc, ArrayType * outValue)".
 	void Fill(Func getValue)
 	{
-        unsigned int x, y;
-		for (x = 0; x < width; ++x)
-		{
-			for (y = 0; y < height; ++y)
-			{
-				getValue(Vector2i(x, y), &arrayVals[GetIndex(x, y)]);
-			}
-		}
+        for (Vector2i loc; loc.y < height; ++loc.y)
+            for (loc.x = 0; loc.x < width; ++loc.x)
+                getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
 	}
 
 	ArrayType * GetArray(void) const { return arrayVals; }

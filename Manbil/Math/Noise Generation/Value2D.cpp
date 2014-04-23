@@ -3,20 +3,16 @@
 
 void Value2D::Generate(Fake2DArray<float> & outValues) const
 {
-	int x, y;
-
 	int width = outValues.GetWidth();
 	int height = outValues.GetHeight();
 	FastRand fr;
 
 	Vector2i loc;
-	for (x = 0; x < width; ++x)
+	for (loc.x = 0; loc.x < width; ++loc.x)
 	{
-		loc.x = x;
-		for (y = 0; y < height; ++y)
+		for (loc.y = 0; loc.y < height; ++loc.y)
 		{
-			loc.y = y;
-			fr.Seed = Vector3i(x, y, RandSeed).GetHashCode();
+			fr.Seed = Vector3i(loc.x, loc.y, RandSeed).GetHashCode();
 			outValues[loc] = fr.GetZeroToOne();
 		}
 	}

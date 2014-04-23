@@ -4,6 +4,7 @@
 
 #define CALL_MEMBER_FUNCTION(object, ptrToMember) ((object).*(ptrToMember))
 
+
 //Creates 2D noise using the "Worley Noise" algorithm.
 class Worley : public Generator
 {

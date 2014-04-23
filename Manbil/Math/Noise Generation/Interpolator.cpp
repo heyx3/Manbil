@@ -6,35 +6,35 @@ void Interpolator::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
 	NoiseToInterpolate->Generate(nti);
 
 	float val;
-	int x, y;
+    Vector2i loc;
 	int w = tempSmoothedNoise.GetWidth(), h = tempSmoothedNoise.GetHeight();
 	int x1, x_1, y1, y_1;
-	for (x = 0; x < w; ++x)
-	{
-		for (y = 0; y < h; ++y)
-		{
-			x1 = x + 1;
-			x_1 = x - 1;
-			y1 = y + 1;
-			y_1 = y - 1;
 
-			if (x_1 < 0) x_1 += w;
-			if (x1 >= w) x1 -= w;
-			if (y_1 < 0) y_1 += h;
-			if (y1 >= h) y1 -= h;
-			
+    for (loc.y = 0; loc.y < h; ++loc.y)
+    {
+        y1 = loc.y + 1;
+        if (y1 >= h) y1 -= h;
+        y_1 = loc.y - 1;
+        if (y_1 < 0) y_1 += h;
+
+        for (loc.x = 0; loc.x < w; ++loc.x)
+        {
+            x1 = loc.x + 1;
+            if (x1 >= w) x1 -= w;
+            x_1 = loc.x - 1;
+            if (x_1 < 0) x_1 += w;
 
 			val = ((nti[Vector2i(x_1, y_1)] +
 					nti[Vector2i(x1, y_1)] +
 					nti[Vector2i(x_1, y1)] +
 					nti[Vector2i(x1, y1)]) * 0.0625f) +
-				  ((nti[Vector2i(x_1, y)] +
-					nti[Vector2i(x1, y)] +
-					nti[Vector2i(x, y_1)] +
-					nti[Vector2i(x, y1)]) * 0.125f) +
-				  (nti[Vector2i(x, y)] * 0.25f);
+				  ((nti[Vector2i(x_1, loc.y)] +
+					nti[Vector2i(x1, loc.y)] +
+                    nti[Vector2i(loc.x, y_1)] +
+                    nti[Vector2i(loc.x, y1)]) * 0.125f) +
+				  (nti[loc] * 0.25f);
 
-			tempSmoothedNoise[Vector2i(x, y)] = val;
+            tempSmoothedNoise[loc] = val;
 		}
 	}
 }
@@ -67,23 +67,20 @@ void Interpolator::Generate(Fake2DArray<float> & outN) const
 	Noise2D tempSmoothedNoise(InterpolateWidth, InterpolateHeight);
 	ComputeTempSmoothedNoise(tempSmoothedNoise);
 
-	int x, y;
 	int w = outN.GetWidth(), h = outN.GetHeight();
 	float invScale = 1.0f / InterpolateScale;
 	Vector2i loc;
 	Vector2f scaleLoc;
 
-	for (x = 0; x < w; ++x)
-	{
-		scaleLoc.x = x * invScale;
-		loc.x = x;
+    for (loc.y = 0; loc.y < h; ++loc.y)
+    {
+        scaleLoc.y = (float)loc.y * invScale;
 
-		for (y = 0; y < h; ++y)
-		{
-			scaleLoc.y = y * invScale;
-			loc.y = y;
+        for (loc.x = 0; loc.x < w; ++loc.x)
+        {
+            scaleLoc.x = (float)loc.x * invScale;
 
-			outN[loc] = GetInterpolatedNoise(scaleLoc, tempSmoothedNoise);
-		}
-	}
+            outN[loc] = GetInterpolatedNoise(scaleLoc, tempSmoothedNoise);
+        }
+    }
 }

@@ -6,6 +6,7 @@ typedef Fake2DArray<float> Noise2D;
 typedef Fake3DArray<float> Noise3D;
 
 //TODO: Fix all generators to optimize cache usage by iterating through y in outer loops and x in inner loops.
+//TODO: All generators have an "offset" and use their FastRand math based only on coordinate hashing/generator seed.
 //TODO: Add 3D generator interface.
 
 //******************************************************************************************

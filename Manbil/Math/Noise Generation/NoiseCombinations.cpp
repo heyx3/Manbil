@@ -2,34 +2,16 @@
 
 void Combine2Noises::Generate(Noise2D & nse) const
 {
-	int x, y;
 	Vector2i loc;
-	for (x = 0; x < nse.GetWidth(); ++x)
-	{
-		loc.x = x;
-
-		for (y = 0; y < nse.GetHeight(); ++y)
-		{
-			loc.y = y;
-
-			nse[loc] = CombineOp((*First)[loc], (*Second)[loc]);
-		}
-	}
+    for (loc.y = 0; loc.y < nse.GetHeight(); ++loc.y)
+        for (loc.x = 0; loc.x < nse.GetWidth(); ++loc.x)
+            nse[loc] = CombineOp((*First)[loc], (*Second)[loc]);
 }
 
 void Combine3Noises::Generate(Noise2D & nse) const
 {
-	int x, y;
-	Vector2i loc;
-	for (x = 0; x < nse.GetWidth(); ++x)
-	{
-		loc.x = x;
-
-		for (y = 0; y < nse.GetHeight(); ++y)
-		{
-			loc.y = y;
-
+    Vector2i loc;
+    for (loc.y = 0; loc.y < nse.GetHeight(); ++loc.y)
+        for (loc.x = 0; loc.x < nse.GetWidth(); ++loc.x)
 			nse[loc] = CombineOp((*First)[loc], (*Second)[loc], (*Third)[loc]);
-		}
-	}
 }

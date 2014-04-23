@@ -73,7 +73,8 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 							  (noise.GetHeight() / cSize));
 
 	//Initialize cell contents.
-	int i, x, y;
+	int i;
+    Vector2i loc;
 	struct Cell { std::vector<Vector2f> pointsInCell; };
 	Fake2DArray<Cell> cellContents(cells.x, cells.y);
 
@@ -82,24 +83,25 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	Interval tempIntX, tempIntY;
 	std::vector<Vector2f> * cellTemp;
 	int pointsInCell;
-	for (x = 0; x < cells.x; ++x)
-	{
-		tempIntX = Interval(x * cSize, (x * cSize) + cSize, 0.001f, true, true);
 
-		for (y = 0; y < cells.y; ++y)
-		{
-			tempIntY = Interval(y * cSize, (y * cSize) + cSize, 0.001f, true, true);
+    for (loc.y = 0; loc.y < cells.y; ++loc.y)
+    {
+        tempIntY = Interval(loc.y * cSize, (loc.y * cSize) + cSize, 0.001f, true, true);
 
-			cellTemp = &cellContents[Vector2i(x, y)].pointsInCell;
+        for (loc.x = 0; loc.x < cells.x; ++loc.x)
+        {
+            tempIntX = Interval(loc.x * cSize, (loc.x * cSize) + cSize, 0.001f, true, true);
 
-			//Generate some randomized number of points in this cell.
-			pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
-			for (int i = 0; i < pointsInCell; ++i)
-			{
-				cellTemp->insert(cellTemp->end(), Vector2f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr)));
-			}
-		}
-	}
+            cellTemp = &cellContents[loc].pointsInCell;
+
+            //Generate some randomized number of points in this cell.
+            pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
+            for (int i = 0; i < pointsInCell; ++i)
+            {
+                cellTemp->insert(cellTemp->end(), Vector2f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr)));
+            }
+        }
+    }
 
 
 	//Get n-th-closest point for every noise element.
@@ -110,32 +112,29 @@ void Worley::Generate(Fake2DArray<float> & noise) const
 	WAD tempWAD;
 	int x2, y2;
 	Vector2f tempPos;
-	Vector2i tempPosi;
     Vector2i tempCellLoc;
 	float tempNoiseVal;
 	//Go through every noise element.
-	for (x = 0; x < noise.GetWidth(); ++x)
-	{
-		tempPos.x = (float)x;
-		tempPosi.x = x;
-		tempCellLoc.x = x / CellSize;
+    for (loc.y = 0; loc.y < noise.GetHeight(); ++loc.y)
+    {
+        tempPos.y = (float)loc.y;
+        tempCellLoc.y = loc.y / CellSize;
 
-		for (y = 0; y < noise.GetHeight(); ++y)
-		{
-			tempPos.y = (float)y;
-			tempPosi.y = y;
-			tempCellLoc.y = y / CellSize;
+        for (loc.x = 0; loc.x < noise.GetWidth(); ++loc.x)
+        {
+            tempPos.x = (float)loc.x;
+            tempCellLoc.x = loc.x / CellSize;
 
-			for (i = 0; i < NUMB_DISTANCE_VALUES; ++i)
-			{
-				valsData[i] = WAD();
-			}
+            for (i = 0; i < NUMB_DISTANCE_VALUES; ++i)
+            {
+                valsData[i] = WAD();
+            }
 
-			//Loop through every surrounding cell.
-			for (x2 = -1; x2 <= 1; ++x2)
-			{
-				for (y2 = -1; y2 <= 1; ++y2)
-				{
+            //Loop through every surrounding cell.
+            for (y2 = -1; y2 <= 1; ++y2)
+            {
+                for (x2 = -1; x2 <= 1; ++x2)
+                {
                     //If the cell area is out of bounds, either wrap it or stop this iteration.
                     Vector2i tempLoci(tempCellLoc.x + x2, tempCellLoc.y + y2);
                     Vector2i newTempLoci = cellContents.Wrap(tempLoci);
@@ -144,48 +143,48 @@ void Worley::Generate(Fake2DArray<float> & noise) const
                          wrappedRightX = (tempLoci.x > newTempLoci.x),
                          wrappedRightY = (tempLoci.y > newTempLoci.y);
 
-					//Go through every point in the cell.
-					cellTemp = &cellContents[newTempLoci].pointsInCell;
+                    //Go through every point in the cell.
+                    cellTemp = &cellContents[newTempLoci].pointsInCell;
 
-					for (i = 0; i < (int)cellTemp->size(); ++i)
-					{
-						//Put it into the ordered list of distances.
-						tempWAD.Pos = (*cellTemp)[i];
+                    for (i = 0; i < (int)cellTemp->size(); ++i)
+                    {
+                        //Put it into the ordered list of distances.
+                        tempWAD.Pos = (*cellTemp)[i];
                         if (wrappedLeftX) tempWAD.Pos.x -= noise.GetWidth();
                         if (wrappedLeftY) tempWAD.Pos.y -= noise.GetHeight();
                         if (wrappedRightX) tempWAD.Pos.x += noise.GetWidth();
                         if (wrappedRightY) tempWAD.Pos.y += noise.GetHeight();
 
-						tempWAD.Distance = DistFunc(tempPos, tempWAD.Pos);
+                        tempWAD.Distance = DistFunc(tempPos, tempWAD.Pos);
 
-						if (!IsGoodData(valsData[NUMB_DISTANCE_VALUES - 1]) ||
-							tempWAD.Distance < valsData[NUMB_DISTANCE_VALUES - 1].Distance)
-						{
-							Insert(valsData, tempWAD);
-						}
-					}
-				}
-			}
+                        if (!IsGoodData(valsData[NUMB_DISTANCE_VALUES - 1]) ||
+                            tempWAD.Distance < valsData[NUMB_DISTANCE_VALUES - 1].Distance)
+                        {
+                            Insert(valsData, tempWAD);
+                        }
+                    }
+                }
+            }
 
-			//Now that we have the points, turn it into a noise value.
-			for (i = 0; i < NUMB_DISTANCE_VALUES; ++i)
-			{
-				if (IsGoodData(valsData[i]))
-				{
-					vals.Values[i] = valsData[i].Distance;
-				}
-				else
-				{
-					vals.Values[i] = 0.0f;
-				}
-			}
-			tempNoiseVal = ValueGenerator(vals);
+            //Now that we have the points, turn it into a noise value.
+            for (i = 0; i < NUMB_DISTANCE_VALUES; ++i)
+            {
+                if (IsGoodData(valsData[i]))
+                {
+                    vals.Values[i] = valsData[i].Distance;
+                }
+                else
+                {
+                    vals.Values[i] = 0.0f;
+                }
+            }
+            tempNoiseVal = ValueGenerator(vals);
 
-			if (tempNoiseVal < mm.Min) mm.Min = tempNoiseVal;
-			if (tempNoiseVal > mm.Max) mm.Max = tempNoiseVal;
-			noise[tempPosi] = tempNoiseVal;
-		}
-	}
+            if (tempNoiseVal < mm.Min) mm.Min = tempNoiseVal;
+            if (tempNoiseVal > mm.Max) mm.Max = tempNoiseVal;
+            noise[loc] = tempNoiseVal;
+        }
+    }
 
 	//Remap values to 0-1.
 	NoiseFilterer2D nf;

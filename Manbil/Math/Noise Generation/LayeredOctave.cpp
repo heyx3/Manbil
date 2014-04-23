@@ -34,25 +34,25 @@ void LayeredOctave::Generate(Fake2DArray<float> & outNoiseArray) const
 	outNoiseArray.Fill(float(0.0f));
 
 	//Add successive octave noise into the "out" array.
-	int i, x, y;
-	for (i = 0; i < Octaves; ++i)
-	{
-		//Put the octave into the temp array.
-		noises[i]->Generate(*tempNoiseArray);
+	int i;
+    Vector2i loc;
+    for (i = 0; i < Octaves; ++i)
+    {
+        //Put the octave into the temp array.
+        noises[i]->Generate(*tempNoiseArray);
 
-		//Weight it and add it to the "out" array.
-		for (x = 0; x < outNoiseArray.GetWidth(); ++x)
-		{
-			for (y = 0; y < outNoiseArray.GetHeight(); ++y)
-			{
-				float a = OctaveStrengths[i];
-				a = (*tempNoiseArray)[Vector2i(x, y)];
-				a = outNoiseArray[Vector2i(x, y)];
-				outNoiseArray[Vector2i(x, y)] += (*tempNoiseArray)[Vector2i(x, y)] *
-												   OctaveStrengths[i];
-			}
-		}
-	}
+        //Weight it and add it to the "out" array.
+        for (loc.y = 0; loc.y < outNoiseArray.GetHeight(); ++loc.y)
+        {
+            for (loc.x = 0; loc.x < outNoiseArray.GetWidth(); ++loc.x)
+            {
+                float a = OctaveStrengths[i];
+                a = (*tempNoiseArray)[loc];
+                a = outNoiseArray[loc];
+                outNoiseArray[loc] += (*tempNoiseArray)[loc] * OctaveStrengths[i];
+            }
+        }
+    }
 
 	//Clean up.
 	delete tempNoiseArray;
