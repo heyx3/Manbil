@@ -11,6 +11,7 @@ class TextureSampleNode : public DataNode
 {
 public:
 
+    //Move into UVNode to encourage doing this in the vertex shader, removing dependent texture reads from the fragment shader.
     static DataNodePtr CreateComplexTexture(const DataLine & uvs, std::string samplerName = "",
                                             DataLine scale = DataLine(VectorF(Vector2f(1.0f, 1.0f))),
                                             DataLine pan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),

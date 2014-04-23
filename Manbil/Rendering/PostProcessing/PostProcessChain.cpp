@@ -5,7 +5,7 @@
 
 
 PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
-: rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
+    : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
 {
     //TODO: Change to using a simple vector of the following struct instead of the "pass groups" thing.
     struct MiniEffect
@@ -92,6 +92,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 effct->CurrentPass = pass;
 
                 channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+                effct->OverrideVertexOutputs(channels);
                 channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
                 UniformDictionary unfs;
                 ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
@@ -150,6 +151,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             //Now create the material.
             channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+            current->OverrideVertexOutputs(channels);
             channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
             UniformDictionary unfs;
             ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));

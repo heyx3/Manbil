@@ -73,16 +73,65 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
 }
 
 
+void GaussianBlurEffect::OverrideVertexOutputs(std::unordered_map<RenderingChannels, DataLine> & channels) const
+{
+    if (CurrentPass == 1 || CurrentPass == 4) return;
+
+    typedef RenderingChannels rc;
+    DataLine uvs(DataNodePtr(new UVNode()), 0);
+
+    if (CurrentPass == 2)
+    {
+        channels[rc::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0028f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0024f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0020f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_4] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0016f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_5] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0012f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_6] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0008f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_7] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0004f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_8] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0004f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_9] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0008f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_10] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0012f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_11] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0016f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_12] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0020f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_13] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0024f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_14] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0028f, 0.0f)), uvs)), 0);
+
+        channels[rc::RC_VERTEX_OUT_15] = uvs;
+    }
+    else
+    {
+        Assert(CurrentPass == 3, std::string() + "Invalid pass number: " + ToString(CurrentPass));
+
+        channels[rc::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0028f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0024f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0020f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_4] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0016f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_5] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0012f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_6] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0008f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_7] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0004f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_8] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0004f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_9] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0008f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_10] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0012f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_11] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0016f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_12] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0020f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_13] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0024f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_14] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0028f)), uvs)), 0);
+
+        channels[rc::RC_VERTEX_OUT_15] = uvs;
+    }
+}
+
 void GaussianBlurEffect::GetMyFunctionDeclarations(std::vector<std::string> & decls) const
 {
     switch (GetShaderType())
     {
         case Shaders::SH_Vertex_Shader:
-            decls.insert(decls.end(), "\tout vec2 out_blurTexCoords[14];\nout vec2 out_UV;\n");
+            //decls.insert(decls.end(), "\tout vec2 out_blurTexCoords[14];\nout vec2 out_UV;\n");
             break;
 
         case Shaders::SH_Fragment_Shader:
-            decls.insert(decls.end(), "\tin vec2 out_blurTexCoords[14];\nin vec2 out_UV;\n");
+            //decls.insert(decls.end(), "\tin vec2 out_blurTexCoords[14];\nin vec2 out_UV;\n");
             break;
 
         default:
@@ -93,12 +142,12 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
 {
     if (CurrentPass == 1 || CurrentPass == 4) return;
 
-    std::string outTC = "out_blurTexCoords";
-
+    std::string outTC = MaterialConstants::VertexOutNameBase;
     if (GetShaderType() == DataNode::Shaders::SH_Vertex_Shader)
     {
         std::string uv = MaterialConstants::InUV;
 
+    /*
         switch (CurrentPass)
         {
             case 2:
@@ -142,6 +191,7 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
 
             default: Assert(false, std::string() + "Unknown pass number " + ToString(CurrentPass));
         }
+        */
     }
     else
     {
@@ -151,20 +201,20 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
         std::string output = GetOutputName(GetColorOutputIndex());
         outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
     vec3 " + output + " = vec3(0.0);\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 0]).xyz * 0.0044299121055113265;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 1]).xyz * 0.00895781211794;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 2]).xyz * 0.0215963866053;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 3]).xyz * 0.0443683338718;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 4]).xyz * 0.0776744219933;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 5]).xyz * 0.115876621105;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 6]).xyz * 0.147308056121;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + "out_UV" +  ").xyz * 0.159576912161;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 7]).xyz * 0.147308056121;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 8]).xyz * 0.115876621105;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 9]).xyz * 0.0776744219933;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[10]).xyz * 0.0443683338718;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[11]).xyz * 0.0215963866053;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[12]).xyz * 0.00895781211794;\n\
-    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[13]).xyz * 0.0044299121055113265;\n";
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "1).xyz  * 0.0044299121055113265;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "2).xyz  * 0.00895781211794;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "3).xyz  * 0.0215963866053;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "4).xyz  * 0.0443683338718;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "5).xyz  * 0.0776744219933;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "6).xyz  * 0.115876621105;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "7).xyz  * 0.147308056121;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "15).xyz * 0.159576912161;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "8).xyz  * 0.147308056121;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "9).xyz  * 0.115876621105;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "10).xyz  * 0.0776744219933;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "11).xyz * 0.0443683338718;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "12).xyz * 0.0215963866053;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "13).xyz * 0.00895781211794;\n\
+    " + output + " += texture2D(" + ColorSampler + ", " + outTC + "14).xyz * 0.0044299121055113265;\n";
     }
 }

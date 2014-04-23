@@ -4,6 +4,8 @@
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 
 
+//TODO: Pull stuff into .cpp file.
+
 
 //Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
 //      and linearizes it based on the camera's zFar and zNear.
@@ -138,6 +140,10 @@ public:
     const DataLine & GetColorInput(void) const { return GetInputs()[GetInputs().size() - 2]; }
     //Gets the depth input (either the framebuffer or the previous post-process effect's output).
     const DataLine & GetDepthInput(void) const { return GetInputs()[GetInputs().size() - 1]; }
+
+    //Lets this effect set any vertex outputs it wants to (potentially overriding the default of UVs in slot 1).
+    //NOTE: This could break if two effects try to override vertex outputs in the same pass!
+    virtual void OverrideVertexOutputs(std::unordered_map<RenderingChannels, DataLine> & channels) const { }
 
 
 protected:
@@ -286,8 +292,6 @@ private:
 //First, it says that it has 4 passes, but the first and last passes don't
 //   actually do anything; they just exist because the real passes need
 //   to be in their own group, separate from any other effects.
-//NOTE: Does not work yet -- post-process chain automatically outputs UV channels to vertex output 1, and it doesn't let the effects do anything in the vertex shader.
-//TODO: Come up with a change to the post-processing system that allows each effect to define special vertex outputs, which automatically gives them their own passes.
 class GaussianBlurEffect : public PostProcessEffect
 {
 public:
@@ -318,6 +322,8 @@ public:
     {
 
     }
+
+    virtual void OverrideVertexOutputs(std::unordered_map<RenderingChannels, DataLine> & channels) const override;
 
 
 protected:
