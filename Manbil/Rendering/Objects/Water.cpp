@@ -173,39 +173,6 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         seedHeightmap->setRepeated(true);
         waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
     }
-
-
-    //Generate shader code.
-    /*
-    //Make sure nothing is in screen vertex position channel already.
-    assert(channels.find(RenderingChannels::RC_ScreenVertexPosition) == channels.end());
-
-    //Create the water node and hook up its outputs.
-    DataNodePtr waterNode(new WaterNode(objectPosVertexOut, maxRipples, dp_tsc_h_p, sXY_sp, maxFlows));
-    channels[objectPosVertexOut] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RenderingChannels::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode(channels[objectPosVertexOut])), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-
-    ShaderGenerator::AddMissingChannels(channels, mode, useLighting, settings);
-
-    //TODO: Figure out how to correctly combine previous normal channel value with water channel.
-    if (ShaderGenerator::IsChannelUsed(RenderingChannels::RC_Normal, mode, useLighting, settings))
-        channels[RenderingChannels::RC_Normal] = DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new AddNode(DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()),
-                                                                                                                         channels[RenderingChannels::RC_Normal])),
-                                                                                        0))),
-                                                          0);
-    UniformDictionary dict;
-    ShaderGenerator::GenerateShaders(vertexShader, fragmentShader, dict, mode, useLighting, settings, channels);
-    waterMesh.Uniforms.AddUniforms(dict, false);
-
-    //Create the material.
-    waterMat = new Material(vertexShader, fragmentShader, waterMesh.Uniforms, mode, useLighting, settings);
-    if (waterMat->HasError())
-    {
-        errorMsg = "Error creating water material: ";
-        errorMsg += waterMat->GetErrorMsg();
-        return;
-    }
-    */
 }
 Water::~Water(void)
 {

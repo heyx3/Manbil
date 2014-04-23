@@ -48,56 +48,14 @@ unsigned int SG::GetChannelInputSize(RC channel)
     }
 }
 
-void SG::GetUsedChannels(RenderingModes mode, std::vector<RenderingChannels> & outChannels)
-{
-    outChannels.insert(outChannels.end(), RC::RC_Color);
-    outChannels.insert(outChannels.end(), RC::RC_Opacity);
-    outChannels.insert(outChannels.end(), RC::RC_ScreenVertexPosition);
-}
-
-void SG::RemoveUnusedChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
-{
-    //Because of the nature of this algorithm, we have to ensure the first channel is valid.
-    while (channels.size() > 0 && !IsChannelUsed(channels.begin()->first, mode, settings, useLighting))
-        channels.erase(channels.begin());
-
-    //Remove all channels that aren't used.
-    for (auto iterator = channels.end(); iterator != channels.end(); ++iterator)
-    {
-        if (!IsChannelUsed(iterator->first, mode, settings, useLighting) &&
-            !IsChannelVertexOutput(iterator->first, false))
-        {
-            channels.erase(iterator);
-
-            //Dictionaries aren't in any kind of numerical order, so start the search over.
-            iterator = channels.begin();
-        }
-    }
-}
 void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
-    std::vector<RC> validChannels;
-    GetUsedChannels(mode, validChannels);
-    for (unsigned int i = 0; i < validChannels.size(); ++i)
-    {
-        if (channels.find(validChannels[i]) == channels.end())
-        {
-            switch (validChannels[i])
-            {
-                case RC::RC_Color:
-                    channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
-                    break;
-                case RC::RC_ScreenVertexPosition:
-                    channels[RC::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode()), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-                    break;
-                case RC::RC_Opacity:
-                    channels[RC::RC_Opacity] = DataLine(1.0f);
-                    break;
-
-                default: assert(IsChannelVertexOutput(validChannels[i], false));
-            }
-        }
-    }
+    if (channels.find(RC::RC_Color) == channels.end())
+        channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 0.0f, 1.0f));
+    if (channels.find(RC::RC_ScreenVertexPosition) == channels.end())
+        channels[RC::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode()), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+    if (channels.find(RC::RC_Opacity) == channels.end())
+        channels[RC::RC_Opacity] = DataLine(1.0f);
 }
 
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
@@ -115,7 +73,6 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
                                 RenderingModes mode, bool useLighting, const LightSettings & settings,
                                 std::unordered_map<RenderingChannels, DataLine> & channels)
 {
-    RemoveUnusedChannels(channels, mode, useLighting, settings);
     AddMissingChannels(channels, mode, useLighting, settings);
 
     //First, make sure the channels are all correctly set up.
@@ -300,18 +257,6 @@ void main()                                                                     
     //Compute outputs.                                                                                  \n\
     " + fragmentCode + "                                                                                \n\
                                                                                                         \n";
-    //If this material uses lighting, calculate lighting stuff.
-    if (useLighting)
-    {
-//        fragShader +=
-//    "\tvec3 normalVal = " + channels[RC::RC_Normal].GetValue() + ";                           \n\
-//     diffuseCol *= getLight(normalize(normalVal), " +
-//                           "normalize(" + MaterialConstants::CameraPosName + " - " +
-//                                           MaterialConstants::OutWorldPos + ")" +
-//                            ", " + channels[RC::RC_Specular].GetValue() +
-//                            ", " + channels[RC::RC_SpecularIntensity].GetValue() +
-//                            ", " + MaterialConstants::DirectionalLightName + ");              \n\n";
-    }
 
     //Now output the final color.
     fragShader +=

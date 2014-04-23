@@ -12,8 +12,10 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 	: width(w), height(h)
 {
 
+    //TODO: Take the below TODOs and create a single struct containing all data pertaining to a RenderTarget.
     //TODO: parameterize the size of the color/depth buffers. Extend this parameterization to RenderTargetManager.
     //TODO: parameterize which color attachment the color texture uses.
+    //TODO :Parameterize the texture settings (filtering, wrapping, mipmaps).
 
 	ClearAllRenderingErrors();
 
