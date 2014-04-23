@@ -60,7 +60,7 @@ public:
 
     //Takes in the render target that this chain should be rendered onto.
     //Returns whether or not the render was successful.
-    bool RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & info, const RenderTarget * inWorld);
+    bool RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & info, RenderObjHandle colorIn, RenderObjHandle depthIn);
 
 
 private:

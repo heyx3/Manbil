@@ -20,24 +20,24 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld & _world)
     chains.insert(chains.end(), chn);
 }
 
-bool VoxelWorldPPC::RenderPostProcessing(RenderTarget & worldRender, const ProjectionInfo & info)
+bool VoxelWorldPPC::RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandle depthIn, const ProjectionInfo & info)
 {
     //TODO: The post process chain should be able to take in color from one render target and depth from another.
     for (unsigned int chain = 0; chain < chains.size(); ++chain)
     {
-        //Get the color/depth source based on the current chain being rendered.
-        RenderTarget * srcRender;
+        //Get the color source based on the current chain being rendered.
+        RenderObjHandle srcRend;
         switch (chain)
         {
             case 0:
-                srcRender = &worldRender;
+                srcRend = colorIn;
                 break;
 
             default: assert(false);
         }
 
         //Try to render the chain.
-        if (!chains[chain]->RenderChain(&world, info, srcRender))
+        if (!chains[chain]->RenderChain(&world, info, srcRend, depthIn))
         {
             errorMsg = "Error rendering chain " + std::to_string(chain) + ": " + chains[chain]->GetError();
             return false;

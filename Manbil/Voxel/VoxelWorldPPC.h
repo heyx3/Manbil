@@ -35,7 +35,7 @@ public:
 
     //Renders the post-processing effects given the rendered world.
     //Returns whether or not the rendering succeeded.
-   bool RenderPostProcessing(RenderTarget & worldRender, const ProjectionInfo & info);
+    bool RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandle depthIn, const ProjectionInfo & info);
 
 
 private:

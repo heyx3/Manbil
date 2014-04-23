@@ -3,7 +3,60 @@
 const std::string PostProcessEffect::ColorSampler = "u_colorTex",
                   PostProcessEffect::DepthSampler = "u_depthTex";
 
+void PostProcessEffect::ChangePreviousEffect(PpePtr newPrevEffect)
+{
+    PrevEffect = newPrevEffect;
 
+    if (newPrevEffect.get() == 0)
+    {
+        ReplaceInput(GetInputs().size() - 2, ColorSamplerIn());
+    }
+    else
+    {
+        ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
+        ReplaceInput(GetInputs().size() - 1, newPrevEffect->GetDepthInput());
+    }
+}
+std::string PostProcessEffect::GetOutputName(unsigned int index) const
+{
+    Assert(index == GetDepthOutputIndex(), std::string() + "Output index is something other than " + ToString(GetDepthOutputIndex()) + ": " + ToString(index));
+    if (PrevEffect.get() == 0)
+        return GetDepthInput().GetValue();
+    else return PrevEffect->GetOutputName(index);
+}
+std::vector<DataLine> PostProcessEffect::MakeVector(PpePtr prevEffect, const std::vector<DataLine> & otherInputs)
+{
+    std::vector<DataLine> ret = otherInputs;
+    if (prevEffect.get() == 0)
+    {
+        ret.insert(ret.end(), ColorSamplerIn());
+        ret.insert(ret.end(), DepthSamplerIn());
+    }
+    else
+    {
+        ret.insert(ret.end(), DataLine(prevEffect, GetColorOutputIndex()));
+        ret.insert(ret.end(), prevEffect->GetDepthInput());
+    }
+    return ret;
+}
+
+
+std::string ColorTintEffect::GetOutputName(unsigned int index) const
+{
+    Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
+    return (index == 0 ?
+            (GetName() + std::to_string(GetUniqueID()) + "_tinted") :
+            PostProcessEffect::GetOutputName(index));
+}
+
+
+std::string ContrastEffect::GetOutputName(unsigned int index) const
+{
+    Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
+    return (index == 0 ?
+            (GetName() + std::to_string(GetUniqueID()) + "_upContrast") :
+            PostProcessEffect::GetOutputName(index));
+}
 void ContrastEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
     switch (Strength)
@@ -39,7 +92,6 @@ void ContrastEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDec
     }
 }
 
-
 void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 {
     std::string func = "INVALID_SMOOTH_FUNC";
@@ -58,6 +110,13 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
 }
 
 
+std::string FogEffect::GetOutputName(unsigned int index) const
+{
+    Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
+    return (index == 0 ?
+            (GetName() + std::to_string(GetUniqueID()) + "_foggy") :
+            PostProcessEffect::GetOutputName(index));
+}
 void FogEffect::WriteMyOutputs(std::string & strOut) const
 {
     std::string innerLerpVal = (GetFogThicknessInput().IsConstant(1.0f) ?
@@ -73,6 +132,25 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
 }
 
 
+std::string GaussianBlurEffect::GetOutputName(unsigned int index) const
+{
+    Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
+    if (index == 1) return PostProcessEffect::GetOutputName(index);
+
+    switch (CurrentPass)
+    {
+    case 1:
+    case 4:
+        return GetColorInput().GetValue();
+    case 2:
+    case 3:
+        return GetName() + std::to_string(GetUniqueID()) + "_blurred";
+
+    default: Assert(false, std::string() + "Only supports passes 1-4, not pass " + ToString(CurrentPass));
+    }
+
+    return "ERROR DANGER DANGER";
+}
 void GaussianBlurEffect::OverrideVertexOutputs(std::unordered_map<RenderingChannels, DataLine> & channels) const
 {
     if (CurrentPass == 1 || CurrentPass == 4) return;

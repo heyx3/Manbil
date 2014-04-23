@@ -4,9 +4,6 @@
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 
 
-//TODO: Pull stuff into .cpp file.
-
-
 //Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
 //      and linearizes it based on the camera's zFar and zNear.
 //TODO: Move out of "PostProcessData" and into one of the standard DataNode folders.
@@ -95,20 +92,7 @@ public:
     //The effect that came before this one.
     PpePtr GetPreviousEffect(void) const { return PrevEffect; }
     //Switches out the effect this effect builds off of.
-    void ChangePreviousEffect(PpePtr newPrevEffect = PpePtr())
-    {
-        PrevEffect = newPrevEffect;
-
-        if (newPrevEffect.get() == 0)
-        {
-            ReplaceInput(GetInputs().size() - 2, ColorSamplerIn());
-        }
-        else
-        {
-            ReplaceInput(GetInputs().size() - 2, DataLine(newPrevEffect, GetColorOutputIndex()));
-            ReplaceInput(GetInputs().size() - 1, newPrevEffect->GetDepthInput());
-        }
-    }
+    void ChangePreviousEffect(PpePtr newPrevEffect = PpePtr());
 
     //The number of passes needed to do this effect.
     unsigned int NumbPasses;
@@ -118,21 +102,15 @@ public:
     //Default name for a post-processing effect.
     virtual std::string GetName(void) const override { return "UNKNOWN_POST_PROCESS_EFFECT"; }
     //Gets the depth output name only.
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index == GetDepthOutputIndex(), std::string() + "Output index is something other than " + ToString(GetDepthOutputIndex()) + ": " + ToString(index));
-        if (PrevEffect.get() == 0)
-            return GetDepthInput().GetValue();
-        else return PrevEffect->GetOutputName(index);
-    }
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
     PostProcessEffect(PpePtr previousEffect = PpePtr(), std::vector<DataLine> otherInputs = std::vector<DataLine>(), unsigned int numbPasses = 1)
         : DataNode(MakeVector(previousEffect, otherInputs), DataNode::MakeVector(3, 1)),
           PrevEffect(previousEffect), NumbPasses(numbPasses), CurrentPass(1)
     {
-        assert(GetColorInput().GetDataLineSize() == 3);
-        assert(GetDepthInput().GetDataLineSize() == 1);
+        Assert(GetColorInput().GetDataLineSize() == 3, std::string() + "Invalid color input size (must be 3): " + ToString(GetColorInput().GetDataLineSize()));
+        Assert(GetDepthInput().GetDataLineSize() == 1, std::string() + "Invalid depth input size (must be 1): " + ToString(GetDepthInput().GetDataLineSize()));
     }
 
 
@@ -163,21 +141,7 @@ protected:
 private:
 
     //Creates the input std::vector for this node (by appending the correct color and depth inputs to the given vector).
-    static std::vector<DataLine> MakeVector(PpePtr prevEffect, const std::vector<DataLine> & otherInputs)
-    {
-        std::vector<DataLine> ret = otherInputs;
-        if (prevEffect.get() == 0)
-        {
-            ret.insert(ret.end(), ColorSamplerIn());
-            ret.insert(ret.end(), DepthSamplerIn());
-        }
-        else
-        {
-            ret.insert(ret.end(), DataLine(prevEffect, GetColorOutputIndex()));
-            ret.insert(ret.end(), prevEffect->GetDepthInput());
-        }
-        return ret;
-    }
+    static std::vector<DataLine> MakeVector(PpePtr prevEffect, const std::vector<DataLine> & otherInputs);
 };
 
 
@@ -188,13 +152,7 @@ class ColorTintEffect : public PostProcessEffect
 public:
 
     virtual std::string GetName(void) const override { return "tintEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
-        return (index == 0 ?
-                  (GetName() + std::to_string(GetUniqueID()) + "_tinted") :
-                   PostProcessEffect::GetOutputName(index));
-    }
+    virtual std::string GetOutputName(unsigned int index) const override;
 
     ColorTintEffect(DataLine colorScales = DataLine(VectorF(1.0f, 1.0f, 1.0f)),
                     PpePtr previousEffect = PpePtr())
@@ -217,13 +175,7 @@ class ContrastEffect : public PostProcessEffect
 public:
 
     virtual std::string GetName(void) const override { return "contrastEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
-        return (index == 0 ?
-                (GetName() + std::to_string(GetUniqueID()) + "_upContrast") :
-                PostProcessEffect::GetOutputName(index));
-    }
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
     //Different kinds of contrast amounts.
@@ -257,13 +209,7 @@ class FogEffect : public PostProcessEffect
 public:
     
     virtual std::string GetName(void) const override { return "fogEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
-        return (index == 0 ?
-                (GetName() + std::to_string(GetUniqueID()) + "_foggy") :
-                PostProcessEffect::GetOutputName(index));
-    }
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
     //TODO: More parameters (e.x. fog start distance), and optimize so that parameters that are set to default values aren't actually used in computation.
@@ -292,36 +238,15 @@ private:
 //First, it says that it has 4 passes, but the first and last passes don't
 //   actually do anything; they just exist because the real passes need
 //   to be in their own group, separate from any other effects.
+//Second, it uses 15 vertex outputs to take advantage of GPU hardware instead of manually computing UV offsets.
 class GaussianBlurEffect : public PostProcessEffect
 {
 public:
 
     virtual std::string GetName(void) const override { return "gaussBlurEffect"; }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
-        if (index == 1) return PostProcessEffect::GetOutputName(index);
+    virtual std::string GetOutputName(unsigned int index) const override;
 
-        switch (CurrentPass)
-        {
-            case 1:
-            case 4:
-                return GetColorInput().GetValue();
-            case 2:
-            case 3:
-                return GetName() + std::to_string(GetUniqueID()) + "_blurred";
-
-            default: Assert(false, std::string() + "Only supports passes 1-4, not pass " + ToString(CurrentPass));
-        }
-
-        return "ERROR DANGER DANGER";
-    }
-
-    GaussianBlurEffect(PpePtr prevEffect = PpePtr())
-        : PostProcessEffect(prevEffect, std::vector<DataLine>(), 4)
-    {
-
-    }
+    GaussianBlurEffect(PpePtr prevEffect = PpePtr()) : PostProcessEffect(prevEffect, std::vector<DataLine>(), 4) { }
 
     virtual void OverrideVertexOutputs(std::unordered_map<RenderingChannels, DataLine> & channels) const override;
 

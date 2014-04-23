@@ -361,7 +361,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
 
     //Render the post-process chain.
-    if (!postProcessing->RenderPostProcessing(*RenderTargets[worldRenderTarget], player.Cam.Info))
+    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTexture(), RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
     {
         PrintError("Error rendering post-process chains", postProcessing->GetError());
         EndWorld();

@@ -196,7 +196,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 }
 
 
-bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & pInfo, const RenderTarget * inWorld)
+bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & pInfo, RenderObjHandle colorIn, RenderObjHandle depthIn)
 {
     if (totalPasses == 0) return true;
 
@@ -211,16 +211,16 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
     const RenderTarget * first = rtManager[rt1],
                        * second = rtManager[rt2];
 
-    //The input and output render targets for a single material render.
-    const RenderTarget * source = inWorld,
-                       * dest = first;
+    //The input and output color render targets for a single material render.
+    RenderObjHandle source = colorIn;
+    const RenderTarget * dest;
 
     UniformDictionary oldUniforms = quad.GetMesh().Uniforms;
 
     //Render each material in turn.
     for (unsigned int i = 0; i < materials.size(); ++i)
     {
-        if (source == inWorld || source == second)
+        if (source == colorIn || source == second->GetColorTexture())
             dest = first;
         else dest = second;
 
@@ -231,10 +231,10 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         quad.GetMesh().Uniforms.ClearUniforms();
         quad.GetMesh().Uniforms.AddUniforms(oldUniforms, true);
         quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::ColorSampler] =
-            UniformSamplerValue(source->GetColorTexture(), PostProcessEffect::ColorSampler,
+            UniformSamplerValue(source, PostProcessEffect::ColorSampler,
                                 matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.TextureUniforms[PostProcessEffect::DepthSampler] =
-            UniformSamplerValue(inWorld->GetDepthTexture(), PostProcessEffect::DepthSampler,
+            UniformSamplerValue(depthIn, PostProcessEffect::DepthSampler,
                                 matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.TextureUniforms).Loc);
         quad.GetMesh().Uniforms.AddUniforms(uniforms[i], true);
 
@@ -253,8 +253,8 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         dest->DisableDrawingInto(world->GetWindow()->getSize().x, world->GetWindow()->getSize().y);
 
         //Prepare for the next iteration.
-        if (dest == first) source = first;
-        else source = second;
+        if (dest == first) source = first->GetColorTexture();
+        else source = second->GetColorTexture();
     }
 
     quad.GetMesh().Uniforms = oldUniforms;

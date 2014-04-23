@@ -302,7 +302,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]))
+    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]->GetColorTexture(), manager[worldRenderID]->GetDepthTexture()))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();
