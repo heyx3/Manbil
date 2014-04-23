@@ -7,6 +7,7 @@
 #include "../Math/Shapes/ThreeDShapes.h"
 #include "../Input/Input.hpp"
 #include "../Math/NoiseGeneration.hpp"
+#include "VoxelWorldPPC.h"
 
 
 #include <iostream>
@@ -41,14 +42,20 @@ VoxelWorld::VoxelWorld(void)
         voxelMat(0),
         renderState(RenderingState::Cullables::C_BACK),
         voxelMesh(PrimitiveTypes::Triangles),
-        player(manager)
+        player(manager), postProcessing(0)
 {
+}
+VoxelWorld::~VoxelWorld(void)
+{
+    DeleteAndSetToNull(postProcessing);
+    DeleteAndSetToNull(finalWorldRenderMat);
+    DeleteAndSetToNull(finalWorldRenderQuad);
 }
 
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const Vector3i worldLength(20, 20, 3);
+    const Vector3i worldLength(5, 5, 3);
 
     //Create the chunks.
     Vector3i loc;
@@ -136,8 +143,54 @@ void VoxelWorld::InitializeWorld(void)
     Textures[voxelTex].SetData(TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true));
 
 
-    //Initialize the material.
+    //Initialize post-processing.
+    postProcessing = new VoxelWorldPPC(*this);
+    if (postProcessing->HasError())
+    {
+        PrintError("Error setting up voxel world post processing chains", postProcessing->GetError());
+        EndWorld();
+        return;
+    }
+
+
+    //Initialize the final world render.
+
+    worldRenderTarget = RenderTargets.CreateRenderTarget(vWindowSize.x, vWindowSize.y, true, true);
+
+    finalWorldRenderQuad = new DrawingQuad();
     std::unordered_map<RenderingChannels, DataLine> channels;
+
+    std::vector<DataLine> toCombine;
+    toCombine.insert(toCombine.end(), DataLine(DataNodePtr(new ObjectPosNode()), 0));
+    toCombine.insert(toCombine.end(), DataLine(1.0f));
+    channels[RenderingChannels::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new CombineVectorNode(toCombine)), 0);
+
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0),
+                                                                                       "u_finalWorldRender")),
+                                                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    UniformDictionary dict;
+    ShaderGenerator::GeneratedMaterial fGenM = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (!fGenM.ErrorMessage.empty())
+    {
+        PrintError("Error generating shader code for final render material", fGenM.ErrorMessage);
+        EndWorld();
+        return;
+    }
+    finalWorldRenderMat = fGenM.Mat;
+    if (finalWorldRenderMat->HasError())
+    {
+        PrintError("Error compiling final render material", finalWorldRenderMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+    finalWorldRenderQuad->GetMesh().Uniforms.AddUniforms(dict, true);
+    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTexture());
+
+
+    //Initialize the voxel material.
+    channels.clear();
     //DataLine dist = DataLine(DataNodePtr(new DistanceNode(DataLine(DataNodePtr(new WorldPosNode()), 0),
     //                                                      DataLine(DataNodePtr(new ParamNode(3, "u_castPos")), 0))), 0);
     //DataLine distMultiplier = DataLine(DataNodePtr(new ClampNode(DataLine(0.1f), DataLine(1.0f),
@@ -168,7 +221,7 @@ void VoxelWorld::InitializeWorld(void)
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Color], distMultiplier)), 0);
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
-    UniformDictionary dict;
+    dict.ClearUniforms();
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, true, LightSettings(false));
     if (!genM.ErrorMessage.empty())
     {
@@ -184,7 +237,6 @@ void VoxelWorld::InitializeWorld(void)
         return;
     }
     std::unordered_map<std::string, UniformValueF> & fUnis = voxelMesh.Uniforms.FloatUniforms;
-    std::unordered_map<std::string, UniformSamplerValue> & tUnis = voxelMesh.Uniforms.TextureUniforms;
     const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
     fUnis["u_castPos"].Location = UniformList::FindUniform("u_castPos", unis).Loc;
     voxelMesh.Uniforms.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
@@ -193,7 +245,7 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(-2, -2, -2), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+    player.Cam = VoxelCamera(Vector3f(-20, -20, -20), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
@@ -224,6 +276,18 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
     vWindowSize.y = h;
     player.Cam.Info.Width = w;
     player.Cam.Info.Height = h;
+    if (!RenderTargets.ResizeTarget(worldRenderTarget, w, h))
+    {
+        PrintError("Error resizing world render target", RenderTargets.GetError());
+        EndWorld();
+        return;
+    }
+    if (!postProcessing->OnWindowResized(w, h))
+    {
+        PrintError("Error resizing post processing chains", postProcessing->GetError());
+        EndWorld();
+        return;
+    }
 }
 
 void VoxelWorld::UpdateWorld(float elapsed)
@@ -284,9 +348,29 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     projM.SetAsPerspProj(player.Cam.Info);
     RenderInfo info(this, &player.Cam, &dummy, &worldM, &viewM, &projM);
 
+    //Render the world.
+    RenderTargets[worldRenderTarget]->EnableDrawingInto();
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes))
     {
         PrintError("Error rendering voxel material", voxelMat->GetErrorMsg());
         EndWorld();
+        return;
+    }
+    RenderTargets[worldRenderTarget]->DisableDrawingInto(vWindowSize.x, vWindowSize.y);
+
+    //Render the post-process chain.
+    if (!postProcessing->RenderPostProcessing(*RenderTargets[worldRenderTarget], player.Cam.Info))
+    {
+        PrintError("Error rendering post-process chains", postProcessing->GetError());
+        EndWorld();
+        return;
+    }
+    
+    //Render the final world info.
+    if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, *finalWorldRenderMat))
+    {
+        PrintError("Error rendering final world render", finalWorldRenderMat->GetErrorMsg());
+        EndWorld();
+        return;
     }
 }

@@ -296,6 +296,9 @@
     <ClCompile Include="Rendering\Objects\WaterRendering.cpp">
       <Filter>Rendering\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
+      <Filter>Voxels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -724,6 +727,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Objects\WaterRendering.h">
       <Filter>Rendering\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel\VoxelWorldPPC.h">
+      <Filter>Voxels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

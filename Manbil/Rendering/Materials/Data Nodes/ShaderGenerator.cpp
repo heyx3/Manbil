@@ -276,6 +276,7 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
 
 
     //Set up the main() functions.
+    DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
     vertShader += "\n\
 void main()                                                                                             \n\
 {                                                                                                       \n\
@@ -292,6 +293,7 @@ void main()                                                                     
     gl_Position = " + channels[RenderingChannels::RC_ScreenVertexPosition].GetValue() + ";              \n\
 }";
 
+    DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
     fragShader += "                                                                                     \n\
 void main()                                                                                             \n\
 {                                                                                                       \n\

@@ -29,7 +29,7 @@ public:
         : Cam(cam), Chunks(chunks), Movement(movement), Jump(jump),
           CamOffset(camOffset), MoveSpeed(moveSpeed)
     {
-
+        Cam.SetPosition(pos);
     }
 
 

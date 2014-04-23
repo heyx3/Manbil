@@ -8,6 +8,10 @@
 #include "../Material.h"
 #include "../Mesh.h"
 #include "../Math/Higher Math/Lighting.h"
+#include "../Rendering/Helper Classes/DrawingQuad.h"
+#include "../Rendering/Texture Management/RenderTargetManager.h"
+
+class VoxelWorldPPC;
 
 
 //A world full of voxels.
@@ -15,7 +19,10 @@ class VoxelWorld : public SFMLOpenGLWorld
 {
 public:
 
+    RenderTargetManager RenderTargets;
+
     VoxelWorld(void);
+    ~VoxelWorld(void);
 
 
 protected:
@@ -64,6 +71,11 @@ private:
     VoxelPlayer player;
 
     RenderingState renderState;
+
+    VoxelWorldPPC * postProcessing;
+    unsigned int worldRenderTarget;
+    Material * finalWorldRenderMat;
+    DrawingQuad * finalWorldRenderQuad;
     
     Material * voxelMat;
     Mesh voxelMesh;

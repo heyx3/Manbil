@@ -4,6 +4,7 @@
 
 
 //Combines multiple smaller floats/vectors into one large vector.
+//TODO: Add constructors that take individual data lines -- 2, 3, and 4.
 class CombineVectorNode : public DataNode
 {
 public:

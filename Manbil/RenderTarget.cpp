@@ -13,6 +13,7 @@ RenderTarget::RenderTarget(unsigned int w, unsigned int h, bool useColor, bool u
 {
 
     //TODO: parameterize the size of the color/depth buffers. Extend this parameterization to RenderTargetManager.
+    //TODO: parameterize which color attachment the color texture uses.
 
 	ClearAllRenderingErrors();
 

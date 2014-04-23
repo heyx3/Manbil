@@ -32,11 +32,12 @@ public:
 	//Starts running this world in an endless loop until it's finished.
 	void RunWorld(void);
 
-protected:
-
     InputManager<unsigned int> Input;
     TimerManager Timers;
     TextureManager Textures;
+    //TODO: Move the TextureManager into SFMLOpenGLWorld, because it uses OpenGL stuff.
+
+protected:
 
 	template<class SomeClass>
 	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }

@@ -179,6 +179,7 @@
     <ClCompile Include="Voxel\VoxelChunkManager.cpp" />
     <ClCompile Include="Voxel\VoxelPlayer.cpp" />
     <ClCompile Include="Voxel\VoxelWorld.cpp" />
+    <ClCompile Include="Voxel\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />
@@ -324,6 +325,7 @@
     <ClInclude Include="Voxel\ChunkMesh.h" />
     <ClInclude Include="Voxel\VoxelPlayer.h" />
     <ClInclude Include="Voxel\VoxelWorld.h" />
+    <ClInclude Include="Voxel\VoxelWorldPPC.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fbm.txt" />
