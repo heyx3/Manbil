@@ -35,7 +35,7 @@ void ContrastEffect::GetMyFunctionDeclarations(std::vector<std::string> & outDec
 }\n");
         break;
 
-    default: assert(false);
+    default: Assert(false, std::string() + "Unknown strength amount: " + std::to_string(Strength));
     }
 }
 
@@ -45,10 +45,10 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
     std::string func = "INVALID_SMOOTH_FUNC";
     switch (Strength)
     {
-    case Strengths::S_Light: func = "smoothstep"; break;
-    case Strengths::S_Heavy: func = "superSmoothstep"; break;
+        case Strengths::S_Light: func = "smoothstep"; break;
+        case Strengths::S_Heavy: func = "superSmoothstep"; break;
 
-    default: assert(false);
+        default: Assert(false, std::string() + "Unknown strength amount: " + std::to_string(Strength));
     }
 
     func += std::to_string(GetUniqueID());
@@ -86,7 +86,7 @@ void GaussianBlurEffect::GetMyFunctionDeclarations(std::vector<std::string> & de
             break;
 
         default:
-            assert(false);
+            Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
     }
 }
 void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
@@ -105,51 +105,52 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
                 outStr +=
 "\n    //Use built-in interpolation step to speed up texture sampling.\n\
     out_UV = " + uv + ";\n\
-    " + outTC + "[ 0] = " + uv + "vec2(-0.028, 0.0);\n\
-    " + outTC + "[ 1] = " + uv + "vec2(-0.024, 0.0);\n\
-    " + outTC + "[ 2] = " + uv + "vec2(-0.020, 0.0);\n\
-    " + outTC + "[ 3] = " + uv + "vec2(-0.016, 0.0);\n\
-    " + outTC + "[ 4] = " + uv + "vec2(-0.012, 0.0);\n\
-    " + outTC + "[ 5] = " + uv + "vec2(-0.008, 0.0);\n\
-    " + outTC + "[ 6] = " + uv + "vec2(-0.004, 0.0);\n\
-    " + outTC + "[ 7] = " + uv + "vec2( 0.004, 0.0);\n\
-    " + outTC + "[ 8] = " + uv + "vec2( 0.008, 0.0);\n\
-    " + outTC + "[ 9] = " + uv + "vec2( 0.012, 0.0);\n\
-    " + outTC + "[10] = " + uv + "vec2( 0.016, 0.0);\n\
-    " + outTC + "[11] = " + uv + "vec2( 0.020, 0.0);\n\
-    " + outTC + "[12] = " + uv + "vec2( 0.024, 0.0);\n\
-    " + outTC + "[13] = " + uv + "vec2( 0.028, 0.0);\n\n";
+    " + outTC + "[ 0] = " + uv + "vec2(-0.0028, 0.0);\n\
+    " + outTC + "[ 1] = " + uv + "vec2(-0.0024, 0.0);\n\
+    " + outTC + "[ 2] = " + uv + "vec2(-0.0020, 0.0);\n\
+    " + outTC + "[ 3] = " + uv + "vec2(-0.0016, 0.0);\n\
+    " + outTC + "[ 4] = " + uv + "vec2(-0.0012, 0.0);\n\
+    " + outTC + "[ 5] = " + uv + "vec2(-0.0008, 0.0);\n\
+    " + outTC + "[ 6] = " + uv + "vec2(-0.0004, 0.0);\n\
+    " + outTC + "[ 7] = " + uv + "vec2( 0.0004, 0.0);\n\
+    " + outTC + "[ 8] = " + uv + "vec2( 0.0008, 0.0);\n\
+    " + outTC + "[ 9] = " + uv + "vec2( 0.0012, 0.0);\n\
+    " + outTC + "[10] = " + uv + "vec2( 0.0016, 0.0);\n\
+    " + outTC + "[11] = " + uv + "vec2( 0.0020, 0.0);\n\
+    " + outTC + "[12] = " + uv + "vec2( 0.0024, 0.0);\n\
+    " + outTC + "[13] = " + uv + "vec2( 0.0028, 0.0);\n\n";
             break;
 
             case 3:
                 outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
     out_UV = " + uv + ";\n\
-    " + outTC + "[ 0] = " + uv + "vec2(0.0, -0.028);\n\
-    " + outTC + "[ 1] = " + uv + "vec2(0.0, -0.024);\n\
-    " + outTC + "[ 2] = " + uv + "vec2(0.0, -0.020);\n\
-    " + outTC + "[ 3] = " + uv + "vec2(0.0, -0.016);\n\
-    " + outTC + "[ 4] = " + uv + "vec2(0.0, -0.012);\n\
-    " + outTC + "[ 5] = " + uv + "vec2(0.0, -0.008);\n\
-    " + outTC + "[ 6] = " + uv + "vec2(0.0, -0.004);\n\
-    " + outTC + "[ 7] = " + uv + "vec2(0.0,  0.004);\n\
-    " + outTC + "[ 8] = " + uv + "vec2(0.0,  0.008);\n\
-    " + outTC + "[ 9] = " + uv + "vec2(0.0,  0.012);\n\
-    " + outTC + "[10] = " + uv + "vec2(0.0,  0.016);\n\
-    " + outTC + "[11] = " + uv + "vec2(0.0,  0.020);\n\
-    " + outTC + "[12] = " + uv + "vec2(0.0,  0.024);\n\
-    " + outTC + "[13] = " + uv + "vec2(0.0,  0.028);\n\n";
+    " + outTC + "[ 0] = " + uv + "vec2(0.0, -0.0028);\n\
+    " + outTC + "[ 1] = " + uv + "vec2(0.0, -0.0024);\n\
+    " + outTC + "[ 2] = " + uv + "vec2(0.0, -0.0020);\n\
+    " + outTC + "[ 3] = " + uv + "vec2(0.0, -0.0016);\n\
+    " + outTC + "[ 4] = " + uv + "vec2(0.0, -0.0012);\n\
+    " + outTC + "[ 5] = " + uv + "vec2(0.0, -0.0008);\n\
+    " + outTC + "[ 6] = " + uv + "vec2(0.0, -0.0004);\n\
+    " + outTC + "[ 7] = " + uv + "vec2(0.0,  0.0004);\n\
+    " + outTC + "[ 8] = " + uv + "vec2(0.0,  0.0008);\n\
+    " + outTC + "[ 9] = " + uv + "vec2(0.0,  0.0012);\n\
+    " + outTC + "[10] = " + uv + "vec2(0.0,  0.0016);\n\
+    " + outTC + "[11] = " + uv + "vec2(0.0,  0.0020);\n\
+    " + outTC + "[12] = " + uv + "vec2(0.0,  0.0024);\n\
+    " + outTC + "[13] = " + uv + "vec2(0.0,  0.0028);\n\n";
             break;
 
-            default: assert(false);
+            default: Assert(false, std::string() + "Unknown pass number " + ToString(CurrentPass));
         }
     }
     else
     {
-        assert(GetShaderType() == DataNode::Shaders::SH_Fragment_Shader);
+        Assert(GetShaderType() == DataNode::Shaders::SH_Fragment_Shader,
+               std::string() + "Shader type must be fragment, but it is " + ToString(GetShaderType()));
 
         std::string output = GetOutputName(GetColorOutputIndex());
         outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
-    " + output + " = vec3(0.0);\n\
+    vec3 " + output + " = vec3(0.0);\n\
     " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 0]).xyz * 0.0044299121055113265;\n\
     " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 1]).xyz * 0.00895781211794;\n\
     " + output + " += texture2D(" + ColorSampler + ", " + outTC + "[ 2]).xyz * 0.0215963866053;\n\

@@ -10,6 +10,8 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld & _world)
 
     //First, just use a contrast effect.
     effects.insert(effects.end(), PpePtr(new ContrastEffect(ContrastEffect::S_Heavy, 1)));
+    effects.clear();
+    effects.insert(effects.end(), PpePtr(new GaussianBlurEffect()));
     PostProcessChain * chn = new PostProcessChain(effects, world.GetWindow()->getSize().x, world.GetWindow()->getSize().y,
                                                   world.RenderTargets);
     if (chn->HasError())

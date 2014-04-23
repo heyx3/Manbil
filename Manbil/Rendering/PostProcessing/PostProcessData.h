@@ -184,7 +184,7 @@ public:
     virtual std::string GetName(void) const override { return "tintEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index <= 1);
+        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
         return (index == 0 ?
                   (GetName() + std::to_string(GetUniqueID()) + "_tinted") :
                    PostProcessEffect::GetOutputName(index));
@@ -213,7 +213,7 @@ public:
     virtual std::string GetName(void) const override { return "contrastEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index <= 1);
+        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
         return (index == 0 ?
                 (GetName() + std::to_string(GetUniqueID()) + "_upContrast") :
                 PostProcessEffect::GetOutputName(index));
@@ -253,7 +253,7 @@ public:
     virtual std::string GetName(void) const override { return "fogEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index <= 1);
+        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
         return (index == 0 ?
                 (GetName() + std::to_string(GetUniqueID()) + "_foggy") :
                 PostProcessEffect::GetOutputName(index));
@@ -292,10 +292,10 @@ class GaussianBlurEffect : public PostProcessEffect
 {
 public:
 
-    virtual std::string GetName(void) const override { "return gaussBlurEffect"; }
+    virtual std::string GetName(void) const override { return "gaussBlurEffect"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {
-        assert(index <= 1);
+        Assert(index <= 1, std::string() + "Invalid output index " + ToString(index));
         if (index == 1) return PostProcessEffect::GetOutputName(index);
 
         switch (CurrentPass)
@@ -307,7 +307,7 @@ public:
             case 3:
                 return GetName() + std::to_string(GetUniqueID()) + "_blurred";
 
-            default: assert(false);
+            default: Assert(false, std::string() + "Only supports passes 1-4, not pass " + ToString(CurrentPass));
         }
 
         return "ERROR DANGER DANGER";

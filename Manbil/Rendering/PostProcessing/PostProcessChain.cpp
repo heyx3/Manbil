@@ -7,6 +7,18 @@
 PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
 : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
 {
+    //TODO: Change to using a simple vector of the following struct instead of the "pass groups" thing.
+    struct MiniEffect
+    {
+    public:
+        PostProcessEffect* Effect;
+        unsigned int Pass;
+        MiniEffect(void) : Effect(0), Pass(0) { }
+        MiniEffect(PostProcessEffect * effect, unsigned int pass = 1) : Effect(effect), Pass(pass) { assert(effect != 0 && Pass > 0); }
+        bool IsBreak(void) const { return Effect == 0 || Pass == 0; }
+    };
+
+
     //First separate the effects into "pass groups" -- a chain of effects grouped by pass.
     //Multi-pass effects are each in their own group.
 
