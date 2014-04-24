@@ -19,7 +19,7 @@ public:
 
     //Creates a new render target and returns its unique ID.
     //Returns ERROR_ID and sets the error message if there was an error creating the target.
-    unsigned int CreateRenderTarget(unsigned int width, unsigned int height, bool useColor, bool useDepth);
+    unsigned int CreateRenderTarget(const RenderTargetSettings & settings);
 
     //Deletes the render target with the given ID.
     //If it can't be found, sets the error message and returns "false".

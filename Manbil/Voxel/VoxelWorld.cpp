@@ -155,7 +155,11 @@ void VoxelWorld::InitializeWorld(void)
 
     //Initialize the final world render.
 
-    worldRenderTarget = RenderTargets.CreateRenderTarget(vWindowSize.x, vWindowSize.y, true, true);
+    RenderTargetSettings settings(vWindowSize.x, vWindowSize.y, true,
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
+    worldRenderTarget = RenderTargets.CreateRenderTarget(settings);
 
     finalWorldRenderQuad = new DrawingQuad();
     std::unordered_map<RenderingChannels, DataLine> channels;

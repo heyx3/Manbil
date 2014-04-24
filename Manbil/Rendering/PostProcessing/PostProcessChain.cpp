@@ -172,10 +172,15 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
 
 
+    //TODO: Parameterize the render target settings somehow (probably the chain constructor).
     //Create needed render targets for rendering the post-process effect.
+    RenderTargetSettings settings(width, height, false,
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
     if (materials.size() > 0)
     {
-        rt1 = rtManager.CreateRenderTarget(width, height, true, false);
+        rt1 = rtManager.CreateRenderTarget(settings);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating first render target (" + std::to_string(width) + "x" +
@@ -185,7 +190,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
     if (materials.size() > 1)
     {
-        rt2 = rtManager.CreateRenderTarget(width, height, true, false);
+        rt2 = rtManager.CreateRenderTarget(settings);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating second render target (" + std::to_string(width) + "x" +

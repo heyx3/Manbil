@@ -51,7 +51,11 @@ const unsigned int maxRipples = 3,
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
-    worldRenderID = manager.CreateRenderTarget(windowSize.x, windowSize.y, true, true);
+    RenderTargetSettings settings(windowSize.x, windowSize.y, true,
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
+                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
+    worldRenderID = manager.CreateRenderTarget(settings);
     if (worldRenderID == RenderTargetManager::ERROR_ID)
     {
         std::cout << "Error creating world render target: " << manager.GetError() << "\n";

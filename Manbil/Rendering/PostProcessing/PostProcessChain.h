@@ -60,6 +60,7 @@ public:
 
     //Takes in the render target that this chain should be rendered onto.
     //Returns whether or not the render was successful.
+    //TODO: Optionally let the user specify to draw the final pass directly into the default buffer.
     bool RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo & info, RenderObjHandle colorIn, RenderObjHandle depthIn);
 
 

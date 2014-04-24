@@ -1,20 +1,16 @@
 #include "RenderTargetManager.h"
 
-unsigned int RenderTargetManager::CreateRenderTarget(unsigned int width, unsigned int height, bool useColor, bool useDepth)
+unsigned int RenderTargetManager::CreateRenderTarget(const RenderTargetSettings & settings)
 {
-    RenderTarget * newTarget = new RenderTarget(width, height, useColor, useDepth);
+    RenderTarget * newTarget = new RenderTarget(settings);
     if (newTarget->HasError())
     {
-        errorMsg = "Error creating render target of size { " + std::to_string(width) + ", " + std::to_string(height) +
-            " using " + (useColor && useDepth ? "color and depth" : (useColor ? "color" : (useDepth ? "depth" : "neither color nor depth"))) +
-            ": " + newTarget->GetErrorMessage();
+        errorMsg = "Error creating render target {" + settings.ToString() + "} : " + newTarget->GetErrorMessage();
         return ERROR_ID;
     }
     if (!newTarget->IsValid())
     {
-        errorMsg = "Error validating render target of size { " + std::to_string(width) + ", " + std::to_string(height) +
-            " using " + (useColor && useDepth ? "color and depth" : (useColor ? "color" : (useDepth ? "depth" : "neither color nor depth"))) +
-            ": " + newTarget->GetErrorMessage();
+        errorMsg = "Error validating render target {" + settings.ToString() + "} : " + newTarget->GetErrorMessage();
         return ERROR_ID;
     }
 
@@ -59,7 +55,10 @@ bool RenderTargetManager::ResizeTarget(unsigned int id, unsigned int w, unsigned
         return false;
     }
     //If the new target wasn't created correctly, return an error.
-    RenderTarget * newTarget = new RenderTarget(w, h, old->GetUsesColor(), old->GetUsesDepth());
+    RenderTargetSettings newSettings = old->GetSettings();
+    newSettings.Width = w;
+    newSettings.Height = h;
+    RenderTarget * newTarget = new RenderTarget(newSettings);
     if (newTarget->HasError())
     {
         errorMsg = "Error recreating render target " + std::to_string(id) + " to resize it: " + newTarget->GetErrorMessage();
