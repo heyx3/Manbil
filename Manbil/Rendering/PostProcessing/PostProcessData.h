@@ -89,6 +89,17 @@ public:
     }
 
 
+    //TODO: Use this function to cut down on duplicate material passes.
+    //Writes to the given std::vector the passes to perform, and the order to perform them in,
+    //    to apply this effect the given number of times in succession.
+    //Default behavior: just applies pass #1 once for each iteration.
+    virtual void BuildPasses(unsigned int effectIterations, std::vector<unsigned int> & outPasses) const
+    {
+        for (unsigned int i = 0; i < effectIterations; ++i)
+            outPasses.insert(outPasses.end(), 1);
+    }
+
+
     //The effect that came before this one.
     PpePtr GetPreviousEffect(void) const { return PrevEffect; }
     //Switches out the effect this effect builds off of.

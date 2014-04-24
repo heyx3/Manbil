@@ -47,6 +47,9 @@ bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
         case RCs::RC_ScreenVertexPosition:
         case RCs::RC_Color:
         case RCs::RC_Opacity:
+        case RCs::RC_COLOR_OUT_2:
+        case RCs::RC_COLOR_OUT_3:
+        case RCs::RC_COLOR_OUT_4:
             return false;
 
         case RCs::RC_VERTEX_OUT_INVALID:
@@ -75,6 +78,46 @@ bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
             return false;
     }
 }
+bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput)
+{
+    typedef RenderingChannels RCs;
+
+    switch (channel)
+    {
+    case RCs::RC_ScreenVertexPosition:
+    case RCs::RC_Opacity:
+    case RCs::RC_VERTEX_OUT_INVALID:
+    case RCs::RC_VERTEX_OUT_1:
+    case RCs::RC_VERTEX_OUT_2:
+    case RCs::RC_VERTEX_OUT_3:
+    case RCs::RC_VERTEX_OUT_4:
+    case RCs::RC_VERTEX_OUT_5:
+    case RCs::RC_VERTEX_OUT_6:
+    case RCs::RC_VERTEX_OUT_7:
+    case RCs::RC_VERTEX_OUT_8:
+    case RCs::RC_VERTEX_OUT_9:
+    case RCs::RC_VERTEX_OUT_10:
+    case RCs::RC_VERTEX_OUT_11:
+    case RCs::RC_VERTEX_OUT_12:
+    case RCs::RC_VERTEX_OUT_13:
+    case RCs::RC_VERTEX_OUT_14:
+    case RCs::RC_VERTEX_OUT_15:
+    case RCs::RC_VERTEX_OUT_16:
+        return false;
+
+    case RCs::RC_Color:
+        return includeNormalOutput;
+
+    case RCs::RC_COLOR_OUT_2:
+    case RCs::RC_COLOR_OUT_3:
+    case RCs::RC_COLOR_OUT_4:
+        return true;
+
+    default:
+        assert(false);
+        return false;
+    }
+}
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit)
 {
     typedef RenderingChannels RCs;
@@ -89,7 +132,7 @@ bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings
 
 
         default:
-            assert(IsChannelVertexOutput(channel, false));
+            assert(IsChannelVertexOutput(channel, false) || IsChannelColorOutput(channel, false));
             return true;
     }
 }
@@ -135,5 +178,25 @@ unsigned int GetVertexOutputNumber(RenderingChannels vertOutput)
         default:
             assert(false);
         return 0;
+    }
+}
+unsigned int GetColorOutputNumber(RenderingChannels colorOutput)
+{
+    typedef RenderingChannels RCs;
+
+    switch (colorOutput)
+    {
+        case RCs::RC_Color:
+            return 1;
+        case RCs::RC_COLOR_OUT_2:
+            return 2;
+        case RCs::RC_COLOR_OUT_3:
+            return 3;
+        case RCs::RC_COLOR_OUT_4:
+            return 4;
+
+        default:
+            assert(false);
+            return 0;
     }
 }

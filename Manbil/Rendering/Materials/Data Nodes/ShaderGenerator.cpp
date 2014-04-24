@@ -14,6 +14,11 @@ typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
 DataNode::Shaders SG::GetShaderType(RC channel)
 {
+    if (IsChannelVertexOutput(channel, false))
+        return DataNode::Shaders::SH_Vertex_Shader;
+    if (IsChannelColorOutput(channel, false))
+        return DataNode::Shaders::SH_Fragment_Shader;
+
     switch (channel)
     {
         case RC::RC_ScreenVertexPosition:
@@ -24,7 +29,7 @@ DataNode::Shaders SG::GetShaderType(RC channel)
             return DataNode::Shaders::SH_Fragment_Shader;
 
         default:
-            assert(IsChannelVertexOutput(channel, false));
+            assert(false);
             return DataNode::Shaders::SH_Vertex_Shader;
     }
 }
@@ -43,7 +48,8 @@ unsigned int SG::GetChannelInputSize(RC channel)
             return 1;
 
         default:
-            assert(IsChannelVertexOutput(channel, true));
+            assert(IsChannelVertexOutput(channel, true) ||
+                   IsChannelColorOutput(channel, false));
             return 0;
     }
 }
@@ -82,8 +88,19 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
         bool isChanVertOut = IsChannelVertexOutput(iterator->first, false);
         unsigned int channelSize = GetChannelInputSize(iterator->first),
                      inputSize = iterator->second.GetDataLineSize();
-        assert(isChanVertOut || channelSize == inputSize);
+        if (!isChanVertOut && channelSize != inputSize)
+            return std::string() + "Channel " + ChannelToString(iterator->first) + "'s input must be size " +
+                                    std::to_string(channelSize) + ", but is size " + std::to_string(inputSize);
     }
+
+    //Make sure color outputs are defined correctly.
+    if (channels.find(RenderingChannels::RC_COLOR_OUT_4) != channels.end())
+        if (channels.find(RenderingChannels::RC_COLOR_OUT_3) == channels.end())
+            return "Color output 4 was set, but not color output 3!";
+    if (channels.find(RenderingChannels::RC_COLOR_OUT_3) != channels.end())
+        if (channels.find(RenderingChannels::RC_COLOR_OUT_2) == channels.end())
+            return "Color output 3 was set, but not color output 2!";
+
 
     //Get information about what each shader uses.
     MaterialUsageFlags vertFlags, fragFlags;
@@ -129,10 +146,31 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
         }
     }
 
+    //Generate the color outputs.
+    std::string fragOutput;
+    std::unordered_map<RenderingChannels, std::string> outputNames;
+    if (channels.find(RenderingChannels::RC_COLOR_OUT_2) == channels.end())
+    {
+        fragOutput = "out vec4 " + MaterialConstants::FinalOutColor + ";\n";
+        outputNames[RenderingChannels::RC_Color] = MaterialConstants::FinalOutColor;
+    }
+    else
+    {
+        for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+        {
+            if (!IsChannelColorOutput(iterator->first, true)) continue;
+
+            unsigned int numb = GetColorOutputNumber(iterator->first);
+            fragOutput += "layout (location = " + std::to_string(numb) + ") out vec4 " +
+                          MaterialConstants::FinalOutColor + std::to_string(numb + 1) + ";\n";
+            outputNames[iterator->first] = MaterialConstants::FinalOutColor + std::to_string(numb + 1);
+        }
+    }
+
 
     //Generate the headers for each shader.
     std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, vertFlags),
-                fragShader = MaterialConstants::GetFragmentHeader(fragInput, fragFlags);
+                fragShader = MaterialConstants::GetFragmentHeader(fragInput, fragOutput, fragFlags);
 
 
     //Generate uniforms, functions, and output calculations.
@@ -258,10 +296,19 @@ void main()                                                                     
     " + fragmentCode + "                                                                                \n\
                                                                                                         \n";
 
-    //Now output the final color.
-    fragShader +=
-    "\t" + MaterialConstants::FinalOutColor + " = vec4(" + channels[RC::RC_Color].GetValue() + ", " + channels[RC::RC_Opacity].GetValue() + ");\n\
-}";
+    //Now output the final color(s).
+    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    {
+        if (iterator->first == RC::RC_Color)
+        {
+            fragShader += "\t" + outputNames[iterator->first] + " = vec4(" + channels[RC::RC_Color].GetValue() + ", " + channels[RC::RC_Opacity].GetValue() + ");\n";
+        }
+        else if (IsChannelColorOutput(iterator->first, false))
+        {
+            fragShader += "\t" + outputNames[iterator->first] + " = " + channels[iterator->first].GetValue() + ";\n";
+        }
+    }
+    fragShader += "}";
 
 
     outVShader += vertShader;

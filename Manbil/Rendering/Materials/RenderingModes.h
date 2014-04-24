@@ -26,6 +26,7 @@ public:
 //Different kinds of data fundamental to the look of a material.
 //Different channels will not be used depending on rendering mode and light settings.
 //Each channel may be computed through a constant uniform, a texture lookup, or an expression/function call.
+//TODO: Move into its own file inside DataNode folder.
 enum RenderingChannels
 {
     //Screen-space position of vertex.
@@ -71,13 +72,26 @@ enum RenderingChannels
     RC_VERTEX_OUT_15,
     //Vertex output (interpolated fragment input).
     RC_VERTEX_OUT_16,
+
+    //Secondary color output.
+    RC_COLOR_OUT_2,
+    //Secondary color output.
+    RC_COLOR_OUT_3,
+    //Secondary color output.
+    RC_COLOR_OUT_4,
 };
 std::string ChannelToString(RenderingChannels channel);
 
 //Gets whether the given channel is a vertex output.
 //"includeInvalidOutput" indicates what to return if the value is RC_VERTEX_OUT_INVALID.
 bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput);
+//Gets whether the given channel is a vertex output.
+//"includeNormalOutput" indicates what to return if the value is RC_COLOR.
+bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput);
 //Gets whether the given channel is used in the given rendering mode with the given material light settings.
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit);
 //Gets the index of the given vertex output channel (returns 0 for RC_VERTEX_OUT_INVALID).
 unsigned int GetVertexOutputNumber(RenderingChannels vertOutput);
+//Gets the index of the given color output channel
+//    (returns 1 for RC_COLOR, and 2-4 for RC_COLOR_OUT_[2-4]).
+unsigned int GetColorOutputNumber(RenderingChannels colorOutput);

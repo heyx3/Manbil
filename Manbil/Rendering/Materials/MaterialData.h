@@ -30,7 +30,7 @@ public:
     static std::string GetUniformDeclarations(const MaterialUsageFlags & flags);
 
     static std::string GetVertexHeader(std::string outputDeclarations, const MaterialUsageFlags & flags);
-    static std::string GetFragmentHeader(std::string inputDeclarations, const MaterialUsageFlags & flags);
+    static std::string GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags);
 };
 
 

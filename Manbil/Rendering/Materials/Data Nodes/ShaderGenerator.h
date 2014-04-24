@@ -15,7 +15,7 @@ public:
     static DataNode::Shaders GetShaderType(RenderingChannels channel);
 
     //Gets the size of the data line input into the given rendering channel.
-    //Returns 0 is the given channel is a vertex output.
+    //Returns 0 is the given channel is a vertex or color output.
     static unsigned int GetChannelInputSize(RenderingChannels channel);
 
     //Adds default inputs to any missing channels.

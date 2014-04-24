@@ -115,14 +115,14 @@ layout (location = 3) in vec3 " + InObjNormal + ";               \n\
                                                                  \n\
 " + GetUniformDeclarations(flags);
 }
-std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags)
 {
     return std::string() +
 "#version 330                                                    \n\
                                                                  \n\
 " + inputDeclarations + "                                        \n\
                                                                  \n\
-out vec4 " + FinalOutColor + ";                                  \n\
+" + outputDeclarations + "                                       \n\
                                                                  \n\
 " + GetUniformDeclarations(flags);
 }
