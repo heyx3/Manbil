@@ -36,10 +36,6 @@ RenderTarget::RenderTarget(const RenderTargetSettings & _settings)
 
         //Set some parameters for the texture.
         settings.ColTexSettings.SetData();
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glTexImage2D(GL_TEXTURE_2D, 0, RenderTargetSettings::ToEnum(settings.ColTexSize),
                      settings.Width, settings.Height, 0, GL_RGBA, GL_FLOAT, 0);
@@ -56,10 +52,6 @@ RenderTarget::RenderTarget(const RenderTargetSettings & _settings)
         glBindTexture(GL_TEXTURE_2D, depthTex);
 
         settings.DepthTexSettings.SetData();
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexImage2D(GL_TEXTURE_2D, 0, RenderTargetSettings::ToEnum(settings.DepthTexSize),
                      settings.Width, settings.Height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
