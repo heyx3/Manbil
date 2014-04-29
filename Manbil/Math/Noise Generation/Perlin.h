@@ -5,7 +5,7 @@
 
 
 //2D Perlin noise generator.
-class Perlin2D : public Generator
+class Perlin2D : public Generator2D
 {
 public:
 	

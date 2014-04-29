@@ -10,7 +10,7 @@
 //Filters 2D floating-point noise using different algorithms.
 //Either a generator can be specified in "NoiseToFilter",
 //     or a Noise2D can be supplied directly to the desired filter function.
-class NoiseFilterer2D : public Generator
+class NoiseFilterer2D : public Generator2D
 {
 public:
 
@@ -36,7 +36,7 @@ public:
 
 
 	NoiseFilterRegion * FillRegion;
-	Generator * NoiseToFilter;
+	Generator2D * NoiseToFilter;
 	bool InvertFunc;
 	typedef void (NoiseFilterer2D::*MemberFunc)(Noise2D * nse) const;
 	MemberFunc FilterFunc;

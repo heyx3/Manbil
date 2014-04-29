@@ -1,6 +1,6 @@
 #include "Interpolator.h"
 
-void Interpolator::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
+void Interpolator2D::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
 {
 	Fake2DArray<float> nti = Fake2DArray<float>(InterpolateWidth, InterpolateHeight);
 	NoiseToInterpolate->Generate(nti);
@@ -39,30 +39,12 @@ void Interpolator::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
 	}
 }
 
-float Interpolator::GetInterpolatedNoise(Vector2f scale, Noise2D & tempSmoothedNoise) const
+float Interpolator2D::GetInterpolatedNoise(Vector2f scale, Noise2D & tempSmoothedNoise) const
 {
-	int ix = (int)scale.x,
-		iy = (int)scale.y;
-
-	float xFrac = scale.x - ix,
-		  yFrac = scale.y - iy;
-
-	int x1 = ix + 1, y1 = iy + 1;
-	if (x1 >= tempSmoothedNoise.GetWidth()) x1 -= tempSmoothedNoise.GetWidth();
-	if (y1 >= tempSmoothedNoise.GetHeight()) y1 -= tempSmoothedNoise.GetHeight();
-
-	float c1 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(ix, iy))],
-          c2 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(x1, iy))],
-          c3 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(ix, y1))],
-          c4 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(x1, y1))];
-
-	float int1 = BasicMath::Lerp(c1, c2, xFrac),
-		  int2 = BasicMath::Lerp(c3, c4, xFrac);
-
-	return BasicMath::Lerp(int1, int2, yFrac);
+	
 }
 
-void Interpolator::Generate(Fake2DArray<float> & outN) const
+void Interpolator2D::Generate(Fake2DArray<float> & outN) const
 {
 	Noise2D tempSmoothedNoise(InterpolateWidth, InterpolateHeight);
 	ComputeTempSmoothedNoise(tempSmoothedNoise);
@@ -70,15 +52,31 @@ void Interpolator::Generate(Fake2DArray<float> & outN) const
 	int w = outN.GetWidth(), h = outN.GetHeight();
 	float invScale = 1.0f / InterpolateScale;
 	Vector2i loc;
-	Vector2f scaleLoc;
+	Vector2f scaleLoc, fracLoc;
+    Vector2i scaleLocI, scaleLocI1;
 
     for (loc.y = 0; loc.y < h; ++loc.y)
     {
         scaleLoc.y = (float)loc.y * invScale;
+        scaleLocI.y = (int)scaleLoc.y;
+        scaleLocI1.y = (scaleLocI.y + 1) % tempSmoothedNoise.GetWidth();
+        fracLoc.y = scaleLoc.y - loc.y;
 
         for (loc.x = 0; loc.x < w; ++loc.x)
         {
             scaleLoc.x = (float)loc.x * invScale;
+            scaleLocI.x = (int)scaleLoc.x;
+            scaleLocI1.x = (scaleLocI.x + 1) % tempSmoothedNoise.GetHeight();
+            fracLoc.x = scaleLoc.x - loc.x;
+
+            float c1 = tempSmoothedNoise[tempSmoothedNoise.Wrap(scaleLocI)],
+                  c2 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(scaleLocI1.x, scaleLocI.y))],
+                  c3 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(scaleLocI.x, scaleLocI1.y))],
+                  c4 = tempSmoothedNoise[tempSmoothedNoise.Wrap(Vector2i(scaleLocI1.x, scaleLocI1.y))];
+
+            outN[loc] = BasicMath::Lerp(BasicMath::Lerp(c1, c2, fracLoc.x),
+                                        BasicMath::Lerp(c3, c4, fracLoc.x),
+                                        fracLoc.y);
 
             outN[loc] = GetInterpolatedNoise(scaleLoc, tempSmoothedNoise);
         }

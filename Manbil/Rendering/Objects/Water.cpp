@@ -26,9 +26,9 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
              per4(scale * 4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 136),
              per5(scale * 2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 24675476),
              per6(scale * 1.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 3463);
-    Generator * gens[] = { &per3, &per4, &per5, &per6 };
+    Generator2D * gens[] = { &per3, &per4, &per5, &per6 };
     float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.1f };
-    LayeredOctave octaves(4, weights, gens);
+    LayeredOctave2D octaves(4, weights, gens);
 
     //Filter the layered Perlin noise to have less contrast.
     NoiseFilterer2D nf;

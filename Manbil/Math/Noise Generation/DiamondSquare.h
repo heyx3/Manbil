@@ -17,7 +17,7 @@ struct DiamondSquareStep
 
 //Generates random 2D noise using the Diamond-Square algorithm.
 //Any noise values not set to NaN will be untouched by the algorithm, allowing the user to seed values.
-class DiamondSquare : Generator
+class DiamondSquare : Generator2D
 {
 public:
 

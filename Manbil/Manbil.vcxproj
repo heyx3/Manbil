@@ -113,7 +113,7 @@
     <ClCompile Include="Math\Noise Generation\NoiseFilterRegion.cpp" />
     <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp" />
     <ClCompile Include="Math\Noise Generation\Perlin.cpp" />
-    <ClCompile Include="Math\Noise Generation\Value2D.cpp" />
+    <ClCompile Include="Math\Noise Generation\WhiteNoise.cpp" />
     <ClCompile Include="Math\Noise Generation\Worley.cpp" />
     <ClCompile Include="Math\Quaternion.cpp" />
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
@@ -231,7 +231,7 @@
     <ClInclude Include="Math\Noise Generation\NoiseFilterRegion.h" />
     <ClInclude Include="Math\Noise Generation\NoiseFilterVolume.h" />
     <ClInclude Include="Math\Noise Generation\Perlin.h" />
-    <ClInclude Include="Math\Noise Generation\Value2D.h" />
+    <ClInclude Include="Math\Noise Generation\WhiteNoise.h" />
     <ClInclude Include="Math\Noise Generation\Worley.h" />
     <ClInclude Include="Math\NoiseGeneration.hpp" />
     <ClInclude Include="Math\Quaternion.h" />

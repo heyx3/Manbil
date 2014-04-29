@@ -6,7 +6,7 @@
 
 
 //Creates 2D noise using the "Worley Noise" algorithm.
-class Worley : public Generator
+class Worley2D : public Generator2D
 {
 public:
 
@@ -34,9 +34,9 @@ public:
 	Interval PointsPerCell;
 
 
-	Worley(int _Seed = 12345, int _CellSize = 30, Interval _PointsPerCell = Interval(5.0f, 8.0f))
+	Worley2D(int _Seed = 12345, int _CellSize = 30, Interval _PointsPerCell = Interval(5.0f, 8.0f))
 		: Seed(_Seed), CellSize(_CellSize), PointsPerCell(_PointsPerCell), DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
-	~Worley(void) { }
+	~Worley2D(void) { }
 
 	virtual void Generate(Noise2D & noise) const override;
 };

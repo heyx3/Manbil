@@ -174,7 +174,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                  per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
                  per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
                  per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498);
-        Generator * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
+        Generator2D * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
         float weights[7];
         float counter = 0.5f;
         for (int i = 0; i < 7; ++i)
@@ -183,7 +183,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
             counter *= 0.5f;
         }
 
-        LayeredOctave layers(7, weights, gens);
+        LayeredOctave2D layers(7, weights, gens);
 
         
 		nf.FilterFunc = &NoiseFilterer2D::UpContrast;
@@ -201,9 +201,9 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		#pragma region Worley
 
 		fr.Seed = fr.GetRandInt();
-		Worley wor(fr.GetRandInt(), 256, Interval(10, 2));
-		wor.DistFunc = &Worley::StraightLineDistance;
-		wor.ValueGenerator = [](Worley::DistanceValues v) { return -v.Values[0] + v.Values[5]; };
+		Worley2D wor(fr.GetRandInt(), 256, Interval(10, 2));
+		wor.DistFunc = &Worley2D::StraightLineDistance;
+		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return -v.Values[0] + v.Values[5]; };
 		wor.Generate(finalNoise);
 
 		#pragma endregion
@@ -212,8 +212,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	{
         #pragma region Water
 
-        Value2D basicNoise(fr.Seed);
-        Interpolator interpNoise(&basicNoise, noiseSize, noiseSize, 10.0);
+        WhiteNoise2D basicNoise(fr.Seed);
+        Interpolator2D interpNoise(&basicNoise, noiseSize, noiseSize, 10.0);
         interpNoise.Generate(finalNoise);
 
         NoiseFilterer2D nf;

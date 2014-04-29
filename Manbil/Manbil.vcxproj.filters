@@ -140,9 +140,6 @@
     <ClCompile Include="Math\Noise Generation\Perlin.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Noise Generation\Value2D.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Noise Generation\Worley.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
@@ -298,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
       <Filter>Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise Generation\WhiteNoise.cpp">
+      <Filter>Math\Noise Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,9 +479,6 @@
       <Filter>Math\Noise Generation</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise Generation\Perlin.h">
-      <Filter>Math\Noise Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Noise Generation\Value2D.h">
       <Filter>Math\Noise Generation</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise Generation\Worley.h">
@@ -733,6 +730,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h">
       <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise Generation\WhiteNoise.h">
+      <Filter>Math\Noise Generation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

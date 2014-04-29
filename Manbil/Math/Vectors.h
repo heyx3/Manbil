@@ -45,8 +45,7 @@ namespace MyVectors
 		int x;
 		int y;
 
-		Vector2i(void) : x(0), y(0) { }
-		Vector2i(int X, int Y) : x(X), y(Y) { }
+		Vector2i(int X = 0, int Y = 0) : x(X), y(Y) { }
 
         Vector2i(Vector2i&& other)
             : x(0), y(0)
@@ -137,13 +136,11 @@ namespace MyVectors
 
         int x, y, z;
 
-		Vector3i(void) : x(0), y(0), z(0) { }
-		Vector3i(int _x, int _y, int _z) : x(_x), y(_y), z(_z) { }
-		Vector3i(Vector2i copy, int zValue = 0) : x(copy.x), y(copy.y), z(zValue) { }
+        Vector3i(int _x = 0, int _y = 0, int _z = 0) : x(_x), y(_y), z(_z) { }
+		Vector3i(Vector2i copy, int zValue) : x(copy.x), y(copy.y), z(zValue) { }
         Vector3i(const Vector3i & copy) : x(copy.x), y(copy.y), z(copy.z) { }
 
-        Vector3i(Vector3i&& other)
-            : x(0), y(0), z(0)
+        Vector3i(Vector3i&& other) : x(0), y(0), z(0)
         {
             x = other.x;
             y = other.y;
@@ -239,9 +236,8 @@ namespace MyVectors
         int z;
         int w;
 
-        Vector4i(void) : x(0), y(0), z(0), w(0) { }
-        Vector4i(int _x, int _y, int _z, int _w) : x(_x), y(_y), z(_z), w(_w) { }
-        Vector4i(Vector3i v3, int _w = 1.0f) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
+        Vector4i(int _x = 0, int _y = 0, int _z = 0, int _w = 0) : x(_x), y(_y), z(_z), w(_w) { }
+        Vector4i(Vector3i v3, int _w) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
 
         Vector4i(Vector4i&& other)
             : x(0), y(0), z(0), w(0)
@@ -345,8 +341,7 @@ namespace MyVectors
         float x;
 		float y;
 
-		Vector2f(void): x(0), y(0) { }
-		Vector2f(float _x, float _y) : x(_x), y(_y) { }
+        Vector2f(float _x = 0.0f, float _y = 0.0f) : x(_x), y(_y) { }
         Vector2f(Vector2i copy) : x((float)copy.x), y((float)copy.y) { }
 
         Vector2f(Vector2f&& other)
@@ -456,9 +451,7 @@ namespace MyVectors
 		float y;
 		float z;
 
-		Vector3f(void) : x(0), y(0), z(0) { }
-		Vector3f(float _x, float _y, float _z) : x(_x), y(_y), z(_z) { }
-		Vector3f(Vector2f copy) : x(copy.x), y(copy.y), z(0) { }
+        Vector3f(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) : x(_x), y(_y), z(_z) { }
         Vector3f(Vector2f copy, float zValue) : x(copy.x), y(copy.y), z(zValue) { }
 
         Vector3f(Vector3f&& other)
@@ -575,9 +568,8 @@ namespace MyVectors
 		float z;
 		float w;
 
-		Vector4f(void) : x(0), y(0), z(0), w(0) { }
-		Vector4f(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) { }
-        Vector4f(Vector3f v3, float _w = 1.0f) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
+        Vector4f(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f) : x(_x), y(_y), z(_z), w(_w) { }
+        Vector4f(Vector3f v3, float _w) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
 
         Vector4f(Vector4f&& other)
             : x(0.0f), y(0.0f), z(0.0f), w(0.0f)

@@ -23,7 +23,7 @@ bool IsGoodData(WAD & dat) { return dat.Distance != BadWADDistance; }
 void Insert(WorleyAlgorithmData* toInsertInto, WorleyAlgorithmData & toInsert)
 {
 	//Only need to use the closest 5 elements.
-	const int maxSize = Worley::NUMB_DISTANCE_VALUES;
+	const int maxSize = Worley2D::NUMB_DISTANCE_VALUES;
 
 	int i = 0;
 	for (i = 0; i < maxSize && IsGoodData(toInsertInto[i]); ++i)
@@ -55,7 +55,7 @@ void Insert(WorleyAlgorithmData* toInsertInto, WorleyAlgorithmData & toInsert)
 	}
 }
 
-void Worley::Generate(Fake2DArray<float> & noise) const
+void Worley2D::Generate(Fake2DArray<float> & noise) const
 {
 	//Get the size of a cell.
 	int cSize = CellSize;
