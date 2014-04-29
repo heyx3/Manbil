@@ -92,8 +92,9 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 effct->CurrentPass = pass;
 
                 channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
-                effct->OverrideVertexOutputs(channels);
                 channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
+                effct->OverrideVertexOutputs(channels);
+
                 UniformDictionary unfs;
                 ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
                 if (!genM.ErrorMessage.empty())
@@ -101,9 +102,11 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                     errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + "of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
                     return;
                 }
+
                 materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
                 quad.GetMesh().Uniforms.AddUniforms(unfs, true);
                 uniforms.insert(uniforms.end(), UniformDictionary());
+
                 if (materials[materials.size() - 1]->HasError())
                 {
                     errorMsg = std::string() + "Error creating pass #" + std::to_string(pass) + " of multi-pass effect '" + effct->GetName() + "': " + materials[materials.size() - 1]->GetErrorMsg();
@@ -146,13 +149,13 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             }
 
 
-            channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
-
-
             //Now create the material.
+
+            channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
             channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
-            current->OverrideVertexOutputs(channels);
             channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
+            current->OverrideVertexOutputs(channels);
+
             UniformDictionary unfs;
             ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
             if (!genM.ErrorMessage.empty())
@@ -160,9 +163,11 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 errorMsg = std::string() + "Error generating shaders for material #" + std::to_string(materials.size()) + ": " + genM.ErrorMessage;
                 return;
             }
+
             materials.insert(materials.end(), std::shared_ptr<Material>(genM.Mat));
             quad.GetMesh().Uniforms.AddUniforms(unfs, true);
             uniforms.insert(uniforms.end(), UniformDictionary());
+
             if (materials[materials.size() - 1]->HasError())
             {
                 errorMsg = std::string() + "Error creating material #" + std::to_string(materials.size()) + ": " + materials[materials.size() - 1]->GetErrorMsg();
@@ -172,15 +177,23 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
 
 
-    //TODO: Parameterize the render target settings somehow (probably the chain constructor).
+    //Set up the render target settings.
+    //TODO: Parameterize the render target settings somehow (probably the PPC constructor). Will also need to change lines 236, 269, and 270 ("GetColorTextures()[0]").
+    RendTargetColorTexSettings cts;
+    cts.ColorAttachment = 0;
+    cts.Settings.Width = width;
+    cts.Settings.Height = height;
+    cts.Settings.Size = ColorTextureSettings::CTS_32;
+    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    RendTargetDepthTexSettings dts;
+    dts.UsesDepthTexture = true;
+    dts.Settings.Size = DepthTextureSettings::DTS_24;
+    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+
     //Create needed render targets for rendering the post-process effect.
-    RenderTargetSettings settings(width, height, false,
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
     if (materials.size() > 0)
     {
-        rt1 = rtManager.CreateRenderTarget(settings);
+        rt1 = rtManager.CreateRenderTarget(cts, dts);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating first render target (" + std::to_string(width) + "x" +
@@ -190,7 +203,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
     if (materials.size() > 1)
     {
-        rt2 = rtManager.CreateRenderTarget(settings);
+        rt2 = rtManager.CreateRenderTarget(cts, dts);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating second render target (" + std::to_string(width) + "x" +
@@ -225,7 +238,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
     //Render each material in turn.
     for (unsigned int i = 0; i < materials.size(); ++i)
     {
-        if (source == colorIn || source == second->GetColorTexture())
+        if (source == colorIn || source == second->GetColorTextures()[0])
             dest = first;
         else dest = second;
 
@@ -258,8 +271,8 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         dest->DisableDrawingInto(world->GetWindow()->getSize().x, world->GetWindow()->getSize().y);
 
         //Prepare for the next iteration.
-        if (dest == first) source = first->GetColorTexture();
-        else source = second->GetColorTexture();
+        if (dest == first) source = first->GetColorTextures()[0];
+        else source = second->GetColorTextures()[0];
     }
 
     quad.GetMesh().Uniforms = oldUniforms;

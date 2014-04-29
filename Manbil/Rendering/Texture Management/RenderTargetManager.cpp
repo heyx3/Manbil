@@ -1,16 +1,16 @@
 #include "RenderTargetManager.h"
 
-unsigned int RenderTargetManager::CreateRenderTarget(const RenderTargetSettings & settings)
+unsigned int RenderTargetManager::CreateRenderTarget(const std::vector<RendTargetColorTexSettings> & colTexes, const RendTargetDepthTexSettings & depthTex)
 {
-    RenderTarget * newTarget = new RenderTarget(settings);
+    RenderTarget * newTarget = new RenderTarget(colTexes, depthTex);
     if (newTarget->HasError())
     {
-        errorMsg = "Error creating render target {" + settings.ToString() + "} : " + newTarget->GetErrorMessage();
+        errorMsg = "Error creating render target : " + newTarget->GetErrorMessage();
         return ERROR_ID;
     }
     if (!newTarget->IsValid())
     {
-        errorMsg = "Error validating render target {" + settings.ToString() + "} : " + newTarget->GetErrorMessage();
+        errorMsg = "Error validating render target : " + newTarget->GetErrorMessage();
         return ERROR_ID;
     }
 
@@ -43,7 +43,7 @@ bool RenderTargetManager::DeleteRenderTarget(unsigned int id)
     return true;
 }
 
-bool RenderTargetManager::ResizeTarget(unsigned int id, unsigned int w, unsigned int h)
+bool RenderTargetManager::ResizeTarget(unsigned int id, unsigned int w, unsigned int h, int colAttch)
 {
     ClearAllRenderingErrors();
 
@@ -54,25 +54,36 @@ bool RenderTargetManager::ResizeTarget(unsigned int id, unsigned int w, unsigned
         errorMsg = "Error resizing render target " + std::to_string(id) + ": render target not found.";
         return false;
     }
-    //If the new target wasn't created correctly, return an error.
-    RenderTargetSettings newSettings = old->GetSettings();
-    newSettings.Width = w;
-    newSettings.Height = h;
-    RenderTarget * newTarget = new RenderTarget(newSettings);
+
+    //Build the new color settings (identical to the old settings but with new texture sizes).
+    std::vector<RendTargetColorTexSettings> cts = old->GetColorSettings();
+    for (int i = 0; i < cts.size(); ++i)
+    {
+        if (colAttch < 0 || colAttch == i)
+        {
+            cts[i].Settings.Width = w;
+            cts[i].Settings.Height = h;
+        }
+    }
+
+    //Create the new target.
+    RenderTarget * newTarget = new RenderTarget(cts, old->GetDepthSettings());
     if (newTarget->HasError())
     {
         errorMsg = "Error recreating render target " + std::to_string(id) + " to resize it: " + newTarget->GetErrorMessage();
         return false;
     }
-    //If the old target wasn't deleted correctly, return an error.
+
+    //Delete the old target.
     if (!DeleteRenderTarget(id))
     {
-        errorMsg = "Error deleting render target to resize it: " + errorMsg;
+        errorMsg = "Error deleting old render target after creating newly-sized target: " + errorMsg;
         return false;
     }
 
     //Insert the new target.
     targets[id] = newTarget;
+
 
     return true;
 }

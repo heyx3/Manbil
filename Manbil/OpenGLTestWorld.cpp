@@ -51,11 +51,20 @@ const unsigned int maxRipples = 3,
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
-    RenderTargetSettings settings(windowSize.x, windowSize.y, true,
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
-    worldRenderID = manager.CreateRenderTarget(settings);
+    //Render target texture settings.
+    RendTargetColorTexSettings cts;
+    cts.ColorAttachment = 0;
+    cts.Settings.Width = windowSize.x;
+    cts.Settings.Height = windowSize.y;
+    cts.Settings.Size = ColorTextureSettings::CTS_32;
+    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    RendTargetDepthTexSettings dts;
+    dts.UsesDepthTexture = true;
+    dts.Settings.Size = DepthTextureSettings::DTS_24;
+    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+
+    //Render target creation.
+    worldRenderID = manager.CreateRenderTarget(cts, dts);
     if (worldRenderID == RenderTargetManager::ERROR_ID)
     {
         std::cout << "Error creating world render target: " << manager.GetError() << "\n";
@@ -306,7 +315,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     }
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]->GetColorTexture(), manager[worldRenderID]->GetDepthTexture()))
+    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]->GetColorTextures()[0], manager[worldRenderID]->GetDepthTexture()))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();
@@ -322,7 +331,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     identity.SetAsIdentity();
     RenderTarget * finalRend = ppc->GetFinalRender();
     if (finalRend == 0) finalRend = manager[worldRenderID];
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTexture());
+    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTextures()[0]);
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

@@ -731,6 +731,9 @@
     <ClInclude Include="Voxel\VoxelWorldPPC.h">
       <Filter>Voxels</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h">
+      <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

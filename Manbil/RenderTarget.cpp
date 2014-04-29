@@ -8,53 +8,70 @@
 #include "RenderingState.h"
 
 
-
-
-std::string RenderTargetSettings::ToString(void) const
-{
-    return std::string() + std::to_string(Width) + "x" + std::to_string(Height) +
-          ", color texture: size " + ToString(ColTexSize) + ", depth texture: size " + ToString(DepthTexSize) + ", uses depth tex: " + std::to_string(UsesDepthTexture) +
-          ", color texture mipmapping: " + std::to_string(ColTexSettings.GenerateMipmaps) + ", depth tex mipmapping: " + std::to_string(DepthTexSettings.GenerateMipmaps);
-}
-
-
-
-RenderTarget::RenderTarget(const RenderTargetSettings & _settings)
-	: settings(_settings)
+RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTexSettings, const RendTargetDepthTexSettings & depthTexSettings)
+    : colTexesSetts(colTexSettings), depthTexSetts(depthTexSettings)
 {
 	ClearAllRenderingErrors();
+
+    //Make sure there aren't too many color attachments for the hardware to handle.
+    int maxColors;
+    glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColors);
+    if (maxColors < colTexSettings.size())
+    {
+        errorMsg = std::string() + "You are limited to " + std::to_string(maxColors) +
+                   " color textures per frame buffer, but you tried to attach " + std::to_string(colTexSettings.size());
+        return;
+    }
+
 
     //Create frame buffer object.
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-    //Set up the color texture.
-    if (settings.GetUsesColorTexture())
+    //Set up the color textures.
+    std::vector<GLenum> colAttachments;
+    unsigned int fbWidth = 1, fbHeight = 1;
+    for (unsigned int colTexIndex = 0; colTexIndex < colTexSettings.size(); ++colTexIndex)
     {
-        glGenTextures(1, &colorTex);
-        glBindTexture(GL_TEXTURE_2D, colorTex);
+        RenderObjHandle colTx;
+        const RendTargetColorTexSettings & sett = colTexSettings[colTexIndex];
+
+        fbWidth = BasicMath::Max(fbWidth, sett.Settings.Width);
+        fbHeight = BasicMath::Max(fbHeight, sett.Settings.Height);
+
+        colAttachments.insert(colAttachments.end(), GL_COLOR_ATTACHMENT0 + sett.ColorAttachment);
+
+        glGenTextures(1, &colTx);
+        glBindTexture(GL_TEXTURE_2D, colTx);
 
         //Set some parameters for the texture.
-        settings.ColTexSettings.SetData();
+        sett.Settings.Settings.SetData();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, RenderTargetSettings::ToEnum(settings.ColTexSize),
-                     settings.Width, settings.Height, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToEnum(sett.Settings.Size),
+                     sett.Settings.Width, sett.Settings.Height, 0, GL_RGBA, GL_FLOAT, 0);
 
         //Attach the texture to the frame buffer.
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + settings.ColorAttachment, GL_TEXTURE_2D, colorTex, 0);
-        glDrawBuffer(GL_COLOR_ATTACHMENT0 + settings.ColorAttachment);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + sett.ColorAttachment, GL_TEXTURE_2D, colTx, 0);
+
+        //Add the color texture to this RenderTarget.
+        colorTexes.insert(colorTexes.end(), colTx);
     }
+    glDrawBuffers(colAttachments.size(), colAttachments.data());
+
+    //Set the depth texture size to encompass all color textures.
+    depthTexSetts.Settings.Width = fbWidth;
+    depthTexSetts.Settings.Height = fbHeight;
 
     //Set up the depth texture.
-    if (settings.UsesDepthTexture)
+    if (depthTexSettings.UsesDepthTexture)
     {
         glGenTextures(1, &depthTex);
         glBindTexture(GL_TEXTURE_2D, depthTex);
 
-        settings.DepthTexSettings.SetData();
+        depthTexSettings.Settings.Settings.SetData();
         glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-        glTexImage2D(GL_TEXTURE_2D, 0, RenderTargetSettings::ToEnum(settings.DepthTexSize),
-                     settings.Width, settings.Height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(depthTexSettings.Settings.Size),
+                     fbWidth, fbHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
     }
     //Need SOME kind of depth testing so that the world looks OK.
@@ -63,12 +80,14 @@ RenderTarget::RenderTarget(const RenderTargetSettings & _settings)
     {
         glGenRenderbuffers(1, &depthTex);
         glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
-        glRenderbufferStorage(GL_RENDERBUFFER, RenderTargetSettings::ToEnum(settings.DepthTexSize),
-                              settings.Width, settings.Height);
+        glRenderbufferStorage(GL_RENDERBUFFER, DepthTextureSettings::ToEnum(depthTexSettings.Settings.Size),
+                              fbWidth, fbHeight);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
     }
 
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
     //Check framebuffer status.
     RenderDataHandler::FrameBufferStatus stat = RenderDataHandler::GetFramebufferStatus(frameBuffer);
@@ -81,21 +100,32 @@ RenderTarget::RenderTarget(const RenderTargetSettings & _settings)
 
 
     //Check for any errors with setting up the frame buffer.
-    std::string errIntro = std::string("Error setting up frame buffer object: ");
     errorMsg = GetCurrentRenderingError();
     ClearAllRenderingErrors();
     if (errorMsg.compare("") != 0)
     {
-        errorMsg = errIntro + errorMsg;
+        errorMsg = std::string("Error setting up frame buffer object: ") + errorMsg;
         return;
     }
 
 
-	glViewport(0, 0, settings.Width, settings.Height);
+    //TODO: Remove this; make sure it doesn't break any demos/post-processing stuff.
+	glViewport(0, 0, fbWidth, fbHeight);
 }
 
 bool RenderTarget::IsValid(void) const
 {
+    //Make sure there aren't too many color attachments for the hardware to handle.
+    int maxColors;
+    glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColors);
+    if (maxColors < colorTexes.size())
+    {
+        errorMsg = std::string() + "You are limited to " + std::to_string(maxColors) +
+            " color textures per frame buffer, but you tried to attach " + std::to_string(colorTexes.size());
+        return false;
+    }
+
+
 	GLint currentBuffer;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBuffer);
 
@@ -103,7 +133,7 @@ bool RenderTarget::IsValid(void) const
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	bool goodFBO = (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, currentBuffer);
-    glViewport(0, 0, settings.Width, settings.Height); //TODO: Get rid of this line and make sure it doesn't break anything. Add a function somewhere that wraps this functionality.
+    glViewport(0, 0, depthTexSetts.Settings.Width, depthTexSetts.Settings.Height); //TODO: Get rid of this line and make sure it doesn't break anything. Add a function somewhere that wraps this functionality.
 
 
 	if (errorMsg.empty())
@@ -118,10 +148,11 @@ bool RenderTarget::IsValid(void) const
 RenderTarget::~RenderTarget(void)
 {
 	glDeleteFramebuffers(1, &frameBuffer);
-	if (settings.GetUsesColorTexture()) glDeleteTextures(1, &colorTex);
+
+    glDeleteTextures(colorTexes.size(), colorTexes.data());
 
     //Either "depthTex" holds a depth texture, or it actually holds a depth renderbuffer.
-    if (settings.UsesDepthTexture) glDeleteTextures(1, &depthTex);
+    if (depthTexSetts.UsesDepthTexture) glDeleteTextures(1, &depthTex);
     else glDeleteRenderbuffers(1, &depthTex);
 }
 
@@ -130,7 +161,7 @@ RenderTarget::~RenderTarget(void)
 void RenderTarget::EnableDrawingInto(void) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glViewport(0, 0, settings.Width, settings.Height);
+    glViewport(0, 0, depthTexSetts.Settings.Width, depthTexSetts.Settings.Height);
 }
 void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
 {

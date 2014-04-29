@@ -155,11 +155,17 @@ void VoxelWorld::InitializeWorld(void)
 
     //Initialize the final world render.
 
-    RenderTargetSettings settings(vWindowSize.x, vWindowSize.y, true,
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false),
-                                  0, RenderTargetSettings::CTS_32, RenderTargetSettings::DTS_24);
-    worldRenderTarget = RenderTargets.CreateRenderTarget(settings);
+    RendTargetColorTexSettings cts;
+    cts.ColorAttachment = 0;
+    cts.Settings.Width = vWindowSize.x;
+    cts.Settings.Height = vWindowSize.y;
+    cts.Settings.Size = ColorTextureSettings::CTS_32;
+    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    RendTargetDepthTexSettings dts;
+    dts.UsesDepthTexture = true;
+    dts.Settings.Size = DepthTextureSettings::DTS_24;
+    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    worldRenderTarget = RenderTargets.CreateRenderTarget(cts, dts);
 
     finalWorldRenderQuad = new DrawingQuad();
     std::unordered_map<RenderingChannels, DataLine> channels;
@@ -190,7 +196,7 @@ void VoxelWorld::InitializeWorld(void)
         return;
     }
     finalWorldRenderQuad->GetMesh().Uniforms.AddUniforms(dict, true);
-    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTexture());
+    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
 
 
     //Initialize the voxel material.
@@ -365,7 +371,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
 
     //Render the post-process chain.
-    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTexture(), RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
+    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
     {
         PrintError("Error rendering post-process chains", postProcessing->GetError());
         EndWorld();
@@ -373,7 +379,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     
     //Render the final world info.
-    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTexture());
+    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, *finalWorldRenderMat))
     {

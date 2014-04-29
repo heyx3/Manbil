@@ -306,6 +306,7 @@
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
+    <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h" />
     <ClInclude Include="Rendering\Texture Management\TextureManager.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />
