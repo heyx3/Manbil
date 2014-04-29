@@ -249,7 +249,7 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(-20, -20, -20), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+    player.Cam = VoxelCamera(Vector3f(60, 60, 60), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);

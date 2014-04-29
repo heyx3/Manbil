@@ -1,5 +1,8 @@
 #include "VoxelChunk.h"
 
+#include <iostream>
+
+
 typedef VoxelChunk VC;
 
 
@@ -538,4 +541,6 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
             }
         }
     }
+
+    std::cout << "Vertices: " << vertices.size() << "; indices: " << indices.size() << "\n";
 }
