@@ -55,7 +55,7 @@ VoxelWorld::~VoxelWorld(void)
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const Vector3i worldLength(9, 9, 9);
+    const Vector3i worldLength(3, 3, 6);
 
     //Create the chunks.
     Vector3i loc;
@@ -96,14 +96,14 @@ void VoxelWorld::SetUpVoxels(void)
     {
         Worley3D wor(12345, 45, Interval(8, 10));
         wor.DistFunc = &Worley3D::StraightLineDistance;
-        wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return -vals.Values[0]; };
+        wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return vals.Values[0]; };
         wor.Generate(noise);
 
         NoiseFilterer3D nf3;
         MaxFilterVolume mfv;
         nf3.FillVolume = &mfv;
 
-        nf3.Increase_Amount = 0.2;
+        nf3.Increase_Amount = 0.1;
         nf3.Increase(&noise);
     }
     else assert(false);
