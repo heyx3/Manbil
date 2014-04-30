@@ -213,7 +213,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         #pragma region Water
 
         WhiteNoise2D basicNoise(fr.Seed);
-        Interpolator2D interpNoise(&basicNoise, noiseSize, noiseSize, 10.0);
+        Interpolator2D interpNoise(&basicNoise, Interpolator2D::I2S_LINEAR, 10.0);
         interpNoise.Generate(finalNoise);
 
         NoiseFilterer2D nf;
@@ -287,12 +287,12 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 
         WhiteNoise2D wn(fr.Seed);
-        Interpolator2D int1(&wn, noiseSize, noiseSize, 50.0f),
-                       int2(&wn, noiseSize, noiseSize, 25.0f),
-                       int3(&wn, noiseSize, noiseSize, 12.5f),
-                       int4(&wn, noiseSize, noiseSize, 6.25f),
-                       int5(&wn, noiseSize, noiseSize, 3.125f),
-                       int6(&wn, noiseSize, noiseSize, 1.5625f);
+        Interpolator2D int1(&wn, Interpolator2D::I2S_LINEAR, 50.0f),
+                       int2(&wn, Interpolator2D::I2S_CUBIC, 25.0f),
+                       int3(&wn, Interpolator2D::I2S_CUBIC, 12.5f),
+                       int4(&wn, Interpolator2D::I2S_CUBIC, 6.25f),
+                       int5(&wn, Interpolator2D::I2S_CUBIC, 3.125f),
+                       int6(&wn, Interpolator2D::I2S_CUBIC, 1.5625f);
         Generator2D * gens[] = { &int1, &int2, &int3, &int4, &int5, &int6 };
         float weights[6];
         float counter = 0.5f;
@@ -310,7 +310,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         nf.NoiseToFilter = &layers;
 		//nf.Generate(finalNoise);
 
-        wn.Generate(finalNoise);
+        nf.Generate(finalNoise);
 
 
 		#pragma endregion

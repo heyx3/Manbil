@@ -7,19 +7,21 @@ class Interpolator2D : public Generator2D
 {
 public:
 
-    //TODO: Test that this works. Figure out what "InterpolateWidth" and "InterpolateHeight" are for. Change to use linear/cubic/quintic interpolation.
+    enum Smoothness
+    {
+        I2S_LINEAR,
+        I2S_CUBIC,
+        I2S_QUINTIC,
+    };
+
+    Smoothness SmoothAmount;
 	const Generator2D * NoiseToInterpolate;
 	float InterpolateScale;
-	int InterpolateWidth, InterpolateHeight;
 
-	Interpolator2D(const Generator2D * toInterpolate, int width, int height, float interpScale = 1.0f)
-		: NoiseToInterpolate(toInterpolate), InterpolateScale(interpScale), InterpolateWidth(width), InterpolateHeight(height) { }
+	Interpolator2D(const Generator2D * toInterpolate, Smoothness smoothAmount, float interpScale = 1.0f)
+		: NoiseToInterpolate(toInterpolate), SmoothAmount(smoothAmount), InterpolateScale(interpScale) { }
 
 	virtual void Generate(Noise2D & outNoise) const override;
-
-private:
-
-	void ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const;
 };
 
 
