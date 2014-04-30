@@ -201,7 +201,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		#pragma region Worley
 
 		fr.Seed = fr.GetRandInt();
-		Worley2D wor(fr.GetRandInt(), 256, Interval(10, 5));
+		Worley2D wor(fr.GetRandInt(), 256, 5, 10);
 		wor.DistFunc = &Worley2D::StraightLineDistance;
 		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return -v.Values[0] + (v.Values[1] * -0.75f) + (v.Values[2] * 0.45f); };
 		wor.Generate(finalNoise);

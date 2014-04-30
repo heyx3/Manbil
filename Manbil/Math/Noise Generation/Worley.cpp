@@ -57,6 +57,9 @@ void Insert(WorleyAlgorithmData2D* toInsertInto, WorleyAlgorithmData2D & toInser
 
 void Worley2D::Generate(Array2D<float> & noise) const
 {
+    unsigned int pointsPerCellRange = MaxPointsPerCell - MinPointsPerCell;
+
+
 	//Get the size of a cell.
 	int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), noise.GetHeight());
 
@@ -89,7 +92,8 @@ void Worley2D::Generate(Array2D<float> & noise) const
             fr.Seed = Vector3i(Seed, loc.x, loc.y).GetHashCode();
 
             //Generate some randomized number of points in this cell.
-            pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
+            pointsInCell = (fr.GetRandInt() % pointsPerCellRange) + MinPointsPerCell;
+            //pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
             for (int i = 0; i < pointsInCell; ++i)
             {
                 cellTemp->insert(cellTemp->end(), Vector2f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr)));
@@ -240,6 +244,8 @@ void Insert(WorleyAlgorithmData3D* toInsertInto, WorleyAlgorithmData3D & toInser
 
 void Worley3D::Generate(Array3D<float> & noise) const
 {
+    unsigned int pointsPerCellRange = MaxPointsPerCell - MinPointsPerCell;
+
     //Get the size of a cell.
     int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), BasicMath::Min(noise.GetHeight(), noise.GetDepth()));
 
@@ -277,7 +283,8 @@ void Worley3D::Generate(Array3D<float> & noise) const
                 fr.Seed = Vector4i(loc.z, Seed, loc.x, loc.y).GetHashCode();
 
                 //Generate some randomized number of points in this cell.
-                pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
+                pointsInCell = (fr.GetRandInt() % pointsPerCellRange) + MinPointsPerCell;
+                //pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
                 for (int i = 0; i < pointsInCell; ++i)
                 {
                     cellTemp->insert(cellTemp->end(), Vector3f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr), tempIntZ.RandomInsideRange(fr)));
