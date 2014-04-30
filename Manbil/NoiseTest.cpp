@@ -7,7 +7,7 @@
 #include "Math/Noise Generation/ColorGradient.h"
 
 
-const int noiseSize = 256,
+const int noiseSize = 1024,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -18,9 +18,9 @@ void NoiseTest::InitializeWorld(void)
 	guiFont = sf::Font();
 	guiFont.loadFromFile("Content/Fonts/Candarab.ttf");
 
-	//GetWindow()->setPosition(sf::Vector2i(0, 0));
 	GetWindow()->setSize(sf::Vector2u(noiseSize, noiseSize));
-	SetWindowTitle(sf::String("Noise test"));
+    GetWindow()->setView(sf::View(sf::FloatRect(0.0f, 0.0f, noiseSize, noiseSize)));
+    GetWindow()->setTitle("Noise test");
 
 	ReGenerateNoise(false);
 }
@@ -167,10 +167,10 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		#pragma region Layered Perlin
 
 
-		Perlin2D per1(128.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed),
-                 per2(64.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 634356),
-                 per3(32.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
-                 per4(16.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 1009346),
+		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed),
+                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356),
+                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498),
+                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346),
                  per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
                  per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
                  per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498);
@@ -192,7 +192,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		nf.Generate(finalNoise);
 
         per4.Generate(finalNoise);
-        
+
 
 		#pragma endregion
 	}
@@ -241,32 +241,33 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-    else if (true)
+    else if (false)
     {
         #pragma region ThreeD Perlin
 
         float currentTime = GetTotalElapsedSeconds();
         Vector3f offset(currentTime, currentTime, currentTime);
-        offset *= 20.0f;
+        offset *= 4.0f;
 
-        Perlin3D perl3(Vector3f(32.0f, 16.0f, 5.0f), Perlin3D::Cubic, offset.CastToInt(), 123456);
-        const int depth = 5;
+        Perlin3D perl3(Vector3f(64.0f, 32.0f, 5.0f), Perlin3D::Cubic, offset.CastToInt(), 123456);
+        const int depth = 10;
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
 
         finalNoise.Fill([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
         {
-            const float timeScale = 6.0f;
+            const float timeScale = 0.01f;
 
             //Get the Z layer.
             float z = currentTime * timeScale;
             z = std::fmodf(z, (float)(depth - 1));
-            z = 3.0f;
+            z = 0.0f;
 
             //Interpolate between layers to get the value.
             *outFl = BasicMath::Lerp(tempNoise[Vector3i(loc.x, loc.y, (int)floorf(z))],
                                      tempNoise[Vector3i(loc.x, loc.y, (int)ceilf(z))],
                                      BasicMath::Supersmooth(z - (int)floorf(z)));
+            *outFl = tempNoise[Vector3i(loc.x, loc.y, 0)];
         });
 
         NoiseFilterer2D filter;
@@ -279,6 +280,40 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         filter.UpContrast(&finalNoise);
 
         #pragma endregion
+    }
+    else if (true)
+    {
+        #pragma region Layered FBM
+
+
+        WhiteNoise2D wn(fr.Seed);
+        Interpolator2D int1(&wn, noiseSize, noiseSize, 50.0f),
+                       int2(&wn, noiseSize, noiseSize, 25.0f),
+                       int3(&wn, noiseSize, noiseSize, 12.5f),
+                       int4(&wn, noiseSize, noiseSize, 6.25f),
+                       int5(&wn, noiseSize, noiseSize, 3.125f),
+                       int6(&wn, noiseSize, noiseSize, 1.5625f);
+        Generator2D * gens[] = { &int1, &int2, &int3, &int4, &int5, &int6 };
+        float weights[6];
+        float counter = 0.5f;
+        for (int i = 0; i < 6; ++i)
+        {
+            weights[i] = counter;
+            counter *= 0.5f;
+        }
+
+        LayeredOctave2D layers(6, weights, gens);
+
+        
+		nf.FilterFunc = &NoiseFilterer2D::UpContrast;
+        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
+        nf.NoiseToFilter = &layers;
+		//nf.Generate(finalNoise);
+
+        wn.Generate(finalNoise);
+
+
+		#pragma endregion
     }
 	else assert(false);
 

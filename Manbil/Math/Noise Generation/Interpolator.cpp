@@ -39,11 +39,6 @@ void Interpolator2D::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
 	}
 }
 
-float Interpolator2D::GetInterpolatedNoise(Vector2f scale, Noise2D & tempSmoothedNoise) const
-{
-	
-}
-
 void Interpolator2D::Generate(Array2D<float> & outN) const
 {
 	Noise2D tempSmoothedNoise(InterpolateWidth, InterpolateHeight);
@@ -78,7 +73,7 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
                                         BasicMath::Lerp(c3, c4, fracLoc.x),
                                         fracLoc.y);
 
-            outN[loc] = GetInterpolatedNoise(scaleLoc, tempSmoothedNoise);
+            //outN[loc] = GetInterpolatedNoise(scaleLoc, tempSmoothedNoise);
         }
     }
 }

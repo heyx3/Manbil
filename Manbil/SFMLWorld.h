@@ -18,12 +18,10 @@ public:
     }
 	virtual ~SFMLWorld(void) { if (window) delete window; }
 
-	float GetTotalElapsedSeconds(void) const { return  totalElapsedSeconds; }
+	float GetTotalElapsedSeconds(void) const { return totalElapsedSeconds; }
 	sf::RenderWindow * GetWindow(void) const { return window; }
 
     const sf::ContextSettings & GetContextSettings(void) const { return contextSettings; }
-
-	void SetWindowTitle(const sf::String & title) { window->setTitle(title); }
 
 	bool IsGameOver(void) const { return worldOver; }
 	

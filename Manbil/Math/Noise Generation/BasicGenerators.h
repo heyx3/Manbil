@@ -64,12 +64,10 @@ public:
 	WhiteNoise2D(int seed = 12345) : Seed(seed) { }
 	virtual void Generate(Noise2D & outNoise) const override
     {
-        FastRand fr;
         int s = Seed;
-        outNoise.Fill([&fr, s](Vector2i loc, float * fOut)
+        outNoise.Fill([s](Vector2i loc, float * fOut)
         {
-           fr.Seed = Vector3i(loc, s).GetHashCode();
-           *fOut = fr.GetZeroToOne();
+           *fOut = FastRand(Vector3i(loc, s).GetHashCode()).GetZeroToOne();
         });
     }
 };

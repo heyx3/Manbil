@@ -20,8 +20,6 @@ public:
 private:
 
 	void ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const;
-
-	float GetInterpolatedNoise(Vector2f pos, Noise2D & tempSmoothedNoise) const;
 };
 
 
@@ -44,6 +42,4 @@ public:
 private:
 
     void ComputeTempSmoothedNoise(Noise3D & tempSmoothedNoise) const;
-
-    float GetInterpolatedNoise(Vector3f pos, Noise3D & tempSmoothedNoise) const;
 };
