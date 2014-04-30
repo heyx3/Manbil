@@ -2,7 +2,7 @@
 
 void Interpolator2D::ComputeTempSmoothedNoise(Noise2D & tempSmoothedNoise) const
 {
-	Fake2DArray<float> nti = Fake2DArray<float>(InterpolateWidth, InterpolateHeight);
+	Array2D<float> nti = Array2D<float>(InterpolateWidth, InterpolateHeight);
 	NoiseToInterpolate->Generate(nti);
 
 	float val;
@@ -44,7 +44,7 @@ float Interpolator2D::GetInterpolatedNoise(Vector2f scale, Noise2D & tempSmoothe
 	
 }
 
-void Interpolator2D::Generate(Fake2DArray<float> & outN) const
+void Interpolator2D::Generate(Array2D<float> & outN) const
 {
 	Noise2D tempSmoothedNoise(InterpolateWidth, InterpolateHeight);
 	ComputeTempSmoothedNoise(tempSmoothedNoise);

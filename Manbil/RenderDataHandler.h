@@ -2,7 +2,7 @@
 
 #include "OpenGLIncludes.h"
 #include "Math/Matrix4f.h"
-#include "Math/Fake2DArray.h"
+#include "Math/Array2D.h"
 #include <SFML/Graphics/Image.hpp>
 
 //Manages different kinds of data being passed between CPU and GPU.
@@ -37,7 +37,7 @@ public:
 	
     template<typename Data>
     //Creates a texture object for passing to a shader.
-    static void CreateTexture2D(RenderObjHandle & texObjectHandle, const Fake2DArray<Data> & imgData,
+    static void CreateTexture2D(RenderObjHandle & texObjectHandle, const Array2D<Data> & imgData,
                                 void(*outputColor)(void* specialData, unsigned char pixel[4], Data data), void* pData = 0,
                                 bool generateMipmaps = false)
     {

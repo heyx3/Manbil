@@ -5,19 +5,19 @@
 
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a two-dimensional array.
-class Fake2DArray
+class Array2D
 {
 public:
 
-	//Creates a new Fake2DArray without initializing any of the values.
-	Fake2DArray(unsigned int aWidth, unsigned int aHeight)
+	//Creates a new Array2D without initializing any of the values.
+	Array2D(unsigned int aWidth, unsigned int aHeight)
 	{
 		width = aWidth;
 		height = aHeight;
 
 		arrayVals = new ArrayType[width * height];
 	}
-    Fake2DArray(unsigned int aWidth, unsigned int aHeight, const ArrayType & defaultValue)
+    Array2D(unsigned int aWidth, unsigned int aHeight, const ArrayType & defaultValue)
 	{
 		width = aWidth;
 		height = aHeight;
@@ -29,10 +29,10 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-    Fake2DArray(const Fake2DArray<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
-    Fake2DArray & operator=(const Fake2DArray<ArrayType> & other); //Don't implement this one either.
+    Array2D(const Array2D<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
+    Array2D & operator=(const Array2D<ArrayType> & other); //Don't implement this one either.
 
-	~Fake2DArray(void)
+	~Array2D(void)
 	{
 		delete[] arrayVals;
 	}
@@ -91,7 +91,7 @@ public:
 		}
 	}
 	//Copies the given array into this one. Optionally specifies an offset for the top-left position of "toCopy".
-	void Fill(const Fake2DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector2i copyOffset = Vector2i(0, 0))
+	void Fill(const Array2D<ArrayType> & toCopy, const ArrayType & defaultValue, Vector2i copyOffset = Vector2i(0, 0))
 	{
 		Vector2i offsetLoc;
 

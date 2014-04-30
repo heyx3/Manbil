@@ -6,5 +6,4 @@
 #include "Noise Generation/NoiseCombinations.h"
 #include "Noise Generation/NoiseFilterer.h"
 #include "Noise Generation/Perlin.h"
-#include "Noise Generation/WhiteNoise.h"
 #include "Noise Generation/Worley.h"

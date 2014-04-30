@@ -3,7 +3,7 @@
 bool NoiseToTexture::GetImage(sf::Image & img) const
 {
 	//The pixel array.
-	Fake2DArray<sf::Uint8> outP(NoiseToUse->GetWidth() * 4, NoiseToUse->GetHeight(), 255);
+	Array2D<sf::Uint8> outP(NoiseToUse->GetWidth() * 4, NoiseToUse->GetHeight(), 255);
 	
 	//Some temp variables.
 	unsigned int x, y, pixX, pixY;

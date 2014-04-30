@@ -7,7 +7,7 @@ class Terrain
 {
 public:
 
-	Terrain(unsigned int size) { heightmap = new Fake2DArray<float>(size, size, 0.0f); }
+	Terrain(unsigned int size) { heightmap = new Array2D<float>(size, size, 0.0f); }
 	~Terrain(void) { delete heightmap; }
 
     //Gets the width/height of the terrain.
@@ -18,7 +18,7 @@ public:
 	//Gets the number of indices necessary to turn this terrain into triangles.
 	unsigned int GetIndicesCount(int zoomOut = 0) const { return (6 * (GetSize() - 1) * (GetSize() - 1)) / (int)BasicMath::IntPow(4, zoomOut); }
 
-	void SetHeightmap(const Fake2DArray<float> & copy);
+	void SetHeightmap(const Array2D<float> & copy);
 
 	float& operator[](Vector2i l) { return (*heightmap)[l]; }
 	const float& operator[](Vector2i l) const { return (*heightmap)[l]; }
@@ -28,7 +28,7 @@ public:
 	template<typename Func, class Out>
 	//Takes a function of type "Out pConverter(Vector2i loc)" that converts a location in the terrain to output data.
 	//Writes the converted values to a 2D array of type "Out".
-	void ConvertHeightmap(Fake2DArray<Out> & outArray, Func pConverter)
+	void ConvertHeightmap(Array2D<Out> & outArray, Func pConverter)
 	{
 		Vector2i l;
 		unsigned int x, y;
@@ -67,7 +67,7 @@ private:
 
 	int GetIndex(Vector2i pos, Vector2i topLeftOffset, Vector2i bottomRightOffset) const { return (pos.x - topLeftOffset.x) + ((pos.y - topLeftOffset.y) * (bottomRightOffset.x - topLeftOffset.x + 1)); }
 
-	Fake2DArray<float> * heightmap;
+	Array2D<float> * heightmap;
 
 	//Gets the height at the given fractional position using interpolation.
 	float Interp(Vector2f pos) const;

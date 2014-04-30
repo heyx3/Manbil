@@ -3,7 +3,7 @@
 #include "../Shapes/ThreeDShapes.h"
 
 
-void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake3DArray<float> & noise, Vector3i noiseSize, bool calcStrength)
+void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
 {
     for (Vector3i loc; loc.z < noiseSize.z; ++loc.z)
         for (loc.y = 0; loc.y < noiseSize.y; ++loc.y)
@@ -12,7 +12,7 @@ void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake3DA
                     toDo(pData, loc, StrengthLerp);
 }
 
-void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake3DArray<float> & noise, Vector3i noiseSize, bool calcStrength)
+void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
 {
     Vector3i minCorner = (Center - Vector3f(Radius, Radius, Radius)).CastToInt(),
              maxCorner = (Center + Vector3f(Radius, Radius, Radius)).Ceil();
@@ -109,7 +109,7 @@ float SphereFilterVolume::GetStrengthDropoffScale(Vector3f pos) const
     }
 }
 
-void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake3DArray<float> & noise, Vector3i noiseSize, bool calcStrength)
+void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
 {
     if (Wrap)
     {

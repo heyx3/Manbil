@@ -2,8 +2,8 @@
 
 #include <vector>
 #include "../Math/Shapes/Boxes.h"
-#include "../Math/Fake2DArray.h"
-#include "../Math/Fake3DArray.h"
+#include "../Math/Array2D.h"
+#include "../Math/Array3D.h"
 #include "../Math/Shapes/ThreeDShapes.h"
 
 
@@ -97,7 +97,7 @@ public:
     bool IsFull(void) const { return nSolidVoxels == (ChunkSize * ChunkSize * ChunkSize); }
 
     //Gets the voxels.
-    const Fake3DArray<bool> & GetVoxels(void) const { return voxels; }
+    const Array3D<bool> & GetVoxels(void) const { return voxels; }
 
     //'location' is in world coordinates.
     bool GetVoxelWorld(Vector3f location) const { return GetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
@@ -287,6 +287,6 @@ public:
 
 private:
 
-    Fake3DArray<bool> voxels;
+    Array3D<bool> voxels;
     unsigned int nSolidVoxels;
 };

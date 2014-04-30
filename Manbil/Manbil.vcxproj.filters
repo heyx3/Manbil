@@ -296,9 +296,6 @@
     <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Noise Generation\WhiteNoise.cpp">
-      <Filter>Math\Noise Generation</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -416,9 +413,6 @@
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\CachedFunc.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Fake2DArray.h">
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\FastRand.h">
@@ -686,9 +680,6 @@
     <ClInclude Include="Voxel\VoxelChunk.h">
       <Filter>Voxels</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Fake3DArray.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
     <ClInclude Include="Voxel\VoxelChunkManager.h">
       <Filter>Voxels</Filter>
     </ClInclude>
@@ -731,8 +722,11 @@
     <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h">
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Noise Generation\WhiteNoise.h">
-      <Filter>Math\Noise Generation</Filter>
+    <ClInclude Include="Math\Array2D.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Array3D.h">
+      <Filter>Math\Basic Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

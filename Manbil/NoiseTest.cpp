@@ -25,7 +25,7 @@ void NoiseTest::InitializeWorld(void)
 	ReGenerateNoise(false);
 }
 
-void NoiseToPixels(const Noise2D & noise, Fake2DArray<sf::Uint8> & outPixels)
+void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 {
 	ColorGradient colGrad;
 
@@ -288,7 +288,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 void NoiseTest::InterpretNoise(const Noise2D & noise)
 {
 	//Output noise to pixel array. The stack can't hold all the pixels, so put it on the heap.
-	Fake2DArray<sf::Uint8> * pixels = new Fake2DArray<sf::Uint8>(pixelArrayWidth, pixelArrayHeight, 0); //The stack can't hold all these pixels.
+	Array2D<sf::Uint8> * pixels = new Array2D<sf::Uint8>(pixelArrayWidth, pixelArrayHeight, 0); //The stack can't hold all these pixels.
 	NoiseToPixels(noise, *pixels);
 
 

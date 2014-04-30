@@ -26,7 +26,7 @@ void ColorGradient::CheckErrors(void) const
 	}
 }
 
-void ColorGradient::GetColors(Fake2DArray<Vector4f> & outCols, const Fake2DArray<float> & noiseValues) const
+void ColorGradient::GetColors(Array2D<Vector4f> & outCols, const Array2D<float> & noiseValues) const
 {
 	CheckErrors();
 

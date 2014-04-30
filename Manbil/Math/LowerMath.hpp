@@ -2,7 +2,7 @@
 
 #include "BasicMath.h"
 #include "CachedFunc.h"
-#include "Fake2DArray.h"
-#include "Fake3DArray.h"
+#include "Array2D.h"
+#include "Array3D.h"
 #include "Interval.h"
 #include "Quaternion.h"

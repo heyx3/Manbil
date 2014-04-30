@@ -2,11 +2,10 @@
 
 #include "../LowerMath.hpp"
 
-typedef Fake2DArray<float> Noise2D;
-typedef Fake3DArray<float> Noise3D;
+typedef Array2D<float> Noise2D;
+typedef Array3D<float> Noise3D;
 
 //TODO: All generators have an "offset" and use their FastRand math based only on coordinate hashing/generator seed.
-//TODO: Create 3D Worley noise.
 
 //******************************************************************************************
 //All noise values in this generation system are assumed to generate values between 0 and 1.
@@ -77,8 +76,6 @@ public:
 
 
 #pragma endregion
-
-
 
 
 #pragma region ThreeD

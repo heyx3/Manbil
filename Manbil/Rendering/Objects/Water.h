@@ -75,9 +75,9 @@ public:
     struct SeedmapWaterCreationArgs
     {
     public:
-        const Fake2DArray<float> * SeedValues;
+        const Array2D<float> * SeedValues;
         TextureManager * TexManager;
-        SeedmapWaterCreationArgs(const Fake2DArray<float> * seedValues = 0, TextureManager * texManager = 0) : SeedValues(seedValues), TexManager(texManager) { }
+        SeedmapWaterCreationArgs(const Array2D<float> * seedValues = 0, TextureManager * texManager = 0) : SeedValues(seedValues), TexManager(texManager) { }
     };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos, Vector3f scale,

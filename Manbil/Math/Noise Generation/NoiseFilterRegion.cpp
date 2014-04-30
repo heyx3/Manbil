@@ -1,7 +1,7 @@
 #include "NoiseFilterRegion.h"
 
 
-void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrength)
+void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
 {
     Vector2i loc;
     for (loc.y = 0; loc.y < noiseSize.y; ++loc.y)
@@ -14,7 +14,7 @@ void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DA
     }
 }
 
-void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrength)
+void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
 {
     Vector2i loc;
     Vector2f locF;
@@ -141,7 +141,7 @@ float CircularFilterRegion::GetStrengthDropoffScale(Vector2f pos) const
     }
 }
 
-void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Fake2DArray<float> & noise, Vector2i noiseSize, bool calcStrength)
+void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
 {
     if (Wrap)
     {

@@ -7,5 +7,5 @@ class BumpmapToNormalmap
 {
 public:
     
-    static void Convert(const Fake2DArray<float> & heightmap, float heightScale, Fake2DArray<Vector3f> & outNormals);
+    static void Convert(const Array2D<float> & heightmap, float heightScale, Array2D<Vector3f> & outNormals);
 };

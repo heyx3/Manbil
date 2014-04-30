@@ -49,5 +49,5 @@ private:
 
 	mutable FastRand fr;
 
-	void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * variances, Fake2DArray<float> & noise) const;
+	void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * variances, Array2D<float> & noise) const;
 };

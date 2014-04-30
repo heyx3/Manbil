@@ -19,7 +19,7 @@ public:
 	ColorGradient() { }
 	~ColorGradient(void) {  }
 
-	void GetColors(Fake2DArray<Vector4f> & outColors, const Fake2DArray<float> & noiseValues) const;
+	void GetColors(Array2D<Vector4f> & outColors, const Array2D<float> & noiseValues) const;
 	Vector4f GetColor(float value) const { CheckErrors(); return GetColorWOErrorChecking(value); }
 
 private:

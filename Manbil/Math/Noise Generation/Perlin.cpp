@@ -4,7 +4,7 @@
 #include <assert.h>
 
 
-void Perlin2D::Generate(Fake2DArray<float> & outValues) const
+void Perlin2D::Generate(Array2D<float> & outValues) const
 {
 	FastRand fr(RandSeed);
 
@@ -37,7 +37,7 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
         outValues.Fill(0.0f);
         return;
     }
-	Fake2DArray<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
+	Array2D<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
 
     Vector2i offLoc;
     Vector2i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y));
@@ -127,7 +127,7 @@ void Perlin2D::Generate(Fake2DArray<float> & outValues) const
 }
 
 
-void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
+void Perlin3D::Generate(Array3D<float> & outNoise) const
 {
     FastRand fr(RandSeed);
 
@@ -166,7 +166,7 @@ void Perlin3D::Generate(Fake3DArray<float> & outNoise) const
                           BasicMath::RoundToInt(dimensions.y / Scale.y) + 2,
                           BasicMath::RoundToInt(dimensions.z / Scale.z) + 2);
 
-    Fake3DArray<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
+    Array3D<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
 
     Vector3i loc, offLoc;
     Vector3i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y), (int)(Offset.z / Scale.z));

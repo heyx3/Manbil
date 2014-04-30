@@ -5,12 +5,12 @@
 
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a three-dimensional array.
-class Fake3DArray
+class Array3D
 {
 public:
 
-	//Creates a new Fake3DArray without initializing any of the values.
-	Fake3DArray(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth)
+	//Creates a new Array3D without initializing any of the values.
+	Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth)
 	{
 		width = aWidth;
 		height = aHeight;
@@ -18,7 +18,7 @@ public:
 
 		arrayVals = new ArrayType[width * height * depth];
 	}
-    Fake3DArray(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType & defaultValue)
+    Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType & defaultValue)
 	{
 		width = aWidth;
         height = aHeight;
@@ -31,10 +31,10 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-    Fake3DArray(const Fake3DArray<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
-    Fake3DArray & operator=(const Fake3DArray<ArrayType> & other); //Don't implement this one either.
+    Array3D(const Array3D<ArrayType> & cpy); //Don't implement this function -- prevent accidental copying.
+    Array3D & operator=(const Array3D<ArrayType> & other); //Don't implement this one either.
 
-    ~Fake3DArray(void)
+    ~Array3D(void)
 	{
 		delete[] arrayVals;
 	}
@@ -103,7 +103,7 @@ public:
 		}
 	}
 	//Copies the given array into this one. Optionally specifies an offset for the min position of "toCopy".
-    void Fill(const Fake3DArray<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
+    void Fill(const Array3D<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
     {
         unsigned int x, y, z;
         Vector3i loc, offsetLoc;

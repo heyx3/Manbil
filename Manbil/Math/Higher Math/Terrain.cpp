@@ -6,13 +6,13 @@
 
 unsigned char Terrain::Exception_Invalid_Area = 1;
 
-void Terrain::SetHeightmap(const Fake2DArray<float> & copy)
+void Terrain::SetHeightmap(const Array2D<float> & copy)
 {
 	//If the dimensions are different, make a new heightmap object.
 	if (copy.GetWidth() != heightmap->GetWidth() || copy.GetHeight() != heightmap->GetHeight())
 	{
 		delete heightmap;
-		heightmap = new Fake2DArray<float>(copy.GetWidth(), copy.GetHeight(), 0.0f);
+		heightmap = new Array2D<float>(copy.GetWidth(), copy.GetHeight(), 0.0f);
 	}
 
 	//Add in the new heightmap values.

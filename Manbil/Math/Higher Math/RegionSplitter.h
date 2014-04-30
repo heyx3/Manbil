@@ -12,7 +12,7 @@ template<typename Data>
 class RegionSplitter
 {
 	//The output -- the data, split into rectangular regions inside the grid.
-	typedef Fake2DArray<std::vector<Data*>> SplitRegions;
+	typedef Array2D<std::vector<Data*>> SplitRegions;
 	//Takes a data object and outputs its position along the grid.
 	typedef Vector2f (*DatToGridPos)(const Data * const dat);
 

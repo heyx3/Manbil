@@ -113,7 +113,6 @@
     <ClCompile Include="Math\Noise Generation\NoiseFilterRegion.cpp" />
     <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp" />
     <ClCompile Include="Math\Noise Generation\Perlin.cpp" />
-    <ClCompile Include="Math\Noise Generation\WhiteNoise.cpp" />
     <ClCompile Include="Math\Noise Generation\Worley.cpp" />
     <ClCompile Include="Math\Quaternion.cpp" />
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
@@ -205,8 +204,8 @@
     <ClInclude Include="Materials.h" />
     <ClInclude Include="Math\BasicMath.h" />
     <ClInclude Include="Math\CachedFunc.h" />
-    <ClInclude Include="Math\Fake2DArray.h" />
-    <ClInclude Include="Math\Fake3DArray.h" />
+    <ClInclude Include="Math\Array2D.h" />
+    <ClInclude Include="Math\Array3D.h" />
     <ClInclude Include="Math\FastRand.h" />
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h" />
     <ClInclude Include="Math\Higher Math\Camera.h" />
@@ -231,7 +230,6 @@
     <ClInclude Include="Math\Noise Generation\NoiseFilterRegion.h" />
     <ClInclude Include="Math\Noise Generation\NoiseFilterVolume.h" />
     <ClInclude Include="Math\Noise Generation\Perlin.h" />
-    <ClInclude Include="Math\Noise Generation\WhiteNoise.h" />
     <ClInclude Include="Math\Noise Generation\Worley.h" />
     <ClInclude Include="Math\NoiseGeneration.hpp" />
     <ClInclude Include="Math\Quaternion.h" />

@@ -24,10 +24,10 @@ LayeredOctave2D::~LayeredOctave2D(void)
 	delete[] OctaveStrengths;
 }
 
-void LayeredOctave2D::Generate(Fake2DArray<float> & outNoiseArray) const
+void LayeredOctave2D::Generate(Array2D<float> & outNoiseArray) const
 {
 	//Put this temp array on the heap; it won't fit on the stack.
-	Fake2DArray<float> * tempNoiseArray = new Fake2DArray<float>(outNoiseArray.GetWidth(),
+	Array2D<float> * tempNoiseArray = new Array2D<float>(outNoiseArray.GetWidth(),
 															 	 outNoiseArray.GetHeight(),
 																 0.0f);
 
@@ -84,10 +84,10 @@ LayeredOctave3D::~LayeredOctave3D(void)
     delete[] OctaveStrengths;
 }
 
-void LayeredOctave3D::Generate(Fake3DArray<float> & outNoiseArray) const
+void LayeredOctave3D::Generate(Array3D<float> & outNoiseArray) const
 {
     //Put this temp array on the heap; it won't fit on the stack.
-    Fake3DArray<float> * tempNoiseArray = new Fake3DArray<float>(outNoiseArray.GetWidth(),
+    Array3D<float> * tempNoiseArray = new Array3D<float>(outNoiseArray.GetWidth(),
                                                                  outNoiseArray.GetHeight(),
                                                                  outNoiseArray.GetDepth(),
                                                                  0.0f);

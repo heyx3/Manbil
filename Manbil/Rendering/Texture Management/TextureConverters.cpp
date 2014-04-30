@@ -4,7 +4,7 @@
 
 const float TextureConverters::ByteToFloatScalar = 1.0f / 255.0f;
 
-void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fake2DArray<UByte> & channelOut)
+void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Array2D<UByte> & channelOut)
 {
     switch (channel)
     {
@@ -47,7 +47,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
     default: assert(false);
     }
 }
-void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fake2DArray<float> & channelOut)
+void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Array2D<float> & channelOut)
 {
     switch (channel)
     {
@@ -91,7 +91,7 @@ void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Fak
     }
 }
 
-void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOut channel, sf::Image & outImg, UByte defaultColor, UByte defaultAlpha)
+void TextureConverters::ToImage(const Array2D<UByte> & channelIn, ChannelsOut channel, sf::Image & outImg, UByte defaultColor, UByte defaultAlpha)
 {
     UByte values[] = { defaultColor, defaultAlpha };
 
@@ -153,7 +153,7 @@ void TextureConverters::ToImage(const Fake2DArray<UByte> & channelIn, ChannelsOu
     default: assert(false);
     }
 }
-void TextureConverters::ToImage(const Fake2DArray<float> & channelIn, ChannelsOut channel, sf::Image & outImg, float defaultColor, float defaultAlpha)
+void TextureConverters::ToImage(const Array2D<float> & channelIn, ChannelsOut channel, sf::Image & outImg, float defaultColor, float defaultAlpha)
 {
     UByte value1 = (UByte)(255.0f * defaultColor),
           value2 = (UByte)(255.0f * defaultAlpha),

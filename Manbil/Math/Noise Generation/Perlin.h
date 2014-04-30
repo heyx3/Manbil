@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicGenerators.h"
-#include "../Fake3DArray.h"
+#include "../Array3D.h"
 
 
 //2D Perlin noise generator.
@@ -28,7 +28,7 @@ public:
 	Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345)
         : Scale(scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 
-	virtual void Generate(Fake2DArray<float> & outValues) const override;
+	virtual void Generate(Array2D<float> & outValues) const override;
 };
 
 //3D Perlin noise generator.
@@ -55,5 +55,5 @@ public:
     Perlin3D(Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345)
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed) { }
 
-    void Generate(Fake3DArray<float> & outValues) const;
+    void Generate(Array3D<float> & outValues) const;
 };

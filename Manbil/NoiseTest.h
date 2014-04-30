@@ -3,7 +3,7 @@
 #include "sfmlworld.h"
 #include "SFML/Graphics.hpp"
 
-#include "Math/Fake2DArray.h"
+#include "Math/Array2D.h"
 
 class NoiseTest : public SFMLWorld
 {
@@ -26,7 +26,7 @@ private:
 	void DeleteData(void) { DeleteAndSetToNull(renderedNoiseTex); DeleteAndSetToNull(renderedNoise); }
 
 	void ReGenerateNoise(bool newSeeds);
-	void InterpretNoise(const Fake2DArray<float> & noise);
+	void InterpretNoise(const Array2D<float> & noise);
 	
 	sf::Texture * renderedNoiseTex;
 	sf::Sprite * renderedNoise;

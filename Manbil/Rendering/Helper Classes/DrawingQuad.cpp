@@ -55,7 +55,7 @@ bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, Material & 
     Vector2f scale2d(scale.x, scale.y);
 
     Vector3f delta = Vector3f(scale.x * 0.5f, scale.y * 0.5f, 0.0f);
-    delta -= origin.ComponentProduct(scale2d);
+    delta -= Vector3f(origin.ComponentProduct(scale2d), 0.0f);
 
     return mat.Render(pass, info, meshes);
 }

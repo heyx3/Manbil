@@ -1,6 +1,6 @@
 #include "BumpmapToNormalmap.h"
 
-void BumpmapToNormalmap::Convert(const Fake2DArray<float> & heightmap, float heightScale, Fake2DArray<Vector3f> & normals)
+void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightScale, Array2D<Vector3f> & normals)
 {
     Vector3f sum, tempSum, base, first, second;
     for (int x = 0; x < heightmap.GetWidth(); ++x)
