@@ -1,6 +1,6 @@
 #include "SFML/Graphics.hpp"
 
-#include "Math/Fake3DArray.h"
+#include "Math/Array3D.h"
 
 #include "NoiseTest.h"
 #include "OpenGLTestWorld.h"
