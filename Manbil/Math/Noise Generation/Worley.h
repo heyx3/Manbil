@@ -6,6 +6,7 @@
 
 
 //TODO: Specify X/Y/Z ranges (0 - 1) that constrain each point's placement in a cell.
+//TODO: Change Worley to always generate just one point per cell.
 
 
 //Creates 2D noise using the "Worley Noise" algorithm.
