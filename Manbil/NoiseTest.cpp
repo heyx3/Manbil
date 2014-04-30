@@ -201,17 +201,17 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		#pragma region Worley
 
 		fr.Seed = fr.GetRandInt();
-		Worley2D wor(fr.GetRandInt(), 256, 5, 10);
+		Worley2D wor(fr.GetRandInt(), 64, 5, 10);
 		wor.DistFunc = &Worley2D::StraightLineDistance;
-		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return -v.Values[0] + (v.Values[1] * -0.75f) + (v.Values[2] * 0.45f); };
+		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return v.Values[2] - v.Values[0]; };
 		wor.Generate(finalNoise);
 
         nf.Increase_Amount = -0.25f;
-        nf.Increase(&finalNoise);
+        //nf.Increase(&finalNoise);
 
-        //nf.UpContrast_Passes = 1;
-        //nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
-        //nf.UpContrast(&finalNoise);
+        nf.UpContrast_Passes = 1;
+        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::CUBIC;
+        nf.UpContrast(&finalNoise);
 
         //nf.ReflectValues(&finalNoise);
 

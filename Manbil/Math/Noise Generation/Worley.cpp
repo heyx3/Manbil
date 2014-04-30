@@ -92,8 +92,8 @@ void Worley2D::Generate(Array2D<float> & noise) const
             fr.Seed = Vector3i(Seed, loc.x, loc.y).GetHashCode();
 
             //Generate some randomized number of points in this cell.
-            pointsInCell = (fr.GetRandInt() % pointsPerCellRange) + MinPointsPerCell;
-            //pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
+            pointsInCell = (BasicMath::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
+            pointsInCell = 1;
             for (int i = 0; i < pointsInCell; ++i)
             {
                 cellTemp->insert(cellTemp->end(), Vector2f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr)));
@@ -283,8 +283,8 @@ void Worley3D::Generate(Array3D<float> & noise) const
                 fr.Seed = Vector4i(loc.z, Seed, loc.x, loc.y).GetHashCode();
 
                 //Generate some randomized number of points in this cell.
-                pointsInCell = (fr.GetRandInt() % pointsPerCellRange) + MinPointsPerCell;
-                //pointsInCell = BasicMath::RoundToInt(PointsPerCell.RandomInsideRange(fr));
+                pointsInCell = (BasicMath::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
+                pointsInCell = 1;
                 for (int i = 0; i < pointsInCell; ++i)
                 {
                     cellTemp->insert(cellTemp->end(), Vector3f(tempIntX.RandomInsideRange(fr), tempIntY.RandomInsideRange(fr), tempIntZ.RandomInsideRange(fr)));

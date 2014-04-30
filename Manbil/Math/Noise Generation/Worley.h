@@ -5,6 +5,9 @@
 #define CALL_MEMBER_FUNCTION(object, ptrToMember) ((object).*(ptrToMember))
 
 
+//TODO: Specify X/Y/Z ranges (0 - 1) that constrain each point's placement in a cell.
+
+
 //Creates 2D noise using the "Worley Noise" algorithm.
 class Worley2D : public Generator2D
 {

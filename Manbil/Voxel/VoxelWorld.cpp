@@ -94,16 +94,16 @@ void VoxelWorld::SetUpVoxels(void)
     }
     else if (true)
     {
-        Worley3D wor(12345, 90, 5, 15);
+        Worley3D wor(12345, 30, 5, 15);
         wor.DistFunc = &Worley3D::StraightLineDistance;
-        wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return vals.Values[0]; };
+        wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return -vals.Values[2] + vals.Values[0]; };
         wor.Generate(noise);
 
         NoiseFilterer3D nf3;
         MaxFilterVolume mfv;
         nf3.FillVolume = &mfv;
 
-        nf3.Increase_Amount = 0.1f;
+        nf3.Increase_Amount = -0.25f;
         nf3.Increase(&noise);
     }
     else assert(false);
