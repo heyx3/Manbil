@@ -55,7 +55,7 @@ VoxelWorld::~VoxelWorld(void)
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const Vector3i worldLength(5, 5, 3);
+    const Vector3i worldLength(9, 9, 9);
 
     //Create the chunks.
     Vector3i loc;
@@ -69,26 +69,45 @@ void VoxelWorld::SetUpVoxels(void)
 
     Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z);
     
-    Perlin3D perl(Vector3f(30.0f, 30.0f, 60.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
-    perl.Generate(noise);
+    if (false)
+    {
+        Perlin3D perl(Vector3f(30.0f, 30.0f, 60.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
+        perl.Generate(noise);
 
-    NoiseFilterer3D nf3;
-    MaxFilterVolume mfv;
-    nf3.FillVolume = &mfv;
+        NoiseFilterer3D nf3;
+        MaxFilterVolume mfv;
+        nf3.FillVolume = &mfv;
 
-    nf3.Increase_Amount = 0.2f;
-    nf3.Increase(&noise);
+        nf3.Increase_Amount = 0.2f;
+        nf3.Increase(&noise);
 
-    //TODO: New array to smooth into, instead of reading from the same array that is being smoothed into!
-    //nf3.Smooth(&noise);
-    //nf3.Smooth(&noise);
+        //TODO: New array to smooth into, instead of reading from the same array that is being smoothed into!
+        //nf3.Smooth(&noise);
+        //nf3.Smooth(&noise);
 
-    //Add a floor.
-    const int floorHeight = 10;
-    CubeFilterVolume cfv(Vector3i(), Vector3i(worldLength.x * VoxelChunk::ChunkSize, worldLength.y * VoxelChunk::ChunkSize, floorHeight));
-    nf3.FillVolume = &cfv;
-    nf3.Set_Value = 1.0f;
-    nf3.Set(&noise);
+        //Add a floor.
+        const int floorHeight = 10;
+        CubeFilterVolume cfv(Vector3i(), Vector3i(worldLength.x * VoxelChunk::ChunkSize, worldLength.y * VoxelChunk::ChunkSize, floorHeight));
+        nf3.FillVolume = &cfv;
+        nf3.Set_Value = 1.0f;
+        nf3.Set(&noise);
+    }
+    else if (true)
+    {
+        Worley3D wor(12345, 45, Interval(8, 10));
+        wor.DistFunc = &Worley3D::StraightLineDistance;
+        wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return -vals.Values[0]; };
+        wor.Generate(noise);
+
+        NoiseFilterer3D nf3;
+        MaxFilterVolume mfv;
+        nf3.FillVolume = &mfv;
+
+        nf3.Increase_Amount = 0.2;
+        nf3.Increase(&noise);
+    }
+    else assert(false);
+
 
     //Generate voxels from noise.
     for (auto location = manager.GetAllChunks().begin(); location != manager.GetAllChunks().end(); ++location)

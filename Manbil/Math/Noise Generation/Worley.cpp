@@ -58,15 +58,7 @@ void Insert(WorleyAlgorithmData2D* toInsertInto, WorleyAlgorithmData2D & toInser
 void Worley2D::Generate(Array2D<float> & noise) const
 {
 	//Get the size of a cell.
-	int cSize = CellSize;
-	if (cSize > noise.GetWidth())
-	{
-		cSize = noise.GetWidth();
-	}
-	if (cSize > noise.GetHeight())
-	{
-		cSize = noise.GetHeight();
-	}
+	int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), noise.GetHeight());
 
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
 	Vector2i cells = Vector2i((noise.GetWidth() / cSize),
@@ -219,7 +211,7 @@ void Insert(WorleyAlgorithmData3D* toInsertInto, WorleyAlgorithmData3D & toInser
     //Only need to use the closest 5 elements.
     const int maxSize = Worley3D::NUMB_DISTANCE_VALUES;
 
-    int i = 0;
+    int i;
     for (i = 0; i < maxSize && IsGoodData(toInsertInto[i]); ++i)
     {
         //If this is the right spot to insert the data...
@@ -242,9 +234,6 @@ void Insert(WorleyAlgorithmData3D* toInsertInto, WorleyAlgorithmData3D & toInser
     if (i < maxSize)
     {
         toInsertInto[i].Pos = toInsert.Pos;
-    }
-    if (i < maxSize)
-    {
         toInsertInto[i].Distance = toInsert.Distance;
     }
 }
@@ -252,7 +241,7 @@ void Insert(WorleyAlgorithmData3D* toInsertInto, WorleyAlgorithmData3D & toInser
 void Worley3D::Generate(Array3D<float> & noise) const
 {
     //Get the size of a cell.
-    int cSize = BasicMath::Max<int>(CellSize, noise.GetWidth(), BasicMath::Max(noise.GetHeight(), noise.GetDepth()));
+    int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), BasicMath::Min(noise.GetHeight(), noise.GetDepth()));
 
     //Get the number of cells (use one extra row/column of cells behind the noise array).
     Vector3i cells = Vector3i((noise.GetWidth() / cSize),

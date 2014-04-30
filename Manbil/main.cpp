@@ -22,6 +22,7 @@ void WriteToConsole(const std::string & outStr)
     cout << outStr << "\n";
 }
 
+
 template<class Vector>
 string ToString(Vector v)
 {
@@ -45,9 +46,9 @@ int main()
     //OpenGLTestWorld().RunWorld();
     //TwoDOpenGLTest().RunWorld();
 
-    NoiseTest().RunWorld();
+    //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }

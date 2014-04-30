@@ -9,8 +9,8 @@ typedef VoxelChunk VC;
 const int VC::ChunkSize = 30;
 const float VC::ChunkSizeF = 30.0f;
 
-const int VC::VoxelSize = 3;
-const float VC::VoxelSizeF = 3.0f;
+const int VC::VoxelSize = 1;
+const float VC::VoxelSizeF = 1.0f;
 
 
 VC::MinMaxI VC::GetShapeBoundsI(const Shape & shpe)
