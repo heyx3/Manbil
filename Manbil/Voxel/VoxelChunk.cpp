@@ -289,6 +289,95 @@ void CreateZAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
     texCoords.insert(texCoords.end(), Vector2f(texCoordScale, 0.0f));
     texCoords.insert(texCoords.end(), Vector2f(texCoordScale, texCoordScale));
 }
+//Creates an axis-aligned cube.
+void CreateAACube(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
+                  unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float texCoordScale = 1.0f)
+{
+    //Either create six quads or create eight vertices.
+    //The former creates hard normals; the latter creates smoothed ones (with broken texture coordinates).
+    if (true)
+    {
+        //Quads.
+        
+        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.x, -1, texCoordScale);
+        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.x, -1, texCoordScale);
+
+        CreateYAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.y, -1, texCoordScale);
+        CreateYAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.y, -1, texCoordScale);
+
+        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.z, -1, texCoordScale);
+        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.z, -1, texCoordScale);
+    }
+    else
+    {
+        /*
+        //Vertices.
+
+        poses.insert(poses.end(), minPos);
+        poses.insert(poses.end(), Vector3f(minPos.x, minPos.y, maxPos.z));
+        poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, minPos.z));
+        poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, maxPos.z));
+        poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, minPos.z));
+        poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, maxPos.z));
+        poses.insert(poses.end(), Vector3f(maxPos.x, maxPos.y, minPos.z));
+        poses.insert(poses.end(), maxPos);
+
+        const float nc = 0.5773502691896258f,
+                    _nc = -nc;
+        normals.insert(normals.end(), Vector3f(_nc, _nc, _nc));
+        normals.insert(normals.end(), Vector3f(_nc, _nc, nc));
+        normals.insert(normals.end(), Vector3f(_nc, nc, _nc));
+        normals.insert(normals.end(), Vector3f(_nc, nc, nc));
+        normals.insert(normals.end(), Vector3f(nc, _nc, _nc));
+        normals.insert(normals.end(), Vector3f(nc, _nc, nc));
+        normals.insert(normals.end(), Vector3f(nc, nc, _nc));
+        normals.insert(normals.end(), Vector3f(nc, nc, nc));
+
+        //No way to do 2D tex coords correctly for a cube without cubemapping (3D tex coords).
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+        texCoords.insert(texCoords.end(), Vector2f());
+
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        indices.insert(indices.end(), startingIndex + 0);
+        */
+    }
+}
 
 
 void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords,
@@ -298,6 +387,9 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const
 {
     if (IsEmpty()) return;
+
+    //TODO: Build exclusive cubes and just display those cubes. Use "CreateAACube()".
+
     if (IsFull())
     {
         unsigned int index = 0;
@@ -473,8 +565,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.x = voxelStart.x + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.z == 0             && !gMinZ(Vector3i(startLoc.x, startLoc.y, startLoc.z - 1), beforeMinZ)) ||
-                     (startLoc.z == ChunkSize - 1 && !gMaxZ(Vector3i(startLoc.x, startLoc.y, startLoc.z + 1), afterMaxZ))))
+                    ((startLoc.z == 0             && !gMinZ(Vector3i(startLoc.x, startLoc.y, -1), beforeMinZ)) ||
+                     (startLoc.z == ChunkSize - 1 && !gMaxZ(Vector3i(startLoc.x, startLoc.y, ChunkSize), afterMaxZ))))
                 {
                     float z = ((startLoc.z + BasicMath::Sign(startLoc.z)) * VoxelSizeF) + MinCorner.z;
                     CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, z, sign);
@@ -503,8 +595,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.x = voxelStart.x + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.y == 0             && !gMinY(Vector3i(startLoc.x, startLoc.y - 1, startLoc.z), beforeMinY)) ||
-                     (startLoc.y == ChunkSize - 1 && !gMaxY(Vector3i(startLoc.x, startLoc.y + 1, startLoc.z), afterMaxY))))
+                    ((startLoc.y == 0             && !gMinY(Vector3i(startLoc.x, -1,        startLoc.z), beforeMinY)) ||
+                     (startLoc.y == ChunkSize - 1 && !gMaxY(Vector3i(startLoc.x, ChunkSize, startLoc.z), afterMaxY))))
                 {
                     float y = ((startLoc.y + BasicMath::Sign(startLoc.y)) * VoxelSizeF) + MinCorner.y;
                     CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, y, sign);
@@ -532,8 +624,8 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                 voxelEnd.y = voxelStart.y + VoxelSizeF;
 
                 if (GetVoxelLocal(startLoc) &&
-                    ((startLoc.x == 0             && !gMinX(Vector3i(startLoc.x - 1, startLoc.y, startLoc.z), beforeMinX)) ||
-                     (startLoc.x == ChunkSize - 1 && !gMaxX(Vector3i(startLoc.x + 1, startLoc.y, startLoc.z), afterMaxX))))
+                    ((startLoc.x == 0             && !gMinX(Vector3i(-1,        startLoc.y, startLoc.z), beforeMinX)) ||
+                     (startLoc.x == ChunkSize - 1 && !gMaxX(Vector3i(ChunkSize, startLoc.y, startLoc.z), afterMaxX))))
                 {
                     float x = ((startLoc.x + BasicMath::Sign(startLoc.x)) * VoxelSizeF) + MinCorner.x;
                     CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, x, sign);
