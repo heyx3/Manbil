@@ -21,7 +21,7 @@ public:
 	static inline float QuadraticDistance(Vector2f o, Vector2f p) { float f1 = BasicMath::Abs(o.x - p.x), f2 = BasicMath::Abs(o.y - p.y); return (f1 * f1) + (f1 * f2) + (f2 * f2); }
 
 	//Value functions.
-	static const int NUMB_DISTANCE_VALUES = 5;
+	static const int NUMB_DISTANCE_VALUES = 3;
 	struct DistanceValues { float Values[NUMB_DISTANCE_VALUES]; DistanceValues(void) { } };
 	typedef float (*GetValueFunc)(DistanceValues distVals);
 
@@ -57,7 +57,7 @@ public:
     static inline float SmallestManhattanDistance(Vector3f o, Vector3f p) { return BasicMath::Min(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y), BasicMath::Abs(o.z - p.z)); }
 
     //Value functions.
-    static const int NUMB_DISTANCE_VALUES = 5;
+    static const int NUMB_DISTANCE_VALUES = 3;
     struct DistanceValues { float Values[NUMB_DISTANCE_VALUES]; DistanceValues(void) { } };
     typedef float(*GetValueFunc)(DistanceValues distVals);
 

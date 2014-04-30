@@ -7,7 +7,7 @@
 #include "Math/Noise Generation/ColorGradient.h"
 
 
-const int noiseSize = 1024,
+const int noiseSize = 512,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -196,38 +196,26 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
-	else if (false)
+	else if (true)
 	{
 		#pragma region Worley
 
 		fr.Seed = fr.GetRandInt();
-		Worley2D wor(fr.GetRandInt(), 256, Interval(10, 2));
+		Worley2D wor(fr.GetRandInt(), 256, Interval(10, 5));
 		wor.DistFunc = &Worley2D::StraightLineDistance;
-		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return -v.Values[0] + v.Values[5]; };
+		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return -v.Values[0] + (v.Values[1] * -0.75f) + (v.Values[2] * 0.45f); };
 		wor.Generate(finalNoise);
 
+        nf.Increase_Amount = -0.25f;
+        nf.Increase(&finalNoise);
+
+        //nf.UpContrast_Passes = 1;
+        //nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
+        //nf.UpContrast(&finalNoise);
+
+        //nf.ReflectValues(&finalNoise);
+
 		#pragma endregion
-	}
-	else if (false)
-	{
-        #pragma region Water
-
-        WhiteNoise2D basicNoise(fr.Seed);
-        Interpolator2D interpNoise(&basicNoise, Interpolator2D::I2S_LINEAR, 10.0);
-        interpNoise.Generate(finalNoise);
-
-        NoiseFilterer2D nf;
-        MaxFilterRegion mfr(1.0f, Interval(0.0f, 1.0f, 0.0001f, true, true));
-        nf.FillRegion = &mfr;
-        //nf.Increase_Amount = -1.0f;
-        //nf.Increase(&finalNoise);
-
-        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
-        //nf.UpContrast(&finalNoise);
-        //nf.UpContrast(&finalNoise);
-        //nf.UpContrast(&finalNoise);
-
-        #pragma endregion
 	}
     else if (false)
     {
@@ -281,36 +269,35 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-    else if (true)
+    else if (false)
     {
-        #pragma region Layered FBM
+        #pragma region Layered Interpolated White Noise
 
 
         WhiteNoise2D wn(fr.Seed);
-        Interpolator2D int1(&wn, Interpolator2D::I2S_LINEAR, 50.0f),
-                       int2(&wn, Interpolator2D::I2S_CUBIC, 25.0f),
-                       int3(&wn, Interpolator2D::I2S_CUBIC, 12.5f),
-                       int4(&wn, Interpolator2D::I2S_CUBIC, 6.25f),
-                       int5(&wn, Interpolator2D::I2S_CUBIC, 3.125f),
-                       int6(&wn, Interpolator2D::I2S_CUBIC, 1.5625f);
-        Generator2D * gens[] = { &int1, &int2, &int3, &int4, &int5, &int6 };
-        float weights[6];
+        const unsigned int numbGens = 8;
+        Interpolator2D int1(&wn, Interpolator2D::I2S_QUINTIC, 200.0f),
+                       int2(&wn, Interpolator2D::I2S_QUINTIC, 100.0f),
+                       int3(&wn, Interpolator2D::I2S_QUINTIC, 50.0f),
+                       int4(&wn, Interpolator2D::I2S_QUINTIC, 25.0f),
+                       int5(&wn, Interpolator2D::I2S_QUINTIC, 12.5f),
+                       int6(&wn, Interpolator2D::I2S_QUINTIC, 6.25f),
+                       int7(&wn, Interpolator2D::I2S_QUINTIC, 3.125f),
+                       int8(&wn, Interpolator2D::I2S_QUINTIC, 1.0f);
+        Generator2D * gens[] = { &int1, &int2, &int3, &int4, &int5, &int6, &int7, &int8 };
+        float weights[numbGens];
         float counter = 0.5f;
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < numbGens; ++i)
         {
             weights[i] = counter;
-            counter *= 0.5f;
+            counter *= 0.6f;
         }
 
-        LayeredOctave2D layers(6, weights, gens);
-
+        LayeredOctave2D layers(numbGens, weights, gens);
+        layers.Generate(finalNoise);
         
-		nf.FilterFunc = &NoiseFilterer2D::UpContrast;
         nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
-        nf.NoiseToFilter = &layers;
-		//nf.Generate(finalNoise);
-
-        nf.Generate(finalNoise);
+        nf.UpContrast(&finalNoise);
 
 
 		#pragma endregion
