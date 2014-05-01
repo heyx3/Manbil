@@ -1,10 +1,10 @@
-/*#include "GeneralOculus.h"
+#include "GeneralOculus.h"
 
 using namespace OVR;
 
 typedef std::string STR;
 
-Ptr<DeviceManager> GeneralOculus::pManager = Ptr<DeviceManager>();
+Ptr<DeviceManager> OculusSystem::pManager = Ptr<DeviceManager>();
 
 void OculusDevice::UpdateDevice(void)
 {
@@ -25,30 +25,7 @@ void OculusDevice::UpdateDevice(void)
 	}
 }
 
-
-
-STR GeneralOculus::GetDistortionPixelShader(STR vec2_lensCenter, STR vec2_screenCenter,
-											STR vec2_scale, STR vec2_scaleIn, STR float4_hmdWarpParam,
-											STR texCoordVarIn, STR texCoordVarOut,
-											STR tempSuffix)
-{
-	const std::string theta = STR("theta") + tempSuffix,
-		rSq = STR("rSq") + tempSuffix,
-		rVector = STR("rVector") + tempSuffix,
-		hmdwpx = float4_hmdWarpParam + ".x",
-		hmdwpy = float4_hmdWarpParam + ".y",
-		hmdwpz = float4_hmdWarpParam + ".z",
-		hmdwpw = float4_hmdWarpParam + ".w";
-
-	return STR("\n\tvec2 ") + theta + " = (" + texCoordVarIn + " - " + vec2_lensCenter + ") * " + vec2_scaleIn + ";\n\t" +
-		"float " + rSq + " = " + theta + ".x * " + theta + ".x + " + theta + ".y * " + theta + ".y;\n\t" +
-		"float " + rVector + " = " + theta + " * (" + hmdwpx + " + " + hmdwpy + " * " + rSq + " +\n\t\t\t\t" +
-		hmdwpz + " * " + rSq + " * " + rSq + " +\n\t\t\t\t" +
-		hmdwpw + " * " + rSq + " * " + rSq + " * " + rSq + ");\n\t" +
-		"vec2 " + texCoordVarOut + " = " + vec2_lensCenter + " + " + vec2_scale + " * " + rVector + ";\n\n\t";
-}
-
-void GeneralOculus::GetDeviceInfo(Ptr<HMDDevice> pHMD, RiftDeviceInfo & outInfo)
+void OculusSystem::GetDeviceInfo(Ptr<HMDDevice> pHMD, RiftDeviceInfo & outInfo)
 {
 	HMDInfo hmd;
 	if (pHMD->GetDeviceInfo(&hmd))
@@ -59,7 +36,7 @@ void GeneralOculus::GetDeviceInfo(Ptr<HMDDevice> pHMD, RiftDeviceInfo & outInfo)
 	outInfo.SensorInfo = *pHMD->GetSensor();
 }
 
-std::shared_ptr<OculusDevice> GeneralOculus::GetDevice(int deviceNumb)
+std::shared_ptr<OculusDevice> OculusSystem::GetDevice(int deviceNumb)
 {
 	OVR::Ptr<OVR::HMDDevice> pHMD;
 	pManager = *OVR::DeviceManager::Create();
@@ -74,4 +51,4 @@ std::shared_ptr<OculusDevice> GeneralOculus::GetDevice(int deviceNumb)
 	RiftDeviceInfo rdi;
 	GetDeviceInfo(pHMD, rdi);
 	return std::shared_ptr<OculusDevice>(new OculusDevice(pHMD, rdi));
-}*/
+}

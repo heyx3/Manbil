@@ -1,4 +1,4 @@
-/*#pragma once
+#pragma once
 
 #include <string>
 #include <memory>
@@ -6,11 +6,13 @@
 #include <OVRVersion.h>
 #include "Math/Quaternion.h"
 
+
 typedef OVR::HMDInfo RiftDisplayInfo;
 typedef OVR::SensorDevice RiftSensor;
 struct RiftDeviceInfo { RiftDisplayInfo DisplayInfo; OVR::Ptr<RiftSensor> SensorInfo; };
 
-struct YawPitchRoll { float yaw, pitch, roll; YawPitchRoll(float _yaw = 0, float _pitch = 0, float _roll = 0) : yaw(_yaw), pitch(_pitch), roll(_roll) { } };
+struct YawPitchRoll { public: float yaw, pitch, roll; YawPitchRoll(float _yaw = 0, float _pitch = 0, float _roll = 0) : yaw(_yaw), pitch(_pitch), roll(_roll) { } };
+
 
 //Wraps an Oculus device.
 class OculusDevice
@@ -19,11 +21,15 @@ public:
 
 	OculusDevice(OVR::Ptr<OVR::HMDDevice> hmd, const RiftDeviceInfo & _info)
 		: pHMD(hmd), info(_info), sensorFusion(_info.SensorInfo), doneAutoCalibration(false)
-	{ if (info.SensorInfo) sensorFusion.AttachToSensor(info.SensorInfo); }
+	{
+        if (info.SensorInfo)
+            sensorFusion.AttachToSensor(info.SensorInfo);
+    }
 
 	Quaternion GetCurrentRotation(void) const { return quat; }
-	void GetYawPitchRoll(YawPitchRoll & outData) const { outData.yaw = currentRot.yaw; outData.pitch = currentRot.pitch; outData.roll = currentRot.roll; }
-	void GetPreviousYawPitchRoll(YawPitchRoll & outData) const { outData.yaw = previousRot.yaw; outData.pitch = previousRot.pitch; outData.roll = previousRot.roll; }
+    YawPitchRoll GetYawPitchRoll(void) const { return currentRot; }
+	YawPitchRoll GetPreviousYawPitchRoll(void) const { return previousRot; }
+
 	const RiftDeviceInfo & GetDeviceInfo(void) const { return info; }
 
 	void UpdateDevice(void);
@@ -45,18 +51,12 @@ private:
 	OVR::Util::MagCalibration calibrator;
 };
 
+
+
 //Handles general oculus stuff.
-struct GeneralOculus
+struct OculusSystem
 {
 public:
-	
-	//Gets some GLSL code for doing the proper post-process distortion for the rift.
-	//Takes in expressions for certain values, the name for the final texture coordinate variable,
-	//     and a suffix for all the temp variables this GLSL code will use.
-	static std::string GetDistortionPixelShader(std::string vec2_lensCenter, std::string vec2_screenCenter,
-												std::string vec2_scale, std::string vec2_scaleIn, std::string float4_hmdWarpParam,
-												std::string texCoordVarIn, std::string texCoordVarOut,
-												std::string tempSuffix = "_rift");
 
 	//Must be called before using any rift hardware.
 	static void InitializeRiftSystem(void) { OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All)); }
@@ -70,4 +70,4 @@ public:
 	//0 gets the first rift, 1 gets the second, and so on.
 	//Returns "std::shared_ptr<OculusDevice>()" if the device cannot be found.
 	static std::shared_ptr<OculusDevice> GetDevice(int deviceNumb);
-};*/
+};
