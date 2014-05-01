@@ -226,7 +226,7 @@ public:
     template<typename Func>
     //"Func" must have the signature "void Func(Vector3i localIndex)".
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
-    bool DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
         Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;

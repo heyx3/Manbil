@@ -40,7 +40,7 @@ bool capMouse = true;
 VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
         voxelMat(0),
-        renderState(RenderingState::Cullables::C_BACK),
+        renderState(RenderingState::Cullables::C_NONE),
         voxelMesh(PrimitiveTypes::Triangles),
         player(manager), postProcessing(0)
 {
