@@ -67,7 +67,7 @@ void VoxelWorld::SetUpVoxels(void)
 
     //Generate 3D noise to be converted to voxels.
 
-    Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z);
+    Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z, 0.0f);
     
     if (false)
     {
@@ -105,6 +105,16 @@ void VoxelWorld::SetUpVoxels(void)
 
         nf3.Increase_Amount = -0.25f;
         nf3.Increase(&noise);
+    }
+    else if (false)
+    {
+        NoiseFilterer3D nf3;
+        MaxFilterVolume mfv;
+        CubeFilterVolume cfv(Vector3i(), Vector3i(12, 12, 12));
+        nf3.FillVolume = &cfv;
+        //noise.Fill(1.0f);
+        nf3.Set_Value = 1.0f;
+        nf3.Set(&noise);
     }
     else assert(false);
 

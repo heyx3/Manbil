@@ -392,18 +392,18 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
 {
     if (IsEmpty()) return;
 
-
     if (true)
     {
         //Build cubes (using a simple naive algorithm), and create 6 quads for each face of those cubes.
+
+        //TODO: Reduce vertex count by not creating quads that are completely covered.
 
         //Keep track of which locations are already part of a cube.
         Array3D<bool> usedLocations(ChunkSize, ChunkSize, ChunkSize, false);
 
         const VoxelChunk * vc = this;
-        const Vector3i chunkEnd(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1);
         unsigned int currentIndex = 0;
-        DoToEveryVoxel([&usedLocations, vc, &vertices, &normals, &texCoords, &indices, &currentIndex, chunkEnd](Vector3i loc)
+        DoToEveryVoxel([&usedLocations, vc, &vertices, &normals, &texCoords, &indices, &currentIndex](Vector3i loc)
         {
             //If this voxel is solid and not already part of a cube, build a new cube.
             if (!usedLocations[loc] && vc->GetVoxelLocal(loc))
@@ -429,9 +429,11 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                     if (endLoc.y >= ChunkSize - 1)
                         break;
                     //If one of the next line of voxels is already in a cube, or one of the next line of voxels is empty, stop pushing.
-                    for (Vector3i testLoc(loc.x, endLoc.y + 1, endLoc.z); testLoc.x <= endLoc.x; ++testLoc.x)
+                    bool exit = false;
+                    for (Vector3i testLoc(loc.x, endLoc.y + 1, endLoc.z); !exit && testLoc.x <= endLoc.x; ++testLoc.x)
                         if (usedLocations[testLoc] || !vc->GetVoxelLocal(testLoc))
-                            break;
+                            exit = true;
+                    if (exit) break;
 
                     endLoc.y += 1;
                     for (Vector3i newLoc(loc.x, endLoc.y, endLoc.z); newLoc.x <= endLoc.x; ++newLoc.x)
@@ -445,10 +447,12 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
                     if (endLoc.z >= ChunkSize - 1)
                         break;
                     //If one of the next region of voxels is already in a cube, or one of the next region of voxels is empty, stop pushing.
-                    for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); testLoc.y <= endLoc.y; ++testLoc.y)
-                        for (testLoc.x = loc.x; testLoc.x <= endLoc.x; ++testLoc.x)
+                    bool exit = false;
+                    for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); !exit && testLoc.y <= endLoc.y; ++testLoc.y)
+                        for (testLoc.x = loc.x; !exit && testLoc.x <= endLoc.x; ++testLoc.x)
                             if (usedLocations[testLoc] || !vc->GetVoxelLocal(testLoc))
-                                break;
+                                exit = true;
+                    if (exit) break;
 
                     endLoc.z += 1;
                     for (Vector3i newLoc(loc.x, loc.y, endLoc.z); newLoc.y <= endLoc.y; ++newLoc.y)
