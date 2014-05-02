@@ -45,6 +45,8 @@ public:
 
 	void ToMatrix(Matrix4f & out, bool amINormalized = false) const;
 
-	void Rotate(Vector3f & v) const;
-	Vector3f Rotated(Vector3f v) const;
+    //Applies this Quaternion's rotation to the given vector.
+    void Rotate(Vector3f & v) const;
+    //Applies this Quaternion's rotation to the given vector.
+    Vector3f Rotated(Vector3f v) const { Rotate(v); return v; }
 };

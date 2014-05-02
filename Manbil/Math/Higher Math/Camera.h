@@ -33,6 +33,7 @@ public:
 	void SetClosestDotVariance(float newVal) { closestDotVariance = newVal; }
 
 	void SetRotation(Vector3f newForward, Vector3f newUp, bool alreadyNormalized);
+    void Rotate(Quaternion rotation);
 	void AddPitch(float radians);
 	void AddYaw(float radians);
 	void AddRoll(float radians);

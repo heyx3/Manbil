@@ -55,6 +55,11 @@ void Camera::SetRotation(Vector3f newForward, Vector3f newUp, bool alreadyNormal
 		up = newUp.Normalized();
 	}
 }
+void Camera::Rotate(Quaternion rotation)
+{
+    rotation.Rotate(forward);
+    rotation.Rotate(up);
+}
 
 void Camera::GetViewTransform(Matrix4f & outM) const
 {
