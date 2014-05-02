@@ -5,7 +5,7 @@
 #include "Rendering/Materials/MaterialData.h"
 #include "Rendering/Helper Classes/DrawingQuad.h"
 
-/*
+
 //TODO: Add DOF to raymarchers by slightly rotating the ray at every iteration by a random amount.
 
 //A world that draws a quad using a fragment shader specified by the user.
@@ -34,5 +34,3 @@ protected:
 
 	virtual void OnOtherWindowEvent(sf::Event & event) override;
 };
-
-*/

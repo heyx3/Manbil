@@ -167,6 +167,6 @@ vec3 doRaymarch(Ray ray)
 
 void main()
 {
-	Ray ray = getPixelRay(out_uv);
+	Ray ray = getPixelRay(in_UV);
 	FinalOut_Color = vec4(doRaymarch(ray), 1.0);
 }

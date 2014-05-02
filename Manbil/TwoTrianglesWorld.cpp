@@ -35,7 +35,6 @@ namespace TTWPrints
 }
 using namespace TTWPrints;
 
-/*
 
 typedef TwoTrianglesWorld TTW;
 
@@ -71,13 +70,11 @@ void GetCreateMaterial(bool askForFile = true)
 
     //The vertex shader is a very simple, constant program.
     MaterialUsageFlags vertFlags;
-    vertFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_UV);
-    vertFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WORLD_MAT);
-    vs = MC::GetVertexHeader(false, vertFlags) + "\n\n\
+    vs = MC::GetVertexHeader("out vec2 in_UV;\n", vertFlags) + "\n\n\
 void main()                              \n\
 {                                        \n\
-    gl_Position = " + MC::WorldMatName + " * vec4(" + MC::InObjPos + ", 1.0);  \n\
-    " + MC::OutUV + " = " + MC::InUV + ";\n\
+    gl_Position = vec4(" + MC::InObjPos + ", 1.0);  \n\
+    in_UV = " + MC::InUV + ";\n\
 }";
     //Add any custom QuadWorld uniforms.
     uniforms.FloatUniforms[TTW::ShaderElapsedName] = UniformValueF(0.0f, TTW::ShaderElapsedName);
@@ -123,8 +120,7 @@ void main()                              \n\
         flags.EnableFlag(FL::DNF_USES_CAM_SIDEWAYS);
         flags.EnableFlag(FL::DNF_USES_WIDTH);
         flags.EnableFlag(FL::DNF_USES_HEIGHT);
-        flags.EnableFlag(FL::DNF_USES_UV);
-        fs = MC::GetFragmentHeader(false, flags);
+        fs = MC::GetFragmentHeader("in vec2 in_UV;\n", "out vec4 " + MC::FinalOutColor + ";\n", flags);
         fs += "\n\
 uniform float " + TTW::ShaderElapsedName + ";   \n\
 uniform sampler2D " + TTW::CustomSamplerName + ";\n\
@@ -306,7 +302,7 @@ void TTW::InitializeWorld(void)
     worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), true);
     worldCam.Window = GetWindow();
 
-    RenderingState(false, false, RenderingState::Cullables::C_FRONT).EnableState();
+    RenderingState(false, false, RenderingState::Cullables::C_BACK).EnableState();
 }
 
 void TTW::OnWorldEnd(void)
@@ -396,5 +392,3 @@ void TTW::OnWindowResized(unsigned int newWidth, unsigned int newHeight)
     worldCam.Info.Width = newWidth;
     worldCam.Info.Height = newHeight;
 }
-
-*/

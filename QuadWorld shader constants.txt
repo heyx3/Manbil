@@ -11,6 +11,6 @@ u_cam_sideways -- camera sideways vector, as a normalized vec3
 u_cam_width -- width of the screen in pixels, as a float
 u_cam_height -- height of the screen in pixels, as a float
 
-out_uv -- UV coordinates for the quad as a vec2 in the range {0, 0} to {1, 1}.
+in_UV -- UV coordinates for the quad as a vec2 in the range {0, 0} to {1, 1}.
 
 FinalOut_Color -- output color for the fragment shader, as a vec4. Must set this for the shader to be valid.
