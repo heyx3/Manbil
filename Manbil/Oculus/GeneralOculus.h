@@ -28,6 +28,9 @@ public:
     ~OculusDevice(void) { info.SensorInfo.Clear(); }
 
 
+    void ResetRotation(void) { info.SensorInfo->SetCoordinateFrame(OVR::SensorDevice::Coord_Sensor); }
+
+
 	Quaternion GetCurrentRotation(void) const { return quat; }
     YawPitchRoll GetYawPitchRoll(void) const { return currentRot; }
 	YawPitchRoll GetPreviousYawPitchRoll(void) const { return previousRot; }
@@ -36,7 +39,7 @@ public:
 
 
 	void UpdateDevice(void);
-    void ClearDevice(void) { info.SensorInfo.Clear(); }
+    void ReleaseDevice(void) { info.SensorInfo.Clear(); }
 
 	//"Auto calibration" means that the Rift collects magnetometer data for yaw drift correction on its own. Once it has enough data points from a big enough sample range, it will be done.
 	void StartAutoCalibration(void) { doneAutoCalibration = false; if (!calibrator.IsAutoCalibrating()) calibrator.BeginAutoCalibration(sensorFusion); }

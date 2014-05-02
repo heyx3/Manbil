@@ -11,7 +11,11 @@ void VoxelCamera::Update(float elapsed, float total)
 
     if (OVRDevice.get() != 0)
     {
-        SetRotation(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), true);
-        Rotate(OVRDevice->GetCurrentRotation());
+        YawPitchRoll ypr = OVRDevice->GetYawPitchRoll();
+
+        SetRotation(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), true);
+        AddYaw(-ypr.yaw);
+        AddPitch(-ypr.pitch);
+        AddRoll(ypr.roll);
     }
 }

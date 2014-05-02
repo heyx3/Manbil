@@ -316,6 +316,13 @@ void VoxelWorld::InitializeWorld(void)
                                                                                 BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::W)),
                                                                                 BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::S))));
     player.Jump = BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::Space, BoolInput::ValueStates::JustPressed));
+
+
+    if (player.Cam.OVRDevice.get() != 0)
+    {
+        OculusDevice* dv = player.Cam.OVRDevice.get();
+        dv->StartAutoCalibration();
+    }
 }
 void VoxelWorld::OnWorldEnd(void)
 {
