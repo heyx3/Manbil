@@ -293,95 +293,6 @@ void CreateZAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
     texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, 0.0f));
     texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, yTexCoordScale));
 }
-//Creates an axis-aligned cube.
-void CreateAACube(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
-                  unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, Vector3f texCoordScale = Vector3f(1.0f, 1.0f, 1.0f))
-{
-    //Either create six quads or create eight vertices.
-    //The former creates hard normals; the latter creates smoothed ones (with broken texture coordinates).
-    if (true)
-    {
-        //Quads.
-        
-        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
-        CreateXAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
-
-        CreateYAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
-        CreateYAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
-
-        CreateZAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
-        CreateZAxisQuad(poses, normals, texCoords, indices, startingIndex, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
-    }
-    else
-    {
-        /*
-        //Vertices.
-
-        poses.insert(poses.end(), minPos);
-        poses.insert(poses.end(), Vector3f(minPos.x, minPos.y, maxPos.z));
-        poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, minPos.z));
-        poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, maxPos.z));
-        poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, minPos.z));
-        poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, maxPos.z));
-        poses.insert(poses.end(), Vector3f(maxPos.x, maxPos.y, minPos.z));
-        poses.insert(poses.end(), maxPos);
-
-        const float nc = 0.5773502691896258f,
-                    _nc = -nc;
-        normals.insert(normals.end(), Vector3f(_nc, _nc, _nc));
-        normals.insert(normals.end(), Vector3f(_nc, _nc, nc));
-        normals.insert(normals.end(), Vector3f(_nc, nc, _nc));
-        normals.insert(normals.end(), Vector3f(_nc, nc, nc));
-        normals.insert(normals.end(), Vector3f(nc, _nc, _nc));
-        normals.insert(normals.end(), Vector3f(nc, _nc, nc));
-        normals.insert(normals.end(), Vector3f(nc, nc, _nc));
-        normals.insert(normals.end(), Vector3f(nc, nc, nc));
-
-        //No way to do 2D tex coords correctly for a cube without cubemapping (3D tex coords).
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-        texCoords.insert(texCoords.end(), Vector2f());
-
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        indices.insert(indices.end(), startingIndex + 0);
-        */
-    }
-}
 
 
 void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords,
@@ -392,328 +303,132 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
 {
     if (IsEmpty()) return;
 
-    if (true)
+    //Build cubes (using a simple naive algorithm), and create 6 quads for each face of those cubes.
+
+    //TODO: Instead of pushing out one axis at a time, try pushing as many axes out as possible.
+
+    //Keep track of which locations are already part of a cube.
+    Array3D<bool> usedLocations(ChunkSize, ChunkSize, ChunkSize, false);
+
+    const VoxelChunk * vc = this;
+    unsigned int currentIndex = 0;
+    DoToEveryVoxel([&usedLocations, vc, &vertices, &normals, &texCoords, &indices, &currentIndex](Vector3i loc)
     {
-        //Build cubes (using a simple naive algorithm), and create 6 quads for each face of those cubes.
-
-        //TODO: Reduce vertex count by not creating quads that are completely covered.
-
-        //Keep track of which locations are already part of a cube.
-        Array3D<bool> usedLocations(ChunkSize, ChunkSize, ChunkSize, false);
-
-        const VoxelChunk * vc = this;
-        unsigned int currentIndex = 0;
-        DoToEveryVoxel([&usedLocations, vc, &vertices, &normals, &texCoords, &indices, &currentIndex](Vector3i loc)
+        //If this voxel is solid and not already part of a cube, build a new cube.
+        if (!usedLocations[loc] && vc->GetVoxelLocal(loc))
         {
-            //If this voxel is solid and not already part of a cube, build a new cube.
-            if (!usedLocations[loc] && vc->GetVoxelLocal(loc))
+            usedLocations[loc] = true;
+            Vector3i endLoc = loc;
+
+            //First push the cube out along the X.
+            while (true)
             {
-                usedLocations[loc] = true;
-                Vector3i endLoc = loc;
+                //If we've reached the end of the chunk, or the next voxel is already in a cube, or the next voxel is empty, stop pushing.
+                if (endLoc.x >= ChunkSize - 1 || usedLocations[endLoc.MoreX()] || !vc->GetVoxelLocal(endLoc.MoreX()))
+                    break;
 
-                //First push the cube out along the X.
-                while (true)
-                {
-                    //If we've reached the end of the chunk, or the next voxel is already in a cube, or the next voxel is empty, stop pushing.
-                    if (endLoc.x >= ChunkSize - 1 || usedLocations[endLoc.MoreX()] || !vc->GetVoxelLocal(endLoc.MoreX()))
-                        break;
+                endLoc.x += 1;
+                usedLocations[endLoc] = true;
+            }
 
-                    endLoc.x += 1;
-                    usedLocations[endLoc] = true;
-                }
+            //Next, push the cube out along the Y.
+            while (true)
+            {
+                //If we've reached the end of the chunk, stop pushing.
+                if (endLoc.y >= ChunkSize - 1)
+                    break;
+                //If one of the next line of voxels is already in a cube, or one of the next line of voxels is empty, stop pushing.
+                bool exit = false;
+                for (Vector3i testLoc(loc.x, endLoc.y + 1, endLoc.z); !exit && testLoc.x <= endLoc.x; ++testLoc.x)
+                    if (usedLocations[testLoc] || !vc->GetVoxelLocal(testLoc))
+                        exit = true;
+                if (exit) break;
 
-                //Next, push the cube out along the Y.
-                while (true)
-                {
-                    //If we've reached the end of the chunk, stop pushing.
-                    if (endLoc.y >= ChunkSize - 1)
-                        break;
-                    //If one of the next line of voxels is already in a cube, or one of the next line of voxels is empty, stop pushing.
-                    bool exit = false;
-                    for (Vector3i testLoc(loc.x, endLoc.y + 1, endLoc.z); !exit && testLoc.x <= endLoc.x; ++testLoc.x)
+                endLoc.y += 1;
+                for (Vector3i newLoc(loc.x, endLoc.y, endLoc.z); newLoc.x <= endLoc.x; ++newLoc.x)
+                    usedLocations[newLoc] = true;
+            }
+
+            //Finally, push the cube out along the Z.
+            while (true)
+            {
+                //If we've reached the end of the chunk, stop pushing.
+                if (endLoc.z >= ChunkSize - 1)
+                    break;
+                //If one of the next region of voxels is already in a cube, or one of the next region of voxels is empty, stop pushing.
+                bool exit = false;
+                for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); !exit && testLoc.y <= endLoc.y; ++testLoc.y)
+                    for (testLoc.x = loc.x; !exit && testLoc.x <= endLoc.x; ++testLoc.x)
                         if (usedLocations[testLoc] || !vc->GetVoxelLocal(testLoc))
                             exit = true;
-                    if (exit) break;
+                if (exit) break;
 
-                    endLoc.y += 1;
-                    for (Vector3i newLoc(loc.x, endLoc.y, endLoc.z); newLoc.x <= endLoc.x; ++newLoc.x)
+                endLoc.z += 1;
+                for (Vector3i newLoc(loc.x, loc.y, endLoc.z); newLoc.y <= endLoc.y; ++newLoc.y)
+                    for (newLoc.x = loc.x; newLoc.x <= endLoc.x; ++newLoc.x)
                         usedLocations[newLoc] = true;
-                }
-
-                //Finally, push the cube out along the Z.
-                while (true)
-                {
-                    //If we've reached the end of the chunk, stop pushing.
-                    if (endLoc.z >= ChunkSize - 1)
-                        break;
-                    //If one of the next region of voxels is already in a cube, or one of the next region of voxels is empty, stop pushing.
-                    bool exit = false;
-                    for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); !exit && testLoc.y <= endLoc.y; ++testLoc.y)
-                        for (testLoc.x = loc.x; !exit && testLoc.x <= endLoc.x; ++testLoc.x)
-                            if (usedLocations[testLoc] || !vc->GetVoxelLocal(testLoc))
-                                exit = true;
-                    if (exit) break;
-
-                    endLoc.z += 1;
-                    for (Vector3i newLoc(loc.x, loc.y, endLoc.z); newLoc.y <= endLoc.y; ++newLoc.y)
-                        for (newLoc.x = loc.x; newLoc.x <= endLoc.x; ++newLoc.x)
-                            usedLocations[newLoc] = true;
-                }
-
-                //Now that we have the cube, create the vertices for it.
-                CreateAACube(vertices, normals, texCoords, indices, currentIndex,
-                             vc->LocalToWorldSpace(loc), vc->LocalToWorldSpace(endLoc + Vector3i(1, 1, 1)),
-                             Vector3f(endLoc.x - loc.x + 1, endLoc.y - loc.y + 1, endLoc.z - loc.z + 1));
-            }
-        });
-
-        std::cout << "Vertices: " << vertices.size() << "; indices: " << indices.size() << "\n";
-    }
-    else
-    {
-        if (IsFull())
-        {
-            unsigned int index = 0;
-
-            Vector3f minWorld = LocalToWorldSpace(Vector3i()),
-                     maxWorld = LocalToWorldSpace(Vector3i(ChunkSize, ChunkSize, ChunkSize));
-
-            if (beforeMinX == 0 || !beforeMinX->IsFull())
-            {
-                CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.x, -1, ChunkSizeF);
-            }
-            if (beforeMinY == 0 || !beforeMinY->IsFull())
-            {
-                CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.y, -1, ChunkSizeF);
-            }
-            if (beforeMinZ == 0 || !beforeMinZ->IsFull())
-            {
-                CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, minWorld.z, -1, ChunkSizeF);
-            }
-            if (afterMaxX == 0 || !afterMaxX->IsFull())
-            {
-                CreateXAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.x, 1, ChunkSizeF);
-            }
-            if (afterMaxY == 0 || !afterMaxY->IsFull())
-            {
-                CreateYAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.y, 1, ChunkSizeF);
-            }
-            if (afterMaxZ == 0 || !afterMaxZ->IsFull())
-            {
-                CreateZAxisQuad(vertices, normals, texCoords, indices, index, minWorld, maxWorld, maxWorld.z, 1, ChunkSizeF);
             }
 
-            return;
+            //Now that we have the cube, create the vertices for it.
+            Vector3f minPos = vc->LocalToWorldSpace(loc),
+                     maxPos = vc->LocalToWorldSpace(endLoc + Vector3i(1, 1, 1)),
+                     texCoordScale(endLoc.x - loc.x + 1, endLoc.y - loc.y + 1, endLoc.z - loc.z + 1);
+
+            //See if any faces are fully covered by voxels. If they are, don't create quads for them.
+
+            bool fullLessX = true;
+            if (loc.x > 0)
+                for (Vector3i testLoc(loc.x - 1, loc.y, loc.z); fullLessX && testLoc.z <= endLoc.z; ++testLoc.z)
+                    for (testLoc.y = loc.y; fullLessX && testLoc.y <= endLoc.y; ++testLoc.y)
+                        fullLessX = fullLessX && vc->GetVoxelLocal(testLoc);
+
+            bool fullLessY = true;
+            if (loc.y > 0)
+                for (Vector3i testLoc(loc.x, loc.y - 1, loc.z); fullLessY && testLoc.z <= endLoc.z; ++testLoc.z)
+                    for (testLoc.x = loc.x; fullLessY && testLoc.x <= endLoc.x; ++testLoc.x)
+                        fullLessY = fullLessY && vc->GetVoxelLocal(testLoc);
+
+            bool fullLessZ = true;
+            if (loc.z > 0)
+                for (Vector3i testLoc(loc.x, loc.y, loc.z - 1); fullLessZ && testLoc.y <= endLoc.y; ++testLoc.y)
+                    for (testLoc.x = loc.x; fullLessZ && testLoc.x <= endLoc.x; ++testLoc.x)
+                        fullLessZ = fullLessZ && vc->GetVoxelLocal(testLoc);
+
+            bool fullMoreX = true;
+            if (endLoc.x < ChunkSize - 1)
+                for (Vector3i testLoc(endLoc.x + 1, loc.y, loc.z); fullMoreX && testLoc.z <= endLoc.z; ++testLoc.z)
+                    for (testLoc.y = loc.y; fullMoreX && testLoc.y <= endLoc.y; ++testLoc.y)
+                        fullMoreX = fullMoreX && vc->GetVoxelLocal(testLoc);
+
+            bool fullMoreY = true;
+            if (endLoc.y < ChunkSize - 1)
+                for (Vector3i testLoc(loc.x, endLoc.y + 1, loc.z); fullMoreY && testLoc.z <= endLoc.z; ++testLoc.z)
+                    for (testLoc.x = loc.x; fullMoreY && testLoc.x <= endLoc.x; ++testLoc.x)
+                        fullMoreY = fullMoreY && vc->GetVoxelLocal(testLoc);
+
+            bool fullMoreZ = true;
+            if (endLoc.z < ChunkSize - 1)
+                for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); fullMoreZ && testLoc.y <= endLoc.y; ++testLoc.y)
+                    for (testLoc.x = loc.x; fullMoreZ && testLoc.x <= endLoc.x; ++testLoc.x)
+                        fullMoreZ = fullMoreZ && vc->GetVoxelLocal(testLoc);
+
+
+            if (loc.x == 0 || !fullLessX)
+                CreateXAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
+            if (endLoc.x == ChunkSize - 1 || !fullMoreX)
+                CreateXAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
+
+            if (loc.y == 0 || !fullLessY)
+                CreateYAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
+            if (endLoc.y == ChunkSize - 1 || !fullMoreY)
+                CreateYAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
+
+            if (loc.z == 0 || !fullLessZ)
+                CreateZAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
+            if (endLoc.z == ChunkSize - 1 || !fullMoreZ)
+                CreateZAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
         }
+    });
 
-
-        //TODO: Use different methods depending on the ratio of solid to empty voxels in this chunk (either build by empty voxels or by solid voxels)?
-
-
-        //Get some functions to get a voxel from a surrounding chunk.
-
-        typedef bool(*GetOtherChunkVal)(Vector3i location, const VoxelChunk * otherCnk);
-        GetOtherChunkVal noVal = [](Vector3i loc, const VoxelChunk * other) { return false; };
-
-        GetOtherChunkVal gMinX, gMinY, gMinZ, gMaxX, gMaxY, gMaxZ;
-
-        if (beforeMinX == 0) gMinX = noVal;
-        else gMinX = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x + ChunkSize, loc.y, loc.z));
-        };
-
-        if (beforeMinY == 0) gMinY = noVal;
-        else gMinY = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x, loc.y + ChunkSize, loc.z));
-        };
-
-        if (beforeMinZ == 0) gMinZ = noVal;
-        else gMinZ = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z + ChunkSize));
-        };
-
-        if (afterMaxX == 0) gMaxX = noVal;
-        else gMaxX = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x - ChunkSize, loc.y, loc.z));
-        };
-
-        if (afterMaxY == 0) gMaxY = noVal;
-        else gMaxY = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x, loc.y - ChunkSize, loc.z));
-        };
-
-        if (afterMaxZ == 0) gMaxZ = noVal;
-        else gMaxZ = [](Vector3i loc, const VoxelChunk * other)
-        {
-            return other->GetVoxelLocal(Vector3i(loc.x, loc.y, loc.z - ChunkSize));
-        };
-
-
-        //For every empty voxel, create the triangles for any solid voxels touching it.
-
-        Vector3i startLoc;
-        Vector3f worldOffset = Vector3f(MinCorner.x, MinCorner.y, MinCorner.z);
-
-        Vector3f voxelStart, voxelEnd;
-        unsigned int startingIndex = 0;
-        for (startLoc.z = 0; startLoc.z < ChunkSize; ++startLoc.z)
-        {
-            voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
-            voxelEnd.z = voxelStart.z + VoxelSizeF;
-
-            for (startLoc.y = 0; startLoc.y < ChunkSize; ++startLoc.y)
-            {
-                voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
-                voxelEnd.y = voxelStart.y + VoxelSizeF;
-
-                for (startLoc.x = 0; startLoc.x < ChunkSize; ++startLoc.x)
-                {
-                    voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
-                    voxelEnd.x = voxelStart.x + VoxelSizeF;
-
-                    if (!voxels[startLoc])
-                    {
-                        Vector3i xMin = Vector3i(startLoc.x - 1, startLoc.y, startLoc.z),
-                                 xMax = Vector3i(startLoc.x + 1, startLoc.y, startLoc.z),
-                                 yMin = Vector3i(startLoc.x, startLoc.y - 1, startLoc.z),
-                                 yMax = Vector3i(startLoc.x, startLoc.y + 1, startLoc.z),
-                                 zMin = Vector3i(startLoc.x, startLoc.y, startLoc.z - 1),
-                                 zMax = Vector3i(startLoc.x, startLoc.y, startLoc.z + 1);
-
-                        if ((xMin.x >= 0 && voxels[xMin]) ||
-                            (xMin.x < 0 && gMinX(xMin, beforeMinX)))
-                        {
-                            CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.x, 1);
-                        }
-                        if ((yMin.y >= 0 && voxels[yMin]) ||
-                            (yMin.y < 0 && gMinY(yMin, beforeMinY)))
-                        {
-                            CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.y, 1);
-                        }
-                        if ((zMin.z >= 0 && voxels[zMin]) ||
-                            (zMin.z < 0 && gMinZ(zMin, beforeMinZ)))
-                        {
-                            CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelStart.z, 1);
-                        }
-                        if ((xMax.x < ChunkSize && voxels[xMax]) ||
-                            (xMax.x >= ChunkSize && gMaxX(xMax, afterMaxX)))
-                        {
-                            CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.x, -1);
-                        }
-                        if ((yMax.y < ChunkSize && voxels[yMax]) ||
-                            (yMax.y >= ChunkSize && gMaxY(yMax, afterMaxY)))
-                        {
-                            CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.y, -1);
-                        }
-                        if ((zMax.z < ChunkSize && voxels[zMax]) ||
-                            (zMax.z >= ChunkSize && gMaxZ(zMax, afterMaxZ)))
-                        {
-                            CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, voxelEnd.z, -1);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        //Build the outside edges.
-
-        Vector3f chunkMin = LocalToWorldSpace(Vector3f()),
-                 chunkMax = LocalToWorldSpace(Vector3f(ChunkSizeF, ChunkSizeF, ChunkSizeF));
-
-        //The Z edges.
-        for (startLoc.z = 0; startLoc.z < ChunkSize; startLoc.z += ChunkSize - 1)
-        {
-            int sign = BasicMath::Sign(startLoc.z - (ChunkSizeF * 0.5f));
-
-            voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
-            voxelEnd.z = voxelStart.z + VoxelSizeF;
-
-            for (startLoc.y = 0; startLoc.y < ChunkSize; startLoc.y++)
-            {
-                voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
-                voxelEnd.y = voxelStart.y + VoxelSizeF;
-
-                for (startLoc.x = 0; startLoc.x < ChunkSize; startLoc.x++)
-                {
-                    voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
-                    voxelEnd.x = voxelStart.x + VoxelSizeF;
-
-                    if (GetVoxelLocal(startLoc) &&
-                        ((startLoc.z == 0 && !gMinZ(Vector3i(startLoc.x, startLoc.y, -1), beforeMinZ)) ||
-                        (startLoc.z == ChunkSize - 1 && !gMaxZ(Vector3i(startLoc.x, startLoc.y, ChunkSize), afterMaxZ))))
-                    {
-                        float z = ((startLoc.z + BasicMath::Sign(startLoc.z)) * VoxelSizeF) + MinCorner.z;
-                        CreateZAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, z, sign);
-
-                    }
-                }
-            }
-        }
-
-        //The Y edges.
-        for (startLoc.y = 0; startLoc.y < ChunkSize; startLoc.y += ChunkSize - 1)
-        {
-            int sign = BasicMath::Sign(startLoc.y - (ChunkSizeF * 0.5f));
-
-            voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
-            voxelEnd.y = voxelStart.y + VoxelSizeF;
-
-            for (startLoc.z = 0; startLoc.z < ChunkSize; startLoc.z++)
-            {
-                voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
-                voxelEnd.z = voxelStart.z + VoxelSizeF;
-
-                for (startLoc.x = 0; startLoc.x < ChunkSize; startLoc.x++)
-                {
-                    voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
-                    voxelEnd.x = voxelStart.x + VoxelSizeF;
-
-                    if (GetVoxelLocal(startLoc) &&
-                        ((startLoc.y == 0 && !gMinY(Vector3i(startLoc.x, -1, startLoc.z), beforeMinY)) ||
-                        (startLoc.y == ChunkSize - 1 && !gMaxY(Vector3i(startLoc.x, ChunkSize, startLoc.z), afterMaxY))))
-                    {
-                        float y = ((startLoc.y + BasicMath::Sign(startLoc.y)) * VoxelSizeF) + MinCorner.y;
-                        CreateYAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, y, sign);
-                    }
-                }
-            }
-        }
-
-        //The X edges.
-        for (startLoc.x = 0; startLoc.x < ChunkSize; startLoc.x += ChunkSize - 1)
-        {
-            int sign = BasicMath::Sign(startLoc.x - (ChunkSizeF * 0.5f));
-
-            voxelStart.x = (VoxelSizeF * startLoc.x) + worldOffset.x;
-            voxelEnd.x = voxelStart.x + VoxelSizeF;
-
-            for (startLoc.z = 0; startLoc.z < ChunkSize; startLoc.z++)
-            {
-                voxelStart.z = (VoxelSizeF * startLoc.z) + worldOffset.z;
-                voxelEnd.z = voxelStart.z + VoxelSizeF;
-
-                for (startLoc.y = 0; startLoc.y < ChunkSize; startLoc.y++)
-                {
-                    voxelStart.y = (VoxelSizeF * startLoc.y) + worldOffset.y;
-                    voxelEnd.y = voxelStart.y + VoxelSizeF;
-
-                    if (GetVoxelLocal(startLoc) &&
-                        ((startLoc.x == 0 && !gMinX(Vector3i(-1, startLoc.y, startLoc.z), beforeMinX)) ||
-                        (startLoc.x == ChunkSize - 1 && !gMaxX(Vector3i(ChunkSize, startLoc.y, startLoc.z), afterMaxX))))
-                    {
-                        float x = ((startLoc.x + BasicMath::Sign(startLoc.x)) * VoxelSizeF) + MinCorner.x;
-                        CreateXAxisQuad(vertices, normals, texCoords, indices, startingIndex, voxelStart, voxelEnd, x, sign);
-                    }
-                }
-            }
-        }
-
-        std::cout << "Vertices: " << vertices.size() << "; indices: " << indices.size() << "\n";
-    }
+    std::cout << "Vertices: " << vertices.size() << "; indices: " << indices.size() << "\n";
 }

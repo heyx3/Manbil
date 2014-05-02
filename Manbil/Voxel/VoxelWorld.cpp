@@ -94,6 +94,18 @@ void VoxelWorld::SetUpVoxels(void)
     }
     else if (true)
     {
+        Perlin3D perl(Vector3f(20.0f, 20.0f, 20.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
+        perl.Generate(noise);
+
+        NoiseFilterer3D nf3;
+        MaxFilterVolume mfv;
+        nf3.FillVolume = &mfv;
+
+        nf3.Increase_Amount = 0.45f;
+        nf3.Increase(&noise);
+    }
+    else if (false)
+    {
         Worley3D wor(12345, 30, 5, 15);
         wor.DistFunc = &Worley3D::StraightLineDistance;
         wor.ValueGenerator = [](Worley3D::DistanceValues vals) { return -vals.Values[2] + vals.Values[0]; };
