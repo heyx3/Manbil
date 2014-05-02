@@ -28,8 +28,6 @@ public:
     ~OculusDevice(void) { info.SensorInfo.Clear(); }
 
 
-    void ResetRotation(void) { info.SensorInfo->SetCoordinateFrame(OVR::SensorDevice::Coord_Sensor); }
-
 
 	Quaternion GetCurrentRotation(void) const { return quat; }
     YawPitchRoll GetYawPitchRoll(void) const { return currentRot; }

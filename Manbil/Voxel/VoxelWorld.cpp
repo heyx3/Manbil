@@ -402,7 +402,10 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
 
     renderState.EnableState();
-    ScreenClearer().ClearScreen();
+    Vector4f clearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    if (player.Cam.OVRDevice.get() != 0 && player.Cam.OVRDevice->IsDoneAutoCalibration())
+        clearColor.x = 0.0f;
+    ScreenClearer(true, true, false, clearColor).ClearScreen();
 
     std::vector<const Mesh*> meshes;
     meshes.insert(meshes.end(), &voxelMesh);
