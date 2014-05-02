@@ -299,7 +299,8 @@ void VoxelWorld::InitializeWorld(void)
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
     player.Cam = VoxelCamera(Vector3f(60, 60, 60),
-                             LookRotation(Vector2InputPtr(mouseInput), OculusSystem::GetDevice(0), Vector3f(0.0f, 2.25f, 2.65f)),
+                             LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+                             OculusSystem::GetDevice(0),
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
@@ -322,7 +323,7 @@ void VoxelWorld::OnWorldEnd(void)
     for (auto element = chunkMeshes.begin(); element != chunkMeshes.end(); ++element)
         delete element->second;
 
-    player.Cam.RotationInput.Device.reset();
+    player.Cam.OVRDevice.reset();
     OculusSystem::DestroyRiftSystem();
 }
 
@@ -367,6 +368,8 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
 
     player.Update(elapsed, GetTotalElapsedSeconds());
+    if (player.Cam.OVRDevice.get() != 0)
+        player.Cam.OVRDevice->UpdateDevice();
 
     if (Input.GetBoolInputValue(INPUT_Quit))
         EndWorld();

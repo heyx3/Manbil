@@ -8,4 +8,10 @@ void VoxelCamera::Update(float elapsed, float total)
     AddPitch(RotationInput.EulerRotation.y);
     AddYaw(RotationInput.EulerRotation.z);
     AddRoll(RotationInput.EulerRotation.x);
+
+    if (OVRDevice.get() != 0)
+    {
+        SetRotation(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), true);
+        Rotate(OVRDevice->GetCurrentRotation());
+    }
 }
