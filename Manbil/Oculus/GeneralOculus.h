@@ -4,7 +4,7 @@
 #include <memory>
 #include <OVR.h>
 #include <OVRVersion.h>
-#include "Math/Quaternion.h"
+#include "../Math/Quaternion.h"
 
 
 typedef OVR::HMDInfo RiftDisplayInfo;
@@ -25,6 +25,8 @@ public:
         if (info.SensorInfo)
             sensorFusion.AttachToSensor(info.SensorInfo);
     }
+    ~OculusDevice(void) { info.SensorInfo.Clear(); }
+
 
 	Quaternion GetCurrentRotation(void) const { return quat; }
     YawPitchRoll GetYawPitchRoll(void) const { return currentRot; }
@@ -32,11 +34,14 @@ public:
 
 	const RiftDeviceInfo & GetDeviceInfo(void) const { return info; }
 
+
 	void UpdateDevice(void);
+    void ClearDevice(void) { info.SensorInfo.Clear(); }
 
 	//"Auto calibration" means that the Rift collects magnetometer data for yaw drift correction on its own. Once it has enough data points from a big enough sample range, it will be done.
 	void StartAutoCalibration(void) { doneAutoCalibration = false; if (!calibrator.IsAutoCalibrating()) calibrator.BeginAutoCalibration(sensorFusion); }
 	bool IsDoneAutoCalibration(void) { return doneAutoCalibration; }
+
 
 private:
 
@@ -61,7 +66,7 @@ public:
 	//Must be called before using any rift hardware.
 	static void InitializeRiftSystem(void) { OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All)); }
 	//Must be called after all rift hardware is done with at the end of the program.
-	static void DestroyRiftSystem(void) { OVR::System::Destroy(); }
+	static void DestroyRiftSystem(void) { OVR::System::Destroy(); pManager.Clear(); }
 
 	static OVR::Ptr<OVR::DeviceManager> pManager;
 
