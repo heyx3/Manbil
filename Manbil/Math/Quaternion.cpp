@@ -51,6 +51,31 @@ Quaternion::Quaternion(Vector3f axisOfRotation, float rotInRadians)
 	z = axisOfRotation.z * sinHalfAngle;
 	w = cosHalfAngle;
 }
+Quaternion::Quaternion(Vector3f from, Vector3f to)
+{
+    float k_cos_theta = from.Dot(to),
+          k = sqrtf(from.LengthSquared() * to.LengthSquared());
+
+    if (BasicMath::Abs(k_cos_theta + k) < 0.0005f)
+    {
+        Vector3f other = (BasicMath::Abs(from.Dot(Vector3f(1.0f, 0.0, 0.0f))) < 1.0f) ?
+                            Vector3f(1.0f, 0.0f, 0.0f) :
+                            Vector3f(0.0f, 1.0f, 0.0f);
+        Vector3f axis = from.Cross(other).Normalized();
+
+        x = axis.x;
+        y = axis.y;
+        z = axis.z;
+        w = ToRadian(180.0f);
+    }
+
+    Vector3f axis = from.Cross(to);
+    x = axis.x;
+    y = axis.y;
+    z = axis.z;
+    w = k_cos_theta + k;
+    Normalize();
+}
 
 void Quaternion::Normalize(void)
 {

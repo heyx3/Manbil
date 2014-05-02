@@ -11,15 +11,21 @@ public:
 	static Quaternion Slerp(Quaternion one, Quaternion two, float zeroToOne, bool areBothNormalized);
 	//Interpolates between two quaternions smoothly. Does not have a constant velocity, but it is commutative, finds the shortest path,  and is relatively efficient.
 	static Quaternion Nlerp(Quaternion one, Quaternion two, float zeroToOne);
-	
-	//Gets a quaternion representing the combination of the two given rotations in the given order.
-	static Quaternion CombineRotations(Quaternion one, Quaternion two) { return Multiply(two, one); }
 
 	float x, y, z, w;
 
+    //Creates a quaternion that represents a rotation of 0 rad along the Z axis.
 	Quaternion(void): x(0.0f), y(0.0f), z(1.0f), w(0.0f) { }
+    //Creates a quaternion with the given components.
 	Quaternion(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) { }
+    //Creates a quaternion that represents a rotation of the given amount around the given axis.
 	Quaternion(Vector3f axisOfRotation, float rotInRadians);
+    //Creates a quaternion that represents two other rotations: the first rotation followed by the second rotation.
+    Quaternion(Quaternion firstRotation, Quaternion secondRotation)
+        : Quaternion(Multiply(secondRotation, firstRotation)) { }
+    //Creates a quaternion that rotates from the first given vector to the second given vector.
+    //TODO: Test. If it works, use it to make a "tangent space to world space" material node. 
+    Quaternion(Vector3f from, Vector3f to);
 
 	void Normalize(void);
 	Quaternion Normalized(void) const;
