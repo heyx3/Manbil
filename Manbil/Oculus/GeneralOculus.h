@@ -66,7 +66,7 @@ public:
 	//Must be called before using any rift hardware.
 	static void InitializeRiftSystem(void) { OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All)); }
 	//Must be called after all rift hardware is done with at the end of the program.
-	static void DestroyRiftSystem(void) { OVR::System::Destroy(); pManager.Clear(); }
+	static void DestroyRiftSystem(void) { pManager.Clear(); OVR::System::Destroy(); }
 
 	static OVR::Ptr<OVR::DeviceManager> pManager;
 
