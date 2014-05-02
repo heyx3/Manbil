@@ -13,11 +13,12 @@ public:
     sf::Window * Window;
 
     VoxelCamera(void)
-        : RotationInput(std::shared_ptr<Vector2Input>()), Window(0)
+        : RotationInput(std::shared_ptr<Vector2Input>(), std::shared_ptr<OculusDevice>()), Window(0)
     {
 
     }
-    VoxelCamera(Vector3f startPos, const LookRotation & rotInput,
+    VoxelCamera(Vector3f startPos,
+                const LookRotation & rotInput,
                 Vector3f forward = Vector3f(1, 0, 0),
                 Vector3f upward = Vector3f(0, 0, 1),
                 sf::Window * window = 0)

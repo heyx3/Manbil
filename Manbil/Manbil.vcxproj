@@ -84,7 +84,6 @@
     <ClCompile Include="BasicMComponents.cpp" />
     <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Foliage.cpp" />
-    <ClCompile Include="GeneralOculus.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
     <ClCompile Include="Input\LookRotation.cpp" />
@@ -119,6 +118,7 @@
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Math\Vectors.cpp" />
     <ClCompile Include="MGameMaterialManager.cpp" />
+    <ClCompile Include="Oculus\GeneralOculus.cpp" />
     <ClCompile Include="RenderDataHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -200,7 +200,6 @@
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\DataSerializer.h" />
     <ClInclude Include="IO\tinyxml2.h" />
-    <ClInclude Include="GeneralOculus.h" />
     <ClInclude Include="Materials.h" />
     <ClInclude Include="Math\BasicMath.h" />
     <ClInclude Include="Math\CachedFunc.h" />
@@ -238,6 +237,7 @@
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Math\Vectors.h" />
     <ClInclude Include="MGameMaterialManager.h" />
+    <ClInclude Include="Oculus\GeneralOculus.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />

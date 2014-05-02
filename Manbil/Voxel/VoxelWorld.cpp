@@ -147,6 +147,8 @@ void VoxelWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
 
+    OculusSystem::InitializeRiftSystem();
+
     //Input.
     Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left, BoolInput::ValueStates::JustPressed)));
     Input.AddBoolInput(INPUT_Quit, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::ValueStates::JustPressed)));
@@ -296,7 +298,8 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
-    player.Cam = VoxelCamera(Vector3f(60, 60, 60), LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
+    player.Cam = VoxelCamera(Vector3f(60, 60, 60),
+                             LookRotation(Vector2InputPtr(mouseInput), OculusSystem::GetDevice(0), Vector3f(0.0f, 2.25f, 2.65f)),
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
@@ -318,6 +321,9 @@ void VoxelWorld::OnWorldEnd(void)
     if (voxelMat != 0) delete voxelMat;
     for (auto element = chunkMeshes.begin(); element != chunkMeshes.end(); ++element)
         delete element->second;
+
+    player.Cam.RotationInput.Device.reset();
+    OculusSystem::DestroyRiftSystem();
 }
 
 void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)

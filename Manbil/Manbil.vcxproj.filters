@@ -29,9 +29,6 @@
     <ClCompile Include="MGameMaterialManager.cpp">
       <Filter>MGame</Filter>
     </ClCompile>
-    <ClCompile Include="GeneralOculus.cpp">
-      <Filter>Oculus Rift Stuff</Filter>
-    </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Two Triangles</Filter>
     </ClCompile>
@@ -296,6 +293,9 @@
     <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="Oculus\GeneralOculus.cpp">
+      <Filter>Oculus Rift Stuff</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -330,9 +330,6 @@
     </ClInclude>
     <ClInclude Include="MGameMaterialManager.h">
       <Filter>MGame</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneralOculus.h">
-      <Filter>Oculus Rift Stuff</Filter>
     </ClInclude>
     <ClInclude Include="TwoTrianglesWorld.h">
       <Filter>Two Triangles</Filter>
@@ -727,6 +724,9 @@
     </ClInclude>
     <ClInclude Include="Math\Array3D.h">
       <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Oculus\GeneralOculus.h">
+      <Filter>Oculus Rift Stuff</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
