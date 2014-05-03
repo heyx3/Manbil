@@ -97,7 +97,6 @@ float getBrightness(vec2 surfaceNormal)
 void main()
 {
 	vec2 uv = in_UV;
-	uv = vec2(uv.x, 1.0 - uv.y);
 	vec2 pixelCoords = vec2(uv.x * u_cam_width, uv.y * u_cam_height);
 	
 	//Get the water surface data at this X coordinate.

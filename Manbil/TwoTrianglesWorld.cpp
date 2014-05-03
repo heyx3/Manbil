@@ -49,7 +49,6 @@ void CreateQuad(void)
 {
     if (quad != 0) delete quad;
     quad = new DrawingQuad();
-    quad->SetSize(Vector2f(1.0f, -1.0f));
 }
 bool CreateMaterial(const std::string & vs, const std::string & fs, UniformDictionary & uniforms)
 {
