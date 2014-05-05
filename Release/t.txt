@@ -1,0 +1,4 @@
+void main()
+{
+	FinalOut_Color = vec4(1, 1, 1, 1);
+}

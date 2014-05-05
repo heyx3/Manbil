@@ -1,0 +1,8 @@
+void main()
+{
+	vec3 noiseCol = texture2D(u_noiseSampler, in_UV * (120.0f * u_shader_seconds)).xyz;
+	
+	const float noiseStrength = 0.1f;
+	FinalOut_Color = vec4(vec3(0.5, 0.5, 0.5) + (noiseCol * noiseStrength),
+			      1.0);
+}
