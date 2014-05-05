@@ -7,6 +7,7 @@
 #include "../Math/Shapes/ThreeDShapes.h"
 #include "../Input/Input.hpp"
 #include "../Math/NoiseGeneration.hpp"
+#include "../Rendering/PrimitiveGenerator.h"
 #include "VoxelWorldPPC.h"
 
 
@@ -31,7 +32,8 @@ using namespace VWErrors;
 
 
 Vector2i vWindowSize(300, 300);
-const unsigned int INPUT_AddVoxel = 123753,
+const unsigned int INPUT_AddVoxel = 753321,
+                   INPUT_RemoveVoxel = 123357,
                    INPUT_Quit = 6666666,
                    INPUT_MouseCap = 1337;
 bool capMouse = true;
@@ -42,7 +44,9 @@ VoxelWorld::VoxelWorld(void)
         voxelMat(0),
         renderState(RenderingState::Cullables::C_NONE),
         voxelMesh(PrimitiveTypes::Triangles),
-        player(manager), postProcessing(0)
+        player(manager), postProcessing(0),
+        voxelHighlightMat(0),
+        voxelHighlightMesh(PrimitiveTypes::Triangles)
 {
 }
 VoxelWorld::~VoxelWorld(void)
@@ -50,6 +54,7 @@ VoxelWorld::~VoxelWorld(void)
     DeleteAndSetToNull(postProcessing);
     DeleteAndSetToNull(finalWorldRenderMat);
     DeleteAndSetToNull(finalWorldRenderQuad);
+    DeleteAndSetToNull(voxelHighlightMat);
 }
 
 void VoxelWorld::SetUpVoxels(void)
@@ -149,8 +154,12 @@ void VoxelWorld::InitializeWorld(void)
 
     OculusSystem::InitializeRiftSystem();
 
+    std::unordered_map<RenderingChannels, DataLine> channels;
+
+
     //Input.
-    Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left, BoolInput::ValueStates::JustPressed)));
+    Input.AddBoolInput(INPUT_RemoveVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left, BoolInput::ValueStates::JustPressed)));
+    Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Right, BoolInput::ValueStates::JustPressed)));
     Input.AddBoolInput(INPUT_Quit, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::ValueStates::JustPressed)));
     Input.AddBoolInput(INPUT_MouseCap, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Space, BoolInput::ValueStates::JustPressed)));
 
@@ -196,6 +205,27 @@ void VoxelWorld::InitializeWorld(void)
     }
 
 
+    //Initialize the voxel highlight.
+    std::vector<Vertex> vhvs;
+    std::vector<unsigned int> vsis;
+    PrimitiveGenerator::GenerateCube(vhvs, vsis, false, Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
+    RenderObjHandle vhvbo, vhibo;
+    RenderDataHandler::CreateVertexBuffer(vhvbo, vhvs.data(), vhvs.size());
+    RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
+    voxelHighlightMesh.SetVertexIndexData(VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+    channels[RenderingChannels::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
+    UniformDictionary vhvUD;
+    ShaderGenerator::GeneratedMaterial genVHM = ShaderGenerator::GenerateMaterial(channels, vhvUD, RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (!genVHM.ErrorMessage.empty())
+    {
+        PrintError("Error generating voxel highlight mesh", genVHM.ErrorMessage);
+        EndWorld();
+        return;
+    }
+    voxelHighlightMat = genVHM.Mat;
+
+
     //Initialize the final world render.
 
     RendTargetColorTexSettings cts;
@@ -211,7 +241,7 @@ void VoxelWorld::InitializeWorld(void)
     worldRenderTarget = RenderTargets.CreateRenderTarget(cts, dts);
 
     finalWorldRenderQuad = new DrawingQuad();
-    std::unordered_map<RenderingChannels, DataLine> channels;
+    channels.clear();
 
     std::vector<DataLine> toCombine;
     toCombine.insert(toCombine.end(), DataLine(DataNodePtr(new ObjectPosNode()), 0));
@@ -357,6 +387,24 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
 
 void VoxelWorld::UpdateWorld(float elapsed)
 {
+    //See if a block was hit.
+    VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+    if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
+    {
+        voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
+        if (capMouse)
+        {
+            std::cout << "Hit pos: " << castHit.ChunkRayCastResult.CastResult.HitPos.x << "," << castHit.ChunkRayCastResult.CastResult.HitPos.y << "," << castHit.ChunkRayCastResult.CastResult.HitPos.z << "\n" <<
+                         "Face: " << castHit.ChunkRayCastResult.Face.x << "," << castHit.ChunkRayCastResult.Face.y << "," << castHit.ChunkRayCastResult.Face.z << "\n\n\n";
+        }
+    }
+    else
+    {
+        voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
+    }
+
+
+    //Mouse capturing.
     MouseDeltaVector2Input * ptr = (MouseDeltaVector2Input*)player.Cam.RotationInput.Input.get();
     if (capMouse)
     {
@@ -374,14 +422,45 @@ void VoxelWorld::UpdateWorld(float elapsed)
     }
 
 
+    //Update player/camera.
     player.Update(elapsed, GetTotalElapsedSeconds());
     if (player.Cam.OVRDevice.get() != 0)
         player.Cam.OVRDevice->UpdateDevice();
+
+
+    //Input handling.
 
     if (Input.GetBoolInputValue(INPUT_Quit))
         EndWorld();
     if (Input.GetBoolInputValue(INPUT_MouseCap))
         capMouse = !capMouse;
+    if (Input.GetBoolInputValue(INPUT_AddVoxel))
+    {
+        VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+        if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
+        {
+            VoxelChunkManager::VoxelLocation toAdd = manager.GetOffset(VoxelChunkManager::VoxelLocation(hit.Chunk, hit.ChunkRayCastResult.VoxelIndex),
+                                                                       hit.ChunkRayCastResult.Face);
+            if (toAdd.Chunk != 0)
+            {
+                std::cout << "Adding a voxel. Chunk world min pos: " << toAdd.Chunk->MinCorner.x << "," << toAdd.Chunk->MinCorner.y << "," << toAdd.Chunk->MinCorner.z << "\n" <<
+                             "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
+                toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
+                chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
+            }
+        }
+    }
+    if (Input.GetBoolInputValue(INPUT_RemoveVoxel))
+    {
+        VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+        if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
+        {
+            std::cout << "Removing a voxel. Chunk world min pos: " << hit.Chunk->MinCorner.x << "," << hit.Chunk->MinCorner.y << "," << hit.Chunk->MinCorner.z << "\n" <<
+                         "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
+            hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
+            chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
+        }
+    }
 }
 
 void VoxelWorld::RenderOpenGL(float elapsed)
@@ -424,6 +503,14 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes))
     {
         PrintError("Error rendering voxel material", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+    meshes.clear();
+    meshes.insert(meshes.end(), &voxelHighlightMesh);
+    if (!voxelHighlightMat->Render(RenderPasses::BaseComponents, info, meshes))
+    {
+        PrintError("Error rendering voxel highlight", voxelHighlightMat->GetErrorMsg());
         EndWorld();
         return;
     }

@@ -125,3 +125,45 @@ void VCM::SetVoxels(const Shape & shpe, bool value)
     }, bounds.Min / VC::ChunkSize,
        bounds.Max / VC::ChunkSize);
 }
+
+
+VCM::VoxelLocation VCM::GetOffset(VoxelLocation voxel, Vector3i face) const
+{
+    voxel.LocalIndex += face;
+    const int chunkSize = VoxelChunk::ChunkSize;
+
+    Vector3i chunkIndex = GetChunkIndex(voxel.Chunk);
+    while (voxel.LocalIndex.x < 0)
+    {
+        chunkIndex = chunkIndex.LessX();
+        voxel.LocalIndex.x += chunkSize;
+    }
+    while (voxel.LocalIndex.y < 0)
+    {
+        chunkIndex = chunkIndex.LessY();
+        voxel.LocalIndex.y += chunkSize;
+    }
+    while (voxel.LocalIndex.z < 0)
+    {
+        chunkIndex = chunkIndex.LessZ();
+        voxel.LocalIndex.z += chunkSize;
+    }
+    while (voxel.LocalIndex.x > chunkSize - 1)
+    {
+        chunkIndex = chunkIndex.MoreX();
+        voxel.LocalIndex.x -= chunkSize;
+    }
+    while (voxel.LocalIndex.y > chunkSize - 1)
+    {
+        chunkIndex = chunkIndex.MoreY();
+        voxel.LocalIndex.y -= chunkSize;
+    }
+    while (voxel.LocalIndex.z > chunkSize - 1)
+    {
+        chunkIndex = chunkIndex.MoreZ();
+        voxel.LocalIndex.z -= chunkSize;
+    }
+    voxel.Chunk = GetChunk(chunkIndex);
+
+    return voxel;
+}

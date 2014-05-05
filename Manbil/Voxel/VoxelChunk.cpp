@@ -1,5 +1,6 @@
 #include "VoxelChunk.h"
 
+#include <assert.h>
 #include <iostream>
 #include <unordered_map>
 
@@ -177,11 +178,49 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
         {
             if (thisVC->GetVoxelLocal(loc))
             {
-                Shape::RayTraceResult res = Cube(thisVC->GetBounds(loc)).RayHitCheck(worldRayStart, rayDir);
+                Box3D vBounds = thisVC->GetBounds(loc);
+                Shape::RayTraceResult res = Cube(vBounds).RayHitCheck(worldRayStart, rayDir);
                 if (res.DidHitTarget)
                 {
                     vrh.VoxelIndex = loc;
                     vrh.CastResult = res;
+                    //Calculate which face was hit by finding the axis with the smallest difference between the hit pos and the bounds.
+                    Vector3f distancesToMin(BasicMath::Abs(res.HitPos.x - vBounds.GetXMin()),
+                                            BasicMath::Abs(res.HitPos.y - vBounds.GetYMin()),
+                                            BasicMath::Abs(res.HitPos.z - vBounds.GetZMin())),
+                             distancesToMax(BasicMath::Abs(res.HitPos.x - vBounds.GetXMax()),
+                                            BasicMath::Abs(res.HitPos.y - vBounds.GetYMax()),
+                                            BasicMath::Abs(res.HitPos.z - vBounds.GetZMax()));
+                    bool minX_minY = (distancesToMin.x < distancesToMin.y),
+                         minX_minZ = (distancesToMin.x < distancesToMin.z),
+                         minX_maxX = (distancesToMin.x < distancesToMax.x),
+                         minX_maxY = (distancesToMin.x < distancesToMax.y),
+                         minX_maxZ = (distancesToMin.x < distancesToMax.z),
+                         minY_minZ = (distancesToMin.y < distancesToMin.z),
+                         minY_maxX = (distancesToMin.y < distancesToMax.x),
+                         minY_maxY = (distancesToMin.y < distancesToMax.y),
+                         minY_maxZ = (distancesToMin.y < distancesToMax.z),
+                         minZ_maxX = (distancesToMin.z < distancesToMax.x),
+                         minZ_maxY = (distancesToMin.z < distancesToMax.y),
+                         minZ_maxZ = (distancesToMin.z < distancesToMax.z),
+                         maxX_maxY = (distancesToMax.x < distancesToMax.y),
+                         maxX_maxZ = (distancesToMax.x < distancesToMax.z),
+                         maxY_maxZ = (distancesToMax.y < distancesToMax.z);
+                    if (minX_minY && minX_minZ && minX_maxX && minX_maxY && minX_maxZ)
+                        vrh.Face.x = -1;
+                    else if (!minX_minY && minY_minZ && minY_maxX && minY_maxY && minY_maxZ)
+                        vrh.Face.y = -1;
+                    else if (!minX_minZ && !minY_minZ && minZ_maxX && minZ_maxY && minZ_maxZ)
+                        vrh.Face.z = -1;
+                    else if (!minX_maxX && !minY_maxX && !minZ_maxX && maxX_maxY && maxX_maxZ)
+                        vrh.Face.x = 1;
+                    else if (!minX_maxY && !minY_maxY && !minZ_maxY && !maxX_maxY && maxY_maxZ)
+                        vrh.Face.y = 1;
+                    else
+                    {
+                        assert(!minX_maxZ && !minY_maxZ && !minZ_maxZ && !maxX_maxZ && !maxY_maxZ);
+                        vrh.Face.z = 1;
+                    }
                     return true;
                 }
             }

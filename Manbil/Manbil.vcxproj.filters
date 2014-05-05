@@ -296,6 +296,9 @@
     <ClCompile Include="Oculus\GeneralOculus.cpp">
       <Filter>Oculus Rift Stuff</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -727,6 +730,9 @@
     </ClInclude>
     <ClInclude Include="Oculus\GeneralOculus.h">
       <Filter>Oculus Rift Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\PrimitiveGenerator.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

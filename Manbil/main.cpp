@@ -48,7 +48,7 @@ int main()
 
     //NoiseTest().RunWorld();
 
-    TwoTrianglesWorld().RunWorld();
+    //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }

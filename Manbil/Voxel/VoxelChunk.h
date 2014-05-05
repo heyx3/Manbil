@@ -253,6 +253,10 @@ public:
     public:
         Vector3i VoxelIndex;
         Shape::RayTraceResult CastResult;
+        //Has one of the following values: { +/-1, 0, 0 }, { 0, +/-1, 0}, { 0, 0, +/-1}.
+        //Indicates which face of the cube was hit.
+        //A value of { 0, 0, 0 } indicates that the field was never properly set.
+        Vector3i Face;
         VoxelRayHit(void) : VoxelIndex(-1, -1, -1) { }
     };
     //Returns the ray cast and the index of the first voxel that is hit by the given ray
@@ -280,8 +284,7 @@ public:
     {
         Vector3f dims(VoxelSizeF, VoxelSizeF, VoxelSizeF),
                  minCorner = LocalToWorldSpace(chunkIndex);
-        return Box3D(minCorner.x, minCorner.y, minCorner.z,
-                     Vector3f(VoxelSizeF, VoxelSizeF, VoxelSizeF));
+        return Box3D(minCorner.x, minCorner.y, minCorner.z, dims);
     }
 
 

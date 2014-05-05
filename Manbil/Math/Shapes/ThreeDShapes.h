@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include "../Vectors.h"
 #include "../BasicMath.h"
 #include "../Higher Math/GeometricMath.h"

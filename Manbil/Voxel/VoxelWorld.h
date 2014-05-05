@@ -80,4 +80,8 @@ private:
     Material * voxelMat;
     Mesh voxelMesh;
     unsigned int voxelTex;
+
+    Material * voxelHighlightMat;
+    Mesh voxelHighlightMesh;
+    unsigned int voxelHighlightTex;
 };

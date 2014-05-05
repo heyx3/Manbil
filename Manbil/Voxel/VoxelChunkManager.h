@@ -17,8 +17,12 @@ public:
 
     //Converts the given world position to a chunk index value (in between actual indices).
     static Vector3f ToChunkIndexF(Vector3f worldPos) { return (worldPos / (VoxelChunk::VoxelSizeF * VoxelChunk::ChunkSizeF)); }
-    //Converts the given world position to a chunk index value
+    //Converts the given world position to a chunk index value.
     static Vector3i ToChunkIndex(Vector3f worldPos) { return (worldPos / (VoxelChunk::VoxelSizeF * VoxelChunk::ChunkSizeF)).Floored(); }
+    //Converts the given world position to a chunk index value.
+    static Vector3i ToChunkIndex(Vector3i worldPos) { return worldPos / (VoxelChunk::VoxelSize * VoxelChunk::ChunkSize); }
+    //Returns the chunk index of the given chunk.
+    static Vector3i GetChunkIndex(const VoxelChunk * chunk) { return ToChunkIndex(chunk->MinCorner + Vector3i(1, 1, 1)); }
 
 
     struct RayCastResult
@@ -77,6 +81,17 @@ public:
         return true;
     }
 
+
+    //The location of a voxel in this chunk manager.
+    struct VoxelLocation
+    {
+    public:
+        VoxelChunk * Chunk;
+        Vector3i LocalIndex;
+        VoxelLocation(VoxelChunk * chunk = 0, Vector3i localIndex = Vector3i()) : Chunk(chunk), LocalIndex(localIndex) { }
+    };
+    //Gets the voxel equal to the given voxel offset by the given amount.
+    VoxelLocation GetOffset(VoxelLocation voxel, Vector3i offset) const;
 
     template<typename Func>
     //"Func" must have the signature "bool Func(Vector3i chunkIndex, VoxelChunk * chunk)".

@@ -26,7 +26,6 @@ VertexIndexData ChunkMesh::GetVID(void)
     return vid;
 }
 
-#include <iostream>
 void ChunkMesh::RebuildMesh(bool buildNow)
 {
     HangUntilThreadDone();
