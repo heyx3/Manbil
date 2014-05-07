@@ -388,19 +388,19 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
 void VoxelWorld::UpdateWorld(float elapsed)
 {
     //See if a block was hit.
-    VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
-    if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
+    if (capMouse)
     {
-        voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
-        if (capMouse)
+        VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+        if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
         {
+            voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
             std::cout << "Hit pos: " << castHit.ChunkRayCastResult.CastResult.HitPos.x << "," << castHit.ChunkRayCastResult.CastResult.HitPos.y << "," << castHit.ChunkRayCastResult.CastResult.HitPos.z << "\n" <<
                          "Face: " << castHit.ChunkRayCastResult.Face.x << "," << castHit.ChunkRayCastResult.Face.y << "," << castHit.ChunkRayCastResult.Face.z << "\n\n\n";
         }
-    }
-    else
-    {
-        voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
+        else
+        {
+            voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
+        }
     }
 
 

@@ -734,6 +734,7 @@
     <ClInclude Include="Rendering\PrimitiveGenerator.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="DebugAssist.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

@@ -184,6 +184,7 @@
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />
     <ClInclude Include="BasicMComponents.h" />
+    <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Events\EventManager.h" />
     <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Foliage.h" />
