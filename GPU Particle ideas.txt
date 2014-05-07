@@ -1,0 +1,5 @@
+Use the DataNode system for plugging behavior into the different channels (initial position, initial velocity, accel, color, rotation). Initial position will be a texture (one pixel per particle), and any other data may also be a similar texture lookup. Make sure to use floating-point for the textures so that their values can be outside the range 0-1.
+
+To update the GPU particles, create a fragment shader using the data node channel inputs. Each fragment represents a particle, and the output color is the current position of the particle.
+
+To render the GPU particles, first create a static vertex/index buffer of quads -- one quad for each particle. The vertex input for each quad's vertices is just a UV coordinate indicating which fragment represents that quad, and each vertex's offset from the quad's center. The vertex shader for rendering these particles uses this vertex input as well as the camera's forward rotation direction to rotate and position each quad correctly. The fragment shader is just a normal fragment shader.
