@@ -1,10 +1,13 @@
 #include "NoiseTest.h"
 
 #include <assert.h>
+#include <iostream>
 
 #include "Math/LowerMath.hpp"
 #include "Math/NoiseGeneration.hpp"
 #include "Math/Noise Generation/ColorGradient.h"
+#include "Math/Higher Math/BumpmapToNormalmap.h"
+#include "Rendering/Texture Management/TextureConverters.h"
 
 
 const int noiseSize = 512,
@@ -21,6 +24,14 @@ void NoiseTest::InitializeWorld(void)
 	GetWindow()->setSize(sf::Vector2u(noiseSize, noiseSize));
     GetWindow()->setView(sf::View(sf::FloatRect(0.0f, 0.0f, noiseSize, noiseSize)));
     GetWindow()->setTitle("Noise test");
+
+
+    std::cout << "Press 'left' and 'right' to change the bump height.\n" <<
+                 "Press 'up' to convert the current texture from a bump map to a normal map.\n" <<
+                 "Press 'Enter' to regenerate the noise.\n" <<
+                 "Press 'Space' to save the noise as 'RenderedNoise.png'.\n" <<
+                 "Press 'Escape' to quit.\n\n";
+
 
 	ReGenerateNoise(false);
 }
@@ -162,18 +173,18 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	nf.FillRegion = &mfr;
 
 
-	if (false)
+	if (true)
 	{
 		#pragma region Layered Perlin
 
-
-		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed),
-                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356),
-                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498),
-                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346),
-                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
-                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498),
-                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 6193498);
+        const int pScale = 4;
+		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed, true, Vector2i(1, 1) * pScale),
+                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356, true, Vector2i(2, 2) * pScale),
+                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498, true, Vector2i(4, 4) * pScale),
+                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346, true, Vector2i(8, 8) * pScale),
+                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 619398, true, Vector2i(16, 16) * pScale),
+                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 45324, true, Vector2i(32, 32) * pScale),
+                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 21234, true, Vector2i(64, 64) * pScale);
         Generator2D * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
         float weights[7];
         float counter = 0.5f;
@@ -191,12 +202,12 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         nf.NoiseToFilter = &layers;
 		nf.Generate(finalNoise);
 
-        per4.Generate(finalNoise);
+        //per4.Generate(finalNoise);
 
 
 		#pragma endregion
 	}
-	else if (true)
+	else if (false)
 	{
 		#pragma region Worley
 
@@ -221,17 +232,19 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
     {
         #pragma region TwoD Perlin
 
-        float offset = GetTotalElapsedSeconds() * 25.0f;
-        Vector2i offsetVal((int)offset, (int)offset);
-
-        Perlin2D perl(Vector2f(64.0f, 12.0f), Perlin2D::Quintic, offsetVal, 6432235);
+        const int pSize = 32;
+        Perlin2D perl((float)pSize, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2i(noiseSize / pSize, noiseSize / pSize));
         perl.Generate(finalNoise);
+
+        NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
+        nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.00001f, true, false);
+        nf.RemapValues(&finalNoise);
 
         #pragma endregion
     }
     else if (false)
     {
-        #pragma region ThreeD Perlin
+        #pragma region ThreeD Perlin varying over time
 
         float currentTime = GetTotalElapsedSeconds();
         Vector3f offset(currentTime, currentTime, currentTime);
@@ -328,17 +341,61 @@ void NoiseTest::InterpretNoise(const Noise2D & noise)
 	delete pixels;
 }
 
+float bumpHeight = 1.0f;
 void NoiseTest::UpdateWorld(float elapsedTime)
 {
+    const float bumpIncrement = 0.999f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        bumpHeight *= bumpIncrement;
+        bumpHeight = BasicMath::Max(0.00001f, bumpHeight);
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        bumpHeight /= bumpIncrement;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        Array2D<float> bumps(noiseSize, noiseSize);
+        sf::Image rni = renderedNoiseTex->copyToImage();
+        TextureConverters::ToArray(rni, ChannelsIn::CI_Blue, bumps);
+
+        Array2D<Vector3f> normals(noiseSize, noiseSize);
+        BumpmapToNormalmap::Convert(bumps, bumpHeight, normals);
+
+        TextureConverters::ToImage(normals, rni);
+        renderedNoiseTex->update(rni);
+        renderedNoise->setTexture(*renderedNoiseTex);
+    }
+
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
 	{
 		ReGenerateNoise(true);
 	}
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        renderedNoiseTex->copyToImage().saveToFile("RenderedNoise.png");
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+    {
+        EndWorld();
+    }
 }
 
 void NoiseTest::RenderWorld(float elapsedTime)
 {
 	GetWindow()->clear();
+
 	GetWindow()->draw(*renderedNoise);
+
+    sf::Text t(sf::String("Bump height: ") + sf::String(std::to_string(bumpHeight)), guiFont);
+    t.setColor(sf::Color(0, 0, 0, 255));
+    t.setPosition(3.0f, GetWindow()->getSize().y - 35.0f);
+    GetWindow()->draw(t);
+    t.setColor(sf::Color(255, 255, 255, 255));
+    t.setPosition(0.0f, GetWindow()->getSize().y - 34.0f);
+    GetWindow()->draw(t);
+
 	GetWindow()->display();
 }

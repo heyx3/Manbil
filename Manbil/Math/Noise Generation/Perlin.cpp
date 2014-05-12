@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include "NoiseFilterer.h"
 
 
 void Perlin2D::Generate(Array2D<float> & outValues) const
@@ -44,10 +45,12 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
     for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
     {
         offLoc.y = loc.y + scaledOffset.y;
+        offLoc.y %= GradientWrapInterval.y;
 
         for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
         {
             offLoc.x = loc.x + scaledOffset.x;
+            offLoc.x %= GradientWrapInterval.x;
 
             fr.Seed = offLoc.GetHashCode() + RandSeed;
 			gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
@@ -74,6 +77,9 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 	}
 
 
+    //Keep track of the min/max in case the noise should be normalized.
+    float min = std::numeric_limits<float>().max(),
+          max = std::numeric_limits<float>().min();
 	Vector2f lerpGrid, relGrid;
 	Vector2i tlGrid;
 	Vector2f invScale(1.0f / Scale.x, 1.0f / Scale.y);
@@ -122,7 +128,19 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
                                         BasicMath::Lerp(blDot, brDot, smoothedX),
                                         smoothStepper(relGrid.y));
             outValues[loc] = val;
+
+            min = BasicMath::Min(val, min);
+            max = BasicMath::Max(val, max);
         }
+    }
+
+    if (RemapValues)
+    {
+        NoiseFilterer2D nf;
+        MaxFilterRegion mfr;
+        nf.FillRegion = &mfr;
+        nf.RemapValues_OldVals = Interval(min, max, 0.00001f);
+        nf.RemapValues(&outValues);
     }
 }
 
@@ -173,14 +191,17 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
     for (loc.z = 0; loc.z < gradients.GetDepth(); ++loc.z)
     {
         offLoc.z = loc.z + scaledOffset.z;
+        offLoc.z %= GradientWrapInterval.z;
 
         for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
         {
             offLoc.y = loc.y + scaledOffset.y;
+            offLoc.y %= GradientWrapInterval.y;
 
             for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
             {
                 offLoc.x = loc.x + scaledOffset.x;
+                offLoc.x %= GradientWrapInterval.x;
 
                 fr.Seed = offLoc.GetHashCode() + RandSeed;
                 gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
@@ -208,6 +229,9 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
     }
 
 
+    //Keep track of the min/max in case the noise should be normalized.
+    float min = std::numeric_limits<float>().max(),
+          max = std::numeric_limits<float>().min();
     Vector3f lerpGrid, relGrid, relGridLess;
     Vector3i minGrid;
     Vector3f invScale(1.0f / Scale.x, 1.0f / Scale.y, 1.0f / Scale.z);
@@ -261,7 +285,19 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
                                                             smoothed.y),
                                             smoothed.z);
                 outNoise[loc] = val;
+
+                min = BasicMath::Min(val, min);
+                max = BasicMath::Max(val, max);
             }
         }
+    }
+
+    if (RemapValues)
+    {
+        NoiseFilterer3D nf;
+        MaxFilterVolume mfv;
+        nf.FillVolume = &mfv;
+        nf.RemapValues_OldVals = Interval(min, max, 0.00001f);
+        nf.RemapValues(&outNoise);
     }
 }

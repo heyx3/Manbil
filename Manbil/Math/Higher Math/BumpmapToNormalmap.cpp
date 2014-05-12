@@ -1,19 +1,20 @@
 #include "BumpmapToNormalmap.h"
 
-void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightScale, Array2D<Vector3f> & normals)
+void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightScale, bool normalizeRange, Array2D<Vector3f> & normals)
 {
     Vector3f sum, tempSum, base, first, second;
-    for (int x = 0; x < heightmap.GetWidth(); ++x)
+    for (Vector2i loc; loc.y < heightmap.GetHeight(); ++loc.y)
     {
-        for (int y = 0; y < heightmap.GetHeight(); ++y)
+        base.y = loc.y;
+        for (loc.x = 0; loc.x < heightmap.GetWidth(); ++loc.x)
         {
             sum = Vector3f();
 
-            base = Vector3f(x, y, heightScale * heightmap[Vector2i(x, y)]);
+            base.x = loc.x;
+            base.z = heightScale * heightmap[loc];
 
-
-            first = Vector3f(x - 1.0f, y, heightScale * heightmap[heightmap.Wrap(Vector2i(x - 1, y))]);
-            second = Vector3f(x, y - 1.0f, heightScale * heightmap[heightmap.Wrap(Vector2i(x, y - 1))]);
+            first = Vector3f(base.x - 1.0f, base.y, heightScale * heightmap[heightmap.Wrap(loc.LessX())]);
+            second = Vector3f(base.x, base.y - 1.0f, heightScale * heightmap[heightmap.Wrap(loc.LessY())]);
 
             tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
             if (tempSum.z < 0.0f)
@@ -22,8 +23,8 @@ void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightS
             sum += tempSum;
 
 
-            first = Vector3f(x + 1.0f, y, heightScale * heightmap[heightmap.Wrap(Vector2i(x + 1, y))]);
-            second = Vector3f(x, y + 1.0f, heightScale * heightmap[heightmap.Wrap(Vector2i(x, y + 1))]);
+            first = Vector3f(base.x + 1.0f, base.y, heightScale * heightmap[heightmap.Wrap(loc.MoreX())]);
+            second = Vector3f(base.x, base.y + 1.0f, heightScale * heightmap[heightmap.Wrap(loc.MoreY())]);
 
             tempSum = (first - base).Normalized().Cross((second - base).Normalized()).Normalized();
             if (tempSum.z < 0.0f)
@@ -33,11 +34,9 @@ void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightS
 
 
             sum = sum.Normalized();
-            //Normal components are in the range {-1, 1}, but color components are in the range {0, 1}.
-            sum.x = 0.5f + (0.5f * sum.x);
-            sum.y = 0.5f + (0.5f * sum.y);
 
-            normals[Vector2i(x, y)] = sum;
+            if (normalizeRange) sum = (sum * 0.5f) + Vector3f(0.5f, 0.5f, 0.5f);
+            normals[loc] = sum;
         }
     }
 }
