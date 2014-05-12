@@ -361,7 +361,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
         TextureConverters::ToArray(rni, ChannelsIn::CI_Blue, bumps);
 
         Array2D<Vector3f> normals(noiseSize, noiseSize);
-        BumpmapToNormalmap::Convert(bumps, bumpHeight, normals);
+        BumpmapToNormalmap::Convert(bumps, bumpHeight, true, normals);
 
         TextureConverters::ToImage(normals, rni);
         renderedNoiseTex->update(rni);
