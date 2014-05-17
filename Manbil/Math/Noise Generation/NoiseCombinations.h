@@ -19,9 +19,9 @@ public:
 	static float Root2(float f1, float f2) { return BasicMath::Root(f1, f2); }
 
 	CombinationFunc CombineOp;
-	Noise2D * First, * Second;
+    Generator2D * First, *Second;
 
-	Combine2Noises2D(CombinationFunc combOp, Noise2D * first, Noise2D * second)
+	Combine2Noises2D(CombinationFunc combOp, Generator2D * first, Generator2D * second)
 		: CombineOp(combOp), First(first), Second(second) { }
 
 	virtual void Generate(Noise2D & noise) const override;
@@ -38,9 +38,9 @@ public:
     static float Clamp(float value, float min, float max) { return BasicMath::Clamp(value, min, max); }
 
 	CombinationFunc CombineOp;
-	Noise2D * First, * Second, * Third;
+    Generator2D * First, *Second, *Third;
 
-	Combine3Noises2D(CombinationFunc combOp, Noise2D * first, Noise2D * second, Noise2D * third) : CombineOp(combOp), First(first), Second(second), Third(third) { }
+    Combine3Noises2D(CombinationFunc combOp, Generator2D * first, Generator2D * second, Generator2D * third) : CombineOp(combOp), First(first), Second(second), Third(third) { }
 
 	virtual void Generate(Noise2D & noise) const override;
 };
@@ -62,9 +62,9 @@ public:
     static float Root2(float f1, float f2) { return BasicMath::Root(f1, f2); }
 
     CombinationFunc CombineOp;
-    Noise3D * First, *Second;
+    Generator3D * First, *Second;
 
-    Combine2Noises3D(CombinationFunc combOp, Noise3D * first, Noise3D * second)
+    Combine2Noises3D(CombinationFunc combOp, Generator3D * first, Generator3D * second)
         : CombineOp(combOp), First(first), Second(second)
     { }
 
@@ -82,9 +82,9 @@ public:
     static float Clamp(float value, float min, float max) { return BasicMath::Clamp(value, min, max); }
 
     CombinationFunc CombineOp;
-    Noise3D * First, *Second, *Third;
+    Generator3D * First, *Second, *Third;
 
-    Combine3Noises3D(CombinationFunc combOp, Noise3D * first, Noise3D * second, Noise3D * third) : CombineOp(combOp), First(first), Second(second), Third(third) { }
+    Combine3Noises3D(CombinationFunc combOp, Generator3D * first, Generator3D * second, Generator3D * third) : CombineOp(combOp), First(first), Second(second), Third(third) { }
 
     virtual void Generate(Noise3D & noise) const override;
 };
