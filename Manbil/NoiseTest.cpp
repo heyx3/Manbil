@@ -326,21 +326,24 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 plateauNoise(noiseSize, noiseSize),
                 hillNoise(noiseSize, noiseSize);
 
-        WhiteNoise2D rockyGeneratorBase(fr.GetRandInt());
-        Interpolator2D rockyGeneratorStretch(&rockyGeneratorBase, Interpolator2D::I2S_LINEAR, 10.0f);
-        rockyGeneratorStretch.Generate(rockyNoise);
+        Perlin2D rockyGeneratorBase(6.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
+        nf.NoiseToFilter = &rockyGeneratorBase;
+        nf.FilterFunc = &NoiseFilterer2D::UpContrast;
+        nf.UpContrast_Passes = 1;
+        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::CUBIC;
+        nf.Generate(rockyNoise);
 
         FlatNoise2D plateauGeneratorBase(0.5f);
         nf.NoiseToFilter = &plateauGeneratorBase;
+        nf.FilterFunc = &NoiseFilterer2D::Noise;
         nf.Noise_Seed = fr.GetRandInt();
         nf.Noise_Amount = 0.02f;
-        nf.FilterFunc = &NoiseFilterer2D::Noise;
         nf.Generate(plateauNoise);
 
         Perlin2D hillGenerator(100.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
         FlatNoise2D hillScale(0.25f);
         Combine2Noises2D hillFinalGen(&Combine2Noises2D::Multiply2, &hillGenerator, &hillScale);
-        hillGenerator.Generate(hillNoise);
+        hillFinalGen.Generate(hillNoise);
         
 
         //Now assemble the noise together.
@@ -364,9 +367,11 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
             for (loc.x = 0; loc.x < finalNoise.GetWidth(); ++loc.x)
             {
                 locF.x = loc.x;
-
+                
                 //Come up with an interpolant that is on the same scale as the interpolation constants.
                 float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;
+                float distortion = 0.02f * (-1.0f + (2.0f * FastRand(Vector3i(loc.x, loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
+                distLerp += distortion;
 
                 //Fully rocky.
                 if (distLerp >= mountainBeginningRadius)
