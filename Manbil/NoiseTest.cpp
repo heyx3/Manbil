@@ -10,7 +10,7 @@
 #include "Rendering/Texture Management/TextureConverters.h"
 
 
-const int noiseSize = 512,
+const int noiseSize = 1024,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -173,7 +173,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	nf.FillRegion = &mfr;
 
 
-	if (true)
+	if (false)
 	{
 		#pragma region Layered Perlin
 
@@ -314,6 +314,92 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 
 		#pragma endregion
+    }
+    else if (true)
+    {
+        #pragma region Neuroscouting racer terrain heightmap
+
+
+        //Create a very rocky mountainous area, then put a thin ring of plateau inside it, then some hills inside that.
+
+        Noise2D rockyNoise(noiseSize, noiseSize),
+                plateauNoise(noiseSize, noiseSize),
+                hillNoise(noiseSize, noiseSize);
+
+        WhiteNoise2D rockyGeneratorBase(fr.GetRandInt());
+        Interpolator2D rockyGeneratorStretch(&rockyGeneratorBase, Interpolator2D::I2S_LINEAR, 10.0f);
+        rockyGeneratorStretch.Generate(rockyNoise);
+
+        FlatNoise2D plateauGeneratorBase(0.5f);
+        nf.NoiseToFilter = &plateauGeneratorBase;
+        nf.Noise_Seed = fr.GetRandInt();
+        nf.Noise_Amount = 0.02f;
+        nf.FilterFunc = &NoiseFilterer2D::Noise;
+        nf.Generate(plateauNoise);
+
+        Perlin2D hillGenerator(100.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
+        FlatNoise2D hillScale(0.25f);
+        Combine2Noises2D hillFinalGen(&Combine2Noises2D::Multiply2, &hillGenerator, &hillScale);
+        hillGenerator.Generate(hillNoise);
+        
+
+        //Now assemble the noise together.
+        
+        const float halfNoiseSize = noiseSize * 0.5f,
+                    halfNoiseInv = 1.0f / halfNoiseSize;
+        const Vector2f noiseCenter(halfNoiseSize, halfNoiseSize);
+
+        //Interpolate between the different segments of the noise.
+        //These constants are relative to half the length/width of the noise texture.
+        const float mountainBeginningRadius = 1.0f, //The distance at which the noise starts to be 100% rocky.
+                    mountainStartFadeInRadius = 0.9f, //The distance at which the noise just starts to become rocky (from being a plateau).
+                    plateauBeginningRadius = 0.765f, //The distance at which the noise starts to be 100% plateau (until the rocky noise interrupts it).
+                    plateauStartFadeInRadius = 0.725f; //The distance at which the noise just starts to become plateau (from being hilly).
+
+        Vector2f locF;
+        for (Vector2i loc; loc.y < finalNoise.GetHeight(); ++loc.y)
+        {
+            locF.y = loc.y;
+
+            for (loc.x = 0; loc.x < finalNoise.GetWidth(); ++loc.x)
+            {
+                locF.x = loc.x;
+
+                //Come up with an interpolant that is on the same scale as the interpolation constants.
+                float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;
+
+                //Fully rocky.
+                if (distLerp >= mountainBeginningRadius)
+                {
+                    finalNoise[loc] = rockyNoise[loc];
+                }
+                //Part rocky, part plateau.
+                else if (distLerp >= mountainStartFadeInRadius)
+                {
+                    float lerpComponent = BasicMath::LerpComponent(mountainStartFadeInRadius, mountainBeginningRadius, distLerp);
+                    finalNoise[loc] = BasicMath::Lerp(plateauNoise[loc], rockyNoise[loc], lerpComponent);
+                }
+                //Fully plateau.
+                else if (distLerp >= plateauBeginningRadius)
+                {
+                    finalNoise[loc] = plateauNoise[loc];
+                }
+                //Part plateau, part hilly.
+                else if (distLerp >= plateauStartFadeInRadius)
+                {
+                    float lerpComponent = BasicMath::LerpComponent(plateauStartFadeInRadius, plateauBeginningRadius, distLerp);
+                    finalNoise[loc] = BasicMath::Lerp(hillNoise[loc], plateauNoise[loc], lerpComponent);
+                }
+                //Fully hilly.
+                else
+                {
+                    finalNoise[loc] = hillNoise[loc];
+                }
+            }
+        }
+
+
+        #pragma endregion
     }
 	else assert(false);
 
