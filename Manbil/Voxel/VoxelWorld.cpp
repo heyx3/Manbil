@@ -390,12 +390,10 @@ void VoxelWorld::UpdateWorld(float elapsed)
     //See if a block was hit.
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
     {
-        VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+        VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 100.0f);
         if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
         {
             voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
-            //std::cout << "Hit pos: " << castHit.ChunkRayCastResult.CastResult.HitPos.x << "," << castHit.ChunkRayCastResult.CastResult.HitPos.y << "," << castHit.ChunkRayCastResult.CastResult.HitPos.z << "\n" <<
-            //             "Face: " << castHit.ChunkRayCastResult.Face.x << "," << castHit.ChunkRayCastResult.Face.y << "," << castHit.ChunkRayCastResult.Face.z << "\n\n\n";
         }
         else
         {
@@ -446,7 +444,7 @@ void VoxelWorld::UpdateWorld(float elapsed)
                 if (toAdd.Chunk != 0)
                 {
                     std::cout << "Adding a voxel. Chunk world min pos: " << toAdd.Chunk->MinCorner.x << "," << toAdd.Chunk->MinCorner.y << "," << toAdd.Chunk->MinCorner.z << "\n" <<
-                        "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
+                                 "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
                     toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
                     chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
                 }
@@ -458,7 +456,7 @@ void VoxelWorld::UpdateWorld(float elapsed)
             if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
             {
                 std::cout << "Removing a voxel. Chunk world min pos: " << hit.Chunk->MinCorner.x << "," << hit.Chunk->MinCorner.y << "," << hit.Chunk->MinCorner.z << "\n" <<
-                    "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
+                             "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
                 hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
                 chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
             }
@@ -468,21 +466,6 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
 void VoxelWorld::RenderOpenGL(float elapsed)
 {
-    //Ray-casting test.
-    if (false)
-    {
-        VoxelChunkManager::RayCastResult cast =
-            manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 50.0f);
-        Vector3f pos;
-        if (cast.ChunkRayCastResult.CastResult.DidHitTarget)
-        {
-            pos = cast.ChunkRayCastResult.CastResult.HitPos;
-            std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << "\n";
-        }
-        voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(pos);
-    }
-
-
     renderState.EnableState();
     Vector4f clearColor(1.0f, 0.0f, 0.0f, 0.0f);
     if (player.Cam.OVRDevice.get() != 0 && player.Cam.OVRDevice->IsDoneAutoCalibration())

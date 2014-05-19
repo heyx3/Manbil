@@ -125,7 +125,7 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
     rayStart = ToLocalChunkSpace(rayStart);
     maxDist /= VoxelSizeF;
 
-    dOutput += "\t\t\tCasting ray into chunk " + DebugAssist::ToString(MinCorner) + "\n";
+    dOutput += "\t\t\tLocal-chunk-space ray start: " + DebugAssist::ToString(rayStart) + "\n";
 
     //If the ray isn't even pointing towards the chunk, don't bother raycasting.
     if (IsEmpty() ||
