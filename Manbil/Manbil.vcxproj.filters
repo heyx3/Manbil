@@ -293,13 +293,13 @@
     <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
-    <ClCompile Include="Oculus\GeneralOculus.cpp">
-      <Filter>Oculus Rift Stuff</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="DebugAssist.cpp" />
+    <ClCompile Include="Oculus\OculusDevice.cpp">
+      <Filter>Oculus Rift Stuff</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -729,13 +729,13 @@
     <ClInclude Include="Math\Array3D.h">
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
-    <ClInclude Include="Oculus\GeneralOculus.h">
-      <Filter>Oculus Rift Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\PrimitiveGenerator.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="DebugAssist.h" />
+    <ClInclude Include="Oculus\OculusDevice.h">
+      <Filter>Oculus Rift Stuff</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -833,6 +833,9 @@
     </Filter>
     <Filter Include="Voxels">
       <UniqueIdentifier>{8ab7af21-70a9-4b01-b23e-8ef373245d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Oculus Rift Stuff\Source">
+      <UniqueIdentifier>{8a2c0e1a-b834-49f6-be8e-474fb5408f6e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

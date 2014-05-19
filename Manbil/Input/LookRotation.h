@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vector2Input.h"
-#include "../Oculus/GeneralOculus.h"
 
 
 //Manages input for rotating a camera.

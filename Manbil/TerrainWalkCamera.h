@@ -5,7 +5,7 @@
 #include "Math/Higher Math/Camera.h"
 #include "Math/Higher Math/Terrain.h"
 #include "SFML/Window.hpp"
-#include "GeneralOculus.h"
+#include "OculusDevice.h"
 
 //Represents a camera that stays on a Terrain.
 class TerrainWalkCamera : public Camera

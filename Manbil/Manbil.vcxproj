@@ -39,12 +39,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK\LibOVR\Include;E:\C++\Libraries\OculusSDK\LibOVR\Src\Util;E:\C++\Libraries\OculusSDK\LibOVR;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -56,7 +58,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;freetype.lib;libovrd.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>libovrd.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -74,7 +76,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;freetype.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glu32.lib;opengl32.lib;freetype.lib;libovr.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>libovr.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -119,7 +121,7 @@
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Math\Vectors.cpp" />
     <ClCompile Include="MGameMaterialManager.cpp" />
-    <ClCompile Include="Oculus\GeneralOculus.cpp" />
+    <ClCompile Include="Oculus\OculusDevice.cpp" />
     <ClCompile Include="RenderDataHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -240,7 +242,7 @@
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Math\Vectors.h" />
     <ClInclude Include="MGameMaterialManager.h" />
-    <ClInclude Include="Oculus\GeneralOculus.h" />
+    <ClInclude Include="Oculus\OculusDevice.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />

@@ -44,7 +44,7 @@ VoxelWorld::VoxelWorld(void)
         voxelMat(0),
         renderState(RenderingState::Cullables::C_NONE),
         voxelMesh(PrimitiveTypes::Triangles),
-        player(manager), postProcessing(0),
+        player(manager), oculusDev(0), postProcessing(0),
         voxelHighlightMat(0),
         voxelHighlightMesh(PrimitiveTypes::Triangles)
 {
@@ -55,6 +55,7 @@ VoxelWorld::~VoxelWorld(void)
     DeleteAndSetToNull(finalWorldRenderMat);
     DeleteAndSetToNull(finalWorldRenderQuad);
     DeleteAndSetToNull(voxelHighlightMat);
+    assert(oculusDev == 0);
 }
 
 void VoxelWorld::SetUpVoxels(void)
@@ -152,7 +153,7 @@ void VoxelWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
 
-    OculusSystem::InitializeRiftSystem();
+    OculusDevice::InitializeSystem();
 
     std::unordered_map<RenderingChannels, DataLine> channels;
 
@@ -328,9 +329,10 @@ void VoxelWorld::InitializeWorld(void)
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
+    oculusDev = new OculusDevice(0);
     player.Cam = VoxelCamera(Vector3f(60, 60, 60),
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
-                             OculusSystem::GetDevice(0),
+                             oculusDev,
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
@@ -348,11 +350,11 @@ void VoxelWorld::InitializeWorld(void)
     player.Jump = BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::Space, BoolInput::ValueStates::JustPressed));
 
 
-    if (player.Cam.OVRDevice.get() != 0)
-    {
-        OculusDevice* dv = player.Cam.OVRDevice.get();
-        dv->StartAutoCalibration();
-    }
+    //if (player.Cam.OVRDevice.get() != 0)
+    //{
+        //OculusDevice* dv = player.Cam.OVRDevice.get();
+        //dv->StartAutoCalibration();
+    //}
 }
 void VoxelWorld::OnWorldEnd(void)
 {
@@ -360,8 +362,8 @@ void VoxelWorld::OnWorldEnd(void)
     for (auto element = chunkMeshes.begin(); element != chunkMeshes.end(); ++element)
         delete element->second;
 
-    player.Cam.OVRDevice.reset();
-    OculusSystem::DestroyRiftSystem();
+    DeleteAndSetToNull(oculusDev);
+    OculusDevice::DestroySystem();
 }
 
 void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
@@ -418,8 +420,8 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
     //Update player/camera.
     player.Update(elapsed, GetTotalElapsedSeconds());
-    if (player.Cam.OVRDevice.get() != 0)
-        player.Cam.OVRDevice->UpdateDevice();
+    if (oculusDev->IsValid())
+        oculusDev->Update();
 
 
     //Input handling.
@@ -464,8 +466,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 {
     renderState.EnableState();
     Vector4f clearColor(1.0f, 0.0f, 0.0f, 0.0f);
-    if (player.Cam.OVRDevice.get() != 0 && player.Cam.OVRDevice->IsDoneAutoCalibration())
-        clearColor.x = 0.0f;
+    //if (player.Cam.OVRDevice.get() != 0 && player.Cam.OVRDevice->IsDoneAutoCalibration())
+    //    clearColor.x = 0.0f;
     ScreenClearer(true, true, false, clearColor).ClearScreen();
 
     std::vector<const Mesh*> meshes;
