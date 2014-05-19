@@ -71,9 +71,9 @@ public:
     Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord * VoxelSizeF) + Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
 
     //Converts world coordinates to local Chunk coordinates.
-    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace) - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
+    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z)); }
     //Converts world coordinates to the coordinate of the nearest local voxel.
-    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace) - MinCorner; }
+    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z)); }
 
 
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.

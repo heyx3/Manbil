@@ -117,6 +117,7 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 {
     std::string dOutput;
     DebugAssist::STR.clear();
+    //TODO: Remove debug printing from this and VoxelChunkManager::CastRay().
 
 
     VoxelRayHit vrh;

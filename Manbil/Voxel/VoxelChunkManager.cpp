@@ -61,7 +61,7 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
                 return false;
             }, oldChunkIndex, newChunkIndex))
         {
-            std::cout << "Exiting with hit found.\n" + dOutput + "\n\n\n\n";
+            //std::cout << "Exiting with hit found.\n" + dOutput + "\n\n\n\n";
             return castRes;
         }
 
@@ -72,7 +72,7 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         dOutput += "\tDone chunk ray iteration.\n";
     }
 
-    std::cout << "Exiting with no hit found.\n" + dOutput + "\n\n\n";
+    //std::cout << "Exiting with no hit found.\n" + dOutput + "\n\n\n";
     return RayCastResult();
 }
 
