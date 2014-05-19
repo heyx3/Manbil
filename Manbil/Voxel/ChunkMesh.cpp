@@ -35,27 +35,15 @@ void ChunkMesh::RebuildMesh(bool buildNow)
     VoxelChunk * chnk = manager.GetChunk(ChunkIndex);
     if (chnk == 0) return;
 
-
-    std::vector<Vector3f> poses;
-    std::vector<Vector2f> texCoords;
-    std::vector<Vector3f> normals;
     indices.reserve(UpperBoundSize);
-    poses.reserve(UpperBoundSize);
-    texCoords.reserve(UpperBoundSize);
-    normals.reserve(UpperBoundSize);
-    chnk->BuildTriangles(poses, normals, texCoords, indices,
+    vertices.reserve(UpperBoundSize);
+    chnk->BuildTriangles(vertices, indices,
                          manager.GetChunk(Vector3i(ChunkIndex.x - 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x + 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y - 1, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y + 1, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y, ChunkIndex.z - 1)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y, ChunkIndex.z + 1)));
-
-    vertices.reserve(UpperBoundSize);
-    for (unsigned int i = 0; i < poses.size(); ++i)
-    {
-        vertices.insert(vertices.end(), Vertex(poses[i], texCoords[i], normals[i]));
-    }
 
 
     if (buildNow) BuildBuffers();

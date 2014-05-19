@@ -236,16 +236,22 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 }
 
 
+//TODO: Switch to using triangle strips to minimize the number of indices.
 
 //Creates a quad on the given x face of a cube bound by the given min/max points.
-void CreateXAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
+void CreateXAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
                      unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float x, int normSign,
                      float yTexCoordScale = 1.0f, float zTexCoordScale = 1.0f)
 {
-    poses.insert(poses.end(), Vector3f(x, minPos.y, minPos.z));
-    poses.insert(poses.end(), Vector3f(x, minPos.y, maxPos.z));
-    poses.insert(poses.end(), Vector3f(x, maxPos.y, minPos.z));
-    poses.insert(poses.end(), Vector3f(x, maxPos.y, maxPos.z));
+    Vector3f norm(normSign, 0.0f, 0.0f);
+    vertices.insert(vertices.end(), Vertex(Vector3f(x, minPos.y, minPos.z), Vector2f(0.0f, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(x, minPos.y, maxPos.z), Vector2f(0.0f, zTexCoordScale),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(x, maxPos.y, minPos.z), Vector2f(yTexCoordScale, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(x, maxPos.y, maxPos.z), Vector2f(yTexCoordScale, zTexCoordScale),
+                                           Vector4f(), norm));
 
     int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
@@ -254,29 +260,22 @@ void CreateXAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
     indices.insert(indices.end(), startingIndex);
     indices.insert(indices.end(), startingIndex + 2 + max);
     indices.insert(indices.end(), startingIndex + 3 - max);
-
-    startingIndex += 4;
-
-    Vector3f norm(normSign, 0.0f, 0.0f);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, zTexCoordScale));
-    texCoords.insert(texCoords.end(), Vector2f(yTexCoordScale, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(yTexCoordScale, zTexCoordScale));
 }
 //Creates a quad on the given y face of a cube bound by the given min/max points.
-void CreateYAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
+void CreateYAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
                      unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float y, int normSign,
                      float xTexCoordScale = 1.0f, float zTexCoordScale = 1.0f)
 {
-    poses.insert(poses.end(), Vector3f(minPos.x, y, minPos.z));
-    poses.insert(poses.end(), Vector3f(minPos.x, y, maxPos.z));
-    poses.insert(poses.end(), Vector3f(maxPos.x, y, minPos.z));
-    poses.insert(poses.end(), Vector3f(maxPos.x, y, maxPos.z));
+    Vector3f norm(0.0f, (float)normSign, 0.0f);
+
+    vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, y, minPos.z), Vector2f(0.0f, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, y, maxPos.z), Vector2f(0.0f, zTexCoordScale),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(maxPos.x, y, minPos.z), Vector2f(xTexCoordScale, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(maxPos.x, y, maxPos.z), Vector2f(xTexCoordScale, zTexCoordScale),
+                                           Vector4f(), norm));
 
     int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
@@ -287,27 +286,22 @@ void CreateYAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
     indices.insert(indices.end(), startingIndex + 2 + max);
 
     startingIndex += 4;
-
-    Vector3f norm(0.0f, (float)normSign, 0.0f);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, zTexCoordScale));
-    texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, zTexCoordScale));
 }
 //Creates a quad on the given z face of a cube bound by the given min/max points.
-void CreateZAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords, std::vector<unsigned int> & indices,
+void CreateZAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
                      unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float z, int normSign,
                      float xTexCoordScale = 1.0f, float yTexCoordScale = 1.0f)
 {
-    poses.insert(poses.end(), Vector3f(minPos.x, minPos.y, z));
-    poses.insert(poses.end(), Vector3f(minPos.x, maxPos.y, z));
-    poses.insert(poses.end(), Vector3f(maxPos.x, minPos.y, z));
-    poses.insert(poses.end(), Vector3f(maxPos.x, maxPos.y, z));
+    Vector3f norm(0.0f, 0.0f, normSign);
+
+    vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, minPos.y, z), Vector2f(0.0f, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, maxPos.y, z), Vector2f(0.0f, yTexCoordScale),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(maxPos.x, minPos.y, z), Vector2f(xTexCoordScale, 0.0f),
+                                           Vector4f(), norm));
+    vertices.insert(vertices.end(), Vertex(Vector3f(maxPos.x, maxPos.y, z), Vector2f(xTexCoordScale, yTexCoordScale),
+                                           Vector4f(), norm));
 
     int max = BasicMath::Max(0, normSign);
     indices.insert(indices.end(), startingIndex);
@@ -318,22 +312,10 @@ void CreateZAxisQuad(std::vector<Vector3f> & poses, std::vector<Vector3f> & norm
     indices.insert(indices.end(), startingIndex + 3 - max);
 
     startingIndex += 4;
-
-    Vector3f norm(0.0f, 0.0f, normSign);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-    normals.insert(normals.end(), norm);
-
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(0.0f, yTexCoordScale));
-    texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, 0.0f));
-    texCoords.insert(texCoords.end(), Vector2f(xTexCoordScale, yTexCoordScale));
 }
 
 
-void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> & normals, std::vector<Vector2f> & texCoords,
-                        std::vector<unsigned int> & indices,
+void VC::BuildTriangles(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const
@@ -349,7 +331,7 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
 
     const VoxelChunk * vc = this;
     unsigned int currentIndex = 0;
-    DoToEveryVoxel([&usedLocations, vc, &vertices, &normals, &texCoords, &indices, &currentIndex](Vector3i loc)
+    DoToEveryVoxel([&usedLocations, vc, &vertices, &indices, &currentIndex](Vector3i loc)
     {
         //If this voxel is solid and not already part of a cube, build a new cube.
         if (!usedLocations[loc] && vc->GetVoxelLocal(loc))
@@ -451,19 +433,19 @@ void VC::BuildTriangles(std::vector<Vector3f> & vertices, std::vector<Vector3f> 
 
 
             if (loc.x == 0 || !fullLessX)
-                CreateXAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
+                CreateXAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
             if (endLoc.x == ChunkSize - 1 || !fullMoreX)
-                CreateXAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
+                CreateXAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
 
             if (loc.y == 0 || !fullLessY)
-                CreateYAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
+                CreateYAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
             if (endLoc.y == ChunkSize - 1 || !fullMoreY)
-                CreateYAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
+                CreateYAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
 
             if (loc.z == 0 || !fullLessZ)
-                CreateZAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
+                CreateZAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
             if (endLoc.z == ChunkSize - 1 || !fullMoreZ)
-                CreateZAxisQuad(vertices, normals, texCoords, indices, currentIndex, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
+                CreateZAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
         }
     });
 }
