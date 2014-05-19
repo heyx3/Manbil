@@ -388,19 +388,15 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
 void VoxelWorld::UpdateWorld(float elapsed)
 {
     //See if a block was hit.
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+    VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 100.0f);
+    if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
     {
-        VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward(), 100.0f);
-        if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
-        {
-            voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
-        }
-        else
-        {
-            voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
-        }
+        voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
     }
-
+    else
+    {
+        voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
+    }
 
     //Mouse capturing.
     MouseDeltaVector2Input * ptr = (MouseDeltaVector2Input*)player.Cam.RotationInput.Input.get();
