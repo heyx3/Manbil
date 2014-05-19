@@ -14,8 +14,9 @@ typedef VoxelChunkManager VCM;
 
 VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 {
-    std::cout << "Start of ray cast:\n\n\tRay start: " << DebugAssist::ToString(rayStart) << "\n\t" <<
-                 "Ray dir: " << DebugAssist::ToString(rayDir) << "\n\n";
+    std::string dOutput;
+    dOutput += "Start of ray cast:\n\n\tRay start: " + DebugAssist::ToString(rayStart) + "\n\t" +
+               "Ray dir: " + DebugAssist::ToString(rayDir) + "\n\n";
 
 
     //Find the axis that moves the most, and figure out what
@@ -24,8 +25,8 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
     float destination = rayStart[largestRayAxis] + (BasicMath::Sign(rayDir[largestRayAxis]) * (VC::ChunkSizeF * VC::VoxelSizeF));
     float chunkMoveLength = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis, destination).t;
 
-    std::cout << "\tLargest ray dir axis: " << TS(largestRayAxis) << "\n\t" <<
-                  "Chunk move length: " << TS(chunkMoveLength) << "\n\n";
+    dOutput += "\tLargest ray dir axis: " + TS(largestRayAxis) + "\n\t" +
+               "Chunk move length: " + TS(chunkMoveLength) + "\n\n";
 
 
     //March the ray forward in increments, checking each chunk it passes through.
@@ -44,21 +45,23 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         //Check every chunk that the ray intersected with
         //   (don't check the very last one, since that will be checked next iteration).
         RayCastResult castRes;
-        if (DoToEveryChunkPredicate([&castRes, rayStart, rayDir, maxDist, oldChunkIndex, newChunkIndex](Vector3i cIndex, VoxelChunk * cnk)
+        if (DoToEveryChunkPredicate([&castRes, rayStart, rayDir, maxDist, oldChunkIndex, newChunkIndex, &dOutput](Vector3i cIndex, VoxelChunk * cnk)
             {
-                std::cout << "\t\tChunk index: " << DebugAssist::ToString(cIndex) << "\n";
+                dOutput += "\t\tChunk index: " + DebugAssist::ToString(cIndex) + "\n";
 
                 //If any voxels were hit, return the hit.
                 VoxelChunk::VoxelRayHit tempChunk = cnk->CastRay(rayStart, rayDir, maxDist);
                 if (tempChunk.CastResult.DidHitTarget)
                 {
-                    std::cout << "\n\t\tHit a voxel in the chunk! Iteration: [" << DebugAssist::ToString(oldChunkIndex) << ", " << DebugAssist::ToString(newChunkIndex) << "]\n";
+                    dOutput += "\n\t\tHit a voxel in the chunk! Chunk cast output:\n" + DebugAssist::STR + "\n\n";
                     castRes = RayCastResult(cnk, tempChunk);
                     return true;
                 }
+                dOutput += "\n\t\t\tNothing was hit. Chunk cast output:\n" + DebugAssist::STR + "\n\n";
                 return false;
             }, oldChunkIndex, newChunkIndex))
         {
+            std::cout << "Exiting with hit found.\n" + dOutput + "\n\n\n\n";
             return castRes;
         }
 
@@ -66,10 +69,10 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         maxDist -= chunkMoveLength;
         oldChunkIndex = newChunkIndex;
 
-        std::cout << "\tDone chunk ray iteration.\n";
+        dOutput += "\tDone chunk ray iteration.\n";
     }
 
-    std::cout << "Exiting with no hit found.\n\n\n\n";
+    std::cout << "Exiting with no hit found.\n" + dOutput + "\n\n\n";
     return RayCastResult();
 }
 

@@ -115,13 +115,17 @@ void VC::SetVoxels(const Shape & shpe, bool value)
 
 VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) const
 {
+    std::string dOutput;
+    DebugAssist::STR.clear();
+
+
     VoxelRayHit vrh;
 
     Vector3f worldRayStart = rayStart;
     rayStart = ToLocalChunkSpace(rayStart);
     maxDist /= VoxelSizeF;
 
-    std::cout << "\t\t\tCasting ray into chunk " << DebugAssist::ToString(MinCorner) << "\n";
+    dOutput += "\t\t\tCasting ray into chunk " + DebugAssist::ToString(MinCorner) + "\n";
 
     //If the ray isn't even pointing towards the chunk, don't bother raycasting.
     if (IsEmpty() ||
@@ -132,9 +136,9 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
         (rayStart.y >= ChunkSizeF && rayDir.y >= 0.0f) ||
         (rayStart.z >= ChunkSizeF && rayDir.z >= 0.0f))
     {
-        std::cout << (IsEmpty() ?
+        dOutput += (IsEmpty() ?
                         "\t\t\tChunk is empty." :
-                        "\t\t\tRay was outside chunk area, or chunk was empty. Voxel-space ray start: " +
+                        "\t\t\tRay was outside chunk area. Voxel-space ray start: " +
                             DebugAssist::ToString(rayStart) + "\n\n");
         return vrh;
     }
@@ -171,7 +175,6 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
         isZTooFar = ([](float rayPos) -> bool { return rayPos >= ChunkSizeF; });
     else isZTooFar = ([](float rayPos) -> bool { return rayPos < 0.0f; });
 
-    //std::string dOutput;
     Vector3f initialRayStart = rayStart;
 
     while (distTraveled - 0.5f <= maxDist &&
@@ -179,19 +182,20 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
     {
         currentRayPos = rayStart.Floored();
 
-        //dOutput += "\t\t\tIterating from " + DebugAssist::ToString(lastRayPos) + " to " + DebugAssist::ToString(currentRayPos) + "\n";
+        dOutput += "\t\t\tIterating from " + DebugAssist::ToString(lastRayPos) + " to " + DebugAssist::ToString(currentRayPos) + "\n";
 
         //Go through every voxel between the previous ray position and the current.
         //If any of them have a solid voxel, return that voxel's index.
-        if (DoToEveryVoxelPredicate([&vrh, thisVC, worldRayStart, rayDir, lastRayPos, currentRayPos](Vector3i loc)
+        if (DoToEveryVoxelPredicate([&vrh, thisVC, worldRayStart, rayDir, lastRayPos, currentRayPos, &dOutput](Vector3i loc)
         {
+            dOutput += "\t\t\t\tChecking local voxel " + DebugAssist::ToString(loc) + "\n";
             if (thisVC->GetVoxelLocal(loc))
             {
                 Box3D vBounds = thisVC->GetBounds(loc);
                 Shape::RayTraceResult res = Cube(vBounds).RayHitCheck(worldRayStart, rayDir);
                 if (res.DidHitTarget)
                 {
-                    std::cout << "\t\t\tHit voxel. Hit: " << DebugAssist::ToString(res) << "; local voxel iteration: [" << DebugAssist::ToString(lastRayPos) << ", " << DebugAssist::ToString(currentRayPos) << "]\n";
+                    dOutput += "\t\t\t\t\tHit voxel. Hit: " + DebugAssist::ToString(res) + "; local voxel iteration: [" + DebugAssist::ToString(lastRayPos) + ", " + DebugAssist::ToString(currentRayPos) + "]\n";
                     vrh.VoxelIndex = loc;
                     vrh.CastResult = res;
                     //Calculate which face was hit by finding the axis with the smallest difference between the hit pos and the bounds.
@@ -231,9 +235,11 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
                         assert(!minX_maxZ && !minY_maxZ && !minZ_maxZ && !maxX_maxZ && !maxY_maxZ);
                         vrh.Face.z = 1;
                     }
+                    dOutput += "\t\t\t\t\tFace: " + DebugAssist::ToString(vrh.Face) + "\n";
                     return true;
                 }
             }
+            dOutput += "\t\t\t\t\tNo hit.\n\n";
             return false;
         }, lastRayPos, currentRayPos))
             break;
@@ -243,9 +249,8 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
         worldRayStart += moveIncrement;
         distTraveled += tIncrement;
     }
-    std::cout << "\t\t\tDone chunk ray trace. Iterated from " <<
-                  DebugAssist::ToString(initialRayStart) <<
-                  " to " << DebugAssist::ToString(rayStart) << "\n\n";
+    dOutput += "\t\t\tDone chunk ray trace.\n\n";
+    DebugAssist::STR = dOutput;
     return vrh;
 }
 

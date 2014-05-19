@@ -299,6 +299,7 @@
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="DebugAssist.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

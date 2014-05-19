@@ -106,7 +106,7 @@ void VoxelWorld::SetUpVoxels(void)
         MaxFilterVolume mfv;
         nf3.FillVolume = &mfv;
 
-        nf3.Increase_Amount = 0.45f;
+        nf3.Increase_Amount = 0.0f;
         nf3.Increase(&noise);
     }
     else if (false)
@@ -388,14 +388,14 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
 void VoxelWorld::UpdateWorld(float elapsed)
 {
     //See if a block was hit.
-    if (capMouse)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
     {
         VoxelChunkManager::RayCastResult castHit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
         if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
         {
             voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
-            std::cout << "Hit pos: " << castHit.ChunkRayCastResult.CastResult.HitPos.x << "," << castHit.ChunkRayCastResult.CastResult.HitPos.y << "," << castHit.ChunkRayCastResult.CastResult.HitPos.z << "\n" <<
-                         "Face: " << castHit.ChunkRayCastResult.Face.x << "," << castHit.ChunkRayCastResult.Face.y << "," << castHit.ChunkRayCastResult.Face.z << "\n\n\n";
+            //std::cout << "Hit pos: " << castHit.ChunkRayCastResult.CastResult.HitPos.x << "," << castHit.ChunkRayCastResult.CastResult.HitPos.y << "," << castHit.ChunkRayCastResult.CastResult.HitPos.z << "\n" <<
+            //             "Face: " << castHit.ChunkRayCastResult.Face.x << "," << castHit.ChunkRayCastResult.Face.y << "," << castHit.ChunkRayCastResult.Face.z << "\n\n\n";
         }
         else
         {
@@ -430,35 +430,38 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
     //Input handling.
 
-    if (Input.GetBoolInputValue(INPUT_Quit))
-        EndWorld();
     if (Input.GetBoolInputValue(INPUT_MouseCap))
         capMouse = !capMouse;
-    if (Input.GetBoolInputValue(INPUT_AddVoxel))
+    if (capMouse)
     {
-        VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
-        if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
+        if (Input.GetBoolInputValue(INPUT_Quit))
+            EndWorld();
+        if (Input.GetBoolInputValue(INPUT_AddVoxel))
         {
-            VoxelChunkManager::VoxelLocation toAdd = manager.GetOffset(VoxelChunkManager::VoxelLocation(hit.Chunk, hit.ChunkRayCastResult.VoxelIndex),
-                                                                       hit.ChunkRayCastResult.Face);
-            if (toAdd.Chunk != 0)
+            VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+            if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
             {
-                std::cout << "Adding a voxel. Chunk world min pos: " << toAdd.Chunk->MinCorner.x << "," << toAdd.Chunk->MinCorner.y << "," << toAdd.Chunk->MinCorner.z << "\n" <<
-                             "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
-                toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
-                chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
+                VoxelChunkManager::VoxelLocation toAdd = manager.GetOffset(VoxelChunkManager::VoxelLocation(hit.Chunk, hit.ChunkRayCastResult.VoxelIndex),
+                                                                           hit.ChunkRayCastResult.Face);
+                if (toAdd.Chunk != 0)
+                {
+                    std::cout << "Adding a voxel. Chunk world min pos: " << toAdd.Chunk->MinCorner.x << "," << toAdd.Chunk->MinCorner.y << "," << toAdd.Chunk->MinCorner.z << "\n" <<
+                        "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
+                    toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
+                    chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
+                }
             }
         }
-    }
-    if (Input.GetBoolInputValue(INPUT_RemoveVoxel))
-    {
-        VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
-        if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
+        if (Input.GetBoolInputValue(INPUT_RemoveVoxel))
         {
-            std::cout << "Removing a voxel. Chunk world min pos: " << hit.Chunk->MinCorner.x << "," << hit.Chunk->MinCorner.y << "," << hit.Chunk->MinCorner.z << "\n" <<
-                         "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
-            hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
-            chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
+            VoxelChunkManager::RayCastResult hit = manager.CastRay(player.Cam.GetPosition(), player.Cam.GetForward());
+            if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
+            {
+                std::cout << "Removing a voxel. Chunk world min pos: " << hit.Chunk->MinCorner.x << "," << hit.Chunk->MinCorner.y << "," << hit.Chunk->MinCorner.z << "\n" <<
+                    "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
+                hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
+                chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
+            }
         }
     }
 }

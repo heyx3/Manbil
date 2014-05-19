@@ -12,6 +12,9 @@ struct DebugAssist
 {
 public:
 
+    static std::string STR;
+
+
     static std::string ToString(Vector2b v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + " }"; }
     static std::string ToString(Vector3b v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " }"; }
     static std::string ToString(Vector4b v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + " }"; }

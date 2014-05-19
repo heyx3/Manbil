@@ -158,6 +158,16 @@ public:
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
 
+        if ((sign.x > 0 && (end.x < 0 || start.x > ChunkSize - 1)) ||
+            (sign.x < 0 && (end.x > ChunkSize - 1 || start.x < 0)) ||
+            (sign.y > 0 && (end.y < 0 || start.y > ChunkSize - 1)) ||
+            (sign.y < 0 && (end.y > ChunkSize - 1 || start.y < 0)) ||
+            (sign.z > 0 && (end.z < 0 || start.z > ChunkSize - 1)) ||
+            (sign.z < 0 && (end.z > ChunkSize - 1 || start.z < 0)))
+        {
+            return false;
+        }
+
         int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
             zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
@@ -182,6 +192,16 @@ public:
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
+
+        if ((sign.x > 0 && (end.x < 0 || start.x > ChunkSize - 1)) ||
+            (sign.x < 0 && (end.x > ChunkSize - 1 || start.x < 0)) ||
+            (sign.y > 0 && (end.y < 0 || start.y > ChunkSize - 1)) ||
+            (sign.y < 0 && (end.y > ChunkSize - 1 || start.y < 0)) ||
+            (sign.z > 0 && (end.z < 0 || start.z > ChunkSize - 1)) ||
+            (sign.z < 0 && (end.z > ChunkSize - 1 || start.z < 0)))
+        {
+            return;
+        }
 
         int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
@@ -208,6 +228,16 @@ public:
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
 
+        if ((sign.x > 0 && (end.x < 0 || start.x > ChunkSize - 1)) ||
+            (sign.x < 0 && (end.x > ChunkSize - 1 || start.x < 0)) ||
+            (sign.y > 0 && (end.y < 0 || start.y > ChunkSize - 1)) ||
+            (sign.y < 0 && (end.y > ChunkSize - 1 || start.y < 0)) ||
+            (sign.z > 0 && (end.z < 0 || start.z > ChunkSize - 1)) ||
+            (sign.z < 0 && (end.z > ChunkSize - 1 || start.z < 0)))
+        {
+            return false;
+        }
+
         int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
             zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
@@ -232,6 +262,16 @@ public:
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
+
+        if ((sign.x > 0 && (end.x < 0 || start.x > ChunkSize - 1)) ||
+            (sign.x < 0 && (end.x > ChunkSize - 1 || start.x < 0)) ||
+            (sign.y > 0 && (end.y < 0 || start.y > ChunkSize - 1)) ||
+            (sign.y < 0 && (end.y > ChunkSize - 1 || start.y < 0)) ||
+            (sign.z > 0 && (end.z < 0 || start.z > ChunkSize - 1)) ||
+            (sign.z < 0 && (end.z > ChunkSize - 1 || start.z < 0)))
+        {
+            return;
+        }
 
         int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),

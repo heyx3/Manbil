@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClCompile Include="BasicMComponentFactories.cpp" />
     <ClCompile Include="BasicMComponents.cpp" />
+    <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Foliage.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
