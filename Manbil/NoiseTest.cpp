@@ -326,18 +326,19 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 plateauNoise(noiseSize, noiseSize),
                 hillNoise(noiseSize, noiseSize);
 
-        Perlin2D rockyGeneratorBase(6.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
+        Perlin2D rockyGeneratorBase(10.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
         nf.NoiseToFilter = &rockyGeneratorBase;
         nf.FilterFunc = &NoiseFilterer2D::UpContrast;
         nf.UpContrast_Passes = 1;
         nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::CUBIC;
         nf.Generate(rockyNoise);
+        rockyGeneratorBase.Generate(rockyNoise);
 
         FlatNoise2D plateauGeneratorBase(0.5f);
         nf.NoiseToFilter = &plateauGeneratorBase;
         nf.FilterFunc = &NoiseFilterer2D::Noise;
         nf.Noise_Seed = fr.GetRandInt();
-        nf.Noise_Amount = 0.02f;
+        nf.Noise_Amount = 0.005f;
         nf.Generate(plateauNoise);
 
         Perlin2D hillGenerator(100.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
