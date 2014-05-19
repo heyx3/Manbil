@@ -25,7 +25,7 @@ void NF2::RemapValues(Noise2D * nse) const
 {
     if (nse != 0) noise = nse;
 
-	Interval newVals = Interval::GetZeroToOneInterval();
+	Interval newVals = RemapValues_NewVals;
 	Interval oldVals = RemapValues_OldVals;
 
 	struct RemapValuesStruct { Interval oldVs, newVs; Noise2D * nse; };
@@ -38,7 +38,7 @@ void NF2::RemapValues(Noise2D * nse) const
 	{
 		RemapValuesStruct * rvS = (RemapValuesStruct*)pDat;
 		float * fOut = &(*(rvS->nse))[loc];
-		*fOut = rvS->newVs.Clamp(rvS->oldVs.MapValue(rvS->newVs, *fOut));
+		*fOut = rvS->oldVs.MapValue(rvS->newVs, *fOut);
 	},
 	*noise, Vector2i(noise->GetWidth(), noise->GetHeight()));
 }
@@ -279,7 +279,7 @@ void NF3::ReflectValues(Noise3D * nse) const
 
 void NF3::RemapValues(Noise3D * nse) const
 {
-    Interval newVals = Interval::GetZeroToOneInterval();
+    Interval newVals = RemapValues_NewVals;
     Interval oldVals = RemapValues_OldVals;
 
     struct RemapValuesStruct { Interval oldVs, newVs; Noise3D * nse; };
@@ -292,7 +292,7 @@ void NF3::RemapValues(Noise3D * nse) const
     {
         RemapValuesStruct * rvS = (RemapValuesStruct*)pDat;
         float * fOut = &(*(rvS->nse))[loc];
-        *fOut = rvS->newVs.Clamp(rvS->oldVs.MapValue(rvS->newVs, *fOut));
+        *fOut = rvS->oldVs.MapValue(rvS->newVs, *fOut);
     },
         *nse, Vector3i(nse->GetWidth(), nse->GetHeight(), nse->GetDepth()));
 }

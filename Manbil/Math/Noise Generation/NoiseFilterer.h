@@ -16,8 +16,9 @@ public:
 
 	NoiseFilterer2D(void) { InitData(); }
 	void InitData(void)
-	{
-		RemapValues_OldVals = Interval::GetZeroToOneInterval();
+    {
+        RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        RemapValues_NewVals = Interval::GetZeroToOneInterval();
 		InvertFunc = false;
 		FillRegion = 0;
 		NoiseToFilter = 0;
@@ -42,8 +43,8 @@ public:
 	MemberFunc FilterFunc;
 
 
-	Interval RemapValues_OldVals;
-	//Remaps the noise from the given original range to the range 0.0-1.0.
+	Interval RemapValues_OldVals, RemapValues_NewVals;
+	//Remaps the noise from the given original range to the given new range.
 	void RemapValues(Noise2D * nse = 0) const;
 
 
@@ -126,6 +127,7 @@ public:
     void InitData(void)
     {
         RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        RemapValues_NewVals = Interval::GetZeroToOneInterval();
         InvertFunc = false;
         FillVolume = 0;
 
@@ -146,7 +148,7 @@ public:
     //typedef void (NoiseFilterer3D::*MemberFunc)(Noise3D * nse) const;
 
 
-    Interval RemapValues_OldVals;
+    Interval RemapValues_OldVals, RemapValues_NewVals;
     //Remaps the noise from the given original range to the range 0.0-1.0.
     void RemapValues(Noise3D * nse = 0) const;
 
