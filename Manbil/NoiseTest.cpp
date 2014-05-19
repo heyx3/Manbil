@@ -326,25 +326,26 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 plateauNoise(noiseSize, noiseSize),
                 hillNoise(noiseSize, noiseSize);
 
-        Perlin2D rockyGeneratorBase(10.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
+        Perlin2D rockyGeneratorBase(50.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
         nf.NoiseToFilter = &rockyGeneratorBase;
-        nf.FilterFunc = &NoiseFilterer2D::UpContrast;
-        nf.UpContrast_Passes = 1;
-        nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::CUBIC;
+        nf.FilterFunc = &NoiseFilterer2D::RemapValues;
+        nf.RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        nf.RemapValues_NewVals = Interval(0.85f, 1.0f, 0.00001f);
         nf.Generate(rockyNoise);
-        rockyGeneratorBase.Generate(rockyNoise);
 
         FlatNoise2D plateauGeneratorBase(0.5f);
         nf.NoiseToFilter = &plateauGeneratorBase;
         nf.FilterFunc = &NoiseFilterer2D::Noise;
         nf.Noise_Seed = fr.GetRandInt();
-        nf.Noise_Amount = 0.005f;
+        nf.Noise_Amount = 0.001f;
         nf.Generate(plateauNoise);
 
         Perlin2D hillGenerator(100.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
-        FlatNoise2D hillScale(0.25f);
-        Combine2Noises2D hillFinalGen(&Combine2Noises2D::Multiply2, &hillGenerator, &hillScale);
-        hillFinalGen.Generate(hillNoise);
+        nf.NoiseToFilter = &hillGenerator;
+        nf.FilterFunc = &NoiseFilterer2D::RemapValues;
+        nf.RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        nf.RemapValues_NewVals = Interval(0.0f, 0.4f, 0.00001f);
+        nf.Generate(hillNoise);
         
 
         //Now assemble the noise together.
@@ -356,7 +357,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         //Interpolate between the different segments of the noise.
         //These constants are relative to half the length/width of the noise texture.
         const float mountainBeginningRadius = 1.0f, //The distance at which the noise starts to be 100% rocky.
-                    mountainStartFadeInRadius = 0.9f, //The distance at which the noise just starts to become rocky (from being a plateau).
+                    mountainStartFadeInRadius = 0.8f, //The distance at which the noise just starts to become rocky (from being a plateau).
                     plateauBeginningRadius = 0.765f, //The distance at which the noise starts to be 100% plateau (until the rocky noise interrupts it).
                     plateauStartFadeInRadius = 0.725f; //The distance at which the noise just starts to become plateau (from being hilly).
 
@@ -371,7 +372,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 
                 //Come up with an interpolant that is on the same scale as the interpolation constants.
                 float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;
-                float distortion = 0.02f * (-1.0f + (2.0f * FastRand(Vector3i(loc.x, loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
+                float distortion = 0.01f * (-1.0f + (2.0f * FastRand(Vector3i(loc.x, loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
                 distLerp += distortion;
 
                 //Fully rocky.
