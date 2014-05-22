@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <unordered_map>
 #include <OVR_CAPI.h>
+#include <OVR.h>
 
 
 //Rift devices will be stored statically, since there should ever only be one instance per device.
@@ -100,76 +101,29 @@ void OculusDevice::Update(void)
 {
     assert(initialized);
 
-    ovrPosef pse = ovrHmd_GetSensorState(ManbilOVR::GetDevice(index), 0.0f).Recorded.Pose;
-    pos = Vector3f(pse.Position.x, pse.Position.y, pse.Position.z);
-    rot = Quaternion(pse.Orientation.x, pse.Orientation.y, pse.Orientation.z, pse.Orientation.w);
+    ovrSensorState sensors = ovrHmd_GetSensorState(ManbilOVR::GetDevice(index), 0.0f);
+    ovrPosef pose = sensors.Predicted.Pose;
+
+    if (sensors.StatusFlags & ovrStatus_OrientationTracked)
+    {
+        rot = Quaternion(pose.Orientation.x, pose.Orientation.y, pose.Orientation.z, pose.Orientation.w);
+        rotVel = Vector3f(sensors.Predicted.AngularVelocity.x, sensors.Predicted.AngularVelocity.y, sensors.Predicted.AngularVelocity.z);
+        rotAccel = Vector3f(sensors.Predicted.AngularAcceleration.x, sensors.Predicted.AngularAcceleration.y, sensors.Predicted.AngularAcceleration.z);
+
+        OVR::Quat<float>(pose.Orientation).GetEulerAngles<OVR::Axis::Axis_X, OVR::Axis::Axis_Y, OVR::Axis::Axis_Z>(&eulerAngles.x, &eulerAngles.y, &eulerAngles.z);
+    }
+    if (sensors.StatusFlags & ovrStatus_PositionTracked)
+    {
+        pos = Vector3f(pose.Position.x, pose.Position.y, pose.Position.z);
+        vel = Vector3f(sensors.Predicted.LinearVelocity.x, sensors.Predicted.LinearVelocity.y, sensors.Predicted.LinearVelocity.z);
+        accel = Vector3f(sensors.Predicted.LinearAcceleration.x, sensors.Predicted.LinearAcceleration.y, sensors.Predicted.LinearAcceleration.z);
+    }
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/*
-using namespace OVR;
-
-typedef std::string STR;
-
-Ptr<DeviceManager> OculusSystem::pManager = Ptr<DeviceManager>();
-
-void OculusDevice::UpdateDevice(void)
+bool OculusDevice::AttemptStartSensor(void)
 {
-    OVR::Posef psf = sensorFusion.GetPoseAtTime(sensorFusion.GetTime());
-	OVR::Quatf hmdOrient;
-	quat = Quaternion(hmdOrient.x, hmdOrient.y, hmdOrient.z, hmdOrient.w);
-
-	previousRot = currentRot;
-	hmdOrient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&currentRot.yaw, &currentRot.pitch, &currentRot.roll);
-
-
-	//if (calibrator.IsAutoCalibrating())
-	//{
-	//	calibrator.UpdateAutoCalibration(sensorFusion);
-	//	if (calibrator.IsCalibrated())
-	//	{
-	//		doneAutoCalibration = true;
-	//	}
-	//}
+    return ovrHmd_StartSensor(ManbilOVR::GetDevice(index),
+                              ovrHmdCap_Orientation | ovrHmdCap_YawCorrection | ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction,
+                              ovrHmdCap_Orientation);
 }
-
-void OculusSystem::GetDeviceInfo(Ptr<HMDDevice> pHMD, RiftDeviceInfo & outInfo)
-{
-	HMDInfo hmd;
-	if (pHMD->GetDeviceInfo(&hmd))
-	{
-		outInfo.DisplayInfo = RiftDisplayInfo(hmd);
-	}
-
-	outInfo.SensorInfo = *pHMD->GetSensor();
-}
-
-std::shared_ptr<OculusDevice> OculusSystem::GetDevice(int deviceNumb)
-{
-	OVR::Ptr<OVR::HMDDevice> pHMD;
-	pManager = *OVR::DeviceManager::Create();
-	for (int i = 0; i < deviceNumb; ++i)
-	{
-		pManager->EnumerateDevices<OVR::HMDDevice>().Next();
-	}
-
-	pHMD = *pManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-	if (pHMD == 0) return std::shared_ptr<OculusDevice>();
-
-	RiftDeviceInfo rdi;
-	GetDeviceInfo(pHMD, rdi);
-	return std::shared_ptr<OculusDevice>(new OculusDevice(pHMD, rdi));
-}
-
-
-*/
