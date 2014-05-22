@@ -1,6 +1,56 @@
 #include "WaterRendering.h"
 
 
+std::string WaterNode::GetOutputName(unsigned int i) const
+{
+    Assert(i < 2, std::string() + "Invalid output index " + ToString(i));
+    return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal");
+}
+WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
+                     unsigned int _maxRipples, unsigned int _maxFlows)
+    : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput),
+               MakeVector(3, 3)),
+      maxRipples(_maxRipples), maxFlows(_maxFlows)
+{
+    Assert(vertexObjPosInput.GetDataLineSize() == 3,
+           std::string() + "vertex shader object-space position input must have size 3; has size " + ToString(vertexObjPosInput.GetDataLineSize()));
+    Assert(fragmentObjPosInput.GetDataLineSize() == 3,
+           std::string() + "fragment shader object-space position input must have size 3; has size " + ToString(fragmentObjPosInput.GetDataLineSize()));
+}
+
+
+bool WaterNode::UsesInput(unsigned int inputIndex) const
+{
+    switch (GetShaderType())
+    {
+        case Shaders::SH_Vertex_Shader:
+            return &GetInputs()[inputIndex] == &GetObjectPosVInput();
+
+        case Shaders::SH_Fragment_Shader:
+            return &GetInputs()[inputIndex] == &GetObjectPosVOutput();
+
+        default:
+            Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
+            return DataNode::UsesInput(inputIndex);
+    }
+}
+bool WaterNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
+{
+    switch (GetShaderType())
+    {
+    case Shaders::SH_Vertex_Shader:
+        return (inputIndex == 0);
+
+    case Shaders::SH_Fragment_Shader:
+        return (inputIndex == 1);
+
+    default:
+        Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
+        return DataNode::UsesInput(inputIndex, outputIndex);
+    }
+}
+
+
 void WaterNode::GetMyParameterDeclarations(UniformDictionary & outUniforms) const
 {
     if (maxRipples > 0)
@@ -156,4 +206,40 @@ void WaterNode::WriteMyOutputs(std::string & outCode) const
 
         default: assert(false);
     }
+}
+
+
+
+DataLine WaterSurfaceDistortNode::GetWaterSeedIn(RenderingChannels colorVertexOut)
+{
+    assert(IsChannelVertexOutput(colorVertexOut, false));
+    return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(colorVertexOut, 4)), 0))), 2);
+}
+DataLine WaterSurfaceDistortNode::GetTimeIn(RenderingChannels colorVertexOut)
+{
+    return DataLine(DataNodePtr(new AddNode(DataLine(DataNodePtr(new TimeNode()), 0),
+                                            DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(colorVertexOut, 4)), 0))), 3))), 0);
+}
+std::string WaterSurfaceDistortNode::GetOutputName(unsigned int index) const
+{
+    Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
+    return GetName() + std::to_string(GetUniqueID()) + "_uvOffset";
+}
+
+WaterSurfaceDistortNode::WaterSurfaceDistortNode(DataLine seedIn, DataLine shiftAmplitude, DataLine shiftPeriod, DataLine timeValue)
+    : DataNode(MakeVector(seedIn, shiftAmplitude, shiftPeriod, timeValue), MakeVector(2))
+{
+    Assert(seedIn.GetDataLineSize() == 1, std::string() + "seedIn input needs size 1, has size " + ToString(seedIn.GetDataLineSize()));
+    Assert(shiftAmplitude.GetDataLineSize() == 1, std::string() + "shiftAmplitude input needs size 1, has size " + ToString(shiftAmplitude.GetDataLineSize()));
+    Assert(shiftPeriod.GetDataLineSize() == 1, std::string() + "shiftPeriod input needs size 1, has size " + ToString(shiftPeriod.GetDataLineSize()));
+}
+
+void WaterSurfaceDistortNode::WriteMyOutputs(std::string & strOut) const
+{
+    Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
+           std::string() + "This node is only applicable in the fragment shader, but is being used in " + ToString(GetShaderType()));
+    strOut += "\tvec2 " + GetOutputName(0) + " = vec2(" + GetSeedInput().GetValue() + " * " +
+                GetAmplitudeInput().GetValue() + " * " +
+                "sin(" + GetPeriodInput().GetValue() + " * " +
+                GetTimeInput().GetValue() + "));\n";
 }
