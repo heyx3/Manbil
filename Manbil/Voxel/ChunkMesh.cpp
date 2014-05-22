@@ -1,6 +1,7 @@
 #include "ChunkMesh.h"
 
 #include <thread>
+#include <iostream>
 #include "../Math/Higher Math/GeometricMath.h"
 
 
@@ -61,12 +62,18 @@ void ChunkMesh::BuildBuffers(void)
 {
     HangUntilThreadDone();
 
+    ClearAllRenderingErrors();
+
     RenderDataHandler::UpdateVertexBuffer(vid.GetVerticesHandle(),
                                           vertices.data(), vertices.size(),
-                                          RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+                                          RenderDataHandler::BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW);
     RenderDataHandler::UpdateIndexBuffer(vid.GetIndicesHandle(),
                                          indices.data(), indices.size(),
-                                         RenderDataHandler::BufferPurpose::UPDATE_RARELY_AND_DRAW);
+                                         RenderDataHandler::BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW);
+
+    std::string err = GetCurrentRenderingError();
+    if (!err.empty())
+        std::cout << "Error updating index/vertex buffers: " + err + "\n";
 
     vid = VertexIndexData(vertices.size(), vid.GetVerticesHandle(), indices.size(), vid.GetIndicesHandle());
 

@@ -9,6 +9,7 @@
 #include "../Math/NoiseGeneration.hpp"
 #include "../Rendering/PrimitiveGenerator.h"
 #include "VoxelWorldPPC.h"
+#include "../DebugAssist.h"
 
 
 #include <iostream>
@@ -61,7 +62,7 @@ VoxelWorld::~VoxelWorld(void)
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const Vector3i worldLength(3, 3, 6);
+    const Vector3i worldLength(2, 2, 2);
 
     //Create the chunks.
     Vector3i loc;
@@ -75,7 +76,15 @@ void VoxelWorld::SetUpVoxels(void)
 
     Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z, 0.0f);
     
-    if (false)
+    if (true)
+    {
+        FlatNoise3D flat(1.0f);
+        flat.Generate(noise);
+
+        //PRIORITY: Notice that using the following line changes how the bug manifests itself. This indicates a problem with RE-calculating a mesh.
+        noise[Vector3i()] = 0.0f;
+    }
+    else if (false)
     {
         Perlin3D perl(Vector3f(30.0f, 30.0f, 60.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
         perl.Generate(noise);
@@ -98,7 +107,7 @@ void VoxelWorld::SetUpVoxels(void)
         nf3.Set_Value = 1.0f;
         nf3.Set(&noise);
     }
-    else if (true)
+    else if (false)
     {
         Perlin3D perl(Vector3f(20.0f, 20.0f, 20.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
         perl.Generate(noise);
@@ -146,7 +155,6 @@ void VoxelWorld::SetUpVoxels(void)
             location->second->SetVoxelLocal(localIndex, noise[noiseIndex] > 0.5f);
         });
     }
-
 }
 
 void VoxelWorld::InitializeWorld(void)
@@ -330,7 +338,7 @@ void VoxelWorld::InitializeWorld(void)
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
     oculusDev = new OculusDevice(0);
-    player.Cam = VoxelCamera(Vector3f(60, 60, 60),
+    player.Cam = VoxelCamera(Vector3f(0, 0, 0),
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
                              oculusDev,
                              Vector3f(1, 1, 1).Normalized());
@@ -442,9 +450,12 @@ void VoxelWorld::UpdateWorld(float elapsed)
                 if (toAdd.Chunk != 0)
                 {
                     std::cout << "Adding a voxel. Chunk world min pos: " << toAdd.Chunk->MinCorner.x << "," << toAdd.Chunk->MinCorner.y << "," << toAdd.Chunk->MinCorner.z << "\n" <<
-                                 "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n\n\n";
+                                 "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n";
                     toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
                     chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
+
+                    if (toAdd.Chunk->MinCorner == Vector3i())
+                        std::cout << "Debug output: " << DebugAssist::STR << "\n\n\n";
                 }
             }
         }
@@ -454,9 +465,12 @@ void VoxelWorld::UpdateWorld(float elapsed)
             if (hit.ChunkRayCastResult.CastResult.DidHitTarget)
             {
                 std::cout << "Removing a voxel. Chunk world min pos: " << hit.Chunk->MinCorner.x << "," << hit.Chunk->MinCorner.y << "," << hit.Chunk->MinCorner.z << "\n" <<
-                             "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n\n\n";
+                             "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n";
                 hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
                 chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
+
+                if (hit.Chunk->MinCorner == Vector3i())
+                    std::cout << "Debug output: " << DebugAssist::STR << "\n\n\n";
             }
         }
     }
@@ -483,6 +497,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
     //Render the world.
     RenderTargets[worldRenderTarget]->EnableDrawingInto();
+    renderState.EnableState();
     ScreenClearer().ClearScreen();
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes))
     {
@@ -502,15 +517,15 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
 
     //Render the post-process chain.
-    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
-    {
-        PrintError("Error rendering post-process chains", postProcessing->GetError());
-        EndWorld();
-        return;
-    }
+    //if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
+    //{
+    //    PrintError("Error rendering post-process chains", postProcessing->GetError());
+    //    EndWorld();
+    //    return;
+    //}
     
     //Render the final world info.
-    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(RenderTargets[worldRenderTarget]->GetColorTextures()[0]);//postProcessing->GetFinalRender()->GetColorTextures()[0]);
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, *finalWorldRenderMat))
     {

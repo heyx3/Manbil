@@ -237,13 +237,15 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 
 
 //TODO: Switch to using triangle strips to minimize the number of indices.
-
+std::string dbgstrg;
 //Creates a quad on the given x face of a cube bound by the given min/max points.
 void CreateXAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float x, int normSign,
+                     Vector3f minPos, Vector3f maxPos, float x, int normSign,
                      float yTexCoordScale = 1.0f, float zTexCoordScale = 1.0f)
 {
     Vector3f norm(normSign, 0.0f, 0.0f);
+    unsigned int startingIndex = vertices.size();
+
     vertices.insert(vertices.end(), Vertex(Vector3f(x, minPos.y, minPos.z), Vector2f(0.0f, 0.0f),
                                            Vector4f(), norm));
     vertices.insert(vertices.end(), Vertex(Vector3f(x, minPos.y, maxPos.z), Vector2f(0.0f, zTexCoordScale),
@@ -260,13 +262,24 @@ void CreateXAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> &
     indices.insert(indices.end(), startingIndex);
     indices.insert(indices.end(), startingIndex + 2 + max);
     indices.insert(indices.end(), startingIndex + 3 - max);
+
+    dbgstrg = "\t\t\t\tX axis quad: x = " + std::to_string(x) + "\n";
+    dbgstrg += "\t\t\t\tIndices: ";
+    for (int i = 0; i < 6; ++i)
+        dbgstrg += std::to_string(indices[indices.size() - 6 + i]) + ",";
+    dbgstrg += "\n";
+    dbgstrg += "\t\t\t\tVertices: ";
+    for (int i = 0; i < 4; ++i)
+        dbgstrg += DebugAssist::ToString(vertices[vertices.size() - 4 + i].Position) + ",";
+    dbgstrg += "\n";
 }
 //Creates a quad on the given y face of a cube bound by the given min/max points.
 void CreateYAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float y, int normSign,
+                     Vector3f minPos, Vector3f maxPos, float y, int normSign,
                      float xTexCoordScale = 1.0f, float zTexCoordScale = 1.0f)
 {
     Vector3f norm(0.0f, (float)normSign, 0.0f);
+    unsigned int startingIndex = vertices.size();
 
     vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, y, minPos.z), Vector2f(0.0f, 0.0f),
                                            Vector4f(), norm));
@@ -285,15 +298,25 @@ void CreateYAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> &
     indices.insert(indices.end(), startingIndex + 3 - max);
     indices.insert(indices.end(), startingIndex + 2 + max);
 
-    startingIndex += 4;
+    dbgstrg = "\t\t\t\tY axis quad: y = " + std::to_string(y) + "\n";
+    dbgstrg += "\t\t\t\tIndices: ";
+    for (int i = 0; i < 6; ++i)
+        dbgstrg += std::to_string(indices[indices.size() - 6 + i]) + ",";
+    dbgstrg += "\n";
+    dbgstrg += "\t\t\t\tVertices: ";
+    for (int i = 0; i < 4; ++i)
+        dbgstrg += DebugAssist::ToString(vertices[vertices.size() - 4 + i].Position) + ",";
+    dbgstrg += "\n";
 }
 //Creates a quad on the given z face of a cube bound by the given min/max points.
 void CreateZAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
-                     unsigned int & startingIndex, Vector3f minPos, Vector3f maxPos, float z, int normSign,
+                     Vector3f minPos, Vector3f maxPos, float z, int normSign,
                      float xTexCoordScale = 1.0f, float yTexCoordScale = 1.0f)
 {
     Vector3f norm(0.0f, 0.0f, normSign);
-
+    unsigned int startingIndex = vertices.size();
+    
+    //TODO: Two of these quad functions seems to be perpendicular to z axis?
     vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, minPos.y, z), Vector2f(0.0f, 0.0f),
                                            Vector4f(), norm));
     vertices.insert(vertices.end(), Vertex(Vector3f(minPos.x, maxPos.y, z), Vector2f(0.0f, yTexCoordScale),
@@ -311,7 +334,15 @@ void CreateZAxisQuad(std::vector<Vertex> & vertices, std::vector<unsigned int> &
     indices.insert(indices.end(), startingIndex + 2 + max);
     indices.insert(indices.end(), startingIndex + 3 - max);
 
-    startingIndex += 4;
+    dbgstrg = "\t\t\t\tZ axis quad: z = " + std::to_string(z) + "\n";
+    dbgstrg += "\t\t\t\tIndices: ";
+    for (int i = 0; i < 6; ++i)
+        dbgstrg += std::to_string(indices[indices.size() - 6 + i]) + ",";
+    dbgstrg += "\n";
+    dbgstrg += "\t\t\t\tVertices: ";
+    for (int i = 0; i < 4; ++i)
+        dbgstrg += DebugAssist::ToString(vertices[vertices.size() - 4 + i].Position) + ",";
+    dbgstrg += "\n";
 }
 
 
@@ -322,22 +353,50 @@ void VC::BuildTriangles(std::vector<Vertex> & vertices, std::vector<unsigned int
 {
     if (IsEmpty()) return;
 
-    //Build cubes (using a simple naive algorithm), and create 6 quads for each face of those cubes.
+
+    std::string dOutput = "Chunk min corner: " + DebugAssist::ToString(MinCorner) + "\n";
+    const VoxelChunk * vc = this;
+
+
+    if (false)
+    {
+        DoToEveryVoxel([vc, &vertices, &indices](Vector3i loc)
+        {
+            if (!vc->GetVoxelLocal(loc)) return;
+
+            Vector3f minPos = vc->LocalToWorldSpace(loc),
+                     maxPos = vc->LocalToWorldSpace(loc + Vector3i(1, 1, 1));
+            CreateXAxisQuad(vertices, indices, minPos, maxPos, minPos.x, -1);
+            CreateXAxisQuad(vertices, indices, minPos, maxPos, maxPos.x, 1);
+            CreateYAxisQuad(vertices, indices, minPos, maxPos, minPos.y, -1);
+            CreateYAxisQuad(vertices, indices, minPos, maxPos, maxPos.y, 1);
+            CreateZAxisQuad(vertices, indices, minPos, maxPos, minPos.z, -1);
+            CreateZAxisQuad(vertices, indices, minPos, maxPos, maxPos.z, 1);
+        });
+        return;
+    }
+
+
+
+    //Flood-fill the chunk with cubes, and create 6 quads for each face of those cubes.
 
     //TODO: Instead of pushing out one axis at a time, try pushing as many axes out as possible.
 
     //Keep track of which locations are already part of a cube.
     Array3D<bool> usedLocations(ChunkSize, ChunkSize, ChunkSize, false);
 
-    const VoxelChunk * vc = this;
-    unsigned int currentIndex = 0;
-    DoToEveryVoxel([&usedLocations, vc, &vertices, &indices, &currentIndex](Vector3i loc)
+    DoToEveryVoxel([&usedLocations, vc, &vertices, &indices, &dOutput](Vector3i loc)
     {
+        std::string tempDOutput = "";
+
         //If this voxel is solid and not already part of a cube, build a new cube.
         if (!usedLocations[loc] && vc->GetVoxelLocal(loc))
         {
+            tempDOutput += "\n\tRunning iteration on location " + DebugAssist::ToString(loc) + "\n";
+
             usedLocations[loc] = true;
             Vector3i endLoc = loc;
+            
 
             //First push the cube out along the X.
             while (true)
@@ -388,10 +447,14 @@ void VC::BuildTriangles(std::vector<Vertex> & vertices, std::vector<unsigned int
                         usedLocations[newLoc] = true;
             }
 
+            tempDOutput += "\t\tBox is [" + DebugAssist::ToString(loc) + ", " + DebugAssist::ToString(endLoc) + "]\n";
+
             //Now that we have the cube, create the vertices for it.
+
             Vector3f minPos = vc->LocalToWorldSpace(loc),
                      maxPos = vc->LocalToWorldSpace(endLoc + Vector3i(1, 1, 1)),
                      texCoordScale(endLoc.x - loc.x + 1, endLoc.y - loc.y + 1, endLoc.z - loc.z + 1);
+            tempDOutput += "\t\tmin world pos: " + DebugAssist::ToString(minPos) + ";\n\t\tmax world pos: " + DebugAssist::ToString(maxPos) + ";\n\t\ttex coord scale: " + DebugAssist::ToString(texCoordScale) + "\n";
 
             //See if any faces are fully covered by voxels. If they are, don't create quads for them.
 
@@ -400,52 +463,88 @@ void VC::BuildTriangles(std::vector<Vertex> & vertices, std::vector<unsigned int
                 for (Vector3i testLoc(loc.x - 1, loc.y, loc.z); fullLessX && testLoc.z <= endLoc.z; ++testLoc.z)
                     for (testLoc.y = loc.y; fullLessX && testLoc.y <= endLoc.y; ++testLoc.y)
                         fullLessX = fullLessX && vc->GetVoxelLocal(testLoc);
+            if (loc.x > 0 && fullLessX) tempDOutput += "\t\tLessX is full; not rendering quad.\n";
+            else tempDOutput += "\t\tLessX is not full or is at chunk edge; rendering quad.\n";
 
             bool fullLessY = true;
             if (loc.y > 0)
                 for (Vector3i testLoc(loc.x, loc.y - 1, loc.z); fullLessY && testLoc.z <= endLoc.z; ++testLoc.z)
                     for (testLoc.x = loc.x; fullLessY && testLoc.x <= endLoc.x; ++testLoc.x)
                         fullLessY = fullLessY && vc->GetVoxelLocal(testLoc);
+            if (loc.y > 0 && fullLessY) tempDOutput += "\t\tLessY is full; not rendering quad.\n";
+            else tempDOutput += "\t\tLessY is not full or is at chunk edge; rendering quad.\n";
 
             bool fullLessZ = true;
             if (loc.z > 0)
                 for (Vector3i testLoc(loc.x, loc.y, loc.z - 1); fullLessZ && testLoc.y <= endLoc.y; ++testLoc.y)
                     for (testLoc.x = loc.x; fullLessZ && testLoc.x <= endLoc.x; ++testLoc.x)
                         fullLessZ = fullLessZ && vc->GetVoxelLocal(testLoc);
+            if (loc.z > 0 && fullLessZ) tempDOutput += "\t\tLessZ is full; not rendering quad.\n";
+            else tempDOutput += "\t\tLessZ is not full or is at chunk edge; rendering quad.\n";
 
             bool fullMoreX = true;
             if (endLoc.x < ChunkSize - 1)
                 for (Vector3i testLoc(endLoc.x + 1, loc.y, loc.z); fullMoreX && testLoc.z <= endLoc.z; ++testLoc.z)
                     for (testLoc.y = loc.y; fullMoreX && testLoc.y <= endLoc.y; ++testLoc.y)
                         fullMoreX = fullMoreX && vc->GetVoxelLocal(testLoc);
+            if (endLoc.x < ChunkSize - 1 && fullMoreX) tempDOutput += "\t\tMoreX is full; not rendering quad.\n";
+            else tempDOutput += "\t\tMoreX is not full or is at chunk edge; rendering quad.\n";
 
             bool fullMoreY = true;
             if (endLoc.y < ChunkSize - 1)
                 for (Vector3i testLoc(loc.x, endLoc.y + 1, loc.z); fullMoreY && testLoc.z <= endLoc.z; ++testLoc.z)
                     for (testLoc.x = loc.x; fullMoreY && testLoc.x <= endLoc.x; ++testLoc.x)
                         fullMoreY = fullMoreY && vc->GetVoxelLocal(testLoc);
+            if (endLoc.y < ChunkSize - 1 && fullMoreY) tempDOutput += "\t\tMoreY is full; not rendering quad.\n";
+            else tempDOutput += "\t\tMoreY is not full or is at chunk edge; rendering quad.\n";
 
             bool fullMoreZ = true;
             if (endLoc.z < ChunkSize - 1)
                 for (Vector3i testLoc(loc.x, loc.y, endLoc.z + 1); fullMoreZ && testLoc.y <= endLoc.y; ++testLoc.y)
                     for (testLoc.x = loc.x; fullMoreZ && testLoc.x <= endLoc.x; ++testLoc.x)
                         fullMoreZ = fullMoreZ && vc->GetVoxelLocal(testLoc);
+            if (endLoc.z < ChunkSize - 1 && fullMoreZ) tempDOutput += "\t\tMoreZ is full; not rendering quad.\n";
+            else tempDOutput += "\t\tMoreZ is not full or is at chunk edge; rendering quad.\n";
 
 
-            if (loc.x == 0 || !fullLessX)
-                CreateXAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
-            if (endLoc.x == ChunkSize - 1 || !fullMoreX)
-                CreateXAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
+            //if (loc.x == 0 || !fullLessX)
+            {
+                CreateXAxisQuad(vertices, indices, minPos, maxPos, minPos.x, -1, texCoordScale.y, texCoordScale.z);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
+            //if (endLoc.x == ChunkSize - 1 || !fullMoreX)
+            {
+                CreateXAxisQuad(vertices, indices, minPos, maxPos, maxPos.x, 1, texCoordScale.y, texCoordScale.z);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
 
-            if (loc.y == 0 || !fullLessY)
-                CreateYAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
-            if (endLoc.y == ChunkSize - 1 || !fullMoreY)
-                CreateYAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
+            //if (loc.y == 0 || !fullLessY)
+            {
+                CreateYAxisQuad(vertices, indices, minPos, maxPos, minPos.y, -1, texCoordScale.x, texCoordScale.z);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
+            //if (endLoc.y == ChunkSize - 1 || !fullMoreY)
+            {
+                CreateYAxisQuad(vertices, indices, minPos, maxPos, maxPos.y, 1, texCoordScale.x, texCoordScale.z);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
 
-            if (loc.z == 0 || !fullLessZ)
-                CreateZAxisQuad(vertices, indices, currentIndex, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
-            if (endLoc.z == ChunkSize - 1 || !fullMoreZ)
-                CreateZAxisQuad(vertices, indices, currentIndex, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
+            //if (loc.z == 0 || !fullLessZ)
+            {
+                CreateZAxisQuad(vertices, indices, minPos, maxPos, minPos.z, -1, texCoordScale.x, texCoordScale.y);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
+            //if (endLoc.z == ChunkSize - 1 || !fullMoreZ)
+            {
+                CreateZAxisQuad(vertices, indices, minPos, maxPos, maxPos.z, 1, texCoordScale.x, texCoordScale.y);
+                tempDOutput += dbgstrg;// + "\t\t\t\tVertices: " + std::to_string(vertices.size()) + "\n\t\t\t\tIndices: " + std::to_string(indices.size()) + "\n";
+            }
         }
+
+        dOutput += tempDOutput;
     });
+    dOutput += "Total vertices: " + std::to_string(vertices.size()) + "; total indices: " + std::to_string(indices.size()) + "\n";
+
+    if (MinCorner == Vector3i())
+        DebugAssist::STR = dOutput;
 }
