@@ -4,6 +4,7 @@
 
 
 //Splits a vector into its components.
+//The outputs are the 0-based indices of the input vector (0 = x, 1 = y, etc.).
 class VectorComponentsNode : public DataNode
 {
 public:
