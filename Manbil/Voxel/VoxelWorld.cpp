@@ -303,9 +303,6 @@ void VoxelWorld::InitializeWorld(void)
                                                        "u_voxelTex")),
                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, diffTex)), 0);
-    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode("u_voxelTex")), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Color], distMultiplier)), 0);
-    //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     dict.ClearUniforms();
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, VoxelVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
     if (!genM.ErrorMessage.empty())
