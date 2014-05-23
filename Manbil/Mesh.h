@@ -4,8 +4,11 @@
 #include "Math/Higher Math/TransformObject.h"
 #include "Rendering/Materials/UniformCollections.h"
 #include "RenderDataHandler.h"
+#include "Vertices.h"
 
-//TODO: Use the array of VertexIndexData as an LOD system -- each LOD is one VertexIndexData instance.
+
+//TODO: Use VID array to split up vertex buffers into multiple draw calls to get an optimal amount of triangles per draw call.
+//TODO: Come up with an LOD system.
 
 //Wraps the rendering of vertices using a material.
 class Mesh
@@ -14,17 +17,22 @@ public:
 
     UniformDictionary Uniforms;
 	TransformObject Transform;
+    VertexAttributes VertAttributes;
+    
 
-
-	Mesh(PrimitiveTypes pType, int numbVIData = 0, VertexIndexData * viDataArray = 0);
+	Mesh(PrimitiveTypes pType, VertexAttributes attributes, int numbVIData = 0, VertexIndexData * viDataArray = 0);
 	Mesh(const Mesh & cpy);
+
 	~Mesh(void) { if (viData != 0) delete[] viData; }
-    void DeleteVertexIndexBuffers(void)
+
+    //Deletes the vertex/index buffers held by this mesh from OpenGL.
+    void DestroyVertexIndexBuffers(void)
     {
         for (unsigned int i = 0; i < nVIData; ++i)
         {
             RenderDataHandler::DeleteBuffer(viData[i].GetVerticesHandle());
             RenderDataHandler::DeleteBuffer(viData[i].GetIndicesHandle());
+            viData[i] = VertexIndexData();
         }
     }
     

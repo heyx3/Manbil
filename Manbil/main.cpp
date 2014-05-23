@@ -44,10 +44,12 @@ string ToString(Vector v)
 int main()
 {
     //OpenGLTestWorld().RunWorld();
+    
     //TwoDOpenGLTest().RunWorld();
 
     //NoiseTest().RunWorld();
 
+    //PRIORITY: Fix variable names for shader text files.
     //TwoTrianglesWorld().RunWorld();
 
     VoxelWorld().RunWorld();

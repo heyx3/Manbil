@@ -24,7 +24,7 @@ public:
     //Generates a vertex and fragment shader given data nodes.
     //Returns an error message, or an empty string if there was no error.
     static std::string GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                       RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                       RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
                                        std::unordered_map<RenderingChannels, DataLine> & channels);
 
 
@@ -42,6 +42,6 @@ public:
     //Generates the shaders and heap-allocates a new material from them.
     //You are responsible for the material's memory management after it's created.
     static GeneratedMaterial GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                              UniformDictionary & outUniforms,
+                                              UniformDictionary & outUniforms, const VertexAttributes & attribs,
                                               RenderingModes mode, bool useLighting, const LightSettings & settings);
 };

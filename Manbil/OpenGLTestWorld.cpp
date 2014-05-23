@@ -94,24 +94,25 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     //Vertex output 1: object-space position.
     //Vertex output 2: UV coords.
-    //Vertex output 3: color.
+    //Vertex output 3: water rand seeds.
     //Vertex output 4: world-space position.
 
-    DNP waterNode(new WaterNode(DataLine(DNP(new ObjectPosNode()), 0),
+    DNP waterNode(new WaterNode(DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 0),
                                 DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_1, 3)), 0),
                                 3, 2));
     channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new UVNode()), 0);
-    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectColorNode()), 0);
+    channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 1);
+    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 3);
     channels[RC::RC_VERTEX_OUT_4] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_1])), 0);
 
     DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
                                                            DataLine(0.01f), DataLine(0.5f),
                                                            WaterSurfaceDistortNode::GetTimeIn(RC::RC_VERTEX_OUT_3)));
-    DNP normalMap(TextureSampleNode::CreateComplexTexture(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
-                                                          "u_normalMapTex",
-                                                          DataLine(VectorF(10.0f, 10.0f)),
-                                                          DataLine(VectorF(-1.5f, 0.0f))));
+    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
+                                                                DataLine(VectorF(10.0f, 10.0f)),
+                                                                DataLine(VectorF(0.0f, 0.0f)),
+                                                                DataLine(VectorF(-1.5f, 0.0f)));
+    DNP normalMap(new TextureSampleNode(normalMapUVs, "u_normalMapTex"));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
     DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
@@ -130,7 +131,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                      ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
 
     UniformDictionary unDict;
-    ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, WaterVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
     if (!wM.ErrorMessage.empty())
     {
         std::cout << "Error generating water shaders: " << wM.ErrorMessage << "\n";
@@ -158,11 +159,12 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     //Final render.
-    finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new UVNode()), 0);
+    finalScreenMatChannels[RC::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
+    finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
     DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_finalRenderSample"));
     finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!genM.ErrorMessage.empty())
     {
         std::cout << "Error generating shaders for final screen material: " << genM.ErrorMessage << "\n";

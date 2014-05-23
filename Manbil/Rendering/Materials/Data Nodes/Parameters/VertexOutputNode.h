@@ -6,7 +6,7 @@
 
 //Represents the value of a vertex output.
 //NOTE: This node is only usable in the fragment shader!
-//Since vertex outputs can be any size, the output size is specified in this class's constructor.
+//Since vertex outputs can be any size, this node's output size is specified in this class's constructor.
 class VertexOutputNode : public DataNode
 {
 public:
@@ -35,7 +35,7 @@ protected:
     {
         Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
                std::string() + "Invalid shader type (must be Fragment): " + ToString(GetShaderType()));
-        //Don't do anything, since the output name is an "in" variable.
+        //Don't actually output anything, since the output name is an "in" variable.
     }
     
 private:

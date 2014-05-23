@@ -13,7 +13,7 @@ ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, Vector3i chunkIndex, VoxelChunk 
 : vertices(0), indices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex)
 {
     RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer<Vertex>(vbo);
+    RenderDataHandler::CreateVertexBuffer<VoxelVertex>(vbo, 0, 0, RenderDataHandler::UPDATE_CONSTANTLY_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(ibo);
     vid = VertexIndexData(0, vbo, 0, ibo);
 }

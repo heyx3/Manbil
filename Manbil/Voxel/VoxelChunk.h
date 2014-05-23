@@ -5,7 +5,11 @@
 #include "../Math/Array2D.h"
 #include "../Math/Array3D.h"
 #include "../Math/Shapes/ThreeDShapes.h"
-#include "../Vertex.h"
+#include "../Vertices.h"
+
+
+
+typedef VertexPosTex1Normal VoxelVertex;
 
 
 //Represents a grid of voxels.
@@ -307,7 +311,7 @@ public:
     //TODO: Put thsi into "VoxelMesh" class.
     //Builds the world-space triangles/indices for this chunk, given all surrounding chunks.
     //Any of the surrounding chunks passed in may have values of 0 if they don't exist.
-    void BuildTriangles(std::vector<Vertex> & vertices, std::vector<unsigned int> & indices,
+    void BuildTriangles(std::vector<VoxelVertex> & vertices, std::vector<unsigned int> & indices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const;

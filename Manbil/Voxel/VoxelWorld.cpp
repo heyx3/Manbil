@@ -44,10 +44,10 @@ VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
         voxelMat(0),
         renderState(RenderingState::Cullables::C_NONE),
-        voxelMesh(PrimitiveTypes::Triangles),
+        voxelMesh(PrimitiveTypes::Triangles, VoxelVertex::GetAttributeData()),
         player(manager), oculusDev(0), postProcessing(0),
         voxelHighlightMat(0),
-        voxelHighlightMesh(PrimitiveTypes::Triangles)
+        voxelHighlightMesh(PrimitiveTypes::Triangles, VertexPosTex1Normal::GetAttributeData())
 {
 }
 VoxelWorld::~VoxelWorld(void)
@@ -215,17 +215,18 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the voxel highlight.
-    std::vector<Vertex> vhvs;
+    std::vector<VertexPosTex1Normal> vhvs;
     std::vector<unsigned int> vsis;
     PrimitiveGenerator::GenerateCube(vhvs, vsis, false, Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
     RenderObjHandle vhvbo, vhibo;
     RenderDataHandler::CreateVertexBuffer(vhvbo, vhvs.data(), vhvs.size());
     RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
     voxelHighlightMesh.SetVertexIndexData(VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+    channels[RenderingChannels::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(VertexPosTex1Normal::GetAttributeData())), 1);
     channels[RenderingChannels::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
     UniformDictionary vhvUD;
-    ShaderGenerator::GeneratedMaterial genVHM = ShaderGenerator::GenerateMaterial(channels, vhvUD, RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genVHM = ShaderGenerator::GenerateMaterial(channels, vhvUD, VertexPosTex1Normal::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!genVHM.ErrorMessage.empty())
     {
         PrintError("Error generating voxel highlight mesh", genVHM.ErrorMessage);
@@ -253,17 +254,17 @@ void VoxelWorld::InitializeWorld(void)
     channels.clear();
 
     std::vector<DataLine> toCombine;
-    toCombine.insert(toCombine.end(), DataLine(DataNodePtr(new ObjectPosNode()), 0));
+    toCombine.insert(toCombine.end(), DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 0));
     toCombine.insert(toCombine.end(), DataLine(1.0f));
     channels[RenderingChannels::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new CombineVectorNode(toCombine)), 0);
 
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0),
                                                                                        "u_finalWorldRender")),
                                                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary dict;
-    ShaderGenerator::GeneratedMaterial fGenM = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial fGenM = ShaderGenerator::GenerateMaterial(channels, dict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!fGenM.ErrorMessage.empty())
     {
         PrintError("Error generating shader code for final render material", fGenM.ErrorMessage);
@@ -283,23 +284,15 @@ void VoxelWorld::InitializeWorld(void)
 
     //Initialize the voxel material.
     channels.clear();
-    //DataLine dist = DataLine(DataNodePtr(new DistanceNode(DataLine(DataNodePtr(new WorldPosNode()), 0),
-    //                                                      DataLine(DataNodePtr(new ParamNode(3, "u_castPos")), 0))), 0);
-    //DataLine distMultiplier = DataLine(DataNodePtr(new ClampNode(DataLine(0.1f), DataLine(1.0f),
-    //                                                             DataLine(
-    //                                                                DataNodePtr(
-    //                                                                    new MultiplyNode(DataLine(0.25f),
-    //                                                                                     DataLine(
-    //                                                                                        DataNodePtr(
-    //                                                                                            new SubtractNode(DataLine(10.0f), dist)), 0))), 0))), 0);
     /* Vertex outputs:
      * 1 = world pos
      * 2 = world normal
      * 3 = UV
     */
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new ObjectPosToWorldPosCalcNode()), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new ObjectNormalToWorldNormalCalcNode()), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new UVNode()), 0);
+    channels[RenderingChannels::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<VoxelVertex>(0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 0))), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new ObjectNormalToWorldNormalCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 2))), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 1);
     
     DataLine lighting(DataNodePtr(new LightingNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 3)), 0),
                                                    DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_2, 3)), 0),
@@ -314,7 +307,7 @@ void VoxelWorld::InitializeWorld(void)
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(channels[RenderingChannels::RC_Color], distMultiplier)), 0);
     //channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MaxMinNode(DataLine(DataNodePtr(new WorldNormalNode()), 0), DataLine(0.1f), true)), 0);
     dict.ClearUniforms();
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, RenderingModes::RM_Opaque, true, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, VoxelVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
     if (!genM.ErrorMessage.empty())
     {
         PrintError("Error generating voxel material's shaders", genM.ErrorMessage);

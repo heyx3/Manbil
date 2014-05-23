@@ -1,7 +1,12 @@
 #include "PostProcessData.h"
 
+#include "../Helper Classes/DrawingQuad.h"
+
+
+
 const std::string PostProcessEffect::ColorSampler = "u_colorTex",
                   PostProcessEffect::DepthSampler = "u_depthTex";
+int PostProcessEffect::VertexInputUVIndex = -1;
 
 void PostProcessEffect::ChangePreviousEffect(PpePtr newPrevEffect)
 {
@@ -156,7 +161,7 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::unordered_map<RenderingChann
     if (CurrentPass == 1 || CurrentPass == 4) return;
 
     typedef RenderingChannels rc;
-    DataLine uvs(DataNodePtr(new UVNode()), 0);
+    DataLine uvs(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), VertexInputUVIndex);
 
     if (CurrentPass == 2)
     {
@@ -199,83 +204,13 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::unordered_map<RenderingChann
         channels[rc::RC_VERTEX_OUT_15] = uvs;
     }
 }
-
-void GaussianBlurEffect::GetMyFunctionDeclarations(std::vector<std::string> & decls) const
-{
-    switch (GetShaderType())
-    {
-        case Shaders::SH_Vertex_Shader:
-            //decls.insert(decls.end(), "\tout vec2 out_blurTexCoords[14];\nout vec2 out_UV;\n");
-            break;
-
-        case Shaders::SH_Fragment_Shader:
-            //decls.insert(decls.end(), "\tin vec2 out_blurTexCoords[14];\nin vec2 out_UV;\n");
-            break;
-
-        default:
-            Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
-    }
-}
 void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
 {
     if (CurrentPass == 1 || CurrentPass == 4) return;
-
+    
     std::string outTC = MaterialConstants::VertexOutNameBase;
-    if (GetShaderType() == DataNode::Shaders::SH_Vertex_Shader)
+    if (GetShaderType() == DataNode::Shaders::SH_Fragment_Shader)
     {
-        std::string uv = MaterialConstants::InUV;
-
-    /*
-        switch (CurrentPass)
-        {
-            case 2:
-                outStr +=
-"\n    //Use built-in interpolation step to speed up texture sampling.\n\
-    out_UV = " + uv + ";\n\
-    " + outTC + "[ 0] = " + uv + "vec2(-0.0028, 0.0);\n\
-    " + outTC + "[ 1] = " + uv + "vec2(-0.0024, 0.0);\n\
-    " + outTC + "[ 2] = " + uv + "vec2(-0.0020, 0.0);\n\
-    " + outTC + "[ 3] = " + uv + "vec2(-0.0016, 0.0);\n\
-    " + outTC + "[ 4] = " + uv + "vec2(-0.0012, 0.0);\n\
-    " + outTC + "[ 5] = " + uv + "vec2(-0.0008, 0.0);\n\
-    " + outTC + "[ 6] = " + uv + "vec2(-0.0004, 0.0);\n\
-    " + outTC + "[ 7] = " + uv + "vec2( 0.0004, 0.0);\n\
-    " + outTC + "[ 8] = " + uv + "vec2( 0.0008, 0.0);\n\
-    " + outTC + "[ 9] = " + uv + "vec2( 0.0012, 0.0);\n\
-    " + outTC + "[10] = " + uv + "vec2( 0.0016, 0.0);\n\
-    " + outTC + "[11] = " + uv + "vec2( 0.0020, 0.0);\n\
-    " + outTC + "[12] = " + uv + "vec2( 0.0024, 0.0);\n\
-    " + outTC + "[13] = " + uv + "vec2( 0.0028, 0.0);\n\n";
-            break;
-
-            case 3:
-                outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
-    out_UV = " + uv + ";\n\
-    " + outTC + "[ 0] = " + uv + "vec2(0.0, -0.0028);\n\
-    " + outTC + "[ 1] = " + uv + "vec2(0.0, -0.0024);\n\
-    " + outTC + "[ 2] = " + uv + "vec2(0.0, -0.0020);\n\
-    " + outTC + "[ 3] = " + uv + "vec2(0.0, -0.0016);\n\
-    " + outTC + "[ 4] = " + uv + "vec2(0.0, -0.0012);\n\
-    " + outTC + "[ 5] = " + uv + "vec2(0.0, -0.0008);\n\
-    " + outTC + "[ 6] = " + uv + "vec2(0.0, -0.0004);\n\
-    " + outTC + "[ 7] = " + uv + "vec2(0.0,  0.0004);\n\
-    " + outTC + "[ 8] = " + uv + "vec2(0.0,  0.0008);\n\
-    " + outTC + "[ 9] = " + uv + "vec2(0.0,  0.0012);\n\
-    " + outTC + "[10] = " + uv + "vec2(0.0,  0.0016);\n\
-    " + outTC + "[11] = " + uv + "vec2(0.0,  0.0020);\n\
-    " + outTC + "[12] = " + uv + "vec2(0.0,  0.0024);\n\
-    " + outTC + "[13] = " + uv + "vec2(0.0,  0.0028);\n\n";
-            break;
-
-            default: Assert(false, std::string() + "Unknown pass number " + ToString(CurrentPass));
-        }
-        */
-    }
-    else
-    {
-        Assert(GetShaderType() == DataNode::Shaders::SH_Fragment_Shader,
-               std::string() + "Shader type must be fragment, but it is " + ToString(GetShaderType()));
-
         std::string output = GetOutputName(GetColorOutputIndex());
         outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
     vec3 " + output + " = vec3(0.0);\n\

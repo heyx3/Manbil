@@ -18,25 +18,19 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
                   MaterialConstants::CameraFovName = "u_cam_fov",
 
-                  //TODO: Once lighting is removed from shader generator, remove these light names.
-                  MaterialConstants::DirectionalLightName = "u_dir_light",
-                  MaterialConstants::DirectionalLight_ColorName = "u_dir_light.Col",
-                  MaterialConstants::DirectionalLight_DirName = "u_dir_light.Dir",
-                  MaterialConstants::DirectionalLight_AmbientName = "u_dir_light.Ambient",
-                  MaterialConstants::DirectionalLight_DiffuseName = "u_dir_light.Diffuse",
+                  MaterialConstants::VertexInNameBase = "in_",
+                  MaterialConstants::VertexOutNameBase = "out_",
 
-                  MaterialConstants::InWorldPos = "in_world_pos",
-                  MaterialConstants::InObjPos = "in_obj_pos",
-                  MaterialConstants::InUV = "in_uv",
-                  MaterialConstants::InWorldNormal = "in_world_normal",
-                  MaterialConstants::InObjNormal = "in_obj_normal",
-                  MaterialConstants::InColor = "in_color",
-                  
-                  MaterialConstants::VertexOutNameBase = "out_vertexOutput",
-                  //MaterialConstants::OutNormalName = "out_vertexNormal",
+                  MaterialConstants::FragmentOutName = "FinalOutput";
 
-                  MaterialConstants::FinalOutColor = "FinalOut_Color";
-
+std::string MaterialConstants::GetVertexInputDeclarations(const VertexAttributes & attribs)
+{
+    std::string output;
+    unsigned int nAttribs = attribs.GetNumbAttributes();
+    for (unsigned int i = 0; i < nAttribs; ++i)
+        output += "layout (location = " + std::to_string(i) + ") in " + VectorF((unsigned int)attribs.GetAttributeSize(i)).GetGLSLType() + " " + VertexInNameBase + std::to_string(i) + ";\n";
+    return output;
+}
 RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
 {
     switch (mode)
@@ -75,41 +69,15 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
     if (!uniformDecls.empty())
         uniformDecls = std::string() + "//Uniforms.\n" + uniformDecls + "\n\n\n";
 
-    if (false)
-    {
-        uniformDecls +=
-"struct DirectionalLight                       n\
-{                                             \n\
-    vec3 Col, Dir;                            \n\
-    float Ambient, Diffuse;                   \n\
-};                                            \n\
-uniform DirectionalLight " + DirectionalLightName + ";\n\
-                                              \n\
-vec3 getLight(vec3 surfaceNormal, vec3 fragToCamNormal, float specular, float specularIntensity, DirectionalLight lightDir)\n\
-{\n\
-    float dotted = max(dot(-surfaceNormal, lightDir.Dir), 0.0);\n\
-    \n\
-    vec3 lightReflect = normalize(reflect(lightDir.Dir, surfaceNormal));\n\
-    \n\
-    float specFactor = max(0.0, dot(fragToCamNormal, lightReflect));\n\
-    specFactor = pow(specFactor, specularIntensity);\n\
-    \n\
-    return lightDir.Col * (lightDir.Ambient + (lightDir.Diffuse * dotted) + (specular * specFactor));\n\
-}\n\n";
-    }
-
     return uniformDecls;
 }
 
-std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags)
 {
     return std::string() +
 "#version 330                                                    \n\
                                                                  \n\
-layout (location = 0) in vec3 " + InObjPos + ";                  \n\
-layout (location = 1) in vec4 " + InColor + ";                   \n\
-layout (location = 2) in vec2 " + InUV + ";                      \n\
-layout (location = 3) in vec3 " + InObjNormal + ";               \n\
+" + GetVertexInputDeclarations(attribs) + "                      \n\
                                                                  \n\
 " + outputDeclarations + "                                       \n\
                                                                  \n\

@@ -2,21 +2,12 @@
 
 #include "../DataNode.h"
 #include "../../../Texture Management/TextureChannels.h"
-#include "TimeNode.h"
-#include "ShaderInNodes.h"
 
 
 //Outputs the result of sampling a texture.
 class TextureSampleNode : public DataNode
 {
 public:
-
-    //Move into UVNode to encourage doing this in the vertex shader, removing dependent texture reads from the fragment shader.
-    static DataNodePtr CreateComplexTexture(const DataLine & uvs, std::string samplerName = "",
-                                            DataLine scale = DataLine(VectorF(Vector2f(1.0f, 1.0f))),
-                                            DataLine pan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                                            DataLine offset = DataLine(VectorF(Vector2f(0.0f, 0.0f))));
-
 
     virtual std::string GetName(void) const override { return "textureSampleNode"; }
     std::string GetSamplerUniformName(void) const { return samplerName; }

@@ -3,12 +3,15 @@
 #include "../../OpenGLIncludes.h"
 #include "../../Mesh.h"
 #include "../../Material.h"
-#include "../../Vertex.h"
 
 //Represents a simple 1x1 square.
+//Uses the VertexPosTex1Normal struct for the vertices.
 class DrawingQuad
 {
 public:
+ 
+    static VertexAttributes GetAttributeData(void) { return VertexPosTex1Normal::GetAttributeData(); }
+
 
     Mesh & GetMesh(void) { return quad; }
     const Mesh & GetMesh(void) const { return quad; }
@@ -35,7 +38,7 @@ private:
     Vector2f origin;
 
 
-    static const Vertex vertices[4];
+    static const VertexPosTex1Normal vertices[4];
     static const unsigned int indices[6];
 
     static VertexIndexData vid;

@@ -205,7 +205,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
 
             RenderDataHandler::BindVertexBuffer(vid.GetVerticesHandle());
 
-            Vertex::EnableVertexAttributes();
+            mesh.VertAttributes.EnableAttributes();
 
             if (vid.UsesIndices())
             {
@@ -217,7 +217,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
                 ShaderHandler::DrawVertices(mesh.GetPrimType(), vid.GetVerticesCount(), sizeof(int) * vid.GetFirstVertex());
             }
 
-            Vertex::DisableVertexAttributes();
+            mesh.VertAttributes.DisableAttributes();
         }
     }
 

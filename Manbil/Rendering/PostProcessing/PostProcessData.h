@@ -67,6 +67,8 @@ public:
 
     //The names of the color/depth texture sampler uniforms.
     static const std::string ColorSampler, DepthSampler;
+    //The index of the vertex input that corresponds to UV coordinates.
+    static int VertexInputUVIndex;
 
     static unsigned int GetColorOutputIndex(void) { return 0; }
     static unsigned int GetDepthOutputIndex(void) { return 1; }
@@ -263,9 +265,6 @@ public:
 
 
 protected:
-
-    //Used to declare "out" variables for optimized gaussian blur calculations.
-    virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
 
     virtual void WriteMyOutputs(std::string & strOut) const override;
 };

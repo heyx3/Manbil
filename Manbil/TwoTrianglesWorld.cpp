@@ -69,11 +69,11 @@ void GetCreateMaterial(bool askForFile = true)
 
     //The vertex shader is a very simple, constant program.
     MaterialUsageFlags vertFlags;
-    vs = MC::GetVertexHeader("out vec2 in_UV;\n", vertFlags) + "\n\n\
+    vs = MC::GetVertexHeader("out vec2 in_UV;\n", VertexPosTex1Normal::GetAttributeData(), vertFlags) + "\n\n\
 void main()                              \n\
 {                                        \n\
-    gl_Position = vec4(" + MC::InObjPos + ", 1.0);  \n\
-    in_UV = " + MC::InUV + ";\n\
+    gl_Position = vec4(" + MC::VertexInNameBase + "0, 1.0);  \n\
+    in_UV = " + MC::VertexInNameBase + "1;\n\
 }";
     //Add any custom QuadWorld uniforms.
     uniforms.FloatUniforms[TTW::ShaderElapsedName] = UniformValueF(0.0f, TTW::ShaderElapsedName);
@@ -119,7 +119,7 @@ void main()                              \n\
         flags.EnableFlag(FL::DNF_USES_CAM_SIDEWAYS);
         flags.EnableFlag(FL::DNF_USES_WIDTH);
         flags.EnableFlag(FL::DNF_USES_HEIGHT);
-        fs = MC::GetFragmentHeader("in vec2 in_UV;\n", "out vec4 " + MC::FinalOutColor + ";\n", flags);
+        fs = MC::GetFragmentHeader("in vec2 in_UV;\n", "out vec4 " + MC::FragmentOutName + ";\n", flags);
         fs += "\n\
 uniform float " + TTW::ShaderElapsedName + ";   \n\
 uniform sampler2D " + TTW::CustomSamplerName + ";\n\

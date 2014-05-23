@@ -18,13 +18,15 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
         bool IsBreak(void) const { return Effect == 0 || Pass == 0; }
     };
 
+    PostProcessEffect::VertexInputUVIndex = 1;
+
 
     //First separate the effects into "pass groups" -- a chain of effects grouped by pass.
     //Multi-pass effects are each in their own group.
 
     //All passes don't need any kind of transformation for the vertices.
     std::vector<DataLine> vectorBuilder;
-    vectorBuilder.insert(vectorBuilder.end(), DataLine(DataNodePtr(new ObjectPosNode()), 0));
+    vectorBuilder.insert(vectorBuilder.end(), DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 0));
     vectorBuilder.insert(vectorBuilder.end(), DataLine(1.0f));
     DataLine objectPos4(DataNodePtr(new CombineVectorNode(vectorBuilder)), 0);
 
@@ -91,12 +93,12 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             {
                 effct->CurrentPass = pass;
 
-                channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+                channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
                 channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
                 effct->OverrideVertexOutputs(channels);
 
                 UniformDictionary unfs;
-                ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
+                ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
                 if (!genM.ErrorMessage.empty())
                 {
                     errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + "of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
@@ -152,12 +154,12 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             //Now create the material.
 
             channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
-            channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new UVNode()), 0);
+            channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
             channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
             current->OverrideVertexOutputs(channels);
 
             UniformDictionary unfs;
-            ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, RenderingModes::RM_Opaque, false, LightSettings(false));
+            ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
             if (!genM.ErrorMessage.empty())
             {
                 errorMsg = std::string() + "Error generating shaders for material #" + std::to_string(materials.size()) + ": " + genM.ErrorMessage;

@@ -144,6 +144,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\WhiteNoiseNode.cpp" />
@@ -174,7 +175,6 @@
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp" />
     <ClCompile Include="TextureSettings.cpp" />
     <ClCompile Include="TwoTrianglesWorld.cpp" />
-    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Vertices.cpp" />
     <ClCompile Include="Voxel\ChunkMesh.cpp" />
     <ClCompile Include="Voxel\VoxelCamera.cpp" />
@@ -281,6 +281,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.h" />
@@ -290,9 +291,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexOutputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
@@ -321,7 +322,6 @@
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
     <ClInclude Include="TextureSettings.h" />
     <ClInclude Include="TwoTrianglesWorld.h" />
-    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="RenderInfo.h" />
     <ClInclude Include="Voxel\VoxelCamera.h" />

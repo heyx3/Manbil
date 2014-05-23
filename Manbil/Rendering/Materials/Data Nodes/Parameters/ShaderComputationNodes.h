@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ShaderInNodes.h"
+#include "../DataNode.h"
 
 
 //Different calculated values based on shader vertex inputs.
@@ -27,7 +27,7 @@ public:
                   (index == 0 ? "_pos" : "_homogenousPos");
     }
 
-    ObjectPosToScreenPosCalcNode(DataLine objectPos = DataLine(DataNodePtr(new ObjectPosNode()), 0))
+    ObjectPosToScreenPosCalcNode(DataLine & objectPos)
         : DataNode(MakeVector(objectPos), MakeVector(3, 4)) { }
 
 
@@ -47,7 +47,7 @@ public:
 
     virtual std::string GetName(void) const override { return "screenNormalNode"; }
 
-    ObjectNormalToScreenNormalCalcNode(DataLine objectNormal = DataLine(DataNodePtr(new ObjectNormalNode()), 0))
+    ObjectNormalToScreenNormalCalcNode(DataLine & objectNormal)
         : DataNode(MakeVector(objectNormal), MakeVector(3)) { }
 
 
@@ -76,7 +76,7 @@ public:
         return GetName() + ToString(GetUniqueID()) + "_pos";
     }
 
-    ObjectPosToWorldPosCalcNode(DataLine objectPos = DataLine(DataNodePtr(new ObjectPosNode()), 0))
+    ObjectPosToWorldPosCalcNode(DataLine & objectPos)
         : DataNode(MakeVector(objectPos), MakeVector(3)) { }
 
 
@@ -96,7 +96,7 @@ public:
 
     virtual std::string GetName(void) const override { return "objNormalToWorldNode"; }
 
-    ObjectNormalToWorldNormalCalcNode(DataLine objNormal = DataLine(DataNodePtr(new ObjectNormalNode()), 0))
+    ObjectNormalToWorldNormalCalcNode(DataLine & objNormal)
         : DataNode(MakeVector(objNormal), MakeVector(3)) { }
 
 

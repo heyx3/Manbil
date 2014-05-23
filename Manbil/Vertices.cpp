@@ -1,73 +1,33 @@
 #include "Vertices.h"
 
 
-void VertexPos::EnableAttributes(void)
+bool VertexAttributes::EnableAttributes(void) const
 {
-	glEnableVertexAttribArray(0);
+    //Enable the attribute slots and count the size of the vertex class.
+    GLsizei stride = 0;
+    //Get it? "indEX"?
+    for (unsigned int indX = 0; indX < MAX_ATTRIBUTES && IsValidAttribute(indX); ++indX)
+    {
+        glEnableVertexAttribArray(indX);
+        stride += attributeSizes[indX];
+    }
+    stride *= sizeof(float);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPos), 0);
-}
-void VertexPosColor::EnableAttributes(void)
-{
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+    //Set up the attribute values.
+    unsigned int pos = 0;
+    for (unsigned int indX = 0; indX < MAX_ATTRIBUTES && IsValidAttribute(indX); ++indX)
+    {
+        glVertexAttribPointer(indX, attributeSizes[indX], GL_FLOAT,
+                              (attributeNormalized[indX] ? GL_TRUE : GL_FALSE), stride, (GLvoid*)pos);
+        pos += sizeof(float) * attributeSizes[indX];
+    }
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosColor), 0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosColor), (GLvoid*)12);
+    return stride > 0;
 }
-void VertexPosTex1::EnableAttributes(void)
+bool VertexAttributes::DisableAttributes(void) const
 {
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex1), 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex1), (GLvoid*)12);
-}
-void VertexPosTex2::EnableAttributes(void)
-{
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex2), 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex2), (GLvoid*)12);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex2), (GLvoid*)20);
-}
-void VertexPosTex1Normal::EnableAttributes(void)
-{
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex1Normal), 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTex1Normal), (GLvoid*)12);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, sizeof(VertexPosTex1Normal), (GLvoid*)20);
-}
-
-
-void VertexPos::DisableAttributes(void)
-{
-	glDisableVertexAttribArray(0);
-}
-void VertexPosColor::DisableAttributes(void)
-{
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-}
-void VertexPosTex1::DisableAttributes(void)
-{
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-}
-void VertexPosTex2::DisableAttributes(void)
-{
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-}
-void VertexPosTex1Normal::DisableAttributes(void)
-{
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
+    unsigned int i = 0;
+    for (; i < MAX_ATTRIBUTES && IsValidAttribute(i); ++i)
+        glDisableVertexAttribArray(i);
+    return i > 0;
 }

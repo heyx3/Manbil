@@ -6,6 +6,7 @@
 #include "../../ShaderHandler.h"
 #include "UniformCollections.h"
 #include "MaterialUsageFlags.h"
+#include "../../Vertices.h"
 
 
 
@@ -19,23 +20,23 @@ public:
                              WorldMatName, ViewMatName, ProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
                              CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName,
-                             VertexOutNameBase,//OutNormalName,
-                             InObjPos, InWorldPos, InUV, InObjNormal, InWorldNormal, InColor,
-                             FinalOutColor;
-    static const std::string DirectionalLightName,
-                             DirectionalLight_ColorName, DirectionalLight_DirName,
-                             DirectionalLight_DiffuseName, DirectionalLight_AmbientName;
-    
+                             VertexInNameBase, VertexOutNameBase,
+                             FragmentOutName;
+
+    //Gets the vertex shader input declarations for vertices with the given attributes.
+    static std::string GetVertexInputDeclarations(const VertexAttributes & attribs);
     //Gets the uniform declarations for a material with the given usage flags.
     static std::string GetUniformDeclarations(const MaterialUsageFlags & flags);
 
-    static std::string GetVertexHeader(std::string outputDeclarations, const MaterialUsageFlags & flags);
+    //Gets everything that's needed in a vertex shader before the actual main function (or helper functions).
+    static std::string GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags);
+    //Gets everything that's needed in a fragment shader before the actual main functions (or helper functions).
     static std::string GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags);
 };
 
 
 //The different rendering passes.
-//TODO: Change this (regular render pass, emissive render pass, surface normal render pass, etc). Allow for creation of shaders that output to multiple framebuffers at once.
+//TODO: Change this (regular render pass, emissive render pass, surface normal render pass, etc).
 enum RenderPasses
 {
     //Render normals, depth, diffuse, etc. -- basic data, multiple render targets.

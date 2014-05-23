@@ -24,8 +24,9 @@
 #include "Miscellaneous/VectorComponentsNode.h"
 #include "Miscellaneous/WhiteNoiseNode.h"
 #include "Miscellaneous/LightingNode.h"
+#include "Miscellaneous/DataNodeGenerators.h"
 
-#include "Parameters/ShaderInNodes.h"
+#include "Parameters/VertexInputNode.h"
 #include "Parameters/VertexOutputNode.h"
 #include "Parameters/ShaderComputationNodes.h"
 #include "Parameters/CameraDataNode.h"

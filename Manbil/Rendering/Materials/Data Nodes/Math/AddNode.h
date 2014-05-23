@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include "../DataNode.h"
-#include "../../../../Math/Vectors.h"
 
 
 //Represents a simple addition operator.

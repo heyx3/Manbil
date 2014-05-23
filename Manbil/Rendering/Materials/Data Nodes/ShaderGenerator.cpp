@@ -59,24 +59,24 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
     if (channels.find(RC::RC_Color) == channels.end())
         channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 0.0f, 1.0f));
     if (channels.find(RC::RC_ScreenVertexPosition) == channels.end())
-        channels[RC::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode()), ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+        assert(false);
     if (channels.find(RC::RC_Opacity) == channels.end())
         channels[RC::RC_Opacity] = DataLine(1.0f);
 }
 
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                           UniformDictionary & uniforms,
+                                           UniformDictionary & uniforms, const VertexAttributes & attribs,
                                            RenderingModes mode, bool useLighting, const LightSettings & settings)
 {
     std::string vs, fs;
-    std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, channels);
+    std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels);
 
     if (!error.empty()) return GeneratedMaterial(error);
     else return GeneratedMaterial(new Material(vs, fs, uniforms, mode, useLighting, settings));
 }
 
 std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
                                 std::unordered_map<RenderingChannels, DataLine> & channels)
 {
     AddMissingChannels(channels, mode, useLighting, settings);
@@ -102,7 +102,7 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
             return "Color output 3 was set, but not color output 2!";
 
 
-    //Get information about what each shader uses.
+    //Get information about what external data each shader uses.
     MaterialUsageFlags vertFlags, fragFlags;
     for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
     {
@@ -151,8 +151,8 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
     std::unordered_map<RenderingChannels, std::string> outputNames;
     if (channels.find(RenderingChannels::RC_COLOR_OUT_2) == channels.end())
     {
-        fragOutput = "out vec4 " + MaterialConstants::FinalOutColor + ";\n";
-        outputNames[RenderingChannels::RC_Color] = MaterialConstants::FinalOutColor;
+        fragOutput = "out vec4 " + MaterialConstants::FragmentOutName + ";\n";
+        outputNames[RenderingChannels::RC_Color] = MaterialConstants::FragmentOutName;
     }
     else
     {
@@ -162,14 +162,14 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
 
             unsigned int numb = GetColorOutputNumber(iterator->first);
             fragOutput += "layout (location = " + std::to_string(numb) + ") out vec4 " +
-                          MaterialConstants::FinalOutColor + std::to_string(numb + 1) + ";\n";
-            outputNames[iterator->first] = MaterialConstants::FinalOutColor + std::to_string(numb + 1);
+                          MaterialConstants::FragmentOutName + std::to_string(numb + 1) + ";\n";
+            outputNames[iterator->first] = MaterialConstants::FragmentOutName + std::to_string(numb + 1);
         }
     }
 
 
     //Generate the headers for each shader.
-    std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, vertFlags),
+    std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, attribs, vertFlags),
                 fragShader = MaterialConstants::GetFragmentHeader(fragInput, fragOutput, fragFlags);
 
 

@@ -9,7 +9,30 @@
 #include "../../OptionalValue.h"
 
 
+//The Vertex struct used for water. Inputs:
+//0: Pos (size 3)
+//1: UV (size 2)
+//2: Normal (size 3)
+//3: Random seeds useful for WaterSurfaceDistortNode (size 2)
+struct WaterVertex
+{
+    Vector3f Pos;
+    Vector2f TexCoord;
+    Vector3f Normal;
+    Vector2f RandSeeds;
+
+    WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f(), Vector3f normal = Vector3f(0, 0, 1), Vector2f randSeeds = Vector2f(0.0f, 0.0f))
+        : Pos(pos), TexCoord(texCoord), Normal(normal), RandSeeds(randSeeds)
+    {
+
+    }
+
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 3, 2, false, false, true, false); }
+};
+
+
 //Represents a flowing body of water.
+//TODO: Create static strings that store the uniform names.
 class Water
 {
 public:

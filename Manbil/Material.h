@@ -5,7 +5,6 @@
 #include "RenderInfo.h"
 #include "RenderDataHandler.h"
 #include "ShaderHandler.h"
-#include "Vertex.h"
 #include "Rendering/Materials/MaterialData.h"
 #include "Rendering/Texture Management/TextureChannels.h"
 #include "Rendering/Materials/UniformCollections.h"

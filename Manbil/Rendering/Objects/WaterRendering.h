@@ -59,11 +59,11 @@ class WaterSurfaceDistortNode : public DataNode
 public:
 
     //Gets a value for the "seedIn" argument for this node's constructor that works well with the Water object.
-    //It uses a value that was stored in the vertex color, so it needs to know the vertex output channel that stores vertex color.
-    static DataLine GetWaterSeedIn(RenderingChannels colorVertexOut);
+    //It uses a value that was stored in the WaterVertex::RandSeeds input, so it needs to know the vertex output channel that stores it.
+    static DataLine GetWaterSeedIn(RenderingChannels randSeedVertexOut);
     //Gets a value for the "timeValue" argument for this node's constructor that works well with the Water object.
-    //It uses a value stored in the vertex color, so it needs toknow the vertex output channel that stores vertex color.
-    static DataLine GetTimeIn(RenderingChannels colorVertexOut);
+    //It uses a value stored in the WaterVertex::RandSeeds input, so it needs to know the vertex output channel that stores it.
+    static DataLine GetTimeIn(RenderingChannels randSeedVertexOut);
 
 
     virtual std::string GetName(void) const override { return "waterSurfaceDistortNode"; }

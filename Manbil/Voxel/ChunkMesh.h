@@ -4,7 +4,6 @@
 #include <atomic>
 #include "VoxelChunk.h"
 #include "VoxelChunkManager.h"
-#include "../Vertex.h"
 #include "../Mesh.h"
 
 
@@ -44,7 +43,7 @@ private:
 
     //Asynchronous or delayed vertex/index generation.
 
-    std::vector<Vertex> vertices;
+    std::vector<VoxelVertex> vertices;
     std::vector<unsigned int> indices;
 
     enum ThreadStatus

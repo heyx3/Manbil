@@ -210,15 +210,15 @@ void WaterNode::WriteMyOutputs(std::string & outCode) const
 
 
 
-DataLine WaterSurfaceDistortNode::GetWaterSeedIn(RenderingChannels colorVertexOut)
+DataLine WaterSurfaceDistortNode::GetWaterSeedIn(RenderingChannels randSeedsVertexOut)
 {
-    assert(IsChannelVertexOutput(colorVertexOut, false));
-    return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(colorVertexOut, 4)), 0))), 2);
+    assert(IsChannelVertexOutput(randSeedsVertexOut, false));
+    return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(randSeedsVertexOut, 2)), 0))), 0);
 }
-DataLine WaterSurfaceDistortNode::GetTimeIn(RenderingChannels colorVertexOut)
+DataLine WaterSurfaceDistortNode::GetTimeIn(RenderingChannels randSeedsVertexOut)
 {
     return DataLine(DataNodePtr(new AddNode(DataLine(DataNodePtr(new TimeNode()), 0),
-                                            DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(colorVertexOut, 4)), 0))), 3))), 0);
+                                            DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new VertexOutputNode(randSeedsVertexOut, 2)), 0))), 1))), 0);
 }
 std::string WaterSurfaceDistortNode::GetOutputName(unsigned int index) const
 {

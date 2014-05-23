@@ -1,5 +1,7 @@
 #include "ShaderComputationNodes.h"
 
+#include "../../MaterialData.h"
+
 
 void ObjectPosToScreenPosCalcNode::WriteMyOutputs(std::string & outCode) const
 {

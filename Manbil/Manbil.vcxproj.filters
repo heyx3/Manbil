@@ -56,9 +56,6 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
     <ClCompile Include="Vertices.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
@@ -300,6 +297,9 @@
     <ClCompile Include="Oculus\OculusDevice.cpp">
       <Filter>Oculus Rift Stuff</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -360,9 +360,6 @@
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertex.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Vertices.h">
@@ -587,9 +584,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNodes.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\CrossNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
@@ -735,6 +729,12 @@
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Oculus\OculusDevice.h">
       <Filter>Oculus Rift Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

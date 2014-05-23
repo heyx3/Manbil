@@ -3,24 +3,6 @@
 #include "../DataNodeIncludes.h"
 
 
-
-DataNodePtr TextureSampleNode::CreateComplexTexture(const DataLine & uvs, std::string samplerName, DataLine scale, DataLine pan, DataLine offset)
-{
-    DataLine scaled = (!scale.IsConstant(Vector2f(1.0f, 1.0f)) ?
-                          DataLine(DataNodePtr(new MultiplyNode(uvs, scale)), 0) :
-                          uvs);
-    DataLine offsetted = (!offset.IsConstant(Vector2f(0.0f, 0.0f)) ?
-                             DataLine(DataNodePtr(new AddNode(scaled, offset)), 0) :
-                             scaled);
-    DataLine panned = (!pan.IsConstant(Vector2f(0.0f, 0.0f)) ?
-                          DataLine(DataNodePtr(new AddNode(offsetted,
-                                                           DataLine(DataNodePtr(new MultiplyNode(pan,
-                                                                                                 DataLine(DataNodePtr(new TimeNode()), 0))), 0))), 0) :
-                          offsetted);
-
-    return DataNodePtr(new TextureSampleNode(panned, samplerName));
-}
-
 std::string TextureSampleNode::GetOutputName(unsigned int index) const
 {
     std::string base = GetSampleOutputName();

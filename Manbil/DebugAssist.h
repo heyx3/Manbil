@@ -12,6 +12,7 @@ struct DebugAssist
 {
 public:
 
+    //A global debut output string so that debug outputs don't have to be passed between functions.
     static std::string STR;
 
 

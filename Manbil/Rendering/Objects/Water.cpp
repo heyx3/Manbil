@@ -55,20 +55,21 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
     terr.CreateVertexPositions(poses);
     terr.CreateVertexTexCoords(texCoords);
 
-    Vertex * vertices = new Vertex[nVs];
+    WaterVertex * vertices = new WaterVertex[nVs];
     FastRand fr(146230);
     for (int i = 0; i < nVs; ++i)
     {
-        //Red and Green color channels are already used to store the object-space vertex position.
-        //Use Blue to store randomized values for variation in the water surface. Use the noise that was generated and put into the vertex Z coordinates.
-        vertices[i] = Vertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
-                             texCoords[i],
-                             Vector4f(0.0f, 0.0f, -1.0f + (2.0f * poses[i].z), (12.0f * poses[i].z)),
-                             Vector3f());
+        //Don't forget to pull the noise out of the Z coordinate and put it into the RandSeeds vertex input.
+        vertices[i] = WaterVertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
+                                  texCoords[i],
+                                  Vector3f(0.0f, 0.0f, 1.0f),
+                                  Vector2f(-1.0f + (2.0f * poses[i].z), (12.0f * poses[i].z)));
         poses[i].z = 0.0f;
     }
     delete[] texCoords;
 
+    //Generate the normals.
+    //TODO: Remove this and make sure nothing changes.
     terr.CreateVertexNormals(normals, poses, scle);
     for (int i = 0; i < nVs; ++i)
     {
@@ -76,6 +77,7 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
     }
     delete[] normals, poses;
 
+    //Generate indices.
     unsigned int * indices = new unsigned int[nIs];
     terr.CreateVertexIndices(indices);
     
@@ -97,7 +99,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
       currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
       flowIDs(0), f_a_p(0), tsc(0),
-      waterMesh(PrimitiveTypes::Triangles)
+      waterMesh(PrimitiveTypes::Triangles, WaterVertex::GetAttributeData())
 {
     //Create mesh.
     CreateWaterMesh(size, scale, waterMesh);
@@ -176,7 +178,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 }
 Water::~Water(void)
 {
-    waterMesh.DeleteVertexIndexBuffers();
+    waterMesh.DestroyVertexIndexBuffers();
 
     if (rippleIDs != 0)
     {

@@ -1,8 +1,8 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
-    : primType(pType), nVIData(numbVIData)
+Mesh::Mesh(PrimitiveTypes pType, VertexAttributes attributes, int numbVIData, VertexIndexData * viDataArray)
+    : primType(pType), nVIData(numbVIData), VertAttributes(attributes)
 {
     if (viDataArray == 0)
     {
@@ -17,7 +17,7 @@ Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
     }
 }
 Mesh::Mesh(const Mesh & cpy)
-    : primType(cpy.primType), nVIData(cpy.nVIData)
+    : primType(cpy.primType), VertAttributes(cpy.VertAttributes), nVIData(cpy.nVIData)
 {
     Uniforms = cpy.Uniforms;
 
@@ -47,6 +47,7 @@ void Mesh::operator=(const Mesh & other)
 {
     Transform = other.Transform;
     primType = other.primType;
+    VertAttributes = other.VertAttributes;
     SetVertexIndexData(other.viData, other.nVIData);
 
     Uniforms = other.Uniforms;

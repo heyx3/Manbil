@@ -1,11 +1,11 @@
 #include "DrawingQuad.h"
 
-const Vertex DrawingQuad::vertices[4] =
+const VertexPosTex1Normal DrawingQuad::vertices[4] =
 {
-    Vertex(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    Vertex(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    Vertex(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    Vertex(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    VertexPosTex1Normal(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    VertexPosTex1Normal(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    VertexPosTex1Normal(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
+    VertexPosTex1Normal(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
 };
 const unsigned int DrawingQuad::indices[6] =
 {
@@ -17,7 +17,7 @@ VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
 
 
 DrawingQuad::DrawingQuad(void)
-    : quad(PrimitiveTypes::Triangles), origin(0.0f, 0.0f)
+    : quad(PrimitiveTypes::Triangles, GetAttributeData()), origin(0.0f, 0.0f)
 {
     //Set up the vertices if they haven't been already.
     if (vid.GetVerticesCount() < 0)
@@ -34,7 +34,7 @@ DrawingQuad::DrawingQuad(void)
     meshes.insert(meshes.end(), &quad);
 }
 DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
-    : quad(PrimitiveTypes::Triangles), origin(cpy.origin)
+    : quad(PrimitiveTypes::Triangles, GetAttributeData()), origin(cpy.origin)
 {
     quad = cpy.quad;
     meshes.insert(meshes.end(), &quad);
