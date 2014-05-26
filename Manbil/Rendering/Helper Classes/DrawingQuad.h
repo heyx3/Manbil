@@ -28,7 +28,7 @@ public:
 
     DrawingQuad & operator=(const DrawingQuad & cpy);
 
-    bool Render(RenderPasses pass, const RenderInfo & info, Material & mat);
+    bool Render(RenderPasses pass, const RenderInfo & info, const UniformDictionary & params, Material & mat);
 
 private:
 
@@ -37,9 +37,7 @@ private:
 
     Vector2f origin;
 
-
     static const VertexPosTex1Normal vertices[4];
     static const unsigned int indices[6];
-
     static VertexIndexData vid;
 };

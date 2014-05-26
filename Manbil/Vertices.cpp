@@ -1,6 +1,21 @@
 #include "Vertices.h"
 
 
+bool VertexAttributes::operator==(const VertexAttributes & other) const
+{
+    unsigned int numb1 = GetNumbAttributes(),
+                 numb2 = other.GetNumbAttributes();
+
+    if (numb1 != numb2) return false;
+
+    for (unsigned int attr = 0; attr < numb1; ++attr)
+        if (GetAttributeSize(attr) != other.GetAttributeSize(attr) ||
+            GetAttributeNormalized(attr) != other.GetAttributeNormalized(attr))
+            return false;
+
+    return true;
+}
+
 bool VertexAttributes::EnableAttributes(void) const
 {
     //Enable the attribute slots and count the size of the vertex class.

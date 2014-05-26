@@ -36,6 +36,8 @@ class Water
 {
 public:
 
+    UniformDictionary Params;
+
     //Data that only applies to directional water.
     struct DirectionalWaterArgs
     {
@@ -113,20 +115,18 @@ public:
     void UpdateUniformLocations(const Material * mat)
     {
         std::vector<UniformList::Uniform> fArrUs = mat->GetUniforms(RenderPasses::BaseComponents).FloatArrayUniforms;
-        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Location =
+        Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Location =
             UniformList::FindUniform("dropoffPoints_timesSinceCreated_heights_periods", fArrUs).Loc;
-        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"].Location =
+        Params.FloatArrayUniforms["sourcesXY_speeds"].Location =
             UniformList::FindUniform("sourcesXY_speeds", fArrUs).Loc;
-        waterMesh.Uniforms.FloatArrayUniforms["flow_amplitude_period"].Location =
+        Params.FloatArrayUniforms["flow_amplitude_period"].Location =
             UniformList::FindUniform("flow_amplitude_period", fArrUs).Loc;
-        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"].Location =
+        Params.FloatArrayUniforms["timesSinceCreated"].Location =
             UniformList::FindUniform("timesSinceCreated", fArrUs).Loc;
     }
 
     //Gets the water mesh without updating its uniforms.
     const Mesh & GetMesh(void) const { return waterMesh; }
-    //Updates the water mesh's uniforms with the current ripple/flow data and then returns the mesh.
-    Mesh & UpdateGetMesh() { UpdateMeshUniforms(); return waterMesh; }
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.

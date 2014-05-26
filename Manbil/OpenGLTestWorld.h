@@ -53,6 +53,7 @@ private:
     DrawingQuad * finalScreenQuad;
     std::unordered_map<RenderingChannels, DataLine> finalScreenMatChannels;
     Material * finalScreenMat;
+    UniformDictionary finalScreenQuadParams;
 
     sf::Texture myTex;
 };

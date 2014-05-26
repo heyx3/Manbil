@@ -88,7 +88,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
       currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
       flowIDs(0), f_a_p(0), tsc(0),
-      waterMesh(PrimitiveTypes::Triangles, WaterVertex::GetAttributeData())
+      waterMesh(PrimitiveTypes::Triangles)
 {
     //Create mesh.
     CreateWaterMesh(size, scale, waterMesh);
@@ -110,8 +110,8 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
             dp_tsc_h_p[i].x = 0.001f;
             sXY_sp[i].z = 0.001f;
         }
-        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
-        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, "sourcesXY_speeds");
+        Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF(&(dp_tsc_h_p[0][0]), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
+        Params.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF(&(sXY_sp[0][0]), maxRipples, 3, "sourcesXY_speeds");
     }
     else
     {
@@ -133,8 +133,8 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
             f_a_p[i] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
             tsc[i] = 0.0f;
         }
-        waterMesh.Uniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
-        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
+        Params.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF(&f_a_p[0][0], maxFlows, 4, "flows_amplitudes_periods");
+        Params.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc, maxFlows, 1, "timesSinceCreated");
     }
     else
     {
@@ -148,8 +148,8 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 
         assert(seedArgs.SeedValues->GetWidth() == seedArgs.SeedValues->GetHeight());
 
-        waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "amplitude_period_speed");
-        waterMesh.Uniforms.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), "seedMapResolution");
+        Params.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "amplitude_period_speed");
+        Params.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), "seedMapResolution");
 
 
         //Create a texture from the seed map.
@@ -162,7 +162,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         seedHeightmap->loadFromImage(img);
         seedHeightmap->setSmooth(false);
         seedHeightmap->setRepeated(true);
-        waterMesh.Uniforms.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
+        Params.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
     }
 }
 Water::~Water(void)
@@ -288,14 +288,14 @@ bool Water::ChangeFlow(unsigned int element, const DirectionalWaterArgs & args)
 void Water::SetSeededWater(const SeededWaterArgs & args)
 {
     Vector3f data(args.Amplitude, args.Period, args.Speed);
-    waterMesh.Uniforms.FloatUniforms["amplitude_period_speed"].SetValue(data);
+    Params.FloatUniforms["amplitude_period_speed"].SetValue(data);
 }
 void Water::SetSeededWaterSeed(sf::Texture * image, bool deletePrevious, Vector2i resolution)
 {
-    waterMesh.Uniforms.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
+    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
     if (deletePrevious)
-        waterMesh.Uniforms.TextureUniforms["seedMap"].Texture.DeleteTexture();
-    waterMesh.Uniforms.TextureUniforms["seedMap"].Texture.SetData(image);
+        Params.TextureUniforms["seedMap"].Texture.DeleteTexture();
+    Params.TextureUniforms["seedMap"].Texture.SetData(image);
 }
 
 
@@ -320,18 +320,20 @@ void Water::Update(float elapsed)
             else tsc[i] -= elapsed;
         }
     }
+
+    UpdateMeshUniforms();
 }
 
 void Water::UpdateMeshUniforms(void)
 {
     if (maxRipples > 0)
     {
-        waterMesh.Uniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
-        waterMesh.Uniforms.FloatArrayUniforms["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
+        Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].SetData(&(dp_tsc_h_p[0][0]));
+        Params.FloatArrayUniforms["sourcesXY_speeds"].SetData(&(sXY_sp[0][0]));
     }
     if (maxFlows > 0)
     {
-        waterMesh.Uniforms.FloatArrayUniforms["flow_amplitude_period"].SetData(&f_a_p[0][0]);
-        waterMesh.Uniforms.FloatArrayUniforms["timesSinceCreated"].SetData(tsc);
+        Params.FloatArrayUniforms["flow_amplitude_period"].SetData(&f_a_p[0][0]);
+        Params.FloatArrayUniforms["timesSinceCreated"].SetData(tsc);
     }
 }

@@ -17,7 +17,7 @@ VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
 
 
 DrawingQuad::DrawingQuad(void)
-    : quad(PrimitiveTypes::Triangles, GetAttributeData()), origin(0.0f, 0.0f)
+    : quad(PrimitiveTypes::Triangles), origin(0.0f, 0.0f)
 {
     //Set up the vertices if they haven't been already.
     if (vid.GetVerticesCount() < 0)
@@ -34,7 +34,7 @@ DrawingQuad::DrawingQuad(void)
     meshes.insert(meshes.end(), &quad);
 }
 DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
-    : quad(PrimitiveTypes::Triangles, GetAttributeData()), origin(cpy.origin)
+    : quad(PrimitiveTypes::Triangles), origin(cpy.origin)
 {
     quad = cpy.quad;
     meshes.insert(meshes.end(), &quad);
@@ -43,19 +43,20 @@ DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
 DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
 {
     quad.Transform = cpy.quad.Transform;
-    quad.Uniforms = cpy.quad.Uniforms;
     origin = cpy.origin;
 
     return *this;
 }
 
-bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, Material & mat)
+bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, const UniformDictionary & params, Material & mat)
 {
+    assert(mat.GetAttributeData() == VertexPosTex1Normal::GetAttributeData());
+
     Vector3f scale = quad.Transform.GetScale();
     Vector2f scale2d(scale.x, scale.y);
 
     Vector3f delta = Vector3f(scale.x * 0.5f, scale.y * 0.5f, 0.0f);
     delta -= Vector3f(origin.ComponentProduct(scale2d), 0.0f);
 
-    return mat.Render(pass, info, meshes);
+    return mat.Render(pass, info, meshes, params);
 }

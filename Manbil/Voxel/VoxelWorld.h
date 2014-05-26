@@ -77,12 +77,15 @@ private:
     unsigned int worldRenderTarget;
     Material * finalWorldRenderMat;
     DrawingQuad * finalWorldRenderQuad;
+    UniformDictionary finalWorldRenderParams;
     
     Material * voxelMat;
     Mesh voxelMesh;
+    UniformDictionary voxelParams;
     unsigned int voxelTex;
 
     Material * voxelHighlightMat;
     Mesh voxelHighlightMesh;
+    UniformDictionary voxelHighlightParams;
     unsigned int voxelHighlightTex;
 };

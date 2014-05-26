@@ -82,6 +82,11 @@ public:
     //Returns whether the given attribute will be normalized.
     bool GetAttributeNormalized(unsigned int index) const { return attributeNormalized[index]; }
 
+
+    //Checks whether the two attributes have the exact same attribute properties.
+    bool operator==(const VertexAttributes & other) const;
+
+
     //Prepares the type of vertices represented by this instance to be used by OpenGL.
     //Returns whether the operation was successful.
     //MUST BE CALLED *AFTER* BINDING VERTEX BUFFER!

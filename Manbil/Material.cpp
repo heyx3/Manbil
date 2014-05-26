@@ -3,8 +3,8 @@
 #include "Mesh.h"
 
 
-Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, RenderingModes m, bool il, LightSettings ls)
-    : isLit(il), lightSettings(ls), mode(m)
+Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, const VertexAttributes & attrs, RenderingModes m, bool il, LightSettings ls)
+    : isLit(il), lightSettings(ls), mode(m), attributes(attrs)
 {
     ShaderHandler::CreateShaderProgram(shaderProg);
 
@@ -20,8 +20,6 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
         errorMsg = std::string() + "Error creating fragment shader: " + ShaderHandler::GetErrorMessage();
         return;
     }
-
-
 
     if (!ShaderHandler::FinalizeShaders(shaderProg))
     {
@@ -107,7 +105,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::WVPMatName.c_str(), wvpMatL);
 }
 
-bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes)
+bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & params)
 {
     ClearAllRenderingErrors();
 
@@ -145,6 +143,37 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
     if (RenderDataHandler::UniformLocIsValid(projMatL))
         RenderDataHandler::SetMatrixValue(projMatL, *(info.mProj));
 
+    //Set the custom parameters.
+    for (auto iterator = params.FloatUniforms.begin(); iterator != params.FloatUniforms.end(); ++iterator)
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+            RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
+    for (auto iterator = params.FloatArrayUniforms.begin(); iterator != params.FloatArrayUniforms.end(); ++iterator)
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+            RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
+    for (auto iterator = params.IntUniforms.begin(); iterator != params.IntUniforms.end(); ++iterator)
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+            RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
+    for (auto iterator = params.IntArrayUniforms.begin(); iterator != params.IntArrayUniforms.end(); ++iterator)
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+            RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
+    for (auto iterator = params.MatrixUniforms.begin(); iterator != params.MatrixUniforms.end(); ++iterator)
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+            RenderDataHandler::SetMatrixValue(iterator->second.Location, iterator->second.Value);
+    //Setting mesh texture sampler uniforms is a little more involved.
+    int texUnit = 0;
+    for (auto iterator = params.TextureUniforms.begin(); iterator != params.TextureUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+        {
+            RenderDataHandler::SetUniformValue(iterator->second.Location, 1, &texUnit);
+            RenderDataHandler::ActivateTextureUnit(texUnit);
+            texUnit += 1;
+
+            iterator->second.Texture.BindTexture();
+        }
+    }
+
+
     //Each mesh has its own world transform matrix, applied after the world transform specified in the rendering info.
     Matrix4f partialWVP = info.mWVP,
              finalWorld, finalWVP;
@@ -165,39 +194,6 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
         if (RenderDataHandler::UniformLocIsValid(wvpMatL))
             RenderDataHandler::SetMatrixValue(wvpMatL, finalWVP);
 
-        //Set the mesh's custom uniform values.
-        for (auto iterator = mesh.Uniforms.FloatUniforms.begin(); iterator != mesh.Uniforms.FloatUniforms.end(); ++iterator)
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-                RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
-        for (auto iterator = mesh.Uniforms.FloatArrayUniforms.begin(); iterator != mesh.Uniforms.FloatArrayUniforms.end(); ++iterator)
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-                RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
-        for (auto iterator = mesh.Uniforms.IntUniforms.begin(); iterator != mesh.Uniforms.IntUniforms.end(); ++iterator)
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-                RenderDataHandler::SetUniformValue(iterator->second.Location, iterator->second.NData, iterator->second.Value);
-        for (auto iterator = mesh.Uniforms.IntArrayUniforms.begin(); iterator != mesh.Uniforms.IntArrayUniforms.end(); ++iterator)
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-                RenderDataHandler::SetUniformArrayValue(iterator->second.Location, iterator->second.NumbValues, iterator->second.BasicTypesPerValue, iterator->second.Values);
-        for (auto iterator = mesh.Uniforms.MatrixUniforms.begin(); iterator != mesh.Uniforms.MatrixUniforms.end(); ++iterator)
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-                RenderDataHandler::SetMatrixValue(iterator->second.Location, iterator->second.Value);
-
-
-        //Setting mesh texture sampler uniforms is a little more involved.
-        int texUnit = 0;
-        for (auto iterator = mesh.Uniforms.TextureUniforms.begin(); iterator != mesh.Uniforms.TextureUniforms.end(); ++iterator)
-        {
-            if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-            {
-                RenderDataHandler::SetUniformValue(iterator->second.Location, 1, &texUnit);
-                RenderDataHandler::ActivateTextureUnit(texUnit);
-                texUnit += 1;
-
-                iterator->second.Texture.BindTexture();
-            }
-        }
-
-
         //Now render the mesh.
         for (unsigned int v = 0; v < mesh.GetNumbVertexIndexData(); ++v)
         {
@@ -205,7 +201,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
 
             RenderDataHandler::BindVertexBuffer(vid.GetVerticesHandle());
 
-            mesh.VertAttributes.EnableAttributes();
+            attributes.EnableAttributes();
 
             if (vid.UsesIndices())
             {
@@ -217,7 +213,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
                 ShaderHandler::DrawVertices(mesh.GetPrimType(), vid.GetVerticesCount(), sizeof(int) * vid.GetFirstVertex());
             }
 
-            mesh.VertAttributes.DisableAttributes();
+            attributes.DisableAttributes();
         }
     }
 

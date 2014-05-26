@@ -182,7 +182,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     }
 
     finalScreenQuad = new DrawingQuad();
-    finalScreenQuad->GetMesh().Uniforms = uniformDict;
+    finalScreenQuadParams = uniformDict;
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -195,7 +195,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
     water->UpdateUniformLocations(waterMat);
-    water->UpdateGetMesh().Uniforms.TextureUniforms[texSamplerName] =
+    water->Params.TextureUniforms[texSamplerName] =
         UniformSamplerValue(&myTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
@@ -282,6 +282,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 	{
 		EndWorld();
 	}
+
     water->Update(elapsedSeconds);
 
     if (Input.GetBoolInputValue(666))
@@ -296,8 +297,8 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     ScreenClearer().ClearScreen();
 
     std::vector<const Mesh*> waterMesh;
-    waterMesh.insert(waterMesh.end(), &water->UpdateGetMesh());
-    if (!waterMat->Render(RenderPasses::BaseComponents, info, waterMesh))
+    waterMesh.insert(waterMesh.end(), &water->GetMesh());
+    if (!waterMat->Render(RenderPasses::BaseComponents, info, waterMesh, water->Params))
     {
         std::cout << "Error rendering water: " << waterMat->GetErrorMsg() << ".\n";
         Pause();
@@ -333,8 +334,8 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     identity.SetAsIdentity();
     RenderTarget * finalRend = ppc->GetFinalRender();
     if (finalRend == 0) finalRend = manager[worldRenderID];
-    finalScreenQuad->GetMesh().Uniforms.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTextures()[0]);
-    if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), *finalScreenMat))
+    finalScreenQuadParams.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTextures()[0]);
+    if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
         Pause();

@@ -2,7 +2,6 @@
 
 #include "ShaderHandler.h"
 #include "Math/Higher Math/TransformObject.h"
-#include "Rendering/Materials/UniformCollections.h"
 #include "RenderDataHandler.h"
 #include "Vertices.h"
 
@@ -15,12 +14,10 @@ class Mesh
 {
 public:
 
-    UniformDictionary Uniforms;
 	TransformObject Transform;
-    VertexAttributes VertAttributes;
     
 
-	Mesh(PrimitiveTypes pType, VertexAttributes attributes, int numbVIData = 0, VertexIndexData * viDataArray = 0);
+	Mesh(PrimitiveTypes pType, int numbVIData = 0, VertexIndexData * viDataArray = 0);
 	Mesh(const Mesh & cpy);
 
 	~Mesh(void) { if (viData != 0) delete[] viData; }

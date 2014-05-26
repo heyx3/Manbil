@@ -38,4 +38,5 @@ private:
 
     Material * quadMat;
     DrawingQuad * foreQuad, * backQuad;
+    UniformDictionary foreParam, backParam;
 };

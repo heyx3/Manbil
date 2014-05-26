@@ -72,7 +72,7 @@ SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels,
     std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels);
 
     if (!error.empty()) return GeneratedMaterial(error);
-    else return GeneratedMaterial(new Material(vs, fs, uniforms, mode, useLighting, settings));
+    else return GeneratedMaterial(new Material(vs, fs, uniforms, attribs, mode, useLighting, settings));
 }
 
 std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,

@@ -44,10 +44,10 @@ VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
         voxelMat(0),
         renderState(RenderingState::Cullables::C_NONE),
-        voxelMesh(PrimitiveTypes::Triangles, VoxelVertex::GetAttributeData()),
+        voxelMesh(PrimitiveTypes::Triangles),
         player(manager), oculusDev(0), postProcessing(0),
         voxelHighlightMat(0),
-        voxelHighlightMesh(PrimitiveTypes::Triangles, VertexPosTex1Normal::GetAttributeData())
+        voxelHighlightMesh(PrimitiveTypes::Triangles)
 {
 }
 VoxelWorld::~VoxelWorld(void)
@@ -190,7 +190,7 @@ void VoxelWorld::InitializeWorld(void)
     voxelMesh.SetVertexIndexData(vids, chunkMeshes.size());
     delete[] vids;
 
-    voxelMesh.Uniforms.FloatUniforms["u_castPos"].SetValue(Vector3f(0.0f, 0.0f, 0.0f));
+    voxelParams.FloatUniforms["u_castPos"].SetValue(Vector3f(0.0f, 0.0f, 0.0f));
 
 
     //Initialize the texture.
@@ -278,8 +278,8 @@ void VoxelWorld::InitializeWorld(void)
         EndWorld();
         return;
     }
-    finalWorldRenderQuad->GetMesh().Uniforms.AddUniforms(dict, true);
-    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderParams.AddUniforms(dict, true);
+    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
 
 
     //Initialize the voxel material.
@@ -318,12 +318,12 @@ void VoxelWorld::InitializeWorld(void)
         EndWorld();
         return;
     }
-    std::unordered_map<std::string, UniformValueF> & fUnis = voxelMesh.Uniforms.FloatUniforms;
+    std::unordered_map<std::string, UniformValueF> & fUnis = voxelParams.FloatUniforms;
     const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
     fUnis["u_castPos"].Location = UniformList::FindUniform("u_castPos", unis).Loc;
-    voxelMesh.Uniforms.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
-                                                                           UniformList::FindUniform("u_voxelTex",
-                                                                                                    voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
+    voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
+                                                                    UniformList::FindUniform("u_voxelTex",
+                                                                                             voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
@@ -489,7 +489,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     RenderTargets[worldRenderTarget]->EnableDrawingInto();
     renderState.EnableState();
     ScreenClearer().ClearScreen();
-    if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes))
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes, voxelParams))
     {
         PrintError("Error rendering voxel material", voxelMat->GetErrorMsg());
         EndWorld();
@@ -497,7 +497,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     meshes.clear();
     meshes.insert(meshes.end(), &voxelHighlightMesh);
-    if (!voxelHighlightMat->Render(RenderPasses::BaseComponents, info, meshes))
+    if (!voxelHighlightMat->Render(RenderPasses::BaseComponents, info, meshes, voxelHighlightParams))
     {
         PrintError("Error rendering voxel highlight", voxelHighlightMat->GetErrorMsg());
         EndWorld();
@@ -515,9 +515,9 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //}
     
     //Render the final world info.
-    finalWorldRenderQuad->GetMesh().Uniforms.TextureUniforms["u_finalWorldRender"].Texture.SetData(RenderTargets[worldRenderTarget]->GetColorTextures()[0]);//postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(RenderTargets[worldRenderTarget]->GetColorTextures()[0]);//postProcessing->GetFinalRender()->GetColorTextures()[0]);
     ScreenClearer().ClearScreen();
-    if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, *finalWorldRenderMat))
+    if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, finalWorldRenderParams, *finalWorldRenderMat))
     {
         PrintError("Error rendering final world render", finalWorldRenderMat->GetErrorMsg());
         EndWorld();

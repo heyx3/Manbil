@@ -130,10 +130,10 @@ void TwoDOpenGLTest::InitializeWorld(void)
         return;
     }
 
-    foreQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
-    foreQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].Texture = Textures[foreTex];
-    backQuad->GetMesh().Uniforms.AddUniforms(uniformDict, false);
-    backQuad->GetMesh().Uniforms.TextureUniforms["u_myTex"].Texture = Textures[backTex];
+    foreParam.AddUniforms(uniformDict, false);
+    foreParam.TextureUniforms["u_myTex"].Texture = Textures[foreTex];
+    backParam.AddUniforms(uniformDict, false);
+    backParam.TextureUniforms["u_myTex"].Texture = Textures[backTex];
 }
 
 void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)
@@ -219,14 +219,14 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
 
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 1.0f)).ClearScreen();
 
-    if (!backQuad->Render(RenderPasses::BaseComponents, info, *quadMat))
+    if (!backQuad->Render(RenderPasses::BaseComponents, info, backParam, *quadMat))
     {
         std::cout << "Error rendering background: " << quadMat->GetErrorMsg();
         Pause();
         EndWorld();
         return;
     }
-    if (!foreQuad->Render(RenderPasses::BaseComponents, info, *quadMat))
+    if (!foreQuad->Render(RenderPasses::BaseComponents, info, foreParam, *quadMat))
     {
         std::cout << "Error rendering foreground: " << quadMat->GetErrorMsg();
         Pause();

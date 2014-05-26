@@ -72,6 +72,7 @@ private:
     std::vector<UniformDictionary> uniforms;
 
     DrawingQuad quad;
+    UniformDictionary params;
 
     RenderTargetManager & rtManager;
     unsigned int rt1, rt2;

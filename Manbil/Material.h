@@ -19,10 +19,14 @@ class Material
 {
 public:
 
+    //Gets the vertex data for this material.
+    const VertexAttributes GetAttributeData(void) const { return attributes; }
+
+
     Material(const Material & cpy); //Intentionally not implemented.
 
     Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
-             RenderingModes mode, bool isLit, LightSettings lightSettings);
+             const VertexAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings);
     ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
 
 
@@ -40,8 +44,8 @@ public:
 
     int GetHashCode(void) const { return shaderProg; }
 
-    //Returns whether thhe render was successful.
-    bool Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    //Returns whether the render was successful.
+    bool Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & unifDict);
 
 
 private:
@@ -58,6 +62,7 @@ private:
     RenderingModes mode;
 
     UniformList uniforms;
+    VertexAttributes attributes;
 
     RenderObjHandle shaderProg;
 

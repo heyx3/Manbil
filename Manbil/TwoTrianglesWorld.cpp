@@ -43,6 +43,7 @@ typedef TwoTrianglesWorld TTW;
 
 Material * mat = 0;
 DrawingQuad * quad = 0;
+UniformDictionary params;
 std::string shaderPath = "";
 
 void CreateQuad(void)
@@ -53,7 +54,7 @@ void CreateQuad(void)
 bool CreateMaterial(const std::string & vs, const std::string & fs, UniformDictionary & uniforms)
 {
     if (mat != 0) delete mat;
-    mat = new Material(vs, fs, uniforms, RenderingModes::RM_Opaque, false, LightSettings(false));
+    mat = new Material(vs, fs, uniforms, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
 
     return !mat->HasError();
 }
@@ -139,7 +140,7 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
             continue;
         }
 
-        quad->GetMesh().Uniforms.AddUniforms(uniforms, true);
+        params.AddUniforms(uniforms, true);
         valid = true;
     }
 }
@@ -183,7 +184,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
     else if ((*tManager)[noiseTexID].BindTexture())
     {
         TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-        quad->GetMesh().Uniforms.TextureUniforms[TTW::NoiseSamplerName] =
+        params.TextureUniforms[TTW::NoiseSamplerName] =
             UniformSamplerValue((*tManager)[noiseTexID], TTW::NoiseSamplerName);
     }
     else
@@ -229,8 +230,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
     }
 
     TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-    quad->GetMesh().Uniforms.TextureUniforms[TTW::CustomSamplerName] =
-        UniformSamplerValue((*tManager)[customTexID], TTW::CustomSamplerName);
+    params.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue((*tManager)[customTexID], TTW::CustomSamplerName);
 }
 
 
@@ -341,7 +341,7 @@ void TTW::UpdateWorld(float elapsedSeconds)
 
     //Update time.
     shaderLoadedTime += elapsedSeconds;
-    quad->GetMesh().Uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(shaderLoadedTime);
+    params.FloatUniforms[TTW::ShaderElapsedName].SetValue(shaderLoadedTime);
 
     //Reload materials/textures based on player input.
     if (isInFocus)
@@ -376,7 +376,7 @@ void TTW::RenderOpenGL(float elapsedSeconds)
 
 
 	ScreenClearer().ClearScreen();
-    if (!quad->Render(RenderPasses::BaseComponents, info, *mat))
+    if (!quad->Render(RenderPasses::BaseComponents, info, params, *mat))
     {
         PrintData("Error rendering quad", mat->GetErrorMsg());
         std::cout << "\n\n\n";
