@@ -102,7 +102,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                 3, 2));
     channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
     channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 1);
-    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 3);
+    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 2);
     channels[RC::RC_VERTEX_OUT_4] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_1])), 0);
 
     DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
@@ -111,7 +111,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
                                                                 DataLine(VectorF(10.0f, 10.0f)),
                                                                 DataLine(VectorF(0.0f, 0.0f)),
-                                                                DataLine(VectorF(-1.5f, 0.0f)));
+                                                                DataLine(VectorF(-0.5f, 0.0f)));
     DNP normalMap(new TextureSampleNode(normalMapUVs, "u_normalMapTex"));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 

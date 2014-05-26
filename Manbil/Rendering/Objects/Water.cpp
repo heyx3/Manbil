@@ -51,7 +51,6 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
         nIs = terr.GetIndicesCount();
     Vector3f * poses = new Vector3f[nVs];
     Vector2f * texCoords = new Vector2f[nVs];
-    Vector3f * normals = new Vector3f[nVs];
     terr.CreateVertexPositions(poses);
     terr.CreateVertexTexCoords(texCoords);
 
@@ -62,20 +61,10 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
         //Don't forget to pull the noise out of the Z coordinate and put it into the RandSeeds vertex input.
         vertices[i] = WaterVertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
                                   texCoords[i],
-                                  Vector3f(0.0f, 0.0f, 1.0f),
                                   Vector2f(-1.0f + (2.0f * poses[i].z), (12.0f * poses[i].z)));
         poses[i].z = 0.0f;
     }
-    delete[] texCoords;
-
-    //Generate the normals.
-    //TODO: Remove this and make sure nothing changes.
-    terr.CreateVertexNormals(normals, poses, scle);
-    for (int i = 0; i < nVs; ++i)
-    {
-        vertices[i].Normal = normals[i];
-    }
-    delete[] normals, poses;
+    delete[] poses, texCoords;
 
     //Generate indices.
     unsigned int * indices = new unsigned int[nIs];

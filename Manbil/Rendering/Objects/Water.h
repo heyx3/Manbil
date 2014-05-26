@@ -18,16 +18,15 @@ struct WaterVertex
 {
     Vector3f Pos;
     Vector2f TexCoord;
-    Vector3f Normal;
     Vector2f RandSeeds;
 
-    WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f(), Vector3f normal = Vector3f(0, 0, 1), Vector2f randSeeds = Vector2f(0.0f, 0.0f))
-        : Pos(pos), TexCoord(texCoord), Normal(normal), RandSeeds(randSeeds)
+    WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f(), Vector2f randSeeds = Vector2f(0.0f, 0.0f))
+        : Pos(pos), TexCoord(texCoord), RandSeeds(randSeeds)
     {
 
     }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 3, 2, false, false, true, false); }
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 2, false, false, false); }
 };
 
 
