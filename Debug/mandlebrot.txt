@@ -56,5 +56,5 @@ void main(void)
 	//Convert it into a color.
 	float col = (didLimitDiverge(limit) ? mod(limit.iterations, 1.0075) : 0.0);
 	float col2 = mod(limit.iterations, 1.0);
-	FinalOut_Color = vec4(col, col2, col, 1.0);
+	FinalOutput = vec4(col, col2, col, 1.0);
 }

@@ -100,5 +100,5 @@ void main(void)
 {
 	float noise = layeredFBMNoise(in_UV * vec2(u_cam_width, u_cam_height));
 
-	FinalOut_Color = vec4(noise, noise, noise, 1.0);
+	FinalOutput = vec4(noise, noise, noise, 1.0);
 }

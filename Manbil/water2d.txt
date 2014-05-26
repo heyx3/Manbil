@@ -106,7 +106,7 @@ void main()
 	if (abs(pixelCoords.y - (watHeight * u_cam_height)) < 1.0)
 	{
 		float b = getBrightness(dat.normal) * 0.15;
-		FinalOut_Color = vec4(b, b, b, 1.0);
+		FinalOutput = vec4(b, b, b, 1.0);
 		return;
 	}
 	
@@ -122,14 +122,14 @@ void main()
 		//Lower the light's brightness as we get closer to the bottom of the water.
 		brightness *= pow(uv.y / maxWaterHeight, 0.5);
 		
-		FinalOut_Color = vec4(vec3(otherComponentScale * ratio,
-							   otherComponentScale * ratio,
-							   ratio * 1.0) * brightness,
-						  1.0);
+		FinalOutput = vec4(vec3(otherComponentScale * ratio,
+				        otherComponentScale * ratio,
+					ratio * 1.0) * brightness,
+				   1.0);
 	}
 	//Otherwise, use the sky color.
 	else
 	{
-		FinalOut_Color = vec4(0.6, 0.6, 1.0, 1.0);
+		FinalOutput = vec4(0.6, 0.6, 1.0, 1.0);
 	}
 }

@@ -531,5 +531,5 @@ void main(void)
 	vec3 fragDir = normalize(fragStart - camDat.pos);
 	
 	
-	FinalOut_Color = vec4(marchRay(fragStart, fragDir, camDat.pos), 1.0);
+	FinalOutput = vec4(marchRay(fragStart, fragDir, camDat.pos), 1.0);
 }
