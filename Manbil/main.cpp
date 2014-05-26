@@ -49,7 +49,6 @@ int main()
 
     //NoiseTest().RunWorld();
 
-    //PRIORITY: Fix variable names for shader text files.
     //TwoTrianglesWorld().RunWorld();
 
     VoxelWorld().RunWorld();
