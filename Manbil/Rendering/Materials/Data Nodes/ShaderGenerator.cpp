@@ -21,7 +21,7 @@ DataNode::Shaders SG::GetShaderType(RC channel)
 
     switch (channel)
     {
-        case RC::RC_ScreenVertexPosition:
+        case RC::RC_VertexPosOutput:
             return DataNode::Shaders::SH_Vertex_Shader;
 
         case RC::RC_Color:
@@ -38,7 +38,7 @@ unsigned int SG::GetChannelInputSize(RC channel)
 {
     switch (channel)
     {
-        case RC::RC_ScreenVertexPosition:
+        case RC::RC_VertexPosOutput:
             return 4;
             
         case RC::RC_Color:
@@ -58,7 +58,7 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
 {
     if (channels.find(RC::RC_Color) == channels.end())
         channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 0.0f, 1.0f));
-    if (channels.find(RC::RC_ScreenVertexPosition) == channels.end())
+    if (channels.find(RC::RC_VertexPosOutput) == channels.end())
         assert(false);
     if (channels.find(RC::RC_Opacity) == channels.end())
         channels[RC::RC_Opacity] = DataLine(1.0f);
@@ -66,13 +66,14 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
 
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
                                            UniformDictionary & uniforms, const VertexAttributes & attribs,
-                                           RenderingModes mode, bool useLighting, const LightSettings & settings)
+                                           RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                           std::string geometryShader)
 {
     std::string vs, fs;
     std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels);
 
     if (!error.empty()) return GeneratedMaterial(error);
-    else return GeneratedMaterial(new Material(vs, fs, uniforms, attribs, mode, useLighting, settings));
+    else return GeneratedMaterial(new Material(vs, fs, uniforms, attribs, mode, useLighting, settings, geometryShader));
 }
 
 std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
@@ -285,7 +286,7 @@ void main()                                                                     
                           " = " + iterator->second.GetValue() + ";\n";
     vertShader += 
 "                                                                                                        \n\
-    gl_Position = " + channels[RenderingChannels::RC_ScreenVertexPosition].GetValue() + ";              \n\
+    gl_Position = " + channels[RenderingChannels::RC_VertexPosOutput].GetValue() + ";              \n\
 }";
 
     DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);

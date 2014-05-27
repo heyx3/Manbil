@@ -127,7 +127,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
                                                            DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
-    channels[RC::RC_ScreenVertexPosition] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
+    channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
                                                      ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
 
     UniformDictionary unDict;
@@ -152,6 +152,57 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma endregion
 
 
+    //Geometry shader testing.
+
+    std::unordered_map<RC, DataLine> gsChannels;
+    DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
+    gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
+    gsChannels[RC::RC_Color] = DataLine(VectorF(0.2f, 0.2f, 0.2f));
+    
+    MaterialUsageFlags geoShaderUsage;
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_POS);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEW_MAT);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_PROJ_MAT);
+    std::string geoShader = MC::GetGeometryHeader("", PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoShaderUsage);
+    std::string vpTransformPos = MC::ProjMatName + " * (" + MC::ViewMatName + " * vec4(pos, 1.0));";
+    geoShader += std::string() +
+"void main()                                                \n\
+{                                                           \n\
+    vec3 pos = gl_in[0].gl_Position.xyz;                    \n\
+    vec3 toCam = normalize(" + MC::CameraPosName + " - pos);\n\
+    vec3 up = vec3(0.0, 1.0, 0.0);                          \n\
+    vec3 right = cross(toCamera, up);                       \n\
+                                                            \n\
+    pos = pos - (right * 0.5);                              \n\
+    gl_Position = " + vpTransformPos + "                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    pos.y += 1.0;                                           \n\
+    gl_Position = " + vpTransformPos + "                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    pos.y - 1.0;                                            \n\
+    pos += right;                                           \n\
+    gl_Position = " + vpTransformPos + "                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    pos.y += 1.0;                                           \n\
+    gl_Position = " + vpTransformPos + "                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    EndPrimitive();                                         \n\
+}";
+    ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoShader);
+    if (!gsGen.ErrorMessage.empty())
+    {
+        std::cout << "Error generating shaders for geometry shader test: " << gsGen.ErrorMessage << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    gsTestMat = gsGen.Mat;
+
+
     //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
@@ -159,7 +210,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     //Final render.
-    finalScreenMatChannels[RC::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
+    finalScreenMatChannels[RC::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
     finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
     DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_finalRenderSample"));
     finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
@@ -186,6 +237,16 @@ void OpenGLTestWorld::InitializeMaterials(void)
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
+    //Set up geometry shader mesh.
+    RenderObjHandle gsVBO;
+    Vector3f vertex[3] = { Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 30.0f, 0.0f), Vector3f(30.0f, 0.0f, 0.0f) };
+    RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
+    gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 30.0f));
+
+
+    //Water.
+
     const unsigned int size = 300;
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(6.0f, 6.0f, 2.0f),
@@ -202,6 +263,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
 
 
+    //Post-process chain.
     ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
     if (ppc->HasError())
     {
@@ -215,7 +277,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
-  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0)
+  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0), gsTestMat(0), gsMesh(PrimitiveTypes::Points)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -296,11 +358,22 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     manager[worldRenderID]->EnableDrawingInto();
     ScreenClearer().ClearScreen();
 
-    std::vector<const Mesh*> waterMesh;
-    waterMesh.insert(waterMesh.end(), &water->GetMesh());
-    if (!waterMat->Render(RenderPasses::BaseComponents, info, waterMesh, water->Params))
+    std::vector<const Mesh*> meshList;
+
+    meshList.insert(meshList.end(), &water->GetMesh());
+    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshList, water->Params))
     {
         std::cout << "Error rendering water: " << waterMat->GetErrorMsg() << ".\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    meshList.clear();
+    meshList.insert(meshList.end(), &gsMesh);
+    if (!gsTestMat->Render(RenderPasses::BaseComponents, info, meshList, gsTestParams))
+    {
+        std::cout << "Error rendering geometry shader test: " << gsTestMat->GetErrorMsg() << ".\n";
         Pause();
         EndWorld();
         return;

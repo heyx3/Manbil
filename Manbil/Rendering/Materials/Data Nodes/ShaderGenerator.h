@@ -43,5 +43,6 @@ public:
     //You are responsible for the material's memory management after it's created.
     static GeneratedMaterial GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
                                               UniformDictionary & outUniforms, const VertexAttributes & attribs,
-                                              RenderingModes mode, bool useLighting, const LightSettings & settings);
+                                              RenderingModes mode, bool useLighting, const LightSettings & settings,
+                                              std::string geometryShader = "");
 };

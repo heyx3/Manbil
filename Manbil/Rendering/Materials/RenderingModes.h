@@ -29,8 +29,9 @@ public:
 //TODO: Move into its own file inside DataNode folder.
 enum RenderingChannels
 {
-    //Screen-space position of vertex.
-    RC_ScreenVertexPosition,
+    //Output position of vertex. Should always be in screen space
+    //    (unless a geometry shader is being used).
+    RC_VertexPosOutput,
 
     //Base color of surface.
     RC_Color,

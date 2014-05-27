@@ -107,7 +107,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
     //Materials.
 
     std::unordered_map<RenderingChannels, DataLine> channels;
-    channels[RenderingChannels::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
     channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_myTex")),
                                                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));

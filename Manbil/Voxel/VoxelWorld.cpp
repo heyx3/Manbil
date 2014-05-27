@@ -222,7 +222,7 @@ void VoxelWorld::InitializeWorld(void)
     RenderDataHandler::CreateVertexBuffer(vhvbo, vhvs.data(), vhvs.size());
     RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
     voxelHighlightMesh.SetVertexIndexData(VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
-    channels[RenderingChannels::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
     channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(VertexPosTex1Normal::GetAttributeData())), 1);
     channels[RenderingChannels::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
     UniformDictionary vhvUD;
@@ -256,7 +256,7 @@ void VoxelWorld::InitializeWorld(void)
     std::vector<DataLine> toCombine;
     toCombine.insert(toCombine.end(), DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 0));
     toCombine.insert(toCombine.end(), DataLine(1.0f));
-    channels[RenderingChannels::RC_ScreenVertexPosition] = DataLine(DataNodePtr(new CombineVectorNode(toCombine)), 0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(toCombine)), 0);
 
     channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
@@ -289,7 +289,7 @@ void VoxelWorld::InitializeWorld(void)
      * 2 = world normal
      * 3 = UV
     */
-    channels[RenderingChannels::RC_ScreenVertexPosition] = DataNodeGenerators::ObjectPosToScreenPos<VoxelVertex>(0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VoxelVertex>(0);
     channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 0))), 0);
     channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new ObjectNormalToWorldNormalCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 2))), 0);
     channels[RenderingChannels::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 1);

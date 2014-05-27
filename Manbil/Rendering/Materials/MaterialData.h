@@ -16,6 +16,7 @@ struct MaterialConstants
 public:
     static RenderingState GetRenderingState(RenderingModes mode);
 
+    //TODO: Add "ViewProjMatName" and corresponding uniform -- useful for geometry shaders.
     static const std::string ElapsedTimeName,
                              WorldMatName, ViewMatName, ProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,

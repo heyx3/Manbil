@@ -43,6 +43,10 @@ private:
     Material * waterMat;
     std::unordered_map<RenderingChannels, DataLine> channels;
 
+    Mesh gsMesh;
+    Material * gsTestMat;
+    UniformDictionary gsTestParams;
+
 	MovingCamera cam;
     RenderTargetManager manager;
 

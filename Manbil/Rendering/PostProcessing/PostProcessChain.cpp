@@ -94,7 +94,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 effct->CurrentPass = pass;
 
                 channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
-                channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
+                channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
                 effct->OverrideVertexOutputs(channels);
 
                 UniformDictionary unfs;
@@ -155,7 +155,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
             channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
-            channels[RenderingChannels::RC_ScreenVertexPosition] = objectPos4;
+            channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
             current->OverrideVertexOutputs(channels);
 
             UniformDictionary unfs;

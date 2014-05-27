@@ -14,7 +14,7 @@ std::string ChannelToString(RenderingChannels channel)
     {
         case RenderingChannels::RC_Color: return "Color";
         case RenderingChannels::RC_Opacity: return "Opacity";
-        case RenderingChannels::RC_ScreenVertexPosition: return "ScreenVertexPosition";
+        case RenderingChannels::RC_VertexPosOutput: return "ScreenVertexPosition";
 
         case RenderingChannels::RC_VERTEX_OUT_1:
         case RenderingChannels::RC_VERTEX_OUT_2:
@@ -44,7 +44,7 @@ bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
 
     switch (channel)
     {
-        case RCs::RC_ScreenVertexPosition:
+        case RCs::RC_VertexPosOutput:
         case RCs::RC_Color:
         case RCs::RC_Opacity:
         case RCs::RC_COLOR_OUT_2:
@@ -84,7 +84,7 @@ bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput)
 
     switch (channel)
     {
-    case RCs::RC_ScreenVertexPosition:
+    case RCs::RC_VertexPosOutput:
     case RCs::RC_Opacity:
     case RCs::RC_VERTEX_OUT_INVALID:
     case RCs::RC_VERTEX_OUT_1:
@@ -125,7 +125,7 @@ bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings
     switch (channel)
     {
         case RCs::RC_Color:
-        case RCs::RC_ScreenVertexPosition:
+        case RCs::RC_VertexPosOutput:
         //Opacity is always used because you can still output to alpha channel even if the surface doesn't have transparency.
         case RCs::RC_Opacity:
             return true;
