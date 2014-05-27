@@ -25,10 +25,11 @@ bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle&
     GLenum glShaderType;
     switch (shaderType)
     {
-    case Shaders::SH_Fragment_Shader: glShaderType =  GL_FRAGMENT_SHADER; break;
-    case Shaders::SH_Vertex_Shader: glShaderType = GL_VERTEX_SHADER; break;
+        case Shaders::SH_Fragment_Shader: glShaderType =  GL_FRAGMENT_SHADER; break;
+        case Shaders::SH_Vertex_Shader: glShaderType = GL_VERTEX_SHADER; break;
+        case Shaders::SH_GeometryShader: glShaderType = GL_GEOMETRY_SHADER; break;
 
-    default: assert(false);
+        default: assert(false);
     }
 
     out_handle = glCreateShader(glShaderType);

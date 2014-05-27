@@ -30,7 +30,9 @@ public:
 
     //Gets everything that's needed in a vertex shader before the actual main function (or helper functions).
     static std::string GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags);
-    //Gets everything that's needed in a fragment shader before the actual main functions (or helper functions).
+    //Gets everything that's needed in a geometry shader before the actual main function (or helper function).
+    static std::string GetGeometryHeader(std::string outputDeclarations, PrimitiveTypes input, PrimitiveTypes output, unsigned int maxVertices, const MaterialUsageFlags & flags);
+    //Gets everything that's needed in a fragment shader before the actual main function (or helper functions).
     static std::string GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags);
 };
 

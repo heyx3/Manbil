@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "GL/glew.h"
 #include "GL/wglew.h"
 #include "SFML/OpenGL.hpp"
@@ -35,10 +36,17 @@ void ClearAllRenderingErrors(void);
 enum PrimitiveTypes
 {
 	Points,
-	Triangles,
-	Lines,
+	LineList,
+    LineStrip,
+	TriangleList,
+    TriangleStrip,
 };
+//Converts the given primitive type to the corresponding GLenum.
 GLenum PrimitiveTypeToGLEnum(PrimitiveTypes t);
+//Converts the given primitive type to a Geometry Shader input keyword.
+std::string PrimitiveTypeToGSInput(PrimitiveTypes t);
+//Converts the given primitive type to a Geometry Shader output keyword.
+std::string PrimitiveTypeToGSOutput(PrimitiveTypes t);
 
 
 enum TextureTypes

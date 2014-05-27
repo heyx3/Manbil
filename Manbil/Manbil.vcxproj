@@ -92,7 +92,6 @@
     <ClCompile Include="Input\LookRotation.cpp" />
     <ClCompile Include="IO\DataSerializer.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
-    <ClCompile Include="Materials.cpp" />
     <ClCompile Include="Math\BasicMath.cpp" />
     <ClCompile Include="Math\CachedFunc.cpp" />
     <ClCompile Include="Math\FastRand.cpp" />
@@ -205,7 +204,6 @@
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\DataSerializer.h" />
     <ClInclude Include="IO\tinyxml2.h" />
-    <ClInclude Include="Materials.h" />
     <ClInclude Include="Math\BasicMath.h" />
     <ClInclude Include="Math\CachedFunc.h" />
     <ClInclude Include="Math\Array2D.h" />

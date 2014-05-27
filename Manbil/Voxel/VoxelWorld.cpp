@@ -44,10 +44,10 @@ VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
         voxelMat(0),
         renderState(RenderingState::Cullables::C_NONE),
-        voxelMesh(PrimitiveTypes::Triangles),
+        voxelMesh(PrimitiveTypes::TriangleList),
         player(manager), oculusDev(0), postProcessing(0),
         voxelHighlightMat(0),
-        voxelHighlightMesh(PrimitiveTypes::Triangles)
+        voxelHighlightMesh(PrimitiveTypes::TriangleList)
 {
 }
 VoxelWorld::~VoxelWorld(void)

@@ -116,6 +116,7 @@ protected:
         {
             case Shaders::SH_Vertex_Shader: return "Vertex_Shader";
             case Shaders::SH_Fragment_Shader: return "Fragment_Shader";
+            case Shaders::SH_GeometryShader: return "Geometry Shader";
             default: assert(false); return "UNKNOWN_SHADER_TYPE";
         }
     }

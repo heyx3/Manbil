@@ -32,15 +32,55 @@ GLenum PrimitiveTypeToGLEnum(PrimitiveTypes t)
 	{
 		case PrimitiveTypes::Points:
 			return GL_POINTS;
-		case PrimitiveTypes::Triangles:
+		case PrimitiveTypes::TriangleList:
 			return GL_TRIANGLES;
-		case PrimitiveTypes::Lines:
+        case PrimitiveTypes::TriangleStrip:
+            return GL_TRIANGLE_STRIP;
+        case PrimitiveTypes::LineList:
 			return GL_LINES;
+        case PrimitiveTypes::LineStrip:
+            return GL_LINE_STRIP;
 
 		default:
             assert(false);
             return GL_INVALID_ENUM;
 	}
+}
+std::string PrimitiveTypeToGSInput(PrimitiveTypes t)
+{
+    switch (t)
+    {
+        case PrimitiveTypes::Points:
+            return "points";
+        case PrimitiveTypes::LineList:
+            return "lines";
+        case PrimitiveTypes::LineStrip:
+            return "lines";
+        case PrimitiveTypes::TriangleList:
+            return "triangles";
+        case PrimitiveTypes::TriangleStrip:
+            return "triangles";
+
+        default:
+            assert(false);
+            return "[INVALID GS INPUT TYPE. GLenum value: " + std::to_string(PrimitiveTypeToGLEnum(t)) + "]";
+    }
+}
+std::string PrimitiveTypeToGSOutput(PrimitiveTypes t)
+{
+    switch (t)
+    {
+        case PrimitiveTypes::Points:
+            return "points";
+        case PrimitiveTypes::LineStrip:
+            return "line_strip";
+        case PrimitiveTypes::TriangleStrip:
+            return "triangle_strip";
+
+        default:
+            assert(false);
+            return "[INVALID GS OUTPUT TYPE. GLenum value: " + std::to_string(PrimitiveTypeToGLEnum(t)) + "]";
+    }
 }
 
 GLenum TextureTypeToGLEnum(TextureTypes t)

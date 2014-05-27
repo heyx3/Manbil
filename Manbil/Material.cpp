@@ -3,13 +3,15 @@
 #include "Mesh.h"
 
 
-Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, const VertexAttributes & attrs, RenderingModes m, bool il, LightSettings ls)
+Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, const VertexAttributes & attrs, RenderingModes m, bool il, LightSettings ls, std::string geoShader)
     : isLit(il), lightSettings(ls), mode(m), attributes(attrs)
 {
     ShaderHandler::CreateShaderProgram(shaderProg);
 
+    bool useGeoShader = !geoShader.empty();
 
-    RenderObjHandle vsO, fsO;
+
+    RenderObjHandle vsO, fsO, gsO;
     if (!ShaderHandler::CreateShader(shaderProg, vsO, vs.c_str(), ShaderHandler::Shaders::SH_Vertex_Shader))
     {
         errorMsg = std::string() + "Error creating vertex shader: " + ShaderHandler::GetErrorMessage();
@@ -20,6 +22,12 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
         errorMsg = std::string() + "Error creating fragment shader: " + ShaderHandler::GetErrorMessage();
         return;
     }
+    if (useGeoShader && !ShaderHandler::CreateShader(shaderProg, gsO, geoShader.c_str(), ShaderHandler::Shaders::SH_GeometryShader))
+    {
+        errorMsg = std::string() + "Error creating geometry shader: " + ShaderHandler::GetErrorMessage();
+        return;
+    }
+
 
     if (!ShaderHandler::FinalizeShaders(shaderProg))
     {
@@ -29,6 +37,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
 
     glDeleteShader(vsO);
     glDeleteShader(fsO);
+    if (useGeoShader) glDeleteShader(gsO);
 
 
     //Get node uniforms.

@@ -25,8 +25,10 @@ public:
 
     Material(const Material & cpy); //Intentionally not implemented.
 
+    //Geometry shader is optional.
     Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
-             const VertexAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings);
+             const VertexAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings,
+             std::string geometryShader = "");
     ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
 
 

@@ -88,7 +88,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
       currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
       flowIDs(0), f_a_p(0), tsc(0),
-      waterMesh(PrimitiveTypes::Triangles)
+      waterMesh(PrimitiveTypes::TriangleList)
 {
     //Create mesh.
     CreateWaterMesh(size, scale, waterMesh);

@@ -111,7 +111,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
                                                                 DataLine(VectorF(10.0f, 10.0f)),
                                                                 DataLine(VectorF(0.0f, 0.0f)),
-                                                                DataLine(VectorF(-0.5f, 0.0f)));
+                                                                DataLine(VectorF(-0.15f, 0.0f)));
     DNP normalMap(new TextureSampleNode(normalMapUVs, "u_normalMapTex"));
     texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
 
@@ -188,10 +188,10 @@ void OpenGLTestWorld::InitializeObjects(void)
 {
     const unsigned int size = 300;
 
-    water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(2.0f, 2.0f, 2.0f),
+    water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(6.0f, 6.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(maxRipples)),
                       OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)),
-                      OptionalValue<Water::SeedmapWaterCreationArgs>());\
+                      OptionalValue<Water::SeedmapWaterCreationArgs>());
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
     water->UpdateUniformLocations(waterMat);

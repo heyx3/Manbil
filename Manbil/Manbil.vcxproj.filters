@@ -50,9 +50,6 @@
     <ClCompile Include="Material.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="Materials.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Rendering\Materials</Filter>
     </ClCompile>
@@ -354,9 +351,6 @@
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Materials.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">

@@ -17,6 +17,7 @@ public:
     {
         SH_Vertex_Shader,
         SH_Fragment_Shader,
+        SH_GeometryShader,
     };
 
 	typedef std::vector<RenderObjHandle> ShaderObjectList;
