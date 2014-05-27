@@ -4,7 +4,6 @@
 
 
 //Combines multiple smaller floats/vectors into one large vector.
-//TODO: Add constructors that take individual data lines -- 2, 3, and 4.
 class CombineVectorNode : public DataNode
 {
 public:
@@ -17,7 +16,9 @@ public:
         Assert(count > 0, std::string() + "No elements in the output vector!");
         Assert(count < 5, std::string() + "Too many elements in the output vector: " + std::to_string(count));
     }
-
+    CombineVectorNode(const DataLine & input1, const DataLine & input2) : CombineVectorNode(MakeVector(input1, input2)) { }
+    CombineVectorNode(const DataLine & input1, const DataLine & input2, const DataLine & input3) : CombineVectorNode(MakeVector(input1, input2, input3)) { }
+    CombineVectorNode(const DataLine & input1, const DataLine & input2, const DataLine & input3, const DataLine & input4) : CombineVectorNode(MakeVector(input1, input2, input3, input4)) { }
 
 protected:
 
