@@ -82,6 +82,24 @@ std::string PrimitiveTypeToGSOutput(PrimitiveTypes t)
             return "[INVALID GS OUTPUT TYPE. GLenum value: " + std::to_string(PrimitiveTypeToGLEnum(t)) + "]";
     }
 }
+unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t)
+{
+    switch (t)
+    {
+        case PrimitiveTypes::Points:
+            return 1;
+        case PrimitiveTypes::LineList:
+        case PrimitiveTypes::LineStrip:
+            return 2;
+        case PrimitiveTypes::TriangleList:
+        case PrimitiveTypes::TriangleStrip:
+            return 3;
+
+        default:
+            assert(false);
+            return 0;
+    }
+}
 
 GLenum TextureTypeToGLEnum(TextureTypes t)
 {

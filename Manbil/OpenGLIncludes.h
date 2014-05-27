@@ -47,6 +47,8 @@ GLenum PrimitiveTypeToGLEnum(PrimitiveTypes t);
 std::string PrimitiveTypeToGSInput(PrimitiveTypes t);
 //Converts the given primitive type to a Geometry Shader output keyword.
 std::string PrimitiveTypeToGSOutput(PrimitiveTypes t);
+//Gets the number of vertices per a single instance of the given primitive.
+unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t);
 
 
 enum TextureTypes
