@@ -160,37 +160,34 @@ void OpenGLTestWorld::InitializeMaterials(void)
     gsChannels[RC::RC_Color] = DataLine(VectorF(0.2f, 0.2f, 0.2f));
     
     MaterialUsageFlags geoShaderUsage;
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_POS);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEW_MAT);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_PROJ_MAT);
     std::string geoShader = MC::GetGeometryHeader("", PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoShaderUsage);
     std::string vpTransformPos = MC::ProjMatName + " * (" + MC::ViewMatName + " * vec4(pos, 1.0));";
+    std::string vpTransf = MC::ProjMatName + " * (" + MC::ViewMatName + " * vec4(";
     geoShader += std::string() +
-"void main()                                                \n\
-{                                                           \n\
-    vec3 pos = gl_in[0].gl_Position.xyz;                    \n\
-    vec3 toCam = normalize(" + MC::CameraPosName + " - pos);\n\
-    vec3 up = vec3(0.0, 1.0, 0.0);                          \n\
-    vec3 right = cross(toCamera, up);                       \n\
-                                                            \n\
-    pos = pos - (right * 0.5);                              \n\
-    gl_Position = " + vpTransformPos + "                    \n\
-    EmitVertex();                                           \n\
-                                                            \n\
-    pos.y += 1.0;                                           \n\
-    gl_Position = " + vpTransformPos + "                    \n\
-    EmitVertex();                                           \n\
-                                                            \n\
-    pos.y - 1.0;                                            \n\
-    pos += right;                                           \n\
-    gl_Position = " + vpTransformPos + "                    \n\
-    EmitVertex();                                           \n\
-                                                            \n\
-    pos.y += 1.0;                                           \n\
-    gl_Position = " + vpTransformPos + "                    \n\
-    EmitVertex();                                           \n\
-                                                            \n\
-    EndPrimitive();                                         \n\
+"void main()                                                                        \n\
+{                                                                                   \n\
+    const float size = 10.0;                                                        \n\
+    vec3 pos = gl_in[0].gl_Position.xyz;                                            \n\
+    vec3 up = " + MC::CameraUpName + ";                                             \n\
+    vec3 side = " + MC::CameraSideName + ";                                         \n\
+    up = cross(" + MC::CameraForwardName + ", side);                                \n\
+                                                                                    \n\
+    gl_Position = " + vpTransf + "pos + (size * (up + side)), 1.0));                \n\
+    EmitVertex();                                                                   \n\
+                                                                                    \n\
+    gl_Position = " + vpTransf + "pos + (size * (-up + side)), 1.0));               \n\
+    EmitVertex();                                                                   \n\
+                                                                                    \n\
+    gl_Position = " + vpTransf + "pos + (size * (up - side)), 1.0));                \n\
+    EmitVertex();                                                                   \n\
+                                                                                    \n\
+    gl_Position = " + vpTransf + "pos + (size * -(up + side)), 1.0));               \n\
+    EmitVertex();                                                                   \n\
 }";
     ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoShader);
     if (!gsGen.ErrorMessage.empty())
@@ -239,7 +236,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 {
     //Set up geometry shader mesh.
     RenderObjHandle gsVBO;
-    Vector3f vertex[3] = { Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 30.0f, 0.0f), Vector3f(30.0f, 0.0f, 0.0f) };
+    Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f), };//Vector3f(0.0f, 30.0f, 0.0f), Vector3f(30.0f, 0.0f, 0.0f) };
     RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
     gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 30.0f));

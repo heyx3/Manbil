@@ -65,6 +65,8 @@ bool ShaderHandler::CreateShader(RenderObjHandle shaderProgram, RenderObjHandle&
 
 bool ShaderHandler::FinalizeShaders(RenderObjHandle shaderProgram, bool validate)
 {
+    ClearAllRenderingErrors();
+
 	UniformLocation success;
 	char error[1024];
 
@@ -89,5 +91,6 @@ bool ShaderHandler::FinalizeShaders(RenderObjHandle shaderProgram, bool validate
 		}
 	}
 
-	return true;
+    errorMsg = GetCurrentRenderingError();
+	return errorMsg.empty();
 }
