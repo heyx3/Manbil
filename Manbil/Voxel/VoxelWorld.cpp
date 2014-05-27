@@ -61,7 +61,7 @@ VoxelWorld::~VoxelWorld(void)
 void VoxelWorld::SetUpVoxels(void)
 {
     //Width/height/depth of the world in chunks.
-    const Vector3i worldLength(2, 2, 2);
+    const Vector3i worldLength(5, 5, 5);
 
     //Create the chunks.
     Vector3i loc;
@@ -75,7 +75,7 @@ void VoxelWorld::SetUpVoxels(void)
 
     Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z, 0.0f);
     
-    if (true)
+    if (false)
     {
         FlatNoise3D flat(1.0f);
         flat.Generate(noise);
@@ -106,7 +106,7 @@ void VoxelWorld::SetUpVoxels(void)
         nf3.Set_Value = 1.0f;
         nf3.Set(&noise);
     }
-    else if (false)
+    else if (true)
     {
         Perlin3D perl(Vector3f(20.0f, 20.0f, 20.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
         perl.Generate(noise);
