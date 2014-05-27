@@ -112,6 +112,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ViewMatName.c_str(), viewMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ProjMatName.c_str(), projMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::WVPMatName.c_str(), wvpMatL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ViewProjMatName.c_str(), viewProjMatL);
 }
 
 bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & params)
@@ -121,7 +122,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
     ShaderHandler::UseShader(shaderProg);
 
     //Set basic uniforms.
-    //TODO: Remove all these conditionals for simple uniforms (i.e. not the world/wvp transformation matrix) by creating an std::vector in the constructor that holds all the valid locations for built-in uniforms and how to compute them.
+    //TODO: [NOTE: Not sure if this would actually help at all] Remove all these conditionals for simple uniforms (i.e. not the world/wvp transformation matrix) by creating an std::vector in the constructor that holds all the valid locations for built-in uniforms and how to compute them.
     float time = info.World->GetTotalElapsedSeconds();
     if (RenderDataHandler::UniformLocIsValid(timeL))
         RenderDataHandler::SetUniformValue(timeL, 1, &time);
@@ -151,6 +152,11 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
         RenderDataHandler::SetMatrixValue(viewMatL, *(info.mView));
     if (RenderDataHandler::UniformLocIsValid(projMatL))
         RenderDataHandler::SetMatrixValue(projMatL, *(info.mProj));
+    if (RenderDataHandler::UniformLocIsValid(viewProjMatL))
+    {
+        Matrix4f vp = Matrix4f::Multiply(*info.mProj, *info.mView);
+        RenderDataHandler::SetMatrixValue(viewProjMatL, vp);
+    }
 
     //Set the custom parameters.
     for (auto iterator = params.FloatUniforms.begin(); iterator != params.FloatUniforms.end(); ++iterator)

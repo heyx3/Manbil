@@ -163,11 +163,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEW_MAT);
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_PROJ_MAT);
+    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
     std::string geoShader = MC::GetGeometryHeader("", PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoShaderUsage);
-    std::string vpTransformPos = MC::ProjMatName + " * (" + MC::ViewMatName + " * vec4(pos, 1.0));";
-    std::string vpTransf = MC::ProjMatName + " * (" + MC::ViewMatName + " * vec4(";
+    std::string vpTransf = "(" + MC::ViewProjMatName + " * vec4(";
     geoShader += std::string() +
 "void main()                                                                        \n\
 {                                                                                   \n\

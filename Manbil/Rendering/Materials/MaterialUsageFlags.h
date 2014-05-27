@@ -10,7 +10,7 @@ public:
     enum Flags : unsigned short
     {
         //Uses elapsed time uniform.
-        DNF_USES_TIME = 0x00000001,
+        DNF_USES_TIME = 0x0001,
 
         //Uses world matrix uniform.
         DNF_USES_WORLD_MAT = 0x0002,
@@ -18,28 +18,30 @@ public:
         DNF_USES_VIEW_MAT = 0x0004,
         //Uses projection matrix uniform.
         DNF_USES_PROJ_MAT = 0x0008,
+        //Uses view-projection matrix uniform.
+        DNF_USES_VIEWPROJ_MAT = 0x0010,
         //Uses WVP matrix uniform.
-        DNF_USES_WVP_MAT = 000400,
+        DNF_USES_WVP_MAT = 0x0020,
 
         //Uses camera position uniform.
-        DNF_USES_CAM_POS = 000010,
+        DNF_USES_CAM_POS = 0x0040,
         //Uses camera forward vector uniform.
-        DNF_USES_CAM_FORWARD = 0x0020,
+        DNF_USES_CAM_FORWARD = 0x0080,
         //Uses camera upwards vector uniform.
-        DNF_USES_CAM_UPWARDS = 0x0040,
+        DNF_USES_CAM_UPWARDS = 0x0100,
         //Uses camera sideways vector uniform.
-        DNF_USES_CAM_SIDEWAYS = 0x0080,
+        DNF_USES_CAM_SIDEWAYS = 0x0200,
 
         //Uses screen width uniform.
-        DNF_USES_WIDTH = 000100,
+        DNF_USES_WIDTH = 0x0400,
         //Uses screen height uniform.
-        DNF_USES_HEIGHT = 000200,
+        DNF_USES_HEIGHT = 0x0800,
         //Uses screen z-near uniform.
-        DNF_USES_ZNEAR = 0x0400,
+        DNF_USES_ZNEAR = 0x1000,
         //Uses screen z-far uniform.
-        DNF_USES_ZFAR = 0x0800,
+        DNF_USES_ZFAR = 0x2000,
         //Uses FOV uniform.
-        DNF_USES_FOV = 0x1000,
+        DNF_USES_FOV = 0x4000,
     };
 
     bool GetFlag(Flags flag) const { return (value & (unsigned short)flag) > 0; }
