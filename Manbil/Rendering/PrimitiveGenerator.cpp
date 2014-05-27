@@ -20,11 +20,11 @@ void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVert
                                                               Vector2f(1.0f, 1.0f),
                                                               (smoothNormals ? Vector3f(-1, 1, 1).Normalized() : Vector3f(-1, 0, 0))));
     outIndices.insert(outIndices.end(), index);
+    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index + 1);
-    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index + 2);
+    outIndices.insert(outIndices.end(), index + 3);
     index += 4;
 
     //X max face.
@@ -41,11 +41,11 @@ void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVert
                                                               Vector2f(1.0f, 1.0f),
                                                               (smoothNormals ? Vector3f(1, 1, 1).Normalized() : Vector3f(1, 0, 0))));
     outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index + 1);
-    outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 2);
     outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index);
+    outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index + 2);
     index += 4;
 
 
@@ -63,11 +63,11 @@ void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVert
                                                               Vector2f(1.0f, 1.0f),
                                                               (smoothNormals ? Vector3f(1, -1, 1).Normalized() : Vector3f(0, -1, 0))));
     outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index + 1);
-    outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 2);
     outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index);
+    outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index + 2);
     index += 4;
 
     //Y max face.
@@ -128,10 +128,10 @@ void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVert
                                                               Vector2f(1.0f, 1.0f),
                                                               (smoothNormals ? Vector3f(1, 1, 1).Normalized() : Vector3f(0, 0, 1))));
     outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 3);
     outIndices.insert(outIndices.end(), index + 1);
-    outIndices.insert(outIndices.end(), index);
-    outIndices.insert(outIndices.end(), index + 2);
     outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index);
+    outIndices.insert(outIndices.end(), index + 3);
+    outIndices.insert(outIndices.end(), index + 2);
     index += 4;
 }
