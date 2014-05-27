@@ -28,7 +28,17 @@ void ObjectPosToWorldPosCalcNode::WriteMyOutputs(std::string & outCode) const
 
 void ObjectNormalToWorldNormalCalcNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string outName = GetInputs()[0].GetValue();
-
     outCode += "\tvec3 " + GetOutputName(0) + " = (" + MaterialConstants::WorldMatName + " * vec4(" + GetInputs()[0].GetValue() + ", 0.0)).xyz;\n";
+}
+
+void WorldPosToScreenPosCalcNode::WriteMyOutputs(std::string & outCode) const
+{
+    std::string homgOut = GetOutputName(GetHomogenousPosOutputIndex()),
+                posOut = GetOutputName(GetPosOutputIndex());
+    outCode += "\tvec3 " + homgOut + " = (" + MaterialConstants::ViewProjMatName + " * vec4(" + GetInputs()[0].GetValue() + ", 1.0));\n";
+    outCode += "\tvec3 " + posOut + " = " + homgOut + ".xyz / " + homgOut + ".w;\n";
+}
+void WorldNormalToScreenNormalCalcNode::WriteMyOutputs(std::string & outCode) const
+{
+    outCode += "\tvec3 " + GetOutputName(0) + " = (" + MaterialConstants::ViewProjMatName + " * vec4(" + GetInputs()[0].GetValue() + ", 0.0)).xyz;\n";
 }
