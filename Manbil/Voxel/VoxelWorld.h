@@ -60,7 +60,7 @@ private:
         }
         return false;
     }
-    VertexIndexData GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetVID(); }
+    const Mesh & GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetMesh(); }
 
     void SetUpVoxels(void);
 
@@ -80,7 +80,6 @@ private:
     UniformDictionary finalWorldRenderParams;
     
     Material * voxelMat;
-    Mesh voxelMesh;
     UniformDictionary voxelParams;
     unsigned int voxelTex;
 

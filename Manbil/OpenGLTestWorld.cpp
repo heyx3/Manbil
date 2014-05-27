@@ -164,9 +164,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
-    std::string geoShader = MC::GetGeometryHeader("", PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoShaderUsage);
     std::string vpTransf = "(" + MC::ViewProjMatName + " * vec4(";
-    geoShader += std::string() +
+    std::string geoCode = std::string() +
 "void main()                                                                        \n\
 {                                                                                   \n\
     const float size = 10.0;                                                        \n\
@@ -187,7 +186,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
     gl_Position = " + vpTransf + "pos + (size * -(up + side)), 1.0));               \n\
     EmitVertex();                                                                   \n\
 }";
-    ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoShader);
+    GeoShaderData geoDat(GeoShaderOutput(), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
+    ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
     if (!gsGen.ErrorMessage.empty())
     {
         std::cout << "Error generating shaders for geometry shader test: " << gsGen.ErrorMessage << "\n";

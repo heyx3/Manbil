@@ -3,6 +3,7 @@
 #include "DataLine.h"
 #include "../UniformCollections.h"
 #include "../MaterialUsageFlags.h"
+#include "GeometryShaderInfo.h"
 
 
 //Represents a basic, atomic operation in a shader.
@@ -20,6 +21,7 @@ public:
     typedef std::shared_ptr<DataNode> DataNodePtr;
 
     static void SetShaderType(Shaders shadeType) { shaderType = shadeType; }
+    static void SetGeoData(const GeoShaderData * dat) { geoData = dat; }
 
 
     DataNode(const std::vector<DataLine> & _inputs, const std::vector<unsigned int> & outputSizes)
@@ -94,6 +96,7 @@ protected:
     static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
 
     static Shaders GetShaderType(void) { return shaderType; }
+    static const GeoShaderData * GetGeoShaderData(void) { return geoData; }
 
 
     mutable std::string errorMsg;
@@ -145,7 +148,10 @@ protected:
 
 private:
 
+    //The current type of shader currently being generated.
     static Shaders shaderType;
+    //The geometry shader connected to the shader currently being generated.
+    static const GeoShaderData * geoData;
 
     static unsigned int nextID;
     static unsigned int GetNextID(void) { unsigned int id = nextID; nextID += 1; return id; }

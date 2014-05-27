@@ -730,6 +730,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

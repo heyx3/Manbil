@@ -6,6 +6,8 @@ DataNode::Shaders DataNode::shaderType = DataNode::Shaders::SH_Vertex_Shader;
 
 int DataNode::EXCEPTION_ASSERT_FAILED = 1;
 
+const GeoShaderData * DataNode::geoData = 0;
+
 
 void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {

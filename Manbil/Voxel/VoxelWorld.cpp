@@ -43,8 +43,7 @@ bool capMouse = true;
 VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
         voxelMat(0),
-        renderState(RenderingState::Cullables::C_NONE),
-        voxelMesh(PrimitiveTypes::TriangleList),
+        renderState(RenderingState::Cullables::C_BACK),
         player(manager), oculusDev(0), postProcessing(0),
         voxelHighlightMat(0),
         voxelHighlightMesh(PrimitiveTypes::TriangleList)
@@ -174,23 +173,12 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the chunk mesh.
-
     SetUpVoxels();
-
-    VertexIndexData * vids = new VertexIndexData[chunkMeshes.size()];
-    unsigned int index = 0;
-    for (auto entry = manager.GetAllChunks().begin(); entry != manager.GetAllChunks().end(); ++entry)
+    std::unordered_map<Vector3i, ChunkMesh*, Vector3i> & mshs = chunkMeshes;
+    manager.DoToEveryChunk([&mshs](Vector3i chunkIndex, VoxelChunk * chnk)
     {
-        assert(chunkMeshes[entry->first] != 0);
-        chunkMeshes[entry->first]->RebuildMesh(true);
-
-        vids[index] = chunkMeshes[entry->first]->GetVID();
-        index += 1;
-    }
-    voxelMesh.SetVertexIndexData(vids, chunkMeshes.size());
-    delete[] vids;
-
-    voxelParams.FloatUniforms["u_castPos"].SetValue(Vector3f(0.0f, 0.0f, 0.0f));
+        mshs[chunkIndex]->RebuildMesh();
+    });
 
 
     //Initialize the texture.
@@ -282,29 +270,71 @@ void VoxelWorld::InitializeWorld(void)
     finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
 
 
-    //Initialize the voxel material.
+    #pragma region Voxel material
+
+    //Definition.
     channels.clear();
     /* Vertex outputs:
-     * 1 = world pos
-     * 2 = world normal
-     * 3 = UV
+    * 0: Min Existing
+    * 1: Max Existing
     */
-    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VoxelVertex>(0);
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 0))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new ObjectNormalToWorldNormalCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 2))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 1);
-    
+    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 0))), 0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 1);
+    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 2);
+    /* Geometry outputs:
+    * 0: World pos
+    * 1: UV
+    */
+    voxelParams.FloatUniforms["u_corner1"] = UniformValueF(Vector3f(-1.0f, -1.0f, -1.0f), "u_corner1");
+    voxelParams.FloatUniforms["u_corner2"] = UniformValueF(Vector3f(1.0f, -1.0f, -1.0f), "u_corner2");
+    voxelParams.FloatUniforms["u_corner3"] = UniformValueF(Vector3f(-1.0f, 1.0f, 1.0f), "u_corner3");
+    voxelParams.FloatUniforms["u_corner4"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "u_corner4");
+    MaterialUsageFlags gsFlags;
+    gsFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_VIEWPROJ_MAT);
+    std::string worldToScreen = MaterialConstants::ViewProjMatName + " * vec4(gsOut_worldPos, 1.0)";
+    GeoShaderData gsDat(GeoShaderOutput("gsOut_worldPos", 3, "gsOut_uv", 2),
+                        gsFlags, 4, Points, TriangleStrip, voxelParams,
+                        std::string() +
+"void main()                                                \n\
+{                                                           \n\
+    vec3 pos = gl_in[0].gl_Position.xyz;                    \n\
+                                                            \n\
+    gsOut_worldPos = pos + u_corner1;                       \n\
+    gsOut_uv = vec2(0.0, 0.0);                              \n\
+    gl_Position = " + worldToScreen + ";                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    gsOut_worldPos = pos + u_corner2;                       \n\
+    gsOut_uv = vec2(1.0, 0.0);                              \n\
+    gl_Position = " + worldToScreen + ";                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    gsOut_worldPos = pos + u_corner3;                       \n\
+    gsOut_uv = vec2(0.0, 1.0);                              \n\
+    gl_Position = " + worldToScreen + ";                    \n\
+    EmitVertex();                                           \n\
+                                                            \n\
+    gsOut_worldPos = pos + u_corner4;                       \n\
+    gsOut_uv = vec2(1.0, 1.0);                              \n\
+    gl_Position = " + worldToScreen + ";                    \n\
+    EmitVertex();                                           \n\
+}");
+    //TODO: After verifying that this geometry shader stuff works, don't draw faces that are obscured.
+
+    DataLine surfNormal(DataNodePtr(new ParamNode(3, "u_surfaceNormal")), 0);
     DataLine lighting(DataNodePtr(new LightingNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 3)), 0),
-                                                   DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_2, 3)), 0),
+                                                   surfNormal,
                                                    DataLine(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
                                                    DataLine(0.25f), DataLine(0.75f), DataLine(3.0f), DataLine(64.0f))),
                       0);
-    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_3, 2)), 0),
+    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_2, 2)), 0),
                                                        "u_voxelTex")),
                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, diffTex)), 0);
-    dict.ClearUniforms();
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, dict, VoxelVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
+
+    //Generation.
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, voxelParams, VoxelVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false), gsDat);
     if (!genM.ErrorMessage.empty())
     {
         PrintError("Error generating voxel material's shaders", genM.ErrorMessage);
@@ -318,12 +348,18 @@ void VoxelWorld::InitializeWorld(void)
         EndWorld();
         return;
     }
+
+    //Parameters.
     std::unordered_map<std::string, UniformValueF> & fUnis = voxelParams.FloatUniforms;
     const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
-    fUnis["u_castPos"].Location = UniformList::FindUniform("u_castPos", unis).Loc;
     voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
                                                                     UniformList::FindUniform("u_voxelTex",
                                                                                              voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
+
+    #pragma endregion
+
+
+    //Player camera/input.
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
@@ -346,13 +382,6 @@ void VoxelWorld::InitializeWorld(void)
                                                                                 BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::W)),
                                                                                 BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::S))));
     player.Jump = BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Key::Space, BoolInput::ValueStates::JustPressed));
-
-
-    //if (player.Cam.OVRDevice.get() != 0)
-    //{
-        //OculusDevice* dv = player.Cam.OVRDevice.get();
-        //dv->StartAutoCalibration();
-    //}
 }
 void VoxelWorld::OnWorldEnd(void)
 {
@@ -474,8 +503,34 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //    clearColor.x = 0.0f;
     ScreenClearer(true, true, false, clearColor).ClearScreen();
 
-    std::vector<const Mesh*> meshes;
-    meshes.insert(meshes.end(), &voxelMesh);
+    //Get the chunks to be drawn.
+    //Draw each of the faces one at a time.
+    std::vector<const Mesh*> lessX, lessY, lessZ, moreX, moreY, moreZ;
+    Vector3i camPosIndex = manager.ToChunkIndex(player.Cam.GetPosition() + player.CamOffset);
+    std::unordered_map<Vector3i, ChunkMesh*, Vector3i> & meshes = chunkMeshes;
+    manager.DoToEveryChunk([camPosIndex, &meshes, &lessX, &lessY, &lessZ, &moreX, &moreY, &moreZ](Vector3i chunkIndex, VoxelChunk *chnk)
+    {
+        const Mesh * msh = &meshes[chunkIndex]->GetMesh();
+        if (msh->GetVertexIndexData(0).GetVerticesCount() == 0) return;
+
+        bool equalX = (camPosIndex.x == chunkIndex.x);
+        if (equalX || camPosIndex.x < chunkIndex.x)
+            lessX.insert(lessX.end(), msh);
+        if (equalX || camPosIndex.x > chunkIndex.x)
+            moreX.insert(moreX.end(), msh);
+
+        bool equalY = (camPosIndex.y == chunkIndex.y);
+        if (equalY || camPosIndex.y < chunkIndex.y)
+            lessY.insert(lessY.end(), msh);
+        if (equalY || camPosIndex.y > chunkIndex.y)
+            moreY.insert(moreY.end(), msh);
+
+        bool equalZ = (camPosIndex.z == chunkIndex.z);
+        if (equalZ || camPosIndex.z < chunkIndex.z)
+            lessZ.insert(lessZ.end(), msh);
+        if (equalZ || camPosIndex.z > chunkIndex.z)
+            moreZ.insert(moreZ.end(), msh);
+    });
 
     TransformObject dummy;
 
@@ -488,16 +543,91 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //Render the world.
     RenderTargets[worldRenderTarget]->EnableDrawingInto();
     renderState.EnableState();
-    ScreenClearer().ClearScreen();
-    if (!voxelMat->Render(RenderPasses::BaseComponents, info, meshes, voxelParams))
+    ScreenClearer(true, true, false, Vector4f(0.5f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+
+
+    #pragma region Render each face
+
+    const float halfVox = 0.5f * VoxelChunk::VoxelSizeF;
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(-1.0f, 0.0f, 0.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(-halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, -halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessX, voxelParams))
     {
-        PrintError("Error rendering voxel material", voxelMat->GetErrorMsg());
+        PrintError("Error rendering voxel material for \"less X\" face", voxelMat->GetErrorMsg());
         EndWorld();
         return;
     }
-    meshes.clear();
-    meshes.insert(meshes.end(), &voxelHighlightMesh);
-    if (!voxelHighlightMat->Render(RenderPasses::BaseComponents, info, meshes, voxelHighlightParams))
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(0.0f, -1.0f, 0.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(-halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, -halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessY, voxelParams))
+    {
+        PrintError("Error rendering voxel material for \"less Y\" face", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(0.0f, 0.0f, -1.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(-halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessZ, voxelParams))
+    {
+        PrintError("Error rendering voxel material for \"less Z\" face", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(1.0f, 0.0f, 0.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(halfVox, -halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreX, voxelParams))
+    {
+        PrintError("Error rendering voxel material for \"more X\" face", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(0.0f, 1.0f, 0.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(-halfVox, halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreY, voxelParams))
+    {
+        PrintError("Error rendering voxel material for \"more Y\" face", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+
+    voxelParams.FloatUniforms["u_surfaceNormal"].SetValue(Vector3f(0.0f, 0.0f, 1.0f));
+    voxelParams.FloatUniforms["u_corner1"].SetValue(Vector3f(-halfVox, -halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
+    voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreZ, voxelParams))
+    {
+        PrintError("Error rendering voxel material for \"more Z\" face", voxelMat->GetErrorMsg());
+        EndWorld();
+        return;
+    }
+
+    #pragma endregion
+
+
+    std::vector<const Mesh*> highlightMsh;
+    highlightMsh.insert(highlightMsh.end(), &voxelHighlightMesh);
+    if (!voxelHighlightMat->Render(RenderPasses::BaseComponents, info, highlightMsh, voxelHighlightParams))
     {
         PrintError("Error rendering voxel highlight", voxelHighlightMat->GetErrorMsg());
         EndWorld();

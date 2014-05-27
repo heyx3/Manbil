@@ -261,6 +261,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ClampNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\CrossNode.h" />

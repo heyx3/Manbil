@@ -93,13 +93,35 @@ public:
     //Gets the voxel equal to the given voxel offset by the given amount.
     VoxelLocation GetOffset(VoxelLocation voxel, Vector3i offset) const;
 
+
+    template<typename Func>
+    //"Func" must have the signature "void Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //Calls "todo" on every chunk owned by this manager.
+    void DoToEveryChunk(Func todo)
+    {
+        for (auto iterator = chunks.begin(); iterator != chunks.end(); ++iterator)
+            todo(iterator->first, iterator->second);
+    }
+    template<typename Func>
+    //"Func" must have the signature "bool Func(Vector3i chunkIndex, VoxelChunk * chunk)".
+    //Calls "todo" on every chunk owned by this manager.
+    //Once a "todo" call returns true, this function immediately exits.
+    //Returns whether a "todo" call returned true, causing this to immediately exit.
+    void DoToEveryChunkPredicate(Func todo)
+    {
+        for (auto iterator = chunks.begin(); iterator != chunks.end(); ++iterator)
+            if (todo(iterator->first, iterator->second))
+                return true;
+        return false;
+    }
+
     template<typename Func>
     //"Func" must have the signature "bool Func(Vector3i chunkIndex, VoxelChunk * chunk)".
     //"Func" returns whether to exit "DoToEveryChunk" after calling it.
     //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
     //Assume the "chunk" parameter in Func is never 0.
     //Returns whether or not "todo" ever returned "true".
-    bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    bool DoToEveryChunkPredicate(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
         Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
@@ -121,7 +143,7 @@ public:
     //"Func" must have the signature "void Func(Vector3i chunkIndex, VoxelChunk * chunk)".
     //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
     //Assume the "chunk" parameter in Func is never 0.
-    void DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
+    void DoToEveryChunk(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
         Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
@@ -143,7 +165,7 @@ public:
     //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
     //Assume the "chunk" parameter in Func is never 0.
     //Returns whether or not "todo" ever returned "true".
-    bool DoToEveryChunkPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    bool DoToEveryChunkPredicate(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
         Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
@@ -165,7 +187,7 @@ public:
     //"Func" must have the signature "void Func(Vector3i chunkIndex, VoxelChunk * chunk)".
     //Calls "todo" on every valid local chunk index between "start" and "end", inclusive.
     //Assume the "chunk" parameter in Func is never 0.
-    bool DoToEveryChunk(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
+    bool DoToEveryChunk(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
         Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;

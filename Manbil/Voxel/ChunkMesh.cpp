@@ -10,21 +10,20 @@ const unsigned int UpperBoundSize = VoxelChunk::ChunkSize * VoxelChunk::ChunkSiz
 
 
 ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, Vector3i chunkIndex, VoxelChunk * chunk)
-: vertices(0), indices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex)
+: vertices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex), mesh(PrimitiveTypes::Points)
 {
-    RenderObjHandle vbo, ibo;
+    RenderObjHandle vbo;
     RenderDataHandler::CreateVertexBuffer<VoxelVertex>(vbo, 0, 0, RenderDataHandler::UPDATE_CONSTANTLY_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo);
-    vid = VertexIndexData(0, vbo, 0, ibo);
+    mesh.SetVertexIndexData(VertexIndexData(0, vbo));
 }
 
-VertexIndexData ChunkMesh::GetVID(void)
+const Mesh & ChunkMesh::GetMesh(void)
 {
     //If vertices were just generated, update them in OpenGL.
     if (status == ThreadStatus::TS_DONE)
-        BuildBuffers();
+        BuildBuffer();
 
-    return vid;
+    return mesh;
 }
 
 void ChunkMesh::RebuildMesh(bool buildNow)
@@ -36,9 +35,8 @@ void ChunkMesh::RebuildMesh(bool buildNow)
     VoxelChunk * chnk = manager.GetChunk(ChunkIndex);
     if (chnk == 0) return;
 
-    indices.reserve(UpperBoundSize);
     vertices.reserve(UpperBoundSize);
-    chnk->BuildTriangles(vertices, indices,
+    chnk->BuildTriangles(vertices,
                          manager.GetChunk(Vector3i(ChunkIndex.x - 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x + 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y - 1, ChunkIndex.z)),
@@ -47,7 +45,7 @@ void ChunkMesh::RebuildMesh(bool buildNow)
                          manager.GetChunk(Vector3i(ChunkIndex.x, ChunkIndex.y, ChunkIndex.z + 1)));
 
 
-    if (buildNow) BuildBuffers();
+    if (buildNow) BuildBuffer();
     else status = ThreadStatus::TS_DONE;
 }
 void ChunkMesh::RebuildMeshOnThread(void)
@@ -58,39 +56,34 @@ void ChunkMesh::RebuildMeshOnThread(void)
     currentThread = std::thread([thisCM]() { thisCM->RebuildMesh(false); });
 }
 
-void ChunkMesh::BuildBuffers(void)
+void ChunkMesh::BuildBuffer(void)
 {
     HangUntilThreadDone();
 
     ClearAllRenderingErrors();
 
-    RenderDataHandler::UpdateVertexBuffer(vid.GetVerticesHandle(),
+    RenderDataHandler::UpdateVertexBuffer(mesh.GetVertexIndexData(0).GetVerticesHandle(),
                                           vertices.data(), vertices.size(),
                                           RenderDataHandler::BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW);
-    RenderDataHandler::UpdateIndexBuffer(vid.GetIndicesHandle(),
-                                         indices.data(), indices.size(),
-                                         RenderDataHandler::BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW);
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
         std::cout << "Error updating index/vertex buffers: " + err + "\n";
 
-    vid = VertexIndexData(vertices.size(), vid.GetVerticesHandle(), indices.size(), vid.GetIndicesHandle());
+    mesh.SetVertexIndexData(VertexIndexData(vertices.size(), mesh.GetVertexIndexData(0).GetVerticesHandle()));
 
     vertices.clear();
-    indices.clear();
     status = ThreadStatus::TS_OFF;
 }
 
 void ChunkMesh::HangUntilThreadDone(void)
 {
+    //Wait for the thread to finish.
     if (status.load() == ThreadStatus::TS_RUNNING && currentThread.joinable())
         currentThread.join();
+    //Erase the vertices, since they have to be regenerated.
     if (status.load() == ThreadStatus::TS_DONE)
-    {
         vertices.clear();
-        indices.clear();
-    }
 
     status = ThreadStatus::TS_OFF;
 }

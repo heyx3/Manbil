@@ -67,16 +67,30 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
                                            UniformDictionary & uniforms, const VertexAttributes & attribs,
                                            RenderingModes mode, bool useLighting, const LightSettings & settings,
-                                           std::string geometryShader)
+                                           GeoShaderData geometryShader)
 {
     std::string vs, fs;
-    std::string error = GenerateShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels);
+    std::string error = GenerateVertFragShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels, geometryShader);
 
-    if (!error.empty()) return GeneratedMaterial(error);
+    std::string geo = "";
+    if (geometryShader.IsValidData())
+        geo = GenerateGeometryShader(channels, geometryShader);
 
-    //See if there is an error when creating the material.
-    Material * mat = new Material(vs, fs, uniforms, attribs, mode, useLighting, settings, geometryShader);
+    //Make sure the shaders were generated successfully.
+    if (!error.empty())
+        return GeneratedMaterial(std::string("Error generating vertex/fragment shaders: ") + error);
+    if (geo.find("ERROR:") != std::string::npos)
+        return GeneratedMaterial(std::string("Error generating geometry shader: '") + geo + "'");
+
+    if (geometryShader.IsValidData())
+        uniforms.AddUniforms(geometryShader.Params, true);
+
+
+    //Attempt to create the material.
+
+    Material * mat = new Material(vs, fs, uniforms, attribs, mode, useLighting, settings, geo);
     GeneratedMaterial genMat(mat->GetErrorMsg());
+
     if (genMat.ErrorMessage.empty())
         genMat.Mat = mat;
     else delete mat;
@@ -84,10 +98,67 @@ SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels,
     return genMat;
 }
 
-std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
-                                std::unordered_map<RenderingChannels, DataLine> & channels)
+std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannels, DataLine> & vertexOutputs, const GeoShaderData & data)
 {
+    if (!data.IsValidData()) return "ERROR: Invalid GeoShaderData instance.";
+
+
+    //First generate the vertex inputs.
+    std::string code = "//Inputs from Vertex Shader.\n";
+    for (auto iterator = vertexOutputs.begin(); iterator != vertexOutputs.end(); ++iterator)
+    {
+        if (IsChannelVertexOutput(iterator->first, false))
+        {
+            unsigned int vOutputIndex = GetVertexOutputNumber(iterator->first);
+            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(vOutputIndex);
+
+            code += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + "[" + std::to_string(PrimitiveTypeToNVertices(data.InputPrimitive)) + "];\n";
+        }
+    }
+    code += "\n";
+
+
+    //Next generate the vertex outputs.
+    code += "//Outputs to Fragment Shader.\n";
+    unsigned int n = data.OutputTypes.GetNumbOutputs();
+    for (unsigned int i = 0; i < data.OutputTypes.GetNumbOutputs(); ++i)
+    {
+        code += "out " + VectorF(data.OutputTypes.OutputSizes[i]).GetGLSLType() +
+                " " + data.OutputTypes.OutputNames[i] + ";\n";
+    }
+
+    //Now create the header.
+    code = MaterialConstants::GetGeometryHeader(code, data.InputPrimitive, data.OutputPrimitive, data.MaxVertices, data.UsageFlags);
+
+    //Now generate the uniforms.
+    code += "//Uniforms.\n";
+    for (auto iterator = data.Params.FloatUniforms.begin(); iterator != data.Params.FloatUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.FloatArrayUniforms.begin(); iterator != data.Params.FloatArrayUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.IntUniforms.begin(); iterator != data.Params.IntUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.IntArrayUniforms.begin(); iterator != data.Params.IntArrayUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.MatrixUniforms.begin(); iterator != data.Params.MatrixUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.TextureUniforms.begin(); iterator != data.Params.TextureUniforms.end(); ++iterator)
+        code += iterator->second.GetDeclaration() + "\n";
+
+    //Finally, add the actual functions.
+    code += "\n\n" + data.ShaderCode;
+
+    return code;
+}
+
+std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
+                                        RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
+                                        std::unordered_map<RenderingChannels, DataLine> & channels,
+                                        GeoShaderData geoShaderData)
+{
+    bool useGeoShader = geoShaderData.IsValidData();
+    DataNode::SetGeoData(&geoShaderData);
+
     AddMissingChannels(channels, mode, useLighting, settings);
 
     //First, make sure the channels are all correctly set up.
@@ -149,10 +220,22 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
     {
         if (IsChannelVertexOutput(iterator->first, false))
         {
-            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(iterator->first));
+            unsigned int vOutputIndex = GetVertexOutputNumber(iterator->first);
+            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(vOutputIndex);
+
             vertOutput += "out " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
-            fragInput += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
+
+            //If there is no geometry shader, the vertex outputs exactly match the fragment inputs.
+            //Otherwise, the fragment inputs will exactly match the geometry shader outputs (this is done right after this "for" loop).
+            if (!useGeoShader)
+                fragInput += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
         }
+    }
+    if (useGeoShader)
+    {
+        unsigned int numb = geoShaderData.OutputTypes.GetNumbOutputs();
+        for (unsigned int i = 0; i < numb; ++i)
+            fragInput += "in " + VectorF(geoShaderData.OutputTypes.OutputSizes[i]).GetGLSLType() + " " + geoShaderData.OutputTypes.OutputNames[i] + ";\n";
     }
 
     //Generate the color outputs.
@@ -242,6 +325,10 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
             vertShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = vertexUniformDict.FloatArrayUniforms.begin(); iterator != vertexUniformDict.FloatArrayUniforms.end(); ++iterator)
             vertShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = vertexUniformDict.IntUniforms.begin(); iterator != vertexUniformDict.IntUniforms.end(); ++iterator)
+            vertShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = vertexUniformDict.IntArrayUniforms.begin(); iterator != vertexUniformDict.IntArrayUniforms.end(); ++iterator)
+            vertShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = vertexUniformDict.MatrixUniforms.begin(); iterator != vertexUniformDict.MatrixUniforms.end(); ++iterator)
             vertShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
@@ -253,6 +340,10 @@ std::string SG::GenerateShaders(std::string & outVShader, std::string & outFShad
         for (auto iterator = fragmentUniformDict.FloatUniforms.begin(); iterator != fragmentUniformDict.FloatUniforms.end(); ++iterator)
             fragShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = fragmentUniformDict.FloatArrayUniforms.begin(); iterator != fragmentUniformDict.FloatArrayUniforms.end(); ++iterator)
+            fragShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = fragmentUniformDict.IntUniforms.begin(); iterator != fragmentUniformDict.IntUniforms.end(); ++iterator)
+            fragShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = fragmentUniformDict.IntArrayUniforms.begin(); iterator != fragmentUniformDict.IntArrayUniforms.end(); ++iterator)
             fragShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = fragmentUniformDict.MatrixUniforms.begin(); iterator != fragmentUniformDict.MatrixUniforms.end(); ++iterator)
             fragShader += iterator->second.GetDeclaration() + "\n";

@@ -4,7 +4,7 @@
 #include "../../MaterialData.h"
 
 
-//Represents the value of a vertex output.
+//Represents the value of a vertex output (after the geometry shader, if it is run).
 //NOTE: This node is only usable in the fragment shader!
 //Since vertex outputs can be any size, this node's output size is specified in this class's constructor.
 class VertexOutputNode : public DataNode
@@ -18,8 +18,10 @@ public:
         Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
         Assert(GetShaderType() == Shaders::SH_Fragment_Shader,
                std::string() + "Invalid shader type (must be Fragment): " + ToString(GetShaderType()));
-
-        return MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(vertOutput));
+        
+        return (GetGeoShaderData()->IsValidData() ?
+                   GetGeoShaderData()->OutputTypes.OutputNames[GetVertexOutputNumber(vertOutput) - 1] :
+                   MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(vertOutput)));
     }
 
     VertexOutputNode(RenderingChannels vertexOutput, unsigned int outputSize)

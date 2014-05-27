@@ -2,6 +2,7 @@
 
 #include "DataNode.h"
 #include "../MaterialData.h"
+#include "GeometryShaderInfo.h"
 
 class Material;
 
@@ -10,6 +11,11 @@ class Material;
 class ShaderGenerator
 {
 public:
+
+
+    //Generates a geometry shader with the given information, or a error message beginning with "ERROR:" if there was an error.
+    static std::string GenerateGeometryShader(const std::unordered_map<RenderingChannels, DataLine> & vertexOuts, const GeoShaderData & data);
+
 
     //Gets which shader the given channel input is calculated in.
     static DataNode::Shaders GetShaderType(RenderingChannels channel);
@@ -23,9 +29,11 @@ public:
 
     //Generates a vertex and fragment shader given data nodes.
     //Returns an error message, or an empty string if there was no error.
-    static std::string GenerateShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                       RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
-                                       std::unordered_map<RenderingChannels, DataLine> & channels);
+    //TODO: Take a vector of strings representing the names of the vertex outputs.
+    static std::string GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
+                                               RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
+                                               std::unordered_map<RenderingChannels, DataLine> & channels,
+                                               GeoShaderData geoShaderData = GeoShaderData());
 
 
     //The return type for GenerateMaterial.
@@ -44,5 +52,5 @@ public:
     static GeneratedMaterial GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
                                               UniformDictionary & outUniforms, const VertexAttributes & attribs,
                                               RenderingModes mode, bool useLighting, const LightSettings & settings,
-                                              std::string geometryShader = "");
+                                              GeoShaderData geometryShader = GeoShaderData());
 };

@@ -9,7 +9,17 @@
 
 
 
-typedef VertexPosTex1Normal VoxelVertex;
+struct VoxelVertex
+{
+public:
+    Vector3f Pos;
+    //For each of the three axes, whether or not a quad should be made for that face.
+    //A value of 0 indicates "no"; a value of 1 indicates "yes".
+    Vector3f MinExists, MaxExists;
+    VoxelVertex(Vector3f pos = Vector3f(), Vector3f minExists = Vector3f(1, 1, 1), Vector3f maxExists = Vector3f(1, 1, 1)) : Pos(pos), MinExists(minExists), MaxExists(maxExists) { }
+
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 3, 3, false, false, false); }
+};
 
 
 //Represents a grid of voxels.
@@ -47,6 +57,9 @@ public:
 
 
     VoxelChunk(Vector3i minCorner) : MinCorner(minCorner), nSolidVoxels(0), voxels(ChunkSize, ChunkSize, ChunkSize, false) { }
+
+    VoxelChunk(void); //Intentionally not implemented.
+    VoxelChunk(const VoxelChunk & cpy); //Intentionally not implemented.
 
 
     //TODO: Move all these space conversions into their own class, except maybe the local chunk space ones.
@@ -311,7 +324,7 @@ public:
     //TODO: Put thsi into "VoxelMesh" class.
     //Builds the world-space triangles/indices for this chunk, given all surrounding chunks.
     //Any of the surrounding chunks passed in may have values of 0 if they don't exist.
-    void BuildTriangles(std::vector<VoxelVertex> & vertices, std::vector<unsigned int> & indices,
+    void BuildTriangles(std::vector<VoxelVertex> & vertices,
                         const VoxelChunk * beforeMinX, const VoxelChunk * afterMaxX,
                         const VoxelChunk * beforeMinY, const VoxelChunk * afterMaxY,
                         const VoxelChunk * beforeMinZ, const VoxelChunk * afterMaxZ) const;
