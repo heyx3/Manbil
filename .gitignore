@@ -12,3 +12,5 @@
 *.ilk
 *.log
 /.project
+*Manbil.exp
+*Manbil.lib
