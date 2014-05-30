@@ -472,6 +472,49 @@ void VoxelWorld::UpdateWorld(float elapsed)
                                  "Local voxel index: " << toAdd.LocalIndex.x << "," << toAdd.LocalIndex.y << "," << toAdd.LocalIndex.z << "\n";
                     toAdd.Chunk->SetVoxelLocal(toAdd.LocalIndex, true);
                     chunkMeshes[manager.GetChunkIndex(toAdd.Chunk)]->RebuildMesh(true);
+                    //Rebuild any chunks that the voxel was bordering on.
+                    if (toAdd.LocalIndex.x == 0)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).LessX();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
+                    else if (toAdd.LocalIndex.x == VoxelChunk::ChunkSize - 1)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).MoreX();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
+                    if (toAdd.LocalIndex.y == 0)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).LessY();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
+                    else if (toAdd.LocalIndex.y == VoxelChunk::ChunkSize - 1)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).MoreY();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
+                    if (toAdd.LocalIndex.z == 0)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).LessZ();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
+                    else if (toAdd.LocalIndex.z == VoxelChunk::ChunkSize - 1)
+                    {
+                        Vector3i loc = manager.GetChunkIndex(toAdd.Chunk).MoreZ();
+                        auto found = chunkMeshes.find(loc);
+                        if (found != chunkMeshes.end())
+                            found->second->RebuildMesh(true);
+                    }
 
                     if (toAdd.Chunk->MinCorner == Vector3i())
                         std::cout << "Debug output: " << DebugAssist::STR << "\n\n\n";
@@ -487,6 +530,49 @@ void VoxelWorld::UpdateWorld(float elapsed)
                              "Local voxel index: " << hit.ChunkRayCastResult.VoxelIndex.x << "," << hit.ChunkRayCastResult.VoxelIndex.y << "," << hit.ChunkRayCastResult.VoxelIndex.z << "\n";
                 hit.Chunk->SetVoxelLocal(hit.ChunkRayCastResult.VoxelIndex, false);
                 chunkMeshes[manager.GetChunkIndex(hit.Chunk)]->RebuildMesh(true);
+                //Rebuild any chunks that the voxel was bordering on.
+                if (hit.ChunkRayCastResult.VoxelIndex.x == 0)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).LessX();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
+                else if (hit.ChunkRayCastResult.VoxelIndex.x == VoxelChunk::ChunkSize - 1)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).MoreX();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
+                if (hit.ChunkRayCastResult.VoxelIndex.y == 0)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).LessY();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
+                else if (hit.ChunkRayCastResult.VoxelIndex.y == VoxelChunk::ChunkSize - 1)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).MoreY();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
+                if (hit.ChunkRayCastResult.VoxelIndex.z == 0)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).LessZ();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
+                else if (hit.ChunkRayCastResult.VoxelIndex.z == VoxelChunk::ChunkSize - 1)
+                {
+                    Vector3i loc = manager.GetChunkIndex(hit.Chunk).MoreZ();
+                    auto found = chunkMeshes.find(loc);
+                    if (found != chunkMeshes.end())
+                        found->second->RebuildMesh(true);
+                }
 
                 if (hit.Chunk->MinCorner == Vector3i())
                     std::cout << "Debug output: " << DebugAssist::STR << "\n\n\n";
@@ -498,7 +584,7 @@ void VoxelWorld::UpdateWorld(float elapsed)
 void VoxelWorld::RenderOpenGL(float elapsed)
 {
     renderState.EnableState();
-    Vector4f clearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    Vector4f clearColor(0.0f, 0.0f, 0.0f, 0.0f);
     //if (player.Cam.OVRDevice.get() != 0 && player.Cam.OVRDevice->IsDoneAutoCalibration())
     //    clearColor.x = 0.0f;
     ScreenClearer(true, true, false, clearColor).ClearScreen();
@@ -543,7 +629,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //Render the world.
     RenderTargets[worldRenderTarget]->EnableDrawingInto();
     renderState.EnableState();
-    ScreenClearer(true, true, false, Vector4f(0.5f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
 
     #pragma region Render each face

@@ -5,9 +5,6 @@
 #include "../Math/Higher Math/GeometricMath.h"
 
 
-//Vertices and indices arrays initially reserve this amount before building vertices/indices.
-const unsigned int UpperBoundSize = VoxelChunk::ChunkSize * VoxelChunk::ChunkSize * VoxelChunk::ChunkSize;
-
 
 ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, Vector3i chunkIndex, VoxelChunk * chunk)
 : vertices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex), mesh(PrimitiveTypes::Points)
@@ -35,7 +32,7 @@ void ChunkMesh::RebuildMesh(bool buildNow)
     VoxelChunk * chnk = manager.GetChunk(ChunkIndex);
     if (chnk == 0) return;
 
-    vertices.reserve(UpperBoundSize);
+    vertices.reserve(chnk->GetNumbSolidVoxels());
     chnk->BuildTriangles(vertices,
                          manager.GetChunk(Vector3i(ChunkIndex.x - 1, ChunkIndex.y, ChunkIndex.z)),
                          manager.GetChunk(Vector3i(ChunkIndex.x + 1, ChunkIndex.y, ChunkIndex.z)),
