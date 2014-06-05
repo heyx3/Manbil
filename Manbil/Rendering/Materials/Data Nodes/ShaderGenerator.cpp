@@ -3,6 +3,7 @@
 #include "DataNodeIncludes.h"
 #include "../../../Math/Higher Math/Lighting.h"
 #include "../../../Material.h"
+#include "../../../DebugAssist.h"
 
 
 typedef ShaderGenerator SG;
@@ -111,6 +112,9 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
         {
             unsigned int vOutputIndex = GetVertexOutputNumber(iterator->first);
             std::string name = MaterialConstants::VertexOutNameBase + std::to_string(vOutputIndex);
+
+            int size = iterator->second.GetDataLineSize();
+            if (size == 0) return std::string() + "ERROR: size of data line output '" + ChannelToString(iterator->first) + "' is 0.";
 
             code += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + "[" + std::to_string(PrimitiveTypeToNVertices(data.InputPrimitive)) + "];\n";
         }
