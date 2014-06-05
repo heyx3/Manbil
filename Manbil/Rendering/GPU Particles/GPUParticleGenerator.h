@@ -44,7 +44,8 @@ public:
         NOP_262144,
         NOP_1048576,
     };
-    unsigned int ToInt(NumberOfParticles number)
+    //Gets the number of particles as an unsigned integer.
+    static unsigned int GetNumbParticles(NumberOfParticles number)
     {
         switch (number)
         {
@@ -59,6 +60,28 @@ public:
             case NumberOfParticles::NOP_65536: return 65536;
             case NumberOfParticles::NOP_262144: return 262144;
             case NumberOfParticles::NOP_1048576: return 1048576;
+
+            default: assert(false); return 0;
+        }
+    }
+    //Gets the length/width of a texture used for particle data lookup.
+    static unsigned int GetParticleDataLength(NumberOfParticles number)
+    {
+        switch (number)
+        {
+            case NumberOfParticles::NOP_1: return 1;
+            case NumberOfParticles::NOP_4: return 2;
+            case NumberOfParticles::NOP_16: return 4;
+            case NumberOfParticles::NOP_64: return 8;
+            case NumberOfParticles::NOP_256: return 16;
+            case NumberOfParticles::NOP_1024: return 32;
+            case NumberOfParticles::NOP_4096: return 64;
+            case NumberOfParticles::NOP_16384: return 128;
+            case NumberOfParticles::NOP_65536: return 256;
+            case NumberOfParticles::NOP_262144: return 512;
+            case NumberOfParticles::NOP_1048576: return 1024;
+
+            default: assert(false); return 0;
         }
     }
 

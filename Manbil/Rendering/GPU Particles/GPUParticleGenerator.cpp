@@ -213,61 +213,14 @@ void main()                                                                     
     channels[RenderingChannels::RC_Opacity] = DataLine(DataNodePtr(new VectorComponentsNode(outputs[GPUPOutputs::GPUP_COLOR])), 3);
 
 
-    return ShaderGenerator::GenerateMaterial(channels, outUniforms, VertexAttributes(), mode, false, LightSettings(false), geoDat);
+    return ShaderGenerator::GenerateMaterial(channels, outUniforms, particleAttributes, mode, false, LightSettings(false), geoDat);
 }
 
 RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator::NumberOfParticles numb)
 {
     //Get the total number of particles and the number of particles in each row/column (in terms of particle ID).
-    unsigned int n = 0;
-    unsigned int length = 0;
-    switch (numb)
-    {
-        case NumberOfParticles::NOP_1:
-            n = 1;
-            length = 1;
-            break;
-        case NumberOfParticles::NOP_4:
-            n = 4;
-            length = 2;
-            break;
-        case NumberOfParticles::NOP_16:
-            n = 16;
-            length = 4;
-            break;
-        case NumberOfParticles::NOP_64:
-            n = 64;
-            length = 8;
-            break;
-        case NumberOfParticles::NOP_256:
-            n = 256;
-            length = 16;
-            break;
-        case NumberOfParticles::NOP_1024:
-            n = 1024;
-            length = 32;
-            break;
-        case NumberOfParticles::NOP_4096:
-            n = 4096;
-            length = 64;
-            break;
-        case NumberOfParticles::NOP_16384:
-            n = 16384;
-            length = 128;
-            break;
-        case NumberOfParticles::NOP_65536:
-            n = 65536;
-            length = 256;
-            break;
-        case NumberOfParticles::NOP_262144:
-            n = 262144;
-            length = 512;
-            break;
-        case NumberOfParticles::NOP_1048576:
-            n = 1048576;
-            length = 1024;
-            break;
-    }
+    unsigned int n = GetNumbParticles(numb);
+    unsigned int length = GetParticleDataLength(numb);
 
     //Generate the particle data.
     Array2D<Vertex> particles(length, length);
