@@ -48,7 +48,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outStr) const override
     {
-        outStr += "\t" + VectorF(GetInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) + " = " + GetInput().GetValue() + ".";
+        outStr += "\t" + VectorF(nComps).GetGLSLType() + " " + GetOutputName(0) + " = " + GetInput().GetValue() + ".";
         for (unsigned int i = 0; i < nComps; ++i)
         {
             outStr += ToString(comps[i]);
@@ -64,11 +64,11 @@ private:
     {
         switch (comp)
         {
-        case Components::C_X: return "x";
-        case Components::C_Y: return "y";
-        case Components::C_Z: return "z";
-        case Components::C_W: return "w";
-        default: assert(false);
+            case Components::C_X: return "x";
+            case Components::C_Y: return "y";
+            case Components::C_Z: return "z";
+            case Components::C_W: return "w";
+            default: assert(false);
         }
 
         return "invalid";
