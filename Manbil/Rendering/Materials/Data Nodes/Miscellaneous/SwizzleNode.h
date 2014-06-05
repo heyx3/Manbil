@@ -48,7 +48,7 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outStr) const override
     {
-        outStr += "\t" + std::to_string(GetInput().GetDataLineSize()) + " " + GetOutputName(0) + " = " + GetInput().GetValue() + ".";
+        outStr += "\t" + VectorF(GetInput().GetDataLineSize()).GetGLSLType() + " " + GetOutputName(0) + " = " + GetInput().GetValue() + ".";
         for (unsigned int i = 0; i < nComps; ++i)
         {
             outStr += ToString(comps[i]);
