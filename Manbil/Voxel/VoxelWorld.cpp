@@ -375,7 +375,7 @@ void VoxelWorld::InitializeWorld(void)
     player.Cam.Info.Width = vWindowSize.x;
     player.Cam.Info.Height = vWindowSize.y;
     player.Cam.Info.zNear = 0.1f;
-    player.Cam.Info.zFar = 1000.0f;
+    player.Cam.Info.zFar = 500.0f;
 
     player.MoveSpeed = 15.0f;
     player.CamOffset = Vector3f(0.0f, 0.0f, 0.5f);
