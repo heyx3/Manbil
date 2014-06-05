@@ -297,6 +297,12 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -733,6 +739,12 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\GPUParticleDefines.h">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\GPUParticleGenerator.h">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -833,6 +845,9 @@
     </Filter>
     <Filter Include="Oculus Rift Stuff\Source">
       <UniqueIdentifier>{8a2c0e1a-b834-49f6-be8e-474fb5408f6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\GPU Particles">
+      <UniqueIdentifier>{215761ec-d5e7-4ef2-9067-f3077de54bd2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

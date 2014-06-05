@@ -77,7 +77,7 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
 std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags)
 {
     return std::string() +
-"#version 330                                                    \n\
+"#version 400                                                    \n\
                                                                  \n\
 " + GetVertexInputDeclarations(attribs) + "                      \n\
                                                                  \n\
@@ -88,7 +88,7 @@ std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, c
 std::string MaterialConstants::GetGeometryHeader(std::string outputDeclarations, PrimitiveTypes input, PrimitiveTypes output, unsigned int maxVertices, const MaterialUsageFlags & flags)
 {
     return std::string() +
-"#version 330                                                   \n\
+"#version 400                                                   \n\
                                                                 \n\
 layout (" + PrimitiveTypeToGSInput(input) + ") in;              \n\
 layout (" + PrimitiveTypeToGSOutput(output) + ") out;           \n\
@@ -101,7 +101,7 @@ layout (max_vertices = " + std::to_string(maxVertices) + ") out;\n\
 std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags)
 {
     return std::string() +
-"#version 330                                                    \n\
+"#version 400                                                    \n\
                                                                  \n\
 " + inputDeclarations + "                                        \n\
                                                                  \n\

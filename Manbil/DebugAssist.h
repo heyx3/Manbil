@@ -1,13 +1,17 @@
 #pragma once
 
+
 #include <string>
 #include <iostream>
+#include <assert.h>
 
 #include "Math/LowerMath.hpp"
 #include "Math/Shapes.hpp"
+#include "Rendering/GPU Particles/GPUParticleDefines.h"
 
 
 //Helpful debugging stuff.
+//TODO: Move other ToString() stuff into here, such as VectorF, VectorI, various Uniform value structs, and various enums.
 struct DebugAssist
 {
 public:
@@ -36,6 +40,18 @@ public:
 
     static std::string ToString(Box2D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
     static std::string ToString(Box3D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
+
+    static std::string ToString(GPUPOutputs output)
+    {
+        switch (output)
+        {
+            case GPUPOutputs::GPUP_WORLDPOSITION: return "GPUP_WORLDPOSITION";
+            case GPUPOutputs::GPUP_SIZE: return "GPUP_SIZE";
+            case GPUPOutputs::GPUP_QUADROTATION: return "GPUP_QUADROTATION";
+            case GPUPOutputs::GPUP_COLOR: return "GPUP_COLOR";
+            default: assert(false); return std::string() + "GPUP_ERROR_UNKNOWN_VALUE_OF_" + std::to_string(output);
+        }
+    }
 
 
     static void PauseConsole(std::string toPrint = "Enter any character to continue") { std::cout << toPrint; char dummy; std::cin >> dummy; }

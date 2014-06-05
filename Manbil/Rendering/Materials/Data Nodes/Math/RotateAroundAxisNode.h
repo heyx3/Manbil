@@ -5,6 +5,7 @@
 
 //Rotates a vector around an axis.
 //TODO: If the rotation axis and angle is constant, precompute the quaternion when generating the GLSL code.
+//TODO: Give each instance of this node its own function that takes in the axis and angle. However, if the axis or angle is a constant value, DON'T take it in -- just use it. If both are constant, pre-generate the quaternion.
 //TODO: Put functions into a .cpp file.
 class RotateAroundAxisNode : public DataNode
 {
@@ -24,7 +25,6 @@ protected:
 
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override
     {
-        //TODO: Each instance of this node has its own function that takes in the axis and angle. However, if the axis or angle is a constant value, DON'T take it in -- just use it.
 
         std::string getFN = GetGetQuatRotFuncName(),
                     applyFN = GetApplyQuatRotFuncName();

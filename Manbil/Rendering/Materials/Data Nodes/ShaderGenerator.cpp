@@ -417,28 +417,9 @@ void main()                                                                     
 
 
     //Finalize the uniforms.
+    outUniforms.AddUniforms(fragmentUniformDict, true);
+    outUniforms.AddUniforms(vertexUniformDict, true);
 
-    for (auto iterator = fragmentUniformDict.FloatUniforms.begin(); iterator != fragmentUniformDict.FloatUniforms.end(); ++iterator)
-        outUniforms.FloatUniforms[iterator->first] = iterator->second;
-    for (auto iterator = fragmentUniformDict.FloatArrayUniforms.begin(); iterator != fragmentUniformDict.FloatArrayUniforms.end(); ++iterator)
-        outUniforms.FloatArrayUniforms[iterator->first] = iterator->second;
-    for (auto iterator = fragmentUniformDict.MatrixUniforms.begin(); iterator != fragmentUniformDict.MatrixUniforms.end(); ++iterator)
-        outUniforms.MatrixUniforms[iterator->first] = iterator->second;
-    for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
-        outUniforms.TextureUniforms[iterator->first] = iterator->second;
-
-    for (auto iterator = vertexUniformDict.FloatUniforms.begin(); iterator != vertexUniformDict.FloatUniforms.end(); ++iterator)
-        if (outUniforms.FloatUniforms.find(iterator->first) == outUniforms.FloatUniforms.end())
-            outUniforms.FloatUniforms[iterator->first] = iterator->second;
-    for (auto iterator = vertexUniformDict.FloatArrayUniforms.begin(); iterator != vertexUniformDict.FloatArrayUniforms.end(); ++iterator)
-        if (outUniforms.FloatArrayUniforms.find(iterator->first) == outUniforms.FloatArrayUniforms.end())
-            outUniforms.FloatArrayUniforms[iterator->first] = iterator->second;
-    for (auto iterator = vertexUniformDict.MatrixUniforms.begin(); iterator != vertexUniformDict.MatrixUniforms.end(); ++iterator)
-        if (outUniforms.MatrixUniforms.find(iterator->first) == outUniforms.MatrixUniforms.end())
-            outUniforms.MatrixUniforms[iterator->first] = iterator->second;
-    for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
-        if (outUniforms.TextureUniforms.find(iterator->first) == outUniforms.TextureUniforms.end())
-            outUniforms.TextureUniforms[iterator->first] = iterator->second;
 
     return "";
 }

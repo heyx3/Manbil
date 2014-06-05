@@ -48,7 +48,7 @@ public:
     UniformDictionary Params;
     std::string ShaderCode;
 
-    //Use all the default parameters to create an "invalid" geometry shader.
+    //Use the default parameters for "maxVertices" and/or "shaderCode" to create an invalid instance.
     GeoShaderData(GeoShaderOutput outputTypes = GeoShaderOutput(), MaterialUsageFlags flags = MaterialUsageFlags(), unsigned int maxVerts = 4,
                   PrimitiveTypes inPrimitive = PrimitiveTypes::Points, PrimitiveTypes outPrimitive = PrimitiveTypes::TriangleStrip,
                   UniformDictionary params = UniformDictionary(), std::string shaderCode = "")
