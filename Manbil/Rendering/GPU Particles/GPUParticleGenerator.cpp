@@ -125,7 +125,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
         }
     }
 
-    geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
+    //geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
 
     geoDat.ShaderCode += "\n//Other uniforms.\n";
     for (auto loc = geoDat.Params.FloatUniforms.begin(); loc != geoDat.Params.FloatUniforms.end(); ++loc)
@@ -157,7 +157,8 @@ vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
     }
     //Define some other stuff for the shader.
     std::string vpTransf = "(" + MaterialConstants::ViewProjMatName + " * vec4(",
-                size = outputs[GPUPOutputs::GPUP_SIZE].GetValue();
+                sizeX = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".x",
+                sizeY = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".y";
     geoDat.ShaderCode += std::string() +
 "                                                                               \n\
                                                                                 \n\
@@ -178,32 +179,32 @@ void main()                                                                     
     vec4 rotQuat = vec4(" + MaterialConstants::CameraForwardName + " * sin(halfRot),\n\
                         cos(halfRot));                                          \n\
                                                                                 \n\
-    vec3 cornerPos = " + size + " * (up + side);                                \n\
+    vec3 cornerPos = (up * " + sizeY + ") + (side * " + sizeX + ");             \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 1.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
-    cornerPos = " + size + " * (-up + side);                                    \n\
+    cornerPos = (-up * " + sizeY + ") + (side * " + sizeX + ");                 \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 0.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
-    cornerPos = " + size + " * (up - side);                                     \n\
+    cornerPos = (up * " + sizeY + ") - (side * " + sizeX + ");                  \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 1.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
-    cornerPos = " + size + " * -(up + side);                                    \n\
+    cornerPos = -((up * " + sizeY + ") + (side * " + sizeX + "));               \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 0.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
     EmitVertex();                                                               \n\
 }";
 
