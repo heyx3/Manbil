@@ -152,6 +152,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />

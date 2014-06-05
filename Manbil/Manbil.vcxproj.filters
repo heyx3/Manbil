@@ -303,6 +303,9 @@
     <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp">
       <Filter>Rendering\GPU Particles</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
