@@ -2,10 +2,14 @@
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../../DebugAssist.h"
+#include "../../Math/Array2D.h"
 
 
 ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMaterial(std::unordered_map<GPUPOutputs, DataLine> outputs, UniformDictionary & outUniforms, RenderingModes mode)
 {
+    VertexAttributes particleAttributes = Vertex::GetAttributeData();
+    DataNodePtr vertexInputNode = DataNodePtr(new VertexInputNode(particleAttributes));
+
     //First check for any missing outputs.
     if (outputs.find(GPUPOutputs::GPUP_WORLDPOSITION) == outputs.end())
         return ShaderGenerator::GeneratedMaterial("No 'GPUP_WORLDPOSITION' output");
@@ -22,16 +26,15 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
 
 
     //First, convert the particle inputs into vertex shader outputs.
-    //The vertex shader will output world position to the geometry shader; no vertex attributes are needed.
     channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION], DataLine(VectorF(1.0f)))), 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexInputNode, 0);
 
 
     //Next, use the geometry shader to turn points into quads.
     //This shader uses the "size", "quad rotation", and "world position" outputs.
-    //Output UV coordinates for the fragment shader.
 
     DataNode::SetShaderType(DataNode::Shaders::SH_GeometryShader);
-    GeoShaderData geoDat(GeoShaderOutput("uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), "");
+    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), "");
     DataNode::SetGeoData(&geoDat);
 
     geoDat.UsageFlags.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -122,30 +125,30 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
         }
     }
 
-    std::string geoShader = MaterialConstants::GetGeometryHeader(std::string("out vec2 uvs\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
+    geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
 
-    geoShader += "\n//Other uniforms.\n";
+    geoDat.ShaderCode += "\n//Other uniforms.\n";
     for (auto loc = geoDat.Params.FloatUniforms.begin(); loc != geoDat.Params.FloatUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     for (auto loc = geoDat.Params.FloatArrayUniforms.begin(); loc != geoDat.Params.FloatArrayUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     for (auto loc = geoDat.Params.IntUniforms.begin(); loc != geoDat.Params.IntUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     for (auto loc = geoDat.Params.IntArrayUniforms.begin(); loc != geoDat.Params.IntArrayUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     for (auto loc = geoDat.Params.MatrixUniforms.begin(); loc != geoDat.Params.MatrixUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     for (auto loc = geoDat.Params.TextureUniforms.begin(); loc != geoDat.Params.TextureUniforms.end(); ++loc)
-        geoShader += loc->second.GetDeclaration() + "\n";
+        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     
-    geoShader += "\n\n//Helper functions.\n";
+    geoDat.ShaderCode += "\n\n//Helper functions.\n";
     for (int i = 0; i < functionDecls.size(); ++i)
-        geoShader += functionDecls[i];
+        geoDat.ShaderCode += functionDecls[i];
     
     //Define quaternion rotation.
     if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant(0.0f))
     {
-        geoShader += "                                        \n\
+        geoDat.ShaderCode += "                                        \n\
 vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
 {                                                         \n\
     return pos + (2.0 * cross(cross(pos, rot.xyz) + (rot.w * pos),\n\
@@ -155,7 +158,7 @@ vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
     //Define some other stuff for the shader.
     std::string vpTransf = "(" + MaterialConstants::ViewProjMatName + " * vec4(",
                 size = outputs[GPUPOutputs::GPUP_SIZE].GetValue();
-    geoShader += std::string() +
+    geoDat.ShaderCode += std::string() +
 "                                                                               \n\
                                                                                 \n\
 void main()                                                                     \n\
@@ -179,24 +182,28 @@ void main()                                                                     
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 1.0);                                                       \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = " + size + " * (-up + side);                                    \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 0.0);                                                       \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = " + size + " * (up - side);                                     \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 1.0);                                                       \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = " + size + " * -(up + side);                                    \n\
     cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 0.0);                                                       \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "1;                 \n\
     EmitVertex();                                                               \n\
 }";
 
@@ -207,4 +214,78 @@ void main()                                                                     
 
 
     return ShaderGenerator::GenerateMaterial(channels, outUniforms, VertexAttributes(), mode, false, LightSettings(false), geoDat);
+}
+
+RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator::NumberOfParticles numb)
+{
+    //Get the total number of particles and the number of particles in each row/column (in terms of particle ID).
+    unsigned int n = 0;
+    unsigned int length = 0;
+    switch (numb)
+    {
+        case NumberOfParticles::NOP_1:
+            n = 1;
+            length = 1;
+            break;
+        case NumberOfParticles::NOP_4:
+            n = 4;
+            length = 2;
+            break;
+        case NumberOfParticles::NOP_16:
+            n = 16;
+            length = 4;
+            break;
+        case NumberOfParticles::NOP_64:
+            n = 64;
+            length = 8;
+            break;
+        case NumberOfParticles::NOP_256:
+            n = 256;
+            length = 16;
+            break;
+        case NumberOfParticles::NOP_1024:
+            n = 1024;
+            length = 32;
+            break;
+        case NumberOfParticles::NOP_4096:
+            n = 4096;
+            length = 64;
+            break;
+        case NumberOfParticles::NOP_16384:
+            n = 16384;
+            length = 128;
+            break;
+        case NumberOfParticles::NOP_65536:
+            n = 65536;
+            length = 256;
+            break;
+        case NumberOfParticles::NOP_262144:
+            n = 262144;
+            length = 512;
+            break;
+        case NumberOfParticles::NOP_1048576:
+            n = 1048576;
+            length = 1024;
+            break;
+    }
+
+    //Generate the particle data.
+    Array2D<Vertex> particles(length, length);
+    const float increment = 1.0f / length;
+    for (unsigned int y = 0; y < length; ++y)
+    {
+        float yID = increment * y;
+
+        for (unsigned int x = 0; x < length; ++x)
+        {
+            float xID = increment * x;
+
+            particles[Vector2i(x, y)].ParticleID = Vector2f(xID, yID);
+        }
+    }
+
+    //Create the vertex buffer.
+    RenderObjHandle vbo;
+    RenderDataHandler::CreateVertexBuffer(vbo, particles.GetArray(), n, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    return vbo;
 }
