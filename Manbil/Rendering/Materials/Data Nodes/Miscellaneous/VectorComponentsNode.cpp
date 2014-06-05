@@ -17,7 +17,6 @@ std::string VectorComponentsNode::GetOutputName(unsigned int outputIndex) const
     
     std::string ret = GetInputs()[0].GetValue() + ".";
 
-    //std::string ret = GetVectorInput().GetValue();
     //Swizzling is only valid if the input isn't a float.
     if (GetVectorInput().GetDataLineSize() > 1)
         switch (outputIndex)
