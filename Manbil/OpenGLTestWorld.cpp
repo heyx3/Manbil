@@ -13,6 +13,7 @@
 #include "Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "Math/NoiseGeneration.hpp"
+#include "Rendering/GPU Particles/GPUParticleGenerator.h"
 
 #include <assert.h>
 
@@ -97,12 +98,13 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Vertex output 3: water rand seeds.
     //Vertex output 4: world-space position.
 
-    DNP waterNode(new WaterNode(DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 0),
+    DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
+    DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
                                 DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_1, 3)), 0),
                                 3, 2));
     channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RC::RC_VERTEX_OUT_2] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 1);
-    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new VertexInputNode(WaterVertex::GetAttributeData())), 2);
+    channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 1);
+    channels[RC::RC_VERTEX_OUT_3] = DataLine(waterVertexInput, 2);
     channels[RC::RC_VERTEX_OUT_4] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_1])), 0);
 
     DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
@@ -128,7 +130,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
                                                            DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
     channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
-                                                     ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+                                                ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
 
     UniformDictionary unDict;
     ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, WaterVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
@@ -152,7 +154,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma endregion
 
 
-    //Geometry shader testing.
+    #pragma region Geometry shader testing
 
     std::unordered_map<RC, DataLine> gsChannels;
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
@@ -198,6 +200,43 @@ void OpenGLTestWorld::InitializeMaterials(void)
     gsTestMat = gsGen.Mat;
 
 
+    #pragma endregion
+
+
+    #pragma region Particles
+
+
+    std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
+    DataLine elapsedTime(DataNodePtr(new TimeNode()), 0);
+    DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
+    DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
+
+    gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(VectorF(Vector3f(0.0f, 0.0f, 50.0f)));
+    gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1, sineTime_0_1, DataLine(VectorF(1.0f)))), 0);
+    gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(3.0f)),
+                                                                             DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
+
+    ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
+    if (!gen.ErrorMessage.empty())
+    {
+        std::cout << "Error generating shaders for particle effect: " << gen.ErrorMessage << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    particleMat = gen.Mat;
+
+    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_1;
+    particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
+                                                    GPUParticleGenerator::GenerateGPUPParticles(numb)));
+
+
+    #pragma endregion
+
+
+    #pragma region Post-process and final render
+
+
     //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
     ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
@@ -229,6 +268,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     finalScreenQuad = new DrawingQuad();
     finalScreenQuadParams = uniformDict;
+
+
+    #pragma endregion
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -272,7 +314,9 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
-  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0), gsTestMat(0), gsMesh(PrimitiveTypes::Points)
+  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
+  gsTestMat(0), gsMesh(PrimitiveTypes::Points),
+  particleMat(0), particleMesh(PrimitiveTypes::Points)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -312,6 +356,7 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
     DeleteAndSetToNull(ppc);
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
+    DeleteAndSetToNull(particleMat);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
@@ -320,6 +365,7 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(ppc);
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
+    DeleteAndSetToNull(particleMat);
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)

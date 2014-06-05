@@ -47,6 +47,10 @@ private:
     Material * gsTestMat;
     UniformDictionary gsTestParams;
 
+    Mesh particleMesh;
+    Material * particleMat;
+    UniformDictionary particleParams;
+
 	MovingCamera cam;
     RenderTargetManager manager;
 
