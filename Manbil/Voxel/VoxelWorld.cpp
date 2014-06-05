@@ -211,7 +211,7 @@ void VoxelWorld::InitializeWorld(void)
     RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
     voxelHighlightMesh.SetVertexIndexData(VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
     channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(VertexPosTex1Normal::GetAttributeData())), 1);
+    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(VertexPosTex1Normal::GetAttributeData())), 1);
     channels[RenderingChannels::RC_Color] = DataLine(Vector3f(1.0f, 1.0f, 1.0f));
     UniformDictionary vhvUD;
     ShaderGenerator::GeneratedMaterial genVHM = ShaderGenerator::GenerateMaterial(channels, vhvUD, VertexPosTex1Normal::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
@@ -246,9 +246,9 @@ void VoxelWorld::InitializeWorld(void)
     toCombine.insert(toCombine.end(), DataLine(1.0f));
     channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(toCombine)), 0);
 
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
+    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0),
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
                                                                                        "u_finalWorldRender")),
                                                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary dict;
@@ -278,10 +278,11 @@ void VoxelWorld::InitializeWorld(void)
     * 0: Min Existing
     * 1: Max Existing
     */
-    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 0))), 0);
+    DataNodePtr vertexInput(new VertexInputNode(VoxelVertex::GetAttributeData()));
+    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexInput, 0))), 0);
     channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 1);
-    channels[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new VertexInputNode(VoxelVertex::GetAttributeData())), 2);
+    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexInput, 1);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexInput, 2);
     /* Geometry outputs:
     * 0: World pos
     * 1: UV
@@ -320,15 +321,16 @@ void VoxelWorld::InitializeWorld(void)
     gl_Position = " + worldToScreen + ";                    \n\
     EmitVertex();                                           \n\
 }");
-    //TODO: After verifying that this geometry shader stuff works, don't draw faces that are obscured.
+    //TODO: Don't draw faces that are obscured.
 
+    DataNodePtr voxelFragInput(new FragmentInputNode(VertexAttributes(3, 2, false, false)));
     DataLine surfNormal(DataNodePtr(new ParamNode(3, "u_surfaceNormal")), 0);
-    DataLine lighting(DataNodePtr(new LightingNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 3)), 0),
+    DataLine lighting(DataNodePtr(new LightingNode(DataLine(voxelFragInput, 0),
                                                    surfNormal,
                                                    DataLine(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
                                                    DataLine(0.25f), DataLine(0.75f), DataLine(3.0f), DataLine(64.0f))),
                       0);
-    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_2, 2)), 0),
+    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(voxelFragInput, 1),
                                                        "u_voxelTex")),
                      TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, diffTex)), 0);
@@ -723,15 +725,15 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
 
     //Render the post-process chain.
-    //if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
-    //{
-    //    PrintError("Error rendering post-process chains", postProcessing->GetError());
-    //    EndWorld();
-    //    return;
-    //}
+    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
+    {
+        PrintError("Error rendering post-process chains", postProcessing->GetError());
+        EndWorld();
+        return;
+    }
     
     //Render the final world info.
-    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(RenderTargets[worldRenderTarget]->GetColorTextures()[0]);//postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, finalWorldRenderParams, *finalWorldRenderMat))
     {

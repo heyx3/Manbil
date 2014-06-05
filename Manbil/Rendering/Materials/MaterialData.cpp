@@ -19,8 +19,8 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
                   MaterialConstants::CameraFovName = "u_cam_fov",
 
-                  MaterialConstants::VertexInNameBase = "in_",
-                  MaterialConstants::VertexOutNameBase = "out_",
+                  MaterialConstants::VertexInNameBase = "vIn_",
+                  MaterialConstants::VertexOutNameBase = "vOut_",
 
                   MaterialConstants::FragmentOutName = "FinalOutput";
 
@@ -39,7 +39,7 @@ RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
         case RenderingModes::RM_Opaque:
             return RenderingState();
         case RenderingModes::RM_Transluscent:
-            //TODO: I think transluscent shouldn't write to the depth buffer, because then it removes the need for depth sorting? Test this.
+            //TODO: I think transluscent shouldn't write to the depth buffer, because then it removes the need for depth sorting (as long as you draw transluscent stuff after all opaque stuff)? Test this.
             return RenderingState(RenderingState::Cullables::C_NONE);
         case RenderingModes::RM_Additive:
             return RenderingState(RenderingState::C_NONE, RenderingState::BE_ONE, RenderingState::BE_ONE, true, false);

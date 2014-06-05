@@ -93,24 +93,26 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma region Water
 
 
-    //Vertex output 1: object-space position.
-    //Vertex output 2: UV coords.
-    //Vertex output 3: water rand seeds.
-    //Vertex output 4: world-space position.
+    //Vertex output 0: object-space position.
+    //Vertex output 1: UV coords.
+    //Vertex output 2: water rand seeds.
+    //Vertex output 3: world-space position.
 
+    VertexAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
+    DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
     DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
     DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
-                                DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_1, 3)), 0),
+                                DataLine(fragmentInput, 0),
                                 3, 2));
-    channels[RC::RC_VERTEX_OUT_1] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 1);
-    channels[RC::RC_VERTEX_OUT_3] = DataLine(waterVertexInput, 2);
-    channels[RC::RC_VERTEX_OUT_4] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_1])), 0);
+    channels[RC::RC_VERTEX_OUT_0] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
+    channels[RC::RC_VERTEX_OUT_1] = DataLine(waterVertexInput, 1);
+    channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 2);
+    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_0])), 0);
 
-    DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(RC::RC_VERTEX_OUT_3),
+    DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(fragInputAttributes, 2),
                                                            DataLine(0.01f), DataLine(0.5f),
-                                                           WaterSurfaceDistortNode::GetTimeIn(RC::RC_VERTEX_OUT_3)));
-    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_2, 2)), 0),
+                                                           WaterSurfaceDistortNode::GetTimeIn(fragInputAttributes, 2)));
+    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(fragmentInput, 1),
                                                                 DataLine(VectorF(10.0f, 10.0f)),
                                                                 DataLine(VectorF(0.0f, 0.0f)),
                                                                 DataLine(VectorF(-0.15f, 0.0f)));
@@ -120,7 +122,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
                                                                DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
 
-    DNP light(new LightingNode(DataLine(DNP(new VertexOutputNode(RC::RC_VERTEX_OUT_4, 3)), 0),
+    DNP light(new LightingNode(DataLine(fragmentInput, 3),
                                DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),
                                DataLine(Vector3f(-1, -1, -0.1).Normalized()),
                                DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
@@ -207,7 +209,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
-    DataLine elapsedTime(DataNodePtr(new TimeNode()), 0);
+    DataNodePtr geoInputs(new GeometryInputNode(ParticleVertex::GetAttributeData()));
+    DataLine elapsedTime(DataNodePtr(new AddNode(DataLine(geoInputs, 1),
+                                                 DataLine(DataNodePtr(new TimeNode()), 0))), 0);
     DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
     DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
@@ -246,7 +250,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Final render.
     finalScreenMatChannels[RC::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
     finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-    DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), "u_finalRenderSample"));
+    DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new FragmentInputNode(DrawingQuad::GetAttributeData())), 1), "u_finalRenderSample"));
     finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
@@ -394,6 +398,8 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
+    //TODO: Refactor this so it ACTUALLY only renders world geometry.
+
     //Render the world into a render target.
 
     manager[worldRenderID]->EnableDrawingInto();
@@ -415,6 +421,16 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     if (!gsTestMat->Render(RenderPasses::BaseComponents, info, meshList, gsTestParams))
     {
         std::cout << "Error rendering geometry shader test: " << gsTestMat->GetErrorMsg() << ".\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    meshList.clear();
+    meshList.insert(meshList.end(), &particleMesh);
+    if (!particleMat->Render(RenderPasses::BaseComponents, info, meshList, particleParams))
+    {
+        std::cout << "Error rendering particles: " << particleMat->GetErrorMsg() << ".\n";
         Pause();
         EndWorld();
         return;

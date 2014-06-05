@@ -705,9 +705,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexOutputNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Objects\WaterRendering.h">
       <Filter>Rendering\Objects</Filter>
     </ClInclude>
@@ -744,6 +741,15 @@
     </ClInclude>
     <ClInclude Include="Rendering\GPU Particles\GPUParticleGenerator.h">
       <Filter>Rendering\GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

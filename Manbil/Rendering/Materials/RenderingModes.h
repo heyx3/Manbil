@@ -41,37 +41,39 @@ enum RenderingChannels
 
     //An "invalid" vertex output (interpolated fragment input).
     RC_VERTEX_OUT_INVALID,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
+    RC_VERTEX_OUT_0,
+    //Vertex output.
     RC_VERTEX_OUT_1,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_2,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_3,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_4,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_5,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_6,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_7,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_8,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_9,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_10,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_11,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_12,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_13,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_14,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_15,
-    //Vertex output (interpolated fragment input).
+    //Vertex output.
     RC_VERTEX_OUT_16,
 
     //Secondary color output.
@@ -91,8 +93,8 @@ bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
 bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput);
 //Gets whether the given channel is used in the given rendering mode with the given material light settings.
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit);
-//Gets the index of the given vertex output channel (returns 0 for RC_VERTEX_OUT_INVALID).
-unsigned int GetVertexOutputNumber(RenderingChannels vertOutput);
+//Gets the index of the given vertex output channel (returns -1 for RC_VERTEX_OUT_INVALID).
+int GetVertexOutputNumber(RenderingChannels vertOutput);
 //Gets the index of the given color output channel
 //    (returns 1 for RC_COLOR, and 2-4 for RC_COLOR_OUT_[2-4]).
 unsigned int GetColorOutputNumber(RenderingChannels colorOutput);

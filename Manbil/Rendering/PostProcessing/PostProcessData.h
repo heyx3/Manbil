@@ -2,6 +2,7 @@
 
 #include <string>
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Helper Classes/DrawingQuad.h"
 
 
 //Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
@@ -67,8 +68,6 @@ public:
 
     //The names of the color/depth texture sampler uniforms.
     static const std::string ColorSampler, DepthSampler;
-    //The index of the vertex input that corresponds to UV coordinates.
-    static int VertexInputUVIndex;
 
     static unsigned int GetColorOutputIndex(void) { return 0; }
     static unsigned int GetDepthOutputIndex(void) { return 1; }
@@ -76,15 +75,15 @@ public:
     //Returns a DataLine that samples the color texture.
     //This should be the value for the first post-process effect's "colorIn" constructor argument.
     //Subsequent effects should use the previous effect's color output.
-    static DataLine ColorSamplerIn(void)
+    static DataLine ColorSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
     {
-        return DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), ColorSampler)),
+        return DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), ColorSampler)),
                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
-    static DataLine DepthSamplerIn(void)
+    static DataLine DepthSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
     {
-        DataLine depthTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new VertexOutputNode(RenderingChannels::RC_VERTEX_OUT_1, 2)), 0), DepthSampler)),
+        DataLine depthTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), DepthSampler)),
                           TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
         DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
         return linearDepth;
@@ -105,7 +104,7 @@ public:
     //The effect that came before this one.
     PpePtr GetPreviousEffect(void) const { return PrevEffect; }
     //Switches out the effect this effect builds off of.
-    void ChangePreviousEffect(PpePtr newPrevEffect = PpePtr());
+    virtual void ChangePreviousEffect(PpePtr newPrevEffect = PpePtr());
 
     //The number of passes needed to do this effect.
     unsigned int NumbPasses;
@@ -149,6 +148,11 @@ protected:
             inputs.insert(inputs.end(), GetInputs()[i]);
         return inputs;
     }
+
+    //Gets the inputs into the fragment shader. By default, the only input is UVs.
+    virtual VertexAttributes GetFragmentInAttributes(void) const { return VertexAttributes(2, false); }
+    //Gets the index of the fragment shader input that corresponds to UVs. By default, it is 0 (the first and only input).
+    virtual int GetUVFragInputIndex(void) const { return 0; }
 
 
 private:

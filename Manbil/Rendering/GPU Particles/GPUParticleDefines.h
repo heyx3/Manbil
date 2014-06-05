@@ -1,8 +1,10 @@
 #pragma once
 
+#include "../../Vertices.h"
+
 
 //The GPU particle system in Manbil piggy-backs off of the DataNode system for generating materials.
-class DataLine;
+struct DataLine;
 
 //Different output channels for GPU particle data.
 enum GPUPOutputs
@@ -19,3 +21,14 @@ enum GPUPOutputs
 
 //Gets whether the given output line is a valid size for the given GPU particle data type.
 bool IsValidGPUPOutput(const DataLine & outputData, GPUPOutputs outputType);
+
+
+//The vertex that is used for particles.
+struct ParticleVertex
+{
+public:
+    Vector2f ParticleID;
+    float RandSeed;
+    ParticleVertex(Vector2f particleID = Vector2f(), float randSeed = 0.5f) : ParticleID(particleID), RandSeed(randSeed) { }
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(2, 1, false, false); }
+};

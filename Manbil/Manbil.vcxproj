@@ -291,13 +291,15 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\WhiteNoiseNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexOutputNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />

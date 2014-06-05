@@ -7,7 +7,7 @@
 
 ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMaterial(std::unordered_map<GPUPOutputs, DataLine> outputs, UniformDictionary & outUniforms, RenderingModes mode)
 {
-    VertexAttributes particleAttributes = Vertex::GetAttributeData();
+    VertexAttributes particleAttributes = ParticleVertex::GetAttributeData();
     DataNodePtr vertexInputNode = DataNodePtr(new VertexInputNode(particleAttributes));
 
     //First check for any missing outputs.
@@ -27,14 +27,15 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
 
     //First, convert the particle inputs into vertex shader outputs.
     channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION], DataLine(VectorF(1.0f)))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexInputNode, 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexInputNode, 0);
+    channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexInputNode, 1);
 
 
     //Next, use the geometry shader to turn points into quads.
     //This shader uses the "size", "quad rotation", and "world position" outputs.
 
     DataNode::SetShaderType(DataNode::Shaders::SH_GeometryShader);
-    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), "");
+    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "randSeed", 1, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), "");
     DataNode::SetGeoData(&geoDat);
 
     geoDat.UsageFlags.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -184,6 +185,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 1.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (-up * " + sizeY + ") + (side * " + sizeX + ");                 \n\
@@ -191,6 +193,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 0.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (up * " + sizeY + ") - (side * " + sizeX + ");                  \n\
@@ -198,6 +201,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 1.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = -((up * " + sizeY + ") + (side * " + sizeX + "));               \n\
@@ -205,6 +209,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 0.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
     EmitVertex();                                                               \n\
 }";
 
@@ -224,17 +229,21 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
     unsigned int length = GetParticleDataLength(numb);
 
     //Generate the particle data.
-    Array2D<Vertex> particles(length, length);
+    Array2D<ParticleVertex> particles(length, length);
     const float increment = 1.0f / length;
-    for (unsigned int y = 0; y < length; ++y)
+    for (Vector2i loc; loc.y < length; ++loc.y)
     {
-        float yID = increment * y;
+        float yID = increment * loc.y;
 
-        for (unsigned int x = 0; x < length; ++x)
+        for (loc.x = 0; loc.x < length; ++loc.x)
         {
-            float xID = increment * x;
+            float xID = increment * loc.x;
 
-            particles[Vector2i(x, y)].ParticleID = Vector2f(xID, yID);
+            FastRand fr(loc.GetHashCode());
+            fr.GetRandInt();
+            fr.GetRandInt();
+
+            particles[loc] = ParticleVertex(Vector2f(xID, yID), fr.GetRandInt());
         }
     }
 

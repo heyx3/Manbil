@@ -15,7 +15,8 @@ std::string TextureSampleNode::GetOutputName(unsigned int index) const
         case 3: return base + ".w";
         case 4: return base + ".xyz";
         case 5: return base;
-        default: Assert(false, std::string() + "Invalid output index: " + ToString(index));
+        default:
+            Assert(false, std::string() + "Invalid output index: " + ToString(index));
     }
 }
 

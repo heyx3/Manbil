@@ -27,7 +27,8 @@
 #include "Miscellaneous/DataNodeGenerators.h"
 
 #include "Parameters/VertexInputNode.h"
-#include "Parameters/VertexOutputNode.h"
+#include "Parameters/FragmentInputNode.h"
+#include "Parameters/GeometryInputNode.h"
 #include "Parameters/ShaderComputationNodes.h"
 #include "Parameters/CameraDataNode.h"
 #include "Parameters/ProjectionDataNode.h"

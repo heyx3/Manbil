@@ -11,23 +11,17 @@
 //The Particle ID can be used as a UV for a lookup into texture data or as a seed value for randomization.
 //Vertex inputs:
 //  0: Particle ID
+//  1: Random seed value between 0 and 1
 //Vertex outputs/Geometry inputs:
 //  0: Particle ID
+//  1: Random seed value
 //Geometry outputs/Fragment inputs:
 //  0: Particle ID
-//  1: Particle quad's UVs
+//  1: Random seed value
+//  2: Particle quad's UVs
 class GPUParticleGenerator
 {
 public:
-
-    //The vertex that is used for this particle generator.
-    struct Vertex
-    {
-    public:
-        Vector2f ParticleID;
-        Vertex(Vector2f particleID = Vector2f()) : ParticleID(particleID) { }
-        static VertexAttributes GetAttributeData(void) { return VertexAttributes(2, false); }
-    };
 
     //Powers of 4, for GPU optimization reasons.
     enum NumberOfParticles

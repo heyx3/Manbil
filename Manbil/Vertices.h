@@ -13,12 +13,13 @@
 //    is exactly equal to the cumulative size of the attributes.
 //For example, if the vertex only has UV and Normal, it should be the size of (2 + 3) * sizeof(float).
 //It also assumes that the attributes are ordered in the order this class was given.
+//TODO: This is used as input/output data specification for all the different kinds of shaders, so rename this something like "ShaderInOutAttributes".
 class VertexAttributes
 {
 public:
 
     //The maximum-allowable number of vertex attributes (independent of size).
-    //TODO: There is probably an OpenGL constant that can be queried to get this value.
+    //TODO: There is probably an OpenGL constant that can be queried to ensure no instances are ever constructed with too many values.
     static const int MAX_ATTRIBUTES = 5;
 
 
@@ -66,6 +67,14 @@ public:
         attributeNormalized[2] = normalized3;
         attributeNormalized[3] = normalized4;
         attributeNormalized[4] = normalized5;
+    }
+    VertexAttributes(const VertexAttributes & cpy)
+    {
+        for (unsigned int i = 0; i < MAX_ATTRIBUTES; ++i)
+        {
+            attributeSizes[i] = cpy.attributeSizes[i];
+            attributeNormalized[i] = cpy.attributeNormalized[i];
+        }
     }
 
     

@@ -18,8 +18,6 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
         bool IsBreak(void) const { return Effect == 0 || Pass == 0; }
     };
 
-    PostProcessEffect::VertexInputUVIndex = 1;
-
 
     //First separate the effects into "pass groups" -- a chain of effects grouped by pass.
     //Multi-pass effects are each in their own group.
@@ -93,7 +91,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             {
                 effct->CurrentPass = pass;
 
-                channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
+                channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
                 channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
                 effct->OverrideVertexOutputs(channels);
 
@@ -101,7 +99,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
                 ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
                 if (!genM.ErrorMessage.empty())
                 {
-                    errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + "of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
+                    errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + " of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
                     return;
                 }
 
@@ -154,7 +152,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             //Now create the material.
 
             channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
-            channels[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), PostProcessEffect::VertexInputUVIndex);
+            channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
             channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
             current->OverrideVertexOutputs(channels);
 
@@ -180,7 +178,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
 
     //Set up the render target settings.
-    //TODO: Parameterize the render target settings somehow (probably the PPC constructor). Will also need to change lines 236, 269, and 270 ("GetColorTextures()[0]").
+    //TODO: Parameterize the render target settings somehow (probably the PPC constructor). Will also need to change all instances of the code "GetColorTextures()[0]".
     RendTargetColorTexSettings cts;
     cts.ColorAttachment = 0;
     cts.Settings.Width = width;

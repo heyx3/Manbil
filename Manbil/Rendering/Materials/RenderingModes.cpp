@@ -16,6 +16,7 @@ std::string ChannelToString(RenderingChannels channel)
         case RenderingChannels::RC_Opacity: return "Opacity";
         case RenderingChannels::RC_VertexPosOutput: return "ScreenVertexPosition";
 
+        case RenderingChannels::RC_VERTEX_OUT_0:
         case RenderingChannels::RC_VERTEX_OUT_1:
         case RenderingChannels::RC_VERTEX_OUT_2:
         case RenderingChannels::RC_VERTEX_OUT_3:
@@ -55,6 +56,7 @@ bool IsChannelVertexOutput(RenderingChannels channel, bool includeInvalidOutput)
         case RCs::RC_VERTEX_OUT_INVALID:
             return includeInvalidOutput;
 
+        case RCs::RC_VERTEX_OUT_0:
         case RCs::RC_VERTEX_OUT_1:
         case RCs::RC_VERTEX_OUT_2:
         case RCs::RC_VERTEX_OUT_3:
@@ -87,6 +89,7 @@ bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput)
     case RCs::RC_VertexPosOutput:
     case RCs::RC_Opacity:
     case RCs::RC_VERTEX_OUT_INVALID:
+    case RCs::RC_VERTEX_OUT_0:
     case RCs::RC_VERTEX_OUT_1:
     case RCs::RC_VERTEX_OUT_2:
     case RCs::RC_VERTEX_OUT_3:
@@ -136,12 +139,14 @@ bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings
             return true;
     }
 }
-unsigned int GetVertexOutputNumber(RenderingChannels vertOutput)
+int GetVertexOutputNumber(RenderingChannels vertOutput)
 {
     typedef RenderingChannels RCs;
 
     switch (vertOutput)
     {
+        case RCs::RC_VERTEX_OUT_0:
+            return 0;
         case RCs::RC_VERTEX_OUT_1:
             return 1;
         case RCs::RC_VERTEX_OUT_2:
@@ -177,7 +182,7 @@ unsigned int GetVertexOutputNumber(RenderingChannels vertOutput)
 
         default:
             assert(false);
-        return 0;
+            return -1;
     }
 }
 unsigned int GetColorOutputNumber(RenderingChannels colorOutput)

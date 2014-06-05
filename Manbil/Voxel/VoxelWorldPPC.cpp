@@ -8,13 +8,12 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld & _world)
     std::vector<PpePtr> effects;
 
 
-    //Blur effect.
-    effects.insert(effects.end(), PpePtr(new GaussianBlurEffect()));
+    effects.insert(effects.end(), PpePtr(new FogEffect()));
     PostProcessChain * chn = new PostProcessChain(effects, world.GetWindow()->getSize().x, world.GetWindow()->getSize().y,
                                                   world.RenderTargets);
     if (chn->HasError())
     {
-        errorMsg = "Error creating contrast effect chain: " + chn->GetError();
+        errorMsg = "Error creating effect chain: " + chn->GetError();
         return;
     }
     chains.insert(chains.end(), chn);
