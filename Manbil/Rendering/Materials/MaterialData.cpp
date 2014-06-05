@@ -69,7 +69,7 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
                                (flags.GetFlag(FL::DNF_USES_VIEWPROJ_MAT) ? "uniform mat4 " + ViewProjMatName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_WVP_MAT) ? "uniform mat4 " + WVPMatName + ";\n" : "");
     if (!uniformDecls.empty())
-        uniformDecls = std::string() + "//Uniforms.\n" + uniformDecls + "\n\n\n";
+        uniformDecls = std::string() + "//Built-in uniforms.\n" + uniformDecls + "\n\n\n";
 
     return uniformDecls;
 }
