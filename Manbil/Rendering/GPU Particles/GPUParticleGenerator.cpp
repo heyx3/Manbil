@@ -39,7 +39,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     //This shader uses the "size", "quad rotation", and "world position" outputs.
 
     DataNode::SetShaderType(DataNode::Shaders::SH_GeometryShader);
-    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "randSeed", 1, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), " ");
+    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "randSeeds", 3, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), " ");
     DataNode::SetGeoData(&geoDat);
 
     geoDat.UsageFlags.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -238,7 +238,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 1.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
+    randSeeds = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (-up * " + sizeY + ") + (side * " + sizeX + ");                 \n\
@@ -246,7 +246,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 0.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
+    randSeeds = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (up * " + sizeY + ") - (side * " + sizeX + ");                  \n\
@@ -254,7 +254,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 1.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
+    randSeeds = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = -((up * " + sizeY + ") + (side * " + sizeX + "));               \n\
@@ -262,7 +262,7 @@ void main()                                                                     
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 0.0);                                                       \n\
     particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
+    randSeeds = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
 }";
 
@@ -296,7 +296,7 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
             fr.GetRandInt();
             fr.GetRandInt();
 
-            particles[loc] = ParticleVertex(Vector2f(xID, yID), fr.GetZeroToOne());
+            particles[loc] = ParticleVertex(Vector2f(xID, yID), Vector3f(fr.GetZeroToOne(), fr.GetZeroToOne(), fr.GetZeroToOne()));
         }
     }
 

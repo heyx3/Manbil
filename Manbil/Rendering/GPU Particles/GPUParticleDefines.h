@@ -29,7 +29,7 @@ struct ParticleVertex
 {
 public:
     Vector2f ParticleID;
-    float RandSeed;
-    ParticleVertex(Vector2f particleID = Vector2f(), float randSeed = 0.5f) : ParticleID(particleID), RandSeed(randSeed) { }
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(2, 1, false, false); }
+    Vector3f RandSeeds;
+    ParticleVertex(Vector2f particleID = Vector2f(), Vector3f randSeeds = Vector3f(0.5f, 0.5f, 0.5f)) : ParticleID(particleID), RandSeeds(randSeeds) { }
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(2, 3, false, false); }
 };

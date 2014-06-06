@@ -211,15 +211,16 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
     DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
-             particleRandSeedInputs(DNP(new ShaderInNode(1, 1, 1, 0, 1)), 0);
-    DataLine elapsedTime(DataNodePtr(new AddNode(particleRandSeedInputs, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
+             particleRandSeedInputs(DNP(new ShaderInNode(3, 1, 1, 0, 1)), 0);
+    DataLine particleSeed1(DNP(new VectorComponentsNode(particleRandSeedInputs)), 0);
+    DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
     DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
     DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
     gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
                                                                          DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(1000.0f), particleIDInputs)), 0),
                                                                                                             DataLine(VectorF(0.0f)))), 0))), 0);
-    gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, particleRandSeedInputs, particleRandSeedInputs, DataLine(1.0f))), 0);
+    gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, DataLine(1.0f))), 0);
     gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
                                                                              DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
     gpupOuts[GPUPOutputs::GPUP_QUADROTATION] = elapsedTime;
