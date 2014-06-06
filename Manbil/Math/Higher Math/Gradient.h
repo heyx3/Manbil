@@ -21,7 +21,16 @@ public:
     //The derivative of the gradient value at this node's position.
     float Slope[Components];
 
-    GradientNode(float t, float value[Components], float slope[Components]) : Value(value), T(t), Slope(slope) { }
+    GradientNode(float t, const float value[Components], const float slope[Components])
+        : T(t)
+    {
+        for (unsigned int i = 0; i < Components; ++i)
+        {
+            Value[i] = value[i];
+            Slope[i] = slope[i];
+        }
+    }
+    GradientNode(const GradientNode & cpy) : GradientNode(cpy.T, cpy.Value, cpy.Slope) { }
 };
 
 
@@ -35,7 +44,7 @@ public:
 
     typedef GradientNode<Components> GNode;
 
-    std::vector<GradientNode> Nodes;
+    std::vector<GradientNode<Components>> Nodes;
 
     Gradient(GNode startVal, GNode endVal) : Nodes(MakeVector(startVal, endVal)) { }
     Gradient(GNode startVal, GNode endVal, GNode mid1) : Nodes(MakeVector(startVal, mid1, endVal)) { }
@@ -54,9 +63,17 @@ public:
     {
         //Check edge-cases.
         if (Nodes.size() == 1 || t <= Nodes[0].T)
-            return Nodes[0].Value;
+        {
+            for (unsigned int i = 0; i < Components; ++i)
+                outVals[i] = Nodes[0].Value[i];
+            return;
+        }
         if (t >= Nodes[Nodes.size() - 1].T)
-            return Nodes[Nodes.size() - 1].Value;
+        {
+            for (unsigned int i = 0; i < Components; ++i)
+                outVals[i] = Nodes[Nodes.size() - 1].Value[i];
+            return;
+        }
 
         //Get the two nodes the given t value is between.
         unsigned int topBound = 1;
@@ -72,8 +89,8 @@ public:
                   oneMinusRT = 1.0f - remappedT;
             float tRange = end.T - start.T,
                   valRange = end.Value[i] - start.Value[i];
-            float a = (start.Slope * tRange) - valRange,
-                  b = (-end.Slope * tRange) + valRange;
+            float a = (start.Slope[i] * tRange) - valRange,
+                  b = (-end.Slope[i] * tRange) + valRange;
 
             outVals[i] = (oneMinusRT * start.Value[i]) + (remappedT * end.Value[i]) + (remappedT * oneMinusRT * ((a * oneMinusRT) + (b * remappedT)));
         }

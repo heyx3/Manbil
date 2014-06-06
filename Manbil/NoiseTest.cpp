@@ -8,9 +8,10 @@
 #include "Math/Noise Generation/ColorGradient.h"
 #include "Math/Higher Math/BumpmapToNormalmap.h"
 #include "Rendering/Texture Management/TextureConverters.h"
+#include "Math/Higher Math/Gradient.h"
 
 
-const int noiseSize = 1024,
+const int noiseSize = 512,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -38,62 +39,31 @@ void NoiseTest::InitializeWorld(void)
 
 void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 {
-	ColorGradient colGrad;
+	//ColorGradient colGrad;
+    std::vector<GradientNode<3>> nodes;
 
 	//Set the color gradient.
 
-	if (false)
-	{
-		#pragma region Dirt
-
-		Vector4f dirtColB(0.10f, 0.005f, 0, 1),
-				 dirtColE(0.35f, 0.1f, 0, 1);
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.begin(), ColorNode(0.0f, dirtColB));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.1f, dirtColE, Vector4f(0, 0.25f, 0, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(0, 0.75f, 0, 1)));
-
-		#pragma endregion
-	}
-	else if (false)
-	{
-		#pragma region Grass
-
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0.36f, 0.18f, 0, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.3f, Vector4f(0.2f, 0.14f, 0.0f, 1.0f), Vector4f(0.05f, 0.25f, 0.05f, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(0, 0.8f, 0, 1)));
-
-		#pragma endregion
-	}
-	else if (false)
-	{
-		#pragma region Sky
-
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(1, 1, 1, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(0, 0, 1, 1)));
-
-		#pragma endregion
-	}
-	else if (false)
-	{
-		#pragma region Stone
-
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.begin(), ColorNode(0.0f, Vector4f(0.1f, 0.1f, 0.15f, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(0.05f, 0.05f, 0.1f, 1)));
-
-		#pragma endregion
-	}
-	else if (true)
+	if (true)
 	{
 		#pragma region Black and white
 
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0, 0, 0, 1)));
-		colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(1, 1, 1, 1)));
+        float zeroes[3] = { 0.0f, 0.0f, 0.0f },
+              ones[3] = { 1.0f, 1.0f, 1.0f },
+              slopeStart[3] = { 0.0f, 0.0f, 0.0f },
+              slopeEnd[3] = { 0.0f, 0.0f, 0.0f };
+        nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes, slopeStart));
+        nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones, slopeEnd));
+
+		//colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0, 0, 0, 1)));
+		//colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(1, 1, 1, 1)));
 
 		#pragma endregion
 	}
 	else assert(false);
 
 
+    Gradient<3> colGrad(nodes);
 
 
 
@@ -118,7 +88,10 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 			outY = y;
 
 			//Set the pixel values.
-			Vector4f col = colGrad.GetColor(readNoise) * 255.0f;
+			//Vector4f col = colGrad.GetColor(readNoise) * 255.0f;
+            float colFromGrad[3];
+            colGrad.GetValue(readNoise, colFromGrad);
+            Vector4f col(colFromGrad[0] * 255.0f, colFromGrad[1] * 255.0f, colFromGrad[2] * 255.0f, 255.0f);
 			col = Vector4f(BasicMath::Clamp(col.x, 0.0f, 255.0f), BasicMath::Clamp(col.y, 0.0f, 255.0f),
 						   BasicMath::Clamp(col.z, 0.0f, 255.0f), BasicMath::Clamp(col.w, 0.0f, 255.0f));
 			Vector4b colB((unsigned char)BasicMath::RoundToInt(col.x),
@@ -282,7 +255,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-    else if (false)
+    else if (true)
     {
         #pragma region Layered Interpolated White Noise
 
@@ -315,7 +288,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
     }
-    else if (true)
+    else if (false)
     {
         #pragma region Neuroscouting racer terrain heightmap
 
@@ -435,6 +408,7 @@ void NoiseTest::InterpretNoise(const Noise2D & noise)
 }
 
 float bumpHeight = 1.0f;
+bool pressedLast = false;
 void NoiseTest::UpdateWorld(float elapsedTime)
 {
     const float bumpIncrement = 0.999f;
@@ -449,17 +423,23 @@ void NoiseTest::UpdateWorld(float elapsedTime)
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
     {
-        Array2D<float> bumps(noiseSize, noiseSize);
-        sf::Image rni = renderedNoiseTex->copyToImage();
-        TextureConverters::ToArray(rni, ChannelsIn::CI_Blue, bumps);
+        if (!pressedLast)
+        {
+            pressedLast = true;
 
-        Array2D<Vector3f> normals(noiseSize, noiseSize);
-        BumpmapToNormalmap::Convert(bumps, bumpHeight, true, normals);
+            Array2D<float> bumps(noiseSize, noiseSize);
+            sf::Image rni = renderedNoiseTex->copyToImage();
+            TextureConverters::ToArray(rni, ChannelsIn::CI_Blue, bumps);
 
-        TextureConverters::ToImage(normals, rni);
-        renderedNoiseTex->update(rni);
-        renderedNoise->setTexture(*renderedNoiseTex);
+            Array2D<Vector3f> normals(noiseSize, noiseSize);
+            BumpmapToNormalmap::Convert(bumps, bumpHeight, true, normals);
+
+            TextureConverters::ToImage(normals, rni);
+            renderedNoiseTex->update(rni);
+            renderedNoise->setTexture(*renderedNoiseTex);
+        }
     }
+    else pressedLast = false;
 
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
