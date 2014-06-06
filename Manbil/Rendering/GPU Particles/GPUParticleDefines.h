@@ -24,6 +24,7 @@ bool IsValidGPUPOutput(const DataLine & outputData, GPUPOutputs outputType);
 
 
 //The vertex that is used for particles.
+//TODO: Allow the user to choose whether to use the geometry shader on points or to just use quads.
 struct ParticleVertex
 {
 public:

@@ -49,6 +49,9 @@ public:
 
 
 
+#define HGPComponentPtr(ComponentSize) std::shared_ptr<ChronologicalHGPComponent<ComponentSize>>
+
+
 //The size of the component's float output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a property of a particle that changes over time.
@@ -131,26 +134,6 @@ public:
 
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
-//Represents a randomly-chosen constant value (between two values).
-class ConstantRangeHGPComponent : public ChronologicalHGPComponent<ComponentSize>
-{
-public:
-
-    VectorF MinValue, MaxValue;
-
-    ConstantRangeHGPComponent(const VectorF & minValue, const VectorF & maxValue, TextureManager & mng, UniformDictionary & prms) : ChronologicalHGPComponent(mng, prms), MinValue(minValue), MaxValue(maxValue) { }
-
-    virtual DataLine GetComponentOutput(void) const override
-    {
-        Assert(MinValue, "MinValue");
-        Assert(MaxValue, "MaxValue");
-        return DataLine(DataNodePtr(new InterpolateNode(DataLine(MinValue), DataLine(MaxValue), HGPGlobalData::ParticleRandSeedInput)), 0);
-    }
-};
-
-
-//The size of the component's output (float, vec2, vec3, or vec4).
-template<unsigned int ComponentSize>
 //Represents a gradient value over time.
 class GradientHGPComponent : public ChronologicalHGPComponent<ComponentSize>
 {
@@ -163,26 +146,26 @@ public:
     
 
     GradientHGPComponent(const Gradient<ComponentSize> & gradientValue, TextureManager & mng, UniformDictionary & prms, unsigned int lookupTextureWidth = 256)
-        : ChronologicalHGPComponent(mng, prms), GradientValue(gradientValue), LookupTextureWidth(lookupTextureWidth)
-    {
+: ChronologicalHGPComponent(mng, prms), GradientValue(gradientValue), LookupTextureWidth(lookupTextureWidth)
+{
 
-    }
+}
 
 
     virtual DataLine GetComponentOutput(void) const override
     {
         DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::ParticleTimeLerp, DataLine(VectorF(0.5f)))), 0);
         DataLine textureSample(DataNodePtr(new TextureSampleNode(uvLookup, GetSamplerName())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
-        
+
         switch (ComponentSize)
         {
-            case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
-            case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
-            case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
-            case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
-            default:
-                Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
-                return DataLine(DataNodePtr(), 666);
+        case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
+        case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
+        case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
+        case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
+        default:
+            Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
+            return DataLine(DataNodePtr(), 666);
         }
     }
     virtual void InitializeComponent(void) override
@@ -190,7 +173,7 @@ public:
         //Create the texture.
         lookupTexID = Manager.CreateSFMLTexture();
         Assert(lookupTexID != TextureManager::UNUSED_ID, std::string() + "Texture creation failed. Texture width: " + std::to_string(GradientTexQuality.Width));
-        
+
         //Generate the texture data.
         Array2D<VectorF> texOut(GradientTexQuality.Width, 1);
         GenerateTextureData(texOut.GetArray());
@@ -198,13 +181,13 @@ public:
         const sf::Uint8 maxUint8 = std::numeric_limits<sf::Uint8>().max();
         TextureConverters::ToImage(texOut, img, (void*)(&max),
                                    [](void* pDat, VectorF imgElement)
-                                   {
-                                       const sf::Uint8 max = *(sf::Uint8*)pDat;
-                                       return sf::Color((sf::Uint8)(imgElement[0] * max),
-                                                        (imgElement.GetSize() == 1) ? 0 : (sf::Uint8)(imgElement[1] * max),
-                                                        (imgElement.GetSize() <= 2) ? 0 : (sf::Uint8)(imgElement[2] * max),
-                                                        (imgElement.GetSize() <= 3) ? 0 : (sf::Uint8)(imgElement[3] * max));
-                                   });
+        {
+            const sf::Uint8 max = *(sf::Uint8*)pDat;
+            return sf::Color((sf::Uint8)(imgElement[0] * max),
+                             (imgElement.GetSize() == 1) ? 0 : (sf::Uint8)(imgElement[1] * max),
+                             (imgElement.GetSize() <= 2) ? 0 : (sf::Uint8)(imgElement[2] * max),
+                             (imgElement.GetSize() <= 3) ? 0 : (sf::Uint8)(imgElement[3] * max));
+        });
 
         ManbilTexture * tex = Manager[lookupTexID];
         Assert(tex != 0, "Texture was not found in the manager immediately after successfully creating it!");
@@ -213,16 +196,16 @@ public:
         //Set the texture quality.
         tex->SetFiltering(GradientTexQuality.FilterQuality);
         tex->SetWrapping(TextureSettings::TextureWrapping::TW_CLAMP);
-        
+
         //Set the texture data.
         Assert(tex->SFMLTex->loadFromImage(img), std::string() + "Texture loading failed. Texture width: " + std::to_string(GradientTexQuality.Width));
         Params.TextureUniforms[GetSamplerName()].Texture = tex;
 
     }
     virtual void UpdateComponent(void) override
-    {
-        Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
-    }
+{
+    Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
+}
 
 private:
 
@@ -238,4 +221,33 @@ private:
 };
 
 
-//TODO: GradientRangeHGPComponent.
+//The size of the component's output (float, vec2, vec3, or vec4).
+template<unsigned int ComponentSize>
+//Represents a value that is a certain randomized interpolation between two given values.
+class RandomizedHGPComponent : public ChronologicalHGPComponent<ComponentSize>
+{
+public:
+
+    HGPComponentPtr(ComponentSize) Min, Max;
+
+    RandomizedHGPComponent(HGPComponentPtr(ComponentSize) min, HGPComponentPtr(ComponentSize) max)
+        : Min(min), Max(max)
+    {
+
+    }
+
+    virtual DataLine GetComponentOutput(void) const override
+    {
+        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(), HGPGlobalData::ParticleRandSeedInput, DataLine(1.0f))), 0);
+    }
+    virtual void InitializeComponent(void) override
+    {
+        Min->InitializeComponent();
+        Max->InitializeComponent();
+    }
+    virtual void UpdateComponent(void) override
+    {
+        Min->UpdateComponent();
+        Max->UpdateComponent();
+    }
+};
