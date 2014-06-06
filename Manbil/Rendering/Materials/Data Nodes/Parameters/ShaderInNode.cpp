@@ -6,6 +6,7 @@
 std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 {
     Assert(outputIndex == 0, std::string() + "Output index must be 0, but it was " + std::to_string(outputIndex));
+    const GeoShaderData * dat = GetGeoShaderData();
 
     switch (GetShaderType())
     {
@@ -15,12 +16,11 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 
         case Shaders::SH_GeometryShader:
             Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(GetGeoShaderData()->IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
-            return MaterialConstants::VertexOutNameBase + std::to_string(gInputIndex);
+            Assert(dat->IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
+            return MaterialConstants::VertexOutNameBase + std::to_string(gInputIndex) + "[" + std::to_string(gInputArrayIndex) + "]";
 
         case Shaders::SH_Fragment_Shader:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
-            const GeoShaderData * dat = GetGeoShaderData();
             if (dat->IsValidData())
                 return dat->OutputTypes.OutputNames[fInputIndex];
             else return MaterialConstants::VertexOutNameBase + std::to_string(fInputIndex);

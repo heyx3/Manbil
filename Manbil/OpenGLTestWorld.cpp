@@ -99,20 +99,21 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Vertex output 3: world-space position.
 
     VertexAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
+    DataLine materialUVs(DNP(new ShaderInNode(2, 1, -1, 0, 1)), 0);
     DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
     DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
     DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
                                 DataLine(fragmentInput, 0),
                                 3, 2));
     channels[RC::RC_VERTEX_OUT_0] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RC::RC_VERTEX_OUT_1] = DataLine(waterVertexInput, 1);
+    channels[RC::RC_VERTEX_OUT_1] = materialUVs;
     channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 2);
     channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_0])), 0);
 
     DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(fragInputAttributes, 2),
                                                            DataLine(0.01f), DataLine(0.5f),
                                                            WaterSurfaceDistortNode::GetTimeIn(fragInputAttributes, 2)));
-    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(DataLine(fragmentInput, 1),
+    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(materialUVs,
                                                                 DataLine(VectorF(10.0f, 10.0f)),
                                                                 DataLine(VectorF(0.0f, 0.0f)),
                                                                 DataLine(VectorF(-0.15f, 0.0f)));
@@ -123,7 +124,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                                DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
 
     DNP light(new LightingNode(DataLine(fragmentInput, 3),
-                               DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),
+                               DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
                                DataLine(Vector3f(-1, -1, -0.1).Normalized()),
                                DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
 
@@ -209,15 +210,18 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
-    DataNodePtr geoInputs(new GeometryInputNode(ParticleVertex::GetAttributeData()));
-    DataLine elapsedTime(DataNodePtr(new AddNode(DataLine(geoInputs, 1),
-                                                 DataLine(DataNodePtr(new TimeNode()), 0))), 0);
+    DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
+             particleRandSeedInputs(DNP(new ShaderInNode(1, 1, 1, 0, 1)), 0);
+    DataLine elapsedTime(DataNodePtr(new AddNode(particleRandSeedInputs, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
     DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
     DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
-    gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(VectorF(Vector3f(0.0f, 0.0f, 50.0f)));
+    gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
+                                                                         DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(1000.0f), particleIDInputs)), 0),
+                                                                                                            DataLine(VectorF(0.0f)))), 0))), 0);
     gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1, sineTime_0_1, DataLine(VectorF(1.0f)))), 0);
-    gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(3.0f)),
+    gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, particleRandSeedInputs, particleRandSeedInputs, DataLine(1.0f))), 0);
+    gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
                                                                              DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
 
     ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
@@ -230,7 +234,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     }
     particleMat = gen.Mat;
 
-    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_1;
+    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_1048576;
     particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
                                                     GPUParticleGenerator::GenerateGPUPParticles(numb)));
 

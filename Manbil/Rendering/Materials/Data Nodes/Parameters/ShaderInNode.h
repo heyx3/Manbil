@@ -17,8 +17,8 @@ public:
     virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
 
-    ShaderInNode(unsigned int size, int vertexInputIndex = -1, int geometryInputIndex = -1, int fragmentInputIndex = -1)
-        : vInputIndex(vertexInputIndex), gInputIndex(geometryInputIndex), fInputIndex(fragmentInputIndex),
+    ShaderInNode(unsigned int size, int vertexInputIndex = -1, int geometryInputIndex = -1, unsigned int geometryInputArrayIndex = 0, int fragmentInputIndex = -1)
+        : vInputIndex(vertexInputIndex), gInputIndex(geometryInputIndex), fInputIndex(fragmentInputIndex), gInputArrayIndex(geometryInputArrayIndex),
           DataNode(std::vector<DataLine>(), MakeVector(size))
     {
         Assert(size > 0, "Size of input is 0! Must be from 1-4, inclusive.");
@@ -36,4 +36,5 @@ protected:
 private:
 
     int vInputIndex, gInputIndex, fInputIndex;
+    unsigned int gInputArrayIndex;
 };

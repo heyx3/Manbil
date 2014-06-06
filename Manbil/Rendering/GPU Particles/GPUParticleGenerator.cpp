@@ -15,6 +15,10 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
         return ShaderGenerator::GeneratedMaterial("No 'GPUP_WORLDPOSITION' output");
     if (outputs.find(GPUPOutputs::GPUP_SIZE) == outputs.end())
         outputs[GPUPOutputs::GPUP_SIZE] = DataLine(VectorF(1.0f, 1.0f));
+    if (outputs.find(GPUPOutputs::GPUP_QUADROTATION) == outputs.end())
+        outputs[GPUPOutputs::GPUP_QUADROTATION] = DataLine(VectorF(0.0f));
+    if (outputs.find(GPUPOutputs::GPUP_COLOR) == outputs.end())
+        outputs[GPUPOutputs::GPUP_COLOR] = DataLine(VectorF(1.0f, 1.0f, 1.0f, 1.0f));
 
     //Make sure every output is a valid size.
     for (auto val = outputs.begin(); val != outputs.end(); ++val)
@@ -35,7 +39,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     //This shader uses the "size", "quad rotation", and "world position" outputs.
 
     DataNode::SetShaderType(DataNode::Shaders::SH_GeometryShader);
-    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "randSeed", 1, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), "");
+    GeoShaderData geoDat(GeoShaderOutput("particleID", 2, "randSeed", 1, "uvs", 2), MaterialUsageFlags(), 4, PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, UniformDictionary(), " ");
     DataNode::SetGeoData(&geoDat);
 
     geoDat.UsageFlags.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -125,6 +129,45 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
             return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing outputs for channel 'GPUP_QUADROTATION': " + outputs[GPUPOutputs::GPUP_QUADROTATION].GetDataNodeValue()->GetError());
         }
     }
+    if (!outputs[GPUPOutputs::GPUP_WORLDPOSITION].IsConstant())
+    {
+        try
+        {
+            outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->SetFlags(geoDat.UsageFlags, outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeLineIndex());
+        }
+        catch (int ex)
+        {
+            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+            return ShaderGenerator::GeneratedMaterial(std::string() + "Error setting flags for channel 'GPUP_WORLDPOSITION': " + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetError());
+        }
+        try
+        {
+            outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetParameterDeclarations(geoDat.Params, usedNodesParams);
+        }
+        catch (int ex)
+        {
+            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+            return ShaderGenerator::GeneratedMaterial(std::string() + "Error getting params for channel 'GPUP_WORLDPOSITION': " + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetError());
+        }
+        try
+        {
+            outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
+        }
+        catch (int ex)
+        {
+            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+            return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing functions for channel 'GPUP_WORLDPOSITION': " + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetError());
+        }
+        try
+        {
+            outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->WriteOutputs(finalOutputs, writtenNodeIDs);
+        }
+        catch (int ex)
+        {
+            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+            return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing outputs for channel 'GPUP_WORLDPOSITION': " + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetError());
+        }
+    }
 
     //geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
 
@@ -159,7 +202,8 @@ vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
     //Define some other stuff for the shader.
     std::string vpTransf = "(" + MaterialConstants::ViewProjMatName + " * vec4(",
                 sizeX = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".x",
-                sizeY = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".y";
+                sizeY = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".y",
+                rotByQuat = "";
     geoDat.ShaderCode += std::string() +
 "                                                                               \n\
                                                                                 \n\
@@ -174,42 +218,51 @@ void main()                                                                     
     vec3 side = " + MaterialConstants::CameraSideName + ";                      \n\
     up = cross(" + MaterialConstants::CameraForwardName + ", side);             \n\
                                                                                 \n\
-    //Rotation calculations.                                                    \n\
+";
+    if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant(0.0f))
+    {
+        geoDat.ShaderCode += std::string() +
+"    //Rotation calculations.                                                   \n\
     float halfRot = 0.5f * " +
                     outputs[GPUPOutputs::GPUP_QUADROTATION].GetValue() + ";     \n\
     vec4 rotQuat = vec4(" + MaterialConstants::CameraForwardName + " * sin(halfRot),\n\
                         cos(halfRot));                                          \n\
-                                                                                \n\
+";
+        rotByQuat = "    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuad);\n";
+    }
+    
+    geoDat.ShaderCode += std::string() +
+"                                                                               \n\
     vec3 cornerPos = (up * " + sizeY + ") + (side * " + sizeX + ");             \n\
-    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
+" + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 1.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (-up * " + sizeY + ") + (side * " + sizeX + ");                 \n\
-    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
+" + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(1.0, 0.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (up * " + sizeY + ") - (side * " + sizeX + ");                  \n\
-    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
+" + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 1.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = -((up * " + sizeY + ") + (side * " + sizeX + "));               \n\
-    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);               \n\
+" + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     uvs = vec2(0.0, 0.0);                                                       \n\
-    particleID = " + MaterialConstants::VertexOutNameBase + "1[0];              \n\
-    randSeed = " + MaterialConstants::VertexOutNameBase + "2[0];                \n\
+    particleID = " + MaterialConstants::VertexOutNameBase + "0[0];              \n\
+    randSeed = " + MaterialConstants::VertexOutNameBase + "1[0];                \n\
     EmitVertex();                                                               \n\
 }";
 
@@ -239,11 +292,11 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
         {
             float xID = increment * loc.x;
 
-            FastRand fr(loc.GetHashCode());
+            FastRand fr(Vector3i(loc.x, loc.y, 1361).GetHashCode());
             fr.GetRandInt();
             fr.GetRandInt();
 
-            particles[loc] = ParticleVertex(Vector2f(xID, yID), fr.GetRandInt());
+            particles[loc] = ParticleVertex(Vector2f(xID, yID), fr.GetZeroToOne());
         }
     }
 

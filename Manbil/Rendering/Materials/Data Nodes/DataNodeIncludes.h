@@ -29,6 +29,7 @@
 #include "Parameters/VertexInputNode.h"
 #include "Parameters/FragmentInputNode.h"
 #include "Parameters/GeometryInputNode.h"
+#include "Parameters/ShaderInNode.h"
 #include "Parameters/ShaderComputationNodes.h"
 #include "Parameters/CameraDataNode.h"
 #include "Parameters/ProjectionDataNode.h"
