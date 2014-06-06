@@ -306,6 +306,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -757,7 +760,13 @@
     <ClInclude Include="Math\Higher Math\Gradient.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalHGPComponent.h">
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.h">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.h">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.h">
       <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
     </ClInclude>
   </ItemGroup>

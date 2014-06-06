@@ -17,7 +17,7 @@
 namespace HGPGlobalData
 {
     //Each component has a unique ID, just like with DataNodes.
-    //This value cannot be static because ChronologicalHGPComponent is a template, not a class.
+    //This value cannot be static because HGPOutputComponent is a template, not a class.
     unsigned int NextHGPComponentID = 1;
 
     //The exception that is thrown if an instance of this component fails a sanity check.
@@ -49,23 +49,32 @@ public:
 
 
 
-#define HGPComponentPtr(ComponentSize) std::shared_ptr<ChronologicalHGPComponent<ComponentSize>>
+#define HGPComponentPtr(ComponentSize) std::shared_ptr<HGPOutputComponent<ComponentSize>>
+#define HGPConstComponentPtr(ComponentSize) std::shared_ptr<const HGPOutputComponent<ComponentSize>>
 
 
 //The size of the component's float output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
-//Represents a property of a particle that changes over time.
-class ChronologicalHGPComponent
+//Represents some property of a particle.
+class HGPOutputComponent
 {
 public:
 
-    ChronologicalHGPComponent(TextureManager & manager, UniformDictionary & dict)
-        : Manager(manager), Dict(dict)
+    HGPOutputComponent(TextureManager & manager, UniformDictionary & dict)
+        : Manager(manager), Params(dict)
     {
-        id = NextHGPComponentID;
-        NextHGPComponentID += 1;
+        id = HGPGlobalData::NextHGPComponentID;
+        HGPGlobalData::NextHGPComponentID += 1;
     }
+    HGPOutputComponent(const HGPOutputComponent & cpy); //Intentionally not implemented.
 
+
+    //Updates this component's DataLine output.
+    //If this isn't called when a property of this component changes, then the result of "GetComponentOutput" will not reflect this component's current state.
+    void UpdateComponentOutput(void) { componentOutput = GenerateComponentOutput(); }
+    //Gets the tree of DataNodes that effectively creates this component's behavior.
+    //Has an output size of "ComponentSize".
+    DataLine GetComponentOutput(void) const { return componentOutput; }
 
     unsigned int GetUniqueID(void) const { return id; }
     std::string GetUniqueIDStr(void) const { return std::to_string(id); }
@@ -74,9 +83,6 @@ public:
     bool HasError(void) const { return !errorMsg.empty(); }
 
 
-    //Creates the series of DataNodes that effectively creates this component.
-    //Has an output size of "ComponentSize".
-    virtual DataLine GetComponentOutput(void) const = 0;
     //Initializes any OpenGL data necessary for this component and stores relevant uniform data into the given UniformDictionary.
     virtual void InitializeComponent(void) { }
     //Updates any param values necessary for this component and updates relevant uniform data in the given UniformDictionary.
@@ -89,6 +95,9 @@ protected:
 
     TextureManager & Manager;
     UniformDictionary & Params;
+
+    //Generates the output for this component's behavior.
+    virtual DataLine GenerateComponentOutput(void) const = 0;
 
     //If the given test is false, sets the error message to the given message and throws EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT.
     void Assert(bool test, std::string errMsg = "UNKNOWN ERROR") const
@@ -109,6 +118,7 @@ protected:
 
 private:
 
+    DataLine componentOutput;
     unsigned int id;
 };
 
@@ -116,58 +126,52 @@ private:
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a constant value, independent of time.
-class ConstantHGPComponent : public ChronologicalHGPComponent<ComponentSize>
+class ConstantHGPComponent : public HGPOutputComponent<ComponentSize>
 {
 public:
 
-    VectorF ConstantValue;
+    VectorF GetConstantValue(void) const { return constValue; }
+    void SetConstantValue(VectorF newVal) const { constValue = newVal; UpdateComponentOutput(); }
 
-    ConstantHGPComponent(const VectorF & constantValue, TextureManager & mng, UniformDictionary & prms) : ChronologicalHGPComponent(mng, prms), ConstantValue(constantValue) { }
+    ConstantHGPComponent(const VectorF & constantValue, TextureManager & mng, UniformDictionary & prms) : HGPOutputComponent(mng, prms), constValue(constantValue) { }
 
-    virtual DataLine GetComponentOutput(void) const override
+
+protected:
+
+    virtual DataLine GenerateComponentOutput(void) const override
     {
         Assert(ConstantValue, "ConstantValue");
         return DataLine(ConstantValue);
     }
+
+private:
+
+    VectorF constValue;
 };
 
 
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a gradient value over time.
-class GradientHGPComponent : public ChronologicalHGPComponent<ComponentSize>
+class GradientHGPComponent : public HGPOutputComponent<ComponentSize>
 {
 public:
 
-    Gradient<ComponentSize> GradientValue;
-    HGPTextureQuality GradientTexQuality;
+    const Gradient<ComponentSize> & GetGradientValue(void) const { return gradientValue; }
+    const HGPTextureQuality & GetGradientTextureQuality(void) const { return gradientTexQuality; }
+    void SetGradientValue(const Gradient<ComponentSize> & newGradient) const { gradientValue = newGradient; UpdateComponentOutput(); }
+    void SetGradientTextureQuality(const HGPTextureQuality & newTexQuality) const { gradientTexQuality = newTexQuality; UpdateComponentOutput(); }
 
     std::string GetSamplerName(void) const { return std::string("u_gradientSampler") + GetUniqueIDStr(); }
     
 
-    GradientHGPComponent(const Gradient<ComponentSize> & gradientValue, TextureManager & mng, UniformDictionary & prms, unsigned int lookupTextureWidth = 256)
-: ChronologicalHGPComponent(mng, prms), GradientValue(gradientValue), LookupTextureWidth(lookupTextureWidth)
-{
-
-}
-
-
-    virtual DataLine GetComponentOutput(void) const override
+    GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality, TextureManager & mng, UniformDictionary & prms)
+        : HGPOutputComponent(mng, prms), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality)
     {
-        DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::ParticleTimeLerp, DataLine(VectorF(0.5f)))), 0);
-        DataLine textureSample(DataNodePtr(new TextureSampleNode(uvLookup, GetSamplerName())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
-        switch (ComponentSize)
-        {
-        case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
-        case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
-        case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
-        case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
-        default:
-            Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
-            return DataLine(DataNodePtr(), 666);
-        }
     }
+
+
     virtual void InitializeComponent(void) override
     {
         //Create the texture.
@@ -203,9 +207,28 @@ public:
 
     }
     virtual void UpdateComponent(void) override
-{
-    Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
-}
+    {
+        Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
+    }
+
+protected:
+
+    virtual DataLine GenerateComponentOutput(void) const override
+    {
+        DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::ParticleTimeLerp, DataLine(VectorF(0.5f)))), 0);
+        DataLine textureSample(DataNodePtr(new TextureSampleNode(uvLookup, GetSamplerName())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+
+        switch (ComponentSize)
+        {
+        case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
+        case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
+        case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
+        case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
+        default:
+            Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
+            return DataLine(DataNodePtr(), 666);
+        }
+    }
 
 private:
 
@@ -217,6 +240,9 @@ private:
             GradientValue.GetValue(i * toTValue, values[i].GetValue());
     }
 
+    Gradient<ComponentSize> gradientValue;
+    HGPTextureQuality gradientTexQuality;
+
     unsigned int lookupTexID;
 };
 
@@ -224,7 +250,7 @@ private:
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a value that is a certain randomized interpolation between two given values.
-class RandomizedHGPComponent : public ChronologicalHGPComponent<ComponentSize>
+class RandomizedHGPComponent : public HGPOutputComponent<ComponentSize>
 {
 public:
 
@@ -236,10 +262,6 @@ public:
 
     }
 
-    virtual DataLine GetComponentOutput(void) const override
-    {
-        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(), HGPGlobalData::ParticleRandSeedInput, DataLine(1.0f))), 0);
-    }
     virtual void InitializeComponent(void) override
     {
         Min->InitializeComponent();
@@ -249,5 +271,12 @@ public:
     {
         Min->UpdateComponent();
         Max->UpdateComponent();
+    }
+
+protected:
+    
+    virtual DataLine GenerateComponentOutput(void) const override
+    {
+        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(), HGPGlobalData::ParticleRandSeedInput, DataLine(1.0f))), 0);
     }
 };

@@ -13,6 +13,7 @@ public:
 
     AddNode(const std::vector<DataLine> & toAdd);
     AddNode(DataLine toAdd1, DataLine toAdd2);
+    AddNode(DataLine toAdd1, DataLine toAdd2, DataLine toAdd3);
 
 
 protected:

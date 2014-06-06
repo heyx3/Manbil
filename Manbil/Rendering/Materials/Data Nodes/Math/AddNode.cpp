@@ -15,6 +15,14 @@ AddNode::AddNode(DataLine toAdd1, DataLine toAdd2)
     Assert(toAdd1.GetDataLineSize() == toAdd2.GetDataLineSize(),
            "The two items to add must be the same size!");
 }
+AddNode::AddNode(DataLine toAdd1, DataLine toAdd2, DataLine toAdd3)
+    : DataNode(MakeVector(toAdd1, toAdd2, toAdd3), MakeVector(toAdd1.GetDataLineSize()))
+{
+    Assert(toAdd1.GetDataLineSize() == toAdd2.GetDataLineSize(),
+           "The first two items to add are not the same size!");
+    Assert(toAdd1.GetDataLineSize() == toAdd3.GetDataLineSize(),
+           "The third item to add is not the right size!");
+}
 
 void AddNode::WriteMyOutputs(std::string & outCode) const
 {
