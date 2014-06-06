@@ -754,11 +754,11 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalComponent.h">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Higher Math\Gradient.h">
       <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalHGPComponent.h">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -259,7 +259,7 @@
     <ClInclude Include="RenderingState.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleDefines.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleGenerator.h" />
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalComponent.h" />
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalHGPComponent.h" />
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />
