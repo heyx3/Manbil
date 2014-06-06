@@ -4,6 +4,8 @@
 
 
 //A node that generates random noise given a seed input node.
+//TODO: Create a PerlinNoiseNode class.
+//TODO: Refer to the web page about better GLSL noise for how to improve this node.
 class WhiteNoiseNode : public DataNode
 {
 public:

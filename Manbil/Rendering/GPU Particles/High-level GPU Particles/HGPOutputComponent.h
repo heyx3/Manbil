@@ -257,8 +257,12 @@ public:
 
     HGPComponentPtr(ComponentSize) Min, Max;
 
-    RandomizedHGPComponent(HGPComponentPtr(ComponentSize) min, HGPComponentPtr(ComponentSize) max)
-        : Min(min), Max(max)
+    unsigned int GetRandSeedIndex(void) const { return randSeedIndex; }
+    void SetRandSeedIndex(unsigned int newVal) const { randSeedIndex = newVal; UpdateComponentOutput(); }
+
+    RandomizedHGPComponent(HGPComponentPtr(ComponentSize) min, HGPComponentPtr(ComponentSize) max,
+                           unsigned int _randSeedIndex = 0)
+        : Min(min), Max(max), randSeedIndex(_randSeedIndex)
     {
 
     }
@@ -278,6 +282,12 @@ protected:
     
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(), HGPGlobalData::ParticleRandSeedInput, DataLine(1.0f))), 0);
+        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(),
+                                                        DataLine(HGPGlobalData::ParticleRandSeedComponents, randSeedIndex),
+                                                        DataLine(1.0f))), 0);
     }
+
+private:
+
+    unsigned int randSeedIndex;
 };
