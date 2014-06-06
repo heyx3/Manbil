@@ -134,6 +134,7 @@
     <ClCompile Include="RenderingState.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp" />
+    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp" />
     <ClCompile Include="Rendering\GUI\TextManager.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DistanceNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\LogNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNode.h" />

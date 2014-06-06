@@ -6,6 +6,7 @@
 #include "Math/DistanceNode.h"
 #include "Math/DivideNode.h"
 #include "Math/DotNode.h"
+#include "Math/GetLerpComponentNode.h"
 #include "Math/InterpolateNode.h"
 #include "Math/LogNode.h"
 #include "Math/MaxMinNode.h"

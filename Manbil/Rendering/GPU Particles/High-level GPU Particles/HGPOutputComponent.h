@@ -10,6 +10,9 @@
 #include "../../Texture Management/TextureConverters.h"
 
 
+class HGPComponentManager;
+
+
 //"HGP" stands for "High-level Gpu Particle".
 //An HGP system has a bunch of different "components" for position, color, size, and rotation.
 //The base class for HGP components is a template, so it can't store global information correctly.
@@ -18,19 +21,20 @@ namespace HGPGlobalData
 {
     //Each component has a unique ID, just like with DataNodes.
     //This value cannot be static because HGPOutputComponent is a template, not a class.
-    unsigned int NextHGPComponentID = 1;
+    extern unsigned int NextHGPComponentID;
 
     //The exception that is thrown if an instance of this component fails a sanity check.
-    static const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT = 19285;
+    extern const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT;
 
-
-    static const DataLine ParticleIDInput = DataLine(DataNodePtr(new ShaderInNode(2, 0, 0, 0, 0)), 0),
-                          ParticleRandSeedInputs = DataLine(DataNodePtr(new ShaderInNode(3, 1, 1, 0, 1)), 0),
-                          ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(ParticleVertex::GetAttributeData())), 2);
-    static const DataNodePtr ParticleRandSeedComponents = DataNodePtr(new VectorComponentsNode(ParticleRandSeedInputs));
+    extern const DataLine ParticleIDInput, ParticleRandSeedInputs, ParticleUVs;
+    extern const DataNodePtr ParticleRandSeedComponents;
     
-    static const std::string ParticleTimeLerpUniformName = "u_particleTime";
-    static const DataLine ParticleTimeLerp = DataLine(DataNodePtr(new ParamNode(1, ParticleTimeLerpUniformName)), 0);
+    extern const std::string ParticleElapsedTimeUniformName;
+    extern const DataLine ParticleElapsedTime;
+
+    extern TextureManager & GetTexManager(HGPComponentManager & manager);
+    extern UniformDictionary & GetParams(HGPComponentManager & manager);
+    extern const DataLine & GetTimeLerp(HGPComponentManager & manager);
 }
 
 
@@ -61,8 +65,13 @@ class HGPOutputComponent
 {
 public:
 
-    HGPOutputComponent(TextureManager & manager, UniformDictionary & dict)
-        : Manager(manager), Params(dict)
+    HGPComponentManager & Manager;
+    TextureManager & GetTexManager(void) const { return HGPGlobalData::GetTexManager(Manager); }
+    UniformDictionary & GetParams(void) const { return HGPGlobalData::GetParams(Manager); }
+
+
+    HGPOutputComponent(HGPComponentManager & manager)
+        : Manager(manager)
     {
         id = HGPGlobalData::NextHGPComponentID;
         HGPGlobalData::NextHGPComponentID += 1;
@@ -70,12 +79,55 @@ public:
     HGPOutputComponent(const HGPOutputComponent & cpy); //Intentionally not implemented.
 
 
-    //Updates this component's DataLine output.
-    //If this isn't called when a property of this component changes, then the result of "GetComponentOutput" will not reflect this component's current state.
-    void UpdateComponentOutput(void) { componentOutput = GenerateComponentOutput(); }
+    void AddParent(HGPOutputComponent<1>* parent)
+    {
+        if (std::find(parents1.begin(), parents1.end(), parent) == parents1.end())
+            parents1.insert(parents1.end(), parent);
+    }
+    void AddParent(HGPOutputComponent<2>* parent)
+    {
+        if (std::find(parents2.begin(), parents2.end(), parent) == parents2.end())
+            parents2.insert(parents2.end(), parent);
+    }
+    void AddParent(HGPOutputComponent<3>* parent)
+    {
+        if (std::find(parents3.begin(), parents3.end(), parent) == parents3.end())
+            parents3.insert(parents3.end(), parent);
+    }
+    void AddParent(HGPOutputComponent<4>* parent)
+    {
+        if (std::find(parents4.begin(), parents4.end(), parent) == parents4.end())
+            parents4.insert(parents4.end(), parent);
+    }
+    void RemoveParent(HGPOutputComponent<1>* parent)
+    {
+        parents1.erase(std::find(parents1.begin(), parents1.end(), parent));
+    }
+    void RemoveParent(HGPOutputComponent<2>* parent)
+    {
+        parents2.erase(std::find(parents2.begin(), parents2.end(), parent));
+    }
+    void RemoveParent(HGPOutputComponent<3>* parent)
+    {
+        parents3.erase(std::find(parents3.begin(), parents3.end(), parent));
+    }
+    void RemoveParent(HGPOutputComponent<4>* parent)
+    {
+        parents4.erase(std::find(parents4.begin(), parents4.end(), parent));
+    }
+
+
     //Gets the tree of DataNodes that effectively creates this component's behavior.
     //Has an output size of "ComponentSize".
-    DataLine GetComponentOutput(void) const { return componentOutput; }
+    DataLine GetComponentOutput(void) const
+    {
+        if (!createdComponentYet)
+        {
+            createdComponentYet = true;
+            UpdateComponentOutput();
+        }
+        return componentOutput;
+    }
 
     unsigned int GetUniqueID(void) const { return id; }
     std::string GetUniqueIDStr(void) const { return std::to_string(id); }
@@ -84,21 +136,46 @@ public:
     bool HasError(void) const { return !errorMsg.empty(); }
 
 
+    //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
+    virtual void SwapOutSubComponent(HGPComponentPtr(1) oldC, HGPComponentPtr(1) newC) { }
+    //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
+    virtual void SwapOutSubComponent(HGPComponentPtr(2) oldC, HGPComponentPtr(2) newC) { }
+    //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
+    virtual void SwapOutSubComponent(HGPComponentPtr(3) oldC, HGPComponentPtr(3) newC) { }
+    //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
+    virtual void SwapOutSubComponent(HGPComponentPtr(4) oldC, HGPComponentPtr(4) newC) { }
+
+
     //Initializes any OpenGL data necessary for this component and stores relevant uniform data into the given UniformDictionary.
     virtual void InitializeComponent(void) { }
     //Updates any param values necessary for this component and updates relevant uniform data in the given UniformDictionary.
     virtual void UpdateComponent(void) { }
+
+    //Updates this component's DataLine output.
+    //Must be called when a property of this component that impacts the output DataLine is changed.
+    void UpdateComponentOutput(void) const
+    {
+        componentOutput = GenerateComponentOutput();
+
+        for (unsigned int i = 0; i < parents1.size(); ++i)
+            parents1[i]->UpdateComponentOutput();
+        for (unsigned int i = 0; i < parents2.size(); ++i)
+            parents2[i]->UpdateComponentOutput();
+        for (unsigned int i = 0; i < parents3.size(); ++i)
+            parents3[i]->UpdateComponentOutput();
+        for (unsigned int i = 0; i < parents4.size(); ++i)
+            parents4[i]->UpdateComponentOutput();
+    }
 
 
 protected:
 
     mutable std::string errorMsg;
 
-    TextureManager & Manager;
-    UniformDictionary & Params;
 
     //Generates the output for this component's behavior.
     virtual DataLine GenerateComponentOutput(void) const = 0;
+
 
     //If the given test is false, sets the error message to the given message and throws EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT.
     void Assert(bool test, std::string errMsg = "UNKNOWN ERROR") const
@@ -117,11 +194,20 @@ protected:
                    ", not size " + std::to_string(size) + "!");
     }
 
+
 private:
 
-    DataLine componentOutput;
+    mutable DataLine componentOutput;
     unsigned int id;
+
+    mutable bool createdComponentYet = false;
+
+    std::vector<HGPOutputComponent<1>*> parents1;
+    std::vector<HGPOutputComponent<2>*> parents2;
+    std::vector<HGPOutputComponent<3>*> parents3;
+    std::vector<HGPOutputComponent<4>*> parents4;
 };
+
 
 
 //The size of the component's output (float, vec2, vec3, or vec4).
@@ -134,7 +220,7 @@ public:
     VectorF GetConstantValue(void) const { return constValue; }
     void SetConstantValue(VectorF newVal) const { constValue = newVal; UpdateComponentOutput(); }
 
-    ConstantHGPComponent(const VectorF & constantValue, TextureManager & mng, UniformDictionary & prms) : HGPOutputComponent(mng, prms), constValue(constantValue) { }
+    ConstantHGPComponent(const VectorF & constantValue, HGPComponentManager & manager) : HGPOutputComponent(manager), constValue(constantValue) { }
 
 
 protected:
@@ -166,8 +252,8 @@ public:
     std::string GetSamplerName(void) const { return std::string("u_gradientSampler") + GetUniqueIDStr(); }
     
 
-    GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality, TextureManager & mng, UniformDictionary & prms)
-        : HGPOutputComponent(mng, prms), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality)
+    GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality, HGPComponentManager & manager)
+        : HGPOutputComponent(manager), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality)
     {
 
     }
@@ -216,18 +302,18 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::ParticleTimeLerp, DataLine(VectorF(0.5f)))), 0);
+        DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager), DataLine(VectorF(0.5f)))), 0);
         DataLine textureSample(DataNodePtr(new TextureSampleNode(uvLookup, GetSamplerName())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
         switch (ComponentSize)
         {
-        case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
-        case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
-        case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
-        case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
-        default:
-            Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
-            return DataLine(DataNodePtr(), 666);
+            case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
+            case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
+            case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
+            case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
+            default:
+                Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
+                return DataLine(DataNodePtr(), 666);
         }
     }
 
@@ -255,16 +341,32 @@ class RandomizedHGPComponent : public HGPOutputComponent<ComponentSize>
 {
 public:
 
-    HGPComponentPtr(ComponentSize) Min, Max;
+    HGPComponentPtr(ComponentSize) GetMin(void) const { return min; }
+    HGPComponentPtr(ComponentSize) GetMax(void) const { return max; }
+    void SetMin(HGPComponentPtr(ComponentSize) newMin)
+    {
+        min->RemoveParent(this);
+        min = newMin;
+        min->AddParent(this);
+        UpdateComponentOutput();
+    }
+    void Setmax(HGPComponentPtr(ComponentSize) newMax)
+    {
+        max->RemoveParent(this);
+        max = newMax;
+        max->AddParent(this);
+        UpdateComponentOutput();
+    }
 
     unsigned int GetRandSeedIndex(void) const { return randSeedIndex; }
     void SetRandSeedIndex(unsigned int newVal) const { randSeedIndex = newVal; UpdateComponentOutput(); }
 
-    RandomizedHGPComponent(HGPComponentPtr(ComponentSize) min, HGPComponentPtr(ComponentSize) max,
-                           unsigned int _randSeedIndex = 0)
-        : Min(min), Max(max), randSeedIndex(_randSeedIndex)
+    RandomizedHGPComponent(HGPComponentManager & manager,
+                           HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max, unsigned int _randSeedIndex = 0)
+        : HGPOutputComponent(manager), min(_min), max(_max), randSeedIndex(_randSeedIndex)
     {
-
+        min->AddParent(this);
+        max->AddParent(this);
     }
 
     virtual void InitializeComponent(void) override
@@ -276,6 +378,47 @@ public:
     {
         Min->UpdateComponent();
         Max->UpdateComponent();
+    }
+
+    virtual void SwapOutSubComponent(HGPComponentPtr(1) oldC, HGPComponentPtr(1) newC) override
+    {
+        if ((void*)oldC.get() == (void*)min.get())
+            SetMin(newC);
+        else min->SwapOutSubComponent(oldC, newC);
+
+        if ((void*)oldC.get() == (void*)max.get())
+            SetMax(newC);
+        else max->SwapOutSubComponent(oldC, newC);
+    }
+    virtual void SwapOutSubComponent(HGPComponentPtr(2) oldC, HGPComponentPtr(2) newC) override
+    {
+        if ((void*)oldC.get() == (void*)min.get())
+            SetMin(newC);
+        else min->SwapOutSubComponent(oldC, newC);
+
+        if ((void*)oldC.get() == (void*)max.get())
+            SetMax(newC);
+        else max->SwapOutSubComponent(oldC, newC);
+    }
+    virtual void SwapOutSubComponent(HGPComponentPtr(3) oldC, HGPComponentPtr(3) newC) override
+    {
+        if ((void*)oldC.get() == (void*)min.get())
+            SetMin(newC);
+        else min->SwapOutSubComponent(oldC, newC);
+
+        if ((void*)oldC.get() == (void*)max.get())
+            SetMax(newC);
+        else max->SwapOutSubComponent(oldC, newC);
+    }
+    virtual void SwapOutSubComponent(HGPComponentPtr(4) oldC, HGPComponentPtr(4) newC) override
+    {
+        if ((void*)oldC.get() == (void*)min.get())
+            SetMin(newC);
+        else min->SwapOutSubComponent(oldC, newC);
+
+        if ((void*)oldC.get() == (void*)max.get())
+            SetMax(newC);
+        else max->SwapOutSubComponent(oldC, newC);
     }
 
 protected:
@@ -290,4 +433,5 @@ protected:
 private:
 
     unsigned int randSeedIndex;
+    HGPComponentPtr(ComponentSize) min, max;
 };
