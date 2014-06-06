@@ -215,6 +215,7 @@
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h" />
     <ClInclude Include="Math\Higher Math\Camera.h" />
     <ClInclude Include="Math\Higher Math\GeometricMath.h" />
+    <ClInclude Include="Math\Higher Math\Gradient.h" />
     <ClInclude Include="Math\Higher Math\Lighting.h" />
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h" />
     <ClInclude Include="Math\Higher Math\RegionSplitter.h" />
@@ -258,6 +259,7 @@
     <ClInclude Include="RenderingState.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleDefines.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleGenerator.h" />
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalComponent.h" />
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />

@@ -754,6 +754,12 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\ChronologicalComponent.h">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Gradient.h">
+      <Filter>Math\Higher Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -857,6 +863,9 @@
     </Filter>
     <Filter Include="Rendering\GPU Particles">
       <UniqueIdentifier>{215761ec-d5e7-4ef2-9067-f3077de54bd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\GPU Particles\High-level GPU Particles">
+      <UniqueIdentifier>{d73909a1-953f-440e-87c3-def0ee62599d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
