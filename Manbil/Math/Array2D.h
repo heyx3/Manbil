@@ -119,7 +119,8 @@ public:
                 getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
 	}
 
-	ArrayType * GetArray(void) const { return arrayVals; }
+	const ArrayType * GetArray(void) const { return arrayVals; }
+    ArrayType * GetArray(void) { return arrayVals; }
 	void GetArrayCopy(ArrayType * outValues) const
 	{
         for (unsigned int i = 0; i < width * height; ++i)

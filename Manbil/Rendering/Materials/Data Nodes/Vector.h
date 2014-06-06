@@ -11,8 +11,11 @@ public:
 
     //Gets the number of floats this VectorF has.
     unsigned int GetSize(void) const { return size; }
+
     //The floats representing this VectorF.
     const float * GetValue(void) const { return values; }
+    //The floats representing this VectorF.
+    float * GetValue(void) { return values; }
 
     void SetValue(float newVal) { size = 1; values[0] = newVal; }
     void SetValue(Vector2f newVal) { size = 2; values[0] = newVal.x; values[1] = newVal.y; }
