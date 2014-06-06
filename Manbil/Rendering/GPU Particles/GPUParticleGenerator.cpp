@@ -228,7 +228,7 @@ void main()                                                                     
     vec4 rotQuat = vec4(" + MaterialConstants::CameraForwardName + " * sin(halfRot),\n\
                         cos(halfRot));                                          \n\
 ";
-        rotByQuat = "    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuad);\n";
+        rotByQuat = "    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);\n";
     }
     
     geoDat.ShaderCode += std::string() +

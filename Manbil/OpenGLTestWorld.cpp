@@ -222,6 +222,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, particleRandSeedInputs, particleRandSeedInputs, DataLine(1.0f))), 0);
     gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
                                                                              DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
+    gpupOuts[GPUPOutputs::GPUP_QUADROTATION] = elapsedTime;
 
     ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
     if (!gen.ErrorMessage.empty())
