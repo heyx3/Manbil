@@ -24,9 +24,10 @@ namespace HGPGlobalData
     static const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT = 19285;
 
 
-    static const ShaderInNode ParticleIDInput = ShaderInNode(2, 0, 0, 0, 0),
-                              ParticleRandSeedInput = ShaderInNode(1, 1, 1, 0, 1);
-    static const DataLine ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(ParticleVertex::GetAttributeData())), 2);
+    static const DataLine ParticleIDInput = DataLine(DataNodePtr(new ShaderInNode(2, 0, 0, 0, 0)), 0),
+                          ParticleRandSeedInputs = DataLine(DataNodePtr(new ShaderInNode(3, 1, 1, 0, 1)), 0),
+                          ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(ParticleVertex::GetAttributeData())), 2);
+    static const DataNodePtr ParticleRandSeedComponents = DataNodePtr(new VectorComponentsNode(ParticleRandSeedInputs));
     
     static const std::string ParticleTimeLerpUniformName = "u_particleTime";
     static const DataLine ParticleTimeLerp = DataLine(DataNodePtr(new ParamNode(1, ParticleTimeLerpUniformName)), 0);
