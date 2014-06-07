@@ -247,7 +247,7 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        return DataLine(DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max), HGPGlobalData::ParticleRandSeedInputs, DataLine(1.0f))), 0);
+        return DataLine(DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max), HGPGlobalData::ParticleRandSeedInputs, InterpolateNode::InterpolationType::IT_Linear)), 0);
     }
 
 

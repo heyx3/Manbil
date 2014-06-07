@@ -212,7 +212,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
-    if (true)
+    if (false)
     {
         DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
                  particleRandSeedInputs(DNP(new ShaderInNode(3, 1, 1, 0, 1)), 0);
@@ -233,9 +233,14 @@ void OpenGLTestWorld::InitializeMaterials(void)
     {
         HGPComponentManager manager(Textures, particleParams);
         manager.SetWorldPosition(HGPComponentPtr(3)(new SpherePositionComponent(manager, Vector3f(0.0f, 0.0f, 50.0f), 20.0f)));
-        manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), manager)),
-                                                                                  HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 5.0f), manager)))));
+        manager.SetWorldPosition(HGPComponentPtr(3)(new CubePositionComponent(manager, Vector3f(-25.0f, -25.0f, 25.0f), Vector3f(25.0f, 25.0f, 75.0f))));
+        manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.1f), manager)),
+                                                                         HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.5f), manager)), 3)));
+        manager.SetColor(HGPComponentPtr(4)(new RandomizedHGPComponent<4>(manager, HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF(0.0f, 0.0f, 0.0f, 1.0f), manager)),
+                                                                          HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), manager)), 4)));
         manager.SetGPUPOutputs(gpupOuts);
+        //gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DataNodePtr(new CombineVectorNode(HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, DataLine(1.0f))), 0);
+        manager.Initialize();
     }
 
     ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
@@ -248,7 +253,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     }
     particleMat = gen.Mat;
 
-    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_16;
+    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_1024;
     particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
                                                     GPUParticleGenerator::GenerateGPUPParticles(numb)));
 
@@ -338,7 +343,8 @@ OpenGLTestWorld::OpenGLTestWorld(void)
 : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
   water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
   gsTestMat(0), gsMesh(PrimitiveTypes::Points),
-  particleMat(0), particleMesh(PrimitiveTypes::Points)
+  particleMat(0), particleMesh(PrimitiveTypes::Points),
+  particleManager(Textures, particleParams)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -409,6 +415,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 	}
 
     water->Update(elapsedSeconds);
+    particleManager.Update();
 
     if (Input.GetBoolInputValue(666))
         water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 10.0f, 120.0f, 1.0f));

@@ -93,8 +93,8 @@ public:
         HGPComponentManager & thisM = *this;
         worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
         rotation = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1), thisM));
-        size = HGPComponentPtr(2)(new ConstantHGPComponent<1>(VectorF((unsigned int)2, 1.0f), thisM));
-        color = HGPComponentPtr(4)(new ConstantHGPComponent<1>(VectorF((unsigned int)4, 1.0f), thisM));
+        size = HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), thisM));
+        color = HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), thisM));
         duration = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1, 5.0f), thisM));
     }
 

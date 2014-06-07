@@ -9,6 +9,8 @@
 #include "Math/Higher Math/Lighting.h"
 #include "Rendering/Objects/Water.h"
 #include "Rendering/PostProcessing/PostProcessChain.h"
+#include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
+
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
 {
@@ -47,6 +49,7 @@ private:
     Material * gsTestMat;
     UniformDictionary gsTestParams;
 
+    HGPComponentManager particleManager;
     Mesh particleMesh;
     Material * particleMat;
     UniformDictionary particleParams;

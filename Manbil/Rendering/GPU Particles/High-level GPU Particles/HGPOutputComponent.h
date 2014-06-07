@@ -12,6 +12,8 @@
 
 class HGPComponentManager;
 
+//TODO: Pull stuff out into the .cpp file. You can apparently do this even with templates?
+
 
 //"HGP" stands for "High-level Gpu Particle".
 //An HGP system has a bunch of different "components" for position, color, size, and rotation.
@@ -28,6 +30,7 @@ namespace HGPGlobalData
 
     extern const DataLine ParticleIDInput, ParticleRandSeedInputs, ParticleUVs;
     extern const DataNodePtr ParticleRandSeedComponents;
+    extern const DataLine FourthRandSeed, FifthRandSeed;
     
     extern const std::string ParticleElapsedTimeUniformName;
     extern const DataLine ParticleElapsedTime;
@@ -178,7 +181,7 @@ protected:
 
 
     //If the given test is false, sets the error message to the given message and throws EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT.
-    void Assert(bool test, std::string errMsg = "UNKNOWN ERROR") const
+    void Assert(std::string errMsg = "UNKNOWN ERROR", bool test = false) const
     {
         if (!test)
         {
@@ -187,11 +190,11 @@ protected:
         }
     }
     //Asserts that the given vector has the given size.
-    void Assert(const VectorF & v, std::string nameOfVector, int size = ComponentSize)
+    void Assert(const VectorF & v, std::string nameOfVector, unsigned int size = ComponentSize) const
     {
-        Assert(v.GetSize() == size,
-               std::string() + "'" + nameOfVector + "' is size " + std::to_string(v.GetSize()) +
-                   ", not size " + std::to_string(size) + "!");
+        Assert(std::string() + "'" + nameOfVector + "' is size " + std::to_string(v.GetSize()) +
+                   ", not size " + std::to_string(size) + "!",
+               v.GetSize() == size);
     }
 
 
@@ -227,8 +230,8 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        Assert(ConstantValue, "ConstantValue");
-        return DataLine(ConstantValue);
+        Assert(constValue, "ConstantValue", ComponentSize);
+        return DataLine(constValue);
     }
 
 private:
@@ -263,7 +266,8 @@ public:
     {
         //Create the texture.
         lookupTexID = Manager.CreateSFMLTexture();
-        Assert(lookupTexID != TextureManager::UNUSED_ID, std::string() + "Texture creation failed. Texture width: " + std::to_string(GradientTexQuality.Width));
+        Assert(std::string() + "Texture creation failed. Texture width: " + std::to_string(GradientTexQuality.Width),
+               lookupTexID != TextureManager::UNUSED_ID);
 
         //Generate the texture data.
         Array2D<VectorF> texOut(GradientTexQuality.Width, 1);
@@ -281,7 +285,7 @@ public:
         });
 
         ManbilTexture * tex = Manager[lookupTexID];
-        Assert(tex != 0, "Texture was not found in the manager immediately after successfully creating it!");
+        Assert("Texture was not found in the manager immediately after successfully creating it!", tex != 0);
         tex->SFMLTex->create(GradientTexQuality.Width, 1);
 
         //Set the texture quality.
@@ -289,7 +293,7 @@ public:
         tex->SetWrapping(TextureSettings::TextureWrapping::TW_CLAMP);
 
         //Set the texture data.
-        Assert(tex->SFMLTex->loadFromImage(img), std::string() + "Texture loading failed. Texture width: " + std::to_string(GradientTexQuality.Width));
+        Assert(std::string() + "Texture loading failed. Texture width: " + std::to_string(GradientTexQuality.Width), tex->SFMLTex->loadFromImage(img));
         Params.TextureUniforms[GetSamplerName()].Texture = tex;
 
     }
@@ -312,7 +316,7 @@ protected:
             case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
             case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
             default:
-                Assert(false, std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
+                Assert(std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
                 return DataLine(DataNodePtr(), 666);
         }
     }
@@ -333,7 +337,6 @@ private:
     unsigned int lookupTexID;
 };
 
-
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a value that is a certain randomized interpolation between two given values.
@@ -350,7 +353,7 @@ public:
         min->AddParent(this);
         UpdateComponentOutput();
     }
-    void Setmax(HGPComponentPtr(ComponentSize) newMax)
+    void SetMax(HGPComponentPtr(ComponentSize) newMax)
     {
         max->RemoveParent(this);
         max = newMax;
@@ -371,14 +374,46 @@ public:
 
     virtual void InitializeComponent(void) override
     {
-        Min->InitializeComponent();
-        Max->InitializeComponent();
+        min->InitializeComponent();
+        max->InitializeComponent();
     }
     virtual void UpdateComponent(void) override
     {
-        Min->UpdateComponent();
-        Max->UpdateComponent();
+        min->UpdateComponent();
+        max->UpdateComponent();
     }
+
+
+    //The "SwapOutSubComponent" functions are a bit of a thorny problem, because we don't know the size of ComponentSize here.
+    //My solution was to define dummy "SetMin/SetMax" functions that in reality will never be called.
+
+private:
+    //I don't know if this solution is horrifying or awesome.
+    void SetMin(HGPComponentPtr(ComponentSize == 1 ? 2 : (ComponentSize == 2 ? 3 : (ComponentSize == 3 ? 4 : 1))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the min was set to one of unwrapped size " + std::to_string(ComponentSize + 1));
+    }
+    void SetMin(HGPComponentPtr(ComponentSize == 1 ? 3 : (ComponentSize == 2 ? 4 : (ComponentSize == 3 ? 1 : 2))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the min was set to one of unwrapped size " + std::to_string(ComponentSize + 2));
+    }
+    void SetMin(HGPComponentPtr(ComponentSize == 1 ? 4 : (ComponentSize == 2 ? 1 : (ComponentSize == 3 ? 2 : 3))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the min was set to one of unwrapped size " + std::to_string(ComponentSize + 3));
+    }
+    void SetMax(HGPComponentPtr(ComponentSize == 1 ? 2 : (ComponentSize == 2 ? 3 : (ComponentSize == 3 ? 4 : 1))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the max was set to one of unwrapped size " + std::to_string(ComponentSize + 1));
+    }
+    void SetMax(HGPComponentPtr(ComponentSize == 1 ? 3 : (ComponentSize == 2 ? 4 : (ComponentSize == 3 ? 1 : 2))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the max was set to one of unwrapped size " + std::to_string(ComponentSize + 2));
+    }
+    void SetMax(HGPComponentPtr(ComponentSize == 1 ? 4 : (ComponentSize == 2 ? 1 : (ComponentSize == 3 ? 2 : 3))) newMin)
+    {
+        Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the max was set to one of unwrapped size " + std::to_string(ComponentSize + 3));
+    }
+public:
 
     virtual void SwapOutSubComponent(HGPComponentPtr(1) oldC, HGPComponentPtr(1) newC) override
     {
@@ -425,9 +460,23 @@ protected:
     
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        return DataLine(DataNodePtr(new InterpolateNode(Min->GetComponentOutput(), Max->GetComponentOutput(),
-                                                        DataLine(HGPGlobalData::ParticleRandSeedComponents, randSeedIndex),
-                                                        DataLine(1.0f))), 0);
+        DataLine randSeed;
+        switch (randSeedIndex)
+        {
+            case 0:
+            case 1:
+            case 2:
+                randSeed = DataLine(HGPGlobalData::ParticleRandSeedComponents, randSeedIndex);
+                break;
+            case 3:
+                randSeed = HGPGlobalData::FourthRandSeed;
+                break;
+            case 4:
+                randSeed = HGPGlobalData::FifthRandSeed;
+                break;
+            default: Assert(std::string() + "Unknown rand seed index " + std::to_string(randSeedIndex));
+        }
+        return DataLine(DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(), randSeed, InterpolateNode::InterpolationType::IT_Linear)), 0);
     }
 
 private:
