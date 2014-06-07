@@ -170,22 +170,6 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
         }
     }
 #pragma warning(default: 4101)
-
-    //geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
-
-    geoDat.ShaderCode += "\n//Other uniforms.\n";
-    for (auto loc = geoDat.Params.FloatUniforms.begin(); loc != geoDat.Params.FloatUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
-    for (auto loc = geoDat.Params.FloatArrayUniforms.begin(); loc != geoDat.Params.FloatArrayUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
-    for (auto loc = geoDat.Params.IntUniforms.begin(); loc != geoDat.Params.IntUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
-    for (auto loc = geoDat.Params.IntArrayUniforms.begin(); loc != geoDat.Params.IntArrayUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
-    for (auto loc = geoDat.Params.MatrixUniforms.begin(); loc != geoDat.Params.MatrixUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
-    for (auto loc = geoDat.Params.TextureUniforms.begin(); loc != geoDat.Params.TextureUniforms.end(); ++loc)
-        geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     
     geoDat.ShaderCode += "\n\n//Helper functions.\n";
     for (unsigned int i = 0; i < functionDecls.size(); ++i)
