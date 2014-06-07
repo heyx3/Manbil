@@ -8,10 +8,10 @@
 typedef VoxelChunk VC;
 
 
-const int VC::ChunkSize = 30;
+const unsigned int VC::ChunkSize = 30;
 const float VC::ChunkSizeF = 30.0f;
 
-const int VC::VoxelSize = 3;
+const unsigned int VC::VoxelSize = 3;
 const float VC::VoxelSizeF = 3.0f;
 
 

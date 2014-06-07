@@ -75,6 +75,7 @@ void VoxelWorld::SetUpVoxels(void)
 
     Noise3D noise(VoxelChunk::ChunkSize * worldLength.x, VoxelChunk::ChunkSize * worldLength.y, VoxelChunk::ChunkSize * worldLength.z, 0.0f);
     
+#pragma warning(disable: 4127)
     if (false)
     {
         FlatNoise3D flat(1.0f);
@@ -143,6 +144,7 @@ void VoxelWorld::SetUpVoxels(void)
         nf3.Set(&noise);
     }
     else assert(false);
+#pragma warning(default: 4127)
 
 
     //Generate voxels from noise.
@@ -352,8 +354,6 @@ void VoxelWorld::InitializeWorld(void)
     }
 
     //Parameters.
-    std::unordered_map<std::string, UniformValueF> & fUnis = voxelParams.FloatUniforms;
-    const std::vector<UniformList::Uniform> & unis = voxelMat->GetUniforms(RenderPasses::BaseComponents).FloatUniforms;
     voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
                                                                     UniformList::FindUniform("u_voxelTex",
                                                                                              voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
@@ -364,7 +364,7 @@ void VoxelWorld::InitializeWorld(void)
     //Player camera/input.
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
-                                                                           Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y)));
+                                                                           Vector2f((float)sf::Mouse::getPosition().x, (float)sf::Mouse::getPosition().y)));
     oculusDev = new OculusDevice(0);
     player.Cam = VoxelCamera(Vector3f(0, 0, 0),
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
@@ -372,8 +372,8 @@ void VoxelWorld::InitializeWorld(void)
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(60.0f);
-    player.Cam.Info.Width = vWindowSize.x;
-    player.Cam.Info.Height = vWindowSize.y;
+    player.Cam.Info.Width = (float)vWindowSize.x;
+    player.Cam.Info.Height = (float)vWindowSize.y;
     player.Cam.Info.zNear = 0.1f;
     player.Cam.Info.zFar = 500.0f;
 
@@ -400,8 +400,8 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
     glViewport(0, 0, w, h);
     vWindowSize.x = w;
     vWindowSize.y = h;
-    player.Cam.Info.Width = w;
-    player.Cam.Info.Height = h;
+    player.Cam.Info.Width = (float)w;
+    player.Cam.Info.Height = (float)h;
     if (!RenderTargets.ResizeTarget(worldRenderTarget, w, h))
     {
         PrintError("Error resizing world render target", RenderTargets.GetError());

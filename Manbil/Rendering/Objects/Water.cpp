@@ -149,7 +149,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         assert(seedArgs.SeedValues->GetWidth() == seedArgs.SeedValues->GetHeight());
 
         Params.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "amplitude_period_speed");
-        Params.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight()), "seedMapResolution");
+        Params.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f((float)seedArgs.SeedValues->GetWidth(), (float)seedArgs.SeedValues->GetHeight()), "seedMapResolution");
 
 
         //Create a texture from the seed map.
@@ -219,7 +219,7 @@ bool Water::ChangeRipple(unsigned int element, const RippleWaterArgs & args)
 {
     assert(maxRipples > 0);
 
-    for (int i = 0; i < maxRipples; ++i)
+    for (unsigned int i = 0; i < maxRipples; ++i)
     {
         if (rippleIDs[i] == element)
         {
@@ -270,7 +270,7 @@ bool Water::ChangeFlow(unsigned int element, const DirectionalWaterArgs & args)
 {
     assert(maxFlows > 0);
 
-    for (int i = 0; i < maxFlows; ++i)
+    for (unsigned int i = 0; i < maxFlows; ++i)
     {
         if (flowIDs[i] == element)
         {
@@ -292,7 +292,7 @@ void Water::SetSeededWater(const SeededWaterArgs & args)
 }
 void Water::SetSeededWaterSeed(sf::Texture * image, bool deletePrevious, Vector2i resolution)
 {
-    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f(resolution.x, resolution.y));
+    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f((float)resolution.x, (float)resolution.y));
     if (deletePrevious)
         Params.TextureUniforms["seedMap"].Texture.DeleteTexture();
     Params.TextureUniforms["seedMap"].Texture.SetData(image);

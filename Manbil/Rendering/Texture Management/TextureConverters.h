@@ -4,6 +4,8 @@
 #include "TextureChannels.h"
 #include <SFML/Graphics/Image.hpp>
 
+#pragma warning(disable: 4100)
+
 //Helps convert between images and 2d arrays.
 class TextureConverters
 {
@@ -68,3 +70,5 @@ private:
         }
     }
 };
+
+#pragma warning(default: 4100)

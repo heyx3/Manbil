@@ -4,6 +4,8 @@
 #include "../../MaterialData.h"
 
 
+#pragma warning(disable: 4512 4100)
+
 //Represents the value of vertex shader outputs into the geometry shader.
 //NOTE: This node is only usable in the geometry shader!
 //Since geometry inputs vary by material, the inputs are specified in the constructor.
@@ -61,3 +63,5 @@ private:
         return ret;
     }
 };
+
+#pragma warning(default: 4512 4100)

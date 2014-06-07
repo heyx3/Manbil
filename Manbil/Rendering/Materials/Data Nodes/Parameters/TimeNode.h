@@ -5,6 +5,8 @@
 #include "../../MaterialData.h"
 
 
+#pragma warning(disable: 4100)
+
 //Outputs the uniform for the elapsed time.
 class TimeNode : public DataNode
 {
@@ -33,3 +35,5 @@ protected:
         //No outputting needed.
     }
 };
+
+#pragma warning(default: 4100)

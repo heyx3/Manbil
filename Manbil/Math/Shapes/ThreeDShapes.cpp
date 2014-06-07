@@ -578,10 +578,12 @@ bool Cube::TouchingPlane(const Plane & plane) const
 
     return BasicMath::Abs(plane.GetDistanceToPlane(GetCenter())) <= val;
 }
+#pragma warning(disable: 4100)
 bool Cube::TouchingTriangle(const Triangle & tris) const
 {
     return false;
 }
+#pragma warning(default: 4100)
 
 Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -636,7 +638,7 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
             }
         }
     }
-    res.ReflectNormal[closestAxis] = BasicMath::Sign(res.HitPos[closestAxis] - GetCenter()[closestAxis]);
+    res.ReflectNormal[closestAxis] = (float)BasicMath::Sign(res.HitPos[closestAxis] - GetCenter()[closestAxis]);
 
     return res;
 }
@@ -671,10 +673,12 @@ bool Sphere::TouchingPlane(const Plane & plane) const
 
     return dist >= minDist && dist <= maxDist;
 }
+#pragma warning(disable: 4100)
 bool Sphere::TouchingTriangle(const Triangle & tris) const
 {
     return false;
 }
+#pragma warning(default: 4100)
 
 Sphere::RayTraceResult Sphere::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -934,10 +938,12 @@ bool Capsule::TouchingPlane(const Plane & plane) const
 
     return distanceIntvl.Touches(0.0f);
 }
+#pragma warning(disable: 4100)
 bool Capsule::TouchingTriangle(const Triangle & tris) const
 {
     return false;
 }
+#pragma warning(default: 4100)
 
 Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -1082,10 +1088,12 @@ bool Plane::TouchingPlane(const Plane & plane) const
     return (dot != 1.0f && dot != -1.0f) ||
         (plane.GetCenter().DistanceSquared(GetCenter()) <= MarginOfError);
 }
+#pragma warning(disable: 4100)
 bool Plane::TouchingTriangle(const Triangle & tris) const
 {
     return false;
 }
+#pragma warning(default: 4100)
 
 Plane::RayTraceResult Plane::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -1097,7 +1105,7 @@ Plane::RayTraceResult Plane::RayHitCheck(Vector3f rayStart, Vector3f rayDir) con
     float t = Normal.Dot(GetCenter() - rayStart) / denominator;
     if (t < 0.0f) return RayTraceResult();
 
-    return RayTraceResult(rayStart + (rayDir * t), Normal * BasicMath::Sign(GetDistanceToPlane(rayStart)), t);
+    return RayTraceResult(rayStart + (rayDir * t), Normal * (float)BasicMath::Sign(GetDistanceToPlane(rayStart)), t);
 }
 
 Box3D Plane::GetBoundingBox(void) const

@@ -18,7 +18,9 @@ public:
 	//Getter/setter stuff.
 
 	void SetValues(const Matrix4f * copy) { SetValuesF([copy](Vector2i l, float & fOut) { fOut = (*copy)[l]; }); }
+#pragma warning(disable: 4100)
 	void SetValues(float fillValue) { SetValuesF([fillValue](Vector2i l, float &fOut) { fOut = fillValue; }); }
+#pragma warning(default: 4100)
 
 	template<typename Func>
 	//'evaluator' must be a function in the form "void Func(Vector2i l, float & out)".
@@ -57,7 +59,9 @@ public:
 	Matrix4f GetTranspose(void) const;
 
 	//Rounds all the elements in this matrix to the given number of decimals.
+#pragma warning(disable: 4100)
 	void Round(int decimals) { SetValuesF([decimals](Vector2i l, float & fOut) { fOut = BasicMath::Round(fOut, decimals); }); }
+#pragma warning(default: 4100)
 
 	//Transforms the given vector using this matrix.
 	Vector3f Apply(Vector3f v) const { Vector4f val = Matrix4f::Multiply(*this, Vector4f(v, 1.0f)); float iW = 1.0f / val.w; return Vector3f(val.x * iW, val.y * iW, val.z * iW); }

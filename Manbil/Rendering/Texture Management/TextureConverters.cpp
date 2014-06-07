@@ -2,6 +2,9 @@
 
 #include <assert.h>
 
+#pragma warning(disable: 4100)
+
+
 const float TextureConverters::ByteToFloatScalar = 1.0f / 255.0f;
 
 void TextureConverters::ToArray(const sf::Image & inImg, ChannelsIn channel, Array2D<UByte> & channelOut)
@@ -219,3 +222,5 @@ void TextureConverters::ToImage(const Array2D<float> & channelIn, ChannelsOut ch
     default: assert(false);
     }
 }
+
+#pragma warning(default: 4100)

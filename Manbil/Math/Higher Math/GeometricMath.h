@@ -7,6 +7,7 @@ class GeometricMath
 {
 private:
 	
+#pragma warning(disable: 4100)
 	template<class Vector>
 	static int NumbDimensions(Vector v) { return sizeof(v) / sizeof(float); }
 	template<>
@@ -15,6 +16,7 @@ private:
 	static int NumbDimensions<Vector3f>(Vector3f v) { return 3; }
 	template<>
 	static int NumbDimensions<Vector4f>(Vector4f v) { return 4; }
+#pragma warning(default: 4100)
 
 public:
 	

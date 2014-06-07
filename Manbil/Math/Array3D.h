@@ -2,6 +2,8 @@
 
 #include "Vectors.h"
 
+#pragma warning(disable: 4018)
+
 
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a three-dimensional array.
@@ -105,7 +107,6 @@ public:
 	//Copies the given array into this one. Optionally specifies an offset for the min position of "toCopy".
     void Fill(const Array3D<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
     {
-        unsigned int x, y, z;
         Vector3i loc, offsetLoc;
 
         for (loc.z = 0; loc.z < depth; ++loc.z)
@@ -165,3 +166,5 @@ private:
         return x + (y * width) + (z * width * height);
     }
 };
+
+#pragma warning(default: 4018)

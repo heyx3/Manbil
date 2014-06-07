@@ -42,12 +42,12 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 
     Vector2i offLoc;
     Vector2i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y));
-    for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
+    for (loc.y = 0; loc.y < (int)gradients.GetHeight(); ++loc.y)
     {
         offLoc.y = loc.y + scaledOffset.y;
         offLoc.y %= GradientWrapInterval.y;
 
-        for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
+        for (loc.x = 0; loc.x < (int)gradients.GetWidth(); ++loc.x)
         {
             offLoc.x = loc.x + scaledOffset.x;
             offLoc.x %= GradientWrapInterval.x;

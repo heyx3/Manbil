@@ -27,10 +27,12 @@ public:
 
 protected:
 
+#pragma warning(disable: 4100)
     virtual void WriteMyOutputs(std::string & outCode) const
     {
         //Don't write anything; this node outputs shader inputs.
     }
+#pragma warning(default: 4100)
 
 
 private:

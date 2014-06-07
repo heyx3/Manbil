@@ -67,7 +67,7 @@ public:
     //This generator will often generate dark values. If this flag is true, those values will be normalized.
     bool RemapValues;
 
-    Perlin3D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345, bool remapValues = true,
+    Perlin3D(float scale, Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345, bool remapValues = true,
              Vector3i gradientWrapInterval = Vector3i(std::numeric_limits<int>().max(), std::numeric_limits<int>().max(), std::numeric_limits<int>().max()))
         : Scale(scale, scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
     Perlin3D(Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345, bool remapValues = true,

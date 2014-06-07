@@ -37,6 +37,8 @@ public:
 
 protected:
 
+#pragma warning(disable: 4100)
+
 	template<class SomeClass>
 	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }
 
@@ -50,6 +52,8 @@ protected:
 	virtual void OnOtherWindowEvent(sf::Event & windowEvent) { }
 
 	virtual void OnWorldEnd(void) { }
+
+#pragma warning(default: 4100)
 
 private:
 

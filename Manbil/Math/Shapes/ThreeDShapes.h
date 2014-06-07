@@ -294,10 +294,13 @@ public:
     }
 
 
+    //TODO: Fix.
+#pragma warning(disable: 4100) //Warning about "dirNormalized" not being used.
     virtual Vector3f FarthestPointInDirection(Vector3f dirNormalized) const override
     {
         return GetCenter();
     }
+#pragma warning(default: 4100)
 
     virtual bool TouchingShape(const Shape & shape) const override { return shape.TouchingTriangle(*this); }
 
@@ -356,10 +359,12 @@ public:
 
 
 
+#pragma warning(disable: 4100)
     virtual Vector3f FarthestPointInDirection(Vector3f dirNormalized) const override
     {
         return GetCenter();
     }
+#pragma warning(default: 4100)
 
 
     virtual bool TouchingShape(const Shape & shape) const override { return shape.TouchingPolygon(*this); }
@@ -408,9 +413,11 @@ public:
 
     virtual void SetCenter(Vector3f newCenter) override
     {
+#pragma warning(disable: 4239)
         Shape::SetCenter(newCenter);
         std::_For_each(triangles.begin(), triangles.end(),
                        [&newCenter](Triangle & tri) { tri.SetCenter(newCenter); });
+#pragma warning(default: 4239)
     }
 
     virtual ShapePtr GetClone(void) const override { return ShapePtr(new PolygonSolid(triangles)); }
@@ -425,7 +432,7 @@ private:
         if (tris.size() == 0) return Vector3f(0.0f, 0.0f, 0.0f);
 
         Vector3f sum = Vector3f(0.0f, 0.0f, 0.0f);
-        for (int i = 0; i < tris.size(); ++i)
+        for (unsigned int i = 0; i < tris.size(); ++i)
             sum += tris[i].GetCenter();
 
         return sum / (float)tris.size();

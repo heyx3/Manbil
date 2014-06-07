@@ -14,6 +14,8 @@
 #include "Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "Math/NoiseGeneration.hpp"
 #include "Rendering/GPU Particles/GPUParticleGenerator.h"
+#include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
+#include "Rendering/GPU Particles/High-level GPU Particles/SpecialHGPComponents.h"
 
 #include <assert.h>
 
@@ -210,20 +212,31 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
     std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
-    DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
-             particleRandSeedInputs(DNP(new ShaderInNode(3, 1, 1, 0, 1)), 0);
-    DataLine particleSeed1(DNP(new VectorComponentsNode(particleRandSeedInputs)), 0);
-    DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
-    DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
-    DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
+    if (true)
+    {
+        DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
+                 particleRandSeedInputs(DNP(new ShaderInNode(3, 1, 1, 0, 1)), 0);
+        DataLine particleSeed1(DNP(new VectorComponentsNode(particleRandSeedInputs)), 0);
+        DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
+        DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
+        DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
-    gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
-                                                                         DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(1000.0f), particleIDInputs)), 0),
-                                                                                                            DataLine(VectorF(0.0f)))), 0))), 0);
-    gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, DataLine(1.0f))), 0);
-    gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
-                                                                             DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
-    gpupOuts[GPUPOutputs::GPUP_QUADROTATION] = elapsedTime;
+        gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
+                                                                             DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(1000.0f), particleIDInputs)), 0),
+                                                                                                                DataLine(VectorF(0.0f)))), 0))), 0);
+        gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, DataLine(1.0f))), 0);
+        gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
+                                                                                 DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
+        gpupOuts[GPUPOutputs::GPUP_QUADROTATION] = elapsedTime;
+    }
+    else
+    {
+        HGPComponentManager manager(Textures, particleParams);
+        manager.SetWorldPosition(HGPComponentPtr(3)(new SpherePositionComponent(manager, Vector3f(0.0f, 0.0f, 50.0f), 20.0f)));
+        manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), manager)),
+                                                                                  HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 5.0f), manager)))));
+        manager.SetGPUPOutputs(gpupOuts);
+    }
 
     ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
     if (!gen.ErrorMessage.empty())
@@ -235,7 +248,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     }
     particleMat = gen.Mat;
 
-    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_1048576;
+    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_16;
     particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
                                                     GPUParticleGenerator::GenerateGPUPParticles(numb)));
 

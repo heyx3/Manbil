@@ -73,9 +73,9 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 	float tempF;
 
 	//Go through every pixel.
-	for (x = 0; x < noise.GetWidth(); ++x)
+	for (x = 0; x < (int)noise.GetWidth(); ++x)
 	{
-		for (y = 0; y < noise.GetHeight(); ++y)
+		for (y = 0; y < (int)noise.GetHeight(); ++y)
 		{
 			tempF = noise[Vector2i(x, y)];
 			readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
@@ -337,11 +337,11 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Vector2f locF;
         for (Vector2i loc; loc.y < finalNoise.GetHeight(); ++loc.y)
         {
-            locF.y = loc.y;
+            locF.y = (float)loc.y;
 
             for (loc.x = 0; loc.x < finalNoise.GetWidth(); ++loc.x)
             {
-                locF.x = loc.x;
+                locF.x = (float)loc.x;
                 
                 //Come up with an interpolant that is on the same scale as the interpolation constants.
                 float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;

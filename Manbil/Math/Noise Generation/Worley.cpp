@@ -8,6 +8,9 @@
 #define PTR(X) (std::unique_ptr<X>)
 
 
+#pragma warning(disable : 4018)
+
+
 const float BadWADDistance = -1.0f;
 //Stores a generated point in a cell and the distance to that point.
 struct WorleyAlgorithmData2D
@@ -62,6 +65,7 @@ void Worley2D::Generate(Array2D<float> & noise) const
 
 	//Get the size of a cell.
 	int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), noise.GetHeight());
+    float cSizeF = (float)cSize;
 
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
 	Vector2i cells = Vector2i((noise.GetWidth() / cSize),
@@ -81,11 +85,11 @@ void Worley2D::Generate(Array2D<float> & noise) const
 
     for (loc.y = 0; loc.y < cells.y; ++loc.y)
     {
-        tempIntY = Interval(loc.y * cSize, (loc.y * cSize) + cSize, 0.001f, true, true);
+        tempIntY = Interval(loc.y * cSizeF, (loc.y * cSizeF) + cSizeF, 0.001f, true, true);
 
         for (loc.x = 0; loc.x < cells.x; ++loc.x)
         {
-            tempIntX = Interval(loc.x * cSize, (loc.x * cSize) + cSize, 0.001f, true, true);
+            tempIntX = Interval(loc.x * cSizeF, (loc.x * cSizeF) + cSizeF, 0.001f, true, true);
 
             cellTemp = &cellContents[loc].pointsInCell;
 
@@ -396,3 +400,6 @@ void Worley3D::Generate(Array3D<float> & noise) const
     nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.001f, true, true);
     nf.RemapValues(&noise);
 }
+
+
+#pragma warning(default : 4018)

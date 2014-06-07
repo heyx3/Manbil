@@ -22,10 +22,12 @@ public:
 
 protected:
 
+#pragma warning(disable: 4100)
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No need to write anything; we're just pulling out components of another vector.
     }
+#pragma warning(default: 4100)
 
 private:
 

@@ -5,6 +5,7 @@
 #include "../MaterialUsageFlags.h"
 #include "GeometryShaderInfo.h"
 
+#pragma warning(disable: 4100)
 
 //Represents a basic, atomic operation in a shader.
 //TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
@@ -162,3 +163,5 @@ private:
 
     unsigned int id;
 };
+
+#pragma warning(default: 4100)

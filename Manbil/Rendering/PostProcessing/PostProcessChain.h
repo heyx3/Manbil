@@ -6,6 +6,8 @@
 #include "../Helper Classes/DrawingQuad.h"
 
 
+#pragma warning(disable: 4512)
+
 
 //Represents a special kind of material (actually an arbitrary number of materials)
 //   that applies a series of post-processing effects to the screen.
@@ -78,3 +80,5 @@ private:
     unsigned int rt1, rt2;
     unsigned int totalPasses;
 };
+
+#pragma warning(default: 4512)

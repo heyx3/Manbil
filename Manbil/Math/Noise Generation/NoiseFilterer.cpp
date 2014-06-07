@@ -3,6 +3,9 @@
 #include <assert.h>
 
 
+#pragma warning(disable: 4100)
+
+
 #pragma region TwoD Noise
 
 typedef NoiseFilterer2D NF2;
@@ -489,3 +492,6 @@ void NF3::SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * p
 }
 
 #pragma endregion
+
+
+#pragma warning(default: 4100)

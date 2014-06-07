@@ -5,6 +5,9 @@
 #include "../../../../Vertices.h"
 
 
+#pragma warning(disable: 4512)
+
+
 //Represents the value of vertex inputs.
 //NOTE: This node is only usable in the vertex shader!
 //Since vertex inputs can be any size, this node's output size is specified in the class's constructor.
@@ -40,12 +43,14 @@ public:
 
 protected:
 
+#pragma warning(disable: 4100)
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         Assert(GetShaderType() == Shaders::SH_Vertex_Shader,
                std::string() + "Invalid shader type (must be Vertex): " + ToString(GetShaderType()));
         //Don't actually output anything, since the output name is an "in" variable.
     }
+#pragma warning(default: 4100)
 
 private:
 
@@ -60,3 +65,5 @@ private:
         return ret;
     }
 };
+
+#pragma warning(default: 4512)

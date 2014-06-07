@@ -29,10 +29,12 @@ public:
         return name;
     }
 
+#pragma warning(disable: 4100)
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No need to write any outputs; the uniform variable is the output.
     }
+#pragma warning(default: 4100)
 
 
 private:

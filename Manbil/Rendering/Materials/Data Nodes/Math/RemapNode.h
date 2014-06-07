@@ -28,8 +28,9 @@ public:
                "'destMax' input value isn't size 1 or " + std::to_string(size) + "!");
     }
 
+#pragma warning(disable: 4100)
     virtual std::string GetOutputName(unsigned int output) const override { assert(output == 0); return GetName() + std::to_string(GetUniqueID()) + "_remapped"; }
-
+#pragma warning(default: 4100)
 
 protected:
 

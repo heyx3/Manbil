@@ -3,6 +3,8 @@
 #include "Vectors.h"
 
 
+#pragma warning(disable: 4018)
+
 template<class ArrayType>
 //Wraps a contiguous heap-allocated one-dimensional array so it can be treated like a two-dimensional array.
 class Array2D
@@ -136,3 +138,5 @@ private:
 
     unsigned int GetIndex(unsigned int x, unsigned int y) const { return x + (y * width); }
 };
+
+#pragma warning(default: 4018)

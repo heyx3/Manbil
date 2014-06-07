@@ -106,7 +106,7 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, y)));
         }
 
-		float Length(void) const { return sqrtf(LengthSquared()); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
 		int LengthSquared(void) const { return (x * x) + (y * y); }
 
         //Scales this Vector2i's x, and y components by the given Vector2i's x and y components.
@@ -201,7 +201,7 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, z)));
         }
 
-		float Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
+		int Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 		float AngleBetween(Vector3i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
         //Scales this Vector3i's x, y, and z components by the given Vector3i's x, y, and z components.
@@ -209,11 +209,11 @@ namespace MyVectors
         //Scales this Vector3i's x, y, and z components by the given Vector3i's x, y, and z components.
         Vector3i ComponentProduct(Vector3i scale) const { Vector3i v(x, y, z); v.MultiplyComponents(scale); return v; }
 
-		float Length(void) const { return sqrtf(LengthSquared()); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
 		int LengthSquared(void) const { return (x * x) + (y * y) + (z * z); }
 
-		float Distance(Vector3i other) const { return sqrtf(DistanceSquared(other)); }
-		float DistanceSquared(Vector3i other) const { int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z; return (f1 * f2) + (f2 * f2) + (f3 * f3); }
+        float Distance(Vector3i other) const { return sqrtf((float)DistanceSquared(other)); }
+		int DistanceSquared(Vector3i other) const { int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z; return (f1 * f2) + (f2 * f2) + (f3 * f3); }
 
 		int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791); }
 	};
@@ -301,14 +301,14 @@ namespace MyVectors
         int Dot(Vector4i other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
         float AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
 
-        float Length(void) const { return sqrtf(LengthSquared()); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
         int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
-        float FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
+        float FastInvLength(void) const { return BasicMath::FastInvSqrt1((float)LengthSquared()); }
 
-        float Distance(Vector4i other) const { return sqrtf(DistanceSquared(other)); }
+        float Distance(Vector4i other) const { return sqrtf((float)DistanceSquared(other)); }
         int DistanceSquared(Vector4i other) const { int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z, f4 = w - other.w; return (f1 * f1) + (f2 * f2) + (f3 * f3) + (f4 * f4); }
         int ManhattanDistance(Vector4i other) const { return BasicMath::Abs(x - other.x) + BasicMath::Abs(y - other.y) + BasicMath::Abs(z - other.z) + BasicMath::Abs(w - other.w); }
-        float FastInvDistance(Vector4i other) const { return BasicMath::FastInvSqrt1(DistanceSquared(other)); }
+        float FastInvDistance(Vector4i other) const { return BasicMath::FastInvSqrt1((float)DistanceSquared(other)); }
 
         //Scales this Vector4i's x, y, z, and w components by the given Vector4i's x, y, z, and w components.
         void MultiplyComponents(Vector4i scale) { x *= scale.x; y *= scale.y; z *= scale.z; w *= scale.w; }

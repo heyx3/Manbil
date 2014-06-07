@@ -44,7 +44,7 @@ public:
 	HorizontalDeadzone(float cutoff = 0.01f) : Cutoff(cutoff) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-        float sign = BasicMath::Sign(inV.y);
+        float sign = (float)BasicMath::Sign(inV.y);
         Interval goodRange(Cutoff, 1.0f, 0.0001f);
 
         inV.y = goodRange.Clamp(sign * inV.y);
@@ -61,7 +61,7 @@ public:
 	VerticalDeadzone(float cutoff = 0.01f) : Cutoff(cutoff) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-        float sign = BasicMath::Sign(inV.x);
+        float sign = (float)BasicMath::Sign(inV.x);
         Interval goodRange(Cutoff, 1.0f, 0.0001f);
 
         inV.x = goodRange.Clamp(sign * inV.x);
@@ -84,7 +84,7 @@ public:
 	virtual Vector2f Filter(Vector2f inV) override
 	{
 		float yLimit = YRange.RangeLerp(BasicMath::Abs(inV.x));
-        float sign = BasicMath::Sign(inV.y);
+        float sign = (float)BasicMath::Sign(inV.y);
 
         Interval goodRange(yLimit, 1.0f, 0.0001f);
         inV.y = goodRange.Clamp(sign * inV.y);
@@ -105,7 +105,7 @@ public:
 	virtual Vector2f Filter(Vector2f inV) override
 	{
         float xLimit = XRange.RangeLerp(BasicMath::Abs(inV.y));
-        float sign = BasicMath::Sign(inV.x);
+        float sign = (float)BasicMath::Sign(inV.x);
 
         Interval goodRange(xLimit, 1.0f, 0.0001f);
         inV.x = goodRange.Clamp(sign * inV.x);

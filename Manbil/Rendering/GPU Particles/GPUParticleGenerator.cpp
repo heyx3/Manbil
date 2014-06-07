@@ -51,6 +51,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     std::string finalOutputs;
     std::vector<unsigned int> usedNodesParams, usedNodesFuncs, writtenNodeIDs;
  
+#pragma warning(disable: 4101)
     if (!outputs[GPUPOutputs::GPUP_SIZE].IsConstant())
     {
         try
@@ -168,6 +169,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
             return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing outputs for channel 'GPUP_WORLDPOSITION': " + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetDataNodeValue()->GetError());
         }
     }
+#pragma warning(default: 4101)
 
     //geoDat.ShaderCode = MaterialConstants::GetGeometryHeader(std::string("out vec2 particleID;\nout vec2 uvs;\n"), PrimitiveTypes::Points, PrimitiveTypes::TriangleStrip, 4, geoDat.UsageFlags);
 
@@ -186,7 +188,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
         geoDat.ShaderCode += loc->second.GetDeclaration() + "\n";
     
     geoDat.ShaderCode += "\n\n//Helper functions.\n";
-    for (int i = 0; i < functionDecls.size(); ++i)
+    for (unsigned int i = 0; i < functionDecls.size(); ++i)
         geoDat.ShaderCode += functionDecls[i];
     
     //Define quaternion rotation.

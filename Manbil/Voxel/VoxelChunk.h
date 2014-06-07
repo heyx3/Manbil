@@ -34,13 +34,13 @@ class VoxelChunk
 public:
 
     //The width/height/depth of the chunk, in voxels.
-    static const int ChunkSize;
+    static const unsigned int ChunkSize;
     //The "ChunkSize" constant as a float so no run-time conversion is needed.
     //TODO: Would a run-time conversion actually be needed anyway? Size is a compile-time constant.
     static const float ChunkSizeF;
 
     //The width/height/depth of a voxel, in world units.
-    static const int VoxelSize;
+    static const unsigned int VoxelSize;
     //The "VoxelSize" constant as a float so no run-time conversion is needed.
     //TODO: Would a run-time conversion actually be needed anyway? Size is a compile-time constant.
     static const float VoxelSizeF;
@@ -66,7 +66,7 @@ public:
     //Converters between World Space and World Chunk Space.
 
     //Converts world chunk coordinates to world coordinates.
-    static Vector3f ToWorldSpace(Vector3i chunkCoord) { return ToWorldSpace(Vector3f(chunkCoord.x, chunkCoord.y, chunkCoord.z)); }
+    static Vector3f ToWorldSpace(Vector3i chunkCoord) { return ToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
     //Converts world chunk coordinates to world coordinates.
     static Vector3f ToWorldSpace(Vector3f chunkCoord) { return chunkCoord * VoxelSizeF; }
 
@@ -84,14 +84,14 @@ public:
     //Converters between World Space and Local Chunk Space.
 
     //Converts local chunk coordinates to world Coordinates.
-    Vector3f LocalToWorldSpace(Vector3i chunkCoord) const { return LocalToWorldSpace(Vector3f(chunkCoord.x, chunkCoord.y, chunkCoord.z)); }
+    Vector3f LocalToWorldSpace(Vector3i chunkCoord) const { return LocalToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
     //Converts local chunk coordinates to world Coordinates.
-    Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord * VoxelSizeF) + Vector3f(MinCorner.x, MinCorner.y, MinCorner.z); }
+    Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord * VoxelSizeF) + Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z); }
 
     //Converts world coordinates to local Chunk coordinates.
-    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z)); }
+    Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)); }
     //Converts world coordinates to the coordinate of the nearest local voxel.
-    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f(MinCorner.x, MinCorner.y, MinCorner.z)); }
+    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)); }
 
 
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
@@ -186,12 +186,12 @@ public:
             return false;
         }
 
-        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
+        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -211,22 +211,22 @@ public:
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
 
-        if ((sign.x > 0 && (end.x < 0 || start.x > ChunkSize - 1)) ||
+        if ((sign.x > 0 && (end.x < 0 || start.x > (int)(ChunkSize - 1))) ||
             (sign.x < 0 && (end.x > ChunkSize - 1 || start.x < 0)) ||
-            (sign.y > 0 && (end.y < 0 || start.y > ChunkSize - 1)) ||
+            (sign.y > 0 && (end.y < 0 || start.y > (int)(ChunkSize - 1))) ||
             (sign.y < 0 && (end.y > ChunkSize - 1 || start.y < 0)) ||
-            (sign.z > 0 && (end.z < 0 || start.z > ChunkSize - 1)) ||
+            (sign.z > 0 && (end.z < 0 || start.z > (int)(ChunkSize - 1))) ||
             (sign.z < 0 && (end.z > ChunkSize - 1 || start.z < 0)))
         {
             return;
         }
 
-        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
+        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -256,12 +256,12 @@ public:
             return false;
         }
 
-        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
+        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -291,12 +291,12 @@ public:
             return;
         }
 
-        int xStart = BasicMath::Clamp(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp(end.z, 0, ChunkSize - 1);
+        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
+        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -333,7 +333,7 @@ public:
     //Gets the world-space bounds around this chunk.
     Box3D GetBounds(void) const
     {
-        return Box3D(MinCorner.x, MinCorner.y, MinCorner.z,
+        return Box3D((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z,
                      Vector3f(ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF));
     }
     //Gets the world-space bounds around the given voxel (local chunk space).
