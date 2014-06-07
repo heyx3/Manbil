@@ -62,6 +62,8 @@ public:
 #define HGPComponentPtr(ComponentSize) std::shared_ptr<HGPOutputComponent<ComponentSize>>
 #define HGPConstComponentPtr(ComponentSize) std::shared_ptr<const HGPOutputComponent<ComponentSize>>
 
+//TODO: An "ExpressionHGPComponent" that just outputs a given DataLine.
+
 
 //The size of the component's float output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
