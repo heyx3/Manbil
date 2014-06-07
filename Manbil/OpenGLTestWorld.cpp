@@ -222,7 +222,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
         gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
-                                                                             DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(1000.0f), particleIDInputs)), 0),
+                                                                             DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(10.0f), particleIDInputs)), 0),
                                                                                                                 DataLine(VectorF(0.0f)))), 0))), 0);
         gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, DataLine(1.0f))), 0);
         gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),

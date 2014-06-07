@@ -100,7 +100,7 @@ public:
     static float Root(float value, float root) { return powf(value, 1.0f / root); }
 
     template<typename ComparableType>
-    static float Clamp(ComparableType val, ComparableType min, ComparableType max) { return (val < min ? min : (val > max ? max : val)); }
+    static ComparableType Clamp(ComparableType val, ComparableType min, ComparableType max) { return (val < min ? min : (val > max ? max : val)); }
 
     template<class ComparableClass>
     static ComparableClass Max(ComparableClass one, ComparableClass two) { return (one < two) ? two : one; }

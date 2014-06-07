@@ -31,7 +31,7 @@ private:
     static unsigned int CountElements(const std::vector<DataLine> & inputs)
     {
         unsigned int count = 0;
-        for (int i = 0; i < inputs.size(); ++i)
+        for (unsigned int i = 0; i < inputs.size(); ++i)
             count += inputs[i].GetDataLineSize();
         return count;
     }

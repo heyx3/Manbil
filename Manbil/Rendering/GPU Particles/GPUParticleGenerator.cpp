@@ -285,12 +285,12 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
 
     //Generate the particle data.
     Array2D<ParticleVertex> particles(length, length);
-    const float increment = 1.0f / length;
-    for (Vector2i loc; loc.y < length; ++loc.y)
+    const float increment = 1.0f / (float)length;
+    for (Vector2i loc; loc.y < (int)length; ++loc.y)
     {
         float yID = increment * loc.y;
 
-        for (loc.x = 0; loc.x < length; ++loc.x)
+        for (loc.x = 0; loc.x < (int)length; ++loc.x)
         {
             float xID = increment * loc.x;
 

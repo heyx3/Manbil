@@ -10,7 +10,7 @@ class WhiteNoiseNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { "floorNode"; }
+    virtual std::string GetName(void) const override { return "whiteNoiseNode"; }
 
     WhiteNoiseNode(const DataLine & seed) : DataNode(makeInputs(seed), MakeVector(1)) { }
 

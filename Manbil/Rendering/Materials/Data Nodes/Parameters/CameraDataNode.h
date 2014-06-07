@@ -42,8 +42,10 @@ protected:
         }
     }
 
+#pragma warning(disable: 4100)
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No output writing needed.
     }
+#pragma warning(default: 4100)
 };
