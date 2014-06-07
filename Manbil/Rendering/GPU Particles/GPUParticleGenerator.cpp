@@ -277,7 +277,7 @@ void main()                                                                     
     return ShaderGenerator::GenerateMaterial(channels, outUniforms, particleAttributes, mode, false, LightSettings(false), geoDat);
 }
 
-RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator::NumberOfParticles numb)
+RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator::NumberOfParticles numb, int randSeed)
 {
     //Get the total number of particles and the number of particles in each row/column (in terms of particle ID).
     unsigned int n = GetNumbParticles(numb);
@@ -294,7 +294,7 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
         {
             float xID = increment * loc.x;
 
-            FastRand fr(Vector3i(loc.x, loc.y, 1361).GetHashCode());
+            FastRand fr(Vector3i(loc.x, loc.y, randSeed).GetHashCode());
             fr.GetRandInt();
             fr.GetRandInt();
 

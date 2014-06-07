@@ -84,5 +84,5 @@ public:
     static bool IsOutputRequired(GPUPOutputs output);
 
     static ShaderGenerator::GeneratedMaterial GenerateGPUParticleMaterial(std::unordered_map<GPUPOutputs, DataLine> outputs, UniformDictionary & outUniforms, RenderingModes mode);
-    static RenderObjHandle GenerateGPUPParticles(NumberOfParticles numb);
+    static RenderObjHandle GenerateGPUPParticles(NumberOfParticles numb, int randSeed = 123465);
 };
