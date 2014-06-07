@@ -1,14 +1,18 @@
 Manbil
 ======
 
-NOTE: I can't get this file to format correctly in Markdown for some reason, so you'll have to view the raw file to get the correct tabbing
+NOTE: I can't get this file to format correctly in Markdown for some reason, so I had to remove the markdown formatting.
+
 
 My 3D engine in C++/OpenGL. Uses some libraries here and there -- tinyXML for serialization, SFML for window management and loading textures, and FreeType for font rendering.
+
 
 Everything else is done by me.
 
 
-An overview of the different systems by folder follows. NOTE: use the filter layout in Visual Studio; the actual folder hierarchy is a little messy and still needs to be cleaned up (a lot of older files are sitting in the root of the solution folder).
+
+An overview of the different systems by folder. NOTE: this layout uses the filters in Visual Studio; the actual folder hierarchy is a little messy and still needs to be cleaned up (a lot of older files are sitting in the root of the solution folder).
+
 
 *"Events": support for timers and timer management. "EventManager.h" is not used yet and is still WIP.
 
