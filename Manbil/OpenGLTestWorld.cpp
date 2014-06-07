@@ -232,8 +232,11 @@ void OpenGLTestWorld::InitializeMaterials(void)
     else
     {
         HGPComponentManager manager(Textures, particleParams);
-        manager.SetWorldPosition(HGPComponentPtr(3)(new SpherePositionComponent(manager, Vector3f(0.0f, 0.0f, 50.0f), 20.0f)));
-        manager.SetWorldPosition(HGPComponentPtr(3)(new CubePositionComponent(manager, Vector3f(-25.0f, -25.0f, 25.0f), Vector3f(25.0f, 25.0f, 75.0f))));
+        HGPComponentPtr(3) initialPos(new SpherePositionComponent(manager, Vector3f(0.0f, 0.0f, 50.0f), 20.0f));
+        HGPComponentPtr(3) initialVel(new ConstantHGPComponent<3>(Vector3f(10.0f, 10.0f, 10.0f), manager)),
+                           accel(new ConstantHGPComponent<3>(Vector3f(0.0f, 0.0f, -30.0f), manager));
+        manager.SetWorldPosition(HGPComponentPtr(3)(new ConstantAccelerationHGPComponent(manager, accel, initialVel, initialPos)));
+        //manager.SetWorldPosition(HGPComponentPtr(3)(new CubePositionComponent(manager, Vector3f(-25.0f, -25.0f, 25.0f), Vector3f(25.0f, 25.0f, 75.0f))));
         manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.1f), manager)),
                                                                          HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.5f), manager)), 3)));
         manager.SetColor(HGPComponentPtr(4)(new RandomizedHGPComponent<4>(manager, HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF(0.0f, 0.0f, 0.0f, 1.0f), manager)),
@@ -415,7 +418,9 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 	}
 
     water->Update(elapsedSeconds);
-    particleManager.Update();
+    particleManager.Update(elapsedSeconds);
+    if (particleParams.FloatUniforms[HGPGlobalData::ParticleElapsedTimeUniformName].Value[0] >= 3.0f)
+        particleParams.FloatUniforms[HGPGlobalData::ParticleElapsedTimeUniformName].Value[0] -= 3.0f;
 
     if (Input.GetBoolInputValue(666))
         water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 10.0f, 120.0f, 1.0f));

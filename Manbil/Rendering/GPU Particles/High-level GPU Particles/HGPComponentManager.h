@@ -99,7 +99,16 @@ public:
     }
 
     void Initialize(void) { worldPosition->InitializeComponent(); rotation->InitializeComponent(); size->InitializeComponent(); color->InitializeComponent(); duration->InitializeComponent(); }
-    void Update(void) { worldPosition->UpdateComponent(); rotation->UpdateComponent(); size->UpdateComponent(); color->UpdateComponent(); duration->UpdateComponent(); }
+    void Update(float elapsedTime)
+    {
+        worldPosition->UpdateComponent();
+        rotation->UpdateComponent();
+        size->UpdateComponent();
+        color->UpdateComponent();
+        duration->UpdateComponent();
+
+        Params.FloatUniforms[HGPGlobalData::ParticleElapsedTimeUniformName].Value[0] += elapsedTime;
+    }
 
     //Puts DataLines into the given output map to create particles that behave according to this manager's components.
     void SetGPUPOutputs(std::unordered_map<GPUPOutputs, DataLine> & outputs)
