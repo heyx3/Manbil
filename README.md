@@ -8,53 +8,53 @@ Everything else is done by me.
 
 An overview of the different systems by folder follows. NOTE: use the filter layout in Visual Studio; the actual folder hierarchy is a little messy and still needs to be cleaned up (a lot of older files are sitting in the root of the solution folder).
 
--"Events": support for timers and timer management. "EventManager.h" is not used yet and is still WIP.
+*"Events": support for timers and timer management. "EventManager.h" is not used yet and is still WIP.
 
 
--"Input": support for abstracted input.
+*"Input": support for abstracted input.
 
-  --Each input instance can inherit from BoolInput, FloatInput, or Vector2Input.
+  *Each input instance can inherit from BoolInput, FloatInput, or Vector2Input.
   
-  --For example, mouse clicks and keyboard presses are BoolInputs, while mouse movement is a Vector2Input.
+  *For example, mouse clicks and keyboard presses are BoolInputs, while mouse movement is a Vector2Input.
 
 
--"Math": high-level and low-level mathematics. Provides "2D" and "3D" arrays that are actually just one-dimensional arrays in order to facilitate better cache usage.
+*"Math": high-level and low-level mathematics. Provides "2D" and "3D" arrays that are actually just one-dimensional arrays in order to facilitate better cache usage.
 
-  --FastRand.h: an efficient PRNG.
+  *FastRand.h: an efficient PRNG.
   
-  --Vectors.h, Matrix4f.h, Quaternion.h: Provide the basic framework for 3D math -- vectors, matrices, and quaternions.
+  *Vectors.h, Matrix4f.h, Quaternion.h: Provide the basic framework for 3D math -- vectors, matrices, and quaternions.
   
-  --Interval.h: represents a floating-point interval and provides different functions related to that.
+  *Interval.h: represents a floating-point interval and provides different functions related to that.
   
-  --CachedFunc.h: stores the results of some complex function at a constant interval and interpolates between those intervals for a quick approximation.
+  *CachedFunc.h: stores the results of some complex function at a constant interval and interpolates between those intervals for a quick approximation.
   
-  --"Higher Math": provides various high-level mathematics utilities, including basic geometry, terrain, and converting from a bumpmap to a normalmap.
+  *"Higher Math": provides various high-level mathematics utilities, including basic geometry, terrain, and converting from a bumpmap to a normalmap.
   
-  --The "noise generation" folder provides various 2D and 3D noise generation classes, designed to work together.
+  *The "noise generation" folder provides various 2D and 3D noise generation classes, designed to work together.
   
     ---The basic generation algorithms provided are white noise, Perlin noise, Worley noise, and Diamond-Square noise (only available in 2D). The rest of the generators operate on other generators (e.x. filterers or interpolators).
     
     ---The generators have a tree structure, such that a noise generation tree can be assembled (e.x. putting a "add noise" filter on top of a "scale up and interpolate" generator on top of a "white noise" generator) and then executed in one line.
     
-  --The "shapes" folder provides support for 3D shapes - detecting collision, casting rays, finding a certain point on the surface, etc.
+  *The "shapes" folder provides support for 3D shapes - detecting collision, casting rays, finding a certain point on the surface, etc.
   
     ---The shapes that are currently functional are Cube, Sphere, and Capsule. Triangle and Polygon are not yet fully functional.
     
     
--"MGame": an old attempt at an entity component system that will likely be trashed.
+*"MGame": an old attempt at an entity component system that will likely be trashed.
 
 
--"Oculus Rift Stuff": has only one .h/.cpp pair: "OculusDevice". It handles support for the Oculus Rift.
+*"Oculus Rift Stuff": has only one .h/.cpp pair: "OculusDevice". It handles support for the Oculus Rift.
 
   --Support for the Rift is not fully integrated yet; the only thing that is fully functional is the rotation sensor.
   
   
--"Worlds": The backbone for game loop.
+*"Worlds": The backbone for game loop.
 
   --Provides timing/timers, texture management, window management, and a game loop.
   
   
--"Rendering": covers a vast range of different systems that use OpenGL.
+*"Rendering": covers a vast range of different systems that use OpenGL.
 
   --"Texture Management": handles textures -- loading, getting/setting pixel data, quality/usage settings, etc.
   
