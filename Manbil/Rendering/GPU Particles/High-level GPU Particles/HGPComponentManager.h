@@ -3,6 +3,8 @@
 #include "HGPOutputComponent.h"
 
 
+#pragma warning(disable: 4512)
+
 //Manages several HGPOutputComponents that together define a particle system's behavior.
 class HGPComponentManager
 {
@@ -85,11 +87,15 @@ public:
     }
 
 
-    HGPComponentManager(TextureManager & texManager, UniformDictionary & params,
-                        HGPComponentPtr(3) worldPos, HGPComponentPtr(1) rot, HGPComponentPtr(2) size, HGPComponentPtr(4) col, HGPComponentPtr(1) _duration)
-        : Manager(texManager), Params(params), worldPosition(worldPos), rotation(rot), size(size), color(col), duration(_duration)
+    HGPComponentManager(TextureManager & texManager, UniformDictionary & params)
+        : Manager(texManager), Params(params)
     {
-
+        HGPComponentManager & thisM = *this;
+        worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
+        rotation = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1), thisM));
+        size = HGPComponentPtr(2)(new ConstantHGPComponent<1>(VectorF((unsigned int)2, 1.0f), thisM));
+        color = HGPComponentPtr(4)(new ConstantHGPComponent<1>(VectorF((unsigned int)4, 1.0f), thisM));
+        duration = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1, 5.0f), thisM));
     }
 
     void Initialize(void) { worldPosition->InitializeComponent(); rotation->InitializeComponent(); size->InitializeComponent(); color->InitializeComponent(); duration->InitializeComponent(); }
@@ -114,3 +120,5 @@ private:
 
     DataLine timeLerp;
 };
+
+#pragma warning(default: 4512)
