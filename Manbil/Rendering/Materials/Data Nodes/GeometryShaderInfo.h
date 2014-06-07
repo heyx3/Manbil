@@ -25,6 +25,17 @@ public:
         OutputSizes[1] = outputSize2;
         OutputSizes[2] = outputSize3;
         OutputSizes[3] = 0;
+    }GeoShaderOutput(std::string name1, unsigned int outputSize1, std::string name2, unsigned int outputSize2, std::string name3, unsigned int outputSize3, std::string name4, unsigned int outputSize4)
+    {
+        OutputNames[0] = name1;
+        OutputNames[1] = name2;
+        OutputNames[2] = name3;
+        OutputNames[3] = name4;
+        OutputSizes[0] = outputSize1;
+        OutputSizes[1] = outputSize2;
+        OutputSizes[2] = outputSize3;
+        OutputSizes[3] = outputSize4;
+        OutputSizes[4] = 0;
     }
 
     unsigned int GetNumbOutputs(void) const

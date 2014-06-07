@@ -198,11 +198,17 @@ public:
     void SetSphereCenter(Vector3f newCenter) { sphereCenter = newCenter; UpdateComponentOutput(); }
     float GetSphereRadius(void) const { return sphereRadius; }
     void SetSphereRadius(float newRadius) { sphereRadius = newRadius; UpdateComponentOutput(); }
+
+    //Gets an array of the four rand seed indexes this SpherePositionComponent uses.
+    const unsigned int * GetRandSeeds(void) const { return randSeeds; }
+    void SetRandSeeds(const unsigned int newSeeds[4]) { for (unsigned int i = 0; i < 4; ++i) randSeeds[i] = newSeeds[i]; UpdateComponentOutput(); }
+
     
-    SpherePositionComponent(HGPComponentManager & manager, Vector3f _sphereCenter, float _sphereRadius)
+    SpherePositionComponent(HGPComponentManager & manager, Vector3f _sphereCenter, float _sphereRadius, const unsigned int _randSeeds[4])
         : HGPOutputComponent(manager), sphereCenter(_sphereCenter), sphereRadius(_sphereRadius)
     {
-
+        for (unsigned int i = 0; i < 4; ++i)
+            randSeeds[i] = _randSeeds[i];
     }
 
 
@@ -210,12 +216,12 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine dir(DataNodePtr(new NormalizeNode(
-                                    DataLine(DataNodePtr(new RemapNode(HGPGlobalData::ParticleRandSeedInputs,
-                                                                       DataLine(0.0f), DataLine(1.0f),
-                                                                       DataLine(-1.0f), DataLine(1.0f))), 0))), 0);
-        DataLine radius(DataNodePtr(new MultiplyNode(DataLine(sphereRadius),
-                                                     DataLine(DataNodePtr(new WhiteNoiseNode(HGPGlobalData::ParticleRandSeedInputs)), 0))), 0);
+        DataLine threeRandSeeds(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]), HGPGlobalData::GetRandSeed(randSeeds[1]), HGPGlobalData::GetRandSeed(randSeeds[2]))), 0);
+
+        DataLine dir(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new InterpolateNode(DataLine(Vector3f(-1.0f, -1.0f, -1.0f)), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
+                                                                                            threeRandSeeds, InterpolateNode::InterpolationType::IT_Linear)), 0))), 0);
+        DataLine radius(DataNodePtr(new MultiplyNode(DataLine(sphereRadius), HGPGlobalData::GetRandSeed(randSeeds[3]))), 0);
+
         return DataLine(DataNodePtr(new AddNode(DataLine(sphereCenter),
                                                 DataLine(DataNodePtr(new MultiplyNode(dir, radius)), 0))), 0);
     }
@@ -224,6 +230,8 @@ private:
 
     Vector3f sphereCenter;
     float sphereRadius;
+
+    unsigned int randSeeds[4];
 };
 
 
@@ -236,18 +244,25 @@ public:
     Vector3f GetMax(void) const { return max; }
     void SetMin(Vector3f value) { min = value; UpdateComponentOutput(); }
     void SetMax(Vector3f value) { max = value; UpdateComponentOutput(); }
+
+    //Gets an array of the three rand seed indexes this CubePositionComponent uses.
+    const unsigned int * GetRandSeeds(void) const { return randSeeds; }
+    void SetRandSeeds(const unsigned int newSeeds[3]) { for (unsigned int i = 0; i < 3; ++i) randSeeds[i] = newSeeds[i]; UpdateComponentOutput(); }
+
     
-    CubePositionComponent(HGPComponentManager & manager, Vector3f _min, Vector3f _max)
+    CubePositionComponent(HGPComponentManager & manager, Vector3f _min, Vector3f _max, const unsigned int _randSeeds[3])
         : HGPOutputComponent(manager), min(_min), max(_max)
     {
-
+        for (unsigned int i = 0; i < 3; ++i)
+            randSeeds[i] = _randSeeds[i];
     }
 
 protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        return DataLine(DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max), HGPGlobalData::ParticleRandSeedInputs, InterpolateNode::InterpolationType::IT_Linear)), 0);
+        DataLine threeRandSeeds(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]), HGPGlobalData::GetRandSeed(randSeeds[1]), HGPGlobalData::GetRandSeed(randSeeds[2]))), 0);
+        return DataLine(DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max), threeRandSeeds, InterpolateNode::InterpolationType::IT_Linear)), 0);
     }
 
 
@@ -255,6 +270,7 @@ private:
 
     Vector3f min;
     Vector3f max;
+    unsigned int randSeeds[3];
 };
 
 

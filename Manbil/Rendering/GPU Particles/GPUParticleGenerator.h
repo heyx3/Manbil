@@ -11,14 +11,17 @@
 //The Particle ID can be used as a UV for a lookup into texture data or as a seed value for randomization.
 //Vertex inputs:
 //  0: Particle ID
-//  1: Random seed value between 0 and 1
+//  1: Random seed values between 0 and 1 (size 4)
+//  2: More random seed values between 0 and 1 (size 2)
 //Vertex outputs/Geometry inputs:
 //  0: Particle ID
-//  1: Random seed value
+//  1: Random seed values
+//  2: More random seed values
 //Geometry outputs/Fragment inputs:
 //  0: Particle ID
-//  1: Random seed value
-//  2: Particle quad's UVs
+//  1: Random seed values
+//  2: More random seed values
+//  3: Particle quad's UVs
 class GPUParticleGenerator
 {
 public:

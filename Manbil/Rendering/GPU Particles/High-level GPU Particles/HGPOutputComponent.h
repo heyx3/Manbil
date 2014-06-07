@@ -28,9 +28,11 @@ namespace HGPGlobalData
     //The exception that is thrown if an instance of this component fails a sanity check.
     extern const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT;
 
-    extern const DataLine ParticleIDInput, ParticleRandSeedInputs, ParticleUVs;
-    extern const DataNodePtr ParticleRandSeedComponents;
-    extern const DataLine FourthRandSeed, FifthRandSeed;
+    extern const DataLine ParticleIDInput, ParticleRandSeedInputs1, ParticleRandSeedInputs2, ParticleUVs;
+    extern const DataNodePtr ParticleRandSeedComponents1, ParticleRandSeedComponents2;
+
+    //Assuming the given value is between 0 and 5, gets the corresponding particle rand seed input.
+    extern DataLine GetRandSeed(unsigned int randSeedIndex);
     
     extern const std::string ParticleElapsedTimeUniformName;
     extern const DataLine ParticleElapsedTime;
@@ -240,6 +242,7 @@ private:
 };
 
 
+
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a gradient value over time.
@@ -337,6 +340,8 @@ private:
     unsigned int lookupTexID;
 };
 
+
+
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
 //Represents a value that is a certain randomized interpolation between two given values.
@@ -365,9 +370,12 @@ public:
     void SetRandSeedIndex(unsigned int newVal) const { randSeedIndex = newVal; UpdateComponentOutput(); }
 
     RandomizedHGPComponent(HGPComponentManager & manager,
-                           HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max, unsigned int _randSeedIndex = 0)
-        : HGPOutputComponent(manager), min(_min), max(_max), randSeedIndex(_randSeedIndex)
+                           HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max, const unsigned int _randSeedIndex[ComponentSize])
+        : HGPOutputComponent(manager), min(_min), max(_max)
     {
+        for (unsigned int i = 0; i < ComponentSize; ++i)
+            randSeedIndex[i] = _randSeedIndex[i];
+
         min->AddParent(this);
         max->AddParent(this);
     }
@@ -388,7 +396,6 @@ public:
     //My solution was to define dummy "SetMin/SetMax" functions that in reality will never be called.
 
 private:
-    //I don't know if this solution is horrifying or awesome.
     void SetMin(HGPComponentPtr(ComponentSize == 1 ? 2 : (ComponentSize == 2 ? 3 : (ComponentSize == 3 ? 4 : 1))) newMin)
     {
         Assert(std::string() + "ComponentSize is " + std::to_string(ComponentSize) + ", but the min was set to one of unwrapped size " + std::to_string(ComponentSize + 1));
@@ -460,27 +467,17 @@ protected:
     
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine randSeed;
-        switch (randSeedIndex)
-        {
-            case 0:
-            case 1:
-            case 2:
-                randSeed = DataLine(HGPGlobalData::ParticleRandSeedComponents, randSeedIndex);
-                break;
-            case 3:
-                randSeed = HGPGlobalData::FourthRandSeed;
-                break;
-            case 4:
-                randSeed = HGPGlobalData::FifthRandSeed;
-                break;
-            default: Assert(std::string() + "Unknown rand seed index " + std::to_string(randSeedIndex));
-        }
-        return DataLine(DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(), randSeed, InterpolateNode::InterpolationType::IT_Linear)), 0);
+        std::vector<DataLine> randSeeds;
+        for (unsigned int i = 0; i < ComponentSize; ++i)
+            randSeeds.insert(randSeeds.end(), HGPGlobalData::GetRandSeed(randSeedIndex[i]));
+
+        DataLine finalSeed(DataNodePtr(new CombineVectorNode(randSeeds)), 0);
+
+        return DataLine(DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(), finalSeed, InterpolateNode::InterpolationType::IT_Linear)), 0);
     }
 
 private:
 
-    unsigned int randSeedIndex;
+    unsigned int randSeedIndex[ComponentSize];
     HGPComponentPtr(ComponentSize) min, max;
 };

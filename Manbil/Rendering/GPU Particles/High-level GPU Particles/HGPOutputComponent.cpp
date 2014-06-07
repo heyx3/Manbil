@@ -12,16 +12,20 @@ const int HGPGlobalData::EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT = 19285;
 
 
 const DataLine HGPGlobalData::ParticleIDInput = DataLine(DataNodePtr(new ShaderInNode(2, 0, 0, 0, 0)), 0),
-               HGPGlobalData::ParticleRandSeedInputs = DataLine(DataNodePtr(new ShaderInNode(3, 1, 1, 0, 1)), 0),
-               HGPGlobalData::ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, 3, 2, false, false, false))), 2);
-const DataNodePtr HGPGlobalData::ParticleRandSeedComponents = DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs));
-const DataLine HGPGlobalData::FourthRandSeed = DataLine(DataNodePtr(new WhiteNoiseNode(HGPGlobalData::ParticleRandSeedInputs, DataLine(43.2462f))), 0),
-               HGPGlobalData::FifthRandSeed = DataLine(DataNodePtr(new WhiteNoiseNode(DataLine(DataNodePtr(
-                                                new SwizzleNode(HGPGlobalData::ParticleRandSeedInputs,
-                                                                SwizzleNode::Components::C_Y,
-                                                                SwizzleNode::Components::C_Z,
-                                                                SwizzleNode::Components::C_X)), 0),
-                                                DataLine(43.2462f))), 0);
+               HGPGlobalData::ParticleRandSeedInputs1 = DataLine(DataNodePtr(new ShaderInNode(4, 1, 1, 0, 1)), 0),
+               HGPGlobalData::ParticleRandSeedInputs2 = DataLine(DataNodePtr(new ShaderInNode(2, 2, 2, 0, 2)), 0),
+               HGPGlobalData::ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, 4, 2, 2, false, false, false, false))), 3);
+const DataNodePtr HGPGlobalData::ParticleRandSeedComponents1 = DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1));
+const DataNodePtr HGPGlobalData::ParticleRandSeedComponents2 = DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2));
+
+DataLine HGPGlobalData::GetRandSeed(unsigned int randSeedIndex)
+{
+    if (randSeedIndex < 4)
+        return DataLine(HGPGlobalData::ParticleRandSeedComponents1, randSeedIndex);
+    else if (randSeedIndex < 6)
+        return DataLine(HGPGlobalData::ParticleRandSeedComponents2, randSeedIndex - 4);
+    else assert(false);
+}
 
 const std::string HGPGlobalData::ParticleElapsedTimeUniformName = "u_particleTime";
 const DataLine HGPGlobalData::ParticleElapsedTime = DataLine(DataNodePtr(new ParamNode(1, HGPGlobalData::ParticleElapsedTimeUniformName)), 0);
