@@ -5,29 +5,33 @@ void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
     std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType(),
                 seed1 = GetInputs()[0].GetValue(),
                 seed2 = GetInputs()[1].GetValue(),
+                multiplier = GetInputs()[2].GetValue(),
                 output = GetOutputName(0);
 
-    outCode += "\t" + vecType + " " + output + " = fract(sin(dot(" + seed1 + ", " + seed2 + ")) * 43758.5453);\n";
+    outCode += "\t" + vecType + " " + output + " = fract(sin(dot(" + seed1 + ", " + seed2 + ")) * " + multiplier + ");\n";
 }
 
-std::vector<DataLine> WhiteNoiseNode::makeInputs(const DataLine & seed)
+std::vector<DataLine> WhiteNoiseNode::makeInputs(const DataLine & seed, DataLine randPeriodMultiplier)
 {
-    const float seed1 = 1251.12312f,
-                seed2 = 1421.13512f,
-                seed3 = 2511.13512f,
-                seed4 = 1541.35125f;
-
     std::vector<DataLine> dat;
-    dat.insert(dat.begin(), seed);
+    dat.insert(dat.end(), seed);
 
+    const float seed1 = 12.232f,
+                seed2 = 78.567f,
+                seed3 = 1002.52f,
+                seed4 = 0.5524f;
+    VectorF seedVal;
     switch (seed.GetDataLineSize())
     {
-        case 1: dat.insert(dat.begin(), DataLine(VectorF(seed1))); break;
-        case 2: dat.insert(dat.begin(), DataLine(VectorF(Vector2f(seed1, seed2)))); break;
-        case 3: dat.insert(dat.begin(), DataLine(VectorF(Vector3f(seed1, seed2, seed3)))); break;
-        case 4: dat.insert(dat.begin(), DataLine(VectorF(Vector4f(seed1, seed2, seed3, seed4)))); break;
+        case 1: seedVal = VectorF(seed1); break;
+        case 2: seedVal = VectorF(Vector2f(seed1, seed2)); break;
+        case 3: seedVal = VectorF(Vector3f(seed1, seed2, seed3)); break;
+        case 4: seedVal = VectorF(Vector4f(seed1, seed2, seed3, seed4)); break;
         default: assert(false);
     }
+    dat.insert(dat.end(), DataLine(seedVal));
+
+    dat.insert(dat.end(), randPeriodMultiplier);
 
     return dat;
 }
