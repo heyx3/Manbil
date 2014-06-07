@@ -3,6 +3,9 @@
 #include "HGPComponentManager.h"
 
 
+#pragma warning(disable: 4512)
+
+
 //Outputs the world position given a constant acceleration and initial velocity/position.
 class ConstantAccelerationHGPComponent : public HGPOutputComponent<3>
 {
@@ -253,3 +256,6 @@ private:
     Vector3f min;
     Vector3f max;
 };
+
+
+#pragma warning(default: 4512)
