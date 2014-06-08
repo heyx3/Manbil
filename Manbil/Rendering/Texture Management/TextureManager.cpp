@@ -78,6 +78,15 @@ unsigned int TextureManager::CreateTexture(std::string filePath)
     return thisID;
 }
 
+void TextureManager::DeleteTexture(unsigned int id)
+{
+    auto loc = texturesByID.find(id);
+    if (loc != texturesByID.end())
+    {
+        loc->second.DeleteTexture();
+        texturesByID.erase(loc);
+    }
+}
 
 ManbilTexture & TextureManager::operator[](unsigned int id)
 {

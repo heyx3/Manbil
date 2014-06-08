@@ -6,16 +6,50 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
+//The following #include statements are just for "InitializeStaticSystems".
+#include "Oculus/OculusDevice.h"
+#include "Rendering/GUI/TextRenderer.h"
+#include "Rendering/Helper Classes/DrawingQuad.h"
+
+
+std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRenderer, bool drawingQuad)
+{
+    if (rift)
+    {
+        OculusDevice::InitializeSystem();
+    }
+    if (drawingQuad)
+    {
+        DrawingQuad::InitializeQuadData();
+    }
+    if (textRenderer)
+    {
+        std::string err = TextRenderer::InitializeSystem();
+        if (!err.empty()) return std::string() + "Error initializing TextRenderer system: " + err;
+    }
+
+    return "";
+}
+void SFMLOpenGLWorld::DestroyStaticSystems(bool rift, bool textRend, bool drawQuad)
+{
+    if (rift)
+    {
+        OculusDevice::DestroySystem();
+    }
+    if (drawQuad)
+    {
+        DrawingQuad::DestroyQuadData();
+    }
+    if (textRend)
+    {
+        TextRenderer::DestroySystem();
+    }
+}
+
 
 SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings)
-    : SFMLWorld(windowWidth, windowHeight, settings)
+    : SFMLWorld(windowWidth, windowHeight, settings), TextRender(RenderTargets, Textures)
 {
-    if (FontManager.HasError())
-    {
-        std::cout << "Error initializing the world's font handler: " << FontManager.GetError();
-        char dummy;
-        std::cin >> dummy;
-    }
 }
 
 void SFMLOpenGLWorld::InitializeWorld(void)

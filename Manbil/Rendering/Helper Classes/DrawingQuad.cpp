@@ -16,11 +16,10 @@ const unsigned int DrawingQuad::indices[6] =
 VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
 
 
-DrawingQuad::DrawingQuad(void)
-    : quad(PrimitiveTypes::TriangleList), origin(0.0f, 0.0f)
+
+void DrawingQuad::InitializeQuadData(void)
 {
-    //Set up the vertices if they haven't been already.
-    if (vid.GetVerticesCount() < 0)
+    if (!IsInitialized())
     {
         RenderObjHandle vbo, ibo;
         RenderDataHandler::CreateVertexBuffer(vbo, vertices, 4, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
@@ -28,6 +27,22 @@ DrawingQuad::DrawingQuad(void)
 
         vid = VertexIndexData(4, vbo, 6, ibo);
     }
+}
+void DrawingQuad::DestroyQuadData(void)
+{
+    if (IsInitialized())
+    {
+        RenderDataHandler::DeleteBuffer(vid.GetVerticesHandle());
+        RenderDataHandler::DeleteBuffer(vid.GetIndicesHandle());
+        vid = VertexIndexData(-1, 0, -1, 0);
+    }
+}
+
+
+DrawingQuad::DrawingQuad(void)
+    : quad(PrimitiveTypes::TriangleList), origin(0.0f, 0.0f)
+{
+    assert(IsInitialized());
 
     //Set up this quad's mesh.
     quad.SetVertexIndexData(&vid, 1);

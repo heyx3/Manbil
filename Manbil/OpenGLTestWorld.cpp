@@ -14,7 +14,6 @@
 #include "Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "Math/NoiseGeneration.hpp"
 #include "Rendering/GPU Particles/GPUParticleGenerator.h"
-#include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
 #include "Rendering/GPU Particles/High-level GPU Particles/SpecialHGPComponents.h"
 
 #include <assert.h>
@@ -89,28 +88,28 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     //Set up the test font.
 
-    testFontID = FontManager.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
+    testFontID = FreeTypeHandler::Instance.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
-        std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FontManager.GetError() << "\n";
+        std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FreeTypeHandler::Instance.GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!FontManager.SetFontSize(testFontID, 300))
+    if (!FreeTypeHandler::Instance.SetFontSize(testFontID, 300))
     {
-        std::cout << "Error setting test font to a new size: " << FontManager.GetError() << "\n";
+        std::cout << "Error setting test font to a new size: " << FreeTypeHandler::Instance.GetError() << "\n";
     }
-    if (!FontManager.RenderChar(testFontID, '~'))
+    if (!FreeTypeHandler::Instance.RenderChar(testFontID, '~'))
     {
-        std::cout << "Error rendering 'A' using test font: " << FontManager.GetError() << "\n";
+        std::cout << "Error rendering 'A' using test font: " << FreeTypeHandler::Instance.GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
 
     sf::Image tempImg;
-    TextureConverters::ToImage(FontManager.GetChar(), tempImg);
+    TextureConverters::ToImage(FreeTypeHandler::Instance.GetChar(), tempImg);
     testFontTex.loadFromImage(tempImg);
     sf::Texture::bind(&testFontTex);
     TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData();
@@ -351,7 +350,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 {
     //Set up geometry shader mesh.
     RenderObjHandle gsVBO;
-    Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f), };//Vector3f(0.0f, 30.0f, 0.0f), Vector3f(30.0f, 0.0f, 0.0f) };
+    Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f) };
     RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
     gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 90.0f));
@@ -399,6 +398,15 @@ void OpenGLTestWorld::InitializeWorld(void)
 {
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
+
+    std::string err = InitializeStaticSystems(true, true, true);
+    if (!err.empty())
+    {
+        std::cout << "Error initializing systems: " << err << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 	
 
     Input.AddBoolInput(666, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Button::Left, BoolInput::ValueStates::JustPressed)));

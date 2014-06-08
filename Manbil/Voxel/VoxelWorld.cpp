@@ -161,8 +161,7 @@ void VoxelWorld::SetUpVoxels(void)
 void VoxelWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
-
-    OculusDevice::InitializeSystem();
+    InitializeStaticSystems(true, true, true);
 
     std::unordered_map<RenderingChannels, DataLine> channels;
 
@@ -392,7 +391,7 @@ void VoxelWorld::OnWorldEnd(void)
         delete element->second;
 
     DeleteAndSetToNull(oculusDev);
-    OculusDevice::DestroySystem();
+    DestroyStaticSystems(true, true, true);
 }
 
 void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)

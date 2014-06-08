@@ -48,6 +48,7 @@ public:
     //   it will be deleted when this manager is deleted.
     unsigned int CreateTexture(RenderObjHandle tex) { CreateTexture(ManbilTexture(tex)); }
 
+    void DeleteTexture(unsigned int id);
 
     //Gets the texture with the given ID, or an invalid texture
     //   if the given id does not belong to a texture.

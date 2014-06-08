@@ -5,7 +5,6 @@
 #include "Math/HigherMath.hpp"
 #include "MovingCamera.h"
 #include "Mesh.h"
-#include "RenderTarget.h"
 #include "Math/Higher Math/Lighting.h"
 #include "Rendering/Objects/Water.h"
 #include "Rendering/PostProcessing/PostProcessChain.h"

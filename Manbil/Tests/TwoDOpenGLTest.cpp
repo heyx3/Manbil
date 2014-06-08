@@ -34,6 +34,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
 {
     //Basic OpenGL/world initialization.
     SFMLOpenGLWorld::InitializeWorld();
+    InitializeStaticSystems(false, true, true);
     GetWindow()->setVerticalSyncEnabled(true);
     GetWindow()->setMouseCursorVisible(true);
     glViewport(0, 0, windowSize.x, windowSize.y);

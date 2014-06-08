@@ -25,7 +25,7 @@ protected:
     virtual void UpdateWorld(float elapsedSeconds) override;
     virtual void RenderOpenGL(float elapsedSeconds) override;
 
-    virtual void OnWorldEnd(void) override { CleanUp(); }
+    virtual void OnWorldEnd(void) override { CleanUp(); DestroyStaticSystems(false, true, true); }
 
 private:
 

@@ -10,6 +10,16 @@ class DrawingQuad
 {
 public:
  
+    //Must be called before creating any quads.
+    static void InitializeQuadData(void);
+    //Must be called after all quads are deleted and no more will be created.
+    //If more quads need to be created after calling this, just restart the system by calling "InitializeQuadData()" again.
+    static void DestroyQuadData(void);
+
+    //Gets whether "InitializeQuadData" has been called yet.
+    static bool IsInitialized(void) { return vid.GetVerticesCount() >= 0; }
+
+    //Gets the vertex attributes that this quad uses.
     static VertexAttributes GetAttributeData(void) { return VertexPosTex1Normal::GetAttributeData(); }
 
 

@@ -283,6 +283,7 @@ void TTW::InitializeWorld(void)
 	//GL/SFML/window initialization.
 
 	SFMLOpenGLWorld::InitializeWorld();
+    InitializeStaticSystems(false, false, true);
 	if (IsGameOver()) return;
 
 	GetWindow()->setVerticalSyncEnabled(true);
@@ -308,6 +309,7 @@ void TTW::OnWorldEnd(void)
 {
 	DeleteAndSetToNull(mat);
     DeleteAndSetToNull(quad);
+    DestroyStaticSystems(false, false, true);
 }
 TTW::~TwoTrianglesWorld(void)
 {

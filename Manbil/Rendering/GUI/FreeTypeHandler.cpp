@@ -6,7 +6,7 @@
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
 
 
-unsigned int FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signed long faceIndex = 0)
+unsigned int FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signed long faceIndex)
 {
     FT_Face face;
     FT_Error err;
@@ -91,7 +91,7 @@ bool FreeTypeHandler::SetFontSize(unsigned int id, FontSizeData dat)
 
     return true;
 }
-bool FreeTypeHandler::SetFontSize(unsigned int id, unsigned int pixelWidth = 0, unsigned int pixelHeight = 0)
+bool FreeTypeHandler::SetFontSize(unsigned int id, unsigned int pixelWidth, unsigned int pixelHeight)
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return false;

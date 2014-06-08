@@ -47,8 +47,8 @@ RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTe
         //Set some parameters for the texture.
         sett.Settings.Settings.SetData();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToEnum(sett.Settings.Size),
-                     sett.Settings.Width, sett.Settings.Height, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(sett.Settings.Size),
+                     sett.Settings.Width, sett.Settings.Height, 0, ColorTextureSettings::ToFormat(sett.Settings.Size), GL_FLOAT, 0);
 
         //Attach the texture to the frame buffer.
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + sett.ColorAttachment, GL_TEXTURE_2D, colTx, 0);
