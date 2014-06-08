@@ -170,9 +170,6 @@
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
       <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\GUI\TextManager.cpp">
-      <Filter>Rendering\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp">
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClCompile>
@@ -248,9 +245,6 @@
     <ClCompile Include="Rendering\Texture Management\ManbilTexture.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
-    <ClCompile Include="NoiseToTexture.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Voxel\VoxelChunk.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
@@ -311,6 +305,15 @@
     </ClCompile>
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp">
       <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseToTexture.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\TextRenderer.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp">
+      <Filter>Rendering\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -542,9 +545,6 @@
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\GUI\TextManager.h">
-      <Filter>Rendering\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
@@ -672,9 +672,6 @@
     <ClInclude Include="Rendering\Texture Management\ManbilTexture.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
-    <ClInclude Include="NoiseToTexture.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
@@ -719,9 +716,6 @@
     </ClInclude>
     <ClInclude Include="Voxel\VoxelWorldPPC.h">
       <Filter>Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h">
-      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="Math\Array2D.h">
       <Filter>Math\Basic Math</Filter>
@@ -774,6 +768,15 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureLoadSettings.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseToTexture.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\TextRenderer.h">
+      <Filter>Rendering\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

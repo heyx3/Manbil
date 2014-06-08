@@ -5,118 +5,113 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_GLYPH_H
 
+#include "../../Math/Vectors.h"
+#include "../../Math/Array2D.h"
+
+
+//Wraps all data about a font's size.
+struct FontSizeData
+{
+public:
+    //At least one of the fields "CharWidth" and "CharHeight" must not be 0.
+    //A value of 0 indicates that the value will match the other field's value.
+    signed long CharWidth, CharHeight;
+    //If both "HorizontalDPI" and "VerticalDPI" are 0, they will both default to 72.
+    //Otherwise, a value of 0 indicates that the value will match the other field's value.
+    unsigned int HorizontalDPI, VerticalDPI;
+
+    FontSizeData(signed long charWidth = 0, signed long charHeight = 0, unsigned int horizontalDPI = 0, unsigned int verticalDPI = 0)
+        : CharWidth(charWidth), CharHeight(charHeight), HorizontalDPI(horizontalDPI), VerticalDPI(verticalDPI)
+    {
+
+    }
+};
 
 
 //Wraps usage of the FreeType library.
+//This instance's lifetime is coupled with the initialization and destruction of the Freetype system.
+//Generally, any method that returns a boolean is returning whether or not that function succeeded.
+//If a function fails, an error message will be exposed via GetError().
+//This class is a singleton, and it should be checked for an error message before it is used for the first time.
 class FreeTypeHandler
 {
 public:
 
     static const unsigned int ERROR_ID = 0;
 
+    static FreeTypeHandler Instance;
+
 
     bool HasError(void) const { return !errorMsg.empty(); }
     std::string GetError(void) const { return errorMsg; }
 
 
-    FreeTypeHandler(void)
-        : nextID(1)
-    {
-        FT_Error err = FT_Init_FreeType(&ftLib);
-        if (err != 0)
-            errorMsg = std::string() + "Error initializing FreeType library: " + std::to_string(err);
-    }
-
-
     //Returns the ID of the loaded font. If font creation failed, returns ERROR_ID.
     //A value of 0 for "characterWidth" means it is the same size as "characterHeight",
-    //   and vice-versa.
+    //   and vice-versa. They cannot both be 0.
     //Same goes for horizontal-/verticalResolution; additionally, if horizontal- AND verticalResolution
     //   are 0, they default to 72.
-    unsigned int LoadFont(std::string path, signed long characterWidth, signed long characterHeight,
-                          unsigned int horizontalDPI = 0, unsigned int verticalDPI = 0,
-                          signed long faceIndex = 0)
+    unsigned int LoadFont(std::string path, FontSizeData dat, signed long faceIndex = 0);
+
+    //Loads the texture for the given font and character.
+    bool LoadGlyph(unsigned int id, unsigned int charCode);
+    //Gets a bitmap image for the most recently-loaded glyph for the given font.
+    const FT_Bitmap & GetGlyph(unsigned int id)
     {
-        FT_Face face;
-        FT_Error err = FT_New_Face(ftLib, path.c_str(), faceIndex, &face);
+        FaceMapLoc loc;
+        if (!TryFindID(id, loc)) return FT_Bitmap();
 
-
-        if (err == FT_Err_Unknown_File_Format)
-        {
-            errorMsg = std::string() + "The file '" + path + "' could be opened and read, but is not supported.";
-            return ERROR_ID;
-        }
-        else if (err != 0)
-        {
-            errorMsg = std::string() + "Unkown error code when creating font: " + std::to_string(err);
-            return ERROR_ID;
-        }
-
-        err = FT_Set_Char_Size(face, characterWidth, characterHeight, horizontalDPI, verticalDPI);
-        if (err != 0)
-        {
-            errorMsg = std::string() + "Unknown error when sizing text: " + std::to_string(err);
-            return ERROR_ID;
-        }
-
-
-        faces[nextID] = face;
-        nextID += 1;
-        return nextID - 1;
+        return loc->second->glyph->bitmap;
     }
 
-    //Gets the texture for the given font and character.
-    bool GetGlyph(unsigned int id, unsigned int charCode)
-    {
-        FT_Error err;
+    //Attempts to set the font size for the given font.
+    bool SetFontSize(unsigned int id, FontSizeData dat);
+    //Attempts to directly set the pixel size for the given font's glyphs.
+    bool SetFontSize(unsigned int id, unsigned int pixelWidth = 0, unsigned int pixelHeight = 0);
 
-        //Make sure the given font exists.
-        std::unordered_map<unsigned int, FT_Face>::const_iterator location = faces.find(id);
-        if (location == faces.end())
-        {
-            errorMsg = std::string() + "Font id '" + std::to_string(id) + "' doesn't exist";
-            return false;
-        }
+    //Gets the number of available glyphs for the given font face.
+    //Returns 0 if the given id doesn't correspond to a font.
+    unsigned int GetNumbGlyphs(unsigned int id);
+    //Gets whether the given font can be scaled.
+    //Returns false if the given font doesn't exist.
+    bool GetCanBeScaled(unsigned int id);
 
-        FT_Face face = faces[id];
 
-        //Make sure the given character exists.
-        FT_UInt index = FT_Get_Char_Index(face, charCode);
-        if (index == 0)
-        {
-            errorMsg = std::string() + "Character not found";
-            return false;
-        }
+    struct SupportedSizes { public: FT_Bitmap_Size * Sizes; unsigned int NumbSizes; };
+    SupportedSizes GetSupportedSizes(unsigned int id);
 
-        //Load the glyph.
-        err = FT_Load_Glyph(face, index, 0);
-        if (err != 0)
-        {
-            errorMsg = std::string() + "Error loading glyph: " + std::to_string(err);
-            return false;
-        }
+    //Gets the width/height for the currently-loaded glyph for the given font.
+    //Returns a width/height of 0 if the given font doesn't exist.
+    Vector2i GetGlyphSize(unsigned int id);
 
-        //If it isn't a bitmap, render it to a bitmap.
-        if (face->glyph->format != FT_Glyph_Format::FT_GLYPH_FORMAT_BITMAP)
-        {
-            err = FT_Render_Glyph(face->glyph, FT_Render_Mode::FT_RENDER_MODE_NORMAL);
-            if (err != 0)
-            {
-                errorMsg = std::string() + "Error rendering glyph to bitmap: " + std::to_string(err);
-                return false;
-            }
-        }
-    }
 
+    //Renders the given character into a private array and returns that array.
+    bool RenderChar(unsigned int fontID, unsigned int charToRender);
+    //Gets the most recently-rendered char.
+    const Array2D<Vector4b> & GetChar(void) const { return renderedText; }
 
 
 private:
 
-    unsigned int nextID;
+    unsigned int RoundUpToPowerOfTwo(unsigned int x);
 
-    FT_Library ftLib;
+
+    typedef std::unordered_map<unsigned int, FT_Face>::const_iterator FaceMapLoc;
     std::unordered_map<unsigned int, FT_Face> faces;
 
+    unsigned int nextID;
+    bool TryFindID(unsigned int id, FaceMapLoc & outLoc);
+
+    FT_Library ftLib;
+
+    Array2D<Vector4b> renderedText;
+
     std::string errorMsg;
+
+
+    //Singleton.
+    FreeTypeHandler(void);
+    ~FreeTypeHandler(void);
 };

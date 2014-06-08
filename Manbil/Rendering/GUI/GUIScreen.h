@@ -2,7 +2,10 @@
 
 #include "../../Math/Vectors.h"
 #include <unordered_map>
+#include "GUIElement.h"
 
+
+//A collection of GUI elements.
 class GUIScreen
 {
 public:

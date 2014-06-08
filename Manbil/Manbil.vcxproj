@@ -136,7 +136,8 @@
     <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp" />
-    <ClCompile Include="Rendering\GUI\TextManager.cpp" />
+    <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp" />
+    <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
@@ -267,7 +268,7 @@
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />
-    <ClInclude Include="Rendering\GUI\TextManager.h" />
+    <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />

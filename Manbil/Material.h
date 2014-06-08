@@ -42,7 +42,9 @@ public:
     bool GetIsLit(void) const { return isLit; }
     const LightSettings & GetLightSettings(void) const { return lightSettings; }
 
+#pragma warning(disable: 4100)
     const UniformList & GetUniforms(RenderPasses pass) const { return uniforms; }
+#pragma warning(default: 4100)
 
     int GetHashCode(void) const { return shaderProg; }
 

@@ -76,15 +76,44 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
 
-    if (!myTex.loadFromFile("Content/Textures/Normalmap.png"))
+    if (!waterNormalTex.loadFromFile("Content/Textures/Normalmap.png"))
     {
         std::cout << "Failed to load 'Normalmap.png'.\n";
         Pause();
         EndWorld();
         return;
     }
-    sf::Texture::bind(&myTex);
+    sf::Texture::bind(&waterNormalTex);
     TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
+
+
+    //Set up the test font.
+
+    testFontID = FontManager.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
+    if (testFontID == FreeTypeHandler::ERROR_ID)
+    {
+        std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FontManager.GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!FontManager.SetFontSize(testFontID, 300))
+    {
+        std::cout << "Error setting test font to a new size: " << FontManager.GetError() << "\n";
+    }
+    if (!FontManager.RenderChar(testFontID, '~'))
+    {
+        std::cout << "Error rendering 'A' using test font: " << FontManager.GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    sf::Image tempImg;
+    TextureConverters::ToImage(FontManager.GetChar(), tempImg);
+    testFontTex.loadFromImage(tempImg);
+    sf::Texture::bind(&testFontTex);
+    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
@@ -127,7 +156,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     DNP light(new LightingNode(DataLine(fragmentInput, 3),
                                DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
-                               DataLine(Vector3f(-1, -1, -0.1).Normalized()),
+                               DataLine(Vector3f(-1, -1, -0.1f).Normalized()),
                                DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
 
     DNP finalColor(new MultiplyNode(DataLine(light, 0), DataLine(Vector3f(0.275f, 0.275f, 1.0f))));
@@ -159,12 +188,13 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma endregion
 
 
-    #pragma region Geometry shader testing
+    #pragma region Geometry shader test
 
     std::unordered_map<RC, DataLine> gsChannels;
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
     gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
-    gsChannels[RC::RC_Color] = DataLine(VectorF(0.2f, 0.2f, 0.2f));
+    gsChannels[RC::RC_Color] = DataLine(DNP(new TextureSampleNode(DataLine(DNP(new FragmentInputNode(VertexAttributes(2, false))), 0), "u_textSampler")),
+                                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     
     MaterialUsageFlags geoShaderUsage;
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -182,18 +212,22 @@ void OpenGLTestWorld::InitializeMaterials(void)
     up = cross(" + MC::CameraForwardName + ", side);                                \n\
                                                                                     \n\
     gl_Position = " + vpTransf + "pos + (size * (up + side)), 1.0));                \n\
+    UVs = vec2(1.0f, 1.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
     gl_Position = " + vpTransf + "pos + (size * (-up + side)), 1.0));               \n\
+    UVs = vec2(1.0f, 0.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
     gl_Position = " + vpTransf + "pos + (size * (up - side)), 1.0));                \n\
+    UVs = vec2(0.0f, 1.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
     gl_Position = " + vpTransf + "pos + (size * -(up + side)), 1.0));               \n\
+    UVs = vec2(0.0f, 0.0f);                                                         \n\
     EmitVertex();                                                                   \n\
 }";
-    GeoShaderData geoDat(GeoShaderOutput(), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
+    GeoShaderData geoDat(GeoShaderOutput("UVs", 2), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
     ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
     if (!gsGen.ErrorMessage.empty())
     {
@@ -202,6 +236,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
+    gsTestParams.TextureUniforms["u_textSampler"].Texture.SetData(&testFontTex);
     gsTestMat = gsGen.Mat;
 
 
@@ -319,7 +354,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f), };//Vector3f(0.0f, 30.0f, 0.0f), Vector3f(30.0f, 0.0f, 0.0f) };
     RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
-    gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 30.0f));
+    gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 90.0f));
 
 
     //Water.
@@ -334,7 +369,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->UpdateUniformLocations(waterMat);
     water->Params.TextureUniforms[texSamplerName] =
-        UniformSamplerValue(&myTex, texSamplerName,
+        UniformSamplerValue(&waterNormalTex, texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));

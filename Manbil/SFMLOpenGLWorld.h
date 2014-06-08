@@ -1,14 +1,16 @@
 #pragma once
 
 #include "SFMLWorld.h"
+#include "Rendering/GUI/FreeTypeHandler.h"
 
 //A world that uses SFML and OpenGL.
 class SFMLOpenGLWorld : public SFMLWorld
 {
 public:
 
-    SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings = sf::ContextSettings())
-        : SFMLWorld(windowWidth, windowHeight, settings) { }
+    FreeTypeHandler FontManager;
+
+    SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings = sf::ContextSettings());
 	~SFMLOpenGLWorld(void) { }
 
 protected:

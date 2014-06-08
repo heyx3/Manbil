@@ -66,5 +66,8 @@ private:
     Material * finalScreenMat;
     UniformDictionary finalScreenQuadParams;
 
-    sf::Texture myTex;
+    unsigned int testFontID;
+
+    sf::Texture waterNormalTex;
+    sf::Texture testFontTex;
 };

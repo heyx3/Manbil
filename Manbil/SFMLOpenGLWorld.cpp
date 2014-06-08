@@ -1,9 +1,22 @@
 #include "SFMLOpenGLWorld.h"
 
-#include "OpenGLIncludes.h"
+#include <iostream>
 
+#include "OpenGLIncludes.h"
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+
+
+SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings)
+    : SFMLWorld(windowWidth, windowHeight, settings)
+{
+    if (FontManager.HasError())
+    {
+        std::cout << "Error initializing the world's font handler: " << FontManager.GetError();
+        char dummy;
+        std::cin >> dummy;
+    }
+}
 
 void SFMLOpenGLWorld::InitializeWorld(void)
 {
