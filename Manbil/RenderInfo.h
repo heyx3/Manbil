@@ -19,7 +19,9 @@ struct RenderInfo
 	RenderInfo(SFMLOpenGLWorld * world, Camera * camera, TransformObject * trans, Matrix4f * worldM, Matrix4f * viewM, Matrix4f * projM)
 		: World(world), Cam(camera), Trans(trans), mWorld(worldM), mView(viewM), mProj(projM)
     {
-        mWVP.SetAsWVP(*mProj, *mView, *mWorld);
+        if (mProj != 0 && mView != 0 && mWorld != 0)
+            mWVP.SetAsWVP(*mProj, *mView, *mWorld);
+        else mWVP.SetAsIdentity();
     }
 	RenderInfo(const RenderInfo & copy) : World(copy.World), Cam(copy.Cam), Trans(copy.Trans), mWorld(copy.mWorld), mView(copy.mView), mProj(copy.mProj), mWVP(copy.mWVP) { }
 };
