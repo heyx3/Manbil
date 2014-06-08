@@ -33,7 +33,6 @@ public:
 
 
 //Wraps usage of the FreeType library.
-//This instance's lifetime is coupled with the initialization and destruction of the Freetype system.
 //Generally, any method that returns a boolean is returning whether or not that function succeeded.
 //If a function fails, an error message will be exposed via GetError().
 //This class is a singleton, and it should be checked for an error message before it is used for the first time.
@@ -88,6 +87,9 @@ public:
     //Gets the width/height for the currently-loaded glyph for the given font.
     //Returns a width/height of 0 if the given font doesn't exist.
     Vector2i GetGlyphSize(unsigned int id) const;
+    //Gets the offset for drawing the currently-loaded glyph for the given font.
+    //Returns an offset of 0 if the given font doesn't exist.
+    Vector2i GetGlyphOffset(unsigned int id) const;
     //Gets the amount to move to draw the next character.
     //Returns { 0, 0 } if the given font doesn't exist.
     Vector2i GetMoveToNextGlyph(unsigned int id) const;

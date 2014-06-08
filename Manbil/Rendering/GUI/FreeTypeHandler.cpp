@@ -143,7 +143,15 @@ Vector2i FreeTypeHandler::GetGlyphSize(unsigned int id) const
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2i();
 
-    return Vector2i(loc->second->glyph->metrics.width, loc->second->glyph->metrics.height);
+    return Vector2i(loc->second->glyph->bitmap.width, loc->second->glyph->bitmap.rows);
+    //return Vector2i(loc->second->glyph->metrics.width, loc->second->glyph->metrics.height);
+}
+Vector2i FreeTypeHandler::GetGlyphOffset(unsigned int id) const
+{
+    FaceMapLoc loc;
+    if (!TryFindID(id, loc)) return Vector2i();
+
+    return Vector2i(loc->second->glyph->bitmap_left, loc->second->glyph->bitmap_top);
 }
 Vector2i FreeTypeHandler::GetMoveToNextGlyph(unsigned int id) const
 {

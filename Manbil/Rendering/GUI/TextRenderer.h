@@ -41,7 +41,8 @@ public:
     unsigned int CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int pixelWidth = 100, unsigned int pixelHeight = 0);
 
     //Renders the given string into the given slot.
-    bool RenderString(unsigned int slot, std::string textToRender);
+    //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
+    bool RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
     //Gets the texture holding the rendered text from the given slot.
     RenderObjHandle GetRenderedString(unsigned int slot) const;
     //Gets the string currently being rendered at the given slot.

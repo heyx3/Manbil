@@ -12,7 +12,7 @@ struct RendTargetColorTexSettings
 {
 public:
     ColorTextureSettings Settings;
-    unsigned int ColorAttachment;
+    unsigned int ColorAttachment = 0;
 };
 //Specifies an optional depth texture for a render target.
 struct RendTargetDepthTexSettings

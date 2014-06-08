@@ -89,31 +89,47 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     //Set up the test font.
 
-    testFontID = FreeTypeHandler::Instance.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
+    testFontID = TextRender->CreateTextRenderSlot("Content/Fonts/Candara.ttf",
+                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 100);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
-        std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FreeTypeHandler::Instance.GetError() << "\n";
+        std::cout << "Error creating font render slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!FreeTypeHandler::Instance.SetFontSize(testFontID, 300))
+    if (!TextRender->RenderString(testFontID, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
     {
-        std::cout << "Error setting test font to a new size: " << FreeTypeHandler::Instance.GetError() << "\n";
-    }
-    if (!FreeTypeHandler::Instance.RenderChar(testFontID, '~'))
-    {
-        std::cout << "Error rendering 'A' using test font: " << FreeTypeHandler::Instance.GetError() << "\n";
+        std::cout << "Error rendering test string: " << TextRender->GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
+    //testFontID = FreeTypeHandler::Instance.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
+    //if (testFontID == FreeTypeHandler::ERROR_ID)
+    //{
+    //    std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FreeTypeHandler::Instance.GetError() << "\n";
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
+    //if (!FreeTypeHandler::Instance.SetFontSize(testFontID, 300))
+    //{
+    //    std::cout << "Error setting test font to a new size: " << FreeTypeHandler::Instance.GetError() << "\n";
+    //}
+    //if (!FreeTypeHandler::Instance.RenderChar(testFontID, '~'))
+    //{
+    //    std::cout << "Error rendering 'A' using test font: " << FreeTypeHandler::Instance.GetError() << "\n";
+    //    Pause();
+    //    EndWorld();
+    //    return;
+    //}
 
-    sf::Image tempImg;
-    TextureConverters::ToImage(FreeTypeHandler::Instance.GetChar(), tempImg);
-    testFontTex.loadFromImage(tempImg);
-    sf::Texture::bind(&testFontTex);
-    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData();
+    //sf::Image tempImg;
+    //TextureConverters::ToImage(FreeTypeHandler::Instance.GetChar(), tempImg);
+    //testFontTex.loadFromImage(tempImg);
+    //sf::Texture::bind(&testFontTex);
+    //TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
@@ -194,7 +210,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
     gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
     gsChannels[RC::RC_Color] = DataLine(DNP(new TextureSampleNode(DataLine(DNP(new FragmentInputNode(VertexAttributes(2, false))), 0), "u_textSampler")),
-                                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+                                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+    gsChannels[RC::RC_Color] = DataLine(DNP(new CombineVectorNode(gsChannels[RC::RC_Color], gsChannels[RC::RC_Color], gsChannels[RC::RC_Color])), 0);
     
     MaterialUsageFlags geoShaderUsage;
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -205,25 +222,25 @@ void OpenGLTestWorld::InitializeMaterials(void)
     std::string geoCode = std::string() +
 "void main()                                                                        \n\
 {                                                                                   \n\
-    const float size = 10.0;                                                        \n\
+    const vec2 size = vec2(2048.0f, 512.0f) * 0.01f;                                \n\
     vec3 pos = gl_in[0].gl_Position.xyz;                                            \n\
     vec3 up = " + MC::CameraUpName + ";                                             \n\
     vec3 side = " + MC::CameraSideName + ";                                         \n\
     up = cross(" + MC::CameraForwardName + ", side);                                \n\
                                                                                     \n\
-    gl_Position = " + vpTransf + "pos + (size * (up + side)), 1.0));                \n\
+    gl_Position = " + vpTransf + "pos + ((size.y * up) + (size.x * side)), 1.0));  \n\
     UVs = vec2(1.0f, 1.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    gl_Position = " + vpTransf + "pos + (size * (-up + side)), 1.0));               \n\
+    gl_Position = " + vpTransf + "pos + (-(size.y * up) + (size.x * side)), 1.0));  \n\
     UVs = vec2(1.0f, 0.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    gl_Position = " + vpTransf + "pos + (size * (up - side)), 1.0));                \n\
+    gl_Position = " + vpTransf + "pos + ((size.y * up) - (size.x * side)), 1.0));   \n\
     UVs = vec2(0.0f, 1.0f);                                                         \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    gl_Position = " + vpTransf + "pos + (size * -(up + side)), 1.0));               \n\
+    gl_Position = " + vpTransf + "pos - ((size.y * up) + (size.x * side)), 1.0));   \n\
     UVs = vec2(0.0f, 0.0f);                                                         \n\
     EmitVertex();                                                                   \n\
 }";
@@ -236,7 +253,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    gsTestParams.TextureUniforms["u_textSampler"].Texture.SetData(&testFontTex);
+    gsTestParams.TextureUniforms["u_textSampler"].Texture.SetData(TextRender->GetRenderedString(testFontID));
     gsTestMat = gsGen.Mat;
 
 
@@ -354,7 +371,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f) };
     RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
-    gsMesh.Transform.SetPosition(Vector3f(0.0f, 0.0f, 90.0f));
+    gsMesh.Transform.SetPosition(Vector3f(90.0f, 90.0f, 90.0f));
 
 
     //Water.

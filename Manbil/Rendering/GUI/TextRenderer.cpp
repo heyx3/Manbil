@@ -3,6 +3,7 @@
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Materials/Data Nodes/ShaderGenerator.h"
 #include "../Materials/Data Nodes/Miscellaneous/DataNodeGenerators.h"
+#include "../../ScreenClearer.h"
 
 
 Material * TextRenderer::textRenderer = 0;
@@ -26,6 +27,8 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
 
     //Transform matrices and render info.
+
+    textRendererCam.SetRotation(Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f), true);
 
     textRendererCam.Info.Width = 1024;
     textRendererCam.Info.Height = 1024;
@@ -94,7 +97,7 @@ unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSet
     colorSettings.Settings = ColorTextureSettings(2048, 512, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
     RendTargetDepthTexSettings depthSettings;
     depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(1, 1, DepthTextureSettings::Sizes::DTS_16, settings);
+    depthSettings.Settings = DepthTextureSettings(2048, 512, DepthTextureSettings::Sizes::DTS_16, settings);
     unsigned int rendTargetID = RTManager.CreateRenderTarget(colorSettings, depthSettings);
     if (rendTargetID == RenderTargetManager::ERROR_ID)
     {
@@ -127,24 +130,30 @@ unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSet
     slot.TexID = texID;
     slot.RenderTargetID = rendTargetID;
     slot.String = "";
+    slots[fontID] = slot;
+    return fontID;
 }
 
-bool TextRenderer::RenderString(unsigned int slot, std::string textToRender)
+bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
 {
     //Try to find the slot.
     SlotMapLoc loc;
     if (!TryFindSlot(slot, loc)) return false;
     const Slot & slotC = loc->second;
 
-    //Set up rendering data.
-    RenderingState renderState(false, false, RenderingState::C_BACK);
-    renderState.EnableState();
-
     //Get texture/render target.
     sf::Texture * tex = TexManager[slotC.TexID].SFMLTex;
     RenderTarget * rendTarg = RTManager[slotC.RenderTargetID];
     if (tex == 0) { errorMsg = "Associated texture did not exist!"; return false; }
     if (rendTarg == 0) { errorMsg = "Associated render target did not exist!"; return false; }
+    ManbilTexture texM(tex);
+    textRendererParams.TextureUniforms[textSamplerName].Texture = texM;
+
+    //Set up rendering.
+    rendTarg->EnableDrawingInto();
+    RenderingState(false, false, RenderingState::C_BACK).EnableState();
+    ScreenClearer().ClearScreen();
+
 
     //Render each character into the render target.
     textRendererQuad->SetOrigin(Vector2f(-1.0f, -1.0f));
@@ -157,30 +166,40 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender)
         if (!FreeTypeHandler::Instance.RenderChar(slot, ch))
         {
             errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + FreeTypeHandler::Instance.GetError();
+            rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
             return false;
         }
 
-        //Render the array into a texture.
-        if (!FreeTypeHandler::Instance.GetChar(ManbilTexture(tex)))
+        //If the character is empty (i.e. a space), don't bother rendering it.
+        if (FreeTypeHandler::Instance.GetChar().GetWidth() > 0 && FreeTypeHandler::Instance.GetChar().GetHeight() > 0)
         {
-            errorMsg = std::string() + "Error copying character #" + std::to_string(i) + ", '" + ch + "', into an SFML texture: " + FreeTypeHandler::Instance.GetError();
-            return false;
-        }
-        Vector2i size = FreeTypeHandler::Instance.GetGlyphSize(slot);
-        textRendererQuad->SetSize(Vector2f((float)size.x, (float)size.y));
+            //Render the array into a texture.
+            if (!FreeTypeHandler::Instance.GetChar(texM))
+            {
+                errorMsg = std::string() + "Error copying character #" + std::to_string(i) + ", '" + ch + "', into an SFML texture: " + FreeTypeHandler::Instance.GetError();
+                rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+                return false;
+            }
+            Vector2i size = FreeTypeHandler::Instance.GetGlyphSize(slot);
+            textRendererQuad->SetSize(Vector2f((float)size.x / (float)rendTarg->GetColorSettings()[0].Settings.Width,
+                                               (float)size.y / (float)rendTarg->GetColorSettings()[0].Settings.Height));
 
-        //Render the character.
-        if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
-        {
-            errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
-            return false;
+            //Render the character.
+            if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
+            {
+                errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
+                rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+                return false;
+            }
         }
 
         //Move the quad to the next position for the letter.
         Vector2i movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
-        textRendererQuad->IncrementPos(Vector2f((float)movement.x, (float)movement.y));
+        textRendererQuad->IncrementPos(Vector2f((float)movement.x / (float)rendTarg->GetColorSettings()[0].Settings.Width,
+                                                (float)movement.y / (float)rendTarg->GetColorSettings()[0].Settings.Height));
     }
 
+    rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
     return true;
 }
 bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & texIn,

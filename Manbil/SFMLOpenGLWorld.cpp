@@ -25,6 +25,11 @@ std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRendere
     }
     if (textRenderer)
     {
+        if (FreeTypeHandler::Instance.HasError())
+        {
+            return FreeTypeHandler::Instance.GetError();
+        }
+
         std::string err = TextRenderer::InitializeSystem(this);
         if (!err.empty()) return std::string() + "Error initializing TextRenderer system: " + err;
     }
