@@ -35,3 +35,12 @@ void TransformObject::GetWorldTransform(Matrix4f & outM) const
 
 	outM.SetValues(&ret);
 }
+
+void TransformObject::CalculateNewDirVectors(void)
+{
+    Matrix4f rot;
+    GetRotationMatrix(rot);
+    
+    forward = rot.Apply(Forward()).Normalized();
+    up = Upward();
+}
