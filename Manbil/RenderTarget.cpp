@@ -107,10 +107,6 @@ RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTe
         errorMsg = std::string("Error setting up frame buffer object: ") + errorMsg;
         return;
     }
-
-
-    //TODO: Remove this; make sure it doesn't break any demos/post-processing stuff.
-	glViewport(0, 0, fbWidth, fbHeight);
 }
 
 bool RenderTarget::IsValid(void) const
