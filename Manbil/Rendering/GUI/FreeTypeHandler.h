@@ -10,6 +10,8 @@
 #include "../../Math/Vectors.h"
 #include "../../Math/Array2D.h"
 
+struct ManbilTexture;
+
 
 //Wraps all data about a font's size.
 struct FontSizeData
@@ -59,7 +61,7 @@ public:
     bool LoadGlyph(unsigned int id, unsigned int charCode);
     //Gets a bitmap image for the most recently-loaded glyph for the given font.
     //Returns 0 if the given font doesn't exist.
-    const FT_Bitmap * GetGlyph(unsigned int id)
+    const FT_Bitmap * GetGlyph(unsigned int id) const
     {
         FaceMapLoc loc;
         if (!TryFindID(id, loc)) return 0;
@@ -74,10 +76,10 @@ public:
 
     //Gets the number of available glyphs for the given font face.
     //Returns 0 if the given id doesn't correspond to a font.
-    unsigned int GetNumbGlyphs(unsigned int id);
+    unsigned int GetNumbGlyphs(unsigned int id) const;
     //Gets whether the given font can be scaled.
     //Returns false if the given font doesn't exist.
-    bool GetCanBeScaled(unsigned int id);
+    bool GetCanBeScaled(unsigned int id) const;
 
 
     struct SupportedSizes { public: FT_Bitmap_Size * Sizes; unsigned int NumbSizes; };
@@ -85,13 +87,19 @@ public:
 
     //Gets the width/height for the currently-loaded glyph for the given font.
     //Returns a width/height of 0 if the given font doesn't exist.
-    Vector2i GetGlyphSize(unsigned int id);
+    Vector2i GetGlyphSize(unsigned int id) const;
+    //Gets the amount to move to draw the next character.
+    //Returns { 0, 0 } if the given font doesn't exist.
+    Vector2i GetMoveToNextGlyph(unsigned int id) const;
 
 
-    //Renders the given character into a private array and returns that array.
+    //Renders the given character into a private color array that can be accessed through "GetChar()".
     bool RenderChar(unsigned int fontID, unsigned int charToRender);
-    //Gets the most recently-rendered char.
+
+    //Gets the most recently-rendered char as a color array.
     const Array2D<Vector4b> & GetChar(void) const { return renderedText; }
+    //Gets the most recently-rendered char and stores it into the given texture.
+    bool GetChar(ManbilTexture & outTex) const;
 
 
 private:
@@ -103,13 +111,13 @@ private:
     std::unordered_map<unsigned int, FT_Face> faces;
 
     unsigned int nextID;
-    bool TryFindID(unsigned int id, FaceMapLoc & outLoc);
+    bool TryFindID(unsigned int id, FaceMapLoc & outLoc) const;
 
     FT_Library ftLib;
 
     Array2D<Vector4b> renderedText;
 
-    std::string errorMsg;
+    mutable std::string errorMsg;
 
 
     //Singleton.

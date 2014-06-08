@@ -18,7 +18,7 @@ class TextRenderer
 public:
 
     //Must be called before rendering any text.
-    static std::string InitializeSystem(void);
+    static std::string InitializeSystem(SFMLOpenGLWorld * world);
     //Must be called after rendering any text.
     static void DestroySystem(void);
 
@@ -41,11 +41,16 @@ public:
     unsigned int CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int pixelWidth = 100, unsigned int pixelHeight = 0);
 
     //Renders the given string into the given slot.
-    bool RenderString(unsigned int slot, const char * textToRender);
+    bool RenderString(unsigned int slot, std::string textToRender);
     //Gets the texture holding the rendered text from the given slot.
     RenderObjHandle GetRenderedString(unsigned int slot) const;
     //Gets the string currently being rendered at the given slot.
     const char * GetString(unsigned int slot) const;
+
+    //Renders the given string using the given meshes, material, and parameters,
+    //   along with the slot to put the character textures into.
+    bool RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & textureIn,
+                      const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params);
 
 
 private:
@@ -67,6 +72,10 @@ private:
     static Material * textRenderer;
     static DrawingQuad * textRendererQuad;
     static UniformDictionary textRendererParams;
+    static RenderInfo textRendererInfo;
+    static Camera textRendererCam;
+    static TransformObject textRendererTransform;
+    static Matrix4f worldMat, viewMat, projMat;
 
     static FreeTypeHandler & GetHandler(void) { return FreeTypeHandler::Instance; }
 };

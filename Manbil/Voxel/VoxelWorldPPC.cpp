@@ -31,7 +31,7 @@ bool VoxelWorldPPC::RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandl
                 srcRend = colorIn;
                 break;
 
-            default: assert(false);
+            default: assert(false); srcRend = 0;
         }
 
         //Try to render the chain.

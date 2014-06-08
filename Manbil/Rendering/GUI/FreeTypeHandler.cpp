@@ -1,6 +1,8 @@
 #include "FreeTypeHandler.h"
 
 #include <iostream>
+#include "../Texture Management/ManbilTexture.h"
+#include "../Texture Management/TextureConverters.h"
 
 
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
@@ -108,14 +110,14 @@ bool FreeTypeHandler::SetFontSize(unsigned int id, unsigned int pixelWidth, unsi
     return true;
 }
 
-unsigned int FreeTypeHandler::GetNumbGlyphs(unsigned int id)
+unsigned int FreeTypeHandler::GetNumbGlyphs(unsigned int id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return 0;
 
     return loc->second->num_glyphs;
 }
-bool FreeTypeHandler::GetCanBeScaled(unsigned int id)
+bool FreeTypeHandler::GetCanBeScaled(unsigned int id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return false;
@@ -136,13 +138,21 @@ FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(unsigned int 
     return ret;
 }
 
-Vector2i FreeTypeHandler::GetGlyphSize(unsigned int id)
+Vector2i FreeTypeHandler::GetGlyphSize(unsigned int id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2i();
 
     return Vector2i(loc->second->glyph->metrics.width, loc->second->glyph->metrics.height);
 }
+Vector2i FreeTypeHandler::GetMoveToNextGlyph(unsigned int id) const
+{
+    FaceMapLoc loc;
+    if (!TryFindID(id, loc)) return Vector2i();
+
+    return Vector2i(loc->second->glyph->advance.x >> 6, loc->second->glyph->advance.y >> 6);
+}
+
 bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
 {
     FaceMapLoc loc;
@@ -243,6 +253,29 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
     return true;
 }
 
+bool FreeTypeHandler::GetChar(ManbilTexture & outTex) const
+{
+    const Array2D<Vector4b> & charArray = GetChar();
+    sf::Image img;
+    TextureConverters::ToImage(charArray, img);
+
+    if (outTex.UsesGLTex())
+    {
+        RenderDataHandler::SetTexture2DData(outTex.GLTex, img);
+        return true;
+    }
+    else if (outTex.UsesSFMLTex())
+    {
+        outTex.SFMLTex->loadFromImage(img);
+        return true;
+    }
+    else
+    {
+        errorMsg = "The given texture is not an OpenGL texture OR an SFML texture!";
+        return false;
+    }
+}
+
 unsigned int FreeTypeHandler::RoundUpToPowerOfTwo(unsigned int x)
 {
     //I doubt rendered bitmaps will be smaller than 16x16.
@@ -252,7 +285,7 @@ unsigned int FreeTypeHandler::RoundUpToPowerOfTwo(unsigned int x)
     return value;
 }
 
-bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc)
+bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const
 {
     outLoc = faces.find(id);
     if (outLoc == faces.end())
