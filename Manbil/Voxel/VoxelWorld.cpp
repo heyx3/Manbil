@@ -9,9 +9,11 @@
 #include "../Math/NoiseGeneration.hpp"
 #include "../Rendering/PrimitiveGenerator.h"
 #include "VoxelWorldPPC.h"
+#include "../Rendering/GUI/TextRenderer.h"
 #include "../DebugAssist.h"
 
 
+//Debug printing stuff.
 #include <iostream>
 namespace VWErrors
 {

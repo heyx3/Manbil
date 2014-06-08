@@ -15,6 +15,7 @@
 #include "Math/NoiseGeneration.hpp"
 #include "Rendering/GPU Particles/GPUParticleGenerator.h"
 #include "Rendering/GPU Particles/High-level GPU Particles/SpecialHGPComponents.h"
+#include "Rendering/GUI/TextRenderer.h"
 
 #include <assert.h>
 
@@ -581,8 +582,8 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	ClearAllRenderingErrors();
 
 	glViewport(0, 0, newW, newH);
-	cam.Info.Width = newW;
-	cam.Info.Height = newH;
+	cam.Info.Width = (float)newW;
+	cam.Info.Height = (float)newH;
     windowSize.x = newW;
     windowSize.y = newH;
     if (!manager.ResizeTarget(worldRenderID, newW, newH))

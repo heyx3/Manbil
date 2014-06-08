@@ -5,8 +5,10 @@
 #include "../Input/Input Objects/KeyboardBoolInput.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
+#include "../Rendering/GUI/TextRenderer.h"
 
 
+//Debug printing stuff.
 #include <iostream>
 namespace TwoDOpenGLTestStuff
 {

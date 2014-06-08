@@ -73,6 +73,8 @@ bool FreeTypeHandler::LoadGlyph(unsigned int id, unsigned int charCode)
             return false;
         }
     }
+
+    return true;
 }
 
 bool FreeTypeHandler::SetFontSize(unsigned int id, FontSizeData dat)
@@ -271,6 +273,8 @@ FreeTypeHandler::FreeTypeHandler(void)
 FreeTypeHandler::~FreeTypeHandler(void)
 {
     FT_Error err = FT_Done_FreeType(ftLib);
+
+    if (err == 0) return;
 
     std::cout << "Error ending freetype library: " << std::to_string(err);
     char dummy;

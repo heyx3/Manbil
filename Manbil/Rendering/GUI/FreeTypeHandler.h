@@ -58,12 +58,13 @@ public:
     //Loads the texture for the given font and character.
     bool LoadGlyph(unsigned int id, unsigned int charCode);
     //Gets a bitmap image for the most recently-loaded glyph for the given font.
-    const FT_Bitmap & GetGlyph(unsigned int id)
+    //Returns 0 if the given font doesn't exist.
+    const FT_Bitmap * GetGlyph(unsigned int id)
     {
         FaceMapLoc loc;
-        if (!TryFindID(id, loc)) return FT_Bitmap();
+        if (!TryFindID(id, loc)) return 0;
 
-        return loc->second->glyph->bitmap;
+        return &loc->second->glyph->bitmap;
     }
 
     //Attempts to set the font size for the given font.

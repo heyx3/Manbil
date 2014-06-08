@@ -5,6 +5,7 @@
 #include "OpenGLIncludes.h"
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+#include "Rendering/GUI/TextRenderer.h"
 
 //The following #include statements are just for "InitializeStaticSystems".
 #include "Oculus/OculusDevice.h"
@@ -48,8 +49,15 @@ void SFMLOpenGLWorld::DestroyStaticSystems(bool rift, bool textRend, bool drawQu
 
 
 SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings)
-    : SFMLWorld(windowWidth, windowHeight, settings), TextRender(RenderTargets, Textures)
+    : SFMLWorld(windowWidth, windowHeight, settings)
 {
+    RenderTargets = new RenderTargetManager();
+    TextRender = new TextRenderer(*RenderTargets, Textures);
+}
+SFMLOpenGLWorld::~SFMLOpenGLWorld(void)
+{
+    delete RenderTargets;
+    delete TextRender;
 }
 
 void SFMLOpenGLWorld::InitializeWorld(void)

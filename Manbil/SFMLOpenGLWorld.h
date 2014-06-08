@@ -1,17 +1,22 @@
 #pragma once
 
 #include "SFMLWorld.h"
-#include "Rendering/GUI/TextRenderer.h"
+
+class TextRenderer;
+class RenderTargetManager;
+
 
 //A world that uses SFML and OpenGL.
 class SFMLOpenGLWorld : public SFMLWorld
 {
 public:
 
-    TextRenderer TextRender;
-    RenderTargetManager RenderTargets;
+    TextRenderer * TextRender;
+    RenderTargetManager * RenderTargets;
 
     SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings = sf::ContextSettings());
+    virtual ~SFMLOpenGLWorld(void);
+
 
 protected:
 

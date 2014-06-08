@@ -6,6 +6,8 @@
 #include "../Helper Classes/DrawingQuad.h"
 
 
+#pragma warning(disable: 4512)
+
 //Handles rendering of strings into a render target using FreeType.
 //The rendered strings are greyscale; the greyscale value indicates the alpha of the pixel.
 //Use this class by reserving slots to render text into by calling "CreateTextRenderSlot".
@@ -19,7 +21,6 @@ public:
     static std::string InitializeSystem(void);
     //Must be called after rendering any text.
     static void DestroySystem(void);
-
 
 
     RenderTargetManager & RTManager;
@@ -47,9 +48,6 @@ public:
     const char * GetString(unsigned int slot) const;
 
 
-
-
-
 private:
 
     struct Slot { unsigned int TexID, RenderTargetID; const char * String; };
@@ -72,3 +70,5 @@ private:
 
     static FreeTypeHandler & GetHandler(void) { return FreeTypeHandler::Instance; }
 };
+
+#pragma warning(default: 4512)

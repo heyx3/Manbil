@@ -1,6 +1,5 @@
 #include "TextRenderer.h"
 
-#include "../../Material.h"
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Materials/Data Nodes/ShaderGenerator.h"
 
@@ -19,14 +18,17 @@ std::string TextRenderer::InitializeSystem(void)
     textRendererQuad = new DrawingQuad();
 
 
-    VertexAttributes quadAtts = DrawingQuad::GetAttributeData();
+    VertexAttributes quadAtts = DrawingQuad::GetAttributeData(),
+                     fragmentInputs(2, false);
     DataNodePtr vertexIns(new VertexInputNode(quadAtts));
+    DataNodePtr fragIns(new FragmentInputNode(fragmentInputs));
 
-    DataLine textSampler(DataNodePtr(new TextureSampleNode(DataLine())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+    DataLine textSampler(DataNodePtr(new TextureSampleNode(DataLine(fragIns, 0), textSamplerName)),
+                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
 
     std::unordered_map<RenderingChannels, DataLine> channels;
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
-    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(vertexIns, 0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(DataLine(vertexIns, 0), DataLine(1.0f))), 0);
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new SwizzleNode(textSampler, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X)), 0);
 
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, textRendererParams, quadAtts, RenderingModes::RM_Opaque, false, LightSettings(false));
@@ -101,6 +103,7 @@ unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSet
 bool TextRenderer::RenderString(unsigned int slot, const char * textToRender)
 {
     //TODO: Finish.
+    return false;
 }
 
 
