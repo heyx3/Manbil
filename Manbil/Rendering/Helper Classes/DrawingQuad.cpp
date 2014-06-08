@@ -70,12 +70,11 @@ bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, const Unifo
     Vector3f scale = quad.Transform.GetScale();
     Vector2f scale2d(scale.x, scale.y);
 
-    Vector3f delta = Vector3f(scale.x * 0.5f, scale.y * 0.5f, 0.0f);
-    delta -= Vector3f(origin.ComponentProduct(scale2d), 0.0f);
+    Vector2f delta = -origin.ComponentProduct(scale2d);
 
-    quad.Transform.IncrementPosition(delta);
+    quad.Transform.IncrementPosition(Vector3f(delta.x, delta.y, 0.0f));
     bool rendered = mat.Render(pass, info, meshes, params);
-    quad.Transform.IncrementPosition(-delta);
+    quad.Transform.IncrementPosition(-Vector3f(delta.x, delta.y, 0.0f));
 
     return rendered;
 }
