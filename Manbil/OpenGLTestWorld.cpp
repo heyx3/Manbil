@@ -90,7 +90,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     //Set up the test font.
 
     testFontID = TextRender->CreateTextRenderSlot("Content/Fonts/Candara.ttf",
-                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 100);
+                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 50);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
         std::cout << "Error creating font render slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
@@ -220,30 +220,31 @@ void OpenGLTestWorld::InitializeMaterials(void)
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
     std::string vpTransf = "(" + MC::ViewProjMatName + " * vec4(";
     std::string geoCode = std::string() +
-"void main()                                                                        \n\
-{                                                                                   \n\
-    const vec2 size = vec2(2048.0f, 512.0f) * 0.01f;                                \n\
-    vec3 pos = gl_in[0].gl_Position.xyz;                                            \n\
-    vec3 up = " + MC::CameraUpName + ";                                             \n\
-    vec3 side = " + MC::CameraSideName + ";                                         \n\
-    up = cross(" + MC::CameraForwardName + ", side);                                \n\
-                                                                                    \n\
-    gl_Position = " + vpTransf + "pos + ((size.y * up) + (size.x * side)), 1.0));  \n\
-    UVs = vec2(1.0f, 1.0f);                                                         \n\
-    EmitVertex();                                                                   \n\
-                                                                                    \n\
-    gl_Position = " + vpTransf + "pos + (-(size.y * up) + (size.x * side)), 1.0));  \n\
-    UVs = vec2(1.0f, 0.0f);                                                         \n\
-    EmitVertex();                                                                   \n\
-                                                                                    \n\
-    gl_Position = " + vpTransf + "pos + ((size.y * up) - (size.x * side)), 1.0));   \n\
-    UVs = vec2(0.0f, 1.0f);                                                         \n\
-    EmitVertex();                                                                   \n\
-                                                                                    \n\
-    gl_Position = " + vpTransf + "pos - ((size.y * up) + (size.x * side)), 1.0));   \n\
-    UVs = vec2(0.0f, 0.0f);                                                         \n\
-    EmitVertex();                                                                   \n\
+"void main()                                                                                      \n\
+{                                                                                                 \n\
+    vec3 pos = gl_in[0].gl_Position.xyz;                                                          \n\
+    vec3 up = " + MC::CameraUpName + ";                                                           \n\
+    vec3 side = " + MC::CameraSideName + ";                                                       \n\
+    up = cross(" + MC::CameraForwardName + ", side);                                              \n\
+                                                                                                  \n\
+    gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
+    UVs = vec2(1.0f, 1.0f);                                                                       \n\
+    EmitVertex();                                                                                 \n\
+                                                                                                  \n\
+    gl_Position = " + vpTransf + "pos + (-(u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));    \n\
+    UVs = vec2(1.0f, 0.0f);                                                                       \n\
+    EmitVertex();                                                                                 \n\
+                                                                                                  \n\
+    gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) - (u_quadSize.x * side)), 1.0));     \n\
+    UVs = vec2(0.0f, 1.0f);                                                                       \n\
+    EmitVertex();                                                                                 \n\
+                                                                                                  \n\
+    gl_Position = " + vpTransf + "pos - ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
+    UVs = vec2(0.0f, 0.0f);                                                                       \n\
+    EmitVertex();                                                                                 \n\
 }";
+    
+    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetRenderedStringSize(testFontID)) * 0.1f, "u_quadSize");
     GeoShaderData geoDat(GeoShaderOutput("UVs", 2), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
     ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
     if (!gsGen.ErrorMessage.empty())
@@ -253,7 +254,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    gsTestParams.TextureUniforms["u_textSampler"].Texture.SetData(TextRender->GetRenderedString(testFontID));
+    gsTestParams.TextureUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontID);
     gsTestMat = gsGen.Mat;
 
 

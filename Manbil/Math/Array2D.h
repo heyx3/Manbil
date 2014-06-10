@@ -105,7 +105,9 @@ public:
             {
                 offsetLoc.x = loc.x + copyOffset.x;
 
-                if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.x > width || offsetLoc.y > height)
+                if (offsetLoc.x < 0 || offsetLoc.y < 0 ||
+                    offsetLoc.x > width || offsetLoc.y > height ||
+                    offsetLoc.x > toCopy.width || offsetLoc.y > toCopy.height)
                     operator[](loc) = defaultValue;
                 else operator[](loc) = toCopy[offsetLoc];
             }
@@ -120,6 +122,16 @@ public:
             for (loc.x = 0; loc.x < width; ++loc.x)
                 getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
 	}
+
+    //Resizes this array to the given size, preserving all data
+    //    (although some data will of course be lost if the array gets shortened).
+    void Resize(unsigned int newWidth, unsigned int newHeight, const ArrayType & defaultVal)
+    {
+        Array2D<ArrayType> newArr(newWidth, newHeight);
+        newArr.Fill(*this, defaultVal);
+        Reset(newWidth, newHeight);
+        Fill(newArr, defaultVal);
+    }
 
 	const ArrayType * GetArray(void) const { return arrayVals; }
     ArrayType * GetArray(void) { return arrayVals; }

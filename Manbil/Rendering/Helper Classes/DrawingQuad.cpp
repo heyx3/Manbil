@@ -70,7 +70,8 @@ bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, const Unifo
     Vector3f scale = quad.Transform.GetScale();
     Vector2f scale2d(scale.x, scale.y);
 
-    Vector2f delta = -origin.ComponentProduct(scale2d);
+    //Vector2f delta = origin.ComponentProduct(scale2d);
+    Vector2f delta = origin;
 
     quad.Transform.IncrementPosition(Vector3f(delta.x, delta.y, 0.0f));
     bool rendered = mat.Render(pass, info, meshes, params);

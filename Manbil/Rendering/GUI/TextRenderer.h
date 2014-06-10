@@ -44,7 +44,9 @@ public:
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
     bool RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
     //Gets the texture holding the rendered text from the given slot.
-    RenderObjHandle GetRenderedString(unsigned int slot) const;
+    ManbilTexture GetRenderedString(unsigned int slot) const;
+    //Gets the size of the texture holding the rendered text from the given slot.
+    Vector2i GetRenderedStringSize(unsigned int slot) const;
     //Gets the string currently being rendered at the given slot.
     const char * GetString(unsigned int slot) const;
 
@@ -56,7 +58,7 @@ public:
 
 private:
 
-    struct Slot { unsigned int TexID, RenderTargetID; const char * String; };
+    struct Slot { unsigned int TexID, RenderTargetID; const char * String; unsigned int Width, Height; };
     std::unordered_map<unsigned int, Slot> slots;
 
     typedef std::unordered_map<unsigned int, Slot>::const_iterator SlotMapLoc;

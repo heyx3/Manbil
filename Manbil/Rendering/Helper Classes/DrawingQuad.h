@@ -26,13 +26,20 @@ public:
     Mesh & GetMesh(void) { return quad; }
     const Mesh & GetMesh(void) const { return quad; }
 
+    Vector2f GetPos(void) const { return Vector2f(quad.Transform.GetPosition().y, quad.Transform.GetPosition().z); }
+    float GetDepth(void) const { return quad.Transform.GetPosition().z; }
+    Vector2f GetSize(void) const { return Vector2f(quad.Transform.GetScale().x, quad.Transform.GetScale().y); }
+    float GetRotation(void) const { return quad.Transform.GetRotationAngles().z; }
+    Vector2f GetOrigin(void) const { return origin; }
+
+    void SetBounds(Vector2f min, Vector2f max) { SetPos((min + max) * 0.5f); SetSize((max - min) * 0.5f); }
     void SetPos(Vector2f pos) { quad.Transform.SetPosition(Vector3f(pos.x, pos.y, 0.0f)); }
     void IncrementPos(Vector2f increment) { quad.Transform.IncrementPosition(Vector3f(increment.x, increment.y, 0.0f)); }
     void SetSize(Vector2f size) { quad.Transform.SetScale(Vector3f(size.x, size.y, 1.0f)); }
     void SetDepth(float depth) { Vector3f pos = quad.Transform.GetPosition(); quad.Transform.SetPosition(Vector3f(pos.x, pos.y, depth)); }
     void SetRotation(float newRot) { quad.Transform.SetRotation(Vector3f(0.0f, 0.0f, newRot)); }
-    void SetOrigin(Vector2f newOrg) { origin = newOrg; }
     void Rotate(float amount) { quad.Transform.Rotate(Vector3f(0.0f, 0.0f, amount)); }
+    void SetOrigin(Vector2f newOrg) { origin = newOrg; }
 
     DrawingQuad(void);
     DrawingQuad(const DrawingQuad & cpy);

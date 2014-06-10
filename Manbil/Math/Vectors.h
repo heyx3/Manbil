@@ -11,21 +11,111 @@ namespace MyVectors
 	public:
 		unsigned char x, y;
 		Vector2b(unsigned char _x = 0, unsigned char _y = 0) : x(_x), y(_y) { }
-		Vector2b(float _x, float _y = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)) { }
+        Vector2b(float _x, float _y = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)) { }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector2b& operator+=(const Vector2b& other)
+        {
+            if (255 - x < other.x)
+                x = 255;
+            else x += other.x;
+            if (255 - y < other.y)
+                y = 255;
+            else y += other.y;
+            return *this;
+        }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector2b& operator-=(const Vector2b& other)
+        {
+            if (x < other.x)
+                x = 0;
+            else x -= other.x;
+            if (y < other.y)
+                y = 0;
+            else y -= other.y;
+            return *this;
+        }
 	};
 	class Vector3b
 	{
 	public:
 		unsigned char x, y, z;
 		Vector3b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0) : x(_x), y(_y), z(_z) { }
-		Vector3b(float _x, float _y = 0.0f, float _z = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)) { }
+        Vector3b(float _x, float _y = 0.0f, float _z = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)) { }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector3b& operator+=(const Vector3b& other)
+        {
+            if (255 - x < other.x)
+                x = 255;
+            else x += other.x;
+            if (255 - y < other.y)
+                y = 255;
+            else y += other.y;
+            if (255 - z < other.z)
+                z = 255;
+            else z += other.z;
+            return *this;
+        }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector3b& operator-=(const Vector3b& other)
+        {
+            if (x < other.x)
+                x = 0;
+            else x -= other.x;
+            if (y < other.y)
+                y = 0;
+            else y -= other.y;
+            if (z < other.z)
+                z = 0;
+            else z -= other.z;
+            return *this;
+        }
 	};
 	class Vector4b
 	{
 	public:
 		unsigned char x, y, z, w;
 		Vector4b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0, unsigned char _w = 0) : x(_x), y(_y), z(_z), w(_w) { }
-		Vector4b(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)), w((unsigned char)(_w * 255.0f)) { }
+        Vector4b(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)), w((unsigned char)(_w * 255.0f)) { }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector4b& operator+=(const Vector4b& other)
+        {
+            if (255 - x < other.x)
+                x = 255;
+            else x += other.x;
+            if (255 - y < other.y)
+                y = 255;
+            else y += other.y;
+            if (255 - z < other.z)
+                z = 255;
+            else z += other.z;
+            if (255 - w < other.w)
+                w = 255;
+            else w += other.w;
+            return *this;
+        }
+        //These unsigned char vectors are generally used to represent colors,
+        //   so these addition/subtration operators do not overflow/wrap around.
+        Vector4b& operator-=(const Vector4b& other)
+        {
+            if (x < other.x)
+                x = 0;
+            else x -= other.x;
+            if (y < other.y)
+                y = 0;
+            else y -= other.y;
+            if (z < other.z)
+                z = 0;
+            else z -= other.z;
+            if (w < other.w)
+                w = 0;
+            else w -= other.w;
+            return *this;
+        }
 	};
 
 	#pragma endregion
@@ -669,6 +759,11 @@ namespace MyVectors
 	};
 
 	#pragma endregion
+
+
+    static inline Vector2f ToV2f(Vector2i inV) { return Vector2f((float)inV.x, (float)inV.y); }
+    static inline Vector3f ToV3f(Vector3i inV) { return Vector3f((float)inV.x, (float)inV.y, (float)inV.z); }
+    static inline Vector4f ToV4f(Vector4i inV) { return Vector4f((float)inV.x, (float)inV.y, (float)inV.z, (float)inV.w); }
 }
 
 using namespace MyVectors;

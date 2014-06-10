@@ -13,6 +13,7 @@ public:
     
     typedef unsigned char UByte;
 
+    //TODO: Option to load directly into sf::Texture instead of sf::Image.
 
     static void ToArray(const sf::Image & inImg, Array2D<Vector3b> & colorOut) { WriteArray<Vector3b>(inImg, colorOut, [](sf::Color col) { return Vector3b(col.r, col.g, col.b); }); }
     static void ToArray(const sf::Image & inImg, Array2D<Vector4b> & textureOut) { WriteArray<Vector4b>(inImg, textureOut, [](sf::Color col) { return Vector4b(col.r, col.g, col.b, col.a); }); }

@@ -147,6 +147,16 @@ public:
         }
 	}
 
+    //Resizes this array to the given size, preserving all data
+    //    (although some data will of course be lost if the array gets shortened).
+    void Resize(unsigned int newWidth, unsigned int newHeight, unsigned int newDepth, const ArrayType & defaultVal)
+    {
+        Array3D<ArrayType> newArr(newWidth, newHeight, newDepth);
+        newArr.Fill(*this, defaultVal);
+        Reset(newWidth, newHeight);
+        Fill(newArr, defaultVal);
+    }
+
 	ArrayType * GetArray(void) const { return arrayVals; }
 	void GetArrayCopy(ArrayType * outValues) const
 	{
