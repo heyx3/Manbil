@@ -39,12 +39,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\freetype-gl-master;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\freetype-gl-master;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -177,6 +177,7 @@
     <ClCompile Include="SFMLWorld.cpp" />
     <ClCompile Include="ShaderHandler.cpp" />
     <ClCompile Include="TerrainWalkCamera.cpp" />
+    <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp" />
     <ClCompile Include="TextureSettings.cpp" />
     <ClCompile Include="TwoTrianglesWorld.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIScreen.h" />
+    <ClInclude Include="Rendering\GUI\TextManager.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />
@@ -333,6 +335,7 @@
     <ClInclude Include="SFMLWorld.h" />
     <ClInclude Include="ShaderHandler.h" />
     <ClInclude Include="TerrainWalkCamera.h" />
+    <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
     <ClInclude Include="TextureSettings.h" />
     <ClInclude Include="TwoTrianglesWorld.h" />
