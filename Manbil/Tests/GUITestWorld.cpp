@@ -250,7 +250,7 @@ void GUITestWorld::InitializeWorld(void)
         return;
 
     //Render a string.
-    err = RenderText(TextRender, "A");
+    err = RenderText(TextRender, "Hello World");
     if (!ReactToError(err.empty(), "Error rendering 'A'", err))
         return;
     quadParams.TextureUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);

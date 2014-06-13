@@ -255,6 +255,15 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
             return false;
         }
 
+
+        //Compute character layout data.
+        size = FreeTypeHandler::Instance.GetGlyphSize(slot);
+        scaledSize = ToV2f(size).ComponentProduct(invRendTargSize);
+        drawOffset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
+        scaledOffset = ToV2f(drawOffset).ComponentProduct(invRendTargSize);
+        movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
+        scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
+
         //If the character is empty (i.e. a space), don't bother rendering it.
         if (FreeTypeHandler::Instance.GetChar().GetWidth() > 0 && FreeTypeHandler::Instance.GetChar().GetHeight() > 0)
         {
@@ -266,20 +275,9 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
                 return false;
             }
 
-            //Compute layout data.
-            size = FreeTypeHandler::Instance.GetGlyphSize(slot);
-            scaledSize = ToV2f(size).ComponentProduct(invRendTargSize);
-            drawOffset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
-            scaledOffset = ToV2f(drawOffset).ComponentProduct(invRendTargSize);
-            movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
-            scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
-
             //Set up the render quad size/location.
-            //textRendererQuad->SetSize(scaledSize);
-            //textRendererQuad->SetOrigin(textRendererQuad->GetOrigin() - scaledSize);
-            //textRendererQuad->IncrementPos(-scaledOffset);
-            //textRendererQuad->SetBounds(pos, pos + ToV2f(size));
             textRendererQuad->SetBounds(pos, pos + scaledSize);
+            textRendererQuad->IncrementPos(scaledOffset);
             textRendererQuad->MakeSizePositive();
 
             //Render.
@@ -289,15 +287,10 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
                 rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
                 return false;
             }
-
-            //Reset the render quad location.
-            //textRendererQuad->IncrementPos(scaledOffset);
-            //textRendererQuad->SetOrigin(textRendererQuad->GetOrigin() + scaledSize);
-            pos += drawOffset;
         }
 
         //Move the quad to the next position for the letter.
-        pos += scaledMovement;//ToV2f(size) + Vector2f((float)movement.x, 0.0f);
+        pos += scaledMovement;
     }
 
     rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
