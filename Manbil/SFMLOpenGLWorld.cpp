@@ -42,13 +42,13 @@ void SFMLOpenGLWorld::DestroyStaticSystems(bool rift, bool textRend, bool drawQu
     {
         OculusDevice::DestroySystem();
     }
-    if (drawQuad)
-    {
-        DrawingQuad::DestroyQuadData();
-    }
     if (textRend)
     {
         TextRenderer::DestroySystem();
+    }
+    if (drawQuad)
+    {
+        DrawingQuad::DestroyQuadData();
     }
 }
 

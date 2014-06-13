@@ -7,7 +7,7 @@
 #include "TwoTrianglesWorld.h"
 #include "Voxel/VoxelWorld.h"
 #include "Tests/TwoDOpenGLTest.h"
-//#include "Tests/GUITestWorld.h"
+#include "Tests/GUITestWorld.h"
 
 
 #include <iostream>
@@ -46,8 +46,8 @@ int main()
 {
     //OpenGLTestWorld().RunWorld();
     
-    TwoDOpenGLTest().RunWorld();
-    //GUITestWorld().RunWorld();
+    //TwoDOpenGLTest().RunWorld();
+    GUITestWorld().RunWorld();
 
     //NoiseTest().RunWorld();
 

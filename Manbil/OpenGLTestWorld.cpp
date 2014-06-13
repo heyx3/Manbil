@@ -90,7 +90,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     //Set up the test font.
 
     testFontID = TextRender->CreateTextRenderSlot("Content/Fonts/Candara.ttf",
-                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 50);
+                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 2048, 512, 50);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
         std::cout << "Error creating font render slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";

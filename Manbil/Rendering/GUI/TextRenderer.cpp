@@ -86,7 +86,7 @@ void TextRenderer::DestroySystem(void)
 }
 
 
-unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int pWidth, unsigned int pHeight)
+unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, unsigned int pWidth, unsigned int pHeight)
 {
     //Create texture and set its settings.
     unsigned int texID = TexManager.CreateSFMLTexture();
@@ -96,10 +96,10 @@ unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSet
 
     //Create render target.
     RendTargetColorTexSettings colorSettings;
-    colorSettings.Settings = ColorTextureSettings(2048, 512, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
+    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
     RendTargetDepthTexSettings depthSettings;
     depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(2048, 512, DepthTextureSettings::Sizes::DTS_16, settings);
+    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::Sizes::DTS_16, settings);
     unsigned int rendTargetID = RTManager.CreateRenderTarget(colorSettings, depthSettings);
     if (rendTargetID == RenderTargetManager::ERROR_ID)
     {
@@ -156,9 +156,9 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
 
 
+    /*
 
     //Load the first character.
-
     //Create an array with a good estimate for the size of the final texture.
     Array2D<Vector4b> outTexArray(0, 0);
     Vector2i penTopLeft;
@@ -233,8 +233,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
 
     return true;
-
-
+    */
 
 
 
@@ -242,7 +241,6 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
 
     //Set up rendering.
-    /*
     rendTarg->EnableDrawingInto();
     RenderingState(RenderingState::C_BACK,
                    RenderingState::BlendingExpressions::BE_SOURCE_COLOR, RenderingState::BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR,
@@ -303,6 +301,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
             //Reset the render quad location.
             //textRendererQuad->IncrementPos(scaledOffset);
             //textRendererQuad->SetOrigin(textRendererQuad->GetOrigin() + scaledSize);
+            pos += drawOffset;
         }
 
         //Move the quad to the next position for the letter.
@@ -315,7 +314,6 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
     rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
     return true;
-    */
 }
 
 Vector2i TextRenderer::GetRenderedStringSize(unsigned int slot) const

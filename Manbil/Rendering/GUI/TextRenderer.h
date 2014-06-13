@@ -38,7 +38,9 @@ public:
     }
 
     //Returns the ID to use when referencing this slot, or "FreeTypeHandler::ERROR_ID" if there was an error.
-    unsigned int CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int pixelWidth = 100, unsigned int pixelHeight = 0);
+    unsigned int CreateTextRenderSlot(std::string fontPath, TextureSettings settings,
+                                      unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
+                                      unsigned int pixelWidth = 100, unsigned int pixelHeight = 0);
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
