@@ -14,7 +14,7 @@ std::string ChannelToString(RenderingChannels channel)
     {
         case RenderingChannels::RC_Color: return "Color";
         case RenderingChannels::RC_Opacity: return "Opacity";
-        case RenderingChannels::RC_VertexPosOutput: return "ScreenVertexPosition";
+        case RenderingChannels::RC_VertexPosOutput: return "VertexPosOutput";
 
         case RenderingChannels::RC_VERTEX_OUT_0:
         case RenderingChannels::RC_VERTEX_OUT_1:

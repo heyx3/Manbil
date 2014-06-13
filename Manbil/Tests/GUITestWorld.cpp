@@ -33,7 +33,7 @@ namespace GUITESTWORLD_NAMESPACE
 using namespace GUITESTWORLD_NAMESPACE;
 
 
-Vector2i GUITestWorld::WindowSize = Vector2i(800, 800);
+Vector2i GUITestWorld::WindowSize = Vector2i(1000, 1000);
 std::string textSamplerName = "u_textSampler";
 
 
@@ -156,7 +156,7 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
         return "'textRendererID' was already set to " + std::to_string(textRendererID);
 
     textRendererID = rendr->CreateTextRenderSlot(fontPath, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false),
-                                                 2048, 1024, 50);
+                                                 2048, 64, 50);
 
     if (textRendererID == FreeTypeHandler::ERROR_ID)
         return "Error creating font slot for '" + fontPath + "': " + rendr->GetError();
@@ -223,15 +223,21 @@ void GUITestWorld::InitializeWorld(void)
 
     //Create the drawing quad.
     quad = new DrawingQuad();
+    quad->SetSize(Vector2f(1.0f, .2f));
 
 
     //Create the quad rendering material.
     std::unordered_map<RenderingChannels, DataLine> channels;
     DataNodePtr vertexIns(new VertexInputNode(DrawingQuad::GetAttributeData()));
-    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(DataLine(vertexIns, 0), DataLine(1.0f))), 0);
+    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexIns, 0))), 0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(1.0f))), 0);
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0), textSamplerName)),
-                                                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    //The text texture only stores the red component (to save space).
+    DataLine redText(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
+                                                       textSamplerName)),
+                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new CombineVectorNode(redText, redText, redText)), 0);
+    channels[RenderingChannels::RC_Opacity] = redText;
     ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(channels, quadParams, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating quad material", genMat.ErrorMessage))
         return;

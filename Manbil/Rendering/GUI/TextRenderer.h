@@ -8,6 +8,7 @@
 
 #pragma warning(disable: 4512)
 
+//PRIORITY: Change to giving each font an arbitrary amount of slots to use -- give out both the font index and the slot index.
 //Handles rendering of strings into a render target using FreeType.
 //The rendered strings are greyscale; the greyscale value indicates the alpha of the pixel.
 //Use this class by reserving slots to render text into by calling "CreateTextRenderSlot".

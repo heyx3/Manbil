@@ -7,6 +7,7 @@
 
 
 //Represents all useful rendering data.
+//TODO: Get rid fo the "Trans" and "mWorld" matrices; it hasn't make sense to have them in this struct for a long time (since refactoring Material::Render() to take in a vector of meshes).
 struct RenderInfo
 {
 	SFMLOpenGLWorld * World;

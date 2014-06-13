@@ -29,24 +29,11 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
     //Transform matrices and render info.
 
-    textRendererCam.SetRotation(Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f), true);
-
-    textRendererCam.Info.Width = 2048;
-    textRendererCam.Info.Height = 512;
-    textRendererCam.MinOrthoBounds = Vector3f(0.0f, 0.0f, -1.0f);
-    textRendererCam.MaxOrthoBounds = Vector3f(2048.0f, 512.0f, 1.0f);
-
     worldMat.SetAsIdentity();
     textRendererCam.GetViewTransform(viewMat);
     textRendererCam.GetOrthoProjection(projMat);
 
-    textRendererInfo.World = world;
-    textRendererInfo.Cam = &textRendererCam;
-    textRendererInfo.Trans = &textRendererTransform;
-    textRendererInfo.mWorld = &worldMat;
-    textRendererInfo.mView = &viewMat;
-    textRendererInfo.mProj = &projMat;
-    textRendererInfo.mWVP.SetAsWVP(projMat, viewMat, worldMat);
+    textRendererInfo = RenderInfo(world, &textRendererCam, &textRendererTransform, &worldMat, &viewMat, &projMat);
 
 
     //Material.
@@ -57,13 +44,14 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     DataNodePtr fragIns(new FragmentInputNode(fragmentInputs));
 
     DataLine textSampler(DataNodePtr(new TextureSampleNode(DataLine(fragIns, 0), textSamplerName)),
-                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
     std::unordered_map<RenderingChannels, DataLine> channels;
+    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexIns, 0))), 0);
+    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(1.0f))), 0);
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
-    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
-    //channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(DataLine(vertexIns, 0), DataLine(1.0f))), 0);
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new SwizzleNode(textSampler, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X)), 0);
+    channels[RenderingChannels::RC_Opacity] = DataLine(DataNodePtr(new VectorComponentsNode(textSampler)), 0);
 
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, textRendererParams, quadAtts, RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!genM.ErrorMessage.empty())
@@ -242,19 +230,19 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
     //Set up rendering.
     rendTarg->EnableDrawingInto();
+    glViewport(0, 0, rendTarg->GetColorSettings()[0].Settings.Width, rendTarg->GetColorSettings()[0].Settings.Height);
     RenderingState(RenderingState::C_BACK,
                    RenderingState::BlendingExpressions::BE_SOURCE_COLOR, RenderingState::BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR,
                    false, false).EnableState();
-    ScreenClearer().ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
 
     //Render each character into the render target.
-    //textRendererQuad->SetOrigin(Vector2f(-1.0f, 1.0f));
-    textRendererQuad->SetPos(Vector2f());
-    Vector2f pos = Vector2f();
-    Vector2i size = Vector2i(), drawOffset = Vector2i();
-    Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f();
-    Vector2f invRendTargSize(1.0f / (float)rendTarg->GetColorSettings()[0].Settings.Width, 1.0f / (float)rendTarg->GetColorSettings()[0].Settings.Height);
+    Vector2f pos = Vector2f(-1.0f, 1.0f);
+    Vector2i size = Vector2i(), drawOffset = Vector2i(), movement = Vector2i();
+    Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
+    Vector2f invRendTargSize(2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Width,
+                             -2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Height);
     for (unsigned int i = 0; i < textToRender.size(); ++i)
     {
         char ch = textToRender.c_str()[i];
@@ -283,12 +271,16 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
             scaledSize = ToV2f(size).ComponentProduct(invRendTargSize);
             drawOffset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
             scaledOffset = ToV2f(drawOffset).ComponentProduct(invRendTargSize);
+            movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
+            scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
 
             //Set up the render quad size/location.
             //textRendererQuad->SetSize(scaledSize);
             //textRendererQuad->SetOrigin(textRendererQuad->GetOrigin() - scaledSize);
             //textRendererQuad->IncrementPos(-scaledOffset);
-            textRendererQuad->SetBounds(pos, pos + ToV2f(size));
+            //textRendererQuad->SetBounds(pos, pos + ToV2f(size));
+            textRendererQuad->SetBounds(pos, pos + scaledSize);
+            textRendererQuad->MakeSizePositive();
 
             //Render.
             if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
@@ -305,11 +297,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
         }
 
         //Move the quad to the next position for the letter.
-        Vector2i movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
-        Vector2f scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
-        //textRendererQuad->IncrementPos(Vector2f((float)(size.x + movement.x) / (float)rendTarg->GetColorSettings()[0].Settings.Width,
-        //                                        (float)(movement.y) / (float)rendTarg->GetColorSettings()[0].Settings.Height));
-        pos += ToV2f(size) + Vector2f((float)movement.x, 0.0f);
+        pos += scaledMovement;//ToV2f(size) + Vector2f((float)movement.x, 0.0f);
     }
 
     rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
@@ -401,7 +389,6 @@ ManbilTexture TextRenderer::GetRenderedString(unsigned int slot) const
     SlotMapLoc loc;
     if (!TryFindSlot(slot, loc)) return ManbilTexture();
 
-    return TexManager[loc->second.TexID];
     return RTManager[loc->second.RenderTargetID]->GetColorTextures()[0];
 }
 const char * TextRenderer::GetString(unsigned int slot) const
