@@ -5,6 +5,8 @@
 
 #pragma warning(disable: 4512)
 
+//PRIORITY: Rename and pull out this file; it is useful for more than just GPU particle properties -- for example, it can be used for tweening HUD stuff.
+
 //Manages several HGPOutputComponents that together define a particle system's behavior.
 class HGPComponentManager
 {
