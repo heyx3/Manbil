@@ -1,8 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics/Texture.hpp>
-#include "../../OpenGLIncludes.h"
-#include "../../RenderDataHandler.h"
 #include "../../TextureSettings.h"
 
 

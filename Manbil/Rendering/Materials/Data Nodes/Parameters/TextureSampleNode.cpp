@@ -17,6 +17,7 @@ std::string TextureSampleNode::GetOutputName(unsigned int index) const
         case 5: return base;
         default:
             Assert(false, std::string() + "Invalid output index: " + ToString(index));
+            return std::string() + "ERROR_BAD_OUTPUT_" + ToString(index);
     }
 }
 
@@ -31,7 +32,7 @@ unsigned int TextureSampleNode::GetOutputIndex(ChannelsOut channel)
         case ChannelsOut::CO_AllColorChannels: return 4;
         case ChannelsOut::CO_AllChannels: return 5;
 
-        default: assert(false);
+        default: assert(false); return 999;
     }
 }
 

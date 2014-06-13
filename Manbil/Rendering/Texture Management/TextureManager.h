@@ -1,8 +1,7 @@
 #pragma once
 
-#include <SFML/Graphics/Texture.hpp>
 #include<unordered_map>
-#include "../../OpenGLIncludes.h"
+
 #include "ManbilTexture.h"
 
 

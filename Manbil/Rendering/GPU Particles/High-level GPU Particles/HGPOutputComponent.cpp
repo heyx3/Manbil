@@ -24,7 +24,7 @@ DataLine HGPGlobalData::GetRandSeed(unsigned int randSeedIndex)
         return DataLine(HGPGlobalData::ParticleRandSeedComponents1, randSeedIndex);
     else if (randSeedIndex < 6)
         return DataLine(HGPGlobalData::ParticleRandSeedComponents2, randSeedIndex - 4);
-    else assert(false);
+    else { assert(false); return DataLine(); }
 }
 
 const std::string HGPGlobalData::ParticleElapsedTimeUniformName = "u_particleTime";
