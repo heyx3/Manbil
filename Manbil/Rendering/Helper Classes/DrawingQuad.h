@@ -26,7 +26,7 @@ public:
     Mesh & GetMesh(void) { return quad; }
     const Mesh & GetMesh(void) const { return quad; }
 
-    Vector2f GetPos(void) const { return Vector2f(quad.Transform.GetPosition().y, quad.Transform.GetPosition().z); }
+    Vector2f GetPos(void) const { return Vector2f(quad.Transform.GetPosition().x, quad.Transform.GetPosition().y); }
     float GetDepth(void) const { return quad.Transform.GetPosition().z; }
     Vector2f GetSize(void) const { return Vector2f(quad.Transform.GetScale().x, quad.Transform.GetScale().y); }
     float GetRotation(void) const { return quad.Transform.GetRotationAngles().z; }
