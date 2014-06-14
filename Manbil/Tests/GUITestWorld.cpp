@@ -156,7 +156,7 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
         return "'textRendererID' was already set to " + std::to_string(textRendererID);
 
     textRendererID = rendr->CreateTextRenderSlot(fontPath, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false),
-                                                 2048, 64, 50);
+                                                 512, 64, 50);
 
     if (textRendererID == FreeTypeHandler::ERROR_ID)
         return "Error creating font slot for '" + fontPath + "': " + rendr->GetError();
@@ -223,7 +223,7 @@ void GUITestWorld::InitializeWorld(void)
 
     //Create the drawing quad.
     quad = new DrawingQuad();
-    quad->SetSize(Vector2f(1.0f, .2f));
+    quad->SetSize(Vector2f(1.0f, .4f));
 
 
     //Create the quad rendering material.
@@ -250,7 +250,7 @@ void GUITestWorld::InitializeWorld(void)
         return;
 
     //Render a string.
-    err = RenderText(TextRender, "Hello World");
+    err = RenderText(TextRender, "Hello, World!!");
     if (!ReactToError(err.empty(), "Error rendering 'A'", err))
         return;
     quadParams.TextureUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);
@@ -266,7 +266,8 @@ void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 
 void GUITestWorld::UpdateWorld(float elapsed)
 {
-
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+        EndWorld();
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {

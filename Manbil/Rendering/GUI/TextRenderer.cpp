@@ -239,7 +239,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
     //Render each character into the render target.
     Vector2f pos = Vector2f(-1.0f, 1.0f);
-    Vector2i size = Vector2i(), drawOffset = Vector2i(), movement = Vector2i();
+    Vector2i size = Vector2i(), offset = Vector2i(), movement = Vector2i();
     Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
     Vector2f invRendTargSize(2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Width,
                              -2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Height);
@@ -259,8 +259,8 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
         //Compute character layout data.
         size = FreeTypeHandler::Instance.GetGlyphSize(slot);
         scaledSize = ToV2f(size).ComponentProduct(invRendTargSize);
-        drawOffset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
-        scaledOffset = ToV2f(drawOffset).ComponentProduct(invRendTargSize);
+        offset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
+        scaledOffset = ToV2f(offset).ComponentProduct(invRendTargSize);
         movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
 
@@ -277,7 +277,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
             //Set up the render quad size/location.
             textRendererQuad->SetBounds(pos, pos + scaledSize);
-            textRendererQuad->IncrementPos(scaledOffset);
+            textRendererQuad->IncrementPos(Vector2f(scaledOffset.x, -(1.0f + scaledOffset.y)));
             textRendererQuad->MakeSizePositive();
 
             //Render.
