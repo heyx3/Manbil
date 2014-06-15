@@ -176,7 +176,7 @@ std::string RenderText(TextRenderer * rendr, std::string text)
     if (textRendererID == FreeTypeHandler::ERROR_ID)
         return "'textRendererID' wasn't set to anything";
 
-    if (!rendr->RenderString(textRendererID, 0, text, GUITestWorld::WindowSize.x, GUITestWorld::WindowSize.y))
+    if (!rendr->RenderString(TextRenderer::FontSlot(textRendererID, 0), text, GUITestWorld::WindowSize.x, GUITestWorld::WindowSize.y))
         return "Error rendering string '" + text + "': " + rendr->GetError();
 
     return "";

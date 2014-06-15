@@ -150,57 +150,49 @@ int TextRenderer::GetNumbSlots(unsigned int fontID) const
 
     return (int)loc->second.Slots.size();
 }
-Vector2i TextRenderer::GetSlotRenderSize(unsigned int fontID, unsigned int slotIndex) const
+Vector2i TextRenderer::GetSlotRenderSize(FontSlot slot) const
 {
-    SlotCollectionLoc loc;
-    if (!TryFindSlotCollection(fontID, loc)) return Vector2i();
-    const Slot * slot;
-    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return Vector2i();
+    const Slot * slotP;
+    if (!TryFindFontSlot(slot, slotP)) return Vector2i();
 
-    return Vector2i((int)slot->Width, (int)slot->Height);
+    return Vector2i((int)slotP->Width, (int)slotP->Height);
 }
-Vector2i TextRenderer::GetSlotBoundingSize(unsigned int fontID, unsigned int slotIndex) const
+Vector2i TextRenderer::GetSlotBoundingSize(FontSlot slot) const
 {
-    SlotCollectionLoc loc;
-    if (!TryFindSlotCollection(fontID, loc)) return Vector2i();
-    const Slot * slot;
-    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return Vector2i();
+    const Slot * slotP;
+    if (!TryFindFontSlot(slot, slotP)) return Vector2i();
 
-    return Vector2i((int)slot->TextWidth, (int)slot->TextHeight);
+    return Vector2i((int)slotP->TextWidth, (int)slotP->TextHeight);
 }
-const char * TextRenderer::GetString(unsigned int fontID, unsigned int slotIndex) const
+const char * TextRenderer::GetString(FontSlot slot) const
 {
-    SlotCollectionLoc loc;
-    if (!TryFindSlotCollection(fontID, loc)) return 0;
-    const Slot * slot;
-    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return 0;
+    const Slot * slotP;
+    if (!TryFindFontSlot(slot, slotP)) return 0;
 
-    return slot->String;
+    return slotP->String;
 }
-ManbilTexture TextRenderer::GetRenderedString(unsigned int fontID, unsigned int slotIndex) const
+ManbilTexture TextRenderer::GetRenderedString(FontSlot slot) const
 {
-    SlotCollectionLoc loc;
-    if (!TryFindSlotCollection(fontID, loc)) return ManbilTexture();
-    const Slot * slot;
-    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return ManbilTexture();
+    const Slot * slotP;
+    if (!TryFindFontSlot(slot, slotP)) return ManbilTexture();
 
-    return RTManager[slot->RenderTargetID]->GetColorTextures()[0];
+    return RTManager[slotP->RenderTargetID]->GetColorTextures()[0];
 }
 
 
 
-bool TextRenderer::RenderString(unsigned int fontID, unsigned int slotID, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
+bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
 {
     //Find the slot to use.
     SlotCollectionLoc loc;
-    if (!TryFindSlotCollection(fontID, loc)) return false;
-    Slot * slot;
-    if (!TryFindSlot(slotID, slots[fontID].Slots, slot)) return false;
+    if (!TryFindSlotCollection(slot.FontID, loc)) return false;
+    Slot * slotP;
+    if (!TryFindSlot(slot.SlotIndex, slots[slot.FontID].Slots, slotP)) return false;
 
     //Render into the slot.
-    if (RenderString(textToRender, fontID, TexManager[loc->second.TexID], RTManager[slot->RenderTargetID], backBufferWidth, backBufferHeight))
+    if (RenderString(textToRender, slot.FontID, TexManager[loc->second.TexID], RTManager[slotP->RenderTargetID], backBufferWidth, backBufferHeight))
     {
-        slot->String = textToRender.c_str();
+        slotP->String = textToRender.c_str();
         return true;
     }
 
@@ -370,7 +362,7 @@ bool TextRenderer::TryFindSlot(unsigned int slotNumb, const std::vector<Slot> & 
     outSlot = &slots[slotNumb];
     return true;
 }
-bool TextRenderer::TryFindSlot(unsigned int slotNumb,  std::vector<Slot> & slots, Slot *& outSlot)
+bool TextRenderer::TryFindSlot(unsigned int slotNumb, std::vector<Slot> & slots, Slot *& outSlot)
 {
     if (slotNumb >= slots.size())
     {
@@ -380,4 +372,16 @@ bool TextRenderer::TryFindSlot(unsigned int slotNumb,  std::vector<Slot> & slots
 
     outSlot = &slots[slotNumb];
     return true;
+}
+bool TextRenderer::TryFindFontSlot(FontSlot slot, const Slot*& outSlot) const
+{
+    TextRenderer::SlotCollectionLoc collLoc;
+    if (!TryFindSlotCollection(slot.FontID, collLoc)) return false;
+    return TryFindSlot(slot.SlotIndex, collLoc->second.Slots, outSlot);
+}
+bool TextRenderer::TryFindFontSlot(FontSlot slot, Slot*& outSlot)
+{
+    TextRenderer::SlotCollectionLoc collLoc;
+    if (!TryFindSlotCollection(slot.FontID, collLoc)) return false;
+    return TryFindSlot(slot.SlotIndex, slots[slot.FontID].Slots, outSlot);
 }

@@ -104,7 +104,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->RenderString(testFontID, 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
+    if (!TextRender->RenderString(TextRenderer::FontSlot(testFontID, 0), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
     {
         std::cout << "Error rendering test string: " << TextRender->GetError() << "\n";
         Pause();

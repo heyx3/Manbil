@@ -18,6 +18,13 @@ class TextRenderer
 {
 public:
 
+    struct FontSlot
+    {
+        unsigned int FontID, SlotIndex;
+        FontSlot(unsigned int fontID = FreeTypeHandler::ERROR_ID, unsigned int slotIndex = 0) : FontID(fontID), SlotIndex(slotIndex) { }
+    };
+
+
     //TODO: Support for "\n".
 
     //Must be called before rendering any text.
@@ -49,23 +56,21 @@ public:
     //Gets the number of slots currently available for the given font. Returns -1 if the given font doesn't exist.
     int GetNumbSlots(unsigned int fontID) const;
     //Gets the size of the given font/slot's final text render target. Returns { 0, 0 } if the given font/slot doesn't exist.
-    Vector2i GetSlotRenderSize(unsigned int fontID, unsigned int slotIndex = 0) const;
+    Vector2i GetSlotRenderSize(FontSlot slot) const;
     //Gets the bounding box size of the currently-rendered text in the given font/slot. Returns { 0, 0 } if the given font/slot doesn't exist.
-    Vector2i GetSlotBoundingSize(unsigned int fontID, unsigned int slotIndex = 0) const;
+    Vector2i GetSlotBoundingSize(FontSlot slot) const;
     //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
-    const char * GetString(unsigned int fontID, unsigned int slotIndex = 0) const;
+    const char * GetString(FontSlot slot) const;
     //Gets the texture holding the rendered text from the given font/slot. Returns ManbilTexture() if the given font/slot doesn't exist.
-    ManbilTexture GetRenderedString(unsigned int fontID, unsigned int slot = 0) const;
+    ManbilTexture GetRenderedString(FontSlot slot) const;
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
-    bool RenderString(unsigned int fontID, unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
+    bool RenderString(FontSlot slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
 
-    //Renders the given string using the given meshes, material, and parameters,
-    //   along with the slot to put the character textures into.
-    //TODO: Implement for convenience/efficiency.
-    //bool RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & textureIn,
-    //                  const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params);
+    //Renders the given string using the given font/slot, material, and parameters.
+    //TODO: Implement for convenience/efficiency. Don't set any OpenGL state that isn't specified in this function's arguments.
+    //bool RenderString(FontSlot slot, std::string textToRender, RenderInfo & info, Material * toRender, std::string textSamplerUniformName, UniformDictionary & params);
 
 
 private:
@@ -89,6 +94,13 @@ private:
     //Tries to find the given slot in the given vector of slots. If it is found, sets "outSlot" and returns true.
     //Otherwise, sets the error message and returns false.
     bool TryFindSlot(unsigned int slotNumb, std::vector<Slot> & slots, Slot *& outSlot);
+
+    //Tries to find the given font/slot. If it is found, sets "outSlot" and returns true.
+    //Otherwise, sets the error message and returns false.
+    bool TryFindFontSlot(FontSlot slot, const Slot*& outSlot) const;
+    //Tries to find the given font/slot. If it is found, sets "outSlot" and returns true.
+    //Otherwise, sets the error message and returns false.
+    bool TryFindFontSlot(FontSlot slot, Slot*& outSlot);
 
 
 
