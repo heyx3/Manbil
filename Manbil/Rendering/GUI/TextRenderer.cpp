@@ -142,6 +142,13 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
     return true;
 }
 
+bool TextRenderer::DoesSlotExist(FontSlot slot) const
+{
+    SlotCollectionLoc collLoc = slots.find(slot.FontID);
+    if (collLoc == slots.end()) return false;
+
+    return (collLoc != slots.end() && collLoc->second.Slots.size() < slot.SlotIndex);
+}
 
 int TextRenderer::GetNumbSlots(unsigned int fontID) const
 {
@@ -340,7 +347,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, Ren
 */
 
 
-bool TextRenderer::TryFindSlotCollection(unsigned int fontID, TextRenderer::SlotCollectionLoc & outCollection) const
+bool TextRenderer::TryFindSlotCollection(unsigned int fontID, SlotCollectionLoc & outCollection) const
 {
     outCollection = slots.find(fontID);
     if (outCollection == slots.end())

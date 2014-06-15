@@ -1,20 +1,37 @@
 #pragma once
 
-#include "../../Math/Vectors.h"
 #include <unordered_map>
-#include "GUIElement.h"
+#include <memory>
+#include "../../Math/Vectors.h"
+#include "../Texture Management/RenderTargetManager.h"
+
+class GUIElement;
+typedef std::shared_ptr<GUIElement> GUIElementPtr;
 
 
 //A collection of GUI elements.
+//TODO: Finish after finalizing GUIElement rendering.
 class GUIScreen
 {
 public:
 
-    typedef unsigned int GUI_ID;
+    struct GUIElementEntry { Vector2f Offset; GUIElementPtr Element; };
+
+
+    RenderTargetManager & RTManager;
+    std::vector<GUIElementEntry> Elements;
+
+
+    GUIScreen(RenderTargetManager & rtManager) : RTManager(rtManager) { }
+
+
+    const RenderTarget * GetFinalRender(void) const { return RTManager[finalScreenRenderTargetID]; }
+    RenderTarget * GetFinalRender(void) { return RTManager[finalScreenRenderTargetID]; }
+
+    Vector2i GetFinalRenderSize(void) const { return Vector2i((int)GetFinalRender()->GetColorSettings()[0].Settings.Width, (int)GetFinalRender()->GetColorSettings()[0].Settings.Height); }
 
 
 private:
 
-    typedef std::unordered_map<GUI_ID, Vector2f> OffsetMap;
-    typedef std::unordered_map<GUI_ID, GUIElement> ElementMap;
+    unsigned int finalScreenRenderTargetID;
 };

@@ -318,6 +318,9 @@
     <ClCompile Include="Tests\GUITestWorld.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUIElement.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

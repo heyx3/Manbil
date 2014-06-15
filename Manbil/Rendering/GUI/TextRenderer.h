@@ -53,6 +53,9 @@ public:
     //Returns whether or not this function succeeded.
     bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight, TextureSettings & finalRenderSettings, unsigned int numbSlots = 1);
 
+    //Gets whether the given slot exists.
+    bool DoesSlotExist(FontSlot slot) const;
+
     //Gets the number of slots currently available for the given font. Returns -1 if the given font doesn't exist.
     int GetNumbSlots(unsigned int fontID) const;
     //Gets the size of the given font/slot's final text render target. Returns { 0, 0 } if the given font/slot doesn't exist.
