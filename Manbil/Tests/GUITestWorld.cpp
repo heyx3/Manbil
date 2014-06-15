@@ -37,6 +37,8 @@ Vector2i GUITestWorld::WindowSize = Vector2i(600, 600);
 std::string textSamplerName = "u_textSampler";
 
 
+//TODO: Remove all Freetype-GL code/libraries/stuff from Manbil ("Freetype-gl", NOT FreeType!! There's an important difference!).
+
 #pragma region Freetype-GL code
 
 /*
@@ -156,11 +158,15 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
     if (textRendererID != FreeTypeHandler::ERROR_ID)
         return "'textRendererID' was already set to " + std::to_string(textRendererID);
 
-    textRendererID = rendr->CreateTextRenderSlot(fontPath, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false),
-                                                 textSize.x, textSize.y, 50);
-
+    textRendererID = rendr->CreateAFont(fontPath, 50);
     if (textRendererID == FreeTypeHandler::ERROR_ID)
-        return "Error creating font slot for '" + fontPath + "': " + rendr->GetError();
+    {
+        return "Error creating font '" + fontPath + "': " + rendr->GetError();
+    }
+    if (!rendr->CreateTextRenderSlots(textRendererID, textSize.x, textSize.y, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false)))
+    {
+        return "Error creating render slot for '" + fontPath + "': " + rendr->GetError();
+    }
 
     return "";
 }
@@ -170,7 +176,7 @@ std::string RenderText(TextRenderer * rendr, std::string text)
     if (textRendererID == FreeTypeHandler::ERROR_ID)
         return "'textRendererID' wasn't set to anything";
 
-    if (!rendr->RenderString(textRendererID, text, GUITestWorld::WindowSize.x, GUITestWorld::WindowSize.y))
+    if (!rendr->RenderString(textRendererID, 0, text, GUITestWorld::WindowSize.x, GUITestWorld::WindowSize.y))
         return "Error rendering string '" + text + "': " + rendr->GetError();
 
     return "";

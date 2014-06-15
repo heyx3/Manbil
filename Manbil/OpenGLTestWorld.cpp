@@ -89,47 +89,28 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     //Set up the test font.
 
-    testFontID = TextRender->CreateTextRenderSlot("Content/Fonts/Candara.ttf",
-                                                  TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false), 2048, 512, 50);
+    testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 50);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
-        std::cout << "Error creating font render slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
+        std::cout << "Error creating font 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
-    if (!TextRender->RenderString(testFontID, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
+    if (!TextRender->CreateTextRenderSlots(testFontID, 2048, 512, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, true)))
+    {
+        std::cout << "Error creating font slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!TextRender->RenderString(testFontID, 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
     {
         std::cout << "Error rendering test string: " << TextRender->GetError() << "\n";
         Pause();
         EndWorld();
         return;
     }
-    //testFontID = FreeTypeHandler::Instance.LoadFont("Content/Fonts/Candara.ttf", FontSizeData(2, 2, 72, 72));
-    //if (testFontID == FreeTypeHandler::ERROR_ID)
-    //{
-    //    std::cout << "Error loading 'Content/Fonts/Candara.ttf': " << FreeTypeHandler::Instance.GetError() << "\n";
-    //    Pause();
-    //    EndWorld();
-    //    return;
-    //}
-    //if (!FreeTypeHandler::Instance.SetFontSize(testFontID, 300))
-    //{
-    //    std::cout << "Error setting test font to a new size: " << FreeTypeHandler::Instance.GetError() << "\n";
-    //}
-    //if (!FreeTypeHandler::Instance.RenderChar(testFontID, '~'))
-    //{
-    //    std::cout << "Error rendering 'A' using test font: " << FreeTypeHandler::Instance.GetError() << "\n";
-    //    Pause();
-    //    EndWorld();
-    //    return;
-    //}
-
-    //sf::Image tempImg;
-    //TextureConverters::ToImage(FreeTypeHandler::Instance.GetChar(), tempImg);
-    //testFontTex.loadFromImage(tempImg);
-    //sf::Texture::bind(&testFontTex);
-    //TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData();
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
@@ -244,7 +225,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     EmitVertex();                                                                                 \n\
 }";
     
-    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetRenderedStringSize(testFontID)) * 0.1f, "u_quadSize");
+    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontID)) * 0.1f, "u_quadSize");
     GeoShaderData geoDat(GeoShaderOutput("UVs", 2), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
     ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
     if (!gsGen.ErrorMessage.empty())

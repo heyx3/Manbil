@@ -10,13 +10,15 @@
 
 
 //Handles rendering of strings into a render target using FreeType.
-//The rendered strings are greyscale; the greyscale value indicates the alpha of the pixel.
-//Use this class by reserving slots to render text into by calling "CreateTextRenderSlot".
-//Actually render text via "RenderString".
-//Get the output of that render via "GetRenderedString".
+//The rendered strings are pure red; the red value indicates the alpha of the pixel.
+//To use this class, first call "CreateAFont" and store the resulting ID.
+//Then, create at least one render slot with "CreateTextRenderSlots".
+//Finally, use a render slot by calling "RenderString", and get the result with "GetRenderedString".
 class TextRenderer
 {
 public:
+
+    //TODO: Support for "\n".
 
     //Must be called before rendering any text.
     static std::string InitializeSystem(SFMLOpenGLWorld * world);
@@ -38,38 +40,56 @@ public:
 
     }
 
-    //Returns the ID to use when referencing this slot, or "FreeTypeHandler::ERROR_ID" if there was an error.
-    unsigned int CreateTextRenderSlot(std::string fontPath, TextureSettings settings,
-                                      unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
-                                      unsigned int pixelWidth = 100, unsigned int pixelHeight = 0);
+    //Returns the FreeTypeHandler font ID to use when referencing this font, or "FreeTypeHandler::ERROR_ID" if there was an error.
+    unsigned int CreateAFont(std::string fontPath, unsigned int pixelWidth = 50, unsigned int pixelHeight = 0);
+    //Creates the given number of render slots, all with the given width/height space.
+    //Returns whether or not this function succeeded.
+    bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight, TextureSettings & finalRenderSettings, unsigned int numbSlots = 1);
+
+    //Gets the number of slots currently available for the given font. Returns -1 if the given font doesn't exist.
+    int GetNumbSlots(unsigned int fontID) const;
+    //Gets the size of the given font/slot's final text render target. Returns { 0, 0 } if the given font/slot doesn't exist.
+    Vector2i GetSlotRenderSize(unsigned int fontID, unsigned int slotIndex = 0) const;
+    //Gets the bounding box size of the currently-rendered text in the given font/slot. Returns { 0, 0 } if the given font/slot doesn't exist.
+    Vector2i GetSlotBoundingSize(unsigned int fontID, unsigned int slotIndex = 0) const;
+    //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
+    const char * GetString(unsigned int fontID, unsigned int slotIndex = 0) const;
+    //Gets the texture holding the rendered text from the given font/slot. Returns ManbilTexture() if the given font/slot doesn't exist.
+    ManbilTexture GetRenderedString(unsigned int fontID, unsigned int slot = 0) const;
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
-    bool RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
-    //Gets the texture holding the rendered text from the given slot.
-    ManbilTexture GetRenderedString(unsigned int slot) const;
-    //Gets the size of the texture holding the rendered text from the given slot.
-    Vector2i GetRenderedStringSize(unsigned int slot) const;
-    //Gets the string currently being rendered at the given slot.
-    const char * GetString(unsigned int slot) const;
+    bool RenderString(unsigned int fontID, unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
 
     //Renders the given string using the given meshes, material, and parameters,
     //   along with the slot to put the character textures into.
-    bool RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & textureIn,
-                      const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params);
+    //TODO: Implement for convenience/efficiency.
+    //bool RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & textureIn,
+    //                  const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params);
 
 
 private:
 
-    struct Slot { unsigned int TexID, RenderTargetID; const char * String; unsigned int Width, Height; };
-    std::unordered_map<unsigned int, Slot> slots;
+    //TODO: Only need one temp texture for the whole instance, not per font.
 
-    typedef std::unordered_map<unsigned int, Slot>::const_iterator SlotMapLoc;
+    struct Slot { unsigned int RenderTargetID; const char * String; unsigned int Width, Height, TextWidth, TextHeight; };
+    struct SlotCollection { std::vector<Slot> Slots; unsigned int TexID; };
+    std::unordered_map<unsigned int, SlotCollection> slots; //PRIORITY: Rename to "fonts".
 
 
-    //Tries to find the given slot. If it is found, sets "outLoc" and returns true.
+
+    typedef std::unordered_map<unsigned int, SlotCollection>::const_iterator SlotCollectionLoc;
+
+    //Tries to find the slots for the given font ID. If it is found, sets "outLoc" and returns true.
     //If it isn't, sets the error message and returns false.
-    bool TryFindSlot(unsigned int slot, SlotMapLoc & outLoc) const;
+    bool TryFindSlotCollection(unsigned int fontID, SlotCollectionLoc & outCollection) const;
+    //Tries to find the given slot in the given vector of slots. If it is found, sets "outSlot" and returns true.
+    //Otherwise, sets the error message and returns false.
+    bool TryFindSlot(unsigned int slotNumb, const std::vector<Slot> & slots, const Slot *& outSlot) const;
+    //Tries to find the given slot in the given vector of slots. If it is found, sets "outSlot" and returns true.
+    //Otherwise, sets the error message and returns false.
+    bool TryFindSlot(unsigned int slotNumb, std::vector<Slot> & slots, Slot *& outSlot);
+
 
 
     mutable std::string errorMsg;

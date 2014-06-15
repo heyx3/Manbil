@@ -74,66 +74,133 @@ void TextRenderer::DestroySystem(void)
 }
 
 
-unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSettings settings, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, unsigned int pWidth, unsigned int pHeight)
+unsigned int TextRenderer::CreateAFont(std::string fontPath, unsigned int pixelWidth, unsigned int pixelHeight)
 {
     //Create texture and set its settings.
     unsigned int texID = TexManager.CreateSFMLTexture();
     sf::Texture * tex = TexManager[texID].SFMLTex;
-    sf::Texture::bind(tex);
-    settings.SetData();
-
-    //Create render target.
-    RendTargetColorTexSettings colorSettings;
-    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
-    RendTargetDepthTexSettings depthSettings;
-    depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::Sizes::DTS_16, settings);
-    unsigned int rendTargetID = RTManager.CreateRenderTarget(colorSettings, depthSettings);
-    if (rendTargetID == RenderTargetManager::ERROR_ID)
-    {
-        TexManager.DeleteTexture(texID);
-        errorMsg = "Error creating render target: " + RTManager.GetError();
-        return FreeTypeHandler::ERROR_ID;
-    }
+    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData(tex);
 
     //Try to create the font.
     unsigned int fontID = GetHandler().LoadFont(fontPath, FontSizeData(1, 0, 0, 0), 0);
     if (fontID == FreeTypeHandler::ERROR_ID)
     {
         TexManager.DeleteTexture(texID);
-        RTManager.DeleteRenderTarget(rendTargetID);
-        errorMsg = "Error loading font from " + fontPath + ": " + GetHandler().GetError();
+        errorMsg = "Error creating font from '" + fontPath + "': " + GetHandler().GetError();
         return FreeTypeHandler::ERROR_ID;
     }
-
     //Try to set the font's size.
-    if (!GetHandler().SetFontSize(fontID, pWidth, pHeight))
+    if (!GetHandler().SetFontSize(fontID, pixelWidth, pixelHeight))
     {
         TexManager.DeleteTexture(texID);
-        RTManager.DeleteRenderTarget(rendTargetID);
-        errorMsg = "Error setting font size to " + std::to_string(pWidth) + "x" + std::to_string(pHeight) + ": " + GetHandler().GetError();
+        errorMsg = "Error resizing font '" + fontPath + "': " + GetHandler().GetError();
         return FreeTypeHandler::ERROR_ID;
     }
 
-    //Add the ID's to the collection.
-    Slot slot;
-    slot.TexID = texID;
-    slot.RenderTargetID = rendTargetID;
-    slot.String = "";
-    slot.Width = 0;
-    slot.Height = 0;
-    slots[fontID] = slot;
+    //Create the entry in the "slots" map.
+    SlotCollection coll;
+    coll.TexID = texID;
+    slots[fontID] = coll;
+
     return fontID;
 }
-
-bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
+bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, TextureSettings & settings, unsigned int numbSlots)
 {
-    SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) { errorMsg = "Couldn't find font slot " + std::to_string(slot); return false; }
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return false;
+    std::vector<Slot> & slotCollection = slots[fontID].Slots;
 
-    if (RenderString(textToRender, slot, TexManager[loc->second.TexID], RTManager[loc->second.RenderTargetID], backBufferWidth, backBufferHeight))
+    //Set up the settings used for each render target.
+    RendTargetColorTexSettings colorSettings;
+    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
+    RendTargetDepthTexSettings depthSettings;
+    depthSettings.UsesDepthTexture = false;
+    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::Sizes::DTS_16, settings);
+
+    //Create the given number of slots.
+    for (unsigned int i = 0; i < numbSlots; ++i)
     {
-        slots[slot].String = textToRender.c_str();
+        //Create render target.
+        unsigned int rendTargetID = RTManager.CreateRenderTarget(colorSettings, depthSettings);
+        if (rendTargetID == RenderTargetManager::ERROR_ID)
+        {
+            errorMsg = "Error creating render target: " + RTManager.GetError();
+            return false;
+        }
+
+        //Add the slot to the collection.
+        Slot slot;
+        slot.RenderTargetID = rendTargetID;
+        slot.String = "";
+        slot.Width = renderSpaceWidth;
+        slot.Height = renderSpaceHeight;
+        slot.TextWidth = 0;
+        slot.TextHeight = 0;
+        slotCollection.insert(slotCollection.end(), slot);
+    }
+
+    return true;
+}
+
+
+int TextRenderer::GetNumbSlots(unsigned int fontID) const
+{
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return -1;
+
+    return (int)loc->second.Slots.size();
+}
+Vector2i TextRenderer::GetSlotRenderSize(unsigned int fontID, unsigned int slotIndex) const
+{
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return Vector2i();
+    const Slot * slot;
+    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return Vector2i();
+
+    return Vector2i((int)slot->Width, (int)slot->Height);
+}
+Vector2i TextRenderer::GetSlotBoundingSize(unsigned int fontID, unsigned int slotIndex) const
+{
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return Vector2i();
+    const Slot * slot;
+    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return Vector2i();
+
+    return Vector2i((int)slot->TextWidth, (int)slot->TextHeight);
+}
+const char * TextRenderer::GetString(unsigned int fontID, unsigned int slotIndex) const
+{
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return 0;
+    const Slot * slot;
+    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return 0;
+
+    return slot->String;
+}
+ManbilTexture TextRenderer::GetRenderedString(unsigned int fontID, unsigned int slotIndex) const
+{
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return ManbilTexture();
+    const Slot * slot;
+    if (!TryFindSlot(slotIndex, loc->second.Slots, slot)) return ManbilTexture();
+
+    return RTManager[slot->RenderTargetID]->GetColorTextures()[0];
+}
+
+
+
+bool TextRenderer::RenderString(unsigned int fontID, unsigned int slotID, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
+{
+    //Find the slot to use.
+    SlotCollectionLoc loc;
+    if (!TryFindSlotCollection(fontID, loc)) return false;
+    Slot * slot;
+    if (!TryFindSlot(slotID, slots[fontID].Slots, slot)) return false;
+
+    //Render into the slot.
+    if (RenderString(textToRender, fontID, TexManager[loc->second.TexID], RTManager[slot->RenderTargetID], backBufferWidth, backBufferHeight))
+    {
+        slot->String = textToRender.c_str();
         return true;
     }
 
@@ -148,92 +215,6 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
     textRendererParams.TextureUniforms[textSamplerName].Texture = texM;
 
 
-
-
-    /*
-
-    //Load the first character.
-    //Create an array with a good estimate for the size of the final texture.
-    Array2D<Vector4b> outTexArray(0, 0);
-    Vector2i penTopLeft;
-    Vector2i charSize, charOffset, charMoveAfterDraw;
-    for (unsigned int c = 0; c < textToRender.size(); ++c)
-    {
-        char ch = textToRender.c_str()[c];
-
-        //Load the character.
-        //if (!FreeTypeHandler::Instance.LoadGlyph(slot, textToRender.c_str()[0]))
-        //{
-        //    errorMsg = std::string() + "Error loading glyph for '" + textToRender.c_str()[0] + "': " + FreeTypeHandler::Instance.GetError();
-        //    return false;
-        //}
-        if (!FreeTypeHandler::Instance.RenderChar(slot, ch))
-        {
-            errorMsg = std::string() + "Error loading glyph for '" + ch + "': " + FreeTypeHandler::Instance.GetError();
-            return false;
-        }
-
-        //Get data for the given character.
-        charSize = FreeTypeHandler::Instance.GetGlyphSize(slot);
-        charOffset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
-        charMoveAfterDraw = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
-        const Array2D<Vector4b> & charArray = FreeTypeHandler::Instance.GetChar();
-
-
-        //If this is the first character, use its size as an approximation for the final render array.
-        if (c == 0)
-        {
-            outTexArray.Reset((unsigned int)(charSize.x * (1 + textToRender.size())),
-                              (unsigned int)(charSize.y * 2),
-                              Vector4b());
-        }
-        //Otherwise, if the new character is too big for the current final render array, expand it.
-        else
-        {
-            bool tooBigX = (penTopLeft.x + charArray.GetWidth() > outTexArray.GetWidth()),
-                 tooBigY = (penTopLeft.y + charArray.GetHeight() > outTexArray.GetHeight());
-            unsigned int newWidth = outTexArray.GetWidth() + (charSize.x * 2 * (textToRender.size() - c)),
-                         newHeight = outTexArray.GetHeight() * 2;
-
-            if (tooBigX && tooBigY)
-                outTexArray.Resize(newWidth, newHeight, Vector4b());
-            else if (tooBigX)
-                outTexArray.Resize(newWidth, outTexArray.GetHeight(), Vector4b());
-            else if (tooBigY)
-                outTexArray.Resize(outTexArray.GetWidth(), newHeight, Vector4b());
-        }
-
-
-        //"Render" the character.
-        for (Vector2i charArrayLoc; charArrayLoc.y < charArray.GetHeight(); ++charArrayLoc.y)
-        {
-            for (charArrayLoc.x = 0; charArrayLoc.x < charArray.GetWidth(); ++charArrayLoc.x)
-            {
-                outTexArray[charArrayLoc + penTopLeft] += charArray[charArrayLoc];
-            }
-        }
-
-        //Move the pen forward.
-        penTopLeft += charMoveAfterDraw;
-    }
-
-    slotC.Width = outTexArray.GetWidth();
-    slotC.Height = outTexArray.GetHeight();
-
-    //Put the values into a texture.
-    sf::Image img;
-    TextureConverters::ToImage(outTexArray, img);
-    tex->loadFromImage(img);
-
-
-    return true;
-    */
-
-
-
-
-
-
     //Set up rendering.
     targ->EnableDrawingInto();
     glViewport(0, 0, targ->GetColorSettings()[0].Settings.Width, targ->GetColorSettings()[0].Settings.Height);
@@ -243,7 +224,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
 
-    //Render each character into the render target.
+    //Render each character into the texture, then into the final render target.
     Vector2f pos = Vector2f(-1.0f, 1.0f);
     Vector2i size = Vector2i(), offset = Vector2i(), movement = Vector2i();
     Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
@@ -269,6 +250,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
         scaledOffset = ToV2f(offset).ComponentProduct(invRendTargSize);
         movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(fontID);
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
+
 
         //If the character is empty (i.e. a space), don't bother rendering it.
         if (FreeTypeHandler::Instance.GetChar().GetWidth() > 0 && FreeTypeHandler::Instance.GetChar().GetHeight() > 0)
@@ -303,14 +285,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
     return true;
 }
 
-Vector2i TextRenderer::GetRenderedStringSize(unsigned int slot) const
-{
-    SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) return Vector2i();
-
-    return Vector2i(loc->second.Width, loc->second.Height);
-}
-
+/*
 bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & texIn,
                                 const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params)
 {
@@ -370,30 +345,39 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, Ren
 
     return true;
 }
+*/
 
 
-bool TextRenderer::TryFindSlot(unsigned int slot, TextRenderer::SlotMapLoc & outLoc) const
+bool TextRenderer::TryFindSlotCollection(unsigned int fontID, TextRenderer::SlotCollectionLoc & outCollection) const
 {
-    outLoc = slots.find(slot);
-    if (outLoc == slots.end())
+    outCollection = slots.find(fontID);
+    if (outCollection == slots.end())
     {
-        errorMsg = "Couldn't find slot " + std::to_string(slot);
+        errorMsg = "Couldn't find font ID " + std::to_string(fontID);
         return false;
     }
-    else return true;
+
+    return true;
 }
-
-ManbilTexture TextRenderer::GetRenderedString(unsigned int slot) const
+bool TextRenderer::TryFindSlot(unsigned int slotNumb, const std::vector<Slot> & slots, const Slot *& outSlot) const
 {
-    SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) return ManbilTexture();
+    if (slotNumb >= slots.size())
+    {
+        errorMsg = "Couldn't find slot index " + std::to_string(slotNumb);
+        return false;
+    }
 
-    return RTManager[loc->second.RenderTargetID]->GetColorTextures()[0];
+    outSlot = &slots[slotNumb];
+    return true;
 }
-const char * TextRenderer::GetString(unsigned int slot) const
+bool TextRenderer::TryFindSlot(unsigned int slotNumb,  std::vector<Slot> & slots, Slot *& outSlot)
 {
-    SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) return 0;
+    if (slotNumb >= slots.size())
+    {
+        errorMsg = "Couldn't find slot index " + std::to_string(slotNumb);
+        return false;
+    }
 
-    return loc->second.String;
+    outSlot = &slots[slotNumb];
+    return true;
 }
