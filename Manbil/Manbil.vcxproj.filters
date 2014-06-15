@@ -781,9 +781,6 @@
     <ClInclude Include="Rendering\GUI\TextRenderer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\GUI\TextManager.h">
-      <Filter>Rendering\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="Tests\GUITestWorld.h">
       <Filter>Tests</Filter>
     </ClInclude>

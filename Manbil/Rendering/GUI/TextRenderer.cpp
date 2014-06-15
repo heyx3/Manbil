@@ -128,17 +128,23 @@ unsigned int TextRenderer::CreateTextRenderSlot(std::string fontPath, TextureSet
 
 bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight)
 {
-    //Try to find the slot.
     SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) return false;
-    Slot & slotC = slots[slot];
+    if (!TryFindSlot(slot, loc)) { errorMsg = "Couldn't find font slot " + std::to_string(slot); return false; }
 
+    if (RenderString(textToRender, slot, TexManager[loc->second.TexID], RTManager[loc->second.RenderTargetID], backBufferWidth, backBufferHeight))
+    {
+        slots[slot].String = textToRender.c_str();
+        return true;
+    }
+
+    return false;
+}
+bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, ManbilTexture texM, RenderTarget * targ, unsigned int bbWidth, unsigned int bbHeight)
+{
     //Get texture/render target.
-    sf::Texture * tex = TexManager[slotC.TexID].SFMLTex;
-    RenderTarget * rendTarg = RTManager[slotC.RenderTargetID];
-    if (tex == 0) { errorMsg = "Associated texture did not exist!"; return false; }
-    if (rendTarg == 0) { errorMsg = "Associated render target did not exist!"; return false; }
-    ManbilTexture texM(tex);
+    sf::Texture * sTex = texM.SFMLTex;
+    if (sTex == 0) { errorMsg = "Associated texture did not exist!"; return false; }
+    if (targ == 0) { errorMsg = "Associated render target did not exist!"; return false; }
     textRendererParams.TextureUniforms[textSamplerName].Texture = texM;
 
 
@@ -229,8 +235,8 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
 
 
     //Set up rendering.
-    rendTarg->EnableDrawingInto();
-    glViewport(0, 0, rendTarg->GetColorSettings()[0].Settings.Width, rendTarg->GetColorSettings()[0].Settings.Height);
+    targ->EnableDrawingInto();
+    glViewport(0, 0, targ->GetColorSettings()[0].Settings.Width, targ->GetColorSettings()[0].Settings.Height);
     RenderingState(RenderingState::C_BACK,
                    RenderingState::BlendingExpressions::BE_SOURCE_COLOR, RenderingState::BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR,
                    false, false).EnableState();
@@ -241,27 +247,27 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
     Vector2f pos = Vector2f(-1.0f, 1.0f);
     Vector2i size = Vector2i(), offset = Vector2i(), movement = Vector2i();
     Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
-    Vector2f invRendTargSize(2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Width,
-                             -2.0f / (float)rendTarg->GetColorSettings()[0].Settings.Height);
+    Vector2f invRendTargSize(2.0f / (float)targ->GetColorSettings()[0].Settings.Width,
+                             -2.0f / (float)targ->GetColorSettings()[0].Settings.Height);
     for (unsigned int i = 0; i < textToRender.size(); ++i)
     {
         char ch = textToRender.c_str()[i];
 
         //Render the character into an array.
-        if (!FreeTypeHandler::Instance.RenderChar(slot, ch))
+        if (!FreeTypeHandler::Instance.RenderChar(fontID, ch))
         {
             errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + FreeTypeHandler::Instance.GetError();
-            rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+            targ->DisableDrawingInto(bbWidth, bbHeight);
             return false;
         }
 
 
         //Compute character layout data.
-        size = FreeTypeHandler::Instance.GetGlyphSize(slot);
+        size = FreeTypeHandler::Instance.GetGlyphSize(fontID);
         scaledSize = ToV2f(size).ComponentProduct(invRendTargSize);
-        offset = FreeTypeHandler::Instance.GetGlyphOffset(slot);
+        offset = FreeTypeHandler::Instance.GetGlyphOffset(fontID);
         scaledOffset = ToV2f(offset).ComponentProduct(invRendTargSize);
-        movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(slot);
+        movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(fontID);
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
 
         //If the character is empty (i.e. a space), don't bother rendering it.
@@ -271,7 +277,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
             if (!FreeTypeHandler::Instance.GetChar(texM))
             {
                 errorMsg = std::string() + "Error copying character #" + std::to_string(i) + ", '" + ch + "', into an SFML texture: " + FreeTypeHandler::Instance.GetError();
-                rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+                targ->DisableDrawingInto(bbWidth, bbHeight);
                 return false;
             }
 
@@ -284,7 +290,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
             if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
             {
                 errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
-                rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+                targ->DisableDrawingInto(bbWidth, bbHeight);
                 return false;
             }
         }
@@ -293,7 +299,7 @@ bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, uns
         pos += scaledMovement;
     }
 
-    rendTarg->DisableDrawingInto(backBufferWidth, backBufferHeight);
+    targ->DisableDrawingInto(bbWidth, bbHeight);
     return true;
 }
 

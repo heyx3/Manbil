@@ -8,7 +8,7 @@
 
 #pragma warning(disable: 4512)
 
-//PRIORITY: Change to giving each font an arbitrary amount of slots to use -- give out both the font index and the slot index.
+
 //Handles rendering of strings into a render target using FreeType.
 //The rendered strings are greyscale; the greyscale value indicates the alpha of the pixel.
 //Use this class by reserving slots to render text into by calling "CreateTextRenderSlot".
@@ -84,6 +84,9 @@ private:
     static Matrix4f worldMat, viewMat, projMat;
 
     static FreeTypeHandler & GetHandler(void) { return FreeTypeHandler::Instance; }
+
+    //Renders the given string into the given render target, using the given font and given temporary texture.
+    bool RenderString(std::string string, unsigned int fontID, ManbilTexture tex, RenderTarget * finalRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
 };
 
 #pragma warning(default: 4512)

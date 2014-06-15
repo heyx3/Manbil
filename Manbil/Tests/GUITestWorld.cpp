@@ -33,7 +33,7 @@ namespace GUITESTWORLD_NAMESPACE
 using namespace GUITESTWORLD_NAMESPACE;
 
 
-Vector2i GUITestWorld::WindowSize = Vector2i(1000, 1000);
+Vector2i GUITestWorld::WindowSize = Vector2i(600, 600);
 std::string textSamplerName = "u_textSampler";
 
 
@@ -147,6 +147,7 @@ RenderObjHandle LoadText(wchar_t * text = L"A Quick Brown Fox Jumps Over The Lax
 
 
 unsigned int textRendererID = FreeTypeHandler::ERROR_ID;
+const Vector2i textSize(512, 64);
 
 
 //Returns an error message, or an empty string if everything went fine.
@@ -156,7 +157,7 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
         return "'textRendererID' was already set to " + std::to_string(textRendererID);
 
     textRendererID = rendr->CreateTextRenderSlot(fontPath, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, false),
-                                                 512, 64, 50);
+                                                 textSize.x, textSize.y, 50);
 
     if (textRendererID == FreeTypeHandler::ERROR_ID)
         return "Error creating font slot for '" + fontPath + "': " + rendr->GetError();
@@ -213,7 +214,6 @@ void GUITestWorld::InitializeWorld(void)
 
 
     SFMLOpenGLWorld::InitializeWorld();
-    glViewport(0, 0, WindowSize.x, WindowSize.y);
 
     //Initialize static stuff.
     err = InitializeStaticSystems(false, true, true);
@@ -223,7 +223,18 @@ void GUITestWorld::InitializeWorld(void)
 
     //Create the drawing quad.
     quad = new DrawingQuad();
-    quad->SetSize(Vector2f(1.0f, .4f));
+
+    //Scale the window size according to the text dimensions.
+    if (textSize.x > textSize.y)
+    {
+        WindowSize.y = (int)(WindowSize.x * (float)textSize.y / (float)textSize.x);
+    }
+    else
+    {
+        WindowSize.x = (int)(WindowSize.y * (float)textSize.x / (float)textSize.y);
+    }
+
+    GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 
 
     //Create the quad rendering material.
@@ -251,7 +262,7 @@ void GUITestWorld::InitializeWorld(void)
 
     //Render a string.
     err = RenderText(TextRender, "Hello, World!!");
-    if (!ReactToError(err.empty(), "Error rendering 'A'", err))
+    if (!ReactToError(err.empty(), "Error rendering the text: ", err))
         return;
     quadParams.TextureUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);
 }
@@ -272,7 +283,6 @@ void GUITestWorld::UpdateWorld(float elapsed)
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
-    glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer().ClearScreen();
     RenderingState(false, false, RenderingState::C_NONE).EnableState();
 
