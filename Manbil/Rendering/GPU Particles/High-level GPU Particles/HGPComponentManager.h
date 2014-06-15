@@ -5,8 +5,6 @@
 
 #pragma warning(disable: 4512)
 
-//PRIORITY: Rename and pull out this file; it is useful for more than just GPU particle properties -- for example, it can be used for tweening HUD stuff.
-
 //Manages several HGPOutputComponents that together define a particle system's behavior.
 class HGPComponentManager
 {
@@ -16,6 +14,18 @@ public:
     UniformDictionary & Params;
 
 
+    HGPComponentManager(TextureManager & texManager, UniformDictionary & params)
+        : Manager(texManager), Params(params)
+    {
+        HGPComponentManager & thisM = *this;
+        worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
+        rotation = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1), thisM));
+        size = HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), thisM));
+        color = HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), thisM));
+        duration = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1, 5.0f), thisM));
+    }
+
+
     HGPComponentPtr(3) GetWorldPosition(void) const { return worldPosition; }
     HGPComponentPtr(1) GetRotation(void) const { return rotation; }
     HGPComponentPtr(2) GetSize(void) const { return size; }
@@ -23,7 +33,6 @@ public:
     HGPComponentPtr(1) GetDuration(void) const { return duration; }
 
     const DataLine & GetTimeInterpolant(void) const { return timeLerp; }
-
 
     void SetWorldPosition(HGPComponentPtr(3) newWorldPos) { SwapOutComponent(worldPosition, newWorldPos); }
     void SetRotation(HGPComponentPtr(1) newRotation) { SwapOutComponent(rotation, newRotation); }
@@ -89,17 +98,6 @@ public:
     }
 
 
-    HGPComponentManager(TextureManager & texManager, UniformDictionary & params)
-        : Manager(texManager), Params(params)
-    {
-        HGPComponentManager & thisM = *this;
-        worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
-        rotation = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1), thisM));
-        size = HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), thisM));
-        color = HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), thisM));
-        duration = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1, 5.0f), thisM));
-    }
-
     void Initialize(void) { worldPosition->InitializeComponent(); rotation->InitializeComponent(); size->InitializeComponent(); color->InitializeComponent(); duration->InitializeComponent(); }
     void Update(float elapsedTime)
     {
@@ -120,6 +118,7 @@ public:
         outputs[GPUPOutputs::GPUP_SIZE] = size->GetComponentOutput();
         outputs[GPUPOutputs::GPUP_COLOR] = color->GetComponentOutput();
     }
+
 
 private:
 

@@ -13,6 +13,8 @@
 class HGPComponentManager;
 
 //TODO: Pull stuff out into the .cpp file. You can apparently do this even with templates?
+//PRIORITY: Rename and pull out this file; it is useful for more than just GPU particle properties -- for example, it can be used for tweening HUD stuff. Random seeds will have to be data lines instead of indexes into the particle vertex input.
+
 
 
 //"HGP" stands for "High-level Gpu Particle".
@@ -62,7 +64,7 @@ public:
 #define HGPComponentPtr(ComponentSize) std::shared_ptr<HGPOutputComponent<ComponentSize>>
 #define HGPConstComponentPtr(ComponentSize) std::shared_ptr<const HGPOutputComponent<ComponentSize>>
 
-//TODO: An "ExpressionHGPComponent" that just outputs a given DataLine.
+//TODO: An "ExpressionHGPComponent" that just outputs a given DataLine. It should override "IsConstant" to return "DataLine::IsConstant()".
 
 
 //The size of the component's float output (float, vec2, vec3, or vec4).
@@ -84,6 +86,11 @@ public:
         HGPGlobalData::NextHGPComponentID += 1;
     }
     HGPOutputComponent(const HGPOutputComponent & cpy); //Intentionally not implemented.
+
+
+    //Gets whether this component represents a constant value that doesn't change at run-time.
+    //Default behavior: return false.
+    virtual bool IsConstant(void) const { return false; }
 
 
     void AddParent(HGPOutputComponent<1>* parent)
@@ -229,6 +236,8 @@ public:
 
     ConstantHGPComponent(const VectorF & constantValue, HGPComponentManager & manager) : HGPOutputComponent(manager), constValue(constantValue) { }
 
+    virtual bool IsConstant(void) const override { return true; }
+
 
 protected:
 
@@ -368,8 +377,10 @@ public:
         UpdateComponentOutput();
     }
 
+
     unsigned int GetRandSeedIndex(void) const { return randSeedIndex; }
     void SetRandSeedIndex(unsigned int newVal) const { randSeedIndex = newVal; UpdateComponentOutput(); }
+
 
     RandomizedHGPComponent(HGPComponentManager & manager,
                            HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max, const unsigned int _randSeedIndex[ComponentSize])
@@ -381,6 +392,10 @@ public:
         min->AddParent(this);
         max->AddParent(this);
     }
+
+
+    virtual bool IsConstant(void) const { return min->IsConstant() && max->IsConstant(); }
+
 
     virtual void InitializeComponent(void) override
     {

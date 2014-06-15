@@ -121,6 +121,9 @@ namespace MyVectors
 	#pragma endregion
 
 
+    //TODO: Add Vector2u/3u/4u.
+
+
 	#pragma region Vector2i
 
 	class Vector2i
