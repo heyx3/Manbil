@@ -787,6 +787,9 @@
     <ClInclude Include="Tests\GUITestWorld.h">
       <Filter>Tests</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">

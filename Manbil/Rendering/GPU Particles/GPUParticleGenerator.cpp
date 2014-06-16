@@ -176,6 +176,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     geoDat.ShaderCode += "\n\n//Helper functions.\n";
     for (unsigned int i = 0; i < functionDecls.size(); ++i)
         geoDat.ShaderCode += functionDecls[i];
+    //PRIORITY: Shouldn't GLSL uniforms be declared here?
     
     //Define quaternion rotation.
     if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant(0.0f))

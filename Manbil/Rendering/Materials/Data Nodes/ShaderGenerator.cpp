@@ -148,6 +148,11 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
         code += iterator->second.GetDeclaration() + "\n";
     for (auto iterator = data.Params.TextureUniforms.begin(); iterator != data.Params.TextureUniforms.end(); ++iterator)
         code += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = data.Params.SubroutineUniforms.begin(); iterator != data.Params.SubroutineUniforms.end(); ++iterator)
+    {
+        code += iterator->second.GetSubroutineDeclaration() + "\n";
+        code += iterator->second.GetUniformDeclaration() = "\n";
+    }
 
     //Finally, add the actual functions.
     code += "\n\n" + data.ShaderCode;
@@ -337,6 +342,11 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
             vertShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
             vertShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = vertexUniformDict.SubroutineUniforms.begin(); iterator != vertexUniformDict.SubroutineUniforms.end(); ++iterator)
+        {
+            vertShader += iterator->second.GetSubroutineDeclaration() + "\n";
+            vertShader += iterator->second.GetUniformDeclaration() + "\n";
+        }
     }
     if (fragmentUniformDict.FloatUniforms.size() + fragmentUniformDict.FloatArrayUniforms.size() + fragmentUniformDict.MatrixUniforms.size() + fragmentUniformDict.TextureUniforms.size() > 0)
     {
@@ -353,6 +363,11 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
             fragShader += iterator->second.GetDeclaration() + "\n";
         for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
             fragShader += iterator->second.GetDeclaration() + "\n";
+        for (auto iterator = fragmentUniformDict.SubroutineUniforms.begin(); iterator != fragmentUniformDict.SubroutineUniforms.end(); ++iterator)
+        {
+            fragShader += iterator->second.GetSubroutineDeclaration() + "\n";
+            fragShader += iterator->second.GetUniformDeclaration() + "\n";
+        }
     }
 
 

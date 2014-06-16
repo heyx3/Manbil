@@ -14,7 +14,6 @@ typedef std::shared_ptr<sf::Texture> SFTexPtr;
 
 
 //TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms.
-//TODO: Add coroutine uniforms. Add coroutine uniform set function to RenderDataHandler. Finally, make sure that Material handles coroutine uniforms.
 
 
 //Represents a single float/vec2/vec3/vec4 uniform.
@@ -193,7 +192,6 @@ public:
 };
 
 //Represents a 2D texture sampler uniform.
-//The sampler can either be an SFML texture or an OpenGL texture object.
 struct UniformSamplerValue
 {
 public:
@@ -206,6 +204,62 @@ public:
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
+//Represents a subroutine.
+struct UniformSubroutineValue
+{
+public:
+    struct Parameter
+    {
+        unsigned int ParamSize;
+        std::string ParamName;
+        Parameter(unsigned int size = 0, std::string name = "")
+            : ParamSize(size), ParamName(name)
+        {
+
+        }
+        std::string GetDeclaration(void) const { return VectorF(ParamSize).GetGLSLType() + " " + ParamName; }
+    };
+
+    //The size of the subroutine's output (float, vec2, vec3, or vec4).
+    unsigned int ReturnValueSize;
+    //The input parameters to the subroutine.
+    std::vector<Parameter> Parameters;
+    //The values this subroutine uniform can have.
+    std::vector<std::string> PossibleValues;
+    //The index in the "PossibleValues" collection corresponding to the current value of the subroutine.
+    unsigned int ValueIndex = 0;
+    //The name of the subroutine definition (like a delegate name in C#).
+    std::string SubroutineName;
+    //The name of the uniform definition (like an instance of a delegate in C#).
+    std::string UniformName;
+
+    //The shader this uniform resides in.
+    //PRIORITY: Add code to ShaderGenerator that returns an error if two subroutines from different shaders have the same name.
+    ShaderHandler::Shaders Shader;
+
+    UniformLocation Location;
+    //Parallel to "PossibleValues". Provides the id for each coroutine function.
+    std::vector<RenderObjHandle> PossibleValueIDs;
+
+    UniformSubroutineValue(unsigned int returnValueSize = 0, UniformLocation location = 0,
+                           ShaderHandler::Shaders shader = ShaderHandler::Shaders::SH_Fragment_Shader,
+                           std::vector<Parameter> parameters = std::vector<Parameter>(),
+                           std::vector<std::string> possibleValues = std::vector<std::string>(),
+                           unsigned int currentValueIndex = 0, std::string subroutineName = "", std::string uniformName = "")
+        : ReturnValueSize(returnValueSize), Parameters(parameters), Location(location),
+          PossibleValues(possibleValues), ValueIndex(currentValueIndex),
+          SubroutineName(subroutineName), UniformName(uniformName),
+          Shader(shader)
+    {
+        PossibleValueIDs.reserve(PossibleValues.size());
+        for (unsigned int i = 0; i < PossibleValues.size(); ++i)
+            PossibleValueIDs.insert(PossibleValueIDs.end(), 0);
+    }
+
+    std::string GetSubroutineDeclaration(void) const;
+    std::string GetUniformDeclaration(void) const { return "subroutine uniform " + SubroutineName + " " + UniformName + ";"; }
+};
+
 
 
 
@@ -216,7 +270,8 @@ public:
     struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
                          MatrixUniforms, TextureUniforms,
-                         IntUniforms, IntArrayUniforms;
+                         IntUniforms, IntArrayUniforms,
+                         SubroutineUniforms;
     //Returns "Uniform("", -1)" if the given name isn't found.
     static Uniform FindUniform(std::string name, const std::vector<Uniform> & toSearch)
     {
@@ -238,6 +293,7 @@ public:
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSamplerValue) TextureUniforms;
+    U_UMAP(UniformSubroutineValue) SubroutineUniforms;
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);
     void ClearUniforms(void);
 };

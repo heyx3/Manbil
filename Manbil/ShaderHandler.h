@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <assert.h>
 #include "OpenGLIncludes.h"
 #include "SFML/Graphics/Image.hpp"
 
@@ -15,10 +16,21 @@ public:
     //The different types of shaders.
     enum Shaders
     {
+        //TODO: Rename these to "SH_VERTEX", "SH_FRAGMENT", and "SH_GEOMETRY".
         SH_Vertex_Shader,
         SH_Fragment_Shader,
         SH_GeometryShader,
     };
+    static GLenum ToEnum(Shaders shader)
+    {
+        switch (shader)
+        {
+            case SH_Vertex_Shader: return GL_VERTEX_SHADER;
+            case SH_GeometryShader: return GL_GEOMETRY_SHADER;
+            case SH_Fragment_Shader: return GL_FRAGMENT_SHADER;
+            default: assert(false); return GL_INVALID_ENUM;
+        }
+    }
 
 	typedef std::vector<RenderObjHandle> ShaderObjectList;
 

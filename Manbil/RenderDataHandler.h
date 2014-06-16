@@ -3,7 +3,9 @@
 #include "OpenGLIncludes.h"
 #include "Math/Matrix4f.h"
 #include "Math/Array2D.h"
+#include "ShaderHandler.h"
 #include <SFML/Graphics/Image.hpp>
+
 
 //Manages different kinds of data being passed between CPU and GPU.
 class RenderDataHandler
@@ -20,10 +22,13 @@ public:
 	static void ClearErrorMessage(void) { errorMsg.clear(); }
 
 	//Gets the location of a uniform variable in the given shader program. Returns whether or not it was successful.
-	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle);
+	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & outHandle);
+    //Gets the id of the given subroutine implementation.
+    static void GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue);
 	
 	//An error that can be thrown in "SetUniformValue".
 	static const int EXCEPTION_ELEMENTS_OUT_OF_RANGE;
+    //TODO: Inline as many of these as is feasible.
 	//Sets a float/vec2/vec3/vec4 value. Assumes the correct shader program is already bound.
     static void SetUniformValue(UniformLocation loc, int elements, const float * values);
     //Sets an array of float/vec2/3/4 values. Assumes the correct shader program is already bound.
@@ -34,6 +39,8 @@ public:
     static void SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit);
 	//Sets a matrix value. Assumes the correct shader program is already bound.
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
+    //Sets a subroutine value. Assumes the correct shader program is already bound.
+    static void SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle valueName);
 	
     template<typename Data>
     //Creates a texture object for passing to a shader.

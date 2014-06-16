@@ -18,6 +18,10 @@ bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const 
 
 	return true;
 }
+void RenderDataHandler::GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue)
+{
+    outValue = glGetSubroutineIndex(shaderProgram, ShaderHandler::ToEnum(shader), name);
+}
 
 void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const float * value)
 {
@@ -133,6 +137,10 @@ void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayEleme
 void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 {
 	glUniformMatrix4fv(lc, 1, GL_TRUE, (const GLfloat*)(&mat));
+}
+void RenderDataHandler::SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle value)
+{
+    glUniformSubroutinesuiv(ShaderHandler::ToEnum(shader), 1, &value);
 }
 
 void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle)
