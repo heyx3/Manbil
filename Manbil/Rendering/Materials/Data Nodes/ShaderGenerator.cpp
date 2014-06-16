@@ -151,7 +151,7 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
     for (auto iterator = data.Params.SubroutineUniforms.begin(); iterator != data.Params.SubroutineUniforms.end(); ++iterator)
     {
         code += iterator->second.GetSubroutineDeclaration() + "\n";
-        code += iterator->second.GetUniformDeclaration() = "\n";
+        code += iterator->second.GetUniformDeclaration() + "\n";
     }
 
     //Finally, add the actual functions.

@@ -99,7 +99,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     //Subroutines are a bit more complex to set up.
     for (auto iterator = dict.SubroutineUniforms.begin(); iterator != dict.SubroutineUniforms.end(); ++iterator)
     {
-        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        if (RenderDataHandler::GetSubroutineUniformLocation(shaderProg, iterator->second.Shader, iterator->first.c_str(), tempLoc))
         {
             uniforms.SubroutineUniforms.insert(uniforms.SubroutineUniforms.end(),
                                                UniformList::Uniform(iterator->first, tempLoc));

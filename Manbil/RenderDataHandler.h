@@ -23,6 +23,8 @@ public:
 
 	//Gets the location of a uniform variable in the given shader program. Returns whether or not it was successful.
 	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & outHandle);
+    //Gets the location of a subroutine uniform in the given shader program. Returns whether or not it was successful.
+    static bool GetSubroutineUniformLocation(RenderObjHandle shaderProgram, ShaderHandler::Shaders shaderType, const Char * name, UniformLocation & outHandle);
     //Gets the id of the given subroutine implementation.
     static void GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue);
 	

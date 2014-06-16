@@ -2,9 +2,12 @@
 
 #include <assert.h>
 #include "ShaderHandler.h"
+#include "DebugAssist.h"
+
 
 std::string RenderDataHandler::errorMsg = "";
 const int RenderDataHandler::EXCEPTION_ELEMENTS_OUT_OF_RANGE = 1;
+
 
 bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
 {
@@ -17,6 +20,18 @@ bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const 
 	}
 
 	return true;
+}
+bool RenderDataHandler::GetSubroutineUniformLocation(RenderObjHandle shaderProgram, ShaderHandler::Shaders shaderType, const Char * name, UniformLocation & outHandle)
+{
+    outHandle = glGetSubroutineUniformLocation(shaderProgram, ShaderHandler::ToEnum(shaderType), name);
+
+    if (!UniformLocIsValid(outHandle))
+    {
+        errorMsg = std::string("Shader '" + std::to_string(shaderType) + "' does not contain the subroutine uniform '" + name + "'.");
+        return false;
+    }
+
+    return true;
 }
 void RenderDataHandler::GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue)
 {

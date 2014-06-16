@@ -256,7 +256,8 @@ void VC::BuildTriangles(std::vector<VoxelVertex> & vertices,
 
         vert.MinExists.x = ((loc.x == 0 &&
                                 (beforeMinX == 0 || !beforeMinX->GetVoxelLocal(Vector3i(ChunkSize - 1, loc.y, loc.z)))) ||
-                            (loc.x > 0 && !thisVC->GetVoxelLocal(loc.LessX()))) ? 1.0f : 0.0f;
+                            (loc.x > 0 && !thisVC->GetVoxelLocal(loc.LessX()))) ?
+                                1.0f : 0.0f;
 
         vert.MinExists.y = ((loc.y == 0 &&
                                 (beforeMinY == 0 || !beforeMinY->GetVoxelLocal(Vector3i(loc.x, ChunkSize - 1, loc.z)))) ||

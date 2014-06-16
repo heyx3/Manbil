@@ -294,37 +294,64 @@ void VoxelWorld::InitializeWorld(void)
     voxelParams.FloatUniforms["u_corner2"] = UniformValueF(Vector3f(1.0f, -1.0f, -1.0f), "u_corner2");
     voxelParams.FloatUniforms["u_corner3"] = UniformValueF(Vector3f(-1.0f, 1.0f, 1.0f), "u_corner3");
     voxelParams.FloatUniforms["u_corner4"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "u_corner4");
+    //Use a subroutine for the function that determines how to check whether to draw the face.
+    //It returns the single value from the vertex inputs that decides whether to draw.
+    std::vector<std::string> subroutines;
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_minX");
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_minY");
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_minZ");
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxX");
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxY");
+    subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxZ");
+    voxelParams.SubroutineUniforms["u_getQuadDecider"] = UniformSubroutineValue(
+        1, 0, ShaderHandler::Shaders::SH_GeometryShader, std::vector<UniformSubroutineValue::Parameter>(),
+        subroutines, 0, "subroutine_getQuadDecider", "u_getQuadDecider");
     MaterialUsageFlags gsFlags;
     gsFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_VIEWPROJ_MAT);
     std::string worldToScreen = MaterialConstants::ViewProjMatName + " * vec4(gsOut_worldPos, 1.0)";
     GeoShaderData gsDat(GeoShaderOutput("gsOut_worldPos", 3, "gsOut_uv", 2),
                         gsFlags, 4, Points, TriangleStrip, voxelParams,
                         std::string() +
-"void main()                                                \n\
+"subroutine(subroutine_getQuadDecider)                                                      \n\
+float sub_getQuadDecider_minX() { return " + MaterialConstants::VertexOutNameBase + "0[0].x; } \n\
+subroutine(subroutine_getQuadDecider)                                                       \n\
+float sub_getQuadDecider_minY() { return " + MaterialConstants::VertexOutNameBase + "0[0].y; } \n\
+subroutine(subroutine_getQuadDecider)                                                       \n\
+float sub_getQuadDecider_minZ() { return " + MaterialConstants::VertexOutNameBase + "0[0].z; } \n\
+subroutine(subroutine_getQuadDecider)                                                       \n\
+float sub_getQuadDecider_maxX() { return " + MaterialConstants::VertexOutNameBase + "1[0].x; } \n\
+subroutine(subroutine_getQuadDecider)                                                       \n\
+float sub_getQuadDecider_maxY() { return " + MaterialConstants::VertexOutNameBase + "1[0].y; } \n\
+subroutine(subroutine_getQuadDecider)                                                       \n\
+float sub_getQuadDecider_maxZ() { return " + MaterialConstants::VertexOutNameBase + "1[0].z; } \n\
+                                                            \n\
+void main()                                                 \n\
 {                                                           \n\
     vec3 pos = gl_in[0].gl_Position.xyz;                    \n\
                                                             \n\
-    gsOut_worldPos = pos + u_corner1;                       \n\
-    gsOut_uv = vec2(0.0, 0.0);                              \n\
-    gl_Position = " + worldToScreen + ";                    \n\
-    EmitVertex();                                           \n\
+    if (u_getQuadDecider() == 1.0f)                         \n\
+    {                                                       \n\
+        gsOut_worldPos = pos + u_corner1;                   \n\
+        gsOut_uv = vec2(0.0, 0.0);                          \n\
+        gl_Position = " + worldToScreen + ";                \n\
+        EmitVertex();                                       \n\
                                                             \n\
-    gsOut_worldPos = pos + u_corner2;                       \n\
-    gsOut_uv = vec2(1.0, 0.0);                              \n\
-    gl_Position = " + worldToScreen + ";                    \n\
-    EmitVertex();                                           \n\
+        gsOut_worldPos = pos + u_corner2;                   \n\
+        gsOut_uv = vec2(1.0, 0.0);                          \n\
+        gl_Position = " + worldToScreen + ";                \n\
+        EmitVertex();                                       \n\
                                                             \n\
-    gsOut_worldPos = pos + u_corner3;                       \n\
-    gsOut_uv = vec2(0.0, 1.0);                              \n\
-    gl_Position = " + worldToScreen + ";                    \n\
-    EmitVertex();                                           \n\
+        gsOut_worldPos = pos + u_corner3;                   \n\
+        gsOut_uv = vec2(0.0, 1.0);                          \n\
+        gl_Position = " + worldToScreen + ";                \n\
+        EmitVertex();                                       \n\
                                                             \n\
-    gsOut_worldPos = pos + u_corner4;                       \n\
-    gsOut_uv = vec2(1.0, 1.0);                              \n\
-    gl_Position = " + worldToScreen + ";                    \n\
-    EmitVertex();                                           \n\
+        gsOut_worldPos = pos + u_corner4;                   \n\
+        gsOut_uv = vec2(1.0, 1.0);                          \n\
+        gl_Position = " + worldToScreen + ";                \n\
+        EmitVertex();                                       \n\
+    }                                                       \n\
 }");
-    //TODO: Don't draw faces that are obscured.
 
     DataNodePtr voxelFragInput(new FragmentInputNode(VertexAttributes(3, 2, false, false)));
     DataLine surfNormal(DataNodePtr(new ParamNode(3, "u_surfaceNormal")), 0);
@@ -597,6 +624,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     std::vector<const Mesh*> lessX, lessY, lessZ, moreX, moreY, moreZ;
     Vector3i camPosIndex = manager.ToChunkIndex(player.Cam.GetPosition() + player.CamOffset);
     std::unordered_map<Vector3i, ChunkMesh*, Vector3i> & meshes = chunkMeshes;
+    //TODO: Speed things up by keeping a persistent set of mesh vectors and only modify them when the camera moves into a new chunk.
     manager.DoToEveryChunk([camPosIndex, &meshes, &lessX, &lessY, &lessZ, &moreX, &moreY, &moreZ](Vector3i chunkIndex, VoxelChunk *chnk)
     {
         const Mesh * msh = &meshes[chunkIndex]->GetMesh();
@@ -644,6 +672,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, -halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 0;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessX, voxelParams))
     {
         PrintError("Error rendering voxel material for \"less X\" face", voxelMat->GetErrorMsg());
@@ -656,6 +685,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, -halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, -halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 1;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessY, voxelParams))
     {
         PrintError("Error rendering voxel material for \"less Y\" face", voxelMat->GetErrorMsg());
@@ -668,6 +698,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, -halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 2;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, lessZ, voxelParams))
     {
         PrintError("Error rendering voxel material for \"less Z\" face", voxelMat->GetErrorMsg());
@@ -680,6 +711,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 3;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreX, voxelParams))
     {
         PrintError("Error rendering voxel material for \"more X\" face", voxelMat->GetErrorMsg());
@@ -692,6 +724,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(halfVox, halfVox, -halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 4;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreY, voxelParams))
     {
         PrintError("Error rendering voxel material for \"more Y\" face", voxelMat->GetErrorMsg());
@@ -704,6 +737,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams.FloatUniforms["u_corner2"].SetValue(Vector3f(-halfVox, halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner3"].SetValue(Vector3f(halfVox, -halfVox, halfVox));
     voxelParams.FloatUniforms["u_corner4"].SetValue(Vector3f(halfVox, halfVox, halfVox));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"].ValueIndex = 5;
     if (!voxelMat->Render(RenderPasses::BaseComponents, info, moreZ, voxelParams))
     {
         PrintError("Error rendering voxel material for \"more Z\" face", voxelMat->GetErrorMsg());
