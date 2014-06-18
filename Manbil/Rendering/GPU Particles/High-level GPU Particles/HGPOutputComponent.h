@@ -64,8 +64,6 @@ public:
 #define HGPComponentPtr(ComponentSize) std::shared_ptr<HGPOutputComponent<ComponentSize>>
 #define HGPConstComponentPtr(ComponentSize) std::shared_ptr<const HGPOutputComponent<ComponentSize>>
 
-//TODO: An "ExpressionHGPComponent" that just outputs a given DataLine. It should override "IsConstant" to return "DataLine::IsConstant()".
-
 
 //The size of the component's float output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
@@ -352,6 +350,47 @@ private:
 };
 
 
+//The size of the component's output (float, vec2, vec3, or vec4).
+template<unsigned int ComponentSize>
+//Represents a value that is just the output of a DataLine.
+class ExpressionHGPComponent : public HGPOutputComponent<ComponentSize>
+{
+public:
+
+    DataLine GetExpression(void) const { return expression; }
+    void SetExpression(DataLine newExpr)
+    {
+        Assert("The new expression has a size of " + std::to_string(newExpr.GetDataLineSize()) + " instead of the required size of " + std::to_string(ComponentSize),
+               newExpr.GetDataLineSize() == ComponentSize);
+        expression = newExpr;
+        UpdateComponentOutput();
+    }
+
+    ExpressionHGPComponent(HGPComponentManager & manager, DataLine _expression)
+        : HGPOutputComponent(manager), expression(_expression)
+    {
+        Assert("The expression has a size of " + std::to_string(expression.GetDataLineSize()) + " instead of the required size of " + std::to_string(ComponentSize),
+               expression.GetDataLineSize() == ComponentSize);
+    }
+
+
+    virtual bool IsConstant(void) const override { return expression.IsConstant(); }
+
+
+protected:
+
+    virtual DataLine GenerateComponentOutput(void) const override
+    {
+        return expression;
+    }
+
+
+private:
+
+    DataLine expression;
+};
+
+
 
 //The size of the component's output (float, vec2, vec3, or vec4).
 template<unsigned int ComponentSize>
@@ -394,7 +433,7 @@ public:
     }
 
 
-    virtual bool IsConstant(void) const { return min->IsConstant() && max->IsConstant(); }
+    virtual bool IsConstant(void) const override { return min->IsConstant() && max->IsConstant(); }
 
 
     virtual void InitializeComponent(void) override
