@@ -204,60 +204,73 @@ public:
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
-//Represents a subroutine.
-struct UniformSubroutineValue
+
+//Represents a definition of a subroutine.
+struct SubroutineDefinition
 {
 public:
+
+    //An input into the subroutine.
     struct Parameter
     {
-        unsigned int ParamSize;
-        std::string ParamName;
-        Parameter(unsigned int size = 0, std::string name = "")
-            : ParamSize(size), ParamName(name)
-        {
-
-        }
-        std::string GetDeclaration(void) const { return VectorF(ParamSize).GetGLSLType() + " " + ParamName; }
+        unsigned int Size;
+        std::string Name;
+        Parameter(unsigned int size = 0, std::string name = "") : Size(size), Name(name) { }
+        std::string GetDeclaration(void) const { return VectorF(Size).GetGLSLType() + " " + Name; }
     };
 
     //The size of the subroutine's output (float, vec2, vec3, or vec4).
     unsigned int ReturnValueSize;
-    //The input parameters to the subroutine.
-    std::vector<Parameter> Parameters;
-    //The values this subroutine uniform can have.
-    std::vector<std::string> PossibleValues;
-    //The index in the "PossibleValues" collection corresponding to the current value of the subroutine.
-    unsigned int ValueIndex = 0;
-    //The name of the subroutine definition (like a delegate name in C#).
-    std::string SubroutineName;
-    //The name of the uniform definition (like an instance of a delegate in C#).
-    std::string UniformName;
+    //The name of this subroutine definition.
+    std::string Name;
+    //The inputs to this subroutine.
+    std::vector<Parameter> Params;
 
     //The shader this uniform resides in.
-    //PRIORITY: Add code to ShaderGenerator that returns an error if two subroutines from different shaders have the same name.
     ShaderHandler::Shaders Shader;
 
+
+    SubroutineDefinition(ShaderHandler::Shaders shader = ShaderHandler::Shaders::SH_Vertex_Shader, unsigned int returnValSize = 0,
+                         std::string name = "", std::vector<Parameter> params = std::vector<Parameter>())
+        : Shader(shader), ReturnValueSize(returnValSize), Name(name), Params(params) { }
+
+
+    std::string GetDefinition(void) const;
+};
+
+//Represents a subroutine.
+struct UniformSubroutineValue
+{
+public:
+
+    //The definition of the subroutine.
+    //Multiple values can have the same definition, so point to a managed, heap-allocated definition.
+    std::shared_ptr<SubroutineDefinition> Definition;
+
+    //The name of the uniform definition.
+    std::string Name;
+    //The location of the uniform in the GLSL program.
     UniformLocation Location;
+
+    //The values this subroutine uniform can have.
+    std::vector<std::string> PossibleValues;
     //Parallel to "PossibleValues". Provides the id for each coroutine function.
     std::vector<RenderObjHandle> PossibleValueIDs;
+    //The index in the "PossibleValues" collection corresponding to the current value of the subroutine.
+    unsigned int ValueIndex = 0;
 
-    UniformSubroutineValue(unsigned int returnValueSize = 0, UniformLocation location = 0,
-                           ShaderHandler::Shaders shader = ShaderHandler::Shaders::SH_Fragment_Shader,
-                           std::vector<Parameter> parameters = std::vector<Parameter>(),
+    //Creates a new instance. Fills in the "PossibleValueIDs" vector with default values of 0.
+    UniformSubroutineValue(std::shared_ptr<SubroutineDefinition> definition = std::shared_ptr<SubroutineDefinition>(),
                            std::vector<std::string> possibleValues = std::vector<std::string>(),
-                           unsigned int currentValueIndex = 0, std::string subroutineName = "", std::string uniformName = "")
-        : ReturnValueSize(returnValueSize), Parameters(parameters), Location(location),
-          PossibleValues(possibleValues), ValueIndex(currentValueIndex),
-          SubroutineName(subroutineName), UniformName(uniformName),
-          Shader(shader)
+                           unsigned int currentValueIndex = 0, std::string name = "", UniformLocation location = 0)
+        : Definition(definition), PossibleValues(possibleValues), ValueIndex(currentValueIndex), Name(name), Location(location)
     {
         PossibleValueIDs.reserve(PossibleValues.size());
         for (unsigned int i = 0; i < PossibleValues.size(); ++i)
             PossibleValueIDs.insert(PossibleValueIDs.end(), 0);
     }
 
-    std::string GetSubroutineDeclaration(void) const;
-    std::string GetUniformDeclaration(void) const { return "subroutine uniform " + SubroutineName + " " + UniformName + ";"; }
+    std::string GetDeclaration(void) const { return "subroutine uniform " + Definition->Name + " " + Name + ";"; }
 };
 
 
@@ -294,6 +307,9 @@ public:
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSamplerValue) TextureUniforms;
     U_UMAP(UniformSubroutineValue) SubroutineUniforms;
+
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);
     void ClearUniforms(void);
+
+    unsigned int GetNumbUniforms(void) const;
 };

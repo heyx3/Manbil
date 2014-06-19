@@ -303,54 +303,54 @@ void VoxelWorld::InitializeWorld(void)
     subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxX");
     subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxY");
     subroutines.insert(subroutines.end(), "sub_getQuadDecider_maxZ");
-    voxelParams.SubroutineUniforms["u_getQuadDecider"] = UniformSubroutineValue(
-        1, 0, ShaderHandler::Shaders::SH_GeometryShader, std::vector<UniformSubroutineValue::Parameter>(),
-        subroutines, 0, "subroutine_getQuadDecider", "u_getQuadDecider");
+    std::shared_ptr<SubroutineDefinition> subDef(new SubroutineDefinition(ShaderHandler::Shaders::SH_GeometryShader, 1, "subroutine_getQuadDecider", std::vector<SubroutineDefinition::Parameter>()));
+    voxelParams.SubroutineUniforms["u_getQuadDecider"] = UniformSubroutineValue(subDef, subroutines, 0, "u_getQuadDecider");
+
     MaterialUsageFlags gsFlags;
     gsFlags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_VIEWPROJ_MAT);
     std::string worldToScreen = MaterialConstants::ViewProjMatName + " * vec4(gsOut_worldPos, 1.0)";
     GeoShaderData gsDat(GeoShaderOutput("gsOut_worldPos", 3, "gsOut_uv", 2),
                         gsFlags, 4, Points, TriangleStrip, voxelParams,
                         std::string() +
-"subroutine(subroutine_getQuadDecider)                                                      \n\
+"subroutine(subroutine_getQuadDecider)                                                         \n\
 float sub_getQuadDecider_minX() { return " + MaterialConstants::VertexOutNameBase + "0[0].x; } \n\
-subroutine(subroutine_getQuadDecider)                                                       \n\
+subroutine(subroutine_getQuadDecider)                                                          \n\
 float sub_getQuadDecider_minY() { return " + MaterialConstants::VertexOutNameBase + "0[0].y; } \n\
-subroutine(subroutine_getQuadDecider)                                                       \n\
+subroutine(subroutine_getQuadDecider)                                                          \n\
 float sub_getQuadDecider_minZ() { return " + MaterialConstants::VertexOutNameBase + "0[0].z; } \n\
-subroutine(subroutine_getQuadDecider)                                                       \n\
+subroutine(subroutine_getQuadDecider)                                                          \n\
 float sub_getQuadDecider_maxX() { return " + MaterialConstants::VertexOutNameBase + "1[0].x; } \n\
-subroutine(subroutine_getQuadDecider)                                                       \n\
+subroutine(subroutine_getQuadDecider)                                                          \n\
 float sub_getQuadDecider_maxY() { return " + MaterialConstants::VertexOutNameBase + "1[0].y; } \n\
-subroutine(subroutine_getQuadDecider)                                                       \n\
+subroutine(subroutine_getQuadDecider)                                                          \n\
 float sub_getQuadDecider_maxZ() { return " + MaterialConstants::VertexOutNameBase + "1[0].z; } \n\
-                                                            \n\
-void main()                                                 \n\
-{                                                           \n\
-    vec3 pos = gl_in[0].gl_Position.xyz;                    \n\
-                                                            \n\
-    if (u_getQuadDecider() == 1.0f)                         \n\
-    {                                                       \n\
-        gsOut_worldPos = pos + u_corner1;                   \n\
-        gsOut_uv = vec2(0.0, 0.0);                          \n\
-        gl_Position = " + worldToScreen + ";                \n\
-        EmitVertex();                                       \n\
-                                                            \n\
-        gsOut_worldPos = pos + u_corner2;                   \n\
-        gsOut_uv = vec2(1.0, 0.0);                          \n\
-        gl_Position = " + worldToScreen + ";                \n\
-        EmitVertex();                                       \n\
-                                                            \n\
-        gsOut_worldPos = pos + u_corner3;                   \n\
-        gsOut_uv = vec2(0.0, 1.0);                          \n\
-        gl_Position = " + worldToScreen + ";                \n\
-        EmitVertex();                                       \n\
-                                                            \n\
-        gsOut_worldPos = pos + u_corner4;                   \n\
-        gsOut_uv = vec2(1.0, 1.0);                          \n\
-        gl_Position = " + worldToScreen + ";                \n\
-        EmitVertex();                                       \n\
-    }                                                       \n\
+                                                                                               \n\
+void main()                                                                                    \n\
+{                                                                                              \n\
+    vec3 pos = gl_in[0].gl_Position.xyz;                                                       \n\
+                                                                                               \n\
+    if (u_getQuadDecider() == 1.0f)                                                            \n\
+    {                                                                                          \n\
+        gsOut_worldPos = pos + u_corner1;                                                      \n\
+        gsOut_uv = vec2(0.0, 0.0);                                                             \n\
+        gl_Position = " + worldToScreen + ";                                                   \n\
+        EmitVertex();                                                                          \n\
+                                                                                               \n\
+        gsOut_worldPos = pos + u_corner2;                                                      \n\
+        gsOut_uv = vec2(1.0, 0.0);                                                             \n\
+        gl_Position = " + worldToScreen + ";                                                   \n\
+        EmitVertex();                                                                          \n\
+                                                                                               \n\
+        gsOut_worldPos = pos + u_corner3;                                                      \n\
+        gsOut_uv = vec2(0.0, 1.0);                                                             \n\
+        gl_Position = " + worldToScreen + ";                                                   \n\
+        EmitVertex();                                                                          \n\
+                                                                                               \n\
+        gsOut_worldPos = pos + u_corner4;                                                      \n\
+        gsOut_uv = vec2(1.0, 1.0);                                                             \n\
+        gl_Position = " + worldToScreen + ";                                                   \n\
+        EmitVertex();                                                                          \n\
+    }                                                                                          \n\
 }");
 
     DataNodePtr voxelFragInput(new FragmentInputNode(VertexAttributes(3, 2, false, false)));

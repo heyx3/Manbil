@@ -2,15 +2,15 @@
 
 
 
-std::string UniformSubroutineValue::GetSubroutineDeclaration(void) const
+std::string SubroutineDefinition::GetDefinition(void) const
 {
     std::string ret = "subroutine ";
     
-    ret += VectorF(ReturnValueSize).GetGLSLType() + " " + SubroutineName + "(";
-    for (unsigned int i = 0; i < Parameters.size(); ++i)
+    ret += VectorF(ReturnValueSize).GetGLSLType() + " " + Name + "(";
+    for (unsigned int i = 0; i < Params.size(); ++i)
     {
         if (i > 0) ret += ", ";
-        ret += Parameters[i].GetDeclaration();
+        ret += Params[i].GetDeclaration();
     }
     ret += ");";
 
@@ -42,4 +42,10 @@ void UniformDictionary::ClearUniforms(void)
     MatrixUniforms.clear();
     TextureUniforms.clear();
     SubroutineUniforms.clear();
+}
+
+unsigned int UniformDictionary::GetNumbUniforms(void) const
+{
+    return FloatUniforms.size() + FloatArrayUniforms.size() + IntUniforms.size() + IntArrayUniforms.size() +
+           MatrixUniforms.size() + TextureUniforms.size() + SubroutineUniforms.size();
 }

@@ -12,7 +12,7 @@ class GUIElement
 {
 public:
 
-    //The different states a button can be in.
+    //The different states a GUIElement can be in.
     enum States
     {
         //Nothing is happening to the button.
@@ -25,6 +25,7 @@ public:
 
 
     static const std::string RenderedTextSamplerUniformName, BackgroundImageSamplerUniformName;
+    static UniformSubroutineValue GetElementStateSubroutine(void) { return elementStateSubroutine; }
 
 
     GUIScreen & Screen;
@@ -105,4 +106,7 @@ private:
     TextRenderer::FontSlot textRenderSlot;
     States state;
     std::string normalStateCoroutine, selectedStateCoroutine, clickedStateCoroutine;
+
+
+    static UniformSubroutineValue elementStateSubroutine;
 };

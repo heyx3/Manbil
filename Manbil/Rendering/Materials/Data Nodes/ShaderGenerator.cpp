@@ -65,6 +65,49 @@ void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool
         channels[RC::RC_Opacity] = DataLine(1.0f);
 }
 
+
+std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
+{
+    std::string decls;
+
+    //First define any subroutines so that they are separate from actual uniform declarations.
+    if (dict.SubroutineUniforms.size() > 0)
+    {
+        std::vector<SubroutineDefinition*> usedDefinitions;
+
+        decls += "//Subroutine definitions.\n";
+        for (auto iterator = dict.SubroutineUniforms.begin(); iterator != dict.SubroutineUniforms.end(); ++iterator)
+        {
+            if (std::find(usedDefinitions.begin(), usedDefinitions.end(), iterator->second.Definition.get()) == usedDefinitions.end())
+            {
+                decls += iterator->second.Definition->GetDefinition() + "\n";
+                usedDefinitions.insert(usedDefinitions.end(), iterator->second.Definition.get());
+            }
+        }
+        decls += "\n";
+    }
+
+    //Now handle the rest of the uniform types.
+    decls += "//Uniform declarations.\n";
+    for (auto iterator = dict.FloatUniforms.begin(); iterator != dict.FloatUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.FloatArrayUniforms.begin(); iterator != dict.FloatArrayUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.IntUniforms.begin(); iterator != dict.IntUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.IntArrayUniforms.begin(); iterator != dict.IntArrayUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.MatrixUniforms.begin(); iterator != dict.MatrixUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.TextureUniforms.begin(); iterator != dict.TextureUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.SubroutineUniforms.begin(); iterator != dict.SubroutineUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
+
+    return decls + "\n";
+}
+
+
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
                                            UniformDictionary & uniforms, const VertexAttributes & attribs,
                                            RenderingModes mode, bool useLighting, const LightSettings & settings,
@@ -123,7 +166,7 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
 
 
     //Next generate the vertex outputs.
-    code += "//Outputs to Fragment Shader.\n";
+    code += "//Shader outputs.\n";
     unsigned int n = data.OutputTypes.GetNumbOutputs();
     for (unsigned int i = 0; i < data.OutputTypes.GetNumbOutputs(); ++i)
     {
@@ -136,23 +179,7 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
 
     //Now generate the uniforms.
     code += "//Uniforms.\n";
-    for (auto iterator = data.Params.FloatUniforms.begin(); iterator != data.Params.FloatUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.FloatArrayUniforms.begin(); iterator != data.Params.FloatArrayUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.IntUniforms.begin(); iterator != data.Params.IntUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.IntArrayUniforms.begin(); iterator != data.Params.IntArrayUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.MatrixUniforms.begin(); iterator != data.Params.MatrixUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.TextureUniforms.begin(); iterator != data.Params.TextureUniforms.end(); ++iterator)
-        code += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = data.Params.SubroutineUniforms.begin(); iterator != data.Params.SubroutineUniforms.end(); ++iterator)
-    {
-        code += iterator->second.GetSubroutineDeclaration() + "\n";
-        code += iterator->second.GetUniformDeclaration() + "\n";
-    }
+    code += GenerateUniformDeclarations(data.Params) + "\n";
 
     //Finally, add the actual functions.
     code += "\n\n" + data.ShaderCode;
@@ -326,53 +353,13 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
 
 
     //Add in the uniforms to the shader code.
-
-    if (vertexUniformDict.FloatUniforms.size() + vertexUniformDict.FloatArrayUniforms.size() + vertexUniformDict.MatrixUniforms.size() + vertexUniformDict.TextureUniforms.size() > 0)
-    {
-        vertShader += "//Uniforms.\n";
-        for (auto iterator = vertexUniformDict.FloatUniforms.begin(); iterator != vertexUniformDict.FloatUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.FloatArrayUniforms.begin(); iterator != vertexUniformDict.FloatArrayUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.IntUniforms.begin(); iterator != vertexUniformDict.IntUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.IntArrayUniforms.begin(); iterator != vertexUniformDict.IntArrayUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.MatrixUniforms.begin(); iterator != vertexUniformDict.MatrixUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.TextureUniforms.begin(); iterator != vertexUniformDict.TextureUniforms.end(); ++iterator)
-            vertShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = vertexUniformDict.SubroutineUniforms.begin(); iterator != vertexUniformDict.SubroutineUniforms.end(); ++iterator)
-        {
-            vertShader += iterator->second.GetSubroutineDeclaration() + "\n";
-            vertShader += iterator->second.GetUniformDeclaration() + "\n";
-        }
-    }
-    if (fragmentUniformDict.FloatUniforms.size() + fragmentUniformDict.FloatArrayUniforms.size() + fragmentUniformDict.MatrixUniforms.size() + fragmentUniformDict.TextureUniforms.size() > 0)
-    {
-        fragShader += "//Uniforms.\n";
-        for (auto iterator = fragmentUniformDict.FloatUniforms.begin(); iterator != fragmentUniformDict.FloatUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.FloatArrayUniforms.begin(); iterator != fragmentUniformDict.FloatArrayUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.IntUniforms.begin(); iterator != fragmentUniformDict.IntUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.IntArrayUniforms.begin(); iterator != fragmentUniformDict.IntArrayUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.MatrixUniforms.begin(); iterator != fragmentUniformDict.MatrixUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.TextureUniforms.begin(); iterator != fragmentUniformDict.TextureUniforms.end(); ++iterator)
-            fragShader += iterator->second.GetDeclaration() + "\n";
-        for (auto iterator = fragmentUniformDict.SubroutineUniforms.begin(); iterator != fragmentUniformDict.SubroutineUniforms.end(); ++iterator)
-        {
-            fragShader += iterator->second.GetSubroutineDeclaration() + "\n";
-            fragShader += iterator->second.GetUniformDeclaration() + "\n";
-        }
-    }
+    if (vertexUniformDict.GetNumbUniforms() > 0)
+        vertShader += GenerateUniformDeclarations(vertexUniformDict);
+    if (fragmentUniformDict.GetNumbUniforms() > 0)
+        fragShader += GenerateUniformDeclarations(fragmentUniformDict);
 
 
     //Add in the helper functions to the shader code.
-
     if (vertexFunctionDecls.size() > 0)
     {
         vertShader += "\n\n//Helper functions.\n";
@@ -385,8 +372,8 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
         fragShader += "\n\n//Helper functions.\n";
         for (unsigned int i = 0; i < fragmentFunctionDecls.size(); ++i)
             fragShader += fragmentFunctionDecls[i] + "\n";
+        fragShader += "\n\n\n";
     }
-    fragShader += "\n\n\n";
 
 
     //Set up the main() functions.

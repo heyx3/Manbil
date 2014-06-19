@@ -99,16 +99,17 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     //Subroutines are a bit more complex to set up.
     for (auto iterator = dict.SubroutineUniforms.begin(); iterator != dict.SubroutineUniforms.end(); ++iterator)
     {
-        if (RenderDataHandler::GetSubroutineUniformLocation(shaderProg, iterator->second.Shader, iterator->first.c_str(), tempLoc))
+        if (RenderDataHandler::GetSubroutineUniformLocation(shaderProg, iterator->second.Definition->Shader, iterator->first.c_str(), tempLoc))
         {
             uniforms.SubroutineUniforms.insert(uniforms.SubroutineUniforms.end(),
                                                UniformList::Uniform(iterator->first, tempLoc));
 
-            //Get the ID of each subroutine function.
             UniformSubroutineValue & sb = dict.SubroutineUniforms[iterator->first];
             sb.Location = tempLoc;
+
+            //Get the ID of each subroutine function.
             for (unsigned int i = 0; i < sb.PossibleValueIDs.size(); ++i)
-                RenderDataHandler::GetSubroutineID(shaderProg, sb.Shader, sb.PossibleValues[i].c_str(), sb.PossibleValueIDs[i]);
+                RenderDataHandler::GetSubroutineID(shaderProg, sb.Definition->Shader, sb.PossibleValues[i].c_str(), sb.PossibleValueIDs[i]);
         }
     }
 
@@ -191,7 +192,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             RenderDataHandler::SetMatrixValue(iterator->second.Location, iterator->second.Value);
     for (auto iterator = params.SubroutineUniforms.begin(); iterator != params.SubroutineUniforms.end(); ++iterator)
         if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
-            RenderDataHandler::SetSubroutineValue(iterator->second.Location, iterator->second.Shader, iterator->second.PossibleValueIDs[iterator->second.ValueIndex]);
+            RenderDataHandler::SetSubroutineValue(iterator->second.Location, iterator->second.Definition->Shader, iterator->second.PossibleValueIDs[iterator->second.ValueIndex]);
     //Setting mesh texture sampler uniforms is a little more involved.
     int texUnit = 0;
     for (auto iterator = params.TextureUniforms.begin(); iterator != params.TextureUniforms.end(); ++iterator)
