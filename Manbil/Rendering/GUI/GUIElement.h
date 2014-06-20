@@ -2,12 +2,12 @@
 
 #include "TextRenderer.h"
 #include "GUIScreen.h"
+#include "../Materials/Data Nodes/DataLine.h"
 #include <string>
 
 
 //Represents a single element in the GUI.
-//TODO: GUI elements can be treated like particles. Use the HGP system to generate materials for GUI elements -- one material for the text rendering, and one for the background image rendering.
-//TODO: Finish this class.
+//TODO: GUI elements can be treated like particles. Use the HGP system to generate a material for the GUI stuff.
 class GUIElement
 {
 public:
@@ -23,9 +23,13 @@ public:
         GES_CLICKED,
     };
 
+    //Gets a DataLine that outputs a vec4 color of the text and background image sampled and blended.
+    static DataLine TextImageSampler(DataLine uvs, DataLine textScale,
+                                     DataLine imgColor = DataLine(Vector4f(1.0f, 1.0f, 1.0f, 1.0f)),
+                                     DataLine textColor = DataLine(Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
 
     static const std::string RenderedTextSamplerUniformName, BackgroundImageSamplerUniformName;
-    static UniformSubroutineValue GetElementStateSubroutine(void) { return elementStateSubroutine; }
+    //static std::shared_ptr<SubroutineDefinition> GetElementStateSubroutine(void) { return elementStateSubroutine; }
 
 
     GUIScreen & Screen;
@@ -108,5 +112,5 @@ private:
     std::string normalStateCoroutine, selectedStateCoroutine, clickedStateCoroutine;
 
 
-    static UniformSubroutineValue elementStateSubroutine;
+    //static std::shared_ptr<SubroutineDefinition> elementStateSubroutine;
 };
