@@ -12,7 +12,7 @@ class ShaderGenerator
 {
 public:
 
-    //TODO: Refactor shader generation to use the following structures instead of the rendering channels thing.
+    //PRIORITY: Refactor shader generation to use the a MaterialOutputs instance instead of the unordered_map of RenderingChannels.
 
     //An output of a shader.
     struct ShaderOutput
