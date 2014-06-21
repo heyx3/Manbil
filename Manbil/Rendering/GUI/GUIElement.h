@@ -23,13 +23,24 @@ public:
         GES_CLICKED,
     };
 
+
+    static const std::string RenderedTextSamplerUniformName, BackgroundImageSamplerUniformName;
+    static const std::string ButtonTimeUniformName;
+    static const std::string WorldPosSubroutineName, WorldPosSubroutineUniformName,
+                             RotationSubroutineName, RotationSubroutineUniformName,
+                             ColorSubroutineName, ColorSubroutineUniformName,
+                             SizeSubroutineName, SizeSubroutineUniformName;
+    static const std::string WorldPos_Normal_SubroutineFuncName, WorldPos_Selected_SubroutineFuncName, WorldPos_Clicked_SubroutineFuncName,
+                             Rotation_Normal_SubroutineFuncName, Rotation_Selected_SubroutineFuncName, Rotation_Clicked_SubroutineFuncName,
+                             Color_Normal_SubroutineFuncName, Color_Selected_SubroutineFuncName, Color_Clicked_SubroutineFuncName,
+                             Size_Normal_SubroutineFuncName, Size_Selected_SubroutineFuncName, Size_Clicked_SubroutineFuncName;
+
+
     //Gets a DataLine that outputs a vec4 color of the text and background image sampled and blended.
+    //TODO: Take in a DataLine for the rendered text width/height, and an argument about text alignment.
     static DataLine TextImageSampler(DataLine uvs, DataLine textScale,
                                      DataLine imgColor = DataLine(Vector4f(1.0f, 1.0f, 1.0f, 1.0f)),
                                      DataLine textColor = DataLine(Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
-
-    static const std::string RenderedTextSamplerUniformName, BackgroundImageSamplerUniformName;
-    //static std::shared_ptr<SubroutineDefinition> GetElementStateSubroutine(void) { return elementStateSubroutine; }
 
 
     GUIScreen & Screen;
@@ -83,17 +94,54 @@ public:
     {
         if (newState != state)
         {
-            //TODO: Implement subroutine uniform for the different GUIElement states.
             state = newState;
             switch (state)
             {
                 case GES_NORMAL:
 
-                    break;
-                case GES_SELECTED:
+                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Normal_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Normal_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(RotationSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(SizeSubroutineUniformName, Size_Normal_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(SizeSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(ColorSubroutineUniformName, Color_Normal_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(ColorSubroutineUniformName, index);
 
                     break;
+
+                case GES_SELECTED:
+
+                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Selected_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Selected_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(RotationSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(SizeSubroutineUniformName, Size_Selected_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(SizeSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(ColorSubroutineUniformName, Color_Selected_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(ColorSubroutineUniformName, index);
+
+                    break;
+
                 case GES_CLICKED:
+
+                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Clicked_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Clicked_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(RotationSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(SizeSubroutineUniformName, Size_Clicked_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(SizeSubroutineUniformName, index);
+
+                    index = GetFunctionIDIndex(ColorSubroutineUniformName, Color_Clicked_SubroutineFuncName);
+                    if (index < 3) SetSubroutineFunctionID(ColorSubroutineUniformName, index);
 
                     break;
                 
@@ -111,6 +159,8 @@ private:
     States state;
     std::string normalStateCoroutine, selectedStateCoroutine, clickedStateCoroutine;
 
-
-    //static std::shared_ptr<SubroutineDefinition> elementStateSubroutine;
+    //Returns the number of possible values (i.e. 3) if the given uniform or function isn't found.
+    unsigned int GetFunctionIDIndex(std::string uniformName, std::string functionName) const;
+    //Returns whether this operation was successful.
+    bool SetSubroutineFunctionID(std::string subroutineUniform, unsigned int index);
 };
