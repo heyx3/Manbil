@@ -6,9 +6,45 @@
 #include <string>
 
 
+
+//Represents a single element in a UI.
+//It has a background texture and a collision box relative to the background image.
+class GUIElement
+{
+public:
+
+    //The background texture of the element.
+    ManbilTexture BackgroundTex;
+    //The width/height of the collision box, not including the width/height of the background texture.
+    Vector2i CollDimensionsExtra;
+    //The offset of the collision box, relative to the center of the background texture.
+    Vector2i CollCenterOffset;
+    
+
+    GUIElement(ManbilTexture backgroundTex, Vector2i collDimensionsExtra, Vector2i collCenterOffset)
+        : BackgroundTex(backgroundTex), CollDimensionsExtra(collDimensionsExtra), CollCenterOffset(collCenterOffset)
+    {
+
+    }
+
+
+    //Gets the total width/height of the collision box.
+    Vector2i GetCollisionDimensions(void) const
+    {
+        return CollDimensionsExtra + BackgroundTex.GetSize();
+    }
+};
+
+
+
+
+
+
+
+
 //Represents a single element in the GUI.
 //TODO: GUI elements can be treated like particles. Use the HGP system to generate a material for the GUI stuff.
-class GUIElement
+class GUIElement2
 {
 public:
 
@@ -52,7 +88,7 @@ public:
     UniformDictionary RenderParams;
 
 
-    GUIElement(TextRenderer & textRenderer, GUIScreen & screen,
+    GUIElement2(TextRenderer & textRenderer, GUIScreen & screen,
                std::string _normalStateCoroutine, std::string _selectedStateCoroutine, std::string _clickedStateCoroutine,
                TextRenderer::FontSlot _textRenderSlot = TextRenderer::FontSlot())
         : TextRender(textRenderer), Screen(screen), textRenderSlot(_textRenderSlot), state(GES_NORMAL),
