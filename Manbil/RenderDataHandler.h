@@ -89,6 +89,11 @@ public:
     //Generates mipmaps for a texture that has already been created.
     static void GenerateTexture2DMipmaps(RenderObjHandle texture);
 
+    //Gets the width/height of the given texture, or { -1, -1 } if the given texture doesn't exist.
+    static Vector2i GetTextureDimensions(RenderObjHandle texture);
+
+    //Gets the texture data.
+    static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor);
     //Sets the texture data using a default color.
     static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color);
     //Sets the texture data using a default color.
@@ -99,6 +104,7 @@ public:
 	static void SetTexture2DDataUBytes(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData = 0);
 	//Sets the texture data using an SFML Image.
 	static void SetTexture2DData(RenderObjHandle texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
+
 	//Sets the given depth texture to the given size.
 	static void SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i size);
 	//Deletes a texture object.
