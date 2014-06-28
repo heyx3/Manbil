@@ -25,7 +25,9 @@ public:
     };
 
 
-    //TODO: Support for "\n".
+    //TODO: Support text wrapping by changing the rendering algorithm. Render each character of a word into a separate texture and track the layout info, then see if the word will go off the right side of the texture. If so, start a new line there (also start a new line if the '\n' character is found).
+    //ManbilTexture GetCharTextureHolder(unsigned int texture) { if (textures.size() <= texture) textures.insert(etc.....
+
 
     //Must be called before rendering any text.
     static std::string InitializeSystem(SFMLOpenGLWorld * world);
