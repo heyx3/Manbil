@@ -2,7 +2,6 @@
 
 #include "OpenGLIncludes.h"
 #include "RenderDataHandler.h"
-#include <SFML/Graphics/Texture.hpp>
 
 
 //Handles manipulation of OpenGL textures.
@@ -63,11 +62,6 @@ public:
     void SetWrappingData(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetWrappingData(); }
     void SetFilteringData(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetFilteringData(); }
     void SetMipmaps(RenderObjHandle glTex) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); SetMipmaps(); }
-
-    void SetData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetData(); }
-    void SetWrappingData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetWrappingData(); }
-    void SetFilteringData(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetFilteringData(); }
-    void SetMipmaps(sf::Texture * sfmlTex) const { sf::Texture::bind(sfmlTex); SetMipmaps(); }
 
 
 private:

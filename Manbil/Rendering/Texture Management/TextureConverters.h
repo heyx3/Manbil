@@ -1,19 +1,60 @@
 #pragma once
 
+#include <SFML/Graphics/Image.hpp>
 #include "../../Math/Array2D.h"
 #include "TextureChannels.h"
-#include <SFML/Graphics/Image.hpp>
 
 #pragma warning(disable: 4100)
 
-//Helps convert between images and 2d arrays.
+//Converts between sf::Images/sf::Textures/(OpenGL textures) and arrays.
 class TextureConverters
+{
+public:
+
+    static void ToArray(const sf::Image & inImg, Array2D<Vector4b> & colorOut)
+    {
+        colorOut.Reset(inImg.getSize().x, inImg.getSize().y);
+
+        for (Vector2i loc; loc.y < colorOut.GetHeight(); ++loc.y)
+            for (loc.x = 0; loc.x < colorOut.GetWidth(); ++loc.x)
+                colorOut[loc] = ToVector(inImg.getPixel((unsigned int)loc.x, (unsigned int)loc.y));
+    }
+    static void ToArray(const sf::Texture & inTex, Array2D<Vector4b> & colorOut)
+    {
+        return ToArray(inTex.copyToImage(), colorOut);
+    }
+    static void ToArray(RenderObjHandle inTex, Array2D<Vector4b> & colorOut)
+    {
+        RenderDataHandler::GetTexture2DData(inTex, Vector2i((int)colorOut.GetWidth(), (int)colorOut.GetHeight()), colorOut);
+    }
+
+    static void ToImage(const Array2D<Vector4b> & inColor, sf::Image & outImg)
+    {
+        outImg.create(inColor.GetWidth(), inColor.GetHeight(), (sf::Uint8*)inColor.GetArray());
+    }
+    static void ToTexture(const Array2D<Vector4b> & inColor, sf::Texture & outTex)
+    {
+        outTex.update((sf::Uint8*)inColor.GetArray());
+    }
+    static void ToTexture(const Array2D<Vector4b> & inColor, RenderObjHandle outTex)
+    {
+        RenderDataHandler::SetTexture2DDataUBytes(outTex, Vector2i((int)inColor.GetWidth(), (int)inColor.GetHeight()), (void*)inColor.GetArray());
+    }
+
+private:
+
+    static Vector4b ToVector(sf::Color inCol) { return Vector4b(inCol.r, inCol.g, inCol.b, inCol.a); }
+    static sf::Color ToColor(Vector4b inCol) { return sf::Color(inCol.x, inCol.y, inCol.z, inCol.w); }
+};
+
+
+/*
+//Helps convert between SFML images and 2d arrays.
+class TextureConvertersSFML
 {
 public:
     
     typedef unsigned char UByte;
-
-    //TODO: Option to load directly into sf::Texture instead of sf::Image.
 
     static void ToArray(const sf::Image & inImg, Array2D<Vector3b> & colorOut) { WriteArray<Vector3b>(inImg, colorOut, [](sf::Color col) { return Vector3b(col.r, col.g, col.b); }); }
     static void ToArray(const sf::Image & inImg, Array2D<Vector4b> & textureOut) { WriteArray<Vector4b>(inImg, textureOut, [](sf::Color col) { return Vector4b(col.r, col.g, col.b, col.a); }); }
@@ -71,5 +112,6 @@ private:
         }
     }
 };
+*/
 
 #pragma warning(default: 4100)

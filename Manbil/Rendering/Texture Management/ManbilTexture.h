@@ -1,9 +1,100 @@
 #pragma once
 
 #include "../../TextureSettings.h"
+#include "TextureConverters.h"
+
+
+//Wraps all functionality for a texture.
+struct ManbilTexture1
+{
+public:
+
+    ManbilTexture1(void) : glTex(0) { }
+    ~ManbilTexture1(void) { RenderDataHandler::DeleteTexture2D(glTex); }
+
+
+    void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); }
+
+
+    void Create(unsigned int width, unsigned int height)
+    {
+        if (glTex != 0) RenderDataHandler::DeleteBuffer(glTex);
+        RenderDataHandler::CreateTexture2D(glTex, Vector2i((int)width, (int)height));
+        texWidth = width;
+        texHeight = height;
+    }
+
+    void SetData(const Array2D<Vector4b> & inColor)
+    {
+        texWidth = inColor.GetWidth();
+        texHeight = inColor.GetHeight();
+        TextureConverters::ToTexture(inColor, glTex);
+    }
+    void SetData(const Array2D<Vector4f> & inColor)
+    {
+        texWidth = inColor.GetWidth();
+        texHeight = inColor.GetHeight();
+        RenderDataHandler::SetTexture2DDataFloats(glTex, Vector2i((int)texWidth, (int)texHeight), (void*)inColor.GetArray());
+    }
+
+
+    void SetWrapping(TextureSettings::TextureWrapping wrap) { SetWrapping(wrap, wrap); }
+    void SetWrapping(TextureSettings::TextureWrapping horz, TextureSettings::TextureWrapping vert)
+    {
+        settings.HorWrap = horz;
+        settings.VertWrap = vert;
+        settings.SetWrappingData(glTex);
+    }
+
+    void SetFiltering(TextureSettings::TextureFiltering filter) { SetFiltering(filter, filter); }
+    void SetFiltering(TextureSettings::TextureFiltering min, TextureSettings::TextureFiltering mag)
+    {
+        settings.MinFilter = min;
+        settings.MagFilter = mag;
+        settings.SetFilteringData(glTex);
+    }
+
+    void SetMipmapping(bool useMipmapping)
+    {
+        settings.GenerateMipmaps = useMipmapping;
+        if (useMipmapping) RenderDataHandler::GenerateTexture2DMipmaps(glTex);
+    }
+
+
+    bool IsValid(void) const { return (glTex != 0); }
+
+    const TextureSettings & GetSettings(void) const { return settings; }
+
+    unsigned int GetWidth(void) const { return texWidth; }
+    unsigned int GetHeight(void) const { return texHeight; }
+
+    
+private:
+
+    RenderObjHandle glTex;
+    TextureSettings settings;
+    unsigned int texWidth, texHeight;
+};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 //A texture value that can be either an OpenGL texture or an SFML texture.
 //If both the "SFML texture" and "OpenGL texture" values are set,
 //    the value that takes priority is the OpenGL texture.
@@ -93,10 +184,21 @@ public:
     }
 
     //Returns false if neither texture type is set to a valid texture.
-    bool GenerateMipmaps(void)
+    bool GenerateMipmaps(void) const
     {
         if (!BindTexture()) return false;
         TextureSettings::GenMipmaps();
         return true;
     }
+
+    //Returns { -1, -1 } if neither texture type is a valid texture.
+    Vector2i GetSize(void) const
+    {
+        if (UsesSFMLTex())
+            return Vector2i((int)SFMLTex->getSize().x, (int)SFMLTex->getSize().y);
+        else if (UsesGLTex())
+            return RenderDataHandler::GetTextureDimensions(GLTex);
+        else return Vector2i(-1, -1);
+    }
 };
+*/
