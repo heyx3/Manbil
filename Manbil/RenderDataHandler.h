@@ -94,6 +94,8 @@ public:
 
     //Gets the texture data.
     static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor);
+    //Gets the texture data.
+    static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4f> & outColor);
     //Sets the texture data using a default color.
     static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color);
     //Sets the texture data using a default color.

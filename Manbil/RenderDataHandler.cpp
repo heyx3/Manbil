@@ -163,6 +163,7 @@ void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle)
     glGenTextures(1, &texObjectHandle);
 }
 
+//PRIORITY: Refactor out parts of the render target color texture parameters and use those parameters for these texture functions too.
 void RenderDataHandler::CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size)
 {
 	glGenTextures(1, &texObjectHandle);
@@ -175,6 +176,12 @@ void RenderDataHandler::GetTexture2DData(RenderObjHandle texObjectHandle, Vector
     BindTexture(TextureTypes::Tex_TwoD, texObjectHandle);
     outColor.Reset((unsigned int)texSize.x, (unsigned int)texSize.y);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor.GetArray());
+}
+void RenderDataHandler::GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4f> & outColor)
+{
+    BindTexture(TextureTypes::Tex_TwoD, texObjectHandle);
+    outColor.Reset((unsigned int)texSize.x, (unsigned int)texSize.y);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
 }
 
 void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color)
