@@ -1,10 +1,11 @@
 #pragma once
 
-#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include "../../Math/Array2D.h"
 #include "TextureChannels.h"
 
 #pragma warning(disable: 4100)
+
 
 //Converts between sf::Images/sf::Textures/(OpenGL textures) and arrays.
 class TextureConverters
@@ -17,7 +18,7 @@ public:
 
         for (Vector2i loc; loc.y < colorOut.GetHeight(); ++loc.y)
             for (loc.x = 0; loc.x < colorOut.GetWidth(); ++loc.x)
-                colorOut[loc] = ToVector(inImg.getPixel((unsigned int)loc.x, (unsigned int)loc.y));
+                colorOut[loc] = ToVectorB(inImg.getPixel((unsigned int)loc.x, (unsigned int)loc.y));
     }
     static void ToArray(const sf::Texture & inTex, Array2D<Vector4b> & colorOut)
     {
@@ -41,10 +42,66 @@ public:
         RenderDataHandler::SetTexture2DDataUBytes(outTex, Vector2i((int)inColor.GetWidth(), (int)inColor.GetHeight()), (void*)inColor.GetArray());
     }
 
+
+    static void ToArray(const sf::Image & inImg, Array2D<Vector4f> & colorOut)
+    {
+        colorOut.Reset(inImg.getSize().x, inImg.getSize().y);
+
+        for (Vector2i loc; loc.y < colorOut.GetHeight(); ++loc.y)
+            for (loc.x = 0; loc.x < colorOut.GetWidth(); ++loc.x)
+                colorOut[loc] = ToVectorF(inImg.getPixel((unsigned int)loc.x, (unsigned int)loc.y));
+    }
+    static void ToArray(const sf::Texture & inTex, Array2D<Vector4f> & colorOut)
+    {
+        return ToArray(inTex.copyToImage(), colorOut);
+    }
+    static void ToArray(RenderObjHandle inTex, Array2D<Vector4f> & colorOut)
+    {
+        RenderDataHandler::GetTexture2DData(inTex, Vector2i((int)colorOut.GetWidth(), (int)colorOut.GetHeight()), colorOut);
+    }
+
+    static void ToImage(const Array2D<Vector4f> & inColor, sf::Image & outImg)
+    {
+        Array2D<Vector4b> valueBytes(0, 0);
+        valueBytes.Fill([&inColor](Vector2i loc, Vector4b * outVal)
+        {
+            Vector4f col = inColor[loc];
+            *outVal = Vector4b((unsigned char)BasicMath::RoundToInt(col.x * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.y * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.z * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.w * 255.0f));
+        });
+        outImg.create(inColor.GetWidth(), inColor.GetHeight(), (sf::Uint8*)valueBytes.GetArray());
+    }
+    static void ToTexture(const Array2D<Vector4f> & inColor, sf::Texture & outTex)
+    {
+        Array2D<Vector4b> valueBytes(0, 0);
+        valueBytes.Fill([&inColor](Vector2i loc, Vector4b * outVal)
+        {
+            Vector4f col = inColor[loc];
+            *outVal = Vector4b((unsigned char)BasicMath::RoundToInt(col.x * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.y * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.z * 255.0f),
+                               (unsigned char)BasicMath::RoundToInt(col.w * 255.0f));
+        });
+        outTex.update((sf::Uint8*)valueBytes.GetArray());
+    }
+    static void ToTexture(const Array2D<Vector4f> & inColor, RenderObjHandle outTex)
+    {
+        RenderDataHandler::SetTexture2DDataFloats(outTex, Vector2i((int)inColor.GetWidth(), (int)inColor.GetHeight()), (void*)inColor.GetArray());
+    }
+
 private:
 
-    static Vector4b ToVector(sf::Color inCol) { return Vector4b(inCol.r, inCol.g, inCol.b, inCol.a); }
+    static Vector4b ToVectorB(sf::Color inCol) { return Vector4b(inCol.r, inCol.g, inCol.b, inCol.a); }
     static sf::Color ToColor(Vector4b inCol) { return sf::Color(inCol.x, inCol.y, inCol.z, inCol.w); }
+
+    static Vector4f ToVectorF(sf::Color inCol)
+    {
+        const float divideBy255 = 1.0f / 255.0f;
+        return Vector4f(inCol.r * divideBy255, inCol.g * divideBy255, inCol.b * divideBy255, inCol.a * divideBy255);
+    }
+    static sf::Color ToColor(Vector4f inCol) { return sf::Color(inCol.x, inCol.y, inCol.z, inCol.w); }
 };
 
 

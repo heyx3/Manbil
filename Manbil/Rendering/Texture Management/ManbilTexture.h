@@ -10,18 +10,31 @@ struct ManbilTexture1
 public:
 
     ManbilTexture1(void) : glTex(0) { }
-    ~ManbilTexture1(void) { RenderDataHandler::DeleteTexture2D(glTex); }
+    ~ManbilTexture1(void)
+    {
+        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
+    }
+
+    //Intentionally not implemented.
+    ManbilTexture1(const ManbilTexture1 & cpy);
 
 
-    void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); }
-
-
+    void Create(void)
+    {
+        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
+    }
     void Create(unsigned int width, unsigned int height)
     {
-        if (glTex != 0) RenderDataHandler::DeleteBuffer(glTex);
+        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
         RenderDataHandler::CreateTexture2D(glTex, Vector2i((int)width, (int)height));
         texWidth = width;
         texHeight = height;
+    }
+
+    void Delete(void)
+    {
+        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
+        glTex = 0;
     }
 
     void SetData(const Array2D<Vector4b> & inColor)
@@ -35,6 +48,18 @@ public:
         texWidth = inColor.GetWidth();
         texHeight = inColor.GetHeight();
         RenderDataHandler::SetTexture2DDataFloats(glTex, Vector2i((int)texWidth, (int)texHeight), (void*)inColor.GetArray());
+    }
+    void SetData(const Vector4b color, unsigned int width, unsigned int height)
+    {
+        texWidth = width;
+        texHeight = height;
+        RenderDataHandler::SetTexture2DDataColor(glTex, Vector2i((int)texWidth, (int)texHeight), color);
+    }
+    void SetData(const Vector4f color, unsigned int width, unsigned int height)
+    {
+        texWidth = width;
+        texHeight = height;
+        RenderDataHandler::SetTexture2DDataColor(glTex, Vector2i((int)texWidth, (int)texHeight), color);
     }
 
 
@@ -60,11 +85,11 @@ public:
         if (useMipmapping) RenderDataHandler::GenerateTexture2DMipmaps(glTex);
     }
 
+    void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, glTex); }
 
     bool IsValid(void) const { return (glTex != 0); }
 
     const TextureSettings & GetSettings(void) const { return settings; }
-
     unsigned int GetWidth(void) const { return texWidth; }
     unsigned int GetHeight(void) const { return texHeight; }
 
