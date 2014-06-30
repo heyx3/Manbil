@@ -5,6 +5,8 @@
 #include "../Materials/Data Nodes/ShaderGenerator.h"
 
 
+//TODO: The number of particles doesn't need to be limited to a power of two; just size up their particle ID lookup textures to the next-largest power of two.
+
 //Generates a material that calculates and renders GPU particles from a vertex buffer of points.
 //The particles are purely kinematic (i.e. pre-computed and not affected by dynamic physics).
 //Each particle in the shader has a "Particle ID" -- a vec2 that is unique to each particle.
