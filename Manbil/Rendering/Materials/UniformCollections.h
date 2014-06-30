@@ -195,12 +195,12 @@ public:
 struct UniformSamplerValue
 {
 public:
-    ManbilTexture Texture;
+    ManbilTexture1 * Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(ManbilTexture texture, std::string name, UniformLocation loc = -1)
+    UniformSamplerValue(ManbilTexture1 * texture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
-    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture() { }
+    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
