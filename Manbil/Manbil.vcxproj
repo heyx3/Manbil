@@ -327,6 +327,8 @@
     <ClInclude Include="Rendering\PrimitiveGenerator.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
     <ClInclude Include="Rendering\Texture Management\ManbilTexture.h" />
+    <ClInclude Include="Rendering\Texture Management\MTexture.h" />
+    <ClInclude Include="Rendering\Texture Management\MTextureManager.h" />
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />

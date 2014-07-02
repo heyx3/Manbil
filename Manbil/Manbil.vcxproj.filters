@@ -790,6 +790,12 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\MTexture.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\MTextureManager.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
