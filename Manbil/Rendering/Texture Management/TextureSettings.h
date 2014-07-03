@@ -12,13 +12,6 @@ struct TextureSettings
 {
 public:
 
-    //Generates mipmaps for the currently-bound texture.
-    static void GenerateMipmaps(void)
-    {
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
-
     //The types of texture filtering.
     enum FilteringTypes
     {

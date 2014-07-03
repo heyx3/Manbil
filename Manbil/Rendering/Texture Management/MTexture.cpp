@@ -80,8 +80,7 @@ void MTexture::GenerateMipmaps(void)
     if (IsValidTexture())
     {
         hasMipmaps = true;
-        Bind();
-        TextureSettings::GenerateMipmaps();
+        RenderDataHandler::GenerateTexture2DMipmaps(texHandle);
         settings.ApplyFilter(true);
     }
 }
