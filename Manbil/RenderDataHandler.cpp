@@ -215,21 +215,11 @@ void RenderDataHandler::SetTexture2DDataPixels(RenderObjHandle texObjectHandle, 
         glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-
-void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
-{
-	glGenTextures(1, &depthTexObjHandle);
-	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(settings.Size), settings.Width, settings.Height, 0,
-                 GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-}
-
 void RenderDataHandler::GenerateTexture2DMipmaps(RenderObjHandle texture)
 {
     BindTexture(TextureTypes::Tex_TwoD, texture);
     glGenerateMipmap(GL_TEXTURE_2D);
 }
-
 Vector2i RenderDataHandler::GetTextureDimensions(RenderObjHandle texture)
 {
     BindTexture(TextureTypes::Tex_TwoD, texture);
@@ -240,16 +230,20 @@ Vector2i RenderDataHandler::GetTextureDimensions(RenderObjHandle texture)
     return size;
 }
 
-void RenderDataHandler::SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i texSize)
+void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
 {
-	glBindTexture(GL_TEXTURE_2D, texObjHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texSize.x, texSize.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glGenTextures(1, &depthTexObjHandle);
+	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
+	glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(settings.Size),
+                 settings.Width, settings.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
 }
 
 void RenderDataHandler::DeleteTexture2D(RenderObjHandle & texObjHandle)
 {
 	glDeleteTextures(1, &texObjHandle);
 }
+
 
 RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(const RenderObjHandle & fbo)
 

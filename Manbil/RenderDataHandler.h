@@ -4,7 +4,7 @@
 #include "Math/Matrix4f.h"
 #include "Math/Array2D.h"
 #include "ShaderHandler.h"
-#include "Rendering/Texture Management/TextureLoadSettings.h"
+#include "Rendering/Texture Management/TextureSettings.h"
 #include <SFML/Graphics/Image.hpp>
 
 
@@ -118,8 +118,6 @@ public:
     //Gets the width/height of the given texture, or { -1, -1 } if the given texture doesn't exist.
     static Vector2i GetTextureDimensions(RenderObjHandle texture);
 
-	//Sets the given depth texture to the given size.
-	static void SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i size);
 	//Deletes a texture object.
 	static void DeleteTexture2D(RenderObjHandle & texObjHandle);
 	//Sets a texture object as the active one.
