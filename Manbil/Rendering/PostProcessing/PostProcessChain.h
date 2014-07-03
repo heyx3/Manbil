@@ -9,6 +9,9 @@
 #pragma warning(disable: 4512)
 
 
+//TODO: Change from a piggy-backed DataNode system to a higher-level system -- a list of PostProcessEffects, each with their own behaviors/rendering material/uniforms. For example, a GaussianBlurEffect or a "SimpleEffect" (which is a combination of all the effects that can be simply done in one pass).
+
+
 //Represents a special kind of material (actually an arbitrary number of materials)
 //   that applies a series of post-processing effects to the screen.
 //This class holds a DrawingQuad instance used for rendering the effects.
