@@ -184,11 +184,13 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     cts.Settings.Width = width;
     cts.Settings.Height = height;
     cts.Settings.Size = ColorTextureSettings::CTS_32;
-    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    cts.Settings.GenerateMipmaps = false;
+    cts.Settings.BaseSettings = TextureSettings(TextureSettings::MTF_NEAREST, TextureSettings::MTF_CLAMP);
     RendTargetDepthTexSettings dts;
     dts.UsesDepthTexture = true;
     dts.Settings.Size = DepthTextureSettings::DTS_24;
-    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    dts.Settings.GenerateMipmaps = false;
+    dts.Settings.BaseSettings = TextureSettings(TextureSettings::MTF_NEAREST, TextureSettings::MTF_CLAMP);
 
     //Create needed render targets for rendering the post-process effect.
     if (materials.size() > 0)
