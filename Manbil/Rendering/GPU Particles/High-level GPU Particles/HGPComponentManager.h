@@ -10,12 +10,11 @@ class HGPComponentManager
 {
 public:
 
-    TextureManager & Manager;
     UniformDictionary & Params;
 
 
-    HGPComponentManager(TextureManager & texManager, UniformDictionary & params)
-        : Manager(texManager), Params(params)
+    HGPComponentManager(UniformDictionary & params)
+        : Params(params)
     {
         HGPComponentManager & thisM = *this;
         worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
