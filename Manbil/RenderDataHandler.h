@@ -60,11 +60,7 @@ public:
 
         //Set texture settings.
         if (settings.GenerateMipmaps)
-        {
-            //TODO: Pretty sure this can be removed, as well as the one underneath in the "float" version of this function, and in the RenderingState class.
-            glEnable(GL_TEXTURE_2D);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
+            GenerateTexture2DMipmaps(outTexHandle);
         settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
     }
     //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4f * outPixel)".
@@ -82,10 +78,7 @@ public:
 
         //Set texture settings.
         if (settings.GenerateMipmaps)
-        {
-            glEnable(GL_TEXTURE_2D);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
+            GenerateTexture2DMipmaps(outTexHandle);
         settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
     }
 

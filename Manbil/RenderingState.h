@@ -81,6 +81,7 @@ public:
     //Whether to use blending (for objects that are partially see-through).
     bool UseBlending;
     //Whether to enable the use of textures.
+    //TODO: This is unnecessary; it was part of the fixed-function pipeline. Remove it.
     bool UseTextures;
 
     //Rendering state that uses blending.

@@ -7,7 +7,9 @@ GLint TextureSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
                 ((minFilter && genMips) ?
                      GL_LINEAR_MIPMAP_LINEAR :
                      GL_LINEAR) :
-                GL_NEAREST;
+                ((minFilter && genMips) ?
+                     GL_NEAREST_MIPMAP_LINEAR :
+                     GL_NEAREST);
 }
 GLint TextureSettings::ToGLInt(WrappingTypes twa)
 {
