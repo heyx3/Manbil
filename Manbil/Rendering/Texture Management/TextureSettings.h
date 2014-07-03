@@ -24,10 +24,20 @@ public:
     };
 
 
-    FilteringTypes MinFilter = FilteringTypes::MTF_NEAREST,
-                   MagFilter = FilteringTypes::MTF_NEAREST;
-    WrappingTypes HorzWrap = WrappingTypes::MTF_WRAP,
-                  VertWrap = WrappingTypes::MTF_WRAP;
+    FilteringTypes MinFilter, MagFilter;
+    WrappingTypes HorzWrap, VertWrap;
+
+
+    TextureSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert)
+        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert)
+    {
+
+    }
+    TextureSettings(FilteringTypes filter = FilteringTypes::MTF_NEAREST, WrappingTypes wrap = WrappingTypes::MTF_WRAP)
+        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap)
+    {
+
+    }
 
 
     //Sets the currently-bound texture to use this setting's min filter.
