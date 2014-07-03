@@ -3,7 +3,6 @@
 #include "SFML/Window.hpp"
 #include "SFML/Graphics.hpp"
 #include "Input/InputManager.h"
-#include "Rendering/Texture Management/TextureManager.h"
 #include "Events/Timing.h"
 
 
@@ -34,8 +33,7 @@ public:
 
     InputManager<unsigned int> Input;
     TimerManager Timers;
-    TextureManager Textures;
-    //TODO: Move the TextureManager into SFMLOpenGLWorld, because it uses OpenGL stuff.
+
 
 protected:
 
@@ -56,6 +54,7 @@ protected:
 	virtual void OnWorldEnd(void) { }
 
 #pragma warning(default: 4100)
+
 
 private:
 
