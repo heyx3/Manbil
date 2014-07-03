@@ -7,10 +7,6 @@ typedef sf::Clock Clock;
 
 void SFMLWorld::RunWorld(void)
 {
-	//sfguiWindow = sfg::Window::Create();
-	//sfguiDesktop.Add(sfguiWindow);
-	
-
 	window = new sf::RenderWindow(sf::VideoMode(windowWidth, windowHeight), "World window", sf::Style::Default, contextSettings);
 	Clock cl = Clock();
 
@@ -41,8 +37,6 @@ void SFMLWorld::RunWorld(void)
 			{
 				OnOtherWindowEvent(windowEvent);
 			}
-
-			//sfgui.HandleEvent(windowEvent);
 		}
 
 		//Get elapsed time.
@@ -57,7 +51,6 @@ void SFMLWorld::RunWorld(void)
 		//Update and render.
 		if (elapsed > 0.0f)
 		{
-			//sfguiDesktop.Update(elapsed);
 			UpdateWorld(elapsed);
 
 			RenderWorld(elapsed);
