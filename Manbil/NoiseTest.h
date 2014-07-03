@@ -2,9 +2,10 @@
 
 #include "sfmlworld.h"
 #include "SFML/Graphics.hpp"
-
 #include "Math/Array2D.h"
 
+
+//Tests random noise generation.
 class NoiseTest : public SFMLWorld
 {
 public:

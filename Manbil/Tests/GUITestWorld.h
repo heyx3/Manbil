@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../SFMLOpenGLWorld.h"
-
 #include "../Rendering/Helper Classes/DrawingQuad.h"
 
 
@@ -17,6 +16,7 @@ public:
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
+
 
 protected:
 
