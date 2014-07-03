@@ -154,7 +154,6 @@ RenderTarget::~RenderTarget(void)
 }
 
 
-
 void RenderTarget::EnableDrawingInto(void) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -164,4 +163,10 @@ void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, w, h);
+
+    //The user of this render target presumably just finished writing to it, so render depth mipmaps.
+    if (depthTexSetts.UsesDepthTexture && depthTexSetts.Settings.GenerateMipmaps)
+    {
+        RenderDataHandler::GenerateTexture2DMipmaps(depthTex);
+    }
 }
