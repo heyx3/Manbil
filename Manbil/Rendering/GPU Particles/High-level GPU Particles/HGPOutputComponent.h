@@ -73,7 +73,6 @@ class HGPOutputComponent
 public:
 
     HGPComponentManager & Manager;
-    TextureManager & GetTexManager(void) const { return HGPGlobalData::GetTexManager(Manager); }
     UniformDictionary & GetParams(void) const { return HGPGlobalData::GetParams(Manager); }
 
 
