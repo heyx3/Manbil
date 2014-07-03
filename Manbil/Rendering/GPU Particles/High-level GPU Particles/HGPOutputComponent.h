@@ -4,7 +4,7 @@
 
 #include "../../../Math/Higher Math/Gradient.h"
 #include "../../Materials/UniformCollections.h"
-#include "../../Texture Management/TextureManager.h"
+#include "../../Texture Management/MTexture.h"
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../GPUParticleDefines.h"
 #include "../../Texture Management/TextureConverters.h"
@@ -38,7 +38,6 @@ namespace HGPGlobalData
     extern const std::string ParticleElapsedTimeUniformName;
     extern const DataLine ParticleElapsedTime;
 
-    extern TextureManager & GetTexManager(HGPComponentManager & manager);
     extern UniformDictionary & GetParams(HGPComponentManager & manager);
     extern const DataLine & GetTimeLerp(HGPComponentManager & manager);
 }
@@ -49,10 +48,12 @@ struct HGPTextureQuality
 {
 public:
 
-    TextureSettings::TextureFiltering FilterQuality;
+    TextureSettings::FilteringTypes FilterQuality;
+    ColorTextureSettings::Sizes PixelSize;
     unsigned int Width;
-    HGPTextureQuality(TextureSettings::TextureFiltering filterQuality, unsigned int width)
-        : FilterQuality(filterQuality), Width(width)
+
+    HGPTextureQuality(TextureSettings::FilteringTypes filterQuality, ColorTextureSettings::Sizes pixelSize, unsigned int width)
+        : FilterQuality(filterQuality), PixelSize(pixelSize), Width(width)
     {
 
     }
@@ -276,9 +277,7 @@ public:
     virtual void InitializeComponent(void) override
     {
         //Create the texture.
-        lookupTexID = GetTexManager().CreateTexture();
-        Assert(std::string() + "Texture creation failed. Texture width: " + std::to_string(gradientTexQuality.Width),
-               lookupTexID != TextureManager::UNUSED_ID);
+        gradientTex.Create(ColorTextureSettings(1, 1, gradientTexQuality.PixelSize, false, TextureSettings(gradientTexQuality.FilterQuality, TextureSettings::WT_CLAMP)));
 
         //Generate the texture data.
         Array2D<VectorF> texOut(gradientTexQuality.Width, 1);
@@ -318,22 +317,13 @@ public:
 
             default: assert(false);
         }
-        ManbilTexture1 * tex = GetTexManager()[lookupTexID];
-        Assert("Uh-oh: texture was not found in the manager immediately after succesfully creating it!", tex != 0);
-        tex->SetData(texColor4f);
-
-        //Set the texture quality.
-        tex->SetFiltering(gradientTexQuality.FilterQuality);
-        tex->SetWrapping(TextureSettings::TextureWrapping::TW_CLAMP);
+        gradientTex.SetData(texColor4f);
 
         //Set the texture data.
-        Params.TextureUniforms[GetSamplerName()].Texture = tex;
+        GetParams().TextureUniforms[GetSamplerName()].Texture = gradientTex.GetTextureHandle();
 
     }
-    virtual void UpdateComponent(void) override
-    {
-        Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
-    }
+
 
 protected:
 
@@ -354,6 +344,7 @@ protected:
         }
     }
 
+
 private:
 
     //Given a float array of size "LookupTextureWidth", fills it with the values of the gradient.
@@ -367,7 +358,7 @@ private:
     Gradient<ComponentSize> gradientValue;
     HGPTextureQuality gradientTexQuality;
 
-    unsigned int lookupTexID;
+    MTexture gradientTex;
 };
 
 
