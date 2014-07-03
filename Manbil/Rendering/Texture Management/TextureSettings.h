@@ -12,15 +12,15 @@ public:
     //The types of texture filtering.
     enum FilteringTypes
     {
-        MTF_NEAREST,
-        MTF_LINEAR,
+        FT_NEAREST,
+        FT_LINEAR,
     };
 
     //The types of texture wrapping.
     enum WrappingTypes
     {
-        MTF_CLAMP,
-        MTF_WRAP,
+        WT_CLAMP,
+        WT_WRAP,
     };
 
 
@@ -33,7 +33,7 @@ public:
     {
 
     }
-    TextureSettings(FilteringTypes filter = FilteringTypes::MTF_NEAREST, WrappingTypes wrap = WrappingTypes::MTF_WRAP)
+    TextureSettings(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP)
         : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap)
     {
 

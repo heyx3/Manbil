@@ -3,7 +3,7 @@
 
 GLint TextureSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
 {
-    return (tf == FilteringTypes::MTF_LINEAR) ?
+    return (tf == FilteringTypes::FT_LINEAR) ?
                 ((minFilter && genMips) ?
                      GL_LINEAR_MIPMAP_LINEAR :
                      GL_LINEAR) :
@@ -11,7 +11,7 @@ GLint TextureSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
 }
 GLint TextureSettings::ToGLInt(WrappingTypes twa)
 {
-    return (twa == WrappingTypes::MTF_CLAMP) ?
+    return (twa == WrappingTypes::WT_CLAMP) ?
                 GL_CLAMP_TO_EDGE :
                 GL_REPEAT;
 }
