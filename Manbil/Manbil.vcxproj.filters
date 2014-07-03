@@ -158,9 +158,6 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="TextureSettings.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
@@ -320,6 +317,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUIElement.cpp">
       <Filter>Rendering\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\MTexture.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp">
+      <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -532,9 +535,6 @@
     </ClInclude>
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureSettings.h">
-      <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h">
       <Filter>Rendering\Texture Management</Filter>
@@ -793,7 +793,7 @@
     <ClInclude Include="Rendering\Texture Management\MTexture.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\MTextureManager.h">
+    <ClInclude Include="Rendering\Texture Management\TextureSettings.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>

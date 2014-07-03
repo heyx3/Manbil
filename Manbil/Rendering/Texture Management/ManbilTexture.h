@@ -3,21 +3,51 @@
 #include "../../TextureSettings.h"
 #include "TextureConverters.h"
 
-
+/*
 //Wraps all functionality for a texture.
 struct ManbilTexture1
 {
 public:
 
+
+    //Creates an instance with no texture yet.
     ManbilTexture1(void) : glTex(0) { }
-    ~ManbilTexture1(void)
+    //Creates an instance with the given texture. May or may not be responsible for deleting the given texture.
+    ManbilTexture1(RenderObjHandle texture, TextureSettings settings, unsigned int width, unsigned int height, bool responsibleForDeletion)
+        : glTex(texture), settings(settings), responsibleForMemory(responsibleForDeletion), texWidth(width), texHeight(height)
     {
-        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
+    
+    }
+    //Creates another reference to the same texture.
+    //IMPORTANT NOTE: the copied instance isn't responsible for texture deletion!
+    //IMPORTANT NOTE: changing the width/height/settings of any instance will not carry over into any other copy instance!
+    ManbilTexture1(const ManbilTexture1 & cpy)
+        : glTex(cpy.glTex), settings(cpy.settings), responsibleForMemory(false), texWidth(cpy.texWidth), texHeight(cpy.texHeight)
+    {
+
     }
 
-    //Intentionally not implemented.
-    ManbilTexture1(const ManbilTexture1 & cpy);
+    ~ManbilTexture1(void)
+    {
+        Delete();
+    }
 
+
+    //Removes texture data from this texture and puts it into the given one.
+    //Deletes the old texture data in "newHolder" if it exists.
+    //This operation does not involve anything potentially expensive except
+    //    for the deletion of the old OpenGL texture held in "newHolder".
+    void TransferTo(ManbilTexture1 & newHolder)
+    {
+        newHolder.Delete();
+
+        newHolder.glTex = glTex;
+        newHolder.settings = settings;
+        newHolder.texWidth = texWidth;
+        newHolder.texHeight = texHeight;
+
+        glTex = 0;
+    }
 
     void Create(void)
     {
@@ -31,11 +61,22 @@ public:
         texHeight = height;
     }
 
-    void Delete(void)
+    //Deletes the current texture if this instance is supposed to.
+    //Sets the texture being pointed at to 0.
+    //Returns whether the texture was deleted.
+    bool Delete(void)
     {
-        if (glTex != 0) RenderDataHandler::DeleteTexture2D(glTex);
+        if (responsibleForMemory && glTex != 0)
+        {
+            RenderDataHandler::DeleteTexture2D(glTex);
+            glTex = 0;
+            return true;
+        }
+
         glTex = 0;
+        return false;
     }
+
 
     void SetData(const Array2D<Vector4b> & inColor)
     {
@@ -89,6 +130,10 @@ public:
 
     bool IsValid(void) const { return (glTex != 0); }
 
+
+    //Gets whether this instance is responsible for deletion of the GL texture when the deconstructor is called.
+    bool GetIsResponsibleForDeletion(void) const { return responsibleForMemory; }
+
     const TextureSettings & GetSettings(void) const { return settings; }
     unsigned int GetWidth(void) const { return texWidth; }
     unsigned int GetHeight(void) const { return texHeight; }
@@ -99,8 +144,10 @@ private:
     RenderObjHandle glTex;
     TextureSettings settings;
     unsigned int texWidth, texHeight;
-};
 
+    bool responsibleForMemory;
+};
+*/
 
 
 

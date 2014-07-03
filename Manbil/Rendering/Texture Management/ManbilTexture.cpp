@@ -1,5 +1,7 @@
 #include "ManbilTexture.h"
 
+
+/*
 bool ManbilTexture::DeleteTexture(void)
 {
     bool hasAny = false;
@@ -19,3 +21,4 @@ bool ManbilTexture::DeleteTexture(void)
 
     return hasAny;
 }
+*/
