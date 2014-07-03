@@ -73,6 +73,7 @@ void TextRenderer::DestroySystem(void)
     delete textRendererQuad;
     delete textRenderer;
     textRendererParams.ClearUniforms();
+    tempTex.DeleteIfValid();
 }
 
 
