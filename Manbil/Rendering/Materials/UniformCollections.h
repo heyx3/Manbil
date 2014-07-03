@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <memory>
 #include "../../OpenGLIncludes.h"
-#include "../Texture Management/ManbilTexture.h"
 #include "../../Math/Matrix4f.h"
 #include "Data Nodes/Vector.h"
 
@@ -195,10 +194,10 @@ public:
 struct UniformSamplerValue
 {
 public:
-    ManbilTexture1 * Texture;
+    RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(ManbilTexture1 * texture, std::string name, UniformLocation loc = -1)
+    UniformSamplerValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
     UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
