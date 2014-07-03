@@ -6,10 +6,10 @@
 #include "../../OpenGLIncludes.h"
 #include "../../Math/Matrix4f.h"
 #include "Data Nodes/Vector.h"
+#include "../../ShaderHandler.h"
 
 
 #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
-typedef std::shared_ptr<sf::Texture> SFTexPtr;
 
 
 //TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms.
