@@ -1,7 +1,6 @@
 #include "TwoDOpenGLTest.h"
 
 #include "../ScreenClearer.h"
-#include "../TextureSettings.h"
 #include "../Input/Input Objects/KeyboardBoolInput.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
@@ -73,26 +72,22 @@ void TwoDOpenGLTest::InitializeWorld(void)
 
 
     //Textures.
-    foreTex = Textures.CreateTexture("Content/Textures/shrub.png");
-    if (foreTex == TextureManager::UNUSED_ID)
+    if (!foreTex.Create("Content/Textures/shrub.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true,
+                                                                           TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP))))
     {
         std::cout << "Error loading 'Content/Textures/shrub.png'\n";
         Pause();
         EndWorld();
         return;
     }
-    backTex = Textures.CreateTexture("Content/Textures/Water.png");
-    if (backTex == TextureManager::UNUSED_ID)
+    if (!backTex.Create("Content/Textures/Water.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true,
+                                                                           TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP))))
     {
         std::cout << "Error loading 'Content/Textures/Water.png'\n";
         Pause();
         EndWorld();
         return;
     }
-
-    TextureSettings setts(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, true);
-    Textures[foreTex].SetData(setts);
-    Textures[backTex].SetData(setts);
 
 
     //Fonts.
@@ -134,9 +129,9 @@ void TwoDOpenGLTest::InitializeWorld(void)
     }
 
     foreParam.AddUniforms(uniformDict, false);
-    foreParam.TextureUniforms["u_myTex"].Texture = Textures[foreTex];
+    foreParam.TextureUniforms["u_myTex"].Texture = foreTex.GetTextureHandle();
     backParam.AddUniforms(uniformDict, false);
-    backParam.TextureUniforms["u_myTex"].Texture = Textures[backTex];
+    backParam.TextureUniforms["u_myTex"].Texture = backTex.GetTextureHandle();
 }
 
 void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)
@@ -155,6 +150,8 @@ void TwoDOpenGLTest::CleanUp(void)
     DeleteAndSetToNull(foreQuad);
     DeleteAndSetToNull(backQuad);
     DeleteAndSetToNull(cam);
+    foreTex.DeleteIfValid();
+    backTex.DeleteIfValid();
 }
 
 

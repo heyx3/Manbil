@@ -67,6 +67,5 @@ private:
 
     unsigned int testFontID;
 
-    sf::Texture waterNormalTex;
-    //sf::Texture testFontTex;
+    MTexture waterNormalTex;
 };
