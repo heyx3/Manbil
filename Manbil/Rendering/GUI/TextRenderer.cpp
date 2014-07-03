@@ -16,6 +16,7 @@ TransformObject TextRenderer::textRendererTransform = TransformObject();
 Matrix4f TextRenderer::viewMat = Matrix4f(),
          TextRenderer::projMat = Matrix4f(),
          TextRenderer::worldMat = Matrix4f();
+MTexture TextRenderer::tempTex = MTexture();
 
 const char * textSamplerName = "u_charSampler";
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "OpenGLIncludes.h"
 #include "Math/Matrix4f.h"
 #include "Math/Array2D.h"
 #include "ShaderHandler.h"
@@ -57,7 +56,7 @@ public:
 
         //Create texture and set data.
         glGenTextures(1, &outTexHandle);
-        SetTexture2DDataUBytes(outTexHandle, settings.Width, settings.Height, (Void*)texData.GetArray());
+        SetTexture2DDataPixels(outTexHandle, settings, &texData.GetArray()[0].x);
 
         //Set texture settings.
         if (settings.GenerateMipmaps)
@@ -79,7 +78,7 @@ public:
 
         //Create texture and set data.
         glGenTextures(1, &outTexHandle);
-        SetTexture2DDataFloats(outTexHandle, settings.Width, settings.Height, (Void*)texData.GetArray());
+        SetTexture2DDataPixels(outTexHandle, settings, &texData.GetArray()[0][0]);
 
         //Set texture settings.
         if (settings.GenerateMipmaps)
@@ -110,7 +109,7 @@ public:
     {
         settings.Width = img.getSize().x;
         settings.Height = img.getSize().y;
-        SetTexture2DDataUBytes(texObjHandle, settings, img.getPixelsPtr());
+        SetTexture2DDataPixels(texObjHandle, settings, img.getPixelsPtr());
     }
 
     //Generates mipmaps for a texture that has already been created.

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../OpenGLIncludes.h"
-#include "../../RenderDataHandler.h"
 
 
 //Handles texture settings.

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
 #include "Rendering/Texture Management/TextureSettings.h"

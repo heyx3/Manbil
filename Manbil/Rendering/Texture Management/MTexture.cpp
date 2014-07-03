@@ -101,6 +101,8 @@ bool MTexture::Create(std::string filePath, const ColorTextureSettings & texSett
 
     //Put the pixel data into the new texture.
     SetData(texCol);
+
+    return true;
 }
 
 
