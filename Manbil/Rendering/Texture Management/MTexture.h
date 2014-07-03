@@ -50,6 +50,7 @@ public:
     //Creates an empty white texture. Deletes the texture this instance previously held.
     void Create(const ColorTextureSettings & texSettings);
     //Returns whether the file was successfully loaded. Deletes the texture this instance previously held.
+    //Note that the width/height in "texSettings" will be ignored.
     bool Create(std::string filePath, const ColorTextureSettings & texSettings);
 
     //If this is a valid texture, deletes it from OpenGL.
