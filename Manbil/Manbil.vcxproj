@@ -88,7 +88,6 @@
     <ClCompile Include="BasicMComponents.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Events\Timing.cpp" />
-    <ClCompile Include="Foliage.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
     <ClCompile Include="Input\LookRotation.cpp" />
@@ -165,8 +164,6 @@
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
     <ClCompile Include="Rendering\Materials\RenderingModes.cpp" />
     <ClCompile Include="Rendering\Materials\UniformCollections.cpp" />
-    <ClCompile Include="Rendering\Objects\Water.cpp" />
-    <ClCompile Include="Rendering\Objects\WaterRendering.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp" />
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp" />
@@ -174,6 +171,8 @@
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp" />
+    <ClCompile Include="Rendering\Water\Water.cpp" />
+    <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScreenClearer.cpp" />
     <ClCompile Include="SFMLOpenGLWorld.cpp" />
@@ -198,7 +197,6 @@
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Events\EventManager.h" />
     <ClInclude Include="Events\Timing.h" />
-    <ClInclude Include="Foliage.h" />
     <ClInclude Include="Input\BoolInput.h" />
     <ClInclude Include="Input\FloatInput.h" />
     <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h" />
@@ -319,8 +317,6 @@
     <ClInclude Include="Rendering\Materials\MaterialUsageFlags.h" />
     <ClInclude Include="Rendering\Materials\RenderingModes.h" />
     <ClInclude Include="Rendering\Materials\UniformCollections.h" />
-    <ClInclude Include="Rendering\Objects\Water.h" />
-    <ClInclude Include="Rendering\Objects\WaterRendering.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessData.h" />
     <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h" />
     <ClInclude Include="Rendering\PrimitiveGenerator.h" />
@@ -330,6 +326,8 @@
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
     <ClInclude Include="Rendering\Texture Management\TextureSettings.h" />
+    <ClInclude Include="Rendering\Water\Water.h" />
+    <ClInclude Include="Rendering\Water\WaterRendering.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />
     <ClInclude Include="SFMLOpenGLWorld.h" />
