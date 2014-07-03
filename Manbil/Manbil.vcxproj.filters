@@ -146,12 +146,6 @@
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp">
       <Filter>Math\Shapes</Filter>
     </ClCompile>
-    <ClCompile Include="Foliage.cpp">
-      <Filter>Rendering\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Objects\Water.cpp">
-      <Filter>Rendering\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="Events\Timing.cpp">
       <Filter>Events</Filter>
     </ClCompile>
@@ -275,9 +269,6 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Objects\WaterRendering.cpp">
-      <Filter>Rendering\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
@@ -320,6 +311,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUIElement.cpp">
       <Filter>Rendering\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Water\Water.cpp">
+      <Filter>Rendering\Water</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Water\WaterRendering.cpp">
+      <Filter>Rendering\Water</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -518,12 +515,6 @@
     <ClInclude Include="Math\NoiseGeneration.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Foliage.h">
-      <Filter>Rendering\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Objects\Water.h">
-      <Filter>Rendering\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Events\EventManager.h">
       <Filter>Events</Filter>
     </ClInclude>
@@ -717,9 +708,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Objects\WaterRendering.h">
-      <Filter>Rendering\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Voxel\VoxelWorldPPC.h">
       <Filter>Voxels</Filter>
     </ClInclude>
@@ -789,6 +777,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Water\Water.h">
+      <Filter>Rendering\Water</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Water\WaterRendering.h">
+      <Filter>Rendering\Water</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -861,9 +855,6 @@
     <Filter Include="Rendering\Post-Processing">
       <UniqueIdentifier>{d1d8c8fa-48ec-4ad0-bc6f-63d81ae1bb77}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Objects">
-      <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Events">
       <UniqueIdentifier>{95bef7da-4bab-4a10-9f0f-306b3c80aa15}</UniqueIdentifier>
     </Filter>
@@ -896,6 +887,9 @@
     </Filter>
     <Filter Include="Rendering\GPU Particles\High-level GPU Particles">
       <UniqueIdentifier>{d73909a1-953f-440e-87c3-def0ee62599d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Water">
+      <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
