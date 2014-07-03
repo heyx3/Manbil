@@ -31,8 +31,8 @@ protected:
 	virtual void InitializeWorld(void) override;
 	virtual void OnInitializeError(std::string errorMsg) { fprintf(stderr, "Initialization error: '%s'\n", errorMsg.c_str()); }
 
+    //By default, calls RenderOpenGL and then displays the window.
     virtual void RenderWorld(float elapsedSeconds) override;
 
-    //First, render all the OpenGL stuff.
     virtual void RenderOpenGL(float elapsedSeconds) = 0;
 };
