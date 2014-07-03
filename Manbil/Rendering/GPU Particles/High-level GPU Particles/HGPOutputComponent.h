@@ -49,10 +49,10 @@ struct HGPTextureQuality
 public:
 
     TextureSettings::FilteringTypes FilterQuality;
-    ColorTextureSettings::Sizes PixelSize;
+    ColorTextureSettings::PixelSizes PixelSize;
     unsigned int Width;
 
-    HGPTextureQuality(TextureSettings::FilteringTypes filterQuality, ColorTextureSettings::Sizes pixelSize, unsigned int width)
+    HGPTextureQuality(TextureSettings::FilteringTypes filterQuality, ColorTextureSettings::PixelSizes pixelSize, unsigned int width)
         : FilterQuality(filterQuality), PixelSize(pixelSize), Width(width)
     {
 

@@ -187,7 +187,7 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the texture.
-    if (!voxelTex.Create("Content/Textures/VoxelTex.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
+    if (!voxelTex.Create("Content/Textures/VoxelTex.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
     {
         PrintError("Error creating voxel texture 'Content/Textures/VoxelTex.png", "File not found or unable to be loaded");
         EndWorld();
@@ -233,12 +233,12 @@ void VoxelWorld::InitializeWorld(void)
     cts.ColorAttachment = 0;
     cts.Settings.Width = vWindowSize.x;
     cts.Settings.Height = vWindowSize.y;
-    cts.Settings.Size = ColorTextureSettings::CTS_32;
+    cts.Settings.PixelSize = ColorTextureSettings::CTS_32;
     cts.Settings.GenerateMipmaps = false;
     cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
     RendTargetDepthTexSettings dts;
     dts.UsesDepthTexture = true;
-    dts.Settings.Size = DepthTextureSettings::DTS_24;
+    dts.Settings.PixelSize = DepthTextureSettings::DTS_24;
     dts.Settings.GenerateMipmaps = false;
     dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
     worldRenderTarget = RenderTargets.CreateRenderTarget(cts, dts);

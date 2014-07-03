@@ -179,8 +179,8 @@ void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, c
     Array2D<Vector4b> colors(settings.Width, settings.Height, color);
 
     glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.Size), settings.Width, settings.Height, 0,
-                 ColorTextureSettings::ToFormat(settings.Size), GL_UNSIGNED_BYTE, (Void*)colors.GetArray());
+    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, (Void*)colors.GetArray());
 
     if (settings.GenerateMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -190,8 +190,8 @@ void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, c
     Array2D<Vector4f> colors(settings.Width, settings.Height, color);
 
     glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.Size), settings.Width, settings.Height, 0,
-                 ColorTextureSettings::ToFormat(settings.Size), GL_FLOAT, (Void*)colors.GetArray());
+    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0,
+                 GL_RGBA, GL_FLOAT, (Void*)colors.GetArray());
 
     if (settings.GenerateMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -199,8 +199,8 @@ void RenderDataHandler::SetTexture2DDataColor(RenderObjHandle texObjectHandle, c
 void RenderDataHandler::SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const unsigned char* pixelData)
 {
     glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.Size), settings.Width, settings.Height, 0,
-                 ColorTextureSettings::ToFormat(settings.Size), GL_UNSIGNED_BYTE, (const Void*)pixelData);
+    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, (const Void*)pixelData);
 
     if (settings.GenerateMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -208,8 +208,8 @@ void RenderDataHandler::SetTexture2DDataPixels(RenderObjHandle texObjectHandle, 
 void RenderDataHandler::SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const float* pixelData)
 {
 	glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.Size), settings.Width, settings.Height, 0,
-                 ColorTextureSettings::ToFormat(settings.Size), GL_FLOAT, (const Void*)pixelData);
+	glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0,
+                 GL_RGBA, GL_FLOAT, (const Void*)pixelData);
 
     if (settings.GenerateMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -234,7 +234,7 @@ void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle
 {
 	glGenTextures(1, &depthTexObjHandle);
 	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(settings.Size),
+	glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(settings.PixelSize),
                  settings.Width, settings.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
 }

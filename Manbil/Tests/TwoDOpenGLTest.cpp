@@ -72,7 +72,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
 
 
     //Textures.
-    if (!foreTex.Create("Content/Textures/shrub.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true,
+    if (!foreTex.Create("Content/Textures/shrub.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true,
                                                                            TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP))))
     {
         std::cout << "Error loading 'Content/Textures/shrub.png'\n";
@@ -80,7 +80,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
         EndWorld();
         return;
     }
-    if (!backTex.Create("Content/Textures/Water.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true,
+    if (!backTex.Create("Content/Textures/Water.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true,
                                                                            TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP))))
     {
         std::cout << "Error loading 'Content/Textures/Water.png'\n";

@@ -32,7 +32,7 @@ void TextureConverters::ToTexture(const Array2D<Vector4b> & inColor, sf::Texture
 }
 void TextureConverters::ToTexture(const Array2D<Vector4b> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex)
 {
-    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, (unsigned char*)inColor.GetArray());
+    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, &inColor.GetArray()[0].x);
 }
 
 
@@ -55,7 +55,7 @@ void TextureConverters::ToArray(RenderObjHandle inTex, Array2D<Vector4f> & color
 
 void TextureConverters::ToImage(const Array2D<Vector4f> & inColor, sf::Image & outImg)
 {
-    Array2D<Vector4b> valueBytes(0, 0);
+    Array2D<Vector4b> valueBytes(inColor.GetWidth(), inColor.GetHeight());
     valueBytes.Fill([&inColor](Vector2i loc, Vector4b * outVal)
     {
         Vector4f col = inColor[loc];
@@ -68,7 +68,7 @@ void TextureConverters::ToImage(const Array2D<Vector4f> & inColor, sf::Image & o
 }
 void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, sf::Texture & outTex)
 {
-    Array2D<Vector4b> valueBytes(0, 0);
+    Array2D<Vector4b> valueBytes(inColor.GetWidth(), inColor.GetHeight());
     valueBytes.Fill([&inColor](Vector2i loc, Vector4b * outVal)
     {
         Vector4f col = inColor[loc];
@@ -81,5 +81,8 @@ void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, sf::Texture
 }
 void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex)
 {
-    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, &inColor.GetArray()[0][0]);
+    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, &inColor.GetArray()[0].x);
 }
+
+
+#pragma warning(default: 4100)

@@ -27,7 +27,7 @@ public:
     unsigned int GetWidth(void) const { return settings.Width; }
     unsigned int GetHeight(void) const { return settings.Height; }
     bool UsesMipmaps(void) const { return settings.GenerateMipmaps; }
-    ColorTextureSettings::Sizes GetPixelSize(void) const { return settings.Size; }
+    ColorTextureSettings::PixelSizes GetPixelSize(void) const { return settings.PixelSize; }
 
 
 

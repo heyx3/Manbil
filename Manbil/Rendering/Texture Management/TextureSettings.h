@@ -96,7 +96,7 @@ struct ColorTextureSettings
 public:
 
     //The different pixel sizes (in bytes).
-    enum Sizes
+    enum PixelSizes
     {
         CTS_8,
         CTS_16,
@@ -106,20 +106,19 @@ public:
         CTS_16_GREYSCALE,
     };
 
-    static GLenum ToInternalFormat(Sizes size);
-    static GLenum ToFormat(Sizes size);
-    static std::string ToString(Sizes size);
+    static GLenum ToInternalFormat(PixelSizes size);
+    static std::string ToString(PixelSizes size);
 
 
     unsigned int Width, Height;
-    Sizes Size;
+    PixelSizes PixelSize;
     TextureSettings BaseSettings;
     bool GenerateMipmaps;
 
 
-    ColorTextureSettings(unsigned int width = 1, unsigned int height = 1, Sizes size = Sizes::CTS_32,
+    ColorTextureSettings(unsigned int width = 1, unsigned int height = 1, PixelSizes size = PixelSizes::CTS_32,
                          bool useMipmaps = true, TextureSettings settings = TextureSettings())
-        : Width(width), Height(height), Size(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
+        : Width(width), Height(height), PixelSize(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
     {
 
     }
@@ -127,7 +126,7 @@ public:
     //TODO: Move to DebugAssist. Same with DepthTextureSettings and the size arrays.
     std::string ToString(void) const
     {
-        return std::string() + std::to_string(Width) + "x" + std::to_string(Height) + ", size: " + ToString(Size);
+        return std::string() + std::to_string(Width) + "x" + std::to_string(Height) + ", size: " + ToString(PixelSize);
     }
 };
 
@@ -138,25 +137,25 @@ struct DepthTextureSettings
 public:
 
     //The different pixel sizes (in bytes).
-    enum Sizes
+    enum PixelSizes
     {
         DTS_16,
         DTS_24,
         DTS_32,
     };
 
-    static GLenum ToEnum(Sizes size);
-    static std::string ToString(Sizes size);
+    static GLenum ToEnum(PixelSizes size);
+    static std::string ToString(PixelSizes size);
 
 
     unsigned int Width, Height;
-    Sizes Size;
+    PixelSizes PixelSize;
     TextureSettings BaseSettings;
     bool GenerateMipmaps;
 
-    DepthTextureSettings(unsigned int width = 1, unsigned int height = 1, Sizes size = Sizes::DTS_24,
+    DepthTextureSettings(unsigned int width = 1, unsigned int height = 1, PixelSizes size = PixelSizes::DTS_24,
                          bool useMipmaps = true, TextureSettings settings = TextureSettings())
-        : Width(width), Height(height), Size(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
+                         : Width(width), Height(height), PixelSize(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
     {
 
     }

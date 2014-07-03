@@ -94,9 +94,9 @@ public:
     //Sets the texture data using a default color.
     static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, Vector4f color);
 	//Sets the texture data using unsigned byte4 color.
-    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const unsigned char* pixelData = 0);
+    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const unsigned char* rgbaPixelData = 0);
 	//Sets the texture data using float4 color.
-    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const float* pixelData = 0);
+    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const float* rgbaPixelData = 0);
 	//Sets the texture data using an SFML Image.
 	static void SetTexture2DData(RenderObjHandle texObjHandle, ColorTextureSettings settings, sf::Image & img)
     {

@@ -26,7 +26,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     if (textRenderer != 0) return "System was already initialized.";
 
     textRendererQuad = new DrawingQuad();
-    tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, false,
+    tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_8_GREYSCALE, false,
                                         TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)));
 
 
@@ -119,10 +119,10 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
 
     //Set up the settings used for each render target.
     RendTargetColorTexSettings colorSettings;
-    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, useMipmaps, settings);
+    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::CTS_8_GREYSCALE, useMipmaps, settings);
     RendTargetDepthTexSettings depthSettings;
     depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::Sizes::DTS_16, useMipmaps, settings);
+    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::DTS_16, useMipmaps, settings);
 
     //Create the given number of slots.
     for (unsigned int i = 0; i < numbSlots; ++i)
