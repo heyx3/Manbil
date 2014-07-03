@@ -1,24 +1,79 @@
 #include "TextureSettings.h"
 
 
-void TextureSettings1::SetData(void) const
+GLint TextureSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
 {
-    SetWrappingData();
-    SetFilteringData();
-    SetMipmaps();
+    return (tf == FilteringTypes::MTF_LINEAR) ?
+                ((minFilter && genMips) ?
+                     GL_LINEAR_MIPMAP_LINEAR :
+                     GL_LINEAR) :
+                GL_NEAREST;
+}
+GLint TextureSettings::ToGLInt(WrappingTypes twa)
+{
+    return (twa == WrappingTypes::MTF_CLAMP) ?
+                GL_CLAMP_TO_EDGE :
+                GL_REPEAT;
 }
 
-void TextureSettings1::SetWrappingData(TextureWrapping horizontal, TextureWrapping vertical)
+
+GLenum ColorTextureSettings::ToInternalFormat(Sizes size)
 {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(horizontal));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(vertical));
+    switch (size)
+    {
+        case Sizes::CTS_8: return GL_RGBA8;
+        case Sizes::CTS_16: return GL_RGBA16;
+        case Sizes::CTS_32: return GL_RGBA32F;
+        case Sizes::CTS_8_GREYSCALE: return GL_R8;
+        case Sizes::CTS_16_GREYSCALE: return GL_R16;
+        default: return GL_INVALID_ENUM;
+    }
 }
-void TextureSettings1::SetFilteringData(TextureFiltering minFilter, TextureFiltering magFilter, bool mips)
+GLenum ColorTextureSettings::ToFormat(Sizes size)
 {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(magFilter, false, mips));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(minFilter, true, mips));
+    switch (size)
+    {
+        case Sizes::CTS_8:
+        case Sizes::CTS_16:
+        case Sizes::CTS_32:
+            return GL_RGBA;
+        case Sizes::CTS_8_GREYSCALE:
+        case Sizes::CTS_16_GREYSCALE:
+            return GL_RED;
+        default: return GL_INVALID_ENUM;
+    }
 }
-void TextureSettings1::GenMipmaps(void)
+std::string ColorTextureSettings::ToString(Sizes size)
 {
-    glGenerateMipmap(GL_TEXTURE_2D);
+    switch (size)
+    {
+        case Sizes::CTS_8: return "8";
+        case Sizes::CTS_16: return "16";
+        case Sizes::CTS_32: return "32";
+        case Sizes::CTS_8_GREYSCALE: return "8_greyscale";
+        case Sizes::CTS_16_GREYSCALE: return "16_greyscale";
+        default: return "UNKNOWN_SIZE";
+    }
+}
+
+
+std::string DepthTextureSettings::ToString(Sizes size)
+{
+    switch (size)
+    {
+        case Sizes::DTS_16: return "16";
+        case Sizes::DTS_24: return "24";
+        case Sizes::DTS_32: return "32";
+        default: return "UNKNOWN_SIZE";
+    }
+}
+GLenum DepthTextureSettings::ToEnum(Sizes size)
+{
+    switch (size)
+    {
+        case Sizes::DTS_16: return GL_DEPTH_COMPONENT16;
+        case Sizes::DTS_24: return GL_DEPTH_COMPONENT24;
+        case Sizes::DTS_32: return GL_DEPTH_COMPONENT32;
+        default: return GL_INVALID_ENUM;
+    }
 }

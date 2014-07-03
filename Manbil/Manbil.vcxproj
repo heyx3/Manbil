@@ -170,11 +170,9 @@
     <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp" />
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp" />
-    <ClCompile Include="Rendering\Texture Management\ManbilTexture.cpp" />
     <ClCompile Include="Rendering\Texture Management\MTexture.cpp" />
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
-    <ClCompile Include="Rendering\Texture Management\TextureManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScreenClearer.cpp" />
@@ -327,12 +325,10 @@
     <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h" />
     <ClInclude Include="Rendering\PrimitiveGenerator.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
-    <ClInclude Include="Rendering\Texture Management\ManbilTexture.h" />
     <ClInclude Include="Rendering\Texture Management\MTexture.h" />
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
     <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
-    <ClInclude Include="Rendering\Texture Management\TextureManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureSettings.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScreenClearer.h" />

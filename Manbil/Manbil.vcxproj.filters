@@ -236,12 +236,6 @@
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\TextureManager.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\ManbilTexture.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
     <ClCompile Include="Voxel\VoxelChunk.cpp">
       <Filter>Voxels</Filter>
     </ClCompile>
@@ -653,9 +647,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RemapNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\TextureManager.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
@@ -673,9 +664,6 @@
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\ManbilTexture.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
