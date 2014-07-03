@@ -77,9 +77,10 @@ void main()                              \n\
     in_UV = " + MC::VertexInNameBase + "1;\n\
 }";
     //Add any custom QuadWorld uniforms.
-    uniforms.FloatUniforms[TTW::ShaderElapsedName] = UniformValueF(0.0f, TTW::ShaderElapsedName);
-    uniforms.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue(TTW::CustomSamplerName);
-    uniforms.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue(TTW::NoiseSamplerName);
+    uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(0.0f);
+    uniforms.FloatUniforms[TTW::ShaderElapsedName].Name = TTW::ShaderElapsedName;
+    uniforms.TextureUniforms[TTW::CustomSamplerName].Name = TTW::CustomSamplerName;
+    uniforms.TextureUniforms[TTW::NoiseSamplerName].Name = TTW::NoiseSamplerName;
 
     bool first = true;
 
@@ -140,7 +141,12 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
             continue;
         }
 
+        RenderObjHandle customTexHandle = params.TextureUniforms[TTW::CustomSamplerName].Texture;
+        RenderObjHandle noiseTexHandle = params.TextureUniforms[TTW::NoiseSamplerName].Texture;
         params.AddUniforms(uniforms, true);
+        params.TextureUniforms[TTW::CustomSamplerName].Texture = customTexHandle;
+        params.TextureUniforms[TTW::NoiseSamplerName].Texture = noiseTexHandle;
+
         valid = true;
     }
 }
