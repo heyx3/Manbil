@@ -13,26 +13,21 @@ public:
 
     //Constructors/destructors.
 
-    MTexture(void) : texHandle(0), hasMipmaps(false), tWidth(0), tHeight(0) { }
+    MTexture(void) : texHandle(0) { }
     MTexture(MTexture & cpy); //Intentionally not implemented.
-    MTexture(std::string filePath)
-    {
-        
-    }
 
 
 
     //Getters.
 
-    //Any non-zero value is considered valid. If 0 is returned, this texture is invalid.
     RenderObjHandle GetTextureHandle(void) const { return texHandle; }
-
     bool IsValidTexture(void) const { return texHandle != 0; }
 
-    const TextureSettings & GetSettings(void) const { return settings; }
-    bool UsesMipmaps(void) const { return hasMipmaps; }
-    unsigned int GetWidth(void) const { return tWidth; }
-    unsigned int GetHeight(void) const { return tHeight; }
+    const TextureSettings & GetSettings(void) const { return settings.BaseSettings; }
+    unsigned int GetWidth(void) const { return settings.Width; }
+    unsigned int GetHeight(void) const { return settings.Height; }
+    bool UsesMipmaps(void) const { return settings.GenerateMipmaps; }
+    ColorTextureSettings::Sizes GetPixelSize(void) const { return settings.Size; }
 
 
 
@@ -48,20 +43,16 @@ public:
     void SetVertWrappingType(TextureSettings::WrappingTypes wrapping);
     void SetWrappingType(TextureSettings::WrappingTypes wrapping);
 
-    //Generates mipmaps. Every time texture data is changed after this call, mipmaps will be immediately re-generated.
-    //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if necessary. Double-check that this is necessary and good design.
-    void GenerateMipmaps(void);
 
 
     //Texture operations.
     
-    //Creates an empty texture. Deletes the texture this instance previously held.
-    void Create(void);
+    //Creates an empty white texture. Deletes the texture this instance previously held.
+    void Create(const ColorTextureSettings & texSettings);
     //Returns whether the file was successfully loaded. Deletes the texture this instance previously held.
-    bool Create(std::string filePath);
+    bool Create(std::string filePath, const ColorTextureSettings & texSettings);
 
     //If this is a valid texture, deletes it from OpenGL.
-    //Also resets the mipmap settings to "no mipmaps".
     void DeleteIfValid(void);
 
     //Sets this texture as the active one.
@@ -77,10 +68,5 @@ public:
 private:
 
     RenderObjHandle texHandle;
-
-    bool hasMipmaps;
-
-    TextureSettings settings;
-
-    unsigned int tWidth, tHeight;
+    ColorTextureSettings settings;
 };

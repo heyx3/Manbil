@@ -4,6 +4,7 @@
 #include "Math/Matrix4f.h"
 #include "Math/Array2D.h"
 #include "ShaderHandler.h"
+#include "Rendering/Texture Management/TextureLoadSettings.h"
 #include <SFML/Graphics/Image.hpp>
 
 
@@ -44,68 +45,78 @@ public:
     //Sets a subroutine value. Assumes the correct shader program is already bound.
     static void SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle valueName);
 	
-    template<typename Data>
-    //Creates a texture object for passing to a shader.
-    static void CreateTexture2D(RenderObjHandle & texObjectHandle, const Array2D<Data> & imgData,
-                                void(*outputColor)(void* specialData, unsigned char pixel[4], Data data), void* pData = 0,
-                                bool generateMipmaps = false)
+
+    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4b * outPixel)".
+    template<typename Func>
+    //Creates a 2D texture using the given function for generating the color data.
+    static void CreateTexture2DUBytes(RenderObjHandle & outTexHandle, const ColorTextureSettings & settings, Func pixelToColor)
     {
-        //Create the data array.
-        unsigned char * textureData = new unsigned char[imgData.GetWidth() * imgData.GetHeight()];
-        for (int x = 0; x < imgData.GetWidth(); ++x)
+        //Generate pixels.
+        Array2D<Vector4b> texData(settings.Width, settings.Height);
+        texData.Fill(pixelToColor);
+
+        //Create texture and set data.
+        glGenTextures(1, &outTexHandle);
+        SetTexture2DDataUBytes(outTexHandle, settings.Width, settings.Height, (Void*)texData.GetArray());
+
+        //Set texture settings.
+        if (settings.GenerateMipmaps)
         {
-            for (int y = 0; y < imgData.GetHeight(); ++y)
-            {
-                int index = (x * 4) + (y * imgData.GetWidth() * 4);
-
-                for (int i = 0; i < 4; ++i)
-                    textureData[index + i] = 0;
-
-                outputColor(pData, &textureData[index], imgData[Vector2i(x, y)]);
-            }
+            //TODO: Pretty sure this can be removed, as well as the one underneath in the "float" version of this function, and in the RenderingState class.
+            glEnable(GL_TEXTURE_2D);
+            glGenerateMipmap(GL_TEXTURE_2D);
         }
+        settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
+    }
+    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4f * outPixel)".
+    template<typename Func>
+    //Creates a 2D texture using the given function for generating the color data.
+    static void CreateTexture2DFloats(RenderObjHandle & outTexHandle, const ColorTextureSettings & settings, Func pixelToColor)
+    {
+        //Generate pixels.
+        Array2D<Vector4f> texData(settings.Width, settings.Height);
+        texData.Fill(pixelToColor);
 
-        //Create the texture object.
-        CreateTexture2D(texObjectHandle, Vector2i(imgData.GetWidth(), imgData.GetHeight()));
-        glBindTexture(GL_TEXTURE_2D, texObjectHandle);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgData.GetWidth(), imgData.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+        //Create texture and set data.
+        glGenTextures(1, &outTexHandle);
+        SetTexture2DDataFloats(outTexHandle, settings.Width, settings.Height, (Void*)texData.GetArray());
 
-
-        delete[] textureData;
-
-
-        if (generateMipmaps)
+        //Set texture settings.
+        if (settings.GenerateMipmaps)
         {
             glEnable(GL_TEXTURE_2D);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
+        settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
     }
-    //Creates a texture object for passing to a shader.
-    static void CreateTexture2D(RenderObjHandle & texObjectHandle);
-	//Creates and initializes a texture object for passing to a shader.
-	static void CreateTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
-	//Creates a depth texture object for passing to a shader.
-	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, Vector2i size);
-    //Generates mipmaps for a texture that has already been created.
-    static void GenerateTexture2DMipmaps(RenderObjHandle texture);
 
-    //Gets the width/height of the given texture, or { -1, -1 } if the given texture doesn't exist.
-    static Vector2i GetTextureDimensions(RenderObjHandle texture);
+	//Creates a depth texture object for passing to a shader.
+	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
 
     //Gets the texture data.
     static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor);
     //Gets the texture data.
     static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4f> & outColor);
     //Sets the texture data using a default color.
-    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4b color);
+    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, Vector4b color);
     //Sets the texture data using a default color.
-    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, Vector2i texSize, Vector4f color);
-	//Sets the texture data using float4 color.
-	static void SetTexture2DDataFloats(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+    static void SetTexture2DDataColor(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, Vector4f color);
 	//Sets the texture data using unsigned byte4 color.
-	static void SetTexture2DDataUBytes(RenderObjHandle texObjectHandle, Vector2i texSize, Void* pixelData = 0);
+    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const unsigned char* pixelData = 0);
+	//Sets the texture data using float4 color.
+    static void SetTexture2DDataPixels(RenderObjHandle texObjectHandle, const ColorTextureSettings & settings, const float* pixelData = 0);
 	//Sets the texture data using an SFML Image.
-	static void SetTexture2DData(RenderObjHandle texObjHandle, sf::Image & img) { SetTexture2DDataUBytes(texObjHandle, Vector2i(img.getSize().x, img.getSize().y), (Void*)img.getPixelsPtr()); }
+	static void SetTexture2DData(RenderObjHandle texObjHandle, ColorTextureSettings settings, sf::Image & img)
+    {
+        settings.Width = img.getSize().x;
+        settings.Height = img.getSize().y;
+        SetTexture2DDataUBytes(texObjHandle, settings, img.getPixelsPtr());
+    }
+
+    //Generates mipmaps for a texture that has already been created.
+    static void GenerateTexture2DMipmaps(RenderObjHandle texture);
+    //Gets the width/height of the given texture, or { -1, -1 } if the given texture doesn't exist.
+    static Vector2i GetTextureDimensions(RenderObjHandle texture);
 
 	//Sets the given depth texture to the given size.
 	static void SetDepthTexture2DSize(RenderObjHandle texObjHandle, Vector2i size);
@@ -115,6 +126,7 @@ public:
 	static void BindTexture(TextureTypes type, const RenderObjHandle & bo) { glBindTexture(TextureTypeToGLEnum(type), bo); }
 	//Sets a texture unit as active.
 	static void ActivateTextureUnit(int texNumb) { glActiveTexture(GL_TEXTURE0 + texNumb); }
+
 
 	//Gets the state of the frame buffer.
 	enum FrameBufferStatus

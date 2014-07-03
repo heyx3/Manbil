@@ -1,118 +1,109 @@
 #include "MTexture.h"
 
+
 void MTexture::SetSettings(const TextureSettings & newSettings)
 {
-    settings = newSettings;
+    settings.BaseSettings = newSettings;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyAllSettings(hasMipmaps);
+        settings.BaseSettings.ApplyAllSettings(UsesMipmaps());
     }
 }
 
 void MTexture::SetMinFilterType(TextureSettings::FilteringTypes newFiltering)
 {
-    settings.MinFilter = newFiltering;
+    settings.BaseSettings.MinFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyMinFilter(hasMipmaps);
+        settings.BaseSettings.ApplyMinFilter(UsesMipmaps());
     }
 }
 void MTexture::SetMagFilterType(TextureSettings::FilteringTypes newFiltering)
 {
-    settings.MagFilter = newFiltering;
+    settings.BaseSettings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyMagFilter(hasMipmaps);
+        settings.BaseSettings.ApplyMagFilter(UsesMipmaps());
     }
 }
 void MTexture::SetFilterType(TextureSettings::FilteringTypes newFiltering)
 {
-    settings.MinFilter = newFiltering;
-    settings.MagFilter = newFiltering;
+    settings.BaseSettings.MinFilter = newFiltering;
+    settings.BaseSettings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyFilter(hasMipmaps);
+        settings.BaseSettings.ApplyFilter(UsesMipmaps());
     }
 }
 
 void MTexture::SetHorzWrappingType(TextureSettings::WrappingTypes wrapping)
 {
-    settings.HorzWrap = wrapping;
+    settings.BaseSettings.HorzWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyHorzWrapping();
+        settings.BaseSettings.ApplyHorzWrapping();
     }
 }
 void MTexture::SetVertWrappingType(TextureSettings::WrappingTypes wrapping)
 {
-    settings.VertWrap = wrapping;
+    settings.BaseSettings.VertWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyVertWrapping();
+        settings.BaseSettings.ApplyVertWrapping();
     }
 }
 void MTexture::SetWrappingType(TextureSettings::WrappingTypes wrapping)
 {
-    settings.HorzWrap = wrapping;
-    settings.VertWrap = wrapping;
+    settings.BaseSettings.HorzWrap = wrapping;
+    settings.BaseSettings.VertWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyWrapping();
+        settings.BaseSettings.ApplyWrapping();
     }
 }
 
-void MTexture::GenerateMipmaps(void)
-{
-    if (IsValidTexture())
-    {
-        hasMipmaps = true;
-        RenderDataHandler::GenerateTexture2DMipmaps(texHandle);
-        settings.ApplyFilter(true);
-    }
-}
-
-void MTexture::Create(void)
+void MTexture::Create(const ColorTextureSettings & texSettings)
 {
     DeleteIfValid();
-    RenderDataHandler::CreateTexture2D(texHandle);
-    tWidth = 0;
-    tHeight = 0;
 
-    Bind();
-    settings.ApplyAllSettings(false);
+    settings = texSettings;
+    RenderDataHandler::CreateTexture2DUBytes(texHandle, texSettings, [](Vector2i loc, Vector4b * outCol) { *outCol = Vector4b((unsigned char)255, 255, 255, 255); });
 }
-bool MTexture::Create(std::string filePath)
+bool MTexture::Create(std::string filePath, const ColorTextureSettings & texSettings)
 {
-    //Load the file using SFML.
+    //Create the new empty texture.
+    Create(texSettings);
+
+    //Load the texture file using SFML.
     sf::Texture tex;
     if (!tex.loadFromFile(filePath))
     {
         return false;
     }
 
-    //Copy the texture data into this texture.
-    Create();
+    //Get the pixel data from the SFML texture.
     Array2D<Vector4f> texCol(0, 0);
     TextureConverters::ToArray(tex, texCol);
+
+    //Put the pixel data into the new texture.
     SetData(texCol);
 }
 
-//If this is a valid texture, deletes it from OpenGL.
-//Also resets the mipmap settings to "no mipmaps".
+
 void MTexture::DeleteIfValid(void)
 {
     if (IsValidTexture())
@@ -120,34 +111,29 @@ void MTexture::DeleteIfValid(void)
         RenderDataHandler::DeleteTexture2D(texHandle);
     }
     texHandle = 0;
-    hasMipmaps = false;
 }
 
 void MTexture::SetData(const Array2D<Vector4b> & inColor)
 {
-    tWidth = inColor.GetWidth();
-    tHeight = inColor.GetHeight();
-    TextureConverters::ToTexture(inColor, texHandle);
-    if (hasMipmaps) GenerateMipmaps();
+    settings.Width = inColor.GetWidth();
+    settings.Height = inColor.GetHeight();
+    TextureConverters::ToTexture(inColor, settings, texHandle);
 }
 void MTexture::SetData(const Array2D<Vector4f> & inColor)
 {
-    tWidth = inColor.GetWidth();
-    tHeight = inColor.GetHeight();
-    TextureConverters::ToTexture(inColor, texHandle);
-    if (hasMipmaps) GenerateMipmaps();
+    settings.Width = inColor.GetWidth();
+    settings.Height = inColor.GetHeight();
+    TextureConverters::ToTexture(inColor, settings, texHandle);
 }
 void MTexture::SetData(const Vector4b color, unsigned int width, unsigned int height)
 {
-    tWidth = width;
-    tHeight = height;
-    RenderDataHandler::SetTexture2DDataColor(texHandle, Vector2i((int)tWidth, (int)tHeight), color);
-    if (hasMipmaps) GenerateMipmaps();
+    settings.Width = width;
+    settings.Height = height;
+    RenderDataHandler::SetTexture2DDataColor(texHandle, settings, color);
 }
 void MTexture::SetData(const Vector4f color, unsigned int width, unsigned int height)
 {
-    tWidth = width;
-    tHeight = height;
-    RenderDataHandler::SetTexture2DDataColor(texHandle, Vector2i((int)tWidth, (int)tHeight), color);
-    if (hasMipmaps) GenerateMipmaps();
+    settings.Width = width;
+    settings.Height = height;
+    RenderDataHandler::SetTexture2DDataColor(texHandle, settings, color);
 }
