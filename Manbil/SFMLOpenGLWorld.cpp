@@ -61,8 +61,8 @@ SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextS
 }
 SFMLOpenGLWorld::~SFMLOpenGLWorld(void)
 {
-    delete RenderTargets;
     delete TextRender;
+    delete RenderTargets;
 }
 
 void SFMLOpenGLWorld::InitializeWorld(void)
