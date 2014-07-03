@@ -41,6 +41,7 @@ string ToString(Vector v)
 }
 
 
+//PRIORITY: Go through each test world and in the sf::ContextSettings, change the version to 4.1.
 
 int main()
 {
