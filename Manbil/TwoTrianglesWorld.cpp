@@ -1,9 +1,8 @@
 #include "TwoTrianglesWorld.h"
 
-#include "TextureSettings.h"
 #include "RenderingState.h"
 #include "ScreenClearer.h"
-#include "Rendering/Texture Management/TextureManager.h"
+#include "Rendering/Texture Management/MTexture.h"
 #include "Input/Input Objects/KeyboardBoolInput.h"
 #include "MovingCamera.h"
 #include <iostream>
@@ -37,6 +36,7 @@ using namespace TTWPrints;
 
 
 typedef TwoTrianglesWorld TTW;
+
 
 #pragma region Material and quad
 
@@ -164,9 +164,7 @@ bool DoesMatUseCustomTex(void)
 #pragma region Textures
 
 
-TextureManager * tManager;
-unsigned int customTexID = TextureManager::UNUSED_ID,
-             noiseTexID = TextureManager::UNUSED_ID;
+MTexture customTex, noiseTex;
 std::string customTexPath = "";
 
 //Gets the noise texture as well as a custom texture from the user if necessary.
@@ -174,31 +172,20 @@ std::string customTexPath = "";
 void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 {
     //Get the noise texture.
-
-    noiseTexID = tManager->CreateTexture("Content/Textures/NoiseTex.png");
-    if (noiseTexID == TextureManager::UNUSED_ID)
+    if (!noiseTex.Create("Content/Textures/NoiseTex.png",
+                         ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, false,
+                                              TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP))))
     {
-        PrintData("Error loading 'Content/Textures/NoiseTex.png'", "SFML could not find or load the file.");
+        PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
         Pause();
     }
-    else if ((*tManager)[noiseTexID].BindTexture())
-    {
-        TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-        params.TextureUniforms[TTW::NoiseSamplerName] =
-            UniformSamplerValue((*tManager)[noiseTexID], TTW::NoiseSamplerName);
-    }
-    else
-    {
-        std::cout << "Error: couldn't access noise texture ID after creating it.\n";
-        Pause();
-    }
+    params.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
 
 
     //Ask the user for a custom texture.
 
     if (!getUserTex) return;
 
-    customTexID = tManager->CreateSFMLTexture();
     bool valid = false;
     bool first = true;
 
@@ -216,21 +203,21 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 
         first = false;
 
-        if (!(*tManager)[customTexID].SFMLTex->loadFromFile(customTexPath))
+        //Try loading the file.
+        if (!customTex.Create(customTexPath, ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, false,
+                                                                  TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
         {
-            PrintData("Error loading texture '" + customTexPath + "'", "SFML could not find or load the file.");
+            PrintData("Error loading '" + customTexPath + "'", "could not find or load the file.");
             std::cout << "\n\n";
             Pause();
             std::cout << "\n\n\n\n\n\n";
             continue;
         }
 
-
         valid = true;
     }
 
-    TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_WRAP, false).SetData();
-    params.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue((*tManager)[customTexID], TTW::CustomSamplerName);
+    params.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
 }
 
 
@@ -276,8 +263,6 @@ void TTW::InitializeWorld(void)
     quad = 0;
 
     SetUpInput(Input);
-
-    tManager = &Textures;
 
 
 	//GL/SFML/window initialization.

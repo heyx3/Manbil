@@ -57,6 +57,8 @@ VoxelWorld::~VoxelWorld(void)
     DeleteAndSetToNull(finalWorldRenderMat);
     DeleteAndSetToNull(finalWorldRenderQuad);
     DeleteAndSetToNull(voxelHighlightMat);
+    voxelTex.DeleteIfValid();
+    voxelHighlightTex.DeleteIfValid();
     assert(oculusDev == 0);
 }
 
@@ -185,14 +187,12 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the texture.
-    voxelTex = Textures.CreateTexture("Content/Textures/VoxelTex.png");
-    if (voxelTex == TextureManager::UNUSED_ID)
+    if (!voxelTex.Create("Content/Textures/VoxelTex.png", ColorTextureSettings(1, 1, ColorTextureSettings::Sizes::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
     {
         PrintError("Error creating voxel texture 'Content/Textures/VoxelTex.png", "File not found or unable to be loaded");
         EndWorld();
         return;
     }
-    Textures[voxelTex].SetData(TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true));
 
 
     //Initialize post-processing.
@@ -234,11 +234,13 @@ void VoxelWorld::InitializeWorld(void)
     cts.Settings.Width = vWindowSize.x;
     cts.Settings.Height = vWindowSize.y;
     cts.Settings.Size = ColorTextureSettings::CTS_32;
-    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    cts.Settings.GenerateMipmaps = false;
+    cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
     RendTargetDepthTexSettings dts;
     dts.UsesDepthTexture = true;
     dts.Settings.Size = DepthTextureSettings::DTS_24;
-    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    dts.Settings.GenerateMipmaps = false;
+    dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
     worldRenderTarget = RenderTargets.CreateRenderTarget(cts, dts);
 
     finalWorldRenderQuad = new DrawingQuad();
@@ -270,7 +272,7 @@ void VoxelWorld::InitializeWorld(void)
         return;
     }
     finalWorldRenderParams.AddUniforms(dict, true);
-    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
 
 
     #pragma region Voxel material
@@ -382,7 +384,7 @@ void main()                                                                     
     }
 
     //Parameters.
-    voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(Textures[voxelTex], "u_voxelTex",
+    voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(voxelTex.GetTextureHandle(), "u_voxelTex",
                                                                     UniformList::FindUniform("u_voxelTex",
                                                                                              voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 
@@ -420,6 +422,8 @@ void VoxelWorld::OnWorldEnd(void)
         delete element->second;
 
     DeleteAndSetToNull(oculusDev);
+    voxelTex.DeleteIfValid();
+    voxelHighlightTex.DeleteIfValid();
     DestroyStaticSystems(true, true, true);
 }
 
@@ -768,7 +772,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     
     //Render the final world info.
-    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture.SetData(postProcessing->GetFinalRender()->GetColorTextures()[0]);
+    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, finalWorldRenderParams, *finalWorldRenderMat))
     {
