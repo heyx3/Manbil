@@ -2,7 +2,7 @@
 
 #include "FreeTypeHandler.h"
 #include "../Texture Management/RenderTargetManager.h"
-#include "../Texture Management/TextureManager.h"
+#include "../Texture Management/MTexture.h"
 #include "../Helper Classes/DrawingQuad.h"
 
 
@@ -26,7 +26,7 @@ public:
 
 
     //TODO: Support text wrapping by changing the rendering algorithm. Render each character of a word into a separate texture and track the layout info, then see if the word will go off the right side of the texture. If so, start a new line there (also start a new line if the '\n' character is found).
-    //ManbilTexture GetCharTextureHolder(unsigned int texture) { if (textures.size() <= texture) textures.insert(etc.....
+    //MTexture GetCharTextureHolder(unsigned int texture) { if (textures.size() <= texture) textures.insert(etc.....
 
 
     //Must be called before rendering any text.
@@ -36,24 +36,25 @@ public:
 
 
     RenderTargetManager & RTManager;
-    TextureManager & TexManager;
 
 
     std::string GetError(void) const { return errorMsg; }
     bool HasError(void) const { return !errorMsg.empty(); }
 
 
-    TextRenderer(RenderTargetManager & rtManager, TextureManager & texManager)
-        : RTManager(rtManager), TexManager(texManager)
+    TextRenderer(RenderTargetManager & rtManager)
+        : RTManager(rtManager)
     {
 
     }
+    ~TextRenderer(void);
+
 
     //Returns the FreeTypeHandler font ID to use when referencing this font, or "FreeTypeHandler::ERROR_ID" if there was an error.
     unsigned int CreateAFont(std::string fontPath, unsigned int pixelWidth = 50, unsigned int pixelHeight = 0);
     //Creates the given number of render slots, all with the given width/height space.
     //Returns whether or not this function succeeded.
-    bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight, TextureSettings & finalRenderSettings, unsigned int numbSlots = 1);
+    bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight, bool useMipmapping, TextureSettings & finalRenderSettings, unsigned int numbSlots = 1);
 
     //Gets whether the given slot exists.
     bool DoesSlotExist(FontSlot slot) const;
@@ -66,8 +67,8 @@ public:
     Vector2i GetSlotBoundingSize(FontSlot slot) const;
     //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
     const char * GetString(FontSlot slot) const;
-    //Gets the texture holding the rendered text from the given font/slot. Returns ManbilTexture() if the given font/slot doesn't exist.
-    ManbilTexture GetRenderedString(FontSlot slot) const;
+    //Gets the texture holding the rendered text from the given font/slot. Returns 0 if the given font/slot doesn't exist.
+    RenderObjHandle GetRenderedString(FontSlot slot) const;
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
@@ -80,15 +81,12 @@ public:
 
 private:
 
-    //TODO: Only need one temp texture for the whole instance, not per font.
-
     struct Slot { unsigned int RenderTargetID; const char * String; unsigned int Width, Height, TextWidth, TextHeight; };
-    struct SlotCollection { std::vector<Slot> Slots; unsigned int TexID; };
-    std::unordered_map<unsigned int, SlotCollection> slots; //PRIORITY: Rename to "fonts".
+    typedef std::unordered_map<unsigned int, std::vector<Slot>>::const_iterator SlotCollectionLoc;
 
+    std::unordered_map<unsigned int, std::vector<Slot>> fonts;
+    mutable std::string errorMsg;
 
-
-    typedef std::unordered_map<unsigned int, SlotCollection>::const_iterator SlotCollectionLoc;
 
     //Tries to find the slots for the given font ID. If it is found, sets "outLoc" and returns true.
     //If it isn't, sets the error message and returns false.
@@ -108,10 +106,12 @@ private:
     bool TryFindFontSlot(FontSlot slot, Slot*& outSlot);
 
 
+    //Renders the given string into the given render target, using the given font.
+    bool RenderString(std::string string, unsigned int fontID, RenderTarget * finalRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
 
-    mutable std::string errorMsg;
 
 
+    static MTexture tempTex;
     static Material * textRenderer;
     static DrawingQuad * textRendererQuad;
     static UniformDictionary textRendererParams;
@@ -121,9 +121,6 @@ private:
     static Matrix4f worldMat, viewMat, projMat;
 
     static FreeTypeHandler & GetHandler(void) { return FreeTypeHandler::Instance; }
-
-    //Renders the given string into the given render target, using the given font and given temporary texture.
-    bool RenderString(std::string string, unsigned int fontID, ManbilTexture tex, RenderTarget * finalRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
 };
 
 #pragma warning(default: 4512)

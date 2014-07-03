@@ -10,13 +10,14 @@
 #include "../../Math/Vectors.h"
 #include "../../Math/Array2D.h"
 
-struct ManbilTexture;
+class MTexture;
 
 
 //Wraps all data about a font's size.
 struct FontSizeData
 {
 public:
+
     //At least one of the fields "CharWidth" and "CharHeight" must not be 0.
     //A value of 0 indicates that the value will match the other field's value.
     signed long CharWidth, CharHeight;
@@ -101,7 +102,7 @@ public:
     //Gets the most recently-rendered char as a color array.
     const Array2D<Vector4b> & GetChar(void) const { return renderedText; }
     //Gets the most recently-rendered char and stores it into the given texture.
-    bool GetChar(ManbilTexture & outTex) const;
+    void GetChar(MTexture & outTex) const;
 
 
 private:
