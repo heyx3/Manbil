@@ -37,9 +37,6 @@ Vector2i GUITestWorld::WindowSize = Vector2i(600, 600);
 std::string textSamplerName = "u_textSampler";
 
 
-//PRIORITY: Remove all Freetype-GL code/libraries/stuff from Manbil ("Freetype-gl", NOT FreeType!! There's an important difference!).
-//PRIORITY: Remove all SFMLGUI stuff from Manbil
-
 
 #pragma region My TextRenderer code
 

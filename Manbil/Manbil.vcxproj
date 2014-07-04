@@ -39,12 +39,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\C++\Libraries\freetype-gl-master;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\C++\Libraries\freetype-gl-master;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Include;E:\C++\Libraries\OculusSDK 0.3.1\LibOVR\Src;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
