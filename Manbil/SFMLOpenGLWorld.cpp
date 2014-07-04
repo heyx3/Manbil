@@ -57,12 +57,12 @@ SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextS
     : SFMLWorld(windowWidth, windowHeight, settings)
 {
     RenderTargets = new RenderTargetManager();
-    TextRender = new TextRenderer(*RenderTargets, Textures);
+    TextRender = new TextRenderer(*RenderTargets);
 }
 SFMLOpenGLWorld::~SFMLOpenGLWorld(void)
 {
-    delete RenderTargets;
     delete TextRender;
+    delete RenderTargets;
 }
 
 void SFMLOpenGLWorld::InitializeWorld(void)

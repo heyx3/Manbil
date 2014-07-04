@@ -31,6 +31,5 @@ const std::string HGPGlobalData::ParticleElapsedTimeUniformName = "u_particleTim
 const DataLine HGPGlobalData::ParticleElapsedTime = DataLine(DataNodePtr(new ParamNode(1, HGPGlobalData::ParticleElapsedTimeUniformName)), 0);
 
 
-TextureManager & HGPGlobalData::GetTexManager(HGPComponentManager & manager) { return manager.Manager; }
 UniformDictionary & HGPGlobalData::GetParams(HGPComponentManager & manager) { return manager.Params; }
 const DataLine & HGPGlobalData::GetTimeLerp(HGPComponentManager & manager) { return manager.GetTimeInterpolant(); }

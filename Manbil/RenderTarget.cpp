@@ -8,7 +8,7 @@
 #include "RenderingState.h"
 
 
-RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTexSettings, const RendTargetDepthTexSettings & depthTexSettings)
+RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTexSettings, RendTargetDepthTexSettings depthTexSettings)
     : colTexesSetts(colTexSettings), depthTexSetts(depthTexSettings)
 {
 	ClearAllRenderingErrors();
@@ -41,14 +41,13 @@ RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTe
 
         colAttachments.insert(colAttachments.end(), GL_COLOR_ATTACHMENT0 + sett.ColorAttachment);
 
+        //TODO: Use the below line instead of the rest of the lines below THAT one.
+        //RenderDataHandler::CreateTexture2DUBytes(colTx, sett.Settings, [](Vector2i pixelLoc, Vector4b * outCol) { *outCol = Vector4b((unsigned char)0, 0, 0, 0); });
         glGenTextures(1, &colTx);
         glBindTexture(GL_TEXTURE_2D, colTx);
-
-        //Set some parameters for the texture.
-        sett.Settings.Settings.SetData();
-
-        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(sett.Settings.Size),
-                     sett.Settings.Width, sett.Settings.Height, 0, ColorTextureSettings::ToFormat(sett.Settings.Size), GL_FLOAT, 0);
+        sett.Settings.BaseSettings.ApplyAllSettings(sett.Settings.GenerateMipmaps);
+        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(sett.Settings.PixelSize),
+                     sett.Settings.Width, sett.Settings.Height, 0, GL_RGBA, GL_FLOAT, 0);
 
         //Attach the texture to the frame buffer.
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + sett.ColorAttachment, GL_TEXTURE_2D, colTx, 0);
@@ -67,10 +66,12 @@ RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTe
     {
         glGenTextures(1, &depthTex);
         glBindTexture(GL_TEXTURE_2D, depthTex);
+        depthTexSetts.Settings.BaseSettings.ApplyAllSettings(depthTexSetts.Settings.GenerateMipmaps);
 
-        depthTexSettings.Settings.Settings.SetData();
         glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-        glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(depthTexSettings.Settings.Size),
+        //RenderDataHandler::CreateDepthTexture2D(depthTex, depthTexSetts.Settings);
+        //TODO: Replace the "glGenTextures", "glBindTexture", "depthTexSetts.Settings....ApplyAllSettings()", and "glTexImage2D" calls with the above lines, once you figure out how the "glTexParameteri" fits in.
+        glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(depthTexSetts.Settings.PixelSize),
                      fbWidth, fbHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
     }
@@ -80,7 +81,7 @@ RenderTarget::RenderTarget(const std::vector<RendTargetColorTexSettings> & colTe
     {
         glGenRenderbuffers(1, &depthTex);
         glBindRenderbuffer(GL_RENDERBUFFER, depthTex);
-        glRenderbufferStorage(GL_RENDERBUFFER, DepthTextureSettings::ToEnum(depthTexSettings.Settings.Size),
+        glRenderbufferStorage(GL_RENDERBUFFER, DepthTextureSettings::ToEnum(depthTexSettings.Settings.PixelSize),
                               fbWidth, fbHeight);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTex);
     }
@@ -153,7 +154,6 @@ RenderTarget::~RenderTarget(void)
 }
 
 
-
 void RenderTarget::EnableDrawingInto(void) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -163,4 +163,10 @@ void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, w, h);
+
+    //The user of this render target presumably just finished writing to it, so render depth mipmaps.
+    if (depthTexSetts.UsesDepthTexture && depthTexSetts.Settings.GenerateMipmaps)
+    {
+        RenderDataHandler::GenerateTexture2DMipmaps(depthTex);
+    }
 }

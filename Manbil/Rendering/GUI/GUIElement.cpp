@@ -4,7 +4,7 @@
 
 
 
-DataLine GUIElement::TextImageSampler(DataLine uvs, DataLine textScale, DataLine imgColor, DataLine textColor)
+DataLine GUIElement2::TextImageSampler(DataLine uvs, DataLine textScale, DataLine imgColor, DataLine textColor)
 {
     DataLine sampleImage(DataNodePtr(new TextureSampleNode(uvs, BackgroundImageSamplerUniformName)),
                          TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
@@ -30,31 +30,31 @@ DataLine GUIElement::TextImageSampler(DataLine uvs, DataLine textScale, DataLine
 
 
 
-const std::string GUIElement::RenderedTextSamplerUniformName = "u_GUITextSampler",
-                  GUIElement::BackgroundImageSamplerUniformName = "u_GUIBackgroundSampler";
-const std::string GUIElement::ButtonTimeUniformName = "u_buttonTime";
-const std::string GUIElement::WorldPosSubroutineName = "sub_worldPosCalc",
-                  GUIElement::WorldPosSubroutineUniformName = "u_worldPosCalc",
-                  GUIElement::WorldPos_Normal_SubroutineFuncName = "u_normal_worldPosCalc",
-                  GUIElement::WorldPos_Selected_SubroutineFuncName = "u_selected_worldPosCalc",
-                  GUIElement::WorldPos_Clicked_SubroutineFuncName = "u_clicked_worldPosCalc";
-const std::string GUIElement::RotationSubroutineName = "sub_rotationCalc",
-                  GUIElement::RotationSubroutineUniformName = "u_rotationCalc",
-                  GUIElement::Rotation_Normal_SubroutineFuncName = "u_normal_rotationCalc",
-                  GUIElement::Rotation_Selected_SubroutineFuncName = "u_selected_rotationCalc",
-                  GUIElement::Rotation_Clicked_SubroutineFuncName = "u_clicked_rotationCalc";
-const std::string GUIElement::ColorSubroutineName = "sub_colorCalc",
-                  GUIElement::ColorSubroutineUniformName = "u_colorCalc",
-                  GUIElement::Color_Normal_SubroutineFuncName = "u_normal_colorCalc",
-                  GUIElement::Color_Selected_SubroutineFuncName = "u_selected_colorCalc",
-                  GUIElement::Color_Clicked_SubroutineFuncName = "u_clicked_colorCalc";
-const std::string GUIElement::SizeSubroutineName = "sub_colorCalc",
-                  GUIElement::SizeSubroutineUniformName = "u_colorCalc",
-                  GUIElement::Size_Normal_SubroutineFuncName = "u_normal_colorCalc",
-                  GUIElement::Size_Selected_SubroutineFuncName = "u_selected_colorCalc",
-                  GUIElement::Size_Clicked_SubroutineFuncName = "u_clicked_colorCalc";
+const std::string GUIElement2::RenderedTextSamplerUniformName = "u_GUITextSampler",
+                  GUIElement2::BackgroundImageSamplerUniformName = "u_GUIBackgroundSampler";
+const std::string GUIElement2::ButtonTimeUniformName = "u_buttonTime";
+const std::string GUIElement2::WorldPosSubroutineName = "sub_worldPosCalc",
+                  GUIElement2::WorldPosSubroutineUniformName = "u_worldPosCalc",
+                  GUIElement2::WorldPos_Normal_SubroutineFuncName = "u_normal_worldPosCalc",
+                  GUIElement2::WorldPos_Selected_SubroutineFuncName = "u_selected_worldPosCalc",
+                  GUIElement2::WorldPos_Clicked_SubroutineFuncName = "u_clicked_worldPosCalc";
+const std::string GUIElement2::RotationSubroutineName = "sub_rotationCalc",
+                  GUIElement2::RotationSubroutineUniformName = "u_rotationCalc",
+                  GUIElement2::Rotation_Normal_SubroutineFuncName = "u_normal_rotationCalc",
+                  GUIElement2::Rotation_Selected_SubroutineFuncName = "u_selected_rotationCalc",
+                  GUIElement2::Rotation_Clicked_SubroutineFuncName = "u_clicked_rotationCalc";
+const std::string GUIElement2::ColorSubroutineName = "sub_colorCalc",
+                  GUIElement2::ColorSubroutineUniformName = "u_colorCalc",
+                  GUIElement2::Color_Normal_SubroutineFuncName = "u_normal_colorCalc",
+                  GUIElement2::Color_Selected_SubroutineFuncName = "u_selected_colorCalc",
+                  GUIElement2::Color_Clicked_SubroutineFuncName = "u_clicked_colorCalc";
+const std::string GUIElement2::SizeSubroutineName = "sub_colorCalc",
+                  GUIElement2::SizeSubroutineUniformName = "u_colorCalc",
+                  GUIElement2::Size_Normal_SubroutineFuncName = "u_normal_colorCalc",
+                  GUIElement2::Size_Selected_SubroutineFuncName = "u_selected_colorCalc",
+                  GUIElement2::Size_Clicked_SubroutineFuncName = "u_clicked_colorCalc";
 
-unsigned int GUIElement::GetFunctionIDIndex(std::string uniformName, std::string functionName) const
+unsigned int GUIElement2::GetFunctionIDIndex(std::string uniformName, std::string functionName) const
 {
     const unsigned int possibleSubroutineValues = 3;
 
@@ -79,7 +79,7 @@ unsigned int GUIElement::GetFunctionIDIndex(std::string uniformName, std::string
     return possibleSubroutineValues;
 }
 
-bool GUIElement::SetSubroutineFunctionID(std::string subroutineUniform, unsigned int index)
+bool GUIElement2::SetSubroutineFunctionID(std::string subroutineUniform, unsigned int index)
 {
     auto uniformLoc = RenderParams.SubroutineUniforms.find(subroutineUniform);
     if (uniformLoc == RenderParams.SubroutineUniforms.end())

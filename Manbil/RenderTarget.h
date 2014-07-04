@@ -1,10 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
-#include "TextureSettings.h"
-#include "Rendering/Texture Management/TextureLoadSettings.h"
+#include "Rendering/Texture Management/TextureSettings.h"
 
 
 //Specifies a color texture for a render target.
@@ -31,8 +31,8 @@ class RenderTarget
 {
 public:
 
-    RenderTarget(const std::vector<RendTargetColorTexSettings> & colTexSettings, const RendTargetDepthTexSettings & depthTexSettings);
-    RenderTarget(const RendTargetColorTexSettings & colTexSettings, const RendTargetDepthTexSettings & depthTexSettings)
+    RenderTarget(const std::vector<RendTargetColorTexSettings> & colTexSettings, RendTargetDepthTexSettings depthTexSettings);
+    RenderTarget(const RendTargetColorTexSettings & colTexSettings, RendTargetDepthTexSettings depthTexSettings)
         : RenderTarget(BuildVector(colTexSettings), depthTexSettings)
     {
 

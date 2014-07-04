@@ -14,14 +14,14 @@ class GUIElement
 public:
 
     //The background texture of the element.
-    ManbilTexture BackgroundTex;
+    MTexture * BackgroundTex;
     //The width/height of the collision box, not including the width/height of the background texture.
     Vector2i CollDimensionsExtra;
     //The offset of the collision box, relative to the center of the background texture.
     Vector2i CollCenterOffset;
     
 
-    GUIElement(ManbilTexture backgroundTex, Vector2i collDimensionsExtra, Vector2i collCenterOffset)
+    GUIElement(MTexture * backgroundTex, Vector2i collDimensionsExtra, Vector2i collCenterOffset)
         : BackgroundTex(backgroundTex), CollDimensionsExtra(collDimensionsExtra), CollCenterOffset(collCenterOffset)
     {
 
@@ -31,7 +31,7 @@ public:
     //Gets the total width/height of the collision box.
     Vector2i GetCollisionDimensions(void) const
     {
-        return CollDimensionsExtra + BackgroundTex.GetSize();
+        return CollDimensionsExtra + Vector2i((int)BackgroundTex->GetWidth(), (int)BackgroundTex->GetHeight());
     }
 };
 
@@ -82,7 +82,7 @@ public:
     GUIScreen & Screen;
 
     TextRenderer & TextRender;
-    ManbilTexture BackgroundImage;
+    MTexture * BackgroundImage;
 
     Material * RenderMat;
     UniformDictionary RenderParams;
@@ -131,11 +131,13 @@ public:
         if (newState != state)
         {
             state = newState;
+            unsigned int index;
+
             switch (state)
             {
                 case GES_NORMAL:
 
-                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Normal_SubroutineFuncName);
+                    index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Normal_SubroutineFuncName);
                     if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
 
                     index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Normal_SubroutineFuncName);
@@ -151,7 +153,7 @@ public:
 
                 case GES_SELECTED:
 
-                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Selected_SubroutineFuncName);
+                    index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Selected_SubroutineFuncName);
                     if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
 
                     index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Selected_SubroutineFuncName);
@@ -167,7 +169,7 @@ public:
 
                 case GES_CLICKED:
 
-                    unsigned int index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Clicked_SubroutineFuncName);
+                    index = GetFunctionIDIndex(WorldPosSubroutineUniformName, WorldPos_Clicked_SubroutineFuncName);
                     if (index < 3) SetSubroutineFunctionID(WorldPosSubroutineUniformName, index);
 
                     index = GetFunctionIDIndex(RotationSubroutineUniformName, Rotation_Clicked_SubroutineFuncName);

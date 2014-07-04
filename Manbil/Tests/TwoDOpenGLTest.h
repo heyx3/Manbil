@@ -14,6 +14,7 @@ public:
     TwoDOpenGLTest(void);
     ~TwoDOpenGLTest(void) { CleanUp(); }
 
+
 protected:
 
     virtual void OnInitializeError(std::string errorMsg) override;
@@ -27,6 +28,7 @@ protected:
 
     virtual void OnWorldEnd(void) override { CleanUp(); DestroyStaticSystems(false, true, true); }
 
+
 private:
 
     void CleanUp(void);
@@ -34,7 +36,7 @@ private:
 
     Camera * cam;
 
-    unsigned int backTex, foreTex;
+    MTexture backTex, foreTex;
 
     Material * quadMat;
     DrawingQuad * foreQuad, * backQuad;

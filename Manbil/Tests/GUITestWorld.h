@@ -11,7 +11,7 @@ public:
     static Vector2i WindowSize;
 
     GUITestWorld(void)
-        : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
+        : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
           quad(0), quadMat(0)
     {
     }

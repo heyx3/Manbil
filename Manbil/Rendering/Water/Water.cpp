@@ -3,7 +3,6 @@
 #include "../../OpenGLIncludes.h"
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
-#include "../../TextureSettings.h"
 #include "../Texture Management/TextureConverters.h"
 #include "../../Math/NoiseGeneration.hpp"
 #include "../../Material.h"
@@ -154,15 +153,13 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 
         //Create a texture from the seed map.
 
-        sf::Image img;
-        img.create(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
-        TextureConverters::ToImage<float>(*seedArgs.SeedValues, img, (void*)0, [](void* pd, float inF) { sf::Uint8 cmp = (sf::Uint8)BasicMath::RoundToInt(inF * 255.0f); return sf::Color(cmp, cmp, cmp, 255); });
+        Array2D<Vector4f> values(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
+        values.Fill([&seedArgs](Vector2i loc, Vector4f * outVal) { float val = (*seedArgs.SeedValues)[loc]; *outVal = Vector4f(val, val, val, 1.0f); });
 
-        sf::Texture * seedHeightmap = (*seedArgs.TexManager)[seedArgs.TexManager->CreateSFMLTexture()].SFMLTex;
-        seedHeightmap->loadFromImage(img);
-        seedHeightmap->setSmooth(false);
-        seedHeightmap->setRepeated(true);
-        Params.TextureUniforms["seedMap"] = UniformSamplerValue(seedHeightmap, "seedMap");
+        seedTex.Create(seedArgs.SeedTexQuality);
+        seedTex.SetData(values);
+        Params.TextureUniforms["seedMap"].Texture = seedTex.GetTextureHandle();
+        //TODO: Don't use a string literal for the seed map name.
     }
 }
 Water::~Water(void)
@@ -290,12 +287,13 @@ void Water::SetSeededWater(const SeededWaterArgs & args)
     Vector3f data(args.Amplitude, args.Period, args.Speed);
     Params.FloatUniforms["amplitude_period_speed"].SetValue(data);
 }
-void Water::SetSeededWaterSeed(sf::Texture * image, bool deletePrevious, Vector2i resolution)
+void Water::SetSeededWaterSeed(const Array2D<float> & seedMap)
 {
-    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f((float)resolution.x, (float)resolution.y));
-    if (deletePrevious)
-        Params.TextureUniforms["seedMap"].Texture.DeleteTexture();
-    Params.TextureUniforms["seedMap"].Texture.SetData(image);
+    Array2D<Vector4f> seedMapTex(seedMap.GetWidth(), seedMap.GetHeight());
+    seedMapTex.Fill([&seedMap](Vector2i loc, Vector4f * outVal) { float val = seedMap[loc]; *outVal = Vector4f(val, val, val, 1.0f); });
+
+    seedTex.SetData(seedMapTex);
+    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f((float)seedMap.GetWidth(), (float)seedMap.GetHeight()));
 }
 
 

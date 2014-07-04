@@ -5,8 +5,8 @@
 #include "../../Mesh.h"
 #include "../../Material.h"
 #include "../../Math/HigherMath.hpp"
-#include "../Texture Management/TextureManager.h"
 #include "../../OptionalValue.h"
+#include "../Texture Management/MTexture.h"
 
 
 //The Vertex struct used for water. Inputs:
@@ -100,8 +100,8 @@ public:
     {
     public:
         const Array2D<float> * SeedValues;
-        TextureManager * TexManager;
-        SeedmapWaterCreationArgs(const Array2D<float> * seedValues = 0, TextureManager * texManager = 0) : SeedValues(seedValues), TexManager(texManager) { }
+        ColorTextureSettings SeedTexQuality;
+        SeedmapWaterCreationArgs(const Array2D<float> * seedValues = 0, ColorTextureSettings seedQuality = ColorTextureSettings()) : SeedValues(seedValues), SeedTexQuality(seedQuality) { }
     };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos, Vector3f scale,
@@ -145,7 +145,7 @@ public:
     //Changes the properties of the water.
     void SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
-    void SetSeededWaterSeed(sf::Texture * image, bool deletePreviousSeedTex, Vector2i resolution);
+    void SetSeededWaterSeed(const Array2D<float> & seedMap);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
@@ -176,6 +176,6 @@ private:
     Vector4f * f_a_p;
     float * tsc;
 
-
+    MTexture seedTex;
     Mesh waterMesh;
 };

@@ -1,7 +1,7 @@
 #include "FreeTypeHandler.h"
 
 #include <iostream>
-#include "../Texture Management/ManbilTexture.h"
+#include "../Texture Management/MTexture.h"
 #include "../Texture Management/TextureConverters.h"
 
 
@@ -261,27 +261,9 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
     return true;
 }
 
-bool FreeTypeHandler::GetChar(ManbilTexture & outTex) const
+void FreeTypeHandler::GetChar(MTexture & outTex) const
 {
-    const Array2D<Vector4b> & charArray = GetChar();
-    sf::Image img;
-    TextureConverters::ToImage(charArray, img);
-
-    if (outTex.UsesGLTex())
-    {
-        RenderDataHandler::SetTexture2DData(outTex.GLTex, img);
-        return true;
-    }
-    else if (outTex.UsesSFMLTex())
-    {
-        outTex.SFMLTex->loadFromImage(img);
-        return true;
-    }
-    else
-    {
-        errorMsg = "The given texture is not an OpenGL texture OR an SFML texture!";
-        return false;
-    }
+    outTex.SetData(GetChar());
 }
 
 unsigned int FreeTypeHandler::RoundUpToPowerOfTwo(unsigned int x)

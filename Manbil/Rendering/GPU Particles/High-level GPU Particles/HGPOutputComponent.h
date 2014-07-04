@@ -4,7 +4,7 @@
 
 #include "../../../Math/Higher Math/Gradient.h"
 #include "../../Materials/UniformCollections.h"
-#include "../../Texture Management/TextureManager.h"
+#include "../../Texture Management/MTexture.h"
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../GPUParticleDefines.h"
 #include "../../Texture Management/TextureConverters.h"
@@ -13,7 +13,6 @@
 class HGPComponentManager;
 
 //TODO: Pull stuff out into the .cpp file. You can apparently do this even with templates?
-//PRIORITY: Rename and pull out this file; it is useful for more than just GPU particle properties -- for example, it can be used for tweening HUD stuff. Random seeds will have to be data lines instead of indexes into the particle vertex input.
 
 
 
@@ -39,7 +38,6 @@ namespace HGPGlobalData
     extern const std::string ParticleElapsedTimeUniformName;
     extern const DataLine ParticleElapsedTime;
 
-    extern TextureManager & GetTexManager(HGPComponentManager & manager);
     extern UniformDictionary & GetParams(HGPComponentManager & manager);
     extern const DataLine & GetTimeLerp(HGPComponentManager & manager);
 }
@@ -50,10 +48,12 @@ struct HGPTextureQuality
 {
 public:
 
-    TextureSettings::TextureFiltering FilterQuality;
+    TextureSettings::FilteringTypes FilterQuality;
+    ColorTextureSettings::PixelSizes PixelSize;
     unsigned int Width;
-    HGPTextureQuality(TextureSettings::TextureFiltering filterQuality, unsigned int width)
-        : FilterQuality(filterQuality), Width(width)
+
+    HGPTextureQuality(TextureSettings::FilteringTypes filterQuality, ColorTextureSettings::PixelSizes pixelSize, unsigned int width)
+        : FilterQuality(filterQuality), PixelSize(pixelSize), Width(width)
     {
 
     }
@@ -73,7 +73,6 @@ class HGPOutputComponent
 public:
 
     HGPComponentManager & Manager;
-    TextureManager & GetTexManager(void) const { return HGPGlobalData::GetTexManager(Manager); }
     UniformDictionary & GetParams(void) const { return HGPGlobalData::GetParams(Manager); }
 
 
@@ -277,42 +276,53 @@ public:
     virtual void InitializeComponent(void) override
     {
         //Create the texture.
-        lookupTexID = Manager.CreateSFMLTexture();
-        Assert(std::string() + "Texture creation failed. Texture width: " + std::to_string(GradientTexQuality.Width),
-               lookupTexID != TextureManager::UNUSED_ID);
+        gradientTex.Create(ColorTextureSettings(1, 1, gradientTexQuality.PixelSize, false, TextureSettings(gradientTexQuality.FilterQuality, TextureSettings::WT_CLAMP)));
 
         //Generate the texture data.
-        Array2D<VectorF> texOut(GradientTexQuality.Width, 1);
+        Array2D<VectorF> texOut(gradientTexQuality.Width, 1);
         GenerateTextureData(texOut.GetArray());
-        sf::Image img;
-        const sf::Uint8 maxUint8 = std::numeric_limits<sf::Uint8>().max();
-        TextureConverters::ToImage(texOut, img, (void*)(&max),
-                                   [](void* pDat, VectorF imgElement)
+
+        //Convert the texture data from an array to a texture.
+        Array2D<Vector4f> texColor4f(0, 0);
+        switch (ComponentSize)
         {
-            const sf::Uint8 max = *(sf::Uint8*)pDat;
-            return sf::Color((sf::Uint8)(imgElement[0] * max),
-                             (imgElement.GetSize() == 1) ? 0 : (sf::Uint8)(imgElement[1] * max),
-                             (imgElement.GetSize() <= 2) ? 0 : (sf::Uint8)(imgElement[2] * max),
-                             (imgElement.GetSize() <= 3) ? 0 : (sf::Uint8)(imgElement[3] * max));
-        });
+            case 1:
+                texColor4f.Fill([&texOut](Vector2i loc, Vector4f * outVal)
+                {
+                    *outVal = Vector4f(texOut[loc].GetValue()[0], 0.0f, 0.0f, 0.0f);
+                });
+                break;
+            case 2:
+                texColor4f.Fill([&texOut](Vector2i loc, Vector4f * outVal)
+                {
+                    const float * values = texOut[loc].GetValue();
+                    *outVal = Vector4f(values[0], values[1], 0.0f, 0.0f);
+                });
+                break;
+            case 3:
+                texColor4f.Fill([&texOut](Vector2i loc, Vector4f * outVal)
+                {
+                    const float * values = texOut[loc].GetValue();
+                    *outVal = Vector4f(values[0], values[1], values[2], 0.0f);
+                });
+                break; 
+            case 4:
+                texColor4f.Fill([&texOut](Vector2i loc, Vector4f * outVal)
+                {
+                    const float * values = texOut[loc].GetValue();
+                    *outVal = Vector4f(values[0], values[1], values[2], values[3]);
+                });
+                break;
 
-        ManbilTexture * tex = Manager[lookupTexID];
-        Assert("Texture was not found in the manager immediately after successfully creating it!", tex != 0);
-        tex->SFMLTex->create(GradientTexQuality.Width, 1);
-
-        //Set the texture quality.
-        tex->SetFiltering(GradientTexQuality.FilterQuality);
-        tex->SetWrapping(TextureSettings::TextureWrapping::TW_CLAMP);
+            default: assert(false);
+        }
+        gradientTex.SetData(texColor4f);
 
         //Set the texture data.
-        Assert(std::string() + "Texture loading failed. Texture width: " + std::to_string(GradientTexQuality.Width), tex->SFMLTex->loadFromImage(img));
-        Params.TextureUniforms[GetSamplerName()].Texture = tex;
+        GetParams().TextureUniforms[GetSamplerName()].Texture = gradientTex.GetTextureHandle();
 
     }
-    virtual void UpdateComponent(void) override
-    {
-        Params.TextureUniforms[GetSamplerName()].Texture = Manager[lookupTexID];
-    }
+
 
 protected:
 
@@ -333,6 +343,7 @@ protected:
         }
     }
 
+
 private:
 
     //Given a float array of size "LookupTextureWidth", fills it with the values of the gradient.
@@ -340,13 +351,13 @@ private:
     {
         const float toTValue = 1.0f / (float)(LookupTextureWidth - 1);
         for (unsigned int i = 0; i < LookupTextureWidth; ++i)
-            GradientValue.GetValue(i * toTValue, values[i].GetValue());
+            gradientValue.GetValue(i * toTValue, values[i].GetValue());
     }
 
     Gradient<ComponentSize> gradientValue;
     HGPTextureQuality gradientTexQuality;
 
-    unsigned int lookupTexID;
+    MTexture gradientTex;
 };
 
 

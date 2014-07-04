@@ -6,7 +6,6 @@
 #include "Material.h"
 #include "ScreenClearer.h"
 #include "RenderingState.h"
-#include "TextureSettings.h"
 #include "Input/Input Objects/MouseBoolInput.h"
 #include "Math/Higher Math/BumpmapToNormalmap.h"
 
@@ -19,7 +18,9 @@
 
 #include <assert.h>
 
+
 typedef MaterialConstants MC;
+
 
 namespace OGLTestPrints
 {
@@ -45,6 +46,7 @@ namespace OGLTestPrints
 using namespace OGLTestPrints;
 
 
+
 Vector2i windowSize(250, 250);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
@@ -59,12 +61,14 @@ void OpenGLTestWorld::InitializeTextures(void)
     cts.ColorAttachment = 0;
     cts.Settings.Width = windowSize.x;
     cts.Settings.Height = windowSize.y;
-    cts.Settings.Size = ColorTextureSettings::CTS_32;
-    cts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    cts.Settings.PixelSize = ColorTextureSettings::CTS_32;
+    cts.Settings.GenerateMipmaps = false;
+    cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
     RendTargetDepthTexSettings dts;
     dts.UsesDepthTexture = true;
-    dts.Settings.Size = DepthTextureSettings::DTS_24;
-    dts.Settings.Settings = TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false);
+    dts.Settings.PixelSize = DepthTextureSettings::DTS_24;
+    dts.Settings.GenerateMipmaps = false;
+    dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
 
     //Render target creation.
     worldRenderID = manager.CreateRenderTarget(cts, dts);
@@ -76,15 +80,13 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
 
-    if (!waterNormalTex.loadFromFile("Content/Textures/Normalmap.png"))
+    if (!waterNormalTex.Create("Content/Textures/Normalmap.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
     {
         std::cout << "Failed to load 'Normalmap.png'.\n";
         Pause();
         EndWorld();
         return;
     }
-    sf::Texture::bind(&waterNormalTex);
-    TextureSettings(TextureSettings::TextureFiltering::TF_LINEAR, TextureSettings::TextureWrapping::TW_WRAP, true).SetData();
 
 
     //Set up the test font.
@@ -97,7 +99,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->CreateTextRenderSlots(testFontID, 2048, 512, TextureSettings(TextureSettings::TF_LINEAR, TextureSettings::TW_CLAMP, true)))
+    if (!TextRender->CreateTextRenderSlots(testFontID, 2048, 512, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP)))
     {
         std::cout << "Error creating font slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();
@@ -265,7 +267,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     }
     else
     {
-        HGPComponentManager manager(Textures, particleParams);
+        HGPComponentManager manager(particleParams);
         const unsigned int posSeeds[] = { 5, 1, 3, 2 },
                            velSeeds[] = { 0, 1, 2 },
                            accelSeeds[] = { 3, 4, 5 };
@@ -368,8 +370,9 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->UpdateUniformLocations(waterMat);
     water->Params.TextureUniforms[texSamplerName] =
-        UniformSamplerValue(&waterNormalTex, texSamplerName,
+        UniformSamplerValue(waterNormalTex.GetTextureHandle(), texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
+    //TODO: Try changing the above line to just use "... .Texture = waterNormalTex.GetTextureHandle()". Look for similiar issues in other worlds.
 
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
 
@@ -387,11 +390,11 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-: SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
-  water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
-  gsTestMat(0), gsMesh(PrimitiveTypes::Points),
-  particleMat(0), particleMesh(PrimitiveTypes::Points),
-  particleManager(Textures, particleParams)
+    : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
+      water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
+      gsTestMat(0), gsMesh(PrimitiveTypes::Points),
+      particleMat(0), particleMesh(PrimitiveTypes::Points),
+      particleManager(particleParams)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -450,6 +453,7 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
     DeleteAndSetToNull(particleMat);
+    waterNormalTex.DeleteIfValid();
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -547,7 +551,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     identity.SetAsIdentity();
     RenderTarget * finalRend = ppc->GetFinalRender();
     if (finalRend == 0) finalRend = manager[worldRenderID];
-    finalScreenQuadParams.TextureUniforms["u_finalRenderSample"].Texture.SetData(finalRend->GetColorTextures()[0]);
+    finalScreenQuadParams.TextureUniforms["u_finalRenderSample"].Texture = finalRend->GetColorTextures()[0];
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

@@ -16,6 +16,7 @@ TransformObject TextRenderer::textRendererTransform = TransformObject();
 Matrix4f TextRenderer::viewMat = Matrix4f(),
          TextRenderer::projMat = Matrix4f(),
          TextRenderer::worldMat = Matrix4f();
+MTexture TextRenderer::tempTex = MTexture();
 
 const char * textSamplerName = "u_charSampler";
 
@@ -25,6 +26,8 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     if (textRenderer != 0) return "System was already initialized.";
 
     textRendererQuad = new DrawingQuad();
+    tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_8_GREYSCALE, false,
+                                        TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)));
 
 
     //Transform matrices and render info.
@@ -70,52 +73,56 @@ void TextRenderer::DestroySystem(void)
 
     delete textRendererQuad;
     delete textRenderer;
+    textRendererQuad = 0;
+    textRenderer = 0;
     textRendererParams.ClearUniforms();
+    tempTex.DeleteIfValid();
+}
+
+
+TextRenderer::~TextRenderer(void)
+{
+    //Delete every slot's render target.
+    for (auto font = fonts.begin(); font != fonts.end(); ++font)
+        for (auto slot = font->second.begin(); slot != font->second.end(); ++slot)
+            RTManager.DeleteRenderTarget(slot->RenderTargetID);
+    //TODO: Double-check that there is no way to delete fonts.
 }
 
 
 unsigned int TextRenderer::CreateAFont(std::string fontPath, unsigned int pixelWidth, unsigned int pixelHeight)
 {
-    //Create texture and set its settings.
-    unsigned int texID = TexManager.CreateSFMLTexture();
-    sf::Texture * tex = TexManager[texID].SFMLTex;
-    TextureSettings(TextureSettings::TF_NEAREST, TextureSettings::TW_CLAMP, false).SetData(tex);
-
     //Try to create the font.
     unsigned int fontID = GetHandler().LoadFont(fontPath, FontSizeData(1, 0, 0, 0), 0);
     if (fontID == FreeTypeHandler::ERROR_ID)
     {
-        TexManager.DeleteTexture(texID);
         errorMsg = "Error creating font from '" + fontPath + "': " + GetHandler().GetError();
         return FreeTypeHandler::ERROR_ID;
     }
+
     //Try to set the font's size.
     if (!GetHandler().SetFontSize(fontID, pixelWidth, pixelHeight))
     {
-        TexManager.DeleteTexture(texID);
         errorMsg = "Error resizing font '" + fontPath + "': " + GetHandler().GetError();
         return FreeTypeHandler::ERROR_ID;
     }
 
     //Create the entry in the "slots" map.
-    SlotCollection coll;
-    coll.TexID = texID;
-    slots[fontID] = coll;
-
+    fonts[fontID] = std::vector<Slot>();
     return fontID;
 }
-bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, TextureSettings & settings, unsigned int numbSlots)
+bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, bool useMipmaps, TextureSettings & settings, unsigned int numbSlots)
 {
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return false;
-    std::vector<Slot> & slotCollection = slots[fontID].Slots;
+    std::vector<Slot> & slotCollection = fonts[fontID];
 
     //Set up the settings used for each render target.
     RendTargetColorTexSettings colorSettings;
-    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::Sizes::CTS_8_GREYSCALE, settings);
+    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::CTS_8_GREYSCALE, useMipmaps, settings);
     RendTargetDepthTexSettings depthSettings;
     depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::Sizes::DTS_16, settings);
+    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::DTS_16, useMipmaps, settings);
 
     //Create the given number of slots.
     for (unsigned int i = 0; i < numbSlots; ++i)
@@ -144,10 +151,10 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
 
 bool TextRenderer::DoesSlotExist(FontSlot slot) const
 {
-    SlotCollectionLoc collLoc = slots.find(slot.FontID);
-    if (collLoc == slots.end()) return false;
+    SlotCollectionLoc collLoc = fonts.find(slot.FontID);
+    if (collLoc == fonts.end()) return false;
 
-    return (collLoc != slots.end() && collLoc->second.Slots.size() < slot.SlotIndex);
+    return (collLoc != fonts.end() && collLoc->second.size() < slot.SlotIndex);
 }
 
 int TextRenderer::GetNumbSlots(unsigned int fontID) const
@@ -155,7 +162,7 @@ int TextRenderer::GetNumbSlots(unsigned int fontID) const
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return -1;
 
-    return (int)loc->second.Slots.size();
+    return (int)loc->second.size();
 }
 Vector2i TextRenderer::GetSlotRenderSize(FontSlot slot) const
 {
@@ -178,10 +185,10 @@ const char * TextRenderer::GetString(FontSlot slot) const
 
     return slotP->String;
 }
-ManbilTexture TextRenderer::GetRenderedString(FontSlot slot) const
+RenderObjHandle TextRenderer::GetRenderedString(FontSlot slot) const
 {
     const Slot * slotP;
-    if (!TryFindFontSlot(slot, slotP)) return ManbilTexture();
+    if (!TryFindFontSlot(slot, slotP)) return 0;
 
     return RTManager[slotP->RenderTargetID]->GetColorTextures()[0];
 }
@@ -194,10 +201,10 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigne
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(slot.FontID, loc)) return false;
     Slot * slotP;
-    if (!TryFindSlot(slot.SlotIndex, slots[slot.FontID].Slots, slotP)) return false;
+    if (!TryFindSlot(slot.SlotIndex, fonts[slot.FontID], slotP)) return false;
 
     //Render into the slot.
-    if (RenderString(textToRender, slot.FontID, TexManager[loc->second.TexID], RTManager[slotP->RenderTargetID], backBufferWidth, backBufferHeight))
+    if (RenderString(textToRender, slot.FontID, RTManager[slotP->RenderTargetID], backBufferWidth, backBufferHeight))
     {
         slotP->String = textToRender.c_str();
         return true;
@@ -205,13 +212,11 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigne
 
     return false;
 }
-bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, ManbilTexture texM, RenderTarget * targ, unsigned int bbWidth, unsigned int bbHeight)
+bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, RenderTarget * targ, unsigned int bbWidth, unsigned int bbHeight)
 {
     //Get texture/render target.
-    sf::Texture * sTex = texM.SFMLTex;
-    if (sTex == 0) { errorMsg = "Associated texture did not exist!"; return false; }
     if (targ == 0) { errorMsg = "Associated render target did not exist!"; return false; }
-    textRendererParams.TextureUniforms[textSamplerName].Texture = texM;
+    textRendererParams.TextureUniforms[textSamplerName].Texture = tempTex.GetTextureHandle();
 
 
     //Set up rendering.
@@ -254,20 +259,15 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
         //If the character is empty (i.e. a space), don't bother rendering it.
         if (FreeTypeHandler::Instance.GetChar().GetWidth() > 0 && FreeTypeHandler::Instance.GetChar().GetHeight() > 0)
         {
-            //Render the array into a texture.
-            if (!FreeTypeHandler::Instance.GetChar(texM))
-            {
-                errorMsg = std::string() + "Error copying character #" + std::to_string(i) + ", '" + ch + "', into an SFML texture: " + FreeTypeHandler::Instance.GetError();
-                targ->DisableDrawingInto(bbWidth, bbHeight);
-                return false;
-            }
+            //Render the array into the temp texture.
+            FreeTypeHandler::Instance.GetChar(tempTex);
 
             //Set up the render quad size/location.
             textRendererQuad->SetBounds(pos, pos + scaledSize);
             textRendererQuad->IncrementPos(Vector2f(scaledOffset.x, -(1.0f + scaledOffset.y)));
             textRendererQuad->MakeSizePositive();
 
-            //Render.
+            //Render the character into the render target.
             if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
             {
                 errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
@@ -284,73 +284,11 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, M
     return true;
 }
 
-/*
-bool TextRenderer::RenderString(unsigned int slot, std::string textToRender, RenderInfo & info, UniformSamplerValue & texIn,
-                                const std::vector<const Mesh*> & meshes, Material * toRender, UniformDictionary & params)
-{
-    //Try to find the slot.
-    SlotMapLoc loc;
-    if (!TryFindSlot(slot, loc)) return false;
-    const Slot & slotC = loc->second;
-
-    //Get texture/render target.
-    sf::Texture * tex = TexManager[slotC.TexID].SFMLTex;
-    ManbilTexture texMB(tex);
-    RenderTarget * rendTarg = RTManager[slotC.RenderTargetID];
-    if (tex == 0) { errorMsg = "Associated texture did not exist!"; return false; }
-    if (rendTarg == 0) { errorMsg = "Associated render target did not exist!"; return false; }
-
-    //Calculate the "side" vectors for each mesh.
-    std::vector<Vector3f> sideways;
-    sideways.reserve(meshes.size());
-    for (unsigned int i = 0; i < meshes.size(); ++i)
-        sideways.insert(sideways.end(), meshes[i]->Transform.GetRightward());
-
-    //Render each character into the render target.
-    Vector3f deltaPos;
-    for (unsigned int i = 0; i < textToRender.size(); ++i)
-    {
-        char ch = textToRender.c_str()[i];
-
-        //Render the character into an array.
-        if (!FreeTypeHandler::Instance.RenderChar(slot, ch))
-        {
-            errorMsg = std::string() + "Error loading character #" + std::to_string(i) + ", '" + ch + "': " + FreeTypeHandler::Instance.GetError();
-            return false;
-        }
-
-        //Render the array into a texture.
-        if (!FreeTypeHandler::Instance.GetChar(texMB))
-        {
-            errorMsg = std::string() + "Error copying character #" + std::to_string(i) + ", '" + ch + "', into an SFML texture: " + FreeTypeHandler::Instance.GetError();
-            return false;
-        }
-        texIn.Texture = texMB;
-
-        //Render the texture.
-        if (!toRender->Render(RenderPasses::BaseComponents, info, meshes, params))
-        {
-            errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + toRender->GetErrorMsg();
-            return false;
-        }
-
-        //Move the meshes sideways to the next letter.
-        for (unsigned int i = 0; i < meshes.size(); ++i)
-            ;//meshes[i]->Transform.IncrementPosition()
-        //TODO: Finish.
-        errorMsg = std::string() + "This feature not finished yet.";
-        return false;
-    }
-
-    return true;
-}
-*/
-
 
 bool TextRenderer::TryFindSlotCollection(unsigned int fontID, SlotCollectionLoc & outCollection) const
 {
-    outCollection = slots.find(fontID);
-    if (outCollection == slots.end())
+    outCollection = fonts.find(fontID);
+    if (outCollection == fonts.end())
     {
         errorMsg = "Couldn't find font ID " + std::to_string(fontID);
         return false;
@@ -384,11 +322,11 @@ bool TextRenderer::TryFindFontSlot(FontSlot slot, const Slot*& outSlot) const
 {
     TextRenderer::SlotCollectionLoc collLoc;
     if (!TryFindSlotCollection(slot.FontID, collLoc)) return false;
-    return TryFindSlot(slot.SlotIndex, collLoc->second.Slots, outSlot);
+    return TryFindSlot(slot.SlotIndex, collLoc->second, outSlot);
 }
 bool TextRenderer::TryFindFontSlot(FontSlot slot, Slot*& outSlot)
 {
     TextRenderer::SlotCollectionLoc collLoc;
     if (!TryFindSlotCollection(slot.FontID, collLoc)) return false;
-    return TryFindSlot(slot.SlotIndex, slots[slot.FontID].Slots, outSlot);
+    return TryFindSlot(slot.SlotIndex, fonts[slot.FontID], outSlot);
 }

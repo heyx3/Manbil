@@ -11,6 +11,7 @@
 #include "Math/Higher Math/Gradient.h"
 
 
+
 const int noiseSize = 512,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
@@ -55,9 +56,6 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
         nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes, slopeStart));
         nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones, slopeEnd));
 
-		//colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(0.0f, Vector4f(0, 0, 0, 1)));
-		//colGrad.OrderedNodes.insert(colGrad.OrderedNodes.end(), ColorNode(1.0f, Vector4f(1, 1, 1, 1)));
-
 		#pragma endregion
 	}
 	else assert(false);
@@ -88,7 +86,6 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 			outY = y;
 
 			//Set the pixel values.
-			//Vector4f col = colGrad.GetColor(readNoise) * 255.0f;
             float colFromGrad[3];
             colGrad.GetValue(readNoise, colFromGrad);
             Vector4f col(colFromGrad[0] * 255.0f, colFromGrad[1] * 255.0f, colFromGrad[2] * 255.0f, 255.0f);
@@ -427,15 +424,25 @@ void NoiseTest::UpdateWorld(float elapsedTime)
         {
             pressedLast = true;
 
-            Array2D<float> bumps(noiseSize, noiseSize);
-            sf::Image rni = renderedNoiseTex->copyToImage();
-            TextureConverters::ToArray(rni, ChannelsIn::CI_Blue, bumps);
+            //Get texture data as an array.
+            Array2D<Vector4b> texColor(0, 0);
+            TextureConverters::ToArray(*renderedNoiseTex, texColor);
 
+            //Convert it to a heightmap array.
+            Array2D<float> bumps(noiseSize, noiseSize);
+            bumps.Fill([&texColor](Vector2i loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
+
+            //Convert the heightmap to a normal map.
             Array2D<Vector3f> normals(noiseSize, noiseSize);
             BumpmapToNormalmap::Convert(bumps, bumpHeight, true, normals);
 
-            TextureConverters::ToImage(normals, rni);
-            renderedNoiseTex->update(rni);
+            //Output the normal map to the texture.
+            Array2D<Vector4f> normalColors(noiseSize, noiseSize);
+            normalColors.Fill([&normals](Vector2i loc, Vector4f * outCol) { Vector3f c = normals[loc]; *outCol = Vector4f(c.x, c.y, c.z, 1.0f); });
+            TextureConverters::ToTexture(normalColors, *renderedNoiseTex);
+
+            //Update the sprite's texture.
+            //TODO: I'm fairly certain this isn't necessary, as the texture handle doesn't change.
             renderedNoise->setTexture(*renderedNoiseTex);
         }
     }

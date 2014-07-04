@@ -4,13 +4,12 @@
 #include <unordered_map>
 #include <memory>
 #include "../../OpenGLIncludes.h"
-#include "../Texture Management/ManbilTexture.h"
 #include "../../Math/Matrix4f.h"
 #include "Data Nodes/Vector.h"
+#include "../../ShaderHandler.h"
 
 
 #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
-typedef std::shared_ptr<sf::Texture> SFTexPtr;
 
 
 //TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms.
@@ -195,12 +194,12 @@ public:
 struct UniformSamplerValue
 {
 public:
-    ManbilTexture Texture;
+    RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(ManbilTexture texture, std::string name, UniformLocation loc = -1)
+    UniformSamplerValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
-    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture() { }
+    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 

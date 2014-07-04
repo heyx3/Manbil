@@ -1,13 +1,12 @@
 #include "NoiseToTexture.h"
 
-bool NoiseToTexture::GetImage(sf::Image & img) const
+void NoiseToTexture::GetImage(Array2D<Vector4b> & outImage) const
 {
 	//The pixel array.
-	Array2D<sf::Uint8> outP(NoiseToUse->GetWidth() * 4, NoiseToUse->GetHeight(), 255);
+    outImage.Reset(NoiseToUse->GetWidth(), NoiseToUse->GetHeight());
 	
 	//Some temp variables.
 	unsigned int x, y, pixX, pixY;
-	sf::Uint8 noiseVal;
 	Vector4f col;
 	Vector4b colB;
 	float tempF, readNoise;
@@ -19,9 +18,6 @@ bool NoiseToTexture::GetImage(sf::Image & img) const
 		{
 			tempF = (*NoiseToUse)[Vector2i(x, y)];
             readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
-
-			//Convert to a byte value.
-			noiseVal = (sf::Uint8)BasicMath::RoundToInt(readNoise * 255.0f);
 
 			//Get the coordinates of the pixel in the out aray.
 			pixX = x * 4;
@@ -35,17 +31,7 @@ bool NoiseToTexture::GetImage(sf::Image & img) const
 							(unsigned char)BasicMath::RoundToInt(col.y),
 							(unsigned char)BasicMath::RoundToInt(col.z),
 							(unsigned char)BasicMath::RoundToInt(col.w));
-
-			outP[Vector2i(pixX, pixY)] = colB.x;
-			outP[Vector2i(pixX + 1, pixY)] = colB.y;
-			outP[Vector2i(pixX + 2, pixY)] = colB.z;
-			outP[Vector2i(pixX + 3, pixY)] = colB.w;
+            outImage[Vector2i(pixX, pixY)] = colB;
 		}
 	}
-
-
-	//Put the pixels into the Image.
-	img.create(NoiseToUse->GetWidth(), NoiseToUse->GetHeight(), outP.GetArray());
-
-	return true;
 }

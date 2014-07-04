@@ -10,7 +10,7 @@ class NoiseTest : public SFMLWorld
 {
 public:
 
-	NoiseTest(void) : SFMLWorld(500, 500) { renderedNoise = NULL; renderedNoiseTex = NULL; }
+	NoiseTest(void) : SFMLWorld(500, 500, sf::ContextSettings(24, 0, 0, 4, 1)) { renderedNoise = NULL; renderedNoiseTex = NULL; }
 	virtual ~NoiseTest(void) { DeleteData(); }
 
 protected:
