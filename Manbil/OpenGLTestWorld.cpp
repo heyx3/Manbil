@@ -390,7 +390,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 
 OpenGLTestWorld::OpenGLTestWorld(void)
-    : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 3, 3)),
+    : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
       water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
       gsTestMat(0), gsMesh(PrimitiveTypes::Points),
       particleMat(0), particleMesh(PrimitiveTypes::Points),

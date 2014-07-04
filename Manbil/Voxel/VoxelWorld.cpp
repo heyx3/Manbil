@@ -43,7 +43,7 @@ bool capMouse = true;
 
 
 VoxelWorld::VoxelWorld(void)
-    : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 3, 1)),
+    : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 4, 1)),
         voxelMat(0),
         renderState(RenderingState::Cullables::C_BACK),
         player(manager), oculusDev(0), postProcessing(0),

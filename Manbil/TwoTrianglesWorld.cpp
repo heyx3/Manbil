@@ -257,7 +257,7 @@ const std::string TTW::CustomSamplerName = "u_mySampler",
 
 
 TTW::TwoTrianglesWorld(void)
-    : SFMLOpenGLWorld(windowSize.x, windowSize.y)
+    : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 4, 1))
 {
     mat = 0;
     quad = 0;

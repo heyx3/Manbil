@@ -36,23 +36,21 @@ string ToString(Vector v)
         if (axis < size - 1)
             str += ", ";
     }
-
+    
     return str;
 }
 
-
-//PRIORITY: Go through each test world and in the sf::ContextSettings, change the version to 4.1.
 
 int main()
 {
     //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    GUITestWorld().RunWorld();
+    //GUITestWorld().RunWorld();
 
     //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }

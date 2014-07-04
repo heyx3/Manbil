@@ -25,7 +25,7 @@ using namespace TwoDOpenGLTestStuff;
 
 TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
-                      sf::ContextSettings(24, 0, 0, 3, 3)),
+                      sf::ContextSettings(24, 0, 0, 4, 1)),
       cam(0), foreQuad(0), backQuad(0), quadMat(0)
 {
 
