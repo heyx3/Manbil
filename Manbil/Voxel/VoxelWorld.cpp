@@ -85,7 +85,6 @@ void VoxelWorld::SetUpVoxels(void)
         FlatNoise3D flat(1.0f);
         flat.Generate(noise);
 
-        //PRIORITY: Notice that using the following line changes how the bug manifests itself. This indicates a problem with RE-calculating a mesh.
         noise[Vector3i()] = 0.0f;
     }
     else if (false)
