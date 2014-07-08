@@ -315,6 +315,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -773,6 +776,9 @@
       <Filter>Rendering\Water</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>

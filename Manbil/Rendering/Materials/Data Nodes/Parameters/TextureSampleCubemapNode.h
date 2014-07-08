@@ -4,16 +4,16 @@
 #include "../../../Texture Management/TextureChannels.h"
 
 
-//Outputs the result of sampling a 2D texture.
-class TextureSample2DNode : public DataNode
+//Outputs the result of sampling a cubemap texture.
+class TextureSampleCubemapNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "textureSample2DNode"; }
+    virtual std::string GetName(void) const override { return "textureSampleCubemapNode"; }
     std::string GetSamplerUniformName(void) const { return samplerName; }
 
 
-    TextureSample2DNode(const DataLine & UVs, std::string _samplerName = "");
+    TextureSampleCubemapNode(const DataLine & textureCoords, std::string _samplerName = "");
 
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -32,7 +32,7 @@ private:
 
     std::string GetSampleOutputName(void) const { return GetName() + ToString(GetUniqueID()) + samplerName; }
 
-    const DataLine & GetUVInput(void) const { return GetInputs()[0]; }
+    const DataLine & GetTexCoordInput(void) const { return GetInputs()[0]; }
 
     //Gets the size of the output VectorF for the given sampling channel.
     static unsigned int GetSize(ChannelsOut channel);

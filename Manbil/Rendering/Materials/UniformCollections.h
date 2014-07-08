@@ -213,7 +213,7 @@ public:
     UniformSamplerCubemapValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
     UniformSamplerCubemapValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
-    std::string GetDeclaration(void) const { return "uniform gsamplerCube " + Name + ";"; }
+    std::string GetDeclaration(void) const { return "uniform samplerCube " + Name + ";"; }
 };
 
 

@@ -161,6 +161,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h" />
