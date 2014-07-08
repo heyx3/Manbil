@@ -294,7 +294,8 @@ struct UniformList
 public:
     struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
-                         MatrixUniforms, Texture2DUniforms,
+                         MatrixUniforms,
+                         Texture2DUniforms, TextureCubemapUniforms,
                          IntUniforms, IntArrayUniforms,
                          SubroutineUniforms;
     //Returns "Uniform("", -1)" if the given name isn't found.
@@ -318,6 +319,7 @@ public:
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSampler2DValue) Texture2DUniforms;
+    U_UMAP(UniformSamplerCubemapValue) TextureCubemapUniforms;
     U_UMAP(UniformSubroutineValue) SubroutineUniforms;
 
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);

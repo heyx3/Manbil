@@ -92,8 +92,17 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
         if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
         {
             uniforms.Texture2DUniforms.insert(uniforms.Texture2DUniforms.end(),
-                                            UniformList::Uniform(iterator->first, tempLoc));
+                                              UniformList::Uniform(iterator->first, tempLoc));
             dict.Texture2DUniforms[iterator->first].Location = tempLoc;
+        }
+    }
+    for (auto iterator = dict.TextureCubemapUniforms.begin(); iterator != dict.TextureCubemapUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
+        {
+            uniforms.TextureCubemapUniforms.insert(uniforms.TextureCubemapUniforms.end(),
+                                                   UniformList::Uniform(iterator->first, tempLoc));
+            dict.TextureCubemapUniforms[iterator->first].Location = tempLoc;
         }
     }
     //Subroutines are a bit more complex to set up.
@@ -204,6 +213,17 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             texUnit += 1;
 
             RenderDataHandler::BindTexture(TextureTypes::TT_2D, iterator->second.Texture);
+        }
+    }
+    for (auto iterator = params.TextureCubemapUniforms.begin(); iterator != params.TextureCubemapUniforms.end(); ++iterator)
+    {
+        if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
+        {
+            RenderDataHandler::SetUniformValue(iterator->second.Location, 1, &texUnit);
+            RenderDataHandler::ActivateTextureUnit(texUnit);
+            texUnit += 1;
+
+            RenderDataHandler::BindTexture(TextureTypes::TT_CUBE, iterator->second.Texture);
         }
     }
 

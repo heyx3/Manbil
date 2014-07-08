@@ -101,6 +101,8 @@ std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
         decls += iterator->second.GetDeclaration() + "\n";
     for (auto iterator = dict.Texture2DUniforms.begin(); iterator != dict.Texture2DUniforms.end(); ++iterator)
         decls += iterator->second.GetDeclaration() + "\n";
+    for (auto iterator = dict.TextureCubemapUniforms.begin(); iterator != dict.TextureCubemapUniforms.end(); ++iterator)
+        decls += iterator->second.GetDeclaration() + "\n";
     for (auto iterator = dict.SubroutineUniforms.begin(); iterator != dict.SubroutineUniforms.end(); ++iterator)
         decls += iterator->second.GetDeclaration() + "\n";
 
