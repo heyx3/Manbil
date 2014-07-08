@@ -37,6 +37,12 @@ unsigned int TextureSample2DNode::GetOutputIndex(ChannelsOut channel)
 }
 
 
+void TextureSample2DNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
+{
+    uniforms.Texture2DUniforms[GetSamplerUniformName()] = UniformSampler2DValue(GetSamplerUniformName());
+}
+
+
 TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string _samplerName)
     : DataNode(MakeVector(uvs), makeVector())
 {
@@ -52,4 +58,34 @@ TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string _samp
 void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 {
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + GetSamplerUniformName() + ", " + GetUVInput().GetValue() + ");\n";
+}
+
+std::vector<unsigned int> TextureSample2DNode::makeVector(void)
+{
+    std::vector<unsigned int> ints;
+    ints.insert(ints.end(), 1);
+    ints.insert(ints.end(), 1);
+    ints.insert(ints.end(), 1);
+    ints.insert(ints.end(), 1);
+    ints.insert(ints.end(), 3);
+    ints.insert(ints.end(), 4);
+    return ints;
+}
+
+unsigned int TextureSample2DNode::GetSize(ChannelsOut channel)
+{
+    switch (channel)
+    {
+    case ChannelsOut::CO_Red:
+    case ChannelsOut::CO_Green:
+    case ChannelsOut::CO_Blue:
+    case ChannelsOut::CO_Alpha:
+        return 1;
+    case ChannelsOut::CO_AllColorChannels:
+        return 3;
+    case ChannelsOut::CO_AllChannels:
+        return 4;
+
+    default: assert(false); return 0;
+    }
 }
