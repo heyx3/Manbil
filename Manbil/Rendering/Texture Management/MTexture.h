@@ -17,7 +17,6 @@ public:
     MTexture(MTexture & cpy); //Intentionally not implemented.
 
 
-
     //Getters.
 
     RenderObjHandle GetTextureHandle(void) const { return texHandle; }
@@ -28,7 +27,6 @@ public:
     unsigned int GetHeight(void) const { return settings.Height; }
     bool UsesMipmaps(void) const { return settings.GenerateMipmaps; }
     ColorTextureSettings::PixelSizes GetPixelSize(void) const { return settings.PixelSize; }
-
 
 
     //Setters.
@@ -42,7 +40,6 @@ public:
     void SetHorzWrappingType(TextureSettings::WrappingTypes wrapping);
     void SetVertWrappingType(TextureSettings::WrappingTypes wrapping);
     void SetWrappingType(TextureSettings::WrappingTypes wrapping);
-
 
 
     //Texture operations.
