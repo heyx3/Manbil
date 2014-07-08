@@ -53,12 +53,25 @@ unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t);
 
 enum TextureTypes
 {
-	Tex_OneD,
-	Tex_TwoD,
-	Tex_ThreeD,
-	Tex_Cube,
+	TT_1D,
+	TT_2D,
+	TT_3D,
+	TT_CUBE,
 };
 GLenum TextureTypeToGLEnum(TextureTypes t);
+
+enum CubeTextureTypes
+{
+    CTT_X_NEG,
+    CTT_X_POS,
+
+    CTT_Y_NEG,
+    CTT_Y_POS,
+
+    CTT_Z_NEG,
+    CTT_Z_POS,
+};
+GLenum TextureTypeToGLEnum(CubeTextureTypes t);
 
 
 //Useful data about vertices/indices of a mesh.

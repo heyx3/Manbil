@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../OpenGLIncludes.h"
+#include <assert.h>
 
 
 //Handles texture settings.
@@ -25,29 +26,30 @@ public:
 
     FilteringTypes MinFilter, MagFilter;
     WrappingTypes HorzWrap, VertWrap;
+    TextureTypes TextureType;
 
 
-    TextureSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert)
-        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert)
+    TextureSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert, TextureTypes texType = TextureTypes::TT_2D)
+        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert), TextureType(texType)
     {
-
+        assert(texType == TextureTypes::TT_2D || texType == TextureTypes::TT_CUBE);
     }
-    TextureSettings(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP)
-        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap)
+    TextureSettings(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP, TextureTypes texType = TextureTypes::TT_2D)
+        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap), TextureType(texType)
     {
-
+        assert(texType == TextureTypes::TT_2D || texType == TextureTypes::TT_CUBE);
     }
 
 
     //Sets the currently-bound texture to use this setting's min filter.
     void ApplyMinFilter(bool usesMipmaps) const
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
+        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
     }
     //Sets the currently-bound texture to use this setting's mag filter.
     void ApplyMagFilter(bool usesMipmaps) const
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
+        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
     }
     //Sets the currently-bound texture to use this setting's min and mag filters.
     void ApplyFilter(bool usesMipmaps) const
@@ -59,12 +61,12 @@ public:
     //Sets the currently-bound texture to use this setting's horizontal wrapping behavior.
     void ApplyHorzWrapping(void) const
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
+        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
     }
     //Sets the currently-bound texture to use this setting's vertical wrapping behavior.
     void ApplyVertWrapping(void) const
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
+        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
     }
     //Sets the currently-bound texture to use this setting's horizontal/vertical wrapping behavior.
     void ApplyWrapping(void) const
@@ -83,14 +85,13 @@ public:
 
 private:
 
-
     static GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips);
     static GLint ToGLInt(WrappingTypes twa);
 };
 
 
 
-//Settings for creating an RGBA color texture.
+//Settings for creating a 2D RGBA color texture.
 struct ColorTextureSettings
 {
 public:
@@ -120,7 +121,7 @@ public:
                          bool useMipmaps = true, TextureSettings settings = TextureSettings())
         : Width(width), Height(height), PixelSize(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
     {
-
+        assert(settings.TextureType == TextureTypes::TT_2D);
     }
 
     //TODO: Move to DebugAssist. Same with DepthTextureSettings and the size arrays.

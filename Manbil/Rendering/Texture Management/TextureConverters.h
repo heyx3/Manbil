@@ -20,7 +20,7 @@ public:
 
     static void ToImage(const Array2D<Vector4b> & inColor, sf::Image & outImg);
     static void ToTexture(const Array2D<Vector4b> & inColor, sf::Texture & outTex);
-    static void ToTexture(const Array2D<Vector4b> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex);
+    static void ToTexture(const Array2D<Vector4b> & inColor, ColorTextureSettings settings, RenderObjHandle outTex);
 
 
     static void ToArray(const sf::Image & inImg, Array2D<Vector4f> & colorOut);
@@ -29,7 +29,7 @@ public:
 
     static void ToImage(const Array2D<Vector4f> & inColor, sf::Image & outImg);
     static void ToTexture(const Array2D<Vector4f> & inColor, sf::Texture & outTex);
-    static void ToTexture(const Array2D<Vector4f> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex);
+    static void ToTexture(const Array2D<Vector4f> & inColor, ColorTextureSettings settings, RenderObjHandle outTex);
 
 private:
 
@@ -41,7 +41,13 @@ private:
         const float divideBy255 = 1.0f / 255.0f;
         return Vector4f(inCol.r * divideBy255, inCol.g * divideBy255, inCol.b * divideBy255, inCol.a * divideBy255);
     }
-    static sf::Color ToColor(Vector4f inCol) { return sf::Color(inCol.x, inCol.y, inCol.z, inCol.w); }
+    static sf::Color ToColor(Vector4f inCol)
+    {
+        return sf::Color((unsigned char)BasicMath::Clamp<int>((int)((float)inCol.x * 255.0f), 0, 255),
+                         (unsigned char)BasicMath::Clamp<int>((int)((float)inCol.y * 255.0f), 0, 255),
+                         (unsigned char)BasicMath::Clamp<int>((int)((float)inCol.z * 255.0f), 0, 255),
+                         (unsigned char)BasicMath::Clamp<int>((int)((float)inCol.w * 255.0f), 0, 255));
+    }
 };
 
 

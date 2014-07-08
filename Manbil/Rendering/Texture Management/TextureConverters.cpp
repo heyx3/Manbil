@@ -30,9 +30,12 @@ void TextureConverters::ToTexture(const Array2D<Vector4b> & inColor, sf::Texture
 {
     outTex.update((sf::Uint8*)inColor.GetArray());
 }
-void TextureConverters::ToTexture(const Array2D<Vector4b> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex)
+void TextureConverters::ToTexture(const Array2D<Vector4b> & inColor, ColorTextureSettings settings, RenderObjHandle outTex)
 {
-    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, &inColor.GetArray()[0].x);
+    RenderDataHandler::BindTexture(TextureTypes::TT_2D, outTex);
+    settings.Width = inColor.GetWidth();
+    settings.Height = inColor.GetHeight();
+    RenderDataHandler::SetTextureFromBytes(settings, &inColor.GetArray()[0].x);
 }
 
 
@@ -79,9 +82,12 @@ void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, sf::Texture
     });
     outTex.update((sf::Uint8*)valueBytes.GetArray());
 }
-void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, const ColorTextureSettings & settings, RenderObjHandle outTex)
+void TextureConverters::ToTexture(const Array2D<Vector4f> & inColor, ColorTextureSettings settings, RenderObjHandle outTex)
 {
-    RenderDataHandler::SetTexture2DDataPixels(outTex, settings, &inColor.GetArray()[0].x);
+    RenderDataHandler::BindTexture(TextureTypes::TT_2D, outTex);
+    settings.Width = inColor.GetWidth();
+    settings.Height = inColor.GetHeight();
+    RenderDataHandler::SetTextureFromFloats(settings, &inColor.GetArray()[0].x);
 }
 
 

@@ -203,7 +203,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             RenderDataHandler::ActivateTextureUnit(texUnit);
             texUnit += 1;
 
-            RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, iterator->second.Texture);
+            RenderDataHandler::BindTexture(TextureTypes::TT_2D, iterator->second.Texture);
         }
     }
 

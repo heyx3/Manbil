@@ -105,13 +105,29 @@ GLenum TextureTypeToGLEnum(TextureTypes t)
 {
 	switch (t)
 	{
-		case TextureTypes::Tex_OneD: return GL_TEXTURE_1D;
-		case TextureTypes::Tex_TwoD: return GL_TEXTURE_2D;
-		case TextureTypes::Tex_ThreeD: return GL_TEXTURE_3D;
-		case TextureTypes::Tex_Cube: return GL_TEXTURE_CUBE_MAP;
+		case TextureTypes::TT_1D: return GL_TEXTURE_1D;
+		case TextureTypes::TT_2D: return GL_TEXTURE_2D;
+		case TextureTypes::TT_3D: return GL_TEXTURE_3D;
+		case TextureTypes::TT_CUBE: return GL_TEXTURE_CUBE_MAP;
 
 		default:
             assert(false);
             return GL_INVALID_ENUM;
 	}
+}
+GLenum TextureTypeToGLEnum(CubeTextureTypes ct)
+{
+    switch (ct)
+    {
+        case CubeTextureTypes::CTT_X_NEG: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+        case CubeTextureTypes::CTT_X_POS: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+
+        case CubeTextureTypes::CTT_Y_NEG: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+        case CubeTextureTypes::CTT_Y_POS: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+
+        case CubeTextureTypes::CTT_Z_NEG: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+        case CubeTextureTypes::CTT_Z_POS: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+
+        default: assert(false); return GL_INVALID_ENUM;
+    }
 }

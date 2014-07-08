@@ -91,7 +91,7 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     //Set up the test font.
 
-    testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 50);
+    testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 16);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
         std::cout << "Error creating font 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
@@ -99,7 +99,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->CreateTextRenderSlots(testFontID, 2048, 512, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP)))
+    if (!TextRender->CreateTextRenderSlots(testFontID, 512, 64, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP)))
     {
         std::cout << "Error creating font slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();

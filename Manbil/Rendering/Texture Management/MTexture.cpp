@@ -81,7 +81,7 @@ void MTexture::Create(const ColorTextureSettings & texSettings)
     DeleteIfValid();
 
     settings = texSettings;
-    RenderDataHandler::CreateTexture2DUBytes(texHandle, texSettings, [](Vector2i loc, Vector4b * outCol) { *outCol = Vector4b((unsigned char)255, 255, 255, 255); });
+    RenderDataHandler::CreateTextureFromBytes(texHandle, texSettings, [](Vector2i loc, Vector4b * outCol) { *outCol = Vector4b((unsigned char)255, 255, 255, 255); });
 }
 bool MTexture::Create(std::string filePath, const ColorTextureSettings & texSettings)
 {
@@ -131,11 +131,13 @@ void MTexture::SetData(const Vector4b color, unsigned int width, unsigned int he
 {
     settings.Width = width;
     settings.Height = height;
-    RenderDataHandler::SetTexture2DDataColor(texHandle, settings, color);
+    RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle);
+    RenderDataHandler::SetTextureFromByteFunc(settings, [color](Vector2i loc, Vector4b * outCol) { *outCol = color; });
 }
 void MTexture::SetData(const Vector4f color, unsigned int width, unsigned int height)
 {
     settings.Width = width;
     settings.Height = height;
-    RenderDataHandler::SetTexture2DDataColor(texHandle, settings, color);
+    RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle);
+    RenderDataHandler::SetTextureFromFloatFunc(settings, [color](Vector2i loc, Vector4f * outCol) { *outCol = color; });
 }

@@ -58,7 +58,7 @@ public:
 
     //Sets this texture as the active one.
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
-    void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::Tex_TwoD, texHandle); }
+    void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle); }
 
     void SetData(const Array2D<Vector4b> & inColor);
     void SetData(const Array2D<Vector4f> & inColor);
