@@ -46,6 +46,7 @@ public:
 	
 
     //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
+    //TODO: Move the usage of a function to generate texture data out to MTexture; this low-level OpenGL stuff should just take in a pointer to the data.
 
     //Should be a function or lambda with the signature "void WritePixels(int pixelCoord, Vector4b * outPixel)".
     template<typename Func>
