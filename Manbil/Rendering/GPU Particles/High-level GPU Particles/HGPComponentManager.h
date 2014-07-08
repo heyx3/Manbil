@@ -3,7 +3,6 @@
 #include "HGPOutputComponent.h"
 
 
-#pragma warning(disable: 4512)
 
 //Manages several HGPOutputComponents that together define a particle system's behavior.
 class HGPComponentManager
@@ -129,5 +128,3 @@ private:
 
     DataLine timeLerp;
 };
-
-#pragma warning(default: 4512)

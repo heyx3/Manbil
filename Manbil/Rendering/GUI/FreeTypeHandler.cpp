@@ -122,7 +122,7 @@ bool FreeTypeHandler::GetCanBeScaled(unsigned int id) const
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return false;
 
-    return loc->second->face_flags | FT_FACE_FLAG_SCALABLE;
+    return (bool)(loc->second->face_flags | FT_FACE_FLAG_SCALABLE);
 }
 FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(unsigned int id)
 {

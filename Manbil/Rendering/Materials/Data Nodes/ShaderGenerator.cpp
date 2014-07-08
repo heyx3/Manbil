@@ -168,7 +168,7 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
     //Next generate the vertex outputs.
     code += "//Shader outputs.\n";
     unsigned int n = data.OutputTypes.GetNumbOutputs();
-    for (unsigned int i = 0; i < data.OutputTypes.GetNumbOutputs(); ++i)
+    for (unsigned int i = 0; i < n; ++i)
     {
         code += "out " + VectorF(data.OutputTypes.OutputSizes[i]).GetGLSLType() +
                 " " + data.OutputTypes.OutputNames[i] + ";\n";

@@ -143,6 +143,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	nf.FillRegion = &mfr;
 
 
+#pragma warning(disable: 4127)
+
 	if (false)
 	{
 		#pragma region Layered Perlin
@@ -379,6 +381,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         #pragma endregion
     }
 	else assert(false);
+
+#pragma warning(default: 4127)
 
 
 	InterpretNoise(finalNoise);

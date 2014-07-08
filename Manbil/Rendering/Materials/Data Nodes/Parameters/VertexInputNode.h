@@ -5,9 +5,6 @@
 #include "../../../../Vertices.h"
 
 
-#pragma warning(disable: 4512)
-
-
 //Represents the value of vertex inputs.
 //NOTE: This node is only usable in the vertex shader!
 //Since vertex inputs can be any size, this node's output size is specified in the class's constructor.
@@ -65,5 +62,3 @@ private:
         return ret;
     }
 };
-
-#pragma warning(default: 4512)

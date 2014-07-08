@@ -5,7 +5,6 @@
 #include "../Input/BoolInput.h"
 
 
-#pragma warning(disable: 4512)
 
 //The player in a VoxelWorld instance.
 class VoxelPlayer
@@ -37,5 +36,3 @@ public:
 
     void Update(float elapsedTime, float totalTime);
 };
-
-#pragma warning(default: 4512)

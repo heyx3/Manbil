@@ -41,6 +41,8 @@ string ToString(Vector v)
 }
 
 
+//PRIORITY: Apparently you can declare a function header like "void Func(void) = delete" to define it but prevent calls to it. Use this for things like copy constructors that are currently declared but not implemented.
+
 int main()
 {
     //OpenGLTestWorld().RunWorld();

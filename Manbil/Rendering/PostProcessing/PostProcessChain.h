@@ -6,8 +6,6 @@
 #include "../Helper Classes/DrawingQuad.h"
 
 
-#pragma warning(disable: 4512)
-
 
 //TODO: Change from a piggy-backed DataNode system to a higher-level system -- a list of PostProcessEffects, each with their own behaviors/rendering material/uniforms. For example, a GaussianBlurEffect or a "SimpleEffect" (which is a combination of all the effects that can be simply done in one pass).
 
@@ -83,5 +81,3 @@ private:
     unsigned int rt1, rt2;
     unsigned int totalPasses;
 };
-
-#pragma warning(default: 4512)

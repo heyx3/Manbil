@@ -4,7 +4,7 @@
 #include "../../MaterialData.h"
 
 
-#pragma warning(disable: 4512 4100)
+#pragma warning(disable: 4100)
 
 //Represents the value of vertex shader outputs into the geometry shader.
 //NOTE: This node is only usable in the geometry shader!
@@ -64,4 +64,4 @@ private:
     }
 };
 
-#pragma warning(default: 4512 4100)
+#pragma warning(default: 4100)

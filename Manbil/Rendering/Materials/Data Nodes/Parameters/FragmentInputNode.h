@@ -6,7 +6,7 @@
 #include "../../../../Vertices.h"
 
 
-#pragma warning(disable: 4512 4100)
+#pragma warning(disable: 4100)
 
 //Represents the value of a fragment input (from the vertex shader, or the geometry shader if it exists).
 //NOTE: This node is only usable in the fragment shader!
@@ -71,4 +71,4 @@ private:
     }
 };
 
-#pragma warning(default: 4512 4100)
+#pragma warning(default: 4100)

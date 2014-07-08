@@ -6,8 +6,6 @@
 #include "../Helper Classes/DrawingQuad.h"
 
 
-#pragma warning(disable: 4512)
-
 
 //Handles rendering of strings into a render target using FreeType.
 //The rendered strings are pure red; the red value indicates the alpha of the pixel.
@@ -122,5 +120,3 @@ private:
 
     static FreeTypeHandler & GetHandler(void) { return FreeTypeHandler::Instance; }
 };
-
-#pragma warning(default: 4512)
