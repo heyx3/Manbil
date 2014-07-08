@@ -129,9 +129,9 @@ void TwoDOpenGLTest::InitializeWorld(void)
     }
 
     foreParam.AddUniforms(uniformDict, false);
-    foreParam.TextureUniforms["u_myTex"].Texture = foreTex.GetTextureHandle();
+    foreParam.Texture2DUniforms["u_myTex"].Texture = foreTex.GetTextureHandle();
     backParam.AddUniforms(uniformDict, false);
-    backParam.TextureUniforms["u_myTex"].Texture = backTex.GetTextureHandle();
+    backParam.Texture2DUniforms["u_myTex"].Texture = backTex.GetTextureHandle();
 }
 
 void TwoDOpenGLTest::OnInitializeError(std::string errorMsg)

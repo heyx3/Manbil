@@ -24,7 +24,7 @@ protected:
 
     virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override
     {
-        uniforms.TextureUniforms[GetSamplerUniformName()] = UniformSampler2DValue(GetSamplerUniformName());
+        uniforms.Texture2DUniforms[GetSamplerUniformName()] = UniformSampler2DValue(GetSamplerUniformName());
     }
 
     virtual void WriteMyOutputs(std::string & outCode) const override;

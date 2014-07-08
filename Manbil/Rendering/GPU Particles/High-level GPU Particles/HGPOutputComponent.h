@@ -319,7 +319,7 @@ public:
         gradientTex.SetData(texColor4f);
 
         //Set the texture data.
-        GetParams().TextureUniforms[GetSamplerName()].Texture = gradientTex.GetTextureHandle();
+        GetParams().Texture2DUniforms[GetSamplerName()].Texture = gradientTex.GetTextureHandle();
 
     }
 

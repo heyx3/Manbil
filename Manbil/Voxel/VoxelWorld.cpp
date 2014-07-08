@@ -271,7 +271,7 @@ void VoxelWorld::InitializeWorld(void)
         return;
     }
     finalWorldRenderParams.AddUniforms(dict, true);
-    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
+    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
 
 
     #pragma region Voxel material
@@ -383,9 +383,9 @@ void main()                                                                     
     }
 
     //Parameters.
-    voxelParams.TextureUniforms["u_voxelTex"] = UniformSampler2DValue(voxelTex.GetTextureHandle(), "u_voxelTex",
+    voxelParams.Texture2DUniforms["u_voxelTex"] = UniformSampler2DValue(voxelTex.GetTextureHandle(), "u_voxelTex",
                                                                     UniformList::FindUniform("u_voxelTex",
-                                                                                             voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
+                                                                                             voxelMat->GetUniforms(RenderPasses::BaseComponents).Texture2DUniforms).Loc);
 
     #pragma endregion
 
@@ -771,7 +771,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     
     //Render the final world info.
-    finalWorldRenderParams.TextureUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
+    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, finalWorldRenderParams, *finalWorldRenderMat))
     {

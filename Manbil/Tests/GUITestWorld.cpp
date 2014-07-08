@@ -165,7 +165,7 @@ void GUITestWorld::InitializeWorld(void)
     err = RenderText(TextRender, "Hello, World!!");
     if (!ReactToError(err.empty(), "Error rendering the text: ", err))
         return;
-    quadParams.TextureUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);
+    quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {

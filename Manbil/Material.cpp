@@ -87,13 +87,13 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
             dict.MatrixUniforms[iterator->first].Location = tempLoc;
         }
     }
-    for (auto iterator = dict.TextureUniforms.begin(); iterator != dict.TextureUniforms.end(); ++iterator)
+    for (auto iterator = dict.Texture2DUniforms.begin(); iterator != dict.Texture2DUniforms.end(); ++iterator)
     {
         if (RenderDataHandler::GetUniformLocation(shaderProg, iterator->first.c_str(), tempLoc))
         {
-            uniforms.TextureUniforms.insert(uniforms.TextureUniforms.end(),
+            uniforms.Texture2DUniforms.insert(uniforms.Texture2DUniforms.end(),
                                             UniformList::Uniform(iterator->first, tempLoc));
-            dict.TextureUniforms[iterator->first].Location = tempLoc;
+            dict.Texture2DUniforms[iterator->first].Location = tempLoc;
         }
     }
     //Subroutines are a bit more complex to set up.
@@ -195,7 +195,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             RenderDataHandler::SetSubroutineValue(iterator->second.Location, iterator->second.Definition->Shader, iterator->second.PossibleValueIDs[iterator->second.ValueIndex]);
     //Setting mesh texture sampler uniforms is a little more involved.
     int texUnit = 0;
-    for (auto iterator = params.TextureUniforms.begin(); iterator != params.TextureUniforms.end(); ++iterator)
+    for (auto iterator = params.Texture2DUniforms.begin(); iterator != params.Texture2DUniforms.end(); ++iterator)
     {
         if (RenderDataHandler::UniformLocIsValid(iterator->second.Location))
         {

@@ -79,8 +79,8 @@ void main()                              \n\
     //Add any custom QuadWorld uniforms.
     uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(0.0f);
     uniforms.FloatUniforms[TTW::ShaderElapsedName].Name = TTW::ShaderElapsedName;
-    uniforms.TextureUniforms[TTW::CustomSamplerName].Name = TTW::CustomSamplerName;
-    uniforms.TextureUniforms[TTW::NoiseSamplerName].Name = TTW::NoiseSamplerName;
+    uniforms.Texture2DUniforms[TTW::CustomSamplerName].Name = TTW::CustomSamplerName;
+    uniforms.Texture2DUniforms[TTW::NoiseSamplerName].Name = TTW::NoiseSamplerName;
 
     bool first = true;
 
@@ -141,11 +141,11 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
             continue;
         }
 
-        RenderObjHandle customTexHandle = params.TextureUniforms[TTW::CustomSamplerName].Texture;
-        RenderObjHandle noiseTexHandle = params.TextureUniforms[TTW::NoiseSamplerName].Texture;
+        RenderObjHandle customTexHandle = params.Texture2DUniforms[TTW::CustomSamplerName].Texture;
+        RenderObjHandle noiseTexHandle = params.Texture2DUniforms[TTW::NoiseSamplerName].Texture;
         params.AddUniforms(uniforms, true);
-        params.TextureUniforms[TTW::CustomSamplerName].Texture = customTexHandle;
-        params.TextureUniforms[TTW::NoiseSamplerName].Texture = noiseTexHandle;
+        params.Texture2DUniforms[TTW::CustomSamplerName].Texture = customTexHandle;
+        params.Texture2DUniforms[TTW::NoiseSamplerName].Texture = noiseTexHandle;
 
         valid = true;
     }
@@ -154,7 +154,7 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
 //Gets whether or not "mat" uses the custom user texture.
 bool DoesMatUseCustomTex(void)
 {
-    const std::vector<UniformList::Uniform> & uniforms = mat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms;
+    const std::vector<UniformList::Uniform> & uniforms = mat->GetUniforms(RenderPasses::BaseComponents).Texture2DUniforms;
     auto location = std::find_if(uniforms.begin(), uniforms.end(),
                                  [](const UniformList::Uniform & unf)
                                  {
@@ -185,7 +185,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
         Pause();
     }
-    params.TextureUniforms[TTW::NoiseSamplerName] = UniformSampler2DValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
+    params.Texture2DUniforms[TTW::NoiseSamplerName] = UniformSampler2DValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
 
 
     //Ask the user for a custom texture.
@@ -223,7 +223,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         valid = true;
     }
 
-    params.TextureUniforms[TTW::CustomSamplerName] = UniformSampler2DValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
+    params.Texture2DUniforms[TTW::CustomSamplerName] = UniformSampler2DValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
 }
 
 

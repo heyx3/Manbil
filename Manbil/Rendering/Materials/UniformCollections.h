@@ -203,6 +203,19 @@ public:
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
+//Represents a cubemap texture sampler uniform.
+struct UniformSamplerCubemapValue
+{
+public:
+    RenderObjHandle Texture;
+    UniformLocation Location;
+    std::string Name;
+    UniformSamplerCubemapValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(texture) { }
+    UniformSamplerCubemapValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+    std::string GetDeclaration(void) const { return "uniform gsamplerCube " + Name + ";"; }
+};
+
 
 //Represents a definition of a subroutine.
 struct SubroutineDefinition
@@ -281,7 +294,7 @@ struct UniformList
 public:
     struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
-                         MatrixUniforms, TextureUniforms,
+                         MatrixUniforms, Texture2DUniforms,
                          IntUniforms, IntArrayUniforms,
                          SubroutineUniforms;
     //Returns "Uniform("", -1)" if the given name isn't found.
@@ -304,7 +317,7 @@ public:
     U_UMAP(UniformValueI) IntUniforms;
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
-    U_UMAP(UniformSampler2DValue) TextureUniforms;
+    U_UMAP(UniformSampler2DValue) Texture2DUniforms;
     U_UMAP(UniformSubroutineValue) SubroutineUniforms;
 
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);

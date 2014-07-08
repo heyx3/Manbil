@@ -250,12 +250,12 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         const UniformList & matUniforms = materials[i]->GetUniforms(RenderPasses::BaseComponents);
         params.ClearUniforms();
         params.AddUniforms(oldUniforms, true);
-        params.TextureUniforms[PostProcessEffect::ColorSampler] =
+        params.Texture2DUniforms[PostProcessEffect::ColorSampler] =
             UniformSampler2DValue(source, PostProcessEffect::ColorSampler,
-                                matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.TextureUniforms).Loc);
-        params.TextureUniforms[PostProcessEffect::DepthSampler] =
+                                matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.Texture2DUniforms).Loc);
+        params.Texture2DUniforms[PostProcessEffect::DepthSampler] =
             UniformSampler2DValue(depthIn, PostProcessEffect::DepthSampler,
-                                matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.TextureUniforms).Loc);
+                                matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.Texture2DUniforms).Loc);
         params.AddUniforms(uniforms[i], true);
 
         //Set up the render target.

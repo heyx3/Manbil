@@ -238,7 +238,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    gsTestParams.TextureUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot);
+    gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot);
     gsTestMat = gsGen.Mat;
 
 
@@ -370,9 +370,9 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
     water->UpdateUniformLocations(waterMat);
-    water->Params.TextureUniforms[texSamplerName] =
+    water->Params.Texture2DUniforms[texSamplerName] =
         UniformSampler2DValue(waterNormalTex.GetTextureHandle(), texSamplerName,
-                            waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
+                            waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).Texture2DUniforms).Loc);
     //TODO: Try changing the above line to just use "... .Texture = waterNormalTex.GetTextureHandle()". Look for similiar issues in other worlds.
 
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
@@ -552,7 +552,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     identity.SetAsIdentity();
     RenderTarget * finalRend = ppc->GetFinalRender();
     if (finalRend == 0) finalRend = manager[worldRenderID];
-    finalScreenQuadParams.TextureUniforms["u_finalRenderSample"].Texture = finalRend->GetColorTextures()[0];
+    finalScreenQuadParams.Texture2DUniforms["u_finalRenderSample"].Texture = finalRend->GetColorTextures()[0];
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";

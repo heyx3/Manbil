@@ -158,7 +158,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 
         seedTex.Create(seedArgs.SeedTexQuality);
         seedTex.SetData(values);
-        Params.TextureUniforms["seedMap"].Texture = seedTex.GetTextureHandle();
+        Params.Texture2DUniforms["seedMap"].Texture = seedTex.GetTextureHandle();
         //TODO: Don't use a string literal for the seed map name.
     }
 }

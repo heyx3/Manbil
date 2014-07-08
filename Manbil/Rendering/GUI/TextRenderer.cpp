@@ -216,7 +216,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
 {
     //Get texture/render target.
     if (targ == 0) { errorMsg = "Associated render target did not exist!"; return false; }
-    textRendererParams.TextureUniforms[textSamplerName].Texture = tempTex.GetTextureHandle();
+    textRendererParams.Texture2DUniforms[textSamplerName].Texture = tempTex.GetTextureHandle();
 
 
     //Set up rendering.
