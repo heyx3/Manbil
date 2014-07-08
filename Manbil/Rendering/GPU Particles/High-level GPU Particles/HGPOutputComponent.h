@@ -329,7 +329,7 @@ protected:
     virtual DataLine GenerateComponentOutput(void) const override
     {
         DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager), DataLine(VectorF(0.5f)))), 0);
-        DataLine textureSample(DataNodePtr(new TextureSampleNode(uvLookup, GetSamplerName())), TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+        DataLine textureSample(DataNodePtr(new TextureSample2DNode(uvLookup, GetSamplerName())), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
         switch (ComponentSize)
         {

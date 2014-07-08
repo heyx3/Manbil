@@ -46,8 +46,8 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     DataNodePtr vertexIns(new VertexInputNode(quadAtts));
     DataNodePtr fragIns(new FragmentInputNode(fragmentInputs));
 
-    DataLine textSampler(DataNodePtr(new TextureSampleNode(DataLine(fragIns, 0), textSamplerName)),
-                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+    DataLine textSampler(DataNodePtr(new TextureSample2DNode(DataLine(fragIns, 0), textSamplerName)),
+                         TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
     std::unordered_map<RenderingChannels, DataLine> channels;
     DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexIns, 0))), 0);

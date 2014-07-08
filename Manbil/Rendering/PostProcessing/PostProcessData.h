@@ -77,14 +77,14 @@ public:
     //Subsequent effects should use the previous effect's color output.
     static DataLine ColorSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
     {
-        return DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), ColorSampler)),
-                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+        return DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), ColorSampler)),
+                        TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
     static DataLine DepthSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
     {
-        DataLine depthTex(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), DepthSampler)),
-                          TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+        DataLine depthTex(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), DepthSampler)),
+                          TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
         DataLine linearDepth(DataNodePtr(new LinearDepthSampleNode(depthTex)), 0);
         return linearDepth;
     }

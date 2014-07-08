@@ -197,9 +197,6 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
@@ -314,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="Rendering\Water\WaterRendering.cpp">
       <Filter>Rendering\Water</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -620,9 +620,6 @@
     <ClInclude Include="Rendering\Materials\UniformCollections.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
@@ -774,6 +771,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Water\WaterRendering.h">
       <Filter>Rendering\Water</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

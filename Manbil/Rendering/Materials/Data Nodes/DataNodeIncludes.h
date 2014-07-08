@@ -35,5 +35,5 @@
 #include "Parameters/CameraDataNode.h"
 #include "Parameters/ProjectionDataNode.h"
 #include "Parameters/ParamNode.h"
-#include "Parameters/TextureSampleNode.h"
+#include "Parameters/TextureSample2DNode.h"
 #include "Parameters/TimeNode.h"

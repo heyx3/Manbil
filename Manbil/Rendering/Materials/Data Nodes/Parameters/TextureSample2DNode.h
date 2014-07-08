@@ -5,7 +5,7 @@
 
 
 //Outputs the result of sampling a texture.
-class TextureSampleNode : public DataNode
+class TextureSample2DNode : public DataNode
 {
 public:
 
@@ -13,7 +13,7 @@ public:
     std::string GetSamplerUniformName(void) const { return samplerName; }
 
 
-    TextureSampleNode(const DataLine & UVs, std::string _samplerName = "");
+    TextureSample2DNode(const DataLine & UVs, std::string _samplerName = "");
 
     virtual std::string GetOutputName(unsigned int index) const override;
 

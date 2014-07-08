@@ -148,10 +148,10 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                                 DataLine(VectorF(10.0f, 10.0f)),
                                                                 DataLine(VectorF(0.0f, 0.0f)),
                                                                 DataLine(VectorF(-0.15f, 0.0f)));
-    DNP normalMap(new TextureSampleNode(normalMapUVs, "u_normalMapTex"));
-    texSamplerName = ((TextureSampleNode*)(normalMap.get()))->GetSamplerUniformName();
+    DNP normalMap(new TextureSample2DNode(normalMapUVs, "u_normalMapTex"));
+    texSamplerName = ((TextureSample2DNode*)(normalMap.get()))->GetSamplerUniformName();
 
-    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
+    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
                                                                DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
 
     DNP light(new LightingNode(DataLine(fragmentInput, 3),
@@ -193,8 +193,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
     std::unordered_map<RC, DataLine> gsChannels;
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
     gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
-    gsChannels[RC::RC_Color] = DataLine(DNP(new TextureSampleNode(DataLine(DNP(new FragmentInputNode(VertexAttributes(2, false))), 0), "u_textSampler")),
-                                        TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+    gsChannels[RC::RC_Color] = DataLine(DNP(new TextureSample2DNode(DataLine(DNP(new FragmentInputNode(VertexAttributes(2, false))), 0), "u_textSampler")),
+                                        TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
     gsChannels[RC::RC_Color] = DataLine(DNP(new CombineVectorNode(gsChannels[RC::RC_Color], gsChannels[RC::RC_Color], gsChannels[RC::RC_Color])), 0);
     
     MaterialUsageFlags geoShaderUsage;
@@ -323,8 +323,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Final render.
     finalScreenMatChannels[RC::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
     finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-    DNP finalTexSampler(new TextureSampleNode(DataLine(DNP(new FragmentInputNode(DrawingQuad::GetAttributeData())), 1), "u_finalRenderSample"));
-    finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    DNP finalTexSampler(new TextureSample2DNode(DataLine(DNP(new FragmentInputNode(DrawingQuad::GetAttributeData())), 1), "u_finalRenderSample"));
+    finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary uniformDict;
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!genM.ErrorMessage.empty())

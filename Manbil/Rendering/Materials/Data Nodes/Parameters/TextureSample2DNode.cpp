@@ -1,9 +1,9 @@
-#include "TextureSampleNode.h"
+#include "TextureSample2DNode.h"
 
 #include "../DataNodeIncludes.h"
 
 
-std::string TextureSampleNode::GetOutputName(unsigned int index) const
+std::string TextureSample2DNode::GetOutputName(unsigned int index) const
 {
     std::string base = GetSampleOutputName();
 
@@ -21,7 +21,7 @@ std::string TextureSampleNode::GetOutputName(unsigned int index) const
     }
 }
 
-unsigned int TextureSampleNode::GetOutputIndex(ChannelsOut channel)
+unsigned int TextureSample2DNode::GetOutputIndex(ChannelsOut channel)
 {
     switch (channel)
     {
@@ -37,7 +37,7 @@ unsigned int TextureSampleNode::GetOutputIndex(ChannelsOut channel)
 }
 
 
-TextureSampleNode::TextureSampleNode(const DataLine & uvs, std::string _samplerName)
+TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string _samplerName)
     : DataNode(MakeVector(uvs), makeVector())
 {
     Assert(uvs.GetDataLineSize() == 2,
@@ -49,7 +49,7 @@ TextureSampleNode::TextureSampleNode(const DataLine & uvs, std::string _samplerN
 }
 
 
-void TextureSampleNode::WriteMyOutputs(std::string & outCode) const
+void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 {
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + GetSamplerUniformName() + ", " + GetUVInput().GetValue() + ");\n";
 }

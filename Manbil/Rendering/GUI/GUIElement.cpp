@@ -6,13 +6,13 @@
 
 DataLine GUIElement2::TextImageSampler(DataLine uvs, DataLine textScale, DataLine imgColor, DataLine textColor)
 {
-    DataLine sampleImage(DataNodePtr(new TextureSampleNode(uvs, BackgroundImageSamplerUniformName)),
-                         TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+    DataLine sampleImage(DataNodePtr(new TextureSample2DNode(uvs, BackgroundImageSamplerUniformName)),
+                         TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
 
     //Text is sampled using a texture that only has a red component.
-    DataLine sampleTextRed(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new MultiplyNode(uvs, textScale)), 0),
+    DataLine sampleTextRed(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new MultiplyNode(uvs, textScale)), 0),
                                                              RenderedTextSamplerUniformName)),
-                           TextureSampleNode::GetOutputIndex(ChannelsOut::CO_Red));
+                           TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
     DataLine sampleText = DataLine(DataNodePtr(new CombineVectorNode(sampleTextRed, sampleTextRed, sampleTextRed, sampleTextRed)), 0);
 
     //Blend the text on top of the image.

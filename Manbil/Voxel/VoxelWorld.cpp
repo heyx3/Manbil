@@ -252,9 +252,9 @@ void VoxelWorld::InitializeWorld(void)
 
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSampleNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
                                                                                        "u_finalWorldRender")),
-                                                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+                                                     TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary dict;
     ShaderGenerator::GeneratedMaterial fGenM = ShaderGenerator::GenerateMaterial(channels, dict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
     if (!fGenM.ErrorMessage.empty())
@@ -361,9 +361,9 @@ void main()                                                                     
                                                    DataLine(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
                                                    DataLine(0.25f), DataLine(0.75f), DataLine(3.0f), DataLine(64.0f))),
                       0);
-    DataLine diffTex(DataNodePtr(new TextureSampleNode(DataLine(voxelFragInput, 1),
+    DataLine diffTex(DataNodePtr(new TextureSample2DNode(DataLine(voxelFragInput, 1),
                                                        "u_voxelTex")),
-                     TextureSampleNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+                     TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, diffTex)), 0);
 
     //Generation.
