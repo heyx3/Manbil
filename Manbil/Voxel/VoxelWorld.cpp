@@ -383,7 +383,7 @@ void main()                                                                     
     }
 
     //Parameters.
-    voxelParams.TextureUniforms["u_voxelTex"] = UniformSamplerValue(voxelTex.GetTextureHandle(), "u_voxelTex",
+    voxelParams.TextureUniforms["u_voxelTex"] = UniformSampler2DValue(voxelTex.GetTextureHandle(), "u_voxelTex",
                                                                     UniformList::FindUniform("u_voxelTex",
                                                                                              voxelMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
 

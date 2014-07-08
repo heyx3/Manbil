@@ -371,7 +371,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water->UpdateUniformLocations(waterMat);
     water->Params.TextureUniforms[texSamplerName] =
-        UniformSamplerValue(waterNormalTex.GetTextureHandle(), texSamplerName,
+        UniformSampler2DValue(waterNormalTex.GetTextureHandle(), texSamplerName,
                             waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).TextureUniforms).Loc);
     //TODO: Try changing the above line to just use "... .Texture = waterNormalTex.GetTextureHandle()". Look for similiar issues in other worlds.
 

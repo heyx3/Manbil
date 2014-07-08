@@ -191,15 +191,15 @@ public:
 };
 
 //Represents a 2D texture sampler uniform.
-struct UniformSamplerValue
+struct UniformSampler2DValue
 {
 public:
     RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
+    UniformSampler2DValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Texture(texture) { }
-    UniformSamplerValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+    UniformSampler2DValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
@@ -304,7 +304,7 @@ public:
     U_UMAP(UniformValueI) IntUniforms;
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
-    U_UMAP(UniformSamplerValue) TextureUniforms;
+    U_UMAP(UniformSampler2DValue) TextureUniforms;
     U_UMAP(UniformSubroutineValue) SubroutineUniforms;
 
     void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);

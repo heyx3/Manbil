@@ -209,7 +209,7 @@ void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
     SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
     SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
 }
-void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
+void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 
@@ -237,7 +237,7 @@ void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
     SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
     SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
 }
-void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
+void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 

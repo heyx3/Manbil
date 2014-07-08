@@ -45,7 +45,7 @@ string ToString(Vector v)
 
 int main()
 {
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
     //GUITestWorld().RunWorld();
@@ -54,5 +54,5 @@ int main()
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
 }

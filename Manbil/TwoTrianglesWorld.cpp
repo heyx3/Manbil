@@ -185,7 +185,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
         Pause();
     }
-    params.TextureUniforms[TTW::NoiseSamplerName] = UniformSamplerValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
+    params.TextureUniforms[TTW::NoiseSamplerName] = UniformSampler2DValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
 
 
     //Ask the user for a custom texture.
@@ -223,7 +223,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         valid = true;
     }
 
-    params.TextureUniforms[TTW::CustomSamplerName] = UniformSamplerValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
+    params.TextureUniforms[TTW::CustomSamplerName] = UniformSampler2DValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
 }
 
 
