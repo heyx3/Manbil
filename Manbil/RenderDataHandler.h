@@ -235,6 +235,28 @@ public:
 	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
 
 
+    //Creates a cubemap texture.
+    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle,
+                                     const ColorTextureSettings & settingsPositiveX, const unsigned char * rgbaColorPositiveX,
+                                     const ColorTextureSettings & settingsPositiveY, const unsigned char * rgbaColorPositiveY,
+                                     const ColorTextureSettings & settingsPositiveZ, const unsigned char * rgbaColorPositiveZ,
+                                     const ColorTextureSettings & settingsNegativeX, const unsigned char * rgbaColorNegativeX,
+                                     const ColorTextureSettings & settingsNegativeY, const unsigned char * rgbaColorNegativeY,
+                                     const ColorTextureSettings & settingsNegativeZ, const unsigned char * rgbaColorNegativeZ);
+    //Sets the data for the currently-bound cubemap's given face.
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor);
+    //Creates a cubemap texture.
+    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle,
+                                     const ColorTextureSettings & settingsPositiveX, const float * rgbaColorPositiveX,
+                                     const ColorTextureSettings & settingsPositiveY, const float * rgbaColorPositiveY,
+                                     const ColorTextureSettings & settingsPositiveZ, const float * rgbaColorPositiveZ,
+                                     const ColorTextureSettings & settingsNegativeX, const float * rgbaColorNegativeX,
+                                     const ColorTextureSettings & settingsNegativeY, const float * rgbaColorNegativeY,
+                                     const ColorTextureSettings & settingsNegativeZ, const float * rgbaColorNegativeZ);
+    //Sets the data for the currently-bound cubemap's given face.
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor);
+
+
     //Gets the texture data.
     static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor);
     //Gets the texture data.

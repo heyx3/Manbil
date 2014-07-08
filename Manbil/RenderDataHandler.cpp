@@ -191,6 +191,62 @@ void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle
     settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
 }
 
+void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
+                                             const ColorTextureSettings & settingsPositiveX, const unsigned char * rgbaColorPositiveX,
+                                             const ColorTextureSettings & settingsPositiveY, const unsigned char * rgbaColorPositiveY,
+                                             const ColorTextureSettings & settingsPositiveZ, const unsigned char * rgbaColorPositiveZ,
+                                             const ColorTextureSettings & settingsNegativeX, const unsigned char * rgbaColorNegativeX,
+                                             const ColorTextureSettings & settingsNegativeY, const unsigned char * rgbaColorNegativeY,
+                                             const ColorTextureSettings & settingsNegativeZ, const unsigned char * rgbaColorNegativeZ)
+{
+    glGenTextures(1, &texObjectHandle);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texObjectHandle);
+
+    SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settingsNegativeX, rgbaColorNegativeX);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settingsNegativeY, rgbaColorNegativeY);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settingsNegativeZ, rgbaColorNegativeZ);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settingsPositiveX, rgbaColorPositiveX);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
+}
+void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
+{
+    GLenum faceType = TextureTypeToGLEnum(cubemapFace);
+
+    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize),
+                 settings.Width, settings.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaColor);
+    if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
+    settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
+}
+
+void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
+                                             const ColorTextureSettings & settingsPositiveX, const float * rgbaColorPositiveX,
+                                             const ColorTextureSettings & settingsPositiveY, const float * rgbaColorPositiveY,
+                                             const ColorTextureSettings & settingsPositiveZ, const float * rgbaColorPositiveZ,
+                                             const ColorTextureSettings & settingsNegativeX, const float * rgbaColorNegativeX,
+                                             const ColorTextureSettings & settingsNegativeY, const float * rgbaColorNegativeY,
+                                             const ColorTextureSettings & settingsNegativeZ, const float * rgbaColorNegativeZ)
+{
+    glGenTextures(1, &texObjectHandle);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texObjectHandle);
+
+    SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settingsNegativeX, rgbaColorNegativeX);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settingsNegativeY, rgbaColorNegativeY);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settingsNegativeZ, rgbaColorNegativeZ);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settingsPositiveX, rgbaColorPositiveX);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
+    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
+}
+void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
+{
+    GLenum faceType = TextureTypeToGLEnum(cubemapFace);
+
+    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize),
+                 settings.Width, settings.Height, 0, GL_RGBA, GL_FLOAT, rgbaColor);
+    if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
+    settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
+}
+
 void RenderDataHandler::DeleteTexture2D(RenderObjHandle & texObjHandle)
 {
 	glDeleteTextures(1, &texObjHandle);

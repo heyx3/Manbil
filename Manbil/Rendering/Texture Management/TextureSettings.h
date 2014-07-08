@@ -83,6 +83,48 @@ public:
     }
 
 
+    //Sets the currently-bound cubemap texture to use this setting's min filter.
+    void ApplyMinFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    {
+        glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
+    }
+    //Sets the currently-bound cubemap texture to use this setting's mag filter.
+    void ApplyMagFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    {
+        glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
+    }
+    //Sets the currently-bound cubemap texture to use this setting's min and mag filters.
+    void ApplyFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    {
+        ApplyMinFilterCubemap(cubemapFace, usesMipmaps);
+        ApplyMagFilterCubemap(cubemapFace, usesMipmaps);
+    }
+
+    //Sets the currently-bound cubemap texture to use this setting's horizontal wrapping behavior.
+    void ApplyHorzWrappingCubemap(CubeTextureTypes cubemapFace) const
+    {
+        glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
+    }
+    //Sets the currently-bound cubemap texture to use this setting's vertical wrapping behavior.
+    void ApplyVertWrappingCubemap(CubeTextureTypes cubemapFace) const
+    {
+        glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
+    }
+    //Sets the currently-bound cubemap texture to use this setting's horizontal/vertical wrapping behavior.
+    void ApplyWrappingCubemap(CubeTextureTypes cubemapFace) const
+    {
+        ApplyHorzWrappingCubemap(cubemapFace);
+        ApplyVertWrappingCubemap(cubemapFace);
+    }
+
+    //Applies all this instance's settings to the currently-bound cubemap texture.
+    void ApplyAllSettingsCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    {
+        ApplyFilterCubemap(cubemapFace, usesMipmaps);
+        ApplyWrappingCubemap(cubemapFace);
+    }
+
+
 private:
 
     static GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips);

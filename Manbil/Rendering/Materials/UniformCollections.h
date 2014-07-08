@@ -12,7 +12,7 @@
 #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
 
 
-//TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms.
+//TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms. Do the same for 1D and 3D textures.
 
 
 //Represents a single float/vec2/vec3/vec4 uniform.
