@@ -80,7 +80,8 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
 
-    if (!waterNormalTex.Create("Content/Textures/Normalmap.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
+    if (!waterNormalTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
+                               Texture2DInitLoadFile("Content/Textures/Normalmap.png")))
     {
         std::cout << "Failed to load 'Normalmap.png'.\n";
         Pause();

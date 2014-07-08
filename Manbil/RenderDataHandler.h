@@ -278,7 +278,7 @@ public:
 
 
 	//Deletes a texture object.
-	static void DeleteTexture2D(RenderObjHandle & texObjHandle);
+	static void DeleteTexture(RenderObjHandle & texObjHandle);
 	//Sets a texture object as the active one.
 	static void BindTexture(TextureTypes type, const RenderObjHandle & bo) { glBindTexture(TextureTypeToGLEnum(type), bo); }
 	//Sets a texture unit as active.

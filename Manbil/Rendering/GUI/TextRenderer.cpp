@@ -27,7 +27,8 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
     textRendererQuad = new DrawingQuad();
     tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_8_GREYSCALE, false,
-                                        TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)));
+                                        TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)),
+                   Texture2DInitFlatColor());
 
 
     //Transform matrices and render info.

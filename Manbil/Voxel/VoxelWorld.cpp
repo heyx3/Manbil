@@ -186,7 +186,8 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the texture.
-    if (!voxelTex.Create("Content/Textures/VoxelTex.png", ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
+    if (!voxelTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
+                         Texture2DInitLoadFile("Content/Textures/VoxelTex.png")))
     {
         PrintError("Error creating voxel texture 'Content/Textures/VoxelTex.png", "File not found or unable to be loaded");
         EndWorld();

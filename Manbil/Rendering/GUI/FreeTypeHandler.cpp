@@ -144,7 +144,6 @@ Vector2i FreeTypeHandler::GetGlyphSize(unsigned int id) const
     if (!TryFindID(id, loc)) return Vector2i();
 
     return Vector2i(loc->second->glyph->bitmap.width, loc->second->glyph->bitmap.rows);
-    //return Vector2i(loc->second->glyph->metrics.width, loc->second->glyph->metrics.height);
 }
 Vector2i FreeTypeHandler::GetGlyphOffset(unsigned int id) const
 {
@@ -250,9 +249,8 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
             return false;
     }
 
-
-    renderedText.Reset(RoundUpToPowerOfTwo((unsigned int)fce->glyph->bitmap.width), RoundUpToPowerOfTwo((unsigned int)fce->glyph->bitmap.rows), Vector4b());
-    renderedText.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
+    
+    renderedText.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows, Vector4b());
     unsigned int absPitch = (unsigned int)BasicMath::Abs(fce->glyph->bitmap.pitch);
     for (unsigned int y = 0; y < fce->glyph->bitmap.rows; ++y)
         for (unsigned int x = 0; x < fce->glyph->bitmap.width; ++x)
@@ -263,16 +261,18 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
 
 void FreeTypeHandler::GetChar(MTexture & outTex) const
 {
-    outTex.SetData(GetChar());
-}
+    //PRIORITY: Once there are float versions of Texture2DInit stuff, use that and give the data directly.
+    
+    const Array2D<Vector4b> & arr = GetChar();
+    outTex.SetData(arr.GetWidth(), arr.GetHeight(),
+                   Texture2DInitFunction([](Vector2i l, Vector4f * p, const void* dat)
+    {
+        const float div255 = 1.0f / 255.0f;
+        const Array2D<Vector4b> * arr = (const Array2D<Vector4b> *)dat;
+        const Vector4b & val = arr->operator[](l);
 
-unsigned int FreeTypeHandler::RoundUpToPowerOfTwo(unsigned int x)
-{
-    //I doubt rendered bitmaps will be smaller than 16x16.
-    unsigned int value = 16;
-    while (value < x)
-        value *= 2;
-    return value;
+        *p = Vector4f((float)val.x * div255, (float)val.y * div255, (float)val.z * div255, (float)val.w * div255);
+    }, &GetChar()));
 }
 
 bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const

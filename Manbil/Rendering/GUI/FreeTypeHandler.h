@@ -107,9 +107,6 @@ public:
 
 private:
 
-    unsigned int RoundUpToPowerOfTwo(unsigned int x);
-
-
     typedef std::unordered_map<unsigned int, FT_Face>::const_iterator FaceMapLoc;
     std::unordered_map<unsigned int, FT_Face> faces;
 

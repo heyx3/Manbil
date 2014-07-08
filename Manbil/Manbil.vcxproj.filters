@@ -318,6 +318,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -780,6 +783,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\Texture2DInitialization.h">
+      <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

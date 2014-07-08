@@ -76,32 +76,21 @@ void MTexture::SetWrappingType(TextureSettings::WrappingTypes wrapping)
     }
 }
 
-void MTexture::Create(const ColorTextureSettings & texSettings)
+bool MTexture::Create(const ColorTextureSettings & texSettings, Texture2DInitialization & initer)
 {
     DeleteIfValid();
 
     settings = texSettings;
-    RenderDataHandler::CreateTextureFromBytes(texHandle, texSettings, [](Vector2i loc, Vector4b * outCol) { *outCol = Vector4b((unsigned char)255, 255, 255, 255); });
-}
-bool MTexture::Create(std::string filePath, const ColorTextureSettings & texSettings)
-{
-    //Create the new empty texture.
-    Create(texSettings);
-
-    //Load the texture file using SFML.
-    sf::Texture tex;
-    if (!tex.loadFromFile(filePath))
+    Array2D<Vector4f> pixels(1, 1);
+    if (!initer.MakeTexture(settings, pixels))
     {
         return false;
     }
 
-    //Get the pixel data from the SFML texture.
-    Array2D<Vector4f> texCol(0, 0);
-    TextureConverters::ToArray(tex, texCol);
-
-    //Put the pixel data into the new texture.
-    SetData(texCol);
-
+    settings.Width = pixels.GetWidth();
+    settings.Height = pixels.GetHeight();
+    RenderDataHandler::CreateTextureFromFloats(texHandle, settings, [&pixels](Vector2i loc, Vector4f * outCol) { *outCol = pixels[loc]; });
+    
     return true;
 }
 
@@ -110,34 +99,29 @@ void MTexture::DeleteIfValid(void)
 {
     if (IsValidTexture())
     {
-        RenderDataHandler::DeleteTexture2D(texHandle);
+        RenderDataHandler::DeleteTexture(texHandle);
     }
     texHandle = 0;
 }
 
-void MTexture::SetData(const Array2D<Vector4b> & inColor)
+
+bool MTexture::SetData(Texture2DInitialization & init)
 {
-    settings.Width = inColor.GetWidth();
-    settings.Height = inColor.GetHeight();
-    TextureConverters::ToTexture(inColor, settings, texHandle);
+    Array2D<Vector4f> pixels(1, 1);
+    if (!init.MakeTexture(settings, pixels))
+    {
+        return false;
+    }
+
+    settings.Width = pixels.GetWidth();
+    settings.Height = pixels.GetHeight();
+    TextureConverters::ToTexture(pixels, settings, texHandle);
+
+    return true;
 }
-void MTexture::SetData(const Array2D<Vector4f> & inColor)
-{
-    settings.Width = inColor.GetWidth();
-    settings.Height = inColor.GetHeight();
-    TextureConverters::ToTexture(inColor, settings, texHandle);
-}
-void MTexture::SetData(const Vector4b color, unsigned int width, unsigned int height)
+bool MTexture::SetData(unsigned int width, unsigned int height, Texture2DInitialization & init)
 {
     settings.Width = width;
     settings.Height = height;
-    RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle);
-    RenderDataHandler::SetTextureFromByteFunc(settings, [color](Vector2i loc, Vector4b * outCol) { *outCol = color; });
-}
-void MTexture::SetData(const Vector4f color, unsigned int width, unsigned int height)
-{
-    settings.Width = width;
-    settings.Height = height;
-    RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle);
-    RenderDataHandler::SetTextureFromFloatFunc(settings, [color](Vector2i loc, Vector4f * outCol) { *outCol = color; });
+    return SetData(init);
 }

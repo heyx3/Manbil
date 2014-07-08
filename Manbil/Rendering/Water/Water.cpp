@@ -156,8 +156,7 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
         Array2D<Vector4f> values(seedArgs.SeedValues->GetWidth(), seedArgs.SeedValues->GetHeight());
         values.Fill([&seedArgs](Vector2i loc, Vector4f * outVal) { float val = (*seedArgs.SeedValues)[loc]; *outVal = Vector4f(val, val, val, 1.0f); });
 
-        seedTex.Create(seedArgs.SeedTexQuality);
-        seedTex.SetData(values);
+        seedTex.Create(seedArgs.SeedTexQuality, Texture2DInitData(values.GetWidth(), values.GetHeight(), values.GetArray()));
         Params.Texture2DUniforms["seedMap"].Texture = seedTex.GetTextureHandle();
         //TODO: Don't use a string literal for the seed map name.
     }
@@ -292,7 +291,7 @@ void Water::SetSeededWaterSeed(const Array2D<float> & seedMap)
     Array2D<Vector4f> seedMapTex(seedMap.GetWidth(), seedMap.GetHeight());
     seedMapTex.Fill([&seedMap](Vector2i loc, Vector4f * outVal) { float val = seedMap[loc]; *outVal = Vector4f(val, val, val, 1.0f); });
 
-    seedTex.SetData(seedMapTex);
+    seedTex.SetData(Texture2DInitData(seedMapTex.GetWidth(), seedMapTex.GetHeight(), seedMapTex.GetArray()));
     Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f((float)seedMap.GetWidth(), (float)seedMap.GetHeight()));
 }
 

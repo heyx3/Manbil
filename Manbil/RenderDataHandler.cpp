@@ -247,7 +247,7 @@ void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, cons
     settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
 }
 
-void RenderDataHandler::DeleteTexture2D(RenderObjHandle & texObjHandle)
+void RenderDataHandler::DeleteTexture(RenderObjHandle & texObjHandle)
 {
 	glDeleteTextures(1, &texObjHandle);
 }

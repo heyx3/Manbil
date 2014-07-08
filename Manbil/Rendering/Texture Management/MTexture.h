@@ -3,6 +3,7 @@
 #include "../../RenderDataHandler.h"
 #include "TextureConverters.h"
 #include "TextureSettings.h"
+#include "Texture2DInitialization.h"
 #include <SFML/Graphics/Texture.hpp>
 
 
@@ -44,11 +45,8 @@ public:
 
     //Texture operations.
     
-    //Creates an empty white texture. Deletes the texture this instance previously held.
-    void Create(const ColorTextureSettings & texSettings);
-    //Returns whether the file was successfully loaded. Deletes the texture this instance previously held.
-    //Note that the width/height in "texSettings" will be ignored.
-    bool Create(std::string filePath, const ColorTextureSettings & texSettings);
+    //Returns whether the texture was created successfully.
+    bool Create(const ColorTextureSettings & settings, Texture2DInitialization & texInitializer);
 
     //If this is a valid texture, deletes it from OpenGL.
     void DeleteIfValid(void);
@@ -57,10 +55,11 @@ public:
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
     void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle); }
 
-    void SetData(const Array2D<Vector4b> & inColor);
-    void SetData(const Array2D<Vector4f> & inColor);
-    void SetData(const Vector4b color, unsigned int width, unsigned int height);
-    void SetData(const Vector4f color, unsigned int width, unsigned int height);
+    //Returns whether or not the texture setting was successful.
+    bool SetData(Texture2DInitialization & init);
+    //Returns whether or not the texture setting was successful.
+    //Note that the given width/height may be overridden by certain sub-types of Texture2DInitialization.
+    bool SetData(unsigned int newWidth, unsigned int newHeight, Texture2DInitialization & init);
 
 
 private:

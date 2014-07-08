@@ -178,9 +178,9 @@ std::string customTexPath = "";
 void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 {
     //Get the noise texture.
-    if (!noiseTex.Create("Content/Textures/NoiseTex.png",
-                         ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
-                                              TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP))))
+    if (!noiseTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
+                                              TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP)),
+                         Texture2DInitLoadFile("Content/Textures/NoiseTex.png")))
     {
         PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
         Pause();
@@ -210,8 +210,9 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         first = false;
 
         //Try loading the file.
-        if (!customTex.Create(customTexPath, ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
-                                                                  TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP))))
+        if (!customTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
+                                                   TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
+                              Texture2DInitLoadFile(customTexPath)))
         {
             PrintData("Error loading '" + customTexPath + "'", "could not find or load the file.");
             std::cout << "\n\n";

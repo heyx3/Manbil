@@ -145,7 +145,13 @@ public:
                 }
             }
         }
-	}
+    }
+    //Copies the given elements to this array. Assumes that the size of this array matches with the given one.
+    void Fill(const ArrayType * values)
+    {
+        for (unsigned int i = 0; i < (width * height); ++i)
+            arrayVals[i] = values[i];
+    }
 
     //Resizes this array to the given size, preserving all data
     //    (although some data will of course be lost if the array gets shortened).
