@@ -9,6 +9,7 @@
 #include "Rendering/Water/Water.h"
 #include "Rendering/PostProcessing/PostProcessChain.h"
 #include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
+#include "Rendering/GUI/TextRenderer.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -65,7 +66,7 @@ private:
     Material * finalScreenMat;
     UniformDictionary finalScreenQuadParams;
 
-    unsigned int testFontID;
+    TextRenderer::FontSlot testFontSlot;
 
     MTexture waterNormalTex;
 };

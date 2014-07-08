@@ -91,7 +91,7 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     //Set up the test font.
 
-    testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 16);
+    unsigned int testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 16);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
         std::cout << "Error creating font 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
@@ -106,7 +106,8 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->RenderString(TextRenderer::FontSlot(testFontID, 0), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
+    testFontSlot = TextRenderer::FontSlot(testFontID, 0);
+    if (!TextRender->RenderString(testFontSlot, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
     {
         std::cout << "Error rendering test string: " << TextRender->GetError() << "\n";
         Pause();
@@ -227,7 +228,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     EmitVertex();                                                                                 \n\
 }";
     
-    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontID)) * 0.1f, "u_quadSize");
+    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontSlot)) * 0.1f, "u_quadSize");
     GeoShaderData geoDat(GeoShaderOutput("UVs", 2), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
     ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
     if (!gsGen.ErrorMessage.empty())
@@ -237,7 +238,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    gsTestParams.TextureUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontID);
+    gsTestParams.TextureUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot);
     gsTestMat = gsGen.Mat;
 
 
