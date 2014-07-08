@@ -76,16 +76,16 @@ unsigned int TextureSample2DNode::GetSize(ChannelsOut channel)
 {
     switch (channel)
     {
-    case ChannelsOut::CO_Red:
-    case ChannelsOut::CO_Green:
-    case ChannelsOut::CO_Blue:
-    case ChannelsOut::CO_Alpha:
-        return 1;
-    case ChannelsOut::CO_AllColorChannels:
-        return 3;
-    case ChannelsOut::CO_AllChannels:
-        return 4;
+        case ChannelsOut::CO_Red:
+        case ChannelsOut::CO_Green:
+        case ChannelsOut::CO_Blue:
+        case ChannelsOut::CO_Alpha:
+            return 1;
+        case ChannelsOut::CO_AllColorChannels:
+            return 3;
+        case ChannelsOut::CO_AllChannels:
+            return 4;
 
-    default: assert(false); return 0;
+        default: assert(false); return 0;
     }
 }
