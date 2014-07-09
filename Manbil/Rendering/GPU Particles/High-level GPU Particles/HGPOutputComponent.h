@@ -7,7 +7,6 @@
 #include "../../Texture Management/MTexture.h"
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../GPUParticleDefines.h"
-#include "../../Texture Management/TextureConverters.h"
 
 
 class HGPComponentManager;
@@ -276,7 +275,8 @@ public:
     virtual void InitializeComponent(void) override
     {
         //Create the texture.
-        gradientTex.Create(ColorTextureSettings(1, 1, gradientTexQuality.PixelSize, false, TextureSettings(gradientTexQuality.FilterQuality, TextureSettings::WT_CLAMP)));
+        gradientTex.Create(ColorTextureSettings(1, 1, gradientTexQuality.PixelSize, false, TextureSettings(gradientTexQuality.FilterQuality, TextureSettings::WT_CLAMP)),
+                           Array2D<Vector4b>(1, 1, Vector4b()));
 
         //Generate the texture data.
         Array2D<VectorF> texOut(gradientTexQuality.Width, 1);

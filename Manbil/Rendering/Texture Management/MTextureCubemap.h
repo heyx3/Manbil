@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../../RenderDataHandler.h"
-#include "TextureConverters.h"
 #include "TextureSettings.h"
-#include "Texture2DInitialization.h"
 #include <SFML/Graphics/Texture.hpp>
 
 
@@ -41,21 +39,34 @@ public:
 
     //Texture operations.
 
-    //Returns whether the creation was successful.
-    bool Create(const ColorTextureSettings & settingsNegX, Texture2DInitialization & initNegX,
-                const ColorTextureSettings & settingsNegY, Texture2DInitialization & initNegY,
-                const ColorTextureSettings & settingsNegZ, Texture2DInitialization & initNegZ,
-                const ColorTextureSettings & settingsPosX, Texture2DInitialization & initPosX,
-                const ColorTextureSettings & settingsPosY, Texture2DInitialization & initPosY,
-                const ColorTextureSettings & settingsPosZ, Texture2DInitialization & initPosZ);
+    void Create(const ColorTextureSettings & settingsNegX, const Array2D<Vector4f> & dataNegX,
+                const ColorTextureSettings & settingsNegY, const Array2D<Vector4f> & dataNegY,
+                const ColorTextureSettings & settingsNegZ, const Array2D<Vector4f> & dataNegZ,
+                const ColorTextureSettings & settingsPosX, const Array2D<Vector4f> & dataPosX,
+                const ColorTextureSettings & settingsPosY, const Array2D<Vector4f> & dataPosY,
+                const ColorTextureSettings & settingsPosZ, const Array2D<Vector4f> & dataPosZ);
+    void Create(const ColorTextureSettings & settingsNegX, const Array2D<Vector4b> & dataNegX,
+                const ColorTextureSettings & settingsNegY, const Array2D<Vector4b> & dataNegY,
+                const ColorTextureSettings & settingsNegZ, const Array2D<Vector4b> & dataNegZ,
+                const ColorTextureSettings & settingsPosX, const Array2D<Vector4b> & dataPosX,
+                const ColorTextureSettings & settingsPosY, const Array2D<Vector4b> & dataPosY,
+                const ColorTextureSettings & settingsPosZ, const Array2D<Vector4b> & dataPosZ);
 
     void DeleteIfValid(void);
 
     void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::TT_CUBE, texHandle); }
 
     //Returns whether this attempt at setting a face's data was successful.
-    bool SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, Texture2DInitialization & init);
+    void SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, const Array2D<Vector4f> & pixels);
+    //Returns whether this attempt at setting a face's data was successful.
+    void SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, const Array2D<Vector4b> & pixels);
 
+    //Copies this texture's pixel data from the graphics card into the given array.
+    //Automatically resizes the array to fit.
+    void GetFaceData(CubeTextureTypes face, Array2D<Vector4b> & outData);
+    //Copies this texture's pixel data from the graphics card into the given array.
+    //Automatically resizes the array to fit.
+    void GetFaceData(CubeTextureTypes face, Array2D<Vector4f> & outData);
 
 
 private:

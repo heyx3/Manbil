@@ -75,25 +75,24 @@ void MTexture::SetWrappingType(TextureSettings::WrappingTypes wrapping)
         settings.BaseSettings.ApplyWrapping();
     }
 }
-
-bool MTexture::Create(const ColorTextureSettings & texSettings, Texture2DInitialization & initer)
+void MTexture::Create(const ColorTextureSettings & texSettings, const Array2D<Vector4b> & pixels)
 {
     DeleteIfValid();
 
     settings = texSettings;
-    Array2D<Vector4f> pixels(1, 1);
-    if (!initer.MakeTexture(settings, pixels))
-    {
-        return false;
-    }
-
     settings.Width = pixels.GetWidth();
     settings.Height = pixels.GetHeight();
-    RenderDataHandler::CreateTextureFromFloats(texHandle, settings, [&pixels](Vector2i loc, Vector4f * outCol) { *outCol = pixels[loc]; });
-    
-    return true;
+    RenderDataHandler::CreateTexture2D(texHandle, settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixels);
 }
+void MTexture::Create(const ColorTextureSettings & texSettings, const Array2D<Vector4f> & pixels)
+{
+    DeleteIfValid();
 
+    settings = texSettings;
+    settings.Width = pixels.GetWidth();
+    settings.Height = pixels.GetHeight();
+    RenderDataHandler::CreateTexture2D(texHandle, settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixels);
+}
 
 void MTexture::DeleteIfValid(void)
 {
@@ -104,24 +103,30 @@ void MTexture::DeleteIfValid(void)
     texHandle = 0;
 }
 
-
-bool MTexture::SetData(Texture2DInitialization & init)
+void MTexture::SetData(const Array2D<Vector4b> & pixelData)
 {
-    Array2D<Vector4f> pixels(1, 1);
-    if (!init.MakeTexture(settings, pixels))
-    {
-        return false;
-    }
-
-    settings.Width = pixels.GetWidth();
-    settings.Height = pixels.GetHeight();
-    TextureConverters::ToTexture(pixels, settings, texHandle);
-
-    return true;
+    Bind();
+    settings.Width = pixelData.GetWidth();
+    settings.Height = pixelData.GetHeight();
+    RenderDataHandler::SetTexture2D(settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixelData);
 }
-bool MTexture::SetData(unsigned int width, unsigned int height, Texture2DInitialization & init)
+void MTexture::SetData(const Array2D<Vector4f> & pixelData)
 {
-    settings.Width = width;
-    settings.Height = height;
-    return SetData(init);
+    Bind();
+    settings.Width = pixelData.GetWidth();
+    settings.Height = pixelData.GetHeight();
+    RenderDataHandler::SetTexture2D(settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixelData);
+}
+
+void MTexture::GetData(Array2D<Vector4b> & outData)
+{
+    outData.Reset(settings.Width, settings.Height);
+    Bind();
+    RenderDataHandler::GetTextureData(outData);
+}
+void MTexture::GetData(Array2D<Vector4f> & outData)
+{
+    outData.Reset(settings.Width, settings.Height);
+    Bind();
+    RenderDataHandler::GetTextureData(outData);
 }

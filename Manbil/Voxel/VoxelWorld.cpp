@@ -186,13 +186,15 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the texture.
-    if (!voxelTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
-                         Texture2DInitLoadFile("Content/Textures/VoxelTex.png")))
+    ColorTextureSettings voxelTexSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
+    Array2D<Vector4b> loadTex(1, 1);
+    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/VoxelTex.png", loadTex, voxelTexSettings.GenerateMipmaps, voxelTexSettings.PixelSize, voxelTexSettings.BaseSettings))
     {
         PrintError("Error creating voxel texture 'Content/Textures/VoxelTex.png", "File not found or unable to be loaded");
         EndWorld();
         return;
     }
+    voxelTex.Create(voxelTexSettings, loadTex);
 
 
     //Initialize post-processing.

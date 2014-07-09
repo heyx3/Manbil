@@ -129,11 +129,18 @@ public:
             }
         }
     }
-	template<typename Func>
-	//Fills every element using the given function.
-	//The function must have signature "void getValue(Vector3i loc, ArrayType * outValue)".
-	void Fill(Func getValue)
-	{
+    //Copies the given elements to this array. Assumes that the size of this array matches with the given one.
+    void Fill(const ArrayType * values)
+    {
+        for (unsigned int i = 0; i < (width * height); ++i)
+            arrayVals[i] = values[i];
+    }
+
+    template<typename Func>
+    //Fills every element using the given function.
+    //The function must have signature "void getValue(Vector3i loc, ArrayType * outValue)".
+    void FillFunc(Func getValue)
+    {
         Vector3i loc;
         for (loc.z = 0; loc.z < depth; ++loc.z)
         {
@@ -145,12 +152,6 @@ public:
                 }
             }
         }
-    }
-    //Copies the given elements to this array. Assumes that the size of this array matches with the given one.
-    void Fill(const ArrayType * values)
-    {
-        for (unsigned int i = 0; i < (width * height); ++i)
-            arrayVals[i] = values[i];
     }
 
     //Resizes this array to the given size, preserving all data

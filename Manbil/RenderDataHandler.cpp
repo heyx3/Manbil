@@ -5,11 +5,14 @@
 #include "DebugAssist.h"
 
 
-std::string RenderDataHandler::errorMsg = "";
-const int RenderDataHandler::EXCEPTION_ELEMENTS_OUT_OF_RANGE = 1;
+typedef RenderDataHandler RDH;
 
 
-bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
+std::string RDH::errorMsg = "";
+const int RDH::EXCEPTION_ELEMENTS_OUT_OF_RANGE = 1;
+
+
+bool RDH::GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & out_handle)
 {
 	out_handle = glGetUniformLocation(shaderProgram, name);
 
@@ -21,7 +24,7 @@ bool RenderDataHandler::GetUniformLocation(RenderObjHandle shaderProgram, const 
 
 	return true;
 }
-bool RenderDataHandler::GetSubroutineUniformLocation(RenderObjHandle shaderProgram, ShaderHandler::Shaders shaderType, const Char * name, UniformLocation & outHandle)
+bool RDH::GetSubroutineUniformLocation(RenderObjHandle shaderProgram, ShaderHandler::Shaders shaderType, const Char * name, UniformLocation & outHandle)
 {
     outHandle = glGetSubroutineUniformLocation(shaderProgram, ShaderHandler::ToEnum(shaderType), name);
 
@@ -33,12 +36,12 @@ bool RenderDataHandler::GetSubroutineUniformLocation(RenderObjHandle shaderProgr
 
     return true;
 }
-void RenderDataHandler::GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue)
+void RDH::GetSubroutineID(RenderObjHandle shaderProgram, ShaderHandler::Shaders shader, const Char* name, RenderObjHandle & outValue)
 {
     outValue = glGetSubroutineIndex(shaderProgram, ShaderHandler::ToEnum(shader), name);
 }
 
-void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const float * value)
+void RDH::SetUniformValue(UniformLocation loc, int elements, const float * value)
 {
     //TODO: Remove exception handling; just assert().
 	if (elements < 1 || elements > 4)
@@ -64,7 +67,7 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 		default: assert(false);
 	}
 }
-void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int floatsPerElement, const float * valuesSplit)
+void RDH::SetUniformArrayValue(UniformLocation loc, int arrayElements, int floatsPerElement, const float * valuesSplit)
 {
     //TODO: Remove exception handling; just assert().
     if (floatsPerElement < 1 || floatsPerElement > 4)
@@ -93,7 +96,7 @@ void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayEleme
         default: assert(false);
     }
 }
-void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const int * value)
+void RDH::SetUniformValue(UniformLocation loc, int elements, const int * value)
 {
     //TODO: Remove exception handling; just assert().
 	if (elements < 1 || elements > 4)
@@ -119,7 +122,7 @@ void RenderDataHandler::SetUniformValue(UniformLocation loc, int elements, const
 		default: assert(false);
 	}
 }
-void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit)
+void RDH::SetUniformArrayValue(UniformLocation loc, int arrayElements, int intsPerElement, const int * valuesSplit)
 {
     //TODO: Remove exception handling; just assert().
     if (intsPerElement < 1 || intsPerElement > 4)
@@ -149,30 +152,255 @@ void RenderDataHandler::SetUniformArrayValue(UniformLocation loc, int arrayEleme
             assert(false);
     }
 }
-void RenderDataHandler::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
+void RDH::SetMatrixValue(UniformLocation lc, const Matrix4f & mat)
 {
 	glUniformMatrix4fv(lc, 1, GL_TRUE, (const GLfloat*)(&mat));
 }
-void RenderDataHandler::SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle value)
+void RDH::SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle value)
 {
     glUniformSubroutinesuiv(ShaderHandler::ToEnum(shader), 1, &value);
 }
 
 
-void RenderDataHandler::GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor)
+
+bool RDH::LoadTextureFromFile(std::string filePath, Array2D<Vector4b> & outPixelData,
+                              bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings)
 {
-    BindTexture(TextureTypes::TT_2D, texObjectHandle);
-    outColor.Reset((unsigned int)texSize.x, (unsigned int)texSize.y);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor.GetArray());
+    //Load the image in using SFML.
+    sf::Image img;
+    if (!img.loadFromFile(filePath))
+    {
+        return false;
+    }
+
+    //Fill the out array with the image data.
+    outPixelData.Reset(img.getSize().x, img.getSize().y);
+    outPixelData.Fill((Vector4b*)img.getPixelsPtr());
+
+    return true;
 }
-void RenderDataHandler::GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4f> & outColor)
+Vector2i RDH::LoadTextureFromFile(std::string filePath, bool useMipmaps,
+                                  ColorTextureSettings::PixelSizes size, const TextureSettings & settings)
 {
-    BindTexture(TextureTypes::TT_2D, texObjectHandle);
-    outColor.Reset((unsigned int)texSize.x, (unsigned int)texSize.y);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
+    //Load the image in using SFML.
+    sf::Image img;
+    if (!img.loadFromFile(filePath))
+    {
+        return Vector2i(-1, -1);
+    }
+
+    //Set the texture data to the image data.
+    SetTexture2D(useMipmaps, size, settings, img.getSize().x, img.getSize().y, img.getPixelsPtr());
+
+    return Vector2i((int)img.getSize().x, (int)img.getSize().y);
+}
+Vector2i RDH::LoadTextureFromFile(std::string filePath, CubeTextureTypes face, bool useMipmaps,
+                                  ColorTextureSettings::PixelSizes size, const TextureSettings & settings)
+{
+    //Load the image in using SFML.
+    sf::Image img;
+    if (!img.loadFromFile(filePath))
+    {
+        return Vector2i(-1, -1);
+    }
+
+    //Set the texture data to the image data.
+    SetTextureCubemapFace(face, ColorTextureSettings(img.getSize().x, img.getSize().y, size, useMipmaps, settings), img.getPixelsPtr());
+
+    return Vector2i((int)img.getSize().x, (int)img.getSize().y);
 }
 
-Vector2i RenderDataHandler::GetTextureDimensions(RenderObjHandle texture)
+void RDH::CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, const Vector4b * pixelData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_1D, outTexHandle);
+
+    SetTexture1D(useMipmaps, pixelSize, width, pixelData);
+}
+void RDH::CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, const unsigned char * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_1D, outTexHandle);
+
+    SetTexture1D(useMipmaps, pixelSize, width, rgbaColorData);
+}
+void RDH::SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4b * pixelData)
+{
+    SetTexture1D(useMipmaps, pixelSize, width, &pixelData[0].x);
+}
+void RDH::SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const unsigned char * rgbaPixelData)
+{
+    glTexImage1D(GL_TEXTURE_1D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaPixelData);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_1D);
+}
+
+void RDH::CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const TextureSettings & settings, const Array2D<Vector4b> & pixelData)
+{
+    CreateTexture2D(outTexHandle, useMipmaps, pixelSize, settings, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
+}
+void RDH::CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const TextureSettings & settings, unsigned int width, unsigned int height, const unsigned char * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_2D, outTexHandle);
+
+    SetTexture2D(useMipmaps, pixelSize, settings, width, height, rgbaColorData);
+}
+void RDH::SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                       const Array2D<Vector4b> & pixelData)
+{
+    SetTexture2D(useMipmaps, pixelSize, settings, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
+}
+void RDH::SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                       unsigned int width, unsigned int height, const unsigned char * pixelRGBA)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelRGBA);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+    settings.ApplyAllSettings(useMipmaps);
+}
+void RDH::SetTexture2D(RenderObjHandle texObjHandle, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings, sf::Image & img)
+{
+    glBindTexture(GL_TEXTURE_2D, texObjHandle);
+    SetTexture2D(useMipmaps, size, settings, img.getSize().x, img.getSize().y, img.getPixelsPtr());
+}
+
+void RDH::CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const Array3D<Vector4b> & pixelData)
+{
+    CreateTexture3D(outTexHandle, useMipmaps, pixelSize, pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetDepth(),
+                    &pixelData.GetArray()[0].x);
+}
+void RDH::CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, unsigned int height, unsigned int depth, const unsigned char * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_3D, outTexHandle);
+    SetTexture3D(useMipmaps, pixelSize, width, height, depth, rgbaColorData);
+}
+void RDH::SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4b> & pixelData)
+{
+    SetTexture3D(useMipmaps, pixelSize, pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetDepth(), &pixelData.GetArray()[0].x);
+}
+void RDH::SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                       unsigned int width, unsigned int height, unsigned int depth, const unsigned char * pixelRGBA)
+{
+    glTexImage3D(GL_TEXTURE_3D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelRGBA);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_3D);
+}
+
+
+void RDH::CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, const Vector4f * pixelData)
+{
+    CreateTexture1D(outTexHandle, useMipmaps, pixelSize, width, &pixelData[0].x);
+}
+void RDH::CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, const float * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_1D, outTexHandle);
+
+    SetTexture1D(useMipmaps, pixelSize, width, rgbaColorData);
+}
+void RDH::SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4f * pixelData)
+{
+    SetTexture1D(useMipmaps, pixelSize, width, &pixelData[0].x);
+}
+void RDH::SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const float * rgbaPixelData)
+{
+    glTexImage1D(GL_TEXTURE_1D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, 0, GL_RGBA, GL_FLOAT, rgbaPixelData);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_1D);
+}
+
+void RDH::CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const TextureSettings & settings, const Array2D<Vector4f> & pixelData)
+{
+    CreateTexture2D(outTexHandle, useMipmaps, pixelSize, settings, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
+}
+void RDH::CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const TextureSettings & settings, unsigned int width, unsigned int height, const float * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_2D, outTexHandle);
+
+    SetTexture2D(useMipmaps, pixelSize, settings, width, height, rgbaColorData);
+}
+void RDH::SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                       const Array2D<Vector4f> & pixelData)
+{
+    SetTexture2D(useMipmaps, pixelSize, settings, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
+}
+void RDH::SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                       unsigned int width, unsigned int height, const float * pixelRGBA)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, pixelRGBA);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+    settings.ApplyAllSettings(useMipmaps);
+}
+
+void RDH::CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          const Array3D<Vector4f> & pixelData)
+{
+    CreateTexture3D(outTexHandle, useMipmaps, pixelSize, pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetDepth(),
+                    &pixelData.GetArray()[0].x);
+}
+void RDH::CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                          unsigned int width, unsigned int height, unsigned int depth, const float * rgbaColorData)
+{
+    glGenTextures(1, &outTexHandle);
+    glBindTexture(GL_TEXTURE_3D, outTexHandle);
+    SetTexture3D(useMipmaps, pixelSize, width, height, depth, rgbaColorData);
+}
+void RDH::SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4f> & pixelData)
+{
+    SetTexture3D(useMipmaps, pixelSize, pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetDepth(), &pixelData.GetArray()[0].x);
+}
+void RDH::SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                       unsigned int width, unsigned int height, unsigned int depth, const float * pixelRGBA)
+{
+    glTexImage3D(GL_TEXTURE_3D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, depth, 0, GL_RGBA, GL_FLOAT, pixelRGBA);
+    if (useMipmaps) glGenerateMipmap(GL_TEXTURE_3D);
+}
+
+
+
+void RDH::GetTextureData(Vector4b * outColor)
+{
+    glGetTexImage(GL_TEXTURE_1D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor);
+}
+void RDH::GetTextureData(Vector4f * outColor)
+{
+    glGetTexImage(GL_TEXTURE_1D, 0, GL_RGBA, GL_FLOAT, (void*)outColor);
+}
+void RDH::GetTextureData(Array2D<Vector4b> & outColor)
+{
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor.GetArray());
+}
+void RDH::GetTextureData(Array2D<Vector4f> & outColor)
+{
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
+}
+void RDH::GetTextureData(Array3D<Vector4b> & outColor)
+{
+    glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor.GetArray());
+}
+void RDH::GetTextureData(Array3D<Vector4f> & outColor)
+{
+    glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
+}
+void RDH::GetTextureData(CubeTextureTypes face, Array2D<Vector4b> & outColor)
+{
+    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)outColor.GetArray());
+}
+void RDH::GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor)
+{
+    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
+}
+
+Vector2i RDH::GetTextureDimensions(RenderObjHandle texture)
 {
     BindTexture(TextureTypes::TT_2D, texture);
 
@@ -182,7 +410,7 @@ Vector2i RenderDataHandler::GetTextureDimensions(RenderObjHandle texture)
     return size;
 }
 
-void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
+void RDH::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
 {
 	glGenTextures(1, &depthTexObjHandle);
 	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
@@ -191,25 +419,11 @@ void RenderDataHandler::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle
     settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
 }
 
-void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
-                                             const ColorTextureSettings & settingsPositiveX, const unsigned char * rgbaColorPositiveX,
-                                             const ColorTextureSettings & settingsPositiveY, const unsigned char * rgbaColorPositiveY,
-                                             const ColorTextureSettings & settingsPositiveZ, const unsigned char * rgbaColorPositiveZ,
-                                             const ColorTextureSettings & settingsNegativeX, const unsigned char * rgbaColorNegativeX,
-                                             const ColorTextureSettings & settingsNegativeY, const unsigned char * rgbaColorNegativeY,
-                                             const ColorTextureSettings & settingsNegativeZ, const unsigned char * rgbaColorNegativeZ)
+void RDH::CreateTextureCubemap(RenderObjHandle & texObjectHandle)
 {
     glGenTextures(1, &texObjectHandle);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texObjectHandle);
-
-    SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settingsNegativeX, rgbaColorNegativeX);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settingsNegativeY, rgbaColorNegativeY);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settingsNegativeZ, rgbaColorNegativeZ);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settingsPositiveX, rgbaColorPositiveX);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
 }
-void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
+void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 
@@ -218,26 +432,7 @@ void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, cons
     if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
     settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
 }
-
-void RenderDataHandler::CreateTextureCubemap(RenderObjHandle & texObjectHandle,
-                                             const ColorTextureSettings & settingsPositiveX, const float * rgbaColorPositiveX,
-                                             const ColorTextureSettings & settingsPositiveY, const float * rgbaColorPositiveY,
-                                             const ColorTextureSettings & settingsPositiveZ, const float * rgbaColorPositiveZ,
-                                             const ColorTextureSettings & settingsNegativeX, const float * rgbaColorNegativeX,
-                                             const ColorTextureSettings & settingsNegativeY, const float * rgbaColorNegativeY,
-                                             const ColorTextureSettings & settingsNegativeZ, const float * rgbaColorNegativeZ)
-{
-    glGenTextures(1, &texObjectHandle);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texObjectHandle);
-
-    SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settingsNegativeX, rgbaColorNegativeX);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settingsNegativeY, rgbaColorNegativeY);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settingsNegativeZ, rgbaColorNegativeZ);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settingsPositiveX, rgbaColorPositiveX);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settingsPositiveY, rgbaColorPositiveY);
-    SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settingsPositiveZ, rgbaColorPositiveZ);
-}
-void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
+void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 
@@ -247,13 +442,13 @@ void RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes cubemapFace, cons
     settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
 }
 
-void RenderDataHandler::DeleteTexture(RenderObjHandle & texObjHandle)
+void RDH::DeleteTexture(RenderObjHandle & texObjHandle)
 {
 	glDeleteTextures(1, &texObjHandle);
 }
 
 
-RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(const RenderObjHandle & fbo)
+RDH::FrameBufferStatus RDH::GetFramebufferStatus(const RenderObjHandle & fbo)
 
 {
 	GLint prevBuffer;
@@ -276,7 +471,7 @@ RenderDataHandler::FrameBufferStatus RenderDataHandler::GetFramebufferStatus(con
 		default: return FrameBufferStatus::UNKNOWN;
 	}
 }
-const char * RenderDataHandler::GetFrameBufferStatusMessage(const RenderObjHandle & fbo)
+const char * RDH::GetFrameBufferStatusMessage(const RenderObjHandle & fbo)
 {
 	GLint prevBuffer;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBuffer);

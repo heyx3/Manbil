@@ -80,14 +80,16 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
 
-    if (!waterNormalTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
-                               Texture2DInitLoadFile("Content/Textures/Normalmap.png")))
+    ColorTextureSettings waterNormalSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
+    Array2D<Vector4b> loadWaterNormal(1, 1);
+    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/Normalmap.png", loadWaterNormal, waterNormalSettings.GenerateMipmaps, waterNormalSettings.PixelSize, waterNormalSettings.BaseSettings))
     {
         std::cout << "Failed to load 'Normalmap.png'.\n";
         Pause();
         EndWorld();
         return;
     }
+    waterNormalTex.Create(waterNormalSettings, loadWaterNormal);
 
 
     //Set up the test font.

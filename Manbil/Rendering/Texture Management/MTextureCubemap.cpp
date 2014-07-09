@@ -107,29 +107,14 @@ void MTextureCubemap::SetWrappingType(CubeTextureTypes face, TextureSettings::Wr
 }
 
 
-bool MTextureCubemap::Create(const ColorTextureSettings & settingsNegX, Texture2DInitialization & initNegX,
-                             const ColorTextureSettings & settingsNegY, Texture2DInitialization & initNegY,
-                             const ColorTextureSettings & settingsNegZ, Texture2DInitialization & initNegZ,
-                             const ColorTextureSettings & settingsPosX, Texture2DInitialization & initPosX,
-                             const ColorTextureSettings & settingsPosY, Texture2DInitialization & initPosY,
-                             const ColorTextureSettings & settingsPosZ, Texture2DInitialization & initPosZ)
+void MTextureCubemap::Create(const ColorTextureSettings & settingsNegX, const Array2D<Vector4f> & dataNegX,
+                             const ColorTextureSettings & settingsNegY, const Array2D<Vector4f> & dataNegY,
+                             const ColorTextureSettings & settingsNegZ, const Array2D<Vector4f> & dataNegZ,
+                             const ColorTextureSettings & settingsPosX, const Array2D<Vector4f> & dataPosX,
+                             const ColorTextureSettings & settingsPosY, const Array2D<Vector4f> & dataPosY,
+                             const ColorTextureSettings & settingsPosZ, const Array2D<Vector4f> & dataPosZ)
 {
     DeleteIfValid();
-
-    Array2D<Vector4f> negX(1, 1), negY(1, 1), negZ(1, 1), posX(1, 1), posY(1, 1), posZ(1, 1);
-
-    if (!initNegX.MakeTexture(settingsNegX, negX))
-        return false;
-    if (!initNegY.MakeTexture(settingsNegY, negY))
-        return false;
-    if (!initNegZ.MakeTexture(settingsNegZ, negZ))
-        return false;
-    if (!initPosX.MakeTexture(settingsPosX, posX))
-        return false;
-    if (!initPosY.MakeTexture(settingsPosY, posY))
-        return false;
-    if (!initPosZ.MakeTexture(settingsPosZ, posZ))
-        return false;
 
     settings[NEG_X] = settingsNegX;
     settings[NEG_Y] = settingsNegY;
@@ -138,28 +123,65 @@ bool MTextureCubemap::Create(const ColorTextureSettings & settingsNegX, Texture2
     settings[POS_Y] = settingsPosY;
     settings[POS_Z] = settingsPosZ;
 
-    settings[NEG_X].Width = negX.GetWidth();
-    settings[NEG_X].Height = negX.GetHeight();
-    settings[NEG_Y].Width = negY.GetWidth();
-    settings[NEG_Y].Height = negY.GetHeight();
-    settings[NEG_Z].Width = negZ.GetWidth();
-    settings[NEG_Z].Height = negZ.GetHeight();
-    settings[POS_X].Width = posX.GetWidth();
-    settings[POS_X].Height = posX.GetHeight();
-    settings[POS_Y].Width = posY.GetWidth();
-    settings[POS_Y].Height = posY.GetHeight();
-    settings[POS_Z].Width = posZ.GetWidth();
-    settings[POS_Z].Height = posZ.GetHeight();
+    settings[NEG_X].Width = dataNegX.GetWidth();
+    settings[NEG_X].Height = dataNegX.GetHeight();
+    settings[NEG_Y].Width = dataNegY.GetWidth();
+    settings[NEG_Y].Height = dataNegY.GetHeight();
+    settings[NEG_Z].Width = dataNegZ.GetWidth();
+    settings[NEG_Z].Height = dataNegZ.GetHeight();
+    settings[POS_X].Width = dataPosX.GetWidth();
+    settings[POS_X].Height = dataPosX.GetHeight();
+    settings[POS_Y].Width = dataPosY.GetWidth();
+    settings[POS_Y].Height = dataPosY.GetHeight();
+    settings[POS_Z].Width = dataPosZ.GetWidth();
+    settings[POS_Z].Height = dataPosZ.GetHeight();
 
-    RenderDataHandler::CreateTextureCubemap(texHandle,
-                                            settingsPosX, &posX.GetArray()[0].x,
-                                            settingsPosY, &posY.GetArray()[0].x,
-                                            settingsPosZ, &posZ.GetArray()[0].x,
-                                            settingsNegX, &negX.GetArray()[0].x,
-                                            settingsNegY, &negY.GetArray()[0].x,
-                                            settingsNegZ, &negZ.GetArray()[0].x);
+    RenderDataHandler::CreateTextureCubemap(texHandle);
+    Bind();
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settings[NEG_X], &dataNegX.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settings[NEG_Y], &dataNegY.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settings[NEG_Z], &dataNegZ.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settings[POS_X], &dataPosX.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settings[POS_Y], &dataPosY.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settings[POS_Z], &dataPosZ.GetArray()[0].x);
+}
+void MTextureCubemap::Create(const ColorTextureSettings & settingsNegX, const Array2D<Vector4b> & dataNegX,
+                             const ColorTextureSettings & settingsNegY, const Array2D<Vector4b> & dataNegY,
+                             const ColorTextureSettings & settingsNegZ, const Array2D<Vector4b> & dataNegZ,
+                             const ColorTextureSettings & settingsPosX, const Array2D<Vector4b> & dataPosX,
+                             const ColorTextureSettings & settingsPosY, const Array2D<Vector4b> & dataPosY,
+                             const ColorTextureSettings & settingsPosZ, const Array2D<Vector4b> & dataPosZ)
+{
+    DeleteIfValid();
 
-    return true;
+    settings[NEG_X] = settingsNegX;
+    settings[NEG_Y] = settingsNegY;
+    settings[NEG_Z] = settingsNegZ;
+    settings[POS_X] = settingsPosX;
+    settings[POS_Y] = settingsPosY;
+    settings[POS_Z] = settingsPosZ;
+
+    settings[NEG_X].Width = dataNegX.GetWidth();
+    settings[NEG_X].Height = dataNegX.GetHeight();
+    settings[NEG_Y].Width = dataNegY.GetWidth();
+    settings[NEG_Y].Height = dataNegY.GetHeight();
+    settings[NEG_Z].Width = dataNegZ.GetWidth();
+    settings[NEG_Z].Height = dataNegZ.GetHeight();
+    settings[POS_X].Width = dataPosX.GetWidth();
+    settings[POS_X].Height = dataPosX.GetHeight();
+    settings[POS_Y].Width = dataPosY.GetWidth();
+    settings[POS_Y].Height = dataPosY.GetHeight();
+    settings[POS_Z].Width = dataPosZ.GetWidth();
+    settings[POS_Z].Height = dataPosZ.GetHeight();
+
+    RenderDataHandler::CreateTextureCubemap(texHandle);
+    Bind();
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settings[NEG_X], &dataNegX.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settings[NEG_Y], &dataNegY.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settings[NEG_Z], &dataNegZ.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settings[POS_X], &dataPosX.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settings[POS_Y], &dataPosY.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settings[POS_Z], &dataPosZ.GetArray()[0].x);
 }
 
 void MTextureCubemap::DeleteIfValid(void)
@@ -171,21 +193,34 @@ void MTextureCubemap::DeleteIfValid(void)
     }
 }
 
-bool MTextureCubemap::SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, Texture2DInitialization & init)
+void MTextureCubemap::SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, const Array2D<Vector4b> & pixels)
 {
-    Array2D<Vector4f> fce(1, 1);
-    if (!init.MakeTexture(newSettings, fce))
-    {
-        return false;
-    }
-
     unsigned int index = GetIndex(face);
     settings[index] = newSettings;
-    settings[index].Width = fce.GetWidth();
-    settings[index].Height = fce.GetHeight();
+    settings[index].Width = pixels.GetWidth();
+    settings[index].Height = pixels.GetHeight();
 
     Bind();
-    RenderDataHandler::SetTextureCubemapFace(face, settings[index], &fce.GetArray()[0].x);
+    RenderDataHandler::SetTextureCubemapFace(face, settings[index], &pixels.GetArray()[0].x);
+}
+void MTextureCubemap::SetFaceData(CubeTextureTypes face, const ColorTextureSettings & newSettings, const Array2D<Vector4f> & pixels)
+{
+    unsigned int index = GetIndex(face);
+    settings[index] = newSettings;
+    settings[index].Width = pixels.GetWidth();
+    settings[index].Height = pixels.GetHeight();
 
-    return true;
+    Bind();
+    RenderDataHandler::SetTextureCubemapFace(face, settings[index], &pixels.GetArray()[0].x);
+}
+
+void MTextureCubemap::GetFaceData(CubeTextureTypes face, Array2D<Vector4b> & outData)
+{
+    Bind();
+    RenderDataHandler::GetTextureData(face, outData);
+}
+void MTextureCubemap::GetFaceData(CubeTextureTypes face, Array2D<Vector4f> & outData)
+{
+    Bind();
+    RenderDataHandler::GetTextureData(face, outData);
 }

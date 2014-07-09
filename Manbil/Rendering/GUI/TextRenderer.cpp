@@ -4,7 +4,6 @@
 #include "../Materials/Data Nodes/ShaderGenerator.h"
 #include "../Materials/Data Nodes/Miscellaneous/DataNodeGenerators.h"
 #include "../../ScreenClearer.h"
-#include "../Texture Management/TextureConverters.h"
 
 
 Material * TextRenderer::textRenderer = 0;
@@ -28,7 +27,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     textRendererQuad = new DrawingQuad();
     tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_8_GREYSCALE, false,
                                         TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)),
-                   Texture2DInitFlatColor());
+                   Array2D<Vector4f>(1, 1, Vector4f()));
 
 
     //Transform matrices and render info.

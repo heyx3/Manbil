@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include "../Texture Management/MTexture.h"
-#include "../Texture Management/TextureConverters.h"
 
 
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
@@ -261,18 +260,7 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
 
 void FreeTypeHandler::GetChar(MTexture & outTex) const
 {
-    //PRIORITY: Once there are float versions of Texture2DInit stuff, use that and give the data directly.
-    
-    const Array2D<Vector4b> & arr = GetChar();
-    outTex.SetData(arr.GetWidth(), arr.GetHeight(),
-                   Texture2DInitFunction([](Vector2i l, Vector4f * p, const void* dat)
-    {
-        const float div255 = 1.0f / 255.0f;
-        const Array2D<Vector4b> * arr = (const Array2D<Vector4b> *)dat;
-        const Vector4b & val = arr->operator[](l);
-
-        *p = Vector4f((float)val.x * div255, (float)val.y * div255, (float)val.z * div255, (float)val.w * div255);
-    }, &GetChar()));
+    outTex.SetData(GetChar());
 }
 
 bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const

@@ -65,7 +65,7 @@ public:
 	virtual void Generate(Noise2D & outNoise) const override
     {
         int s = Seed;
-        outNoise.Fill([s](Vector2i loc, float * fOut)
+        outNoise.FillFunc([s](Vector2i loc, float * fOut)
         {
            *fOut = FastRand(Vector3i(loc, s).GetHashCode()).GetZeroToOne();
         });
@@ -131,7 +131,7 @@ public:
     {
         FastRand fr;
         int s = Seed;
-        outNoise.Fill([&fr, s](Vector3i loc, float * fOut)
+        outNoise.FillFunc([&fr, s](Vector3i loc, float * fOut)
         {
             fr.Seed = Vector4i(loc, s).GetHashCode();
             *fOut = fr.GetZeroToOne();

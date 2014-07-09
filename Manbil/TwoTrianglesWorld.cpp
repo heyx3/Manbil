@@ -178,13 +178,14 @@ std::string customTexPath = "";
 void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 {
     //Get the noise texture.
-    if (!noiseTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
-                                              TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP)),
-                         Texture2DInitLoadFile("Content/Textures/NoiseTex.png")))
+    Array2D<Vector4b> loadNoise(1, 1);
+    ColorTextureSettings noiseTexSettings(1, 1, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP));
+    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/NoiseTex.png", loadNoise, noiseTexSettings.GenerateMipmaps, noiseTexSettings.PixelSize, noiseTexSettings.BaseSettings))
     {
         PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
         Pause();
     }
+    noiseTex.Create(noiseTexSettings, loadNoise);
     params.Texture2DUniforms[TTW::NoiseSamplerName] = UniformSampler2DValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
 
 
@@ -210,9 +211,9 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         first = false;
 
         //Try loading the file.
-        if (!customTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_32, false,
-                                                   TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP)),
-                              Texture2DInitLoadFile(customTexPath)))
+        Array2D<Vector4b> loadCustom(1, 1);
+        ColorTextureSettings customTexSettings(1, 1, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP));
+        if (!RenderDataHandler::LoadTextureFromFile(customTexPath, loadCustom, customTexSettings.GenerateMipmaps, customTexSettings.PixelSize, customTexSettings.BaseSettings))
         {
             PrintData("Error loading '" + customTexPath + "'", "could not find or load the file.");
             std::cout << "\n\n";
@@ -220,6 +221,7 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
             std::cout << "\n\n\n\n\n\n";
             continue;
         }
+        customTex.Create(customTexSettings, loadCustom);
 
         valid = true;
     }

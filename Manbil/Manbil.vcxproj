@@ -173,7 +173,6 @@
     <ClCompile Include="Rendering\Texture Management\MTexture.cpp" />
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp" />
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
-    <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp" />
     <ClCompile Include="Rendering\Water\Water.cpp" />
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
@@ -330,8 +329,6 @@
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h" />
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />
-    <ClInclude Include="Rendering\Texture Management\TextureConverters.h" />
-    <ClInclude Include="Rendering\Texture Management\Texture2DInitialization.h" />
     <ClInclude Include="Rendering\Texture Management\TextureSettings.h" />
     <ClInclude Include="Rendering\Water\Water.h" />
     <ClInclude Include="Rendering\Water\WaterRendering.h" />

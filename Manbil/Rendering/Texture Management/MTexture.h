@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../../RenderDataHandler.h"
-#include "TextureConverters.h"
 #include "TextureSettings.h"
-#include "Texture2DInitialization.h"
 #include <SFML/Graphics/Texture.hpp>
 
 
@@ -44,9 +42,11 @@ public:
 
 
     //Texture operations.
-    
-    //Returns whether the texture was created successfully.
-    bool Create(const ColorTextureSettings & settings, Texture2DInitialization & texInitializer);
+
+    //Deletes the previous texture held by this instance if one existed.
+    void Create(const ColorTextureSettings & settings, const Array2D<Vector4b> & pixelData);
+    //Deletes the previous texture held by this instance if one existed.
+    void Create(const ColorTextureSettings & settings, const Array2D<Vector4f> & pixelData);
 
     //If this is a valid texture, deletes it from OpenGL.
     void DeleteIfValid(void);
@@ -55,11 +55,15 @@ public:
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
     void Bind(void) const { RenderDataHandler::BindTexture(TextureTypes::TT_2D, texHandle); }
 
-    //Returns whether or not the texture setting was successful.
-    bool SetData(Texture2DInitialization & init);
-    //Returns whether or not the texture setting was successful.
-    //Note that the given width/height may be overridden by certain sub-types of Texture2DInitialization.
-    bool SetData(unsigned int newWidth, unsigned int newHeight, Texture2DInitialization & init);
+    void SetData(const Array2D<Vector4b> & pixelData);
+    void SetData(const Array2D<Vector4f> & pixelData);
+
+    //Copies this texture's pixel data from the graphics card into the given array.
+    //Automatically resizes the array to fit.
+    void GetData(Array2D<Vector4b> & outData);
+    //Copies this texture's pixel data from the graphics card into the given array.
+    //Automatically resizes the array to fit.
+    void GetData(Array2D<Vector4f> & outData);
 
 
 private:

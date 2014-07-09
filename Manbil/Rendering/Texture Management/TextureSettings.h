@@ -26,7 +26,7 @@ public:
 
     FilteringTypes MinFilter, MagFilter;
     WrappingTypes HorzWrap, VertWrap;
-    TextureTypes TextureType;
+    TextureTypes TextureType; //TODO: Instead of holding a texture type, take one in the "Apply" functions themselves. Remove the "Cubemap" from the end of all functions.
 
 
     TextureSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert, TextureTypes texType = TextureTypes::TT_2D)

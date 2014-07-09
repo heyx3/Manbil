@@ -2,9 +2,10 @@
 
 #include "Math/Matrix4f.h"
 #include "Math/Array2D.h"
+#include "Math/Array3D.h"
 #include "ShaderHandler.h"
 #include "Rendering/Texture Management/TextureSettings.h"
-#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 
 //Manages different kinds of data being passed between CPU and GPU.
@@ -46,222 +47,140 @@ public:
 	
 
     //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-    //TODO: Move the usage of a function to generate texture data out to MTexture; this low-level OpenGL stuff should just take in a pointer to the data.
+    //TODO: Pull all this texture stuff out of RenderDataHandler, rename MTexture to MTexture2D, and create MTexture1D and MTexture3D.
+    
 
-    //Should be a function or lambda with the signature "void WritePixels(int pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Creates a new 1D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromBytes(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                       unsigned int width, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_1D, outTexHandle);
-
-        SetTextureFromByteFunc(useMipmaps, pixelSize, width, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(int pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 1D texture using the given function for generating the color data.
-    static void SetTextureFromByteFunc(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, Func pixelToColor)
-    {
-        Vector4b * data = new Vector4b[width];
-        for (unsigned int i = 0; i < width; ++i)
-            pixelToColor(i, &data[i]);
-
-        SetTextureFromBytes(useMipmaps, pixelSize, width, &data[0].x);
-
-        delete[] data;
-    }
-    //Sets the data for the currently-bound 1D texture using the given color data.
-    static void SetTextureFromBytes(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const unsigned char * pixelRGBA)
-    {
-        glTexImage1D(GL_TEXTURE_1D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelRGBA);
-        if (useMipmaps) glGenerateMipmap(GL_TEXTURE_1D);
-    }
-
-    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Creates a new 2D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromBytes(RenderObjHandle & outTexHandle, const ColorTextureSettings & settings, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_2D, outTexHandle);
-
-        SetTextureFromByteFunc(settings, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 2D texture using the given function for generating the color data.
-    static void SetTextureFromByteFunc(const ColorTextureSettings & settings, Func pixelToColor)
-    {
-        Array2D<Vector4b> data(settings.Width, settings.Height);
-        data.Fill(pixelToColor);
-        SetTextureFromBytes(settings, &data.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound 2D texture using the given color data.
-    static void SetTextureFromBytes(const ColorTextureSettings & settings, const unsigned char * pixelRGBA)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelRGBA);
-        if (settings.GenerateMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
-        settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
-    }
-
-    //Should be a function or lambda with the signature "void WritePixels(Vector3i pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Creates a new 3D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromBytes(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                       unsigned int width, unsigned int height, unsigned int depth, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_3D, outTexHandle);
-        SetTextureFromByteFunc(useMipmaps, pixelSize, width, height, depth, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(Vector3i pixelCoord, Vector4b * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 3D texture using the given function for generating the color data.
-    static void SetTextureFromByteFunc(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                       unsigned int width, unsigned int height, unsigned int depth, Func pixelToColor)
-    {
-        Array3D<Vector4b> data(width, height, depth);
-        data.Fill(pixelToColor);
-        SetTextureFromBytes(useMipmaps, pixelSize, width, &data.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound 3D texture using the given color data.
-    static void SetTextureFromBytes(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                    unsigned int width, unsigned int height, unsigned int depth, const unsigned char * pixelRGBA)
-    {
-        glTexImage3D(GL_TEXTURE_3D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelRGBA);
-        if (useMipmaps) glGenerateMipmap(GL_TEXTURE_3D);
-    }
+    //Attempts to load a texture from the given file path and put it into the given pixel array.
+    //Returns whether it was successful.
+    static bool LoadTextureFromFile(std::string filePath, Array2D<Vector4b> & outPixelData, bool useMipmaps,
+                                    ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
+    //Attempts to load a texture from the given file path and put it into the currently-bound 2D texture.
+    //Returns the dimensions of the texture, or { -1, -1 } if the function failed.
+    static Vector2i LoadTextureFromFile(std::string filePath, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
+    //Attempts to load a texture from the given file path and put it into the currently-bound cubemap texture.
+    //Returns the dimensions of the texture, or { -1, -1 } if the function failed.
+    static Vector2i LoadTextureFromFile(std::string filePath, CubeTextureTypes face, bool useMipmaps,
+                                        ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
 
 
-    //Should be a function or lambda with the signature "void WritePixels(int pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Creates a new 1D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromFloats(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                        unsigned int width, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_1D, outTexHandle);
+    //Setting/creating texture data via bytes.
 
-        SetTextureFromFloatFunc(useMipmaps, pixelSize, width, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(int pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 1D texture using the given function for generating the color data.
-    static void SetTextureFromFloatFunc(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, Func pixelToColor)
-    {
-        Vector4f * data = new Vector4f[width];
-        for (unsigned int i = 0; i < width; ++i)
-            pixelToColor(i, &data[i]);
+    //1D textures.
 
-        SetTextureFromFloats(useMipmaps, pixelSize, width, &data[0].x);
+    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, const Vector4b * pixelData);
+    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, const unsigned char * rgbaColorData);
+    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4b * pixelData);
+    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const unsigned char * rgbaPixelData);
 
-        delete[] data;
-    }
-    //Sets the data for the currently-bound 1D texture using the given color data.
-    static void SetTextureFromFloats(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const float * pixelRGBA)
-    {
-        glTexImage1D(GL_TEXTURE_1D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, 0, GL_RGBA, GL_FLOAT, pixelRGBA);
-        if (useMipmaps) glGenerateMipmap(GL_TEXTURE_1D);
-    }
+    //2D textures.
 
-    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Creates a new 2D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromFloats(RenderObjHandle & outTexHandle, const ColorTextureSettings & settings, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_2D, outTexHandle);
+    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const TextureSettings & settings, const Array2D<Vector4b> & pixelData);
+    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const TextureSettings & settings, unsigned int width, unsigned int height, const unsigned char * rgbaColorData);
+    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                             const Array2D<Vector4b> & pixelData);
+    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                             unsigned int width, unsigned int height, const unsigned char * pixelRGBA);
+    static void SetTexture2D(RenderObjHandle texObjHandle, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings, sf::Image & img);
 
-        SetTextureFromFloatFunc(settings, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(Vector2i pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 2D texture using the given function for generating the color data.
-    static void SetTextureFromFloatFunc(const ColorTextureSettings & settings, Func pixelToColor)
-    {
-        Array2D<Vector4f> data(settings.Width, settings.Height);
-        data.Fill(pixelToColor);
-        SetTextureFromFloats(settings, &data.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound 2D texture using the given color data.
-    static void SetTextureFromFloats(const ColorTextureSettings & settings, const float * pixelRGBA)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize), settings.Width, settings.Height, 0, GL_RGBA, GL_FLOAT, pixelRGBA);
-        if (settings.GenerateMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
-        settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
-    }
+    //3D textures.
 
-    //Should be a function or lambda with the signature "void WritePixels(Vector3i pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Creates a new 3D texture with the given settings and the given function to generate color data.
-    static void CreateTextureFromFloats(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                        unsigned int width, unsigned int height, unsigned int depth, Func pixelToColor)
-    {
-        glGenTextures(1, &outTexHandle);
-        glBindTexture(GL_TEXTURE_3D, outTexHandle);
-        SetTextureFromFloatFunc(useMipmaps, pixelSize, width, height, depth, pixelToColor);
-    }
-    //Should be a function or lambda with the signature "void WritePixels(Vector3i pixelCoord, Vector4f * outPixel)".
-    template<typename Func>
-    //Sets the data for the currently-bound 3D texture using the given function for generating the color data.
-    static void SetTextureFromFloatFunc(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                        unsigned int width, unsigned int height, unsigned int depth, Func pixelToColor)
-    {
-        Array3D<Vector4f> data(width, height, depth);
-        data.Fill(pixelToColor);
-        SetTextureFromFloats(useMipmaps, pixelSize, width, &data.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound 3D texture using the given color data.
-    static void SetTextureFromFloats(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                     unsigned int width, unsigned int height, unsigned int depth, const float * pixelRGBA)
-    {
-        glTexImage3D(GL_TEXTURE_3D, 0, ColorTextureSettings::ToInternalFormat(pixelSize), width, height, depth, 0, GL_RGBA, GL_FLOAT, pixelRGBA);
-        if (useMipmaps) glGenerateMipmap(GL_TEXTURE_3D);
-    }
+    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const Array3D<Vector4b> & pixelData);
+    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, unsigned int height, unsigned int depth, const unsigned char * rgbaColorData);
+    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4b> & pixelData);
+    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                             unsigned int width, unsigned int height, unsigned int depth, const unsigned char * pixelRGBA);
 
 
-    //Sets the texture data using an SFML Image.
-    static void SetTexture2DData(RenderObjHandle texObjHandle, ColorTextureSettings settings, sf::Image & img)
-    {
-        settings.Width = img.getSize().x;
-        settings.Height = img.getSize().y;
-        glBindTexture(GL_TEXTURE_2D, texObjHandle);
-        SetTextureFromBytes(settings, img.getPixelsPtr());
-    }
+    //Setting/creating texture data via floats.
+
+    //1D textures.
+
+    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, const Vector4f * pixelData);
+    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, const float * rgbaColorData);
+    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4f * pixelData);
+    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const float * rgbaPixelData);
+
+    //2D textures.
+
+    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const TextureSettings & settings, const Array2D<Vector4f> & pixelData);
+    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const TextureSettings & settings, unsigned int width, unsigned int height, const float * rgbaColorData);
+    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                             const Array2D<Vector4f> & pixelData);
+    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
+                             unsigned int width, unsigned int height, const float * pixelRGBA);
+
+    //3D textures.
+
+    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                const Array3D<Vector4f> & pixelData);
+    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                                unsigned int width, unsigned int height, unsigned int depth, const float * rgbaColorData);
+    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4f> & pixelData);
+    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
+                             unsigned int width, unsigned int height, unsigned int depth, const float * pixelRGBA);
+
+
+    //Gets the pixel data from the currently-bound 1D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Vector4b * outColor);
+    //Gets the pixel data from the currently-bound 1D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Vector4f * outColor);
+
+    //Gets the pixel data from the currently-bound 2D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array2D<Vector4b> & outColor);
+    //Gets the pixel data from the currently-bound 2D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array2D<Vector4f> & outColor);
+
+    //Gets the pixel data from the currently-bound 3D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array3D<Vector4b> & outColor);
+    //Gets the pixel data from the currently-bound 3D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array3D<Vector4f> & outColor);
+
+    //Gets the pixel data from the given face of the currently-bound cubemap texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4b> & outColor);
+    //Gets the pixel data from the given face of the currently-bound cubemap texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor);
 
 
 	//Creates a depth texture object for passing to a shader.
 	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
 
 
-    //Creates a cubemap texture.
-    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle,
-                                     const ColorTextureSettings & settingsPositiveX, const unsigned char * rgbaColorPositiveX,
-                                     const ColorTextureSettings & settingsPositiveY, const unsigned char * rgbaColorPositiveY,
-                                     const ColorTextureSettings & settingsPositiveZ, const unsigned char * rgbaColorPositiveZ,
-                                     const ColorTextureSettings & settingsNegativeX, const unsigned char * rgbaColorNegativeX,
-                                     const ColorTextureSettings & settingsNegativeY, const unsigned char * rgbaColorNegativeY,
-                                     const ColorTextureSettings & settingsNegativeZ, const unsigned char * rgbaColorNegativeZ);
+    //Creates a cubemap texture. Leaves its faces empty.
+    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle);
+    //Sets the data for the currently-bound cubemap's given face.
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings,
+                                      const Array2D<Vector4b> & pixelData)
+    {
+        SetTextureCubemapFace(cubemapFace, ColorTextureSettings(pixelData.GetWidth(), pixelData.GetHeight(), size, useMipmaps, settings), &pixelData.GetArray()[0].x);
+    }
     //Sets the data for the currently-bound cubemap's given face.
     static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor);
-    //Creates a cubemap texture.
-    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle,
-                                     const ColorTextureSettings & settingsPositiveX, const float * rgbaColorPositiveX,
-                                     const ColorTextureSettings & settingsPositiveY, const float * rgbaColorPositiveY,
-                                     const ColorTextureSettings & settingsPositiveZ, const float * rgbaColorPositiveZ,
-                                     const ColorTextureSettings & settingsNegativeX, const float * rgbaColorNegativeX,
-                                     const ColorTextureSettings & settingsNegativeY, const float * rgbaColorNegativeY,
-                                     const ColorTextureSettings & settingsNegativeZ, const float * rgbaColorNegativeZ);
+    //Sets the data for the currently-bound cubemap's given face.
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings,
+                                      const Array2D<Vector4f> & pixelData)
+    {
+        SetTextureCubemapFace(cubemapFace, ColorTextureSettings(pixelData.GetWidth(), pixelData.GetHeight(), size, useMipmaps, settings), &pixelData.GetArray()[0].x);
+    }
     //Sets the data for the currently-bound cubemap's given face.
     static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor);
-
-
-    //Gets the texture data.
-    static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4b> & outColor);
-    //Gets the texture data.
-    static void GetTexture2DData(RenderObjHandle texObjectHandle, Vector2i texSize, Array2D<Vector4f> & outColor);
 
 
     //Generates mipmaps for a texture that has already been created.
@@ -298,7 +217,7 @@ public:
 		//The combination of attached renderbuffer/texture formats isn't supported by this OpenGL implementation.
 		NOT_SUPPORTED,
 
-		//The frame buffer is in an unknown state (probably not a good one).
+		//The frame buffer is in an unknown state (presumably not a good one).
 		UNKNOWN,
 
 		//The frame buffer is fine and ready to be used.

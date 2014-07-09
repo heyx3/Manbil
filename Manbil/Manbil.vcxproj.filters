@@ -152,9 +152,6 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\TextureConverters.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
@@ -527,9 +524,6 @@
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\TextureConverters.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\GUI\GUIScreen.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
@@ -785,9 +779,6 @@
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\Texture2DInitialization.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>

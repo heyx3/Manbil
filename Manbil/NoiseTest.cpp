@@ -7,7 +7,6 @@
 #include "Math/NoiseGeneration.hpp"
 #include "Math/Noise Generation/ColorGradient.h"
 #include "Math/Higher Math/BumpmapToNormalmap.h"
-#include "Rendering/Texture Management/TextureConverters.h"
 #include "Math/Higher Math/Gradient.h"
 
 
@@ -227,7 +226,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
 
-        finalNoise.Fill([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
+        finalNoise.FillFunc([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
         {
             const float timeScale = 0.01f;
 
@@ -430,20 +429,29 @@ void NoiseTest::UpdateWorld(float elapsedTime)
 
             //Get texture data as an array.
             Array2D<Vector4b> texColor(0, 0);
-            TextureConverters::ToArray(*renderedNoiseTex, texColor);
+            sf::Image img = renderedNoiseTex->copyToImage();
+            texColor.Reset(img.getSize().x, img.getSize().y);
+            texColor.Fill((Vector4b*)img.getPixelsPtr());
 
             //Convert it to a heightmap array.
             Array2D<float> bumps(noiseSize, noiseSize);
-            bumps.Fill([&texColor](Vector2i loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
+            bumps.FillFunc([&texColor](Vector2i loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
 
             //Convert the heightmap to a normal map.
             Array2D<Vector3f> normals(noiseSize, noiseSize);
             BumpmapToNormalmap::Convert(bumps, bumpHeight, true, normals);
 
             //Output the normal map to the texture.
-            Array2D<Vector4f> normalColors(noiseSize, noiseSize);
-            normalColors.Fill([&normals](Vector2i loc, Vector4f * outCol) { Vector3f c = normals[loc]; *outCol = Vector4f(c.x, c.y, c.z, 1.0f); });
-            TextureConverters::ToTexture(normalColors, *renderedNoiseTex);
+            Array2D<Vector4b> normalColors(noiseSize, noiseSize);
+            normalColors.FillFunc([&normals](Vector2i loc, Vector4b * outCol)
+            {
+                Vector3f c = normals[loc];
+                *outCol = Vector4b((unsigned char)BasicMath::Min(255.0f, c.x * 255.0f),
+                                   (unsigned char)BasicMath::Min(255.0f, c.y * 255.0f),
+                                   (unsigned char)BasicMath::Min(255.0f, c.z * 255.0f),
+                                   255);
+            });
+            renderedNoiseTex->update((sf::Uint8*)normalColors.GetArray());
 
             //Update the sprite's texture.
             //TODO: I'm fairly certain this isn't necessary, as the texture handle doesn't change.
