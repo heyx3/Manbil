@@ -210,7 +210,7 @@ void VoxelWorld::InitializeWorld(void)
     //Initialize the voxel highlight.
     std::vector<VertexPosTex1Normal> vhvs;
     std::vector<unsigned int> vsis;
-    PrimitiveGenerator::GenerateCube(vhvs, vsis, false, Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
+    PrimitiveGenerator::GenerateCube(vhvs, vsis, false, false, Vector2f(1.0f, 1.0f), Vector2f(1.0f, 1.0f), Vector2f(1.0f, 1.0f), Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
     RenderObjHandle vhvbo, vhibo;
     RenderDataHandler::CreateVertexBuffer(vhvbo, vhvs.data(), vhvs.size());
     RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
