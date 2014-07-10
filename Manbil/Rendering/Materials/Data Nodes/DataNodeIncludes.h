@@ -36,4 +36,5 @@
 #include "Parameters/ProjectionDataNode.h"
 #include "Parameters/ParamNode.h"
 #include "Parameters/TextureSample2DNode.h"
+#include "Parameters/TextureSampleCubemapNode.h"
 #include "Parameters/TimeNode.h"

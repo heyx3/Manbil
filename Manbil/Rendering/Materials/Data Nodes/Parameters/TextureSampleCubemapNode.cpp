@@ -36,7 +36,7 @@ unsigned int TextureSampleCubemapNode::GetOutputIndex(ChannelsOut channel)
 
 void TextureSampleCubemapNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
 {
-    uniforms.Texture2DUniforms[GetSamplerUniformName()] = UniformSampler2DValue(GetSamplerUniformName());
+    uniforms.TextureCubemapUniforms[GetSamplerUniformName()] = UniformSamplerCubemapValue(GetSamplerUniformName());
 }
 
 
@@ -54,7 +54,7 @@ TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, s
 
 void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 {
-    outCode += "\tvec4 " + GetSampleOutputName() + " = textureCube(" + GetSamplerUniformName() + ", " + GetTexCoordInput().GetValue() + ");\n";
+    outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + GetSamplerUniformName() + ", " + GetTexCoordInput().GetValue() + ");\n";
 }
 
 std::vector<unsigned int> TextureSampleCubemapNode::makeVector(void)
