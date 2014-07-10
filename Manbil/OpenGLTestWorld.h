@@ -10,6 +10,7 @@
 #include "Rendering/PostProcessing/PostProcessChain.h"
 #include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
 #include "Rendering/GUI/TextRenderer.h"
+#include "Rendering/Texture Management/MTextureCubemap.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -60,6 +61,11 @@ private:
     PostProcessChain * ppc;
     unsigned int worldRenderID;
     std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
+
+    Mesh cubemapMesh;
+    UniformDictionary cubemapParams;
+    Material * cubemapMat;
+    MTextureCubemap cubemapTex;
 
     DrawingQuad * finalScreenQuad;
     std::unordered_map<RenderingChannels, DataLine> finalScreenMatChannels;

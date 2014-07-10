@@ -15,6 +15,7 @@
 #include "Rendering/GPU Particles/GPUParticleGenerator.h"
 #include "Rendering/GPU Particles/High-level GPU Particles/SpecialHGPComponents.h"
 #include "Rendering/GUI/TextRenderer.h"
+#include "Rendering/PrimitiveGenerator.h"
 
 #include <assert.h>
 
@@ -47,7 +48,7 @@ using namespace OGLTestPrints;
 
 
 
-Vector2i windowSize(250, 250);
+Vector2i windowSize(800, 600);
 const RenderingState worldRenderState;
 std::string texSamplerName = "";
 const unsigned int maxRipples = 3,
@@ -80,6 +81,8 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
 
+
+    //Water normal-map creation.
     ColorTextureSettings waterNormalSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
     Array2D<Vector4b> loadWaterNormal(1, 1);
     if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/Normalmap.png", loadWaterNormal, waterNormalSettings.GenerateMipmaps, waterNormalSettings.PixelSize, waterNormalSettings.BaseSettings))
@@ -90,6 +93,14 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
     waterNormalTex.Create(waterNormalSettings, loadWaterNormal);
+
+
+    //Cubemap creation.
+    ColorTextureSettings cubemapTexSettings(1, 1, ColorTextureSettings::CTS_16, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
+    Array2D<Vector4f> cubemapColor(2, 2);
+    cubemapColor.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x, (float)loc.y, 0.25f, 1.0f); });
+    cubemapTex.Create(cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor,
+                      cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor);
 
 
     //Set up the test font.
@@ -314,13 +325,50 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma endregion
 
 
+    #pragma region Cubemap
+
+
+    std::unordered_map<RC, DataLine> cubemapChannels;
+    DataNodePtr cmVertexInputs(new VertexInputNode(PrimitiveGenerator::CubemapVertex::GetAttributeData()));
+    DataNodePtr cmFragInputs(new FragmentInputNode(VertexAttributes(3, false)));
+
+    DataLine cubemapSampleRGB(DataNodePtr(new TextureSampleCubemapNode(DataLine(cmFragInputs, 0), "u_cubemapTex")),
+                              TextureSampleCubemapNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+
+    DataLine cmWorldPos(cmVertexInputs, 0);
+    cmWorldPos = DataLine(DataNodePtr(new MultiplyNode(cmWorldPos, DataLine(3000.0f))), 0);
+    cmWorldPos = DataLine(DataNodePtr(new AddNode(cmWorldPos, DataLine(DataNodePtr(new CameraDataNode()),
+                                                                       CameraDataNode::GetCamPosOutputIndex()))), 0);
+    cubemapChannels[RC::RC_VertexPosOutput] = DataLine(DataNodePtr(new WorldPosToScreenPosCalcNode(cmWorldPos)),
+                                                       WorldPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+
+    cubemapChannels[RC::RC_VERTEX_OUT_0] = DataLine(cmVertexInputs, 0);
+    cubemapChannels[RC::RC_Color] = DataLine(DataNodePtr(new RemapNode(DataLine(cmFragInputs, 0),
+                                                                       DataLine(Vector3f(-1.0f, -1.0f, -1.0f)),
+                                                                       DataLine(Vector3f(1.0f, 1.0f, 1.0f)))), 0);
+    cubemapChannels[RC::RC_Color] = cubemapSampleRGB;
+
+    ShaderGenerator::GeneratedMaterial cmGen = ShaderGenerator::GenerateMaterial(cubemapChannels, cubemapParams, PrimitiveGenerator::CubemapVertex::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+    if (!cmGen.ErrorMessage.empty())
+    {
+        std::cout << "Error generating shaders for cubemap material: " << cmGen.ErrorMessage << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    cubemapParams.TextureCubemapUniforms["u_cubemapTex"].Texture = cubemapTex.GetTextureHandle();
+    cubemapMat = cmGen.Mat;
+
+
+    #pragma endregion
+
+
     #pragma region Post-process and final render
 
 
     //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
-                                                         DataLine(0.9f))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)), DataLine(0.2f))));
 
 
     //Final render.
@@ -381,6 +429,18 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
 
 
+    //Cubemap.
+
+    std::vector<PrimitiveGenerator::CubemapVertex> cmVertices;
+    std::vector<unsigned int> cmIndices;
+    PrimitiveGenerator::GenerateCubemapCube(cmVertices, cmIndices, false, true);
+
+    RenderObjHandle cmVBO, cmIBO;
+    RenderDataHandler::CreateVertexBuffer(cmVBO, cmVertices.data(), cmVertices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(cmIBO, cmIndices.data(), cmIndices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+    cubemapMesh.SetVertexIndexData(VertexIndexData(cmVertices.size(), cmVBO, cmIndices.size(), cmIBO));
+
+
     //Post-process chain.
     ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
     if (ppc->HasError())
@@ -398,7 +458,8 @@ OpenGLTestWorld::OpenGLTestWorld(void)
       water(0), ppc(0), finalScreenQuad(0), finalScreenMat(0),
       gsTestMat(0), gsMesh(PrimitiveTypes::Points),
       particleMat(0), particleMesh(PrimitiveTypes::Points),
-      particleManager(particleParams)
+      particleManager(particleParams),
+      cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -432,7 +493,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 900.0f;
+    cam.Info.zFar = 4250.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
@@ -448,6 +509,7 @@ OpenGLTestWorld::~OpenGLTestWorld(void)
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
     DeleteAndSetToNull(particleMat);
+    DeleteAndSetToNull(cubemapMat);
 }
 void OpenGLTestWorld::OnWorldEnd(void)
 {
@@ -457,7 +519,9 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(finalScreenQuad);
     DeleteAndSetToNull(finalScreenMat);
     DeleteAndSetToNull(particleMat);
+    DeleteAndSetToNull(cubemapMat);
     waterNormalTex.DeleteIfValid();
+    cubemapTex.DeleteIfValid();
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)
@@ -498,6 +562,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 
     std::vector<const Mesh*> meshList;
 
+    //Water.
     meshList.insert(meshList.end(), &water->GetMesh());
     if (!waterMat->Render(RenderPasses::BaseComponents, info, meshList, water->Params))
     {
@@ -507,6 +572,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
+    //Geometry shader test.
     meshList.clear();
     meshList.insert(meshList.end(), &gsMesh);
     if (!gsTestMat->Render(RenderPasses::BaseComponents, info, meshList, gsTestParams))
@@ -517,6 +583,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
+    //Particles.
     meshList.clear();
     meshList.insert(meshList.end(), &particleMesh);
     if (!particleMat->Render(RenderPasses::BaseComponents, info, meshList, particleParams))
@@ -527,8 +594,21 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
+    //Cubemap.
+    meshList.clear();
+    meshList.insert(meshList.end(), &cubemapMesh);
+    if (!cubemapMat->Render(RenderPasses::BaseComponents, info, meshList, cubemapParams))
+    {
+        std::cout << "Error rendering cubemap: " << cubemapMat->GetErrorMsg() << ".\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
     manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
 
+
+    //Catch any general errors.
     std::string err = GetCurrentRenderingError();
     if (!err.empty())
     {
@@ -538,6 +618,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
+
     //Render post-process effects on top of the world.
     if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]->GetColorTextures()[0], manager[worldRenderID]->GetDepthTexture()))
     {
@@ -546,9 +627,10 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         EndWorld();
         return;
     }
-    
-    ScreenClearer().ClearScreen();
+
+
     //Render the final image.
+    ScreenClearer().ClearScreen();
     Camera cam;
     TransformObject trans;
     Matrix4f identity;
