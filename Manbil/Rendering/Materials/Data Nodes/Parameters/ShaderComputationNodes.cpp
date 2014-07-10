@@ -35,7 +35,7 @@ void WorldPosToScreenPosCalcNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string homgOut = GetOutputName(GetHomogenousPosOutputIndex()),
                 posOut = GetOutputName(GetPosOutputIndex());
-    outCode += "\tvec3 " + homgOut + " = (" + MaterialConstants::ViewProjMatName + " * vec4(" + GetInputs()[0].GetValue() + ", 1.0));\n";
+    outCode += "\tvec4 " + homgOut + " = (" + MaterialConstants::ViewProjMatName + " * vec4(" + GetInputs()[0].GetValue() + ", 1.0));\n";
     outCode += "\tvec3 " + posOut + " = " + homgOut + ".xyz / " + homgOut + ".w;\n";
 }
 void WorldNormalToScreenNormalCalcNode::WriteMyOutputs(std::string & outCode) const
