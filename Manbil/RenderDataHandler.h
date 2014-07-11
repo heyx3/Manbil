@@ -59,8 +59,7 @@ public:
     static Vector2i LoadTextureFromFile(std::string filePath, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
     //Attempts to load a texture from the given file path and put it into the currently-bound cubemap texture.
     //Returns the dimensions of the texture, or { -1, -1 } if the function failed.
-    static Vector2i LoadTextureFromFile(std::string filePath, CubeTextureTypes face, bool useMipmaps,
-                                        ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
+    static Vector2i LoadTextureFromFile(std::string filePath, CubeTextureTypes face, ColorTextureSettings::PixelSizes size);
 
 
     //Setting/creating texture data via bytes.
@@ -166,29 +165,27 @@ public:
     //Creates a cubemap texture. Leaves its faces empty.
     static void CreateTextureCubemap(RenderObjHandle & texObjectHandle);
     //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings,
-                                      const Array2D<Vector4b> & pixelData)
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size, const Array2D<Vector4b> & pixelData)
     {
-        SetTextureCubemapFace(cubemapFace, ColorTextureSettings(pixelData.GetWidth(), pixelData.GetHeight(), size, useMipmaps, settings), &pixelData.GetArray()[0].x);
+        SetTextureCubemapFace(cubemapFace, size, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
     }
     //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor);
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes pixelSize,
+                                      unsigned int width, unsigned int height, const unsigned char * rgbaColor);
     //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings,
-                                      const Array2D<Vector4f> & pixelData)
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size, const Array2D<Vector4f> & pixelData)
     {
-        SetTextureCubemapFace(cubemapFace, ColorTextureSettings(pixelData.GetWidth(), pixelData.GetHeight(), size, useMipmaps, settings), &pixelData.GetArray()[0].x);
+        SetTextureCubemapFace(cubemapFace, size, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
     }
     //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor);
+    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size,
+                                      unsigned int width, unsigned int height, const float * rgbaColor);
 
 
     //Generates mipmaps for a texture that has already been created.
-    static void GenerateTextureMipmaps(TextureTypes textureType, RenderObjHandle texture)
+    static void GenerateTextureMipmaps(TextureTypes textureType)
     {
-        GLenum glType = TextureTypeToGLEnum(textureType);
-        glBindTexture(glType, texture);
-        glGenerateMipmap(glType);
+        glGenerateMipmap(TextureTypeToGLEnum(textureType));
     }
 
 

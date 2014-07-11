@@ -72,7 +72,11 @@ void OpenGLTestWorld::InitializeTextures(void)
     dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
 
     //Render target creation.
-    worldRenderID = manager.CreateRenderTarget(cts, dts);
+    std::vector<RendTargetColorTexSettings> ctss;
+    ctss.insert(ctss.end(), cts);
+    cts.ColorAttachment = 1;
+    ctss.insert(ctss.end(), cts);
+    worldRenderID = manager.CreateRenderTarget(ctss, dts);
     if (worldRenderID == RenderTargetManager::ERROR_ID)
     {
         std::cout << "Error creating world render target: " << manager.GetError() << "\n";
@@ -96,11 +100,14 @@ void OpenGLTestWorld::InitializeTextures(void)
 
 
     //Cubemap creation.
-    ColorTextureSettings cubemapTexSettings(1, 1, ColorTextureSettings::CTS_16, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
-    Array2D<Vector4f> cubemapColor(2, 2);
-    cubemapColor.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x, (float)loc.y, 0.25f, 1.0f); });
-    cubemapTex.Create(cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor,
-                      cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor, cubemapTexSettings, cubemapColor);
+
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    ColorTextureSettings cubemapTexSettings(2, 2, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP));
+    Array2D<Vector4f> cubemapWall(2, 2);
+    cubemapWall.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+    Array2D<Vector4f> cubemapFloor(2, 2, Vector4f(0.25f, 0.25f, 0.0f, 1.0f)),
+                      cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
+    cubemapTex.Create(cubemapTexSettings, cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling);
 
 
     //Set up the test font.
@@ -167,9 +174,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
                                                                DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
-
+    DataLine waterNormal(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0);
     DNP light(new LightingNode(DataLine(fragmentInput, 3),
-                               DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
+                               waterNormal,//DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
                                DataLine(Vector3f(-1, -1, -0.1f).Normalized()),
                                DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
 
@@ -179,6 +186,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                            DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
     channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
                                                 ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+    channels[RC::RC_COLOR_OUT_2] = DataLine(DNP(new CombineVectorNode(DataLine(DNP(new RemapNode(waterNormal, DataLine(-1.0f), DataLine(1.0f))), 0), DataLine(1.0f))), 0);
 
     UniformDictionary unDict;
     ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, WaterVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
@@ -493,7 +501,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
     cam.Info.FOV = ToRadian(55.0f);
-    cam.Info.zFar = 4250.0f;
+    cam.Info.zFar = 5000.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
     cam.Info.Height = windowSize.y;
@@ -553,12 +561,8 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 {
-    //TODO: Refactor this so it ACTUALLY only renders world geometry.
-
-    //Render the world into a render target.
-
-    manager[worldRenderID]->EnableDrawingInto();
     ScreenClearer().ClearScreen();
+    worldRenderState.EnableState();
 
     std::vector<const Mesh*> meshList;
 
@@ -604,9 +608,23 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         EndWorld();
         return;
     }
+}
 
+void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
+{
+	Matrix4f worldM, viewM, projM;
+	TransformObject dummy;
+
+	worldM.SetAsIdentity();
+	cam.GetViewTransform(viewM);
+	projM.SetAsPerspProj(cam.Info);
+    //cam.GetOrthoProjection(projM);
+
+    //Render the world into a render target.
+    RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
+    manager[worldRenderID]->EnableDrawingInto();
+    RenderWorldGeometry(info);
     manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
-
 
     //Catch any general errors.
     std::string err = GetCurrentRenderingError();
@@ -618,9 +636,16 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         return;
     }
 
+    //Choose which render color target to use as the world render.
+    RenderObjHandle worldRendTex;
+    bool useSpecial = sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
+
+    if (useSpecial)
+        worldRendTex = manager[worldRenderID]->GetColorTextures()[1];
+    else worldRendTex = manager[worldRenderID]->GetColorTextures()[0];
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, manager[worldRenderID]->GetColorTextures()[0], manager[worldRenderID]->GetDepthTexture()))
+    if (!ppc->RenderChain(this, cam.Info, worldRendTex, manager[worldRenderID]->GetDepthTexture()))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();
@@ -636,8 +661,13 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     Matrix4f identity;
     identity.SetAsIdentity();
     RenderTarget * finalRend = ppc->GetFinalRender();
-    if (finalRend == 0) finalRend = manager[worldRenderID];
-    finalScreenQuadParams.Texture2DUniforms["u_finalRenderSample"].Texture = finalRend->GetColorTextures()[0];
+    RenderObjHandle finalRendTex;
+    if (finalRend == 0)
+    {
+        finalRendTex = manager[worldRenderID]->GetColorTextures()[useSpecial ? 1 : 0];
+    }
+    else finalRendTex = finalRend->GetColorTextures()[0];
+    finalScreenQuadParams.Texture2DUniforms["u_finalRenderSample"].Texture = finalRendTex;
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
@@ -645,24 +675,6 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
         EndWorld();
         return;
     }
-}
-
-void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
-{
-	Matrix4f worldM, viewM, projM;
-	TransformObject dummy;
-
-	worldM.SetAsIdentity();
-	cam.GetViewTransform(viewM);
-	projM.SetAsPerspProj(cam.Info);
-    //cam.GetOrthoProjection(projM);
-
-	RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
-
-    //Draw the world.
-	ScreenClearer().ClearScreen();
-    worldRenderState.EnableState();
-	RenderWorldGeometry(info);
 }
 
 

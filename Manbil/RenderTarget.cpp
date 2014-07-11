@@ -167,6 +167,7 @@ void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h) const
     //The user of this render target presumably just finished writing to it, so render depth mipmaps.
     if (depthTexSetts.UsesDepthTexture && depthTexSetts.Settings.GenerateMipmaps)
     {
-        RenderDataHandler::GenerateTextureMipmaps(TextureTypes::TT_2D, depthTex);
+        RenderDataHandler::BindTexture(TextureTypes::TT_2D, depthTex);
+        RenderDataHandler::GenerateTextureMipmaps(TextureTypes::TT_2D);
     }
 }

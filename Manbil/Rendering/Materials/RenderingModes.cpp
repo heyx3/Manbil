@@ -16,6 +16,11 @@ std::string ChannelToString(RenderingChannels channel)
         case RenderingChannels::RC_Opacity: return "Opacity";
         case RenderingChannels::RC_VertexPosOutput: return "VertexPosOutput";
 
+        case RenderingChannels::RC_COLOR_OUT_2:
+        case RenderingChannels::RC_COLOR_OUT_3:
+        case RenderingChannels::RC_COLOR_OUT_4:
+            return "ColorOutput" + std::to_string(GetColorOutputNumber(channel));
+
         case RenderingChannels::RC_VERTEX_OUT_0:
         case RenderingChannels::RC_VERTEX_OUT_1:
         case RenderingChannels::RC_VERTEX_OUT_2:
@@ -86,39 +91,39 @@ bool IsChannelColorOutput(RenderingChannels channel, bool includeNormalOutput)
 
     switch (channel)
     {
-    case RCs::RC_VertexPosOutput:
-    case RCs::RC_Opacity:
-    case RCs::RC_VERTEX_OUT_INVALID:
-    case RCs::RC_VERTEX_OUT_0:
-    case RCs::RC_VERTEX_OUT_1:
-    case RCs::RC_VERTEX_OUT_2:
-    case RCs::RC_VERTEX_OUT_3:
-    case RCs::RC_VERTEX_OUT_4:
-    case RCs::RC_VERTEX_OUT_5:
-    case RCs::RC_VERTEX_OUT_6:
-    case RCs::RC_VERTEX_OUT_7:
-    case RCs::RC_VERTEX_OUT_8:
-    case RCs::RC_VERTEX_OUT_9:
-    case RCs::RC_VERTEX_OUT_10:
-    case RCs::RC_VERTEX_OUT_11:
-    case RCs::RC_VERTEX_OUT_12:
-    case RCs::RC_VERTEX_OUT_13:
-    case RCs::RC_VERTEX_OUT_14:
-    case RCs::RC_VERTEX_OUT_15:
-    case RCs::RC_VERTEX_OUT_16:
-        return false;
+        case RCs::RC_VertexPosOutput:
+        case RCs::RC_Opacity:
+        case RCs::RC_VERTEX_OUT_INVALID:
+        case RCs::RC_VERTEX_OUT_0:
+        case RCs::RC_VERTEX_OUT_1:
+        case RCs::RC_VERTEX_OUT_2:
+        case RCs::RC_VERTEX_OUT_3:
+        case RCs::RC_VERTEX_OUT_4:
+        case RCs::RC_VERTEX_OUT_5:
+        case RCs::RC_VERTEX_OUT_6:
+        case RCs::RC_VERTEX_OUT_7:
+        case RCs::RC_VERTEX_OUT_8:
+        case RCs::RC_VERTEX_OUT_9:
+        case RCs::RC_VERTEX_OUT_10:
+        case RCs::RC_VERTEX_OUT_11:
+        case RCs::RC_VERTEX_OUT_12:
+        case RCs::RC_VERTEX_OUT_13:
+        case RCs::RC_VERTEX_OUT_14:
+        case RCs::RC_VERTEX_OUT_15:
+        case RCs::RC_VERTEX_OUT_16:
+            return false;
 
-    case RCs::RC_Color:
-        return includeNormalOutput;
+        case RCs::RC_Color:
+            return includeNormalOutput;
 
-    case RCs::RC_COLOR_OUT_2:
-    case RCs::RC_COLOR_OUT_3:
-    case RCs::RC_COLOR_OUT_4:
-        return true;
+        case RCs::RC_COLOR_OUT_2:
+        case RCs::RC_COLOR_OUT_3:
+        case RCs::RC_COLOR_OUT_4:
+            return true;
 
-    default:
-        assert(false);
-        return false;
+        default:
+            assert(false);
+            return false;
     }
 }
 bool IsChannelUsed(RenderingChannels channel, RenderingModes mode, LightSettings settings, bool isLit)

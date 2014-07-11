@@ -45,12 +45,16 @@ unsigned int SG::GetChannelInputSize(RC channel)
         case RC::RC_Color:
             return 3;
 
+        case RC::RC_COLOR_OUT_2:
+        case RC::RC_COLOR_OUT_3:
+        case RC::RC_COLOR_OUT_4:
+            return 4;
+
         case RC::RC_Opacity:
             return 1;
 
         default:
-            assert(IsChannelVertexOutput(channel, true) ||
-                   IsChannelColorOutput(channel, false));
+            assert(IsChannelVertexOutput(channel, true));
             return 0;
     }
 }
@@ -291,9 +295,9 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
             if (!IsChannelColorOutput(iterator->first, true)) continue;
 
             unsigned int numb = GetColorOutputNumber(iterator->first);
-            fragOutput += "layout (location = " + std::to_string(numb) + ") out vec4 " +
-                          MaterialConstants::FragmentOutName + std::to_string(numb + 1) + ";\n";
-            outputNames[iterator->first] = MaterialConstants::FragmentOutName + std::to_string(numb + 1);
+            fragOutput += "layout (location = " + std::to_string(numb - 1) + ") out vec4 " +
+                          MaterialConstants::FragmentOutName + std::to_string(numb) + ";\n";
+            outputNames[iterator->first] = MaterialConstants::FragmentOutName + std::to_string(numb);
         }
     }
 

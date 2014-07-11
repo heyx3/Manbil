@@ -194,8 +194,7 @@ Vector2i RDH::LoadTextureFromFile(std::string filePath, bool useMipmaps,
 
     return Vector2i((int)img.getSize().x, (int)img.getSize().y);
 }
-Vector2i RDH::LoadTextureFromFile(std::string filePath, CubeTextureTypes face, bool useMipmaps,
-                                  ColorTextureSettings::PixelSizes size, const TextureSettings & settings)
+Vector2i RDH::LoadTextureFromFile(std::string filePath, CubeTextureTypes face, ColorTextureSettings::PixelSizes size)
 {
     //Load the image in using SFML.
     sf::Image img;
@@ -205,7 +204,7 @@ Vector2i RDH::LoadTextureFromFile(std::string filePath, CubeTextureTypes face, b
     }
 
     //Set the texture data to the image data.
-    SetTextureCubemapFace(face, ColorTextureSettings(img.getSize().x, img.getSize().y, size, useMipmaps, settings), img.getPixelsPtr());
+    SetTextureCubemapFace(face, size, img.getSize().x, img.getSize().y, img.getPixelsPtr());
 
     return Vector2i((int)img.getSize().x, (int)img.getSize().y);
 }
@@ -423,23 +422,22 @@ void RDH::CreateTextureCubemap(RenderObjHandle & texObjectHandle)
 {
     glGenTextures(1, &texObjectHandle);
 }
-void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const unsigned char * rgbaColor)
+void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size, unsigned int width, unsigned int height, const unsigned char * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 
-    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize),
-                 settings.Width, settings.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaColor);
-    if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
-    settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
+    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(size), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgbaColor);
+    //if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
+    //settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
 }
-void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, const ColorTextureSettings & settings, const float * rgbaColor)
+void RDH::SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size,
+                                unsigned int width, unsigned int height, const float * rgbaColor)
 {
     GLenum faceType = TextureTypeToGLEnum(cubemapFace);
 
-    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(settings.PixelSize),
-                 settings.Width, settings.Height, 0, GL_RGBA, GL_FLOAT, rgbaColor);
-    if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
-    settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
+    glTexImage2D(faceType, 0, ColorTextureSettings::ToInternalFormat(size), width, height, 0, GL_RGBA, GL_FLOAT, rgbaColor);
+    //if (settings.GenerateMipmaps) glGenerateMipmap(faceType);
+    //settings.BaseSettings.ApplyAllSettingsCubemap(cubemapFace, settings.GenerateMipmaps);
 }
 
 void RDH::DeleteTexture(RenderObjHandle & texObjHandle)
