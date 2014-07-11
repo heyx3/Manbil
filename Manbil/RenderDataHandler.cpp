@@ -399,6 +399,15 @@ void RDH::GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor)
     glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_FLOAT, (void*)outColor.GetArray());
 }
 
+void GetDepthTextureData(Array2D<unsigned char> & outDepth)
+{
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, (void*)outDepth.GetArray());
+}
+static void GetDepthTextureData(Array2D<float> & outDepth)
+{
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (void*)outDepth.GetArray());
+}
+
 Vector2i RDH::GetTextureDimensions(RenderObjHandle texture)
 {
     BindTexture(TextureTypes::TT_2D, texture);
@@ -409,13 +418,27 @@ Vector2i RDH::GetTextureDimensions(RenderObjHandle texture)
     return size;
 }
 
-void RDH::CreateDepthTexture2D(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
+void RDH::CreateDepthTexture(RenderObjHandle & depthTexObjHandle, const DepthTextureSettings & settings)
 {
 	glGenTextures(1, &depthTexObjHandle);
 	glBindTexture(GL_TEXTURE_2D, depthTexObjHandle);
 	glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(settings.PixelSize),
                  settings.Width, settings.Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
+}
+
+void RDH::SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<unsigned char> & pixelData)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(pixelSize), pixelData.GetWidth(), pixelData.GetHeight(),
+                 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, pixelData.GetArray());
+    if (generateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_2D);
+}
+void RDH::SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<float> & pixelData)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, DepthTextureSettings::ToEnum(pixelSize), pixelData.GetWidth(), pixelData.GetHeight(),
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, pixelData.GetArray());
+    if (generateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void RDH::CreateTextureCubemap(RenderObjHandle & texObjectHandle)

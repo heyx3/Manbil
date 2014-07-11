@@ -62,6 +62,7 @@ public:
     static Vector2i LoadTextureFromFile(std::string filePath, CubeTextureTypes face, ColorTextureSettings::PixelSizes size);
 
 
+    //PRIORITY: Remove texture settings from "SetTexture2D"; the settings don't have to be re-set just because the texture data changed.
     //Setting/creating texture data via bytes.
 
     //1D textures.
@@ -129,37 +130,12 @@ public:
                              unsigned int width, unsigned int height, unsigned int depth, const float * pixelRGBA);
 
 
-    //Gets the pixel data from the currently-bound 1D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Vector4b * outColor);
-    //Gets the pixel data from the currently-bound 1D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Vector4f * outColor);
-
-    //Gets the pixel data from the currently-bound 2D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array2D<Vector4b> & outColor);
-    //Gets the pixel data from the currently-bound 2D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array2D<Vector4f> & outColor);
-
-    //Gets the pixel data from the currently-bound 3D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array3D<Vector4b> & outColor);
-    //Gets the pixel data from the currently-bound 3D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array3D<Vector4f> & outColor);
-
-    //Gets the pixel data from the given face of the currently-bound cubemap texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4b> & outColor);
-    //Gets the pixel data from the given face of the currently-bound cubemap texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor);
-
-
-	//Creates a depth texture object for passing to a shader.
-	static void CreateDepthTexture2D(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
+    //Creates a depth texture object.
+    static void CreateDepthTexture(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
+    //Sets the data for a depth texture object.
+    static void SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<unsigned char> & depthData);
+    //Sets the data for a depth texture object.
+    static void SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<float> & depthData);
 
 
     //Creates a cubemap texture. Leaves its faces empty.
@@ -180,6 +156,41 @@ public:
     //Sets the data for the currently-bound cubemap's given face.
     static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size,
                                       unsigned int width, unsigned int height, const float * rgbaColor);
+
+
+    //Gets the pixel data from the currently-bound 1D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Vector4b * outColor);
+    //Gets the pixel data from the currently-bound 1D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Vector4f * outColor);
+
+    //Gets the pixel data from the currently-bound 2D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array2D<Vector4b> & outColor);
+    //Gets the pixel data from the currently-bound 2D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array2D<Vector4f> & outColor);
+    //Gets the pixel data from the currently-bound 2D depth texture.
+    //NOTE: Assumes that the out depth array is already the correct size!
+    static void GetDepthTextureData(Array2D<unsigned char> & outDepth);
+    //Gets the pixel data from the currently-bound 2D depth texture.
+    //NOTE: Assumes that the out depth array is already the correct size!
+    static void GetDepthTextureData(Array2D<float> & outDepth);
+
+    //Gets the pixel data from the currently-bound 3D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array3D<Vector4b> & outColor);
+    //Gets the pixel data from the currently-bound 3D texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(Array3D<Vector4f> & outColor);
+
+    //Gets the pixel data from the given face of the currently-bound cubemap texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4b> & outColor);
+    //Gets the pixel data from the given face of the currently-bound cubemap texture.
+    //NOTE: Assumes that the out color array is already the correct size!
+    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor);
 
 
     //Generates mipmaps for a texture that has already been created.
