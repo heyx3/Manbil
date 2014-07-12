@@ -1,132 +1,256 @@
 #include "MTexture.h"
 
 
-void MTexture::SetSettings(const TextureSettings & newSettings)
+void MTexture::SetSettings(const TextureSampleSettings & newSettings)
 {
-    settings.BaseSettings = newSettings;
+    settings = newSettings;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyAllSettings(UsesMipmaps());
+        settings.ApplyAllSettings(TextureTypes::TT_2D, UsesMipmaps());
     }
 }
 
-void MTexture::SetMinFilterType(TextureSettings::FilteringTypes newFiltering)
+void MTexture::SetMinFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.MinFilter = newFiltering;
+    settings.MinFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyMinFilter(UsesMipmaps());
+        settings.ApplyMinFilter(TextureTypes::TT_2D, UsesMipmaps());
     }
 }
-void MTexture::SetMagFilterType(TextureSettings::FilteringTypes newFiltering)
+void MTexture::SetMagFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.MagFilter = newFiltering;
+    settings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyMagFilter(UsesMipmaps());
+        settings.ApplyMagFilter(TextureTypes::TT_2D, UsesMipmaps());
     }
 }
-void MTexture::SetFilterType(TextureSettings::FilteringTypes newFiltering)
+void MTexture::SetFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.MinFilter = newFiltering;
-    settings.BaseSettings.MagFilter = newFiltering;
+    settings.MinFilter = newFiltering;
+    settings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyFilter(UsesMipmaps());
+        settings.ApplyFilter(TextureTypes::TT_2D, UsesMipmaps());
     }
 }
 
-void MTexture::SetHorzWrappingType(TextureSettings::WrappingTypes wrapping)
+void MTexture::SetHorzWrappingType(TextureSampleSettings::WrappingTypes wrapping)
 {
-    settings.BaseSettings.HorzWrap = wrapping;
+    settings.HorzWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyHorzWrapping();
+        settings.ApplyHorzWrapping(TextureTypes::TT_2D);
     }
 }
-void MTexture::SetVertWrappingType(TextureSettings::WrappingTypes wrapping)
+void MTexture::SetVertWrappingType(TextureSampleSettings::WrappingTypes wrapping)
 {
-    settings.BaseSettings.VertWrap = wrapping;
+    settings.VertWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyVertWrapping();
+        settings.ApplyVertWrapping(TextureTypes::TT_2D);
     }
 }
-void MTexture::SetWrappingType(TextureSettings::WrappingTypes wrapping)
+void MTexture::SetWrappingType(TextureSampleSettings::WrappingTypes wrapping)
 {
-    settings.BaseSettings.HorzWrap = wrapping;
-    settings.BaseSettings.VertWrap = wrapping;
+    settings.HorzWrap = wrapping;
+    settings.VertWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyWrapping();
+        settings.ApplyWrapping(TextureTypes::TT_2D);
     }
 }
-void MTexture::Create(const ColorTextureSettings & texSettings, const Array2D<Vector4b> & pixels)
+
+
+void MTexture::Create(const TextureSampleSettings & texSettings, bool useMipmaps, PixelSizes _pixelSize)
 {
     DeleteIfValid();
 
     settings = texSettings;
-    settings.Width = pixels.GetWidth();
-    settings.Height = pixels.GetHeight();
-    RenderDataHandler::CreateTexture2D(texHandle, settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixels);
-}
-void MTexture::Create(const ColorTextureSettings & texSettings, const Array2D<Vector4f> & pixels)
-{
-    DeleteIfValid();
+    usesMipmaps = useMipmaps;
+    pixelSize = _pixelSize;
 
-    settings = texSettings;
-    settings.Width = pixels.GetWidth();
-    settings.Height = pixels.GetHeight();
-    RenderDataHandler::CreateTexture2D(texHandle, settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixels);
+    width = 0;
+    height = 0;
+    
+    glGenTextures(1, &texHandle);
+    ClearData();
 }
 
-void MTexture::DeleteIfValid(void)
+bool MTexture::DeleteIfValid(void)
 {
     if (IsValidTexture())
     {
-        RenderDataHandler::DeleteTexture(texHandle);
+        glDeleteTextures(1, &texHandle);
+        texHandle = 0;
+        return true;
     }
-    texHandle = 0;
+    else
+    {
+        texHandle = 0;
+        return false;
+    }
 }
 
-void MTexture::SetData(const Array2D<Vector4b> & pixelData)
+
+void MTexture::ClearData(unsigned int newW, unsigned int newH)
 {
+    if (!IsValidTexture()) return;
+
     Bind();
-    settings.Width = pixelData.GetWidth();
-    settings.Height = pixelData.GetHeight();
-    RenderDataHandler::SetTexture2D(settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixelData);
-}
-void MTexture::SetData(const Array2D<Vector4f> & pixelData)
-{
-    Bind();
-    settings.Width = pixelData.GetWidth();
-    settings.Height = pixelData.GetHeight();
-    RenderDataHandler::SetTexture2D(settings.GenerateMipmaps, settings.PixelSize, settings.BaseSettings, pixelData);
+
+    width = newW;
+    height = newH;
+
+    GLenum dataFormat;
+    if (IsDepthTexture()) dataFormat = GL_DEPTH_COMPONENT;
+    else dataFormat = GL_RGBA;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, dataFormat, 0);
 }
 
-void MTexture::GetData(Array2D<Vector4b> & outData)
+bool MTexture::LoadImageFromFile(std::string filePath, Array2D<Vector4b> & outData)
 {
-    outData.Reset(settings.Width, settings.Height);
-    Bind();
-    RenderDataHandler::GetTextureData(outData);
+    sf::Image img;
+    if (!img.loadFromFile(filePath)) return false;
+
+    outData.Reset(img.getSize().x, img.getSize().y);
+    outData.Fill((Vector4b*)img.getPixelsPtr());
+
+    return true;
 }
-void MTexture::GetData(Array2D<Vector4f> & outData)
+bool MTexture::SetDataFromFile(std::string filePath, PixelSizes newSize)
 {
-    outData.Reset(settings.Width, settings.Height);
+    if (!IsValidTexture()) return false;
+
+    sf::Image img;
+    if (!img.loadFromFile(filePath)) return false;
+
     Bind();
-    RenderDataHandler::GetTextureData(outData);
+    width = img.getSize().x;
+    height = img.getSize().y;
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, img.getPixelsPtr());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+
+bool MTexture::SetData(const Array2D<Vector4b> & pixelData, PixelSizes newSize)
+{
+    if (!IsValidTexture()) return false;
+
+    if (!IsPixelSizeDepth(newSize)) pixelSize = newSize;
+
+    if (IsDepthTexture()) return false;
+
+    Bind();
+    width = pixelData.GetWidth();
+    height = pixelData.GetHeight();
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, pixelData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+bool MTexture::SetData(const Array2D<Vector4f> & pixelData, PixelSizes newSize)
+{
+    if (!IsValidTexture()) return false;
+
+    if (!IsPixelSizeDepth(newSize)) pixelSize = newSize;
+
+    if (IsDepthTexture()) return false;
+
+    Bind();
+    width = pixelData.GetWidth();
+    height = pixelData.GetHeight();
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_RGBA, pixelData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+
+bool MTexture::SetDepthData(const Array2D<unsigned char> & depthData, PixelSizes newSize)
+{
+    if (!IsValidTexture()) return false;
+
+    if (IsPixelSizeDepth(newSize)) pixelSize = newSize;
+
+    if (!IsDepthTexture()) return false;
+
+    Bind();
+    width = depthData.GetWidth();
+    height = depthData.GetHeight();
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_DEPTH_COMPONENT, depthData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+bool MTexture::SetDepthData(const Array2D<float> & depthData, PixelSizes newSize)
+{
+    if (!IsValidTexture()) return false;
+
+    if (IsPixelSizeDepth(newSize)) pixelSize = newSize;
+
+    if (!IsDepthTexture()) return false;
+
+    Bind();
+    width = depthData.GetWidth();
+    height = depthData.GetHeight();
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_DEPTH_COMPONENT, depthData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+
+
+bool MTexture::GetData(Array2D<Vector4b> & outData)
+{
+    if (!IsValidTexture() || IsDepthTexture()) return false;
+
+    Bind();
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
+
+    return true;
+}
+bool MTexture::GetData(Array2D<Vector4f> & outData)
+{
+    if (!IsValidTexture() || IsDepthTexture()) return false;
+
+    Bind();
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, outData.GetArray());
+
+    return true;
+}
+
+bool MTexture::GetDepthData(Array2D<unsigned char> & outData)
+{
+    if (!IsValidTexture() || !IsDepthTexture()) return false;
+
+    Bind();
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, outData.GetArray());
+
+    return true;
+}
+bool MTexture::GetDepthData(Array2D<float> & outData)
+{
+    if (!IsValidTexture() || !IsDepthTexture()) return false;
+
+    Bind();
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, outData.GetArray());
+
+    return true;
 }

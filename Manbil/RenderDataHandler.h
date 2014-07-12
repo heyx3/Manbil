@@ -4,8 +4,6 @@
 #include "Math/Array2D.h"
 #include "Math/Array3D.h"
 #include "ShaderHandler.h"
-#include "Rendering/Texture Management/TextureSettings.h"
-#include <SFML/Graphics/Texture.hpp>
 
 
 //Manages different kinds of data being passed between CPU and GPU.
@@ -17,10 +15,12 @@ public:
 	static const UniformLocation INVALID_UNIFORM_LOCATION = 0xFFFFFFFF;
 	static bool UniformLocIsValid(UniformLocation loc) { return loc != INVALID_UNIFORM_LOCATION; }
 	
+
 	//Returns a string representing the most recent error to occur in the use of this class.
 	static std::string GetErrorMessage(void) { return errorMsg; }
 	//Removes the current error message.
 	static void ClearErrorMessage(void) { errorMsg.clear(); }
+
 
 	//Gets the location of a uniform variable in the given shader program. Returns whether or not it was successful.
 	static bool GetUniformLocation(RenderObjHandle shaderProgram, const Char* name, UniformLocation & outHandle);
@@ -44,171 +44,9 @@ public:
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
     //Sets a subroutine value. Assumes the correct shader program is already bound.
     static void SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle valueName);
-	
-
-    //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-    //TODO: Pull all this texture stuff out of RenderDataHandler, rename MTexture to MTexture2D, and create MTexture1D and MTexture3D.
-    
-
-    //Attempts to load a texture from the given file path and put it into the given pixel array.
-    //Returns whether it was successful.
-    static bool LoadTextureFromFile(std::string filePath, Array2D<Vector4b> & outPixelData, bool useMipmaps,
-                                    ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
-    //Attempts to load a texture from the given file path and put it into the currently-bound 2D texture.
-    //Returns the dimensions of the texture, or { -1, -1 } if the function failed.
-    static Vector2i LoadTextureFromFile(std::string filePath, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings);
-    //Attempts to load a texture from the given file path and put it into the currently-bound cubemap texture.
-    //Returns the dimensions of the texture, or { -1, -1 } if the function failed.
-    static Vector2i LoadTextureFromFile(std::string filePath, CubeTextureTypes face, ColorTextureSettings::PixelSizes size);
 
 
-    //PRIORITY: Remove texture settings from "SetTexture2D"; the settings don't have to be re-set just because the texture data changed.
-    //Setting/creating texture data via bytes.
-
-    //1D textures.
-
-    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, const Vector4b * pixelData);
-    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, const unsigned char * rgbaColorData);
-    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4b * pixelData);
-    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const unsigned char * rgbaPixelData);
-
-    //2D textures.
-
-    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const TextureSettings & settings, const Array2D<Vector4b> & pixelData);
-    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const TextureSettings & settings, unsigned int width, unsigned int height, const unsigned char * rgbaColorData);
-    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
-                             const Array2D<Vector4b> & pixelData);
-    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
-                             unsigned int width, unsigned int height, const unsigned char * pixelRGBA);
-    static void SetTexture2D(RenderObjHandle texObjHandle, bool useMipmaps, ColorTextureSettings::PixelSizes size, const TextureSettings & settings, sf::Image & img);
-
-    //3D textures.
-
-    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const Array3D<Vector4b> & pixelData);
-    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, unsigned int height, unsigned int depth, const unsigned char * rgbaColorData);
-    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4b> & pixelData);
-    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                             unsigned int width, unsigned int height, unsigned int depth, const unsigned char * pixelRGBA);
-
-
-    //Setting/creating texture data via floats.
-
-    //1D textures.
-
-    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, const Vector4f * pixelData);
-    static void CreateTexture1D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, const float * rgbaColorData);
-    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const Vector4f * pixelData);
-    static void SetTexture1D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, unsigned int width, const float * rgbaPixelData);
-
-    //2D textures.
-
-    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const TextureSettings & settings, const Array2D<Vector4f> & pixelData);
-    static void CreateTexture2D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const TextureSettings & settings, unsigned int width, unsigned int height, const float * rgbaColorData);
-    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
-                             const Array2D<Vector4f> & pixelData);
-    static void SetTexture2D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const TextureSettings & settings,
-                             unsigned int width, unsigned int height, const float * pixelRGBA);
-
-    //3D textures.
-
-    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                const Array3D<Vector4f> & pixelData);
-    static void CreateTexture3D(RenderObjHandle & outTexHandle, bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                                unsigned int width, unsigned int height, unsigned int depth, const float * rgbaColorData);
-    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize, const Array3D<Vector4f> & pixelData);
-    static void SetTexture3D(bool useMipmaps, ColorTextureSettings::PixelSizes pixelSize,
-                             unsigned int width, unsigned int height, unsigned int depth, const float * pixelRGBA);
-
-
-    //Creates a depth texture object.
-    static void CreateDepthTexture(RenderObjHandle & texObjectHandle, const DepthTextureSettings & settings);
-    //Sets the data for a depth texture object.
-    static void SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<unsigned char> & depthData);
-    //Sets the data for a depth texture object.
-    static void SetDepthTexture(bool generateMipmaps, DepthTextureSettings::PixelSizes pixelSize, const Array2D<float> & depthData);
-
-
-    //Creates a cubemap texture. Leaves its faces empty.
-    static void CreateTextureCubemap(RenderObjHandle & texObjectHandle);
-    //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size, const Array2D<Vector4b> & pixelData)
-    {
-        SetTextureCubemapFace(cubemapFace, size, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes pixelSize,
-                                      unsigned int width, unsigned int height, const unsigned char * rgbaColor);
-    //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size, const Array2D<Vector4f> & pixelData)
-    {
-        SetTextureCubemapFace(cubemapFace, size, pixelData.GetWidth(), pixelData.GetHeight(), &pixelData.GetArray()[0].x);
-    }
-    //Sets the data for the currently-bound cubemap's given face.
-    static void SetTextureCubemapFace(CubeTextureTypes cubemapFace, ColorTextureSettings::PixelSizes size,
-                                      unsigned int width, unsigned int height, const float * rgbaColor);
-
-
-    //Gets the pixel data from the currently-bound 1D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Vector4b * outColor);
-    //Gets the pixel data from the currently-bound 1D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Vector4f * outColor);
-
-    //Gets the pixel data from the currently-bound 2D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array2D<Vector4b> & outColor);
-    //Gets the pixel data from the currently-bound 2D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array2D<Vector4f> & outColor);
-    //Gets the pixel data from the currently-bound 2D depth texture.
-    //NOTE: Assumes that the out depth array is already the correct size!
-    static void GetDepthTextureData(Array2D<unsigned char> & outDepth);
-    //Gets the pixel data from the currently-bound 2D depth texture.
-    //NOTE: Assumes that the out depth array is already the correct size!
-    static void GetDepthTextureData(Array2D<float> & outDepth);
-
-    //Gets the pixel data from the currently-bound 3D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array3D<Vector4b> & outColor);
-    //Gets the pixel data from the currently-bound 3D texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(Array3D<Vector4f> & outColor);
-
-    //Gets the pixel data from the given face of the currently-bound cubemap texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4b> & outColor);
-    //Gets the pixel data from the given face of the currently-bound cubemap texture.
-    //NOTE: Assumes that the out color array is already the correct size!
-    static void GetTextureData(CubeTextureTypes face, Array2D<Vector4f> & outColor);
-
-
-    //Generates mipmaps for a texture that has already been created.
-    static void GenerateTextureMipmaps(TextureTypes textureType)
-    {
-        glGenerateMipmap(TextureTypeToGLEnum(textureType));
-    }
-
-
-    //Gets the width/height of the given texture, or { -1, -1 } if the given texture doesn't exist.
-    static Vector2i GetTextureDimensions(RenderObjHandle texture);
-
-
-	//Deletes a texture object.
-	static void DeleteTexture(RenderObjHandle & texObjHandle);
-	//Sets a texture object as the active one.
-	static void BindTexture(TextureTypes type, const RenderObjHandle & bo) { glBindTexture(TextureTypeToGLEnum(type), bo); }
-	//Sets a texture unit as active.
+    //Sets a texture unit as the active one.
 	static void ActivateTextureUnit(int texNumb) { glActiveTexture(GL_TEXTURE0 + texNumb); }
 
 
@@ -231,8 +69,10 @@ public:
 		//The frame buffer is fine and ready to be used.
 		EVERYTHING_IS_FINE,
 	};
-	static FrameBufferStatus GetFramebufferStatus(const RenderObjHandle & fbo);
-	static const char * GetFrameBufferStatusMessage(const RenderObjHandle & fbo);
+    //Gets the status of the currently-bound frame buffer.
+	static FrameBufferStatus GetFramebufferStatus(void);
+    //Same functionality as "GetFramebufferStatus" but returns an error message instead of an enum.
+	static const char * GetFrameBufferStatusMessage(void);
 
 	//The different uses (and frequencies of use) for buffer objects.
 	enum BufferPurpose

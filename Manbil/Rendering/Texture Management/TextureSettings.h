@@ -4,8 +4,8 @@
 #include <assert.h>
 
 
-//Handles texture settings.
-struct TextureSettings
+//Information about how a texture is sampled.
+struct TextureSampleSettings
 {
 public:
 
@@ -26,102 +26,95 @@ public:
 
     FilteringTypes MinFilter, MagFilter;
     WrappingTypes HorzWrap, VertWrap;
-    TextureTypes TextureType; //TODO: Instead of holding a texture type, take one in the "Apply" functions themselves. Remove the "Cubemap" from the end of all functions.
 
 
-    TextureSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert, TextureTypes texType = TextureTypes::TT_2D)
-        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert), TextureType(texType)
-    {
-        assert(texType == TextureTypes::TT_2D || texType == TextureTypes::TT_CUBE);
-    }
-    TextureSettings(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP, TextureTypes texType = TextureTypes::TT_2D)
-        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap), TextureType(texType)
-    {
-        assert(texType == TextureTypes::TT_2D || texType == TextureTypes::TT_CUBE);
-    }
+    TextureSampleSettings(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert)
+        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert) { }
+    TextureSampleSettings(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP)
+        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap) { }
 
 
     //Sets the currently-bound texture to use this setting's min filter.
-    void ApplyMinFilter(bool usesMipmaps) const
+    void ApplyMinFilter(TextureTypes type, bool usesMipmaps) const
     {
-        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
+        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
     }
     //Sets the currently-bound texture to use this setting's mag filter.
-    void ApplyMagFilter(bool usesMipmaps) const
+    void ApplyMagFilter(TextureTypes type, bool usesMipmaps) const
     {
-        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
+        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
     }
     //Sets the currently-bound texture to use this setting's min and mag filters.
-    void ApplyFilter(bool usesMipmaps) const
+    void ApplyFilter(TextureTypes type, bool usesMipmaps) const
     {
-        ApplyMinFilter(usesMipmaps);
-        ApplyMagFilter(usesMipmaps);
+        ApplyMinFilter(type, usesMipmaps);
+        ApplyMagFilter(type, usesMipmaps);
     }
 
     //Sets the currently-bound texture to use this setting's horizontal wrapping behavior.
-    void ApplyHorzWrapping(void) const
+    void ApplyHorzWrapping(TextureTypes type) const
     {
-        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
+        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
     }
     //Sets the currently-bound texture to use this setting's vertical wrapping behavior.
-    void ApplyVertWrapping(void) const
+    void ApplyVertWrapping(TextureTypes type) const
     {
-        glTexParameteri(TextureTypeToGLEnum(TextureType), GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
+        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
     }
     //Sets the currently-bound texture to use this setting's horizontal/vertical wrapping behavior.
-    void ApplyWrapping(void) const
+    void ApplyWrapping(TextureTypes type) const
     {
-        ApplyHorzWrapping();
-        ApplyVertWrapping();
+        ApplyHorzWrapping(type);
+        ApplyVertWrapping(type);
     }
 
     //Applies all this instance's settings to the currently-bound texture.
-    void ApplyAllSettings(bool usesMipmaps) const
+    void ApplyAllSettings(TextureTypes type, bool usesMipmaps) const
     {
-        ApplyFilter(usesMipmaps);
-        ApplyWrapping();
+        ApplyFilter(type, usesMipmaps);
+        ApplyWrapping(type);
     }
 
 
-    //Sets the currently-bound cubemap texture to use this setting's min filter.
-    void ApplyMinFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's min filter.
+    void ApplyMinFilter(CubeTextureTypes cubemapFace, bool usesMipmaps) const
     {
         glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
     }
-    //Sets the currently-bound cubemap texture to use this setting's mag filter.
-    void ApplyMagFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's mag filter.
+    void ApplyMagFilter(CubeTextureTypes cubemapFace, bool usesMipmaps) const
     {
         glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
     }
-    //Sets the currently-bound cubemap texture to use this setting's min and mag filters.
-    void ApplyFilterCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's min and mag filters.
+    void ApplyFilter(CubeTextureTypes cubemapFace, bool usesMipmaps) const
     {
-        ApplyMinFilterCubemap(cubemapFace, usesMipmaps);
-        ApplyMagFilterCubemap(cubemapFace, usesMipmaps);
+        ApplyMinFilter(cubemapFace, usesMipmaps);
+        ApplyMagFilter(cubemapFace, usesMipmaps);
     }
 
-    //Sets the currently-bound cubemap texture to use this setting's horizontal wrapping behavior.
-    void ApplyHorzWrappingCubemap(CubeTextureTypes cubemapFace) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's horizontal wrapping behavior.
+    void ApplyHorzWrapping(CubeTextureTypes cubemapFace) const
     {
         glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
     }
-    //Sets the currently-bound cubemap texture to use this setting's vertical wrapping behavior.
-    void ApplyVertWrappingCubemap(CubeTextureTypes cubemapFace) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's vertical wrapping behavior.
+    void ApplyVertWrapping(CubeTextureTypes cubemapFace) const
     {
         glTexParameteri(TextureTypeToGLEnum(cubemapFace), GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
     }
-    //Sets the currently-bound cubemap texture to use this setting's horizontal/vertical wrapping behavior.
-    void ApplyWrappingCubemap(CubeTextureTypes cubemapFace) const
+    //Sets the given face of the currently-bound cubemap texture to use this setting's horizontal/vertical wrapping behavior.
+    void ApplyWrapping(CubeTextureTypes cubemapFace) const
     {
-        ApplyHorzWrappingCubemap(cubemapFace);
-        ApplyVertWrappingCubemap(cubemapFace);
+        ApplyHorzWrapping(cubemapFace);
+        ApplyVertWrapping(cubemapFace);
     }
 
     //Applies all this instance's settings to the currently-bound cubemap texture.
-    void ApplyAllSettingsCubemap(CubeTextureTypes cubemapFace, bool usesMipmaps) const
+    void ApplyAllSettings(CubeTextureTypes cubemapFace, bool usesMipmaps) const
     {
-        ApplyFilterCubemap(cubemapFace, usesMipmaps);
-        ApplyWrappingCubemap(cubemapFace);
+        ApplyFilter(cubemapFace, usesMipmaps);
+        ApplyWrapping(cubemapFace);
     }
 
 
@@ -132,76 +125,49 @@ private:
 };
 
 
-
-//Settings for creating a 2D RGBA color texture.
-struct ColorTextureSettings
+//The different possible sizes of each component of a pixel in a texture.
+//"Unsigned int" pixels are mapped from [0, max uint value] to [0, 1].
+//"Float" pixels have the usual range of a floating-point number
+//   (although keep in mind that 2-byte floats have a smaller range).
+enum PixelSizes
 {
-public:
+    //RGBA, uint, 1 byte per component.
+    PS_8U,
+    //RGBA, uint, 2 bytes per component.
+    PS_16U,
 
-    //The different pixel sizes (in bytes).
-    enum PixelSizes
-    {
-        CTS_8,
-        CTS_16,
-        CTS_32,
-
-        CTS_8_GREYSCALE,
-        CTS_16_GREYSCALE,
-    };
-
-    static GLenum ToInternalFormat(PixelSizes size);
-    static std::string ToString(PixelSizes size);
+    //RGBA, float, 2 bytes per component.
+    PS_16F,
+    //RGBA, float, 4 bytes per component.
+    PS_32F,
 
 
-    unsigned int Width, Height;
-    PixelSizes PixelSize;
-    TextureSettings BaseSettings;
-    bool GenerateMipmaps;
+    //Red only, uint, 1 byte.
+    PS_8U_GREYSCALE,
+    //Red only, uint, 2 bytes.
+    PS_16U_GREYSCALE,
+
+    //Red only, float, 4 bytes.
+    PS_32F_GREYSCALE,
 
 
-    ColorTextureSettings(unsigned int width = 1, unsigned int height = 1, PixelSizes size = PixelSizes::CTS_32,
-                         bool useMipmaps = true, TextureSettings settings = TextureSettings())
-        : Width(width), Height(height), PixelSize(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
-    {
-        assert(settings.TextureType == TextureTypes::TT_2D);
-    }
+    //Depth, uint, 2 bytes.
+    PS_16U_DEPTH,
+    //Depth, uint, 3 bytes.
+    PS_24U_DEPTH,
 
-    //TODO: Move to DebugAssist. Same with DepthTextureSettings and the size arrays.
-    std::string ToString(void) const
-    {
-        return std::string() + std::to_string(Width) + "x" + std::to_string(Height) + ", size: " + ToString(PixelSize);
-    }
+    //Depth, uint, 4 bytes.
+    PS_32F_DEPTH,
 };
-
-
-//Settings for creating a depth texture.
-struct DepthTextureSettings
-{
-public:
-
-    //The different pixel sizes (in bytes).
-    enum PixelSizes
-    {
-        DTS_16,
-        DTS_24,
-        DTS_32,
-    };
-
-    static GLenum ToEnum(PixelSizes size);
-    static std::string ToString(PixelSizes size);
-
-
-    unsigned int Width, Height;
-    PixelSizes PixelSize;
-    TextureSettings BaseSettings;
-    bool GenerateMipmaps;
-
-    DepthTextureSettings(unsigned int width = 1, unsigned int height = 1, PixelSizes size = PixelSizes::DTS_24,
-                         bool useMipmaps = true, TextureSettings settings = TextureSettings())
-                         : Width(width), Height(height), PixelSize(size), BaseSettings(settings), GenerateMipmaps(useMipmaps)
-    {
-
-    }
-
-    std::string ToString(void) const;
-};
+//Does the given pixel size use RGBA?
+bool IsPixelSizeColored(PixelSizes pixelSize);
+//Does the given pixel size only use the Red component (not RGBA)?
+bool IsPixelSizeGreyscale(PixelSizes pixelSize);
+//Does the given pixel size use a depth component (not RGBA)?
+bool IsPixelSizeDepth(PixelSizes pixelSize);
+//Does the given pixel size use a floating-point value (instead of unsigned int)?
+bool IsPixelSizeFloat(PixelSizes pixelSize);
+//Converts the given pixel size into its corresponding OpenGL enum value.
+GLenum ToGLenum(PixelSizes pixelSize);
+//Gets the size of a single pixel component in bytes for the given pixel size.
+unsigned int GetComponentSize(PixelSizes pixelSize);

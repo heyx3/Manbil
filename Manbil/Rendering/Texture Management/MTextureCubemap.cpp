@@ -1,191 +1,249 @@
 #include "MTextureCubemap.h"
 
 
-
-void MTextureCubemap::SetSettings(const TextureSettings & newSettings)
+void MTextureCubemap::SetSettings(const TextureSampleSettings & newSettings)
 {
-    settings.BaseSettings = newSettings;
-    
-    if (IsValidTexture())
-    {
-        Bind();
-        settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
-    }
-}
-
-void MTextureCubemap::SetMinFilterType(TextureSettings::FilteringTypes newFiltering)
-{
-    settings.BaseSettings.MinFilter = newFiltering;
+    settings = newSettings;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyMinFilter(settings.GenerateMipmaps);
+        settings.ApplyAllSettings(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-void MTextureCubemap::SetMagFilterType(TextureSettings::FilteringTypes newFiltering)
+
+void MTextureCubemap::SetMinFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.MagFilter = newFiltering;
+    settings.MinFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyMagFilter(settings.GenerateMipmaps);
+        settings.ApplyMinFilter(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-void MTextureCubemap::SetFilterType(TextureSettings::FilteringTypes newFiltering)
+void MTextureCubemap::SetMagFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.MinFilter = newFiltering;
-    settings.BaseSettings.MagFilter = newFiltering;
+    settings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyFilter(settings.GenerateMipmaps);
+        settings.ApplyMagFilter(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-
-void MTextureCubemap::SetHorzWrappingType(TextureSettings::WrappingTypes wrapping)
+void MTextureCubemap::SetFilterType(TextureSampleSettings::FilteringTypes newFiltering)
 {
-    settings.BaseSettings.HorzWrap = wrapping;
+    settings.MinFilter = newFiltering;
+    settings.MagFilter = newFiltering;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyHorzWrapping();
+        settings.ApplyFilter(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-void MTextureCubemap::SetVertWrappingType(TextureSettings::WrappingTypes wrapping)
+
+void MTextureCubemap::SetHorzWrappingType(TextureSampleSettings::WrappingTypes wrapping)
 {
-    settings.BaseSettings.VertWrap = wrapping;
+    settings.HorzWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyVertWrapping();
+        settings.ApplyHorzWrapping(TextureTypes::TT_CUBE);
     }
 }
-void MTextureCubemap::SetWrappingType(TextureSettings::WrappingTypes wrapping)
+void MTextureCubemap::SetVertWrappingType(TextureSampleSettings::WrappingTypes wrapping)
 {
-    settings.BaseSettings.HorzWrap = wrapping;
-    settings.BaseSettings.VertWrap = wrapping;
+    settings.VertWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.BaseSettings.ApplyWrapping();
+        settings.ApplyVertWrapping(TextureTypes::TT_CUBE);
+    }
+}
+void MTextureCubemap::SetWrappingType(TextureSampleSettings::WrappingTypes wrapping)
+{
+    settings.HorzWrap = wrapping;
+    settings.VertWrap = wrapping;
+
+    if (IsValidTexture())
+    {
+        Bind();
+        settings.ApplyWrapping(TextureTypes::TT_CUBE);
     }
 }
 
 
-void MTextureCubemap::Create(const ColorTextureSettings & _settings,
-                             const Array2D<Vector4f> & dataNegX, const Array2D<Vector4f> & dataNegY, const Array2D<Vector4f> & dataNegZ,
-                             const Array2D<Vector4f> & dataPosX, const Array2D<Vector4f> & dataPosY, const Array2D<Vector4f> & dataPosZ)
+void MTextureCubemap::Create(const TextureSampleSettings & texSettings, bool useMipmaps, PixelSizes _pixelSize)
 {
     DeleteIfValid();
-    RenderDataHandler::CreateTextureCubemap(texHandle);
-    SetFaceData(_settings, dataNegX, dataNegY, dataNegZ, dataPosX, dataPosY, dataPosZ);
-}
-void MTextureCubemap::Create(const ColorTextureSettings & _settings,
-                             const Array2D<Vector4b> & dataNegX, const Array2D<Vector4b> & dataNegY, const Array2D<Vector4b> & dataNegZ,
-                             const Array2D<Vector4b> & dataPosX, const Array2D<Vector4b> & dataPosY, const Array2D<Vector4b> & dataPosZ)
-{
-    DeleteIfValid();
-    RenderDataHandler::CreateTextureCubemap(texHandle);
-    SetFaceData(_settings, dataNegX, dataNegY, dataNegZ, dataPosX, dataPosY, dataPosZ);
+
+    settings = texSettings;
+    usesMipmaps = useMipmaps;
+    pixelSize = _pixelSize;
+
+    width = 0;
+    height = 0;
+
+    glGenTextures(1, &texHandle);
+    ClearData();
+    texSettings.ApplyAllSettings(TextureTypes::TT_CUBE, usesMipmaps);
 }
 
-void MTextureCubemap::DeleteIfValid(void)
+bool MTextureCubemap::DeleteIfValid(void)
 {
-    if (texHandle != 0)
+    if (IsValidTexture())
     {
-        RenderDataHandler::DeleteTexture(texHandle);
+        glDeleteTextures(1, &texHandle);
         texHandle = 0;
+        return true;
+    }
+    else
+    {
+        texHandle = 0;
+        return false;
     }
 }
 
 
-void MTextureCubemap::SetFaceData(const ColorTextureSettings & _settings,
-                                  const Array2D<Vector4b> & dataNegX, const Array2D<Vector4b> & dataNegY, const Array2D<Vector4b> & dataNegZ,
-                                  const Array2D<Vector4b> & dataPosX, const Array2D<Vector4b> & dataPosY, const Array2D<Vector4b> & dataPosZ)
+void MTextureCubemap::ClearData(unsigned int newW, unsigned int newH)
 {
-    settings = _settings;
-    settings.BaseSettings.TextureType = TextureTypes::TT_CUBE;
-
-
-    assert(settings.Width == dataNegX.GetWidth() && settings.Height == dataNegX.GetHeight());
-    assert(settings.Width == dataNegY.GetWidth() && settings.Height == dataNegY.GetHeight());
-    assert(settings.Width == dataNegZ.GetWidth() && settings.Height == dataNegZ.GetHeight());
-    assert(settings.Width == dataPosX.GetWidth() && settings.Height == dataPosX.GetHeight());
-    assert(settings.Width == dataPosY.GetWidth() && settings.Height == dataPosY.GetHeight());
-    assert(settings.Width == dataPosZ.GetWidth() && settings.Height == dataPosZ.GetHeight());
-
+    if (!IsValidTexture()) return;
 
     Bind();
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settings.PixelSize, dataNegX);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settings.PixelSize, dataNegY);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settings.PixelSize, dataNegZ);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settings.PixelSize, dataPosX);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settings.PixelSize, dataPosY);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settings.PixelSize, dataPosZ);
+    width = newW;
+    height = newH;
 
-
-    if (settings.GenerateMipmaps)
-        RenderDataHandler::GenerateTextureMipmaps(TextureTypes::TT_CUBE);
-    settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
-}
-void MTextureCubemap::SetFaceData(const ColorTextureSettings & _settings,
-                                  const Array2D<Vector4f> & dataNegX, const Array2D<Vector4f> & dataNegY, const Array2D<Vector4f> & dataNegZ,
-                                  const Array2D<Vector4f> & dataPosX, const Array2D<Vector4f> & dataPosY, const Array2D<Vector4f> & dataPosZ)
-{
-    settings = _settings;
-    settings.BaseSettings.TextureType = TextureTypes::TT_CUBE;
-
-
-    assert(settings.Width == dataNegX.GetWidth() && settings.Height == dataNegX.GetHeight());
-    assert(settings.Width == dataNegY.GetWidth() && settings.Height == dataNegY.GetHeight());
-    assert(settings.Width == dataNegZ.GetWidth() && settings.Height == dataNegZ.GetHeight());
-    assert(settings.Width == dataPosX.GetWidth() && settings.Height == dataPosX.GetHeight());
-    assert(settings.Width == dataPosY.GetWidth() && settings.Height == dataPosY.GetHeight());
-    assert(settings.Width == dataPosZ.GetWidth() && settings.Height == dataPosZ.GetHeight());
-
-
-    Bind();
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_NEG, settings.PixelSize, dataNegX);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_NEG, settings.PixelSize, dataNegY);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_NEG, settings.PixelSize, dataNegZ);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_X_POS, settings.PixelSize, dataPosX);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Y_POS, settings.PixelSize, dataPosY);
-    RenderDataHandler::SetTextureCubemapFace(CubeTextureTypes::CTT_Z_POS, settings.PixelSize, dataPosZ);
-
-
-    if (settings.GenerateMipmaps)
-        RenderDataHandler::GenerateTextureMipmaps(TextureTypes::TT_CUBE);
-    settings.BaseSettings.ApplyAllSettings(settings.GenerateMipmaps);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
 }
 
-void MTextureCubemap::SetFaceData(CubeTextureTypes face, const Array2D<Vector4f> & pixels)
+bool MTextureCubemap::SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps)
 {
-    assert(settings.Width == pixels.GetWidth() && settings.Height == pixels.GetHeight());
+    if (!IsValidTexture()) return false;
+
+    sf::Image img;
+    if (!img.loadFromFile(filePath)) return false;
 
     Bind();
-    RenderDataHandler::SetTextureCubemapFace(face, settings.PixelSize, pixels);
+    width = img.getSize().x;
+    height = img.getSize().y;
+    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, img.getPixelsPtr());
+    if (usesMipmaps && shouldUpdateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    return true;
 }
-void MTextureCubemap::SetFaceData(CubeTextureTypes face, const Array2D<Vector4b> & pixels)
+
+bool MTextureCubemap::SetData(Array2D<Vector4b> & negXData, Array2D<Vector4b> & negYData, Array2D<Vector4b> & negZData,
+                              Array2D<Vector4b> & posXData, Array2D<Vector4b> & posYData, Array2D<Vector4b> & posZData,
+                              bool useMipmaps, PixelSizes _pixelSize)
 {
-    assert(settings.Width == pixels.GetWidth() && settings.Height == pixels.GetHeight());
+    if (!IsValidTexture()) return false;
+
+    if (!negXData.HasSameDimensions(negYData) || !negXData.HasSameDimensions(negZData) ||
+        !negXData.HasSameDimensions(posXData) || !negXData.HasSameDimensions(posYData) ||
+        !negXData.HasSameDimensions(posZData))
+    {
+        return false;
+    }
+
+    if (!IsPixelSizeDepth(pixelSize)) pixelSize = _pixelSize;
+
+    width = negXData.GetWidth();
+    height = negXData.GetHeight();
+    usesMipmaps = useMipmaps;
 
     Bind();
-    RenderDataHandler::SetTextureCubemapFace(face, settings.PixelSize, pixels);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posXData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posYData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posZData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negXData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negYData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negZData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+}
+bool MTextureCubemap::SetData(Array2D<Vector4f> & negXData, Array2D<Vector4f> & negYData, Array2D<Vector4f> & negZData,
+                              Array2D<Vector4f> & posXData, Array2D<Vector4f> & posYData, Array2D<Vector4f> & posZData,
+                              bool useMipmaps, PixelSizes _pixelSize)
+{
+    if (!IsValidTexture()) return false;
+
+    if (!negXData.HasSameDimensions(negYData) || !negXData.HasSameDimensions(negZData) ||
+        !negXData.HasSameDimensions(posXData) || !negXData.HasSameDimensions(posYData) ||
+        !negXData.HasSameDimensions(posZData))
+    {
+        return false;
+    }
+
+    if (!IsPixelSizeDepth(pixelSize)) pixelSize = _pixelSize;
+
+    width = negXData.GetWidth();
+    height = negXData.GetHeight();
+    usesMipmaps = useMipmaps;
+
+    Bind();
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, posXData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, posYData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, posZData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, negXData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, negYData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
+                 width, height, 0, GL_RGBA, GL_FLOAT, negZData.GetArray());
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
-void MTextureCubemap::GetFaceData(CubeTextureTypes face, Array2D<Vector4b> & outData)
+bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4b> & pixelData, bool shouldUpdateMipmaps)
 {
+    if (pixelData.GetWidth() != width || pixelData.GetHeight() != height)
+        return false;
+
     Bind();
-    RenderDataHandler::GetTextureData(face, outData);
+    width = pixelData.GetWidth();
+    height = pixelData.GetHeight();
+    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, pixelData.GetArray());
+    if (usesMipmaps && shouldUpdateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
-void MTextureCubemap::GetFaceData(CubeTextureTypes face, Array2D<Vector4f> & outData)
+bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4f> & pixelData, bool shouldUpdateMipmaps)
+{
+    if (pixelData.GetWidth() != width || pixelData.GetHeight() != height)
+        return false;
+
+    Bind();
+    width = pixelData.GetWidth();
+    height = pixelData.GetHeight();
+    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_RGBA, pixelData.GetArray());
+    if (usesMipmaps && shouldUpdateMipmaps)
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+}
+
+
+void MTextureCubemap::GetData(CubeTextureTypes face, Array2D<Vector4b> & outData)
 {
     Bind();
-    RenderDataHandler::GetTextureData(face, outData);
+    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
+}
+void MTextureCubemap::GetData(CubeTextureTypes face, Array2D<Vector4f> & outData)
+{
+    Bind();
+    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_FLOAT, outData.GetArray());
 }

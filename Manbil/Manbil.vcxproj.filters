@@ -318,9 +318,6 @@
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\MTextureDepth.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -782,9 +779,6 @@
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\MTextureDepth.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>

@@ -84,6 +84,11 @@ public:
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
 
+    bool HasSameDimensions(const Array2D<ArrayType> & other) const
+    {
+        return width == other.width && height == other.height;
+    }
+
 	//Fills every element with the given value.
 	void Fill(const ArrayType & value)
 	{

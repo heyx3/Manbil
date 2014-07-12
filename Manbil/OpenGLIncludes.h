@@ -6,6 +6,9 @@
 #include "SFML/OpenGL.hpp"
 
 
+//TODO: Make a GLEnum static class that provides all these enums as well as their conversions to GLenums.
+
+
 //An OpenGL pointer to some kind of data (buffer, texture, etc).
 typedef GLuint RenderObjHandle;
 //An OpenGL pointer to the location of a uniform in a shader.
@@ -73,6 +76,8 @@ enum CubeTextureTypes
 };
 GLenum TextureTypeToGLEnum(CubeTextureTypes t);
 
+
+//TODO: Replace "VertexIndexData" with a full, contained object that manages vertices and indices, and can optionally keep a cpu copy of them on hand to manipulate.
 
 //Useful data about vertices/indices of a mesh.
 struct VertexIndexData
