@@ -58,7 +58,8 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
     {
         return "Error creating font '" + fontPath + "': " + rendr->GetError();
     }
-    if (!rendr->CreateTextRenderSlots(textRendererID, textSize.x, textSize.y, false, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP)))
+    if (!rendr->CreateTextRenderSlots(textRendererID, textSize.x, textSize.y, false,
+                                      TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP)))
     {
         return "Error creating render slot for '" + fontPath + "': " + rendr->GetError();
     }
@@ -165,7 +166,7 @@ void GUITestWorld::InitializeWorld(void)
     err = RenderText(TextRender, "Hello, World!!");
     if (!ReactToError(err.empty(), "Error rendering the text: ", err))
         return;
-    quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID);
+    quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID)->GetTextureHandle();
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {

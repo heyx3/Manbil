@@ -99,9 +99,8 @@ public:
     struct SeedmapWaterCreationArgs
     {
     public:
-        const Array2D<float> * SeedValues;
-        ColorTextureSettings SeedTexQuality;
-        SeedmapWaterCreationArgs(const Array2D<float> * seedValues = 0, ColorTextureSettings seedQuality = ColorTextureSettings()) : SeedValues(seedValues), SeedTexQuality(seedQuality) { }
+        const MTexture * SeedValues;
+        SeedmapWaterCreationArgs(const MTexture * seedValues = 0) : SeedValues(seedValues) { }
     };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos, Vector3f scale,
@@ -145,7 +144,7 @@ public:
     //Changes the properties of the water.
     void SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
-    void SetSeededWaterSeed(const Array2D<float> & seedMap);
+    void SetSeededWaterSeed(const MTexture * newSeedValues);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
@@ -176,6 +175,6 @@ private:
     Vector4f * f_a_p;
     float * tsc;
 
-    MTexture seedTex;
+    const MTexture * seedTex;
     Mesh waterMesh;
 };

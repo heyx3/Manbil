@@ -15,7 +15,7 @@ TransformObject TextRenderer::textRendererTransform = TransformObject();
 Matrix4f TextRenderer::viewMat = Matrix4f(),
          TextRenderer::projMat = Matrix4f(),
          TextRenderer::worldMat = Matrix4f();
-MTexture TextRenderer::tempTex = MTexture();
+MTexture TextRenderer::tempTex = MTexture(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false);
 
 const char * textSamplerName = "u_charSampler";
 
@@ -24,10 +24,14 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 {
     if (textRenderer != 0) return "System was already initialized.";
 
+    ClearAllRenderingErrors();
+
     textRendererQuad = new DrawingQuad();
-    tempTex.Create(ColorTextureSettings(1, 1, ColorTextureSettings::CTS_8_GREYSCALE, false,
-                                        TextureSettings(TextureSettings::FilteringTypes::FT_NEAREST, TextureSettings::WrappingTypes::WT_CLAMP)),
-                   Array2D<Vector4f>(1, 1, Vector4f()));
+    tempTex.Create();
+
+    std::string tError = GetCurrentRenderingError();
+    if (!tError.empty())
+        return "Error initializing temp tex: " + tError;
 
 
     //Transform matrices and render info.
@@ -84,8 +88,13 @@ TextRenderer::~TextRenderer(void)
 {
     //Delete every slot's render target.
     for (auto font = fonts.begin(); font != fonts.end(); ++font)
+    {
         for (auto slot = font->second.begin(); slot != font->second.end(); ++slot)
+        {
             RTManager.DeleteRenderTarget(slot->RenderTargetID);
+            delete slot->ColorTex;
+        }
+    }
     //TODO: Double-check that there is no way to delete fonts.
 }
 
@@ -111,24 +120,18 @@ unsigned int TextRenderer::CreateAFont(std::string fontPath, unsigned int pixelW
     fonts[fontID] = std::vector<Slot>();
     return fontID;
 }
-bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight, bool useMipmaps, TextureSettings & settings, unsigned int numbSlots)
+bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
+                                         bool useMipmaps, TextureSampleSettings & settings, unsigned int numbSlots)
 {
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return false;
     std::vector<Slot> & slotCollection = fonts[fontID];
 
-    //Set up the settings used for each render target.
-    RendTargetColorTexSettings colorSettings;
-    colorSettings.Settings = ColorTextureSettings(renderSpaceWidth, renderSpaceHeight, ColorTextureSettings::CTS_8_GREYSCALE, useMipmaps, settings);
-    RendTargetDepthTexSettings depthSettings;
-    depthSettings.UsesDepthTexture = false;
-    depthSettings.Settings = DepthTextureSettings(renderSpaceWidth, renderSpaceHeight, DepthTextureSettings::DTS_16, useMipmaps, settings);
-
     //Create the given number of slots.
     for (unsigned int i = 0; i < numbSlots; ++i)
     {
         //Create render target.
-        unsigned int rendTargetID = RTManager.CreateRenderTarget(colorSettings, depthSettings);
+        unsigned int rendTargetID = RTManager.CreateRenderTarget(PixelSizes::PS_16U_DEPTH);
         if (rendTargetID == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating render target: " + RTManager.GetError();
@@ -138,12 +141,31 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
         //Add the slot to the collection.
         Slot slot;
         slot.RenderTargetID = rendTargetID;
+        slot.ColorTex = new MTexture(settings, PixelSizes::PS_8U_GREYSCALE, true);
         slot.String = "";
-        slot.Width = renderSpaceWidth;
-        slot.Height = renderSpaceHeight;
         slot.TextWidth = 0;
         slot.TextHeight = 0;
         slotCollection.insert(slotCollection.end(), slot);
+
+        //Update the render target to use the color texture.
+        slot.ColorTex->Create(settings, useMipmaps, PixelSizes::PS_8U_GREYSCALE);
+        slot.ColorTex->ClearData(renderSpaceWidth, renderSpaceHeight);
+        if (!RTManager[rendTargetID]->SetColorAttachment(RenderTargetTex(slot.ColorTex), true))
+        {
+            errorMsg = "Error attaching color texture to render target: " + RTManager[rendTargetID]->GetErrorMessage();
+            slotCollection.erase(slotCollection.end() - 1);
+            delete slot.ColorTex;
+            return false;
+        }
+
+        //Check that the render target is good.
+        if (!RTManager[rendTargetID]->IsUseable())
+        {
+            errorMsg = "Render target is not usable: " + RTManager[rendTargetID]->GetErrorMessage();
+            slotCollection.erase(slotCollection.end() - 1);
+            delete slot.ColorTex;
+            return false;
+        }
     }
 
     return true;
@@ -169,7 +191,7 @@ Vector2i TextRenderer::GetSlotRenderSize(FontSlot slot) const
     const Slot * slotP;
     if (!TryFindFontSlot(slot, slotP)) return Vector2i();
 
-    return Vector2i((int)slotP->Width, (int)slotP->Height);
+    return Vector2i((int)slotP->ColorTex->GetWidth(), (int)slotP->ColorTex->GetHeight());
 }
 Vector2i TextRenderer::GetSlotBoundingSize(FontSlot slot) const
 {
@@ -185,12 +207,12 @@ const char * TextRenderer::GetString(FontSlot slot) const
 
     return slotP->String;
 }
-RenderObjHandle TextRenderer::GetRenderedString(FontSlot slot) const
+MTexture * TextRenderer::GetRenderedString(FontSlot slot) const
 {
     const Slot * slotP;
     if (!TryFindFontSlot(slot, slotP)) return 0;
 
-    return RTManager[slotP->RenderTargetID]->GetColorTextures()[0];
+    return slotP->ColorTex;
 }
 
 
@@ -221,19 +243,17 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
 
     //Set up rendering.
     targ->EnableDrawingInto();
-    glViewport(0, 0, targ->GetColorSettings()[0].Settings.Width, targ->GetColorSettings()[0].Settings.Height);
     RenderingState(RenderingState::C_BACK,
                    RenderingState::BlendingExpressions::BE_SOURCE_COLOR, RenderingState::BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR,
                    false, false).EnableState();
-    ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 0.0f)).ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
 
     //Render each character into the texture, then into the final render target.
     Vector2f pos = Vector2f(-1.0f, 1.0f);
     Vector2i size = Vector2i(), offset = Vector2i(), movement = Vector2i();
     Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
-    Vector2f invRendTargSize(2.0f / (float)targ->GetColorSettings()[0].Settings.Width,
-                             -2.0f / (float)targ->GetColorSettings()[0].Settings.Height);
+    Vector2f invRendTargSize(2.0f / (float)targ->GetWidth(), -2.0f / (float)targ->GetHeight());
     for (unsigned int i = 0; i < textToRender.size(); ++i)
     {
         char ch = textToRender.c_str()[i];
@@ -242,7 +262,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         if (!FreeTypeHandler::Instance.RenderChar(fontID, ch))
         {
             errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + FreeTypeHandler::Instance.GetError();
-            targ->DisableDrawingInto(bbWidth, bbHeight);
+            targ->DisableDrawingInto(bbWidth, bbHeight, true);
             return false;
         }
 
@@ -257,7 +277,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
 
 
         //If the character is empty (i.e. a space), don't bother rendering it.
-        if (FreeTypeHandler::Instance.GetChar().GetWidth() > 0 && FreeTypeHandler::Instance.GetChar().GetHeight() > 0)
+        if (FreeTypeHandler::Instance.GetGlyphSize(fontID).x > 0 && FreeTypeHandler::Instance.GetGlyphSize(fontID).y > 0)
         {
             //Render the array into the temp texture.
             FreeTypeHandler::Instance.GetChar(tempTex);
@@ -271,7 +291,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
             if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
             {
                 errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
-                targ->DisableDrawingInto(bbWidth, bbHeight);
+                targ->DisableDrawingInto(bbWidth, bbHeight, true);
                 return false;
             }
         }
@@ -280,7 +300,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         pos += scaledMovement;
     }
 
-    targ->DisableDrawingInto(bbWidth, bbHeight);
+    targ->DisableDrawingInto(bbWidth, bbHeight, true);
     return true;
 }
 

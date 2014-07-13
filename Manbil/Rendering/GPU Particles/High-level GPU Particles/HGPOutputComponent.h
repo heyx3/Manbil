@@ -47,11 +47,11 @@ struct HGPTextureQuality
 {
 public:
 
-    TextureSettings::FilteringTypes FilterQuality;
-    ColorTextureSettings::PixelSizes PixelSize;
+    TextureSampleSettings::FilteringTypes FilterQuality;
+    PixelSizes PixelSize;
     unsigned int Width;
 
-    HGPTextureQuality(TextureSettings::FilteringTypes filterQuality, ColorTextureSettings::PixelSizes pixelSize, unsigned int width)
+    HGPTextureQuality(TextureSampleSettings::FilteringTypes filterQuality, PixelSizes pixelSize, unsigned int width)
         : FilterQuality(filterQuality), PixelSize(pixelSize), Width(width)
     {
 
@@ -266,7 +266,8 @@ public:
     
 
     GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality, HGPComponentManager & manager)
-        : HGPOutputComponent(manager), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality)
+        : HGPOutputComponent(manager), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality),
+          gradientTex(TextureSampleSettings(), PixelSizes::PS_8U, false)
     {
 
     }
@@ -275,8 +276,7 @@ public:
     virtual void InitializeComponent(void) override
     {
         //Create the texture.
-        gradientTex.Create(ColorTextureSettings(1, 1, gradientTexQuality.PixelSize, false, TextureSettings(gradientTexQuality.FilterQuality, TextureSettings::WT_CLAMP)),
-                           Array2D<Vector4b>(1, 1, Vector4b()));
+        gradientTex.Create(TextureSampleSettings(gradientTexQuality.FilterQuality, TextureSampleSettings::WT_CLAMP), false, gradientTexQuality.PixelSize);
 
         //Generate the texture data.
         Array2D<VectorF> texOut(gradientTexQuality.Width, 1);

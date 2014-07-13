@@ -20,8 +20,6 @@ class VoxelWorld : public SFMLOpenGLWorld
 {
 public:
 
-    RenderTargetManager RenderTargets;
-
     VoxelWorld(void);
     ~VoxelWorld(void);
 
@@ -74,12 +72,7 @@ private:
 
     RenderingState renderState;
 
-    VoxelWorldPPC * postProcessing;
-    unsigned int worldRenderTarget;
-    Material * finalWorldRenderMat;
-    DrawingQuad * finalWorldRenderQuad;
-    UniformDictionary finalWorldRenderParams;
-    
+
     Material * voxelMat;
     UniformDictionary voxelParams;
     MTexture voxelTex;
@@ -87,5 +80,12 @@ private:
     Material * voxelHighlightMat;
     Mesh voxelHighlightMesh;
     UniformDictionary voxelHighlightParams;
-    MTexture voxelHighlightTex;
+
+    unsigned int worldRenderTarget;
+    MTexture worldRenderTargetColorTex, worldRenderTargetDepthTex;
+    VoxelWorldPPC * postProcessing;
+
+    Material * finalWorldRenderMat;
+    DrawingQuad * finalWorldRenderQuad;
+    UniformDictionary finalWorldRenderParams;
 };

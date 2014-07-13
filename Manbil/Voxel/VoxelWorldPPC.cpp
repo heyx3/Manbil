@@ -10,7 +10,8 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld & _world)
 
     effects.insert(effects.end(), PpePtr(new FogEffect()));
     PostProcessChain * chn = new PostProcessChain(effects, world.GetWindow()->getSize().x, world.GetWindow()->getSize().y,
-                                                  world.RenderTargets);
+                                                  false, TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP),
+                                                  PixelSizes::PS_32F, *world.RenderTargets);
     if (chn->HasError())
     {
         errorMsg = "Error creating effect chain: " + chn->GetError();

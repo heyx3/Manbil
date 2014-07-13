@@ -18,15 +18,7 @@ typedef GLchar Char;
 typedef GLvoid Void;
 
 
-//TODO: Use this for all classes that should use error message handling.
-#define ERROR_MESSAGE_HANDLING \
-    protected: \
-        std::string errorMsg; \
-        bool SetErrorMessageIfError(std::string prefix = "") { errorMsg = GetCurrentRenderingError(); if (!errorMsg.empty()) { errorMsg = prefix + errorMsg; return false; } return true; } \
-    public: \
-        std::string GetErrorMessage(void) const { return errorMsg; } \
-        bool HasError(void) const { return !errorMsg.empty(); } \
-        
+//TODO: Remove error messages from classes and instead make them all return strings and take in a pointer/reference to output to.
 
 
 

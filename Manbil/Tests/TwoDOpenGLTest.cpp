@@ -26,7 +26,9 @@ using namespace TwoDOpenGLTestStuff;
 TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
                       sf::ContextSettings(24, 0, 0, 4, 1)),
-      cam(0), foreQuad(0), backQuad(0), quadMat(0)
+      cam(0), foreQuad(0), backQuad(0), quadMat(0),
+      foreTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U, true),
+      backTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U, true)
 {
 
 }
@@ -35,10 +37,38 @@ void TwoDOpenGLTest::InitializeWorld(void)
 {
     //Basic OpenGL/world initialization.
     SFMLOpenGLWorld::InitializeWorld();
+
+    std::string error = GetCurrentRenderingError();
+    if (!error.empty())
+    {
+        std::cout << "Error initializing SFML/OpenGL: " << error;
+        Pause();
+        EndWorld();
+        return;
+    }
+
     InitializeStaticSystems(false, true, true);
+
+    error = GetCurrentRenderingError();
+    if (!error.empty())
+    {
+        std::cout << "Unknown error initializing static systems: " << error;
+        Pause();
+        EndWorld();
+        return;
+    }
+
     GetWindow()->setVerticalSyncEnabled(true);
     GetWindow()->setMouseCursorVisible(true);
     glViewport(0, 0, windowSize.x, windowSize.y);
+    error = GetCurrentRenderingError();
+    if (!error.empty())
+    {
+        std::cout << "Unknown error setting up window settings: " << error;
+        Pause();
+        EndWorld();
+        return;
+    }
 
 
     //Camera.
@@ -72,32 +102,52 @@ void TwoDOpenGLTest::InitializeWorld(void)
 
 
     //Textures.
-    Array2D<Vector4b> loadTexData(1, 1);
-    ColorTextureSettings texSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP));
-    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/shrub.png", loadTexData, texSettings.GenerateMipmaps, texSettings.PixelSize, texSettings.BaseSettings))
+
+    error = GetCurrentRenderingError();
+    if (!error.empty())
     {
-        std::cout << "Error loading 'Content/Textures/shrub.png'\n";
+        std::cout << "Unknown error initializing simple objects: " << error;
         Pause();
         EndWorld();
         return;
     }
-    foreTex.Create(texSettings, loadTexData);
-    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/Water.png", loadTexData, texSettings.GenerateMipmaps, texSettings.PixelSize, texSettings.BaseSettings))
+    
+    //Create the textures.
+    foreTex.Create();
+    backTex.Create();
+    error = GetCurrentRenderingError();
+    if (!error.empty())
     {
-        std::cout << "Error loading 'Content/Textures/Water.png'\n";
+        std::cout << "Unknown error creating/clearing textures: " << error;
         Pause();
         EndWorld();
         return;
     }
-    backTex.Create(texSettings, loadTexData);
 
-
-    //Fonts.
-
-    std::string err = GetCurrentRenderingError();
-    if (!err.empty())
+    //Load the foreground texture as a greyscale texture.
+    Array2D<Vector4b> imgData(1, 1);
+    Array2D<unsigned char> imgGreyscale(1, 1);
+    if (!MTexture::LoadImageFromFile("Content/Textures/shrub.png", imgData))
     {
-        std::cout << "Error creating textures: " << err.c_str();
+        std::cout << "Error loading 'Content/Textures/shrub.png': " + error + "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    imgGreyscale.Reset(imgData.GetWidth(), imgData.GetHeight());
+    imgGreyscale.FillFunc([&imgData](Vector2i loc, unsigned char * outP) { *outP = imgData[loc].y; });
+    if (!foreTex.SetGreyscaleData(imgGreyscale, PixelSizes::PS_8U_GREYSCALE))
+    {
+        std::cout << "Error setting foreground texture data.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    //Load the background texture normally.
+    if (!backTex.SetDataFromFile("Content/Textures/Water.png", error))
+    {
+        std::cout << "Error loading 'Content/Textures/Water.png': " + error + "\n";
         Pause();
         EndWorld();
         return;

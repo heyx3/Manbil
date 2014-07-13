@@ -212,7 +212,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             RenderDataHandler::ActivateTextureUnit(texUnit);
             texUnit += 1;
 
-            RenderDataHandler::BindTexture(TextureTypes::TT_2D, iterator->second.Texture);
+            glBindTexture(GL_TEXTURE_2D, iterator->second.Texture);
         }
     }
     for (auto iterator = params.TextureCubemapUniforms.begin(); iterator != params.TextureCubemapUniforms.end(); ++iterator)
@@ -223,7 +223,7 @@ bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vec
             RenderDataHandler::ActivateTextureUnit(texUnit);
             texUnit += 1;
 
-            RenderDataHandler::BindTexture(TextureTypes::TT_CUBE, iterator->second.Texture);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, iterator->second.Texture);
         }
     }
 

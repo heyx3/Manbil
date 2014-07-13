@@ -56,10 +56,11 @@ private:
     UniformDictionary particleParams;
 
 	MovingCamera cam;
-    RenderTargetManager manager;
+
+    unsigned int worldRenderID;
+    MTexture worldColorTex1, worldColorTex2, worldDepthTex;
 
     PostProcessChain * ppc;
-    unsigned int worldRenderID;
     std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
 
     Mesh cubemapMesh;

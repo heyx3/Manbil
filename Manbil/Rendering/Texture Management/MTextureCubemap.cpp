@@ -85,12 +85,10 @@ void MTextureCubemap::Create(const TextureSampleSettings & texSettings, bool use
     usesMipmaps = useMipmaps;
     pixelSize = _pixelSize;
 
-    width = 0;
-    height = 0;
-
     glGenTextures(1, &texHandle);
-    ClearData();
+    Bind();
     texSettings.ApplyAllSettings(TextureTypes::TT_CUBE, usesMipmaps);
+    ClearData(0, 0);
 }
 
 bool MTextureCubemap::DeleteIfValid(void)
@@ -123,6 +121,7 @@ void MTextureCubemap::ClearData(unsigned int newW, unsigned int newH)
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, 0);
+    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 bool MTextureCubemap::SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps)
@@ -175,6 +174,8 @@ bool MTextureCubemap::SetData(Array2D<Vector4b> & negXData, Array2D<Vector4b> & 
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
                  width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negZData.GetArray());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    return true;
 }
 bool MTextureCubemap::SetData(Array2D<Vector4f> & negXData, Array2D<Vector4f> & negYData, Array2D<Vector4f> & negZData,
                               Array2D<Vector4f> & posXData, Array2D<Vector4f> & posYData, Array2D<Vector4f> & posZData,
@@ -209,6 +210,8 @@ bool MTextureCubemap::SetData(Array2D<Vector4f> & negXData, Array2D<Vector4f> & 
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
                  width, height, 0, GL_RGBA, GL_FLOAT, negZData.GetArray());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    return true;
 }
 
 bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4b> & pixelData, bool shouldUpdateMipmaps)
@@ -222,6 +225,8 @@ bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4b> & p
     glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, pixelData.GetArray());
     if (usesMipmaps && shouldUpdateMipmaps)
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    return true;
 }
 bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4f> & pixelData, bool shouldUpdateMipmaps)
 {
@@ -234,6 +239,8 @@ bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4f> & p
     glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_RGBA, pixelData.GetArray());
     if (usesMipmaps && shouldUpdateMipmaps)
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    return true;
 }
 
 

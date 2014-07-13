@@ -159,10 +159,10 @@ Vector2i FreeTypeHandler::GetMoveToNextGlyph(unsigned int id) const
     return Vector2i(loc->second->glyph->advance.x >> 6, loc->second->glyph->advance.y >> 6);
 }
 
-bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
+FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
 {
     FaceMapLoc loc;
-    if (!TryFindID(fontID, loc)) return false;
+    if (!TryFindID(fontID, loc)) return CharRenderType::CRT_ERROR;
 
     FT_Face fce = loc->second;
     FT_Error err;
@@ -173,7 +173,7 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
     if (charIndex == 0)
     {
         errorMsg = std::string() + "Character not found";
-        return false;
+        return CharRenderType::CRT_ERROR;
     }
 
     //Load the glyph.
@@ -181,7 +181,7 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
     if (err != 0)
     {
         errorMsg = std::string() + "Error loading glyph: " + std::to_string(err);
-        return false;
+        return CharRenderType::CRT_ERROR;
     }
 
     //If it isn't a bitmap, render it to a bitmap.
@@ -191,76 +191,87 @@ bool FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
         if (err != 0)
         {
             errorMsg = std::string() + "Error rendering glyph to bitmap: " + std::to_string(err);
-            return false;
+            return CharRenderType::CRT_ERROR;
         }
     }
 
-    //Get the pixel format of the bitmap.
-    Vector4b(*colorGetter)(FT_Bitmap & bmp, unsigned int absPitch, unsigned int x, unsigned int y);
-    switch (fce->glyph->bitmap.pixel_mode)
-    {
-        case FT_Pixel_Mode::FT_PIXEL_MODE_MONO:
-            //Each pixel is 1 bit.
-            colorGetter = [](FT_Bitmap & bmp, unsigned int absPitch, unsigned int x, unsigned int y)
-            {
-                unsigned int index = (x / 8) + (y * absPitch);
-                int bit = x % 8;
-
-                unsigned char value = bmp.buffer[index] | (128 >> bit);
-                value = value << bit;
-                value *= 255;
-
-                return Vector4b(value, value, value, value);
-            };
-            break;
-
-        case FT_Pixel_Mode::FT_PIXEL_MODE_GRAY:
-            //Each pixel is one byte.
-            colorGetter = [](FT_Bitmap & bmp, unsigned int absPitch, unsigned int x, unsigned int y)
-            {
-                y = bmp.rows - y - 1;
-                unsigned int index = x + (y * absPitch);
-                unsigned char value = bmp.buffer[index];
-                return Vector4b(value, value, value, value);
-            };
-            break;
-
-        case FT_Pixel_Mode::FT_PIXEL_MODE_GRAY2:
-        case FT_Pixel_Mode::FT_PIXEL_MODE_GRAY4:
-            errorMsg = "Pixel modes 'gray2' and 'gray4' are not supported because I didn't feel like implementing them and they are almost never used.";
-            return false;
-
-        case FT_Pixel_Mode::FT_PIXEL_MODE_LCD:
-            colorGetter = [](FT_Bitmap & bmp, unsigned int absPitch, unsigned int x, unsigned int y)
-            {
-                unsigned int index = (x * 3) + (y * absPitch);
-
-                return Vector4b(bmp.buffer[index], bmp.buffer[index + 1], bmp.buffer[index + 2], 255);
-            };
-            break;
-
-        case FT_Pixel_Mode::FT_PIXEL_MODE_LCD_V:
-            errorMsg = "Pixel mode 'LCD_V' is not supported because I didn't fell like implementing it and I don't think it's that useful.";
-            return false;
-
-        default:
-            errorMsg = std::string() + "Error getting pixel format of the bitmap: unknown format " + std::to_string(fce->glyph->bitmap.pixel_mode);
-            return false;
-    }
-
-    
-    renderedText.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows, Vector4b());
+    //Different pixel values work differently.
+    char pixelMode = fce->glyph->bitmap.pixel_mode;
     unsigned int absPitch = (unsigned int)BasicMath::Abs(fce->glyph->bitmap.pitch);
-    for (unsigned int y = 0; y < fce->glyph->bitmap.rows; ++y)
-        for (unsigned int x = 0; x < fce->glyph->bitmap.width; ++x)
-            renderedText[Vector2i((int)x, (int)y)] = colorGetter(fce->glyph->bitmap, absPitch, x, y);
+    if (pixelMode == FT_Pixel_Mode::FT_PIXEL_MODE_MONO)
+    {
+        //Each pixel is 1 bit.
 
-    return true;
+        isGreyscale = true;
+        renderedTextColor.Reset(1, 1);
+
+        renderedTextGreyscale.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
+        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2i loc, unsigned char * outP)
+        {
+            unsigned int index = ((unsigned int)loc.x / 8) + ((unsigned int)loc.y * absPitch);
+            int bit = loc.x % 8;
+
+            unsigned char value = fce->glyph->bitmap.buffer[index] | (128 >> bit);
+            value = value << bit;
+            value *= 255;
+
+            *outP = value;
+        });
+
+        return CharRenderType::CRT_GREYSCALE;
+    }
+    if (pixelMode == FT_Pixel_Mode::FT_PIXEL_MODE_GRAY)
+    {
+        //Each pixel is 1 byte.
+
+        isGreyscale = true;
+        renderedTextColor.Reset(1, 1);
+
+        //TODO: Figure out wtf is going on.
+        renderedTextGreyscale.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
+        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2i loc, unsigned char * outP)
+        {
+            loc.y = fce->glyph->bitmap.rows - loc.y - 1;
+            unsigned int index = (unsigned int)loc.x + ((unsigned int)loc.y * absPitch);
+            unsigned char value = fce->glyph->bitmap.buffer[index];
+
+            *outP = value;
+        });
+
+        return CharRenderType::CRT_GREYSCALE;
+    }
+    if (pixelMode == FT_Pixel_Mode::FT_PIXEL_MODE_LCD)
+    {
+        //Each pixel is 3 components, one byte per component.
+
+        isGreyscale = false;
+
+        renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2i loc, Vector4b * outP)
+        {
+            unsigned int index = ((unsigned int)loc.x * 3) + ((unsigned int)loc.y * absPitch);
+            *outP = Vector4b(fce->glyph->bitmap.buffer[index], fce->glyph->bitmap.buffer[index + 1], fce->glyph->bitmap.buffer[index + 2], 255);
+        });
+
+        return CharRenderType::CRT_COLOR;
+    }
+    else
+    {
+        errorMsg = "The pixel mode '" + std::to_string(pixelMode) + "' is not supported.";
+        return CharRenderType::CRT_ERROR;
+    }
 }
 
 void FreeTypeHandler::GetChar(MTexture & outTex) const
 {
-    outTex.SetData(GetChar());
+    if (isGreyscale)
+    {
+        outTex.SetGreyscaleData(renderedTextGreyscale, PixelSizes::PS_8U_GREYSCALE);
+    }
+    else
+    {
+        outTex.SetColorData(renderedTextColor, PixelSizes::PS_8U);
+    }
 }
 
 bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const
@@ -275,7 +286,7 @@ bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const
 }
 
 FreeTypeHandler::FreeTypeHandler(void)
-    : nextID(1), renderedText(0, 0, Vector4b())
+    : nextID(1), renderedTextColor(1, 1), renderedTextGreyscale(1, 1)
 {
     FT_Error err = FT_Init_FreeType(&ftLib);
     if (err != 0)

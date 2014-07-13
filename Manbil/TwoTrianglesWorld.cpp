@@ -170,7 +170,8 @@ bool DoesMatUseCustomTex(void)
 #pragma region Textures
 
 
-MTexture customTex, noiseTex;
+MTexture customTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, false),
+         noiseTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, false);
 std::string customTexPath = "";
 
 //Gets the noise texture as well as a custom texture from the user if necessary.
@@ -178,20 +179,24 @@ std::string customTexPath = "";
 void LoadTextures(bool getUserTex, bool askUserTexPath = true)
 {
     //Get the noise texture.
-    Array2D<Vector4b> loadNoise(1, 1);
-    ColorTextureSettings noiseTexSettings(1, 1, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP));
-    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/NoiseTex.png", loadNoise, noiseTexSettings.GenerateMipmaps, noiseTexSettings.PixelSize, noiseTexSettings.BaseSettings))
+    
+    if (!noiseTex.IsValidTexture())
+        noiseTex.Create();
+    std::string error;
+    if (!noiseTex.SetDataFromFile("Content/Textures/NoiseTex.png", error))
     {
-        PrintData("Error loading 'Content/Textures/NoiseTex.png'", "could not find or load the file.");
+        PrintData("Error loding 'Content/Textures/NoiseTex.png'", error);
         Pause();
     }
-    noiseTex.Create(noiseTexSettings, loadNoise);
-    params.Texture2DUniforms[TTW::NoiseSamplerName] = UniformSampler2DValue(noiseTex.GetTextureHandle(), TTW::NoiseSamplerName);
+    params.Texture2DUniforms[TTW::NoiseSamplerName].Texture = noiseTex.GetTextureHandle();
 
 
     //Ask the user for a custom texture.
 
     if (!getUserTex) return;
+
+    if (!customTex.IsValidTexture())
+        customTex.Create();
 
     bool valid = false;
     bool first = true;
@@ -211,17 +216,14 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         first = false;
 
         //Try loading the file.
-        Array2D<Vector4b> loadCustom(1, 1);
-        ColorTextureSettings customTexSettings(1, 1, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_WRAP));
-        if (!RenderDataHandler::LoadTextureFromFile(customTexPath, loadCustom, customTexSettings.GenerateMipmaps, customTexSettings.PixelSize, customTexSettings.BaseSettings))
+        if (!customTex.SetDataFromFile(customTexPath, error))
         {
-            PrintData("Error loading '" + customTexPath + "'", "could not find or load the file.");
+            PrintData("Error loading '" + customTexPath + "'", error);
             std::cout << "\n\n";
             Pause();
             std::cout << "\n\n\n\n\n\n";
             continue;
         }
-        customTex.Create(customTexSettings, loadCustom);
 
         valid = true;
     }

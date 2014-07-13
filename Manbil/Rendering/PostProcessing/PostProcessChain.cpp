@@ -4,8 +4,12 @@
 #include "../../ScreenClearer.h"
 
 
-PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain, unsigned int width, unsigned int height, RenderTargetManager & manager)
-    : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID)
+PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
+                                   unsigned int screenWidth, unsigned int screenHeight, bool useMipmaps,
+                                   const TextureSampleSettings & renderTargetSettings, PixelSizes pixelSize,
+                                   RenderTargetManager & manager)
+    : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID),
+      ct1(renderTargetSettings, pixelSize, useMipmaps), ct2(renderTargetSettings, pixelSize, useMipmaps)
 {
     //TODO: Change to using a simple vector of the following struct instead of the "pass groups" thing.
     struct MiniEffect
@@ -177,41 +181,34 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     }
 
 
-    //Set up the render target settings.
-    //TODO: Parameterize the render target settings somehow (probably the PPC constructor). Will also need to change all instances of the code "GetColorTextures()[0]".
-    RendTargetColorTexSettings cts;
-    cts.ColorAttachment = 0;
-    cts.Settings.Width = width;
-    cts.Settings.Height = height;
-    cts.Settings.PixelSize = ColorTextureSettings::CTS_32;
-    cts.Settings.GenerateMipmaps = false;
-    cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
-    RendTargetDepthTexSettings dts;
-    dts.UsesDepthTexture = true;
-    dts.Settings.PixelSize = DepthTextureSettings::DTS_24;
-    dts.Settings.GenerateMipmaps = false;
-    dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
-
     //Create needed render targets for rendering the post-process effect.
     if (materials.size() > 0)
     {
-        rt1 = rtManager.CreateRenderTarget(cts, dts);
+        ct1.Create(renderTargetSettings, useMipmaps, pixelSize);
+        ct1.ClearData(screenWidth, screenHeight);
+
+        rt1 = rtManager.CreateRenderTarget(PixelSizes::PS_16U_DEPTH);
         if (rt1 == RenderTargetManager::ERROR_ID)
         {
-            errorMsg = "Error creating first render target (" + std::to_string(width) + "x" +
-                        std::to_string(height) + "): " + rtManager.GetError();
+            errorMsg = "Error creating first render target: " + rtManager.GetError();
             return;
         }
+
+        rtManager[rt1]->SetColorAttachment(RenderTargetTex(&ct1), true);
     }
     if (materials.size() > 1)
     {
-        rt2 = rtManager.CreateRenderTarget(cts, dts);
-        if (rt1 == RenderTargetManager::ERROR_ID)
+        ct2.Create(renderTargetSettings, useMipmaps, pixelSize);
+        ct2.ClearData(screenWidth, screenHeight);
+
+        rt2 = rtManager.CreateRenderTarget(PixelSizes::PS_16U_DEPTH);
+        if (rt2 == RenderTargetManager::ERROR_ID)
         {
-            errorMsg = "Error creating second render target (" + std::to_string(width) + "x" +
-                        std::to_string(height) + "): " + rtManager.GetError();
+            errorMsg = "Error creating second render target: " + rtManager.GetError();
             return;
         }
+
+        rtManager[rt2]->SetColorAttachment(RenderTargetTex(&ct2), true);
     }
 }
 
@@ -240,7 +237,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
     //Render each material in turn.
     for (unsigned int i = 0; i < materials.size(); ++i)
     {
-        if (source == colorIn || source == second->GetColorTextures()[0])
+        if (source == colorIn || source == ct2.GetTextureHandle())
             dest = first;
         else dest = second;
 
@@ -270,11 +267,11 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         }
 
         //Disable the render target.
-        dest->DisableDrawingInto(world->GetWindow()->getSize().x, world->GetWindow()->getSize().y);
+        dest->DisableDrawingInto(world->GetWindow()->getSize().x, world->GetWindow()->getSize().y, true);
 
         //Prepare for the next iteration.
-        if (dest == first) source = first->GetColorTextures()[0];
-        else source = second->GetColorTextures()[0];
+        if (dest == first) source = ct1.GetTextureHandle();
+        else source = ct2.GetTextureHandle();
     }
 
     params = oldUniforms;
@@ -287,17 +284,19 @@ bool PostProcessChain::ResizeRenderTargets(unsigned int newWidth, unsigned int n
 {
     if (rt1 != RenderTargetManager::ERROR_ID)
     {
-        if (!rtManager.ResizeTarget(rt1, newWidth, newHeight))
+        ct1.ClearData(newWidth, newHeight);
+        if (!rtManager[rt1]->UpdateSize())
         {
-            errorMsg = "Error resizing first render target: " + rtManager.GetError();
+            errorMsg = "Error resizing first render target: " + rtManager[rt1]->GetErrorMessage();
             return false;
         }
     }
     if (rt2 != RenderTargetManager::ERROR_ID)
     {
-        if (!rtManager.ResizeTarget(rt2, newWidth, newHeight))
+        ct2.ClearData(newWidth, newHeight);
+        if (!rtManager[rt2]->UpdateSize())
         {
-            errorMsg = "Error resizing second render target: " + rtManager.GetError();
+            errorMsg = "Error resizing second render target: " + rtManager[rt2]->GetErrorMessage();
             return false;
         }
     }

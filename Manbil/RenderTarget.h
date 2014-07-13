@@ -49,9 +49,10 @@ public:
 
     //Getters.
 
-    const std::vector<RenderTargetTex> & GetColorTextures(void) const { return colorTexes; }
-    RenderTargetTex * GetDepthTexture(void) const { return depthTex; }
     RenderObjHandle GetFramebufferHandle(void) const { return frameBuffer; }
+    const std::vector<RenderTargetTex> & GetColorTextures(void) const { return colorTexes; }
+    //The depth texture may or may not exist.
+    RenderTargetTex GetDepthTexture(void) const { return depthTex; }
     
     //The effective width of the render target. Equal to the smallest width of the attached color textures.
     unsigned int GetWidth(void) const { return width; }
@@ -61,12 +62,28 @@ public:
 
     //Render target operations.
 
+    //Replaces the current color attachments with the given one.
+    //If "updateDepthSize" is true, the depth texture/render buffer is resized to this render target's new width/height.
+    //Returns whether the operation succeeded.
+    bool SetColorAttachment(RenderTargetTex newColorTex, bool updateDepthSize)
+    {
+        std::vector<RenderTargetTex> rtts;
+        rtts.insert(rtts.end(), newColorTex);
+        return SetColorAttachments(rtts, updateDepthSize);
+    }
     //Replaces the current color attachments with the given ones.
     //If "updateDepthSize" is true, the depth texture/render buffer is resized to this render target's new width/height.
+    //Returns whether the operation succeeded.
     bool SetColorAttachments(std::vector<RenderTargetTex> newColorTexes, bool updateDepthSize);
     //Replaces the current depth attachment with the given attachment.
-    //If 0 is supplied, a render buffer will be used instead (an optimized texture that can't be manipulated in software).
-    bool SetDepthAttachment(RenderTargetTex newDepthTex = 0);
+    //If the default value is supplied, a render buffer will be used instead (an optimized texture that can't be manipulated in software).
+    //"changeToCorrectSize" indicates whether to resize the depth texture to be the effective size of this RenderTarget.
+    //Returns whether the operation succeeded.
+    bool SetDepthAttachment(RenderTargetTex newDepthTex = RenderTargetTex(), bool changeToCorrectSize = true);
+
+    //Should be called whenever a color attachment's size is changed.
+    //Returns whether the operation succeeded.
+    bool UpdateSize(void);
 
 	//Gets whether this render target is ready to be used.
 	bool IsUseable(void) const;

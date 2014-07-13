@@ -164,7 +164,7 @@ void RDH::SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader,
 
 RDH::FrameBufferStatus RDH::GetFramebufferStatus(void)
 {
-	switch (glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	switch (glCheckFramebufferStatus(GL_FRAMEBUFFER))
 	{
 		case GL_FRAMEBUFFER_COMPLETE: return FrameBufferStatus::EVERYTHING_IS_FINE;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: return FrameBufferStatus::BAD_ATTACHMENT;

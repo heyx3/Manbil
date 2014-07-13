@@ -34,7 +34,7 @@ using namespace VWErrors;
 
 
 
-Vector2i vWindowSize(300, 300);
+Vector2i vWindowSize(800, 600);
 const unsigned int INPUT_AddVoxel = 753321,
                    INPUT_RemoveVoxel = 123357,
                    INPUT_Quit = 6666666,
@@ -44,12 +44,14 @@ bool capMouse = true;
 
 VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 4, 1)),
-        voxelMat(0),
+        voxelMat(0), voxelHighlightMat(0), voxelHighlightMesh(PrimitiveTypes::TriangleList),
         renderState(RenderingState::Cullables::C_BACK),
         player(manager), oculusDev(0), postProcessing(0),
-        voxelHighlightMat(0),
-        voxelHighlightMesh(PrimitiveTypes::TriangleList)
+        voxelTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, true),
+        worldRenderTargetColorTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
+        worldRenderTargetDepthTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
+
 }
 VoxelWorld::~VoxelWorld(void)
 {
@@ -58,7 +60,8 @@ VoxelWorld::~VoxelWorld(void)
     DeleteAndSetToNull(finalWorldRenderQuad);
     DeleteAndSetToNull(voxelHighlightMat);
     voxelTex.DeleteIfValid();
-    voxelHighlightTex.DeleteIfValid();
+    worldRenderTargetColorTex.DeleteIfValid();
+    worldRenderTargetDepthTex.DeleteIfValid();
     assert(oculusDev == 0);
 }
 
@@ -186,15 +189,14 @@ void VoxelWorld::InitializeWorld(void)
 
 
     //Initialize the texture.
-    ColorTextureSettings voxelTexSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
-    Array2D<Vector4b> loadTex(1, 1);
-    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/VoxelTex.png", loadTex, voxelTexSettings.GenerateMipmaps, voxelTexSettings.PixelSize, voxelTexSettings.BaseSettings))
+    voxelTex.Create();
+    std::string error;
+    if (!voxelTex.SetDataFromFile("Content/Textures/VoxelTex.png", error))
     {
-        PrintError("Error creating voxel texture 'Content/Textures/VoxelTex.png", "File not found or unable to be loaded");
+        PrintError("Error loading voxel texture 'Content/Textures/VoxelTex.png'", error);
         EndWorld();
         return;
     }
-    voxelTex.Create(voxelTexSettings, loadTex);
 
 
     //Initialize post-processing.
@@ -231,19 +233,18 @@ void VoxelWorld::InitializeWorld(void)
 
     //Initialize the final world render.
 
-    RendTargetColorTexSettings cts;
-    cts.ColorAttachment = 0;
-    cts.Settings.Width = vWindowSize.x;
-    cts.Settings.Height = vWindowSize.y;
-    cts.Settings.PixelSize = ColorTextureSettings::CTS_32;
-    cts.Settings.GenerateMipmaps = false;
-    cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
-    RendTargetDepthTexSettings dts;
-    dts.UsesDepthTexture = true;
-    dts.Settings.PixelSize = DepthTextureSettings::DTS_24;
-    dts.Settings.GenerateMipmaps = false;
-    dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
-    worldRenderTarget = RenderTargets.CreateRenderTarget(cts, dts);
+    worldRenderTarget = (*RenderTargets).CreateRenderTarget(PixelSizes::PS_32F_DEPTH);
+    if (worldRenderTarget == RenderTargetManager::ERROR_ID)
+    {
+        PrintError("Error creating world render target", (*RenderTargets).GetError());
+        EndWorld();
+        return;
+    }
+    worldRenderTargetColorTex.Create();
+    worldRenderTargetColorTex.ClearData((unsigned int)vWindowSize.x, (unsigned int)vWindowSize.y);
+    worldRenderTargetDepthTex.Create();
+    (*RenderTargets)[worldRenderTarget]->SetDepthAttachment(RenderTargetTex(&worldRenderTargetDepthTex));
+    (*RenderTargets)[worldRenderTarget]->SetColorAttachment(RenderTargetTex(&worldRenderTargetColorTex), true);
 
     finalWorldRenderQuad = new DrawingQuad();
     channels.clear();
@@ -274,7 +275,7 @@ void VoxelWorld::InitializeWorld(void)
         return;
     }
     finalWorldRenderParams.AddUniforms(dict, true);
-    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
+    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0].MTex->GetTextureHandle();
 
 
     #pragma region Voxel material
@@ -425,7 +426,8 @@ void VoxelWorld::OnWorldEnd(void)
 
     DeleteAndSetToNull(oculusDev);
     voxelTex.DeleteIfValid();
-    voxelHighlightTex.DeleteIfValid();
+    worldRenderTargetColorTex.DeleteIfValid();
+    worldRenderTargetDepthTex.DeleteIfValid();
     DestroyStaticSystems(true, true, true);
 }
 
@@ -436,12 +438,8 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
     vWindowSize.y = h;
     player.Cam.Info.Width = (float)w;
     player.Cam.Info.Height = (float)h;
-    if (!RenderTargets.ResizeTarget(worldRenderTarget, w, h))
-    {
-        PrintError("Error resizing world render target", RenderTargets.GetError());
-        EndWorld();
-        return;
-    }
+    worldRenderTargetColorTex.ClearData(w, h);
+    (*RenderTargets)[worldRenderTarget]->UpdateSize();
     if (!postProcessing->OnWindowResized(w, h))
     {
         PrintError("Error resizing post processing chains", postProcessing->GetError());
@@ -664,7 +662,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     RenderInfo info(this, &player.Cam, &dummy, &worldM, &viewM, &projM);
 
     //Render the world.
-    RenderTargets[worldRenderTarget]->EnableDrawingInto();
+    (*RenderTargets)[worldRenderTarget]->EnableDrawingInto();
     renderState.EnableState();
     ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
@@ -762,11 +760,13 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         EndWorld();
         return;
     }
-    RenderTargets[worldRenderTarget]->DisableDrawingInto(vWindowSize.x, vWindowSize.y);
+    (*RenderTargets)[worldRenderTarget]->DisableDrawingInto(vWindowSize.x, vWindowSize.y, true);
 
 
     //Render the post-process chain.
-    if (!postProcessing->RenderPostProcessing(RenderTargets[worldRenderTarget]->GetColorTextures()[0], RenderTargets[worldRenderTarget]->GetDepthTexture(), player.Cam.Info))
+    if (!postProcessing->RenderPostProcessing((*RenderTargets)[worldRenderTarget]->GetColorTextures()[0].MTex->GetTextureHandle(),
+                                              (*RenderTargets)[worldRenderTarget]->GetDepthTexture().MTex->GetTextureHandle(),
+                                              player.Cam.Info))
     {
         PrintError("Error rendering post-process chains", postProcessing->GetError());
         EndWorld();
@@ -774,7 +774,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     }
     
     //Render the final world info.
-    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0];
+    finalWorldRenderParams.Texture2DUniforms["u_finalWorldRender"].Texture = postProcessing->GetFinalRender()->GetColorTextures()[0].MTex->GetTextureHandle();
     ScreenClearer().ClearScreen();
     if (!finalWorldRenderQuad->Render(RenderPasses::BaseComponents, info, finalWorldRenderParams, *finalWorldRenderMat))
     {

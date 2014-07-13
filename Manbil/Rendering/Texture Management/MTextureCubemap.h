@@ -6,18 +6,20 @@
 
 //Represents a cubemap texture.
 //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
+//PRIORITY: Add depth component support.
 class MTextureCubemap
 {
 public:
 
     //Constructors/destructors.
 
-    //The pixel size must not be a "depth" type!
     MTextureCubemap(const TextureSampleSettings & _settings, PixelSizes _pixelSize, bool useMipmapping)
         : texHandle(0), width(0), height(0), settings(_settings), pixelSize(_pixelSize), usesMipmaps(useMipmapping)
     {
         assert(!IsPixelSizeDepth(_pixelSize));
     }
+    ~MTextureCubemap(void) { DeleteIfValid(); }
+
     MTextureCubemap(MTextureCubemap & cpy); //Intentionally not implemented.
 
 
@@ -50,6 +52,9 @@ public:
 
     //Texture operations. All operations other than "Create" and "Bind" cause an OpenGL error if this is not a valid texture.
 
+    //Creates a new texture with no data.
+    //Deletes the previous texture held by this instance if one existed.
+    void Create(void) { Create(settings, usesMipmaps, pixelSize); }
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
     void Create(const TextureSampleSettings & sampleSettings, bool useMipmaps, PixelSizes pixelSize);

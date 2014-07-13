@@ -21,14 +21,19 @@ class PostProcessChain
 public:
 
     PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
-                     unsigned int screenWidth, unsigned int screenHeight,
+                     unsigned int screenWidth, unsigned int screenHeight, bool useMipmaps,
+                     const TextureSampleSettings & renderTargetSettings, PixelSizes pixelSize,
                      RenderTargetManager & manager);
     ~PostProcessChain(void)
     {
         if (rt1 != RenderTargetManager::ERROR_ID)
+        {
             rtManager.DeleteRenderTarget(rt1);
+        }
         if (rt2 != RenderTargetManager::ERROR_ID)
+        {
             rtManager.DeleteRenderTarget(rt2);
+        }
     }
 
 
@@ -79,5 +84,6 @@ private:
 
     RenderTargetManager & rtManager;
     unsigned int rt1, rt2;
+    MTexture ct1, ct2;
     unsigned int totalPasses;
 };

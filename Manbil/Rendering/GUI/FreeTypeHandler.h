@@ -94,13 +94,29 @@ public:
     //Gets the amount to move to draw the next character.
     //Returns { 0, 0 } if the given font doesn't exist.
     Vector2i GetMoveToNextGlyph(unsigned int id) const;
+    
 
-
+    //The different outputs of "RenderChar()".
+    enum CharRenderType
+    {
+        CRT_COLOR,
+        CRT_GREYSCALE,
+        CRT_ERROR,
+    };
     //Renders the given character into a private color array that can be accessed through "GetChar()".
-    bool RenderChar(unsigned int fontID, unsigned int charToRender);
+    //Returns the type of color the rendered character uses, or "CRT_ERROR" if there was an error loading the char.
+    CharRenderType RenderChar(unsigned int fontID, unsigned int charToRender);
 
-    //Gets the most recently-rendered char as a color array.
-    const Array2D<Vector4b> & GetChar(void) const { return renderedText; }
+    //Gets whether the most recently-rendered char is greyscale or full RGB color.
+    bool GetIsGreyscale(void) const { return isGreyscale; }
+
+    //Gets the most recently-rendered character as a color array.
+    //Returns 0 if the currently-rendered character is a greyscale character.
+    const Array2D<Vector4b> * GetColorChar(void) const { if (isGreyscale) return 0; return &renderedTextColor; }
+    //Gets the most recently-rendered character as a greyscale color array.
+    //Returns 0 if the currently-rendered character is not a greyscale character.
+    const Array2D<unsigned char> * GetGreyscaleChar(void) const { if (!isGreyscale) return 0; return &renderedTextGreyscale; }
+
     //Gets the most recently-rendered char and stores it into the given texture.
     void GetChar(MTexture & outTex) const;
 
@@ -115,7 +131,9 @@ private:
 
     FT_Library ftLib;
 
-    Array2D<Vector4b> renderedText;
+    bool isGreyscale;
+    Array2D<unsigned char> renderedTextGreyscale;
+    Array2D<Vector4b> renderedTextColor;
 
     mutable std::string errorMsg;
 

@@ -92,7 +92,7 @@ public:
 	ArrayType& operator[](Vector3i l) { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
     const ArrayType& operator[](Vector3i l) const { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
 
-    bool HasSameDimensions(const Array2D<ArrayType> & other) const
+    bool HasSameDimensions(const Array3D<ArrayType> & other) const
     {
         return width == other.width && height == other.height && depth == other.depth;
     }

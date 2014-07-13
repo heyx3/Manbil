@@ -52,7 +52,8 @@ public:
     unsigned int CreateAFont(std::string fontPath, unsigned int pixelWidth = 50, unsigned int pixelHeight = 0);
     //Creates the given number of render slots, all with the given width/height space.
     //Returns whether or not this function succeeded.
-    bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight, bool useMipmapping, TextureSettings & finalRenderSettings, unsigned int numbSlots = 1);
+    bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight,
+                               bool useMipmapping, TextureSampleSettings & finalRenderSettings, unsigned int numbSlots = 1);
 
     //Gets whether the given slot exists.
     bool DoesSlotExist(FontSlot slot) const;
@@ -66,7 +67,7 @@ public:
     //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
     const char * GetString(FontSlot slot) const;
     //Gets the texture holding the rendered text from the given font/slot. Returns 0 if the given font/slot doesn't exist.
-    RenderObjHandle GetRenderedString(FontSlot slot) const;
+    MTexture * GetRenderedString(FontSlot slot) const;
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
@@ -79,7 +80,13 @@ public:
 
 private:
 
-    struct Slot { unsigned int RenderTargetID; const char * String; unsigned int Width, Height, TextWidth, TextHeight; };
+    struct Slot
+    {
+        unsigned int RenderTargetID;
+        MTexture * ColorTex;
+        const char * String;
+        unsigned int TextWidth, TextHeight;
+    };
     typedef std::unordered_map<unsigned int, std::vector<Slot>>::const_iterator SlotCollectionLoc;
 
     std::unordered_map<unsigned int, std::vector<Slot>> fonts;

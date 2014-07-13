@@ -45,10 +45,10 @@ string ToString(Vector v)
 
 int main()
 {
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    //GUITestWorld().RunWorld();
+    GUITestWorld().RunWorld();
 
     //NoiseTest().RunWorld();
 

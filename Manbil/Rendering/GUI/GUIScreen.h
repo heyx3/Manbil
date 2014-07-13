@@ -28,7 +28,7 @@ public:
     const RenderTarget * GetFinalRender(void) const { return RTManager[finalScreenRenderTargetID]; }
     RenderTarget * GetFinalRender(void) { return RTManager[finalScreenRenderTargetID]; }
 
-    Vector2i GetFinalRenderSize(void) const { return Vector2i((int)GetFinalRender()->GetColorSettings()[0].Settings.Width, (int)GetFinalRender()->GetColorSettings()[0].Settings.Height); }
+    Vector2i GetFinalRenderSize(void) const { return Vector2i((int)GetFinalRender()->GetWidth(), (int)GetFinalRender()->GetHeight()); }
 
 
 private:

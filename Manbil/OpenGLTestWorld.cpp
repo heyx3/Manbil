@@ -57,29 +57,36 @@ const unsigned int maxRipples = 3,
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
-    //Render target texture settings.
-    RendTargetColorTexSettings cts;
-    cts.ColorAttachment = 0;
-    cts.Settings.Width = windowSize.x;
-    cts.Settings.Height = windowSize.y;
-    cts.Settings.PixelSize = ColorTextureSettings::CTS_32;
-    cts.Settings.GenerateMipmaps = false;
-    cts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
-    RendTargetDepthTexSettings dts;
-    dts.UsesDepthTexture = true;
-    dts.Settings.PixelSize = DepthTextureSettings::DTS_24;
-    dts.Settings.GenerateMipmaps = false;
-    dts.Settings.BaseSettings = TextureSettings(TextureSettings::FT_NEAREST, TextureSettings::WT_CLAMP);
+    //World render target.
 
-    //Render target creation.
-    std::vector<RendTargetColorTexSettings> ctss;
-    ctss.insert(ctss.end(), cts);
-    cts.ColorAttachment = 1;
-    ctss.insert(ctss.end(), cts);
-    worldRenderID = manager.CreateRenderTarget(ctss, dts);
+    worldColorTex1.Create();
+    worldColorTex1.ClearData(windowSize.x, windowSize.y);
+    worldColorTex2.Create();
+    worldColorTex2.ClearData(windowSize.x, windowSize.y);
+    worldDepthTex.Create();
+
+    worldRenderID = RenderTargets->CreateRenderTarget(PixelSizes::PS_16U_DEPTH);
     if (worldRenderID == RenderTargetManager::ERROR_ID)
     {
-        std::cout << "Error creating world render target: " << manager.GetError() << "\n";
+        std::cout << "Error creating world render target: " << RenderTargets->GetError() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+    std::vector<RenderTargetTex> colorTargTexes;
+    colorTargTexes.insert(colorTargTexes.end(), RenderTargetTex(&worldColorTex1));
+    colorTargTexes.insert(colorTargTexes.end(), RenderTargetTex(&worldColorTex2));
+    if (!(*RenderTargets)[worldRenderID]->SetDepthAttachment(RenderTargetTex(&worldDepthTex)))
+    {
+        std::cout << "Error attaching depth texture for world render target: " << (*RenderTargets)[worldRenderID]->GetErrorMessage() << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    if (!(*RenderTargets)[worldRenderID]->SetColorAttachments(colorTargTexes, true))
+    {
+        std::cout << "Error attaching color textures for world render target: " << (*RenderTargets)[worldRenderID]->GetErrorMessage() << "\n";
         Pause();
         EndWorld();
         return;
@@ -87,31 +94,28 @@ void OpenGLTestWorld::InitializeTextures(void)
 
 
     //Water normal-map creation.
-    ColorTextureSettings waterNormalSettings(1, 1, ColorTextureSettings::CTS_32, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_WRAP));
-    Array2D<Vector4b> loadWaterNormal(1, 1);
-    if (!RenderDataHandler::LoadTextureFromFile("Content/Textures/Normalmap.png", loadWaterNormal, waterNormalSettings.GenerateMipmaps, waterNormalSettings.PixelSize, waterNormalSettings.BaseSettings))
+    waterNormalTex.Create();
+    std::string error;
+    if (!waterNormalTex.SetDataFromFile("Content/Textures/Normalmap.png", error))
     {
-        std::cout << "Failed to load 'Normalmap.png'.\n";
+        std::cout << "Failed to load 'Content/Textures/Normalmap.png': " + error + "\n";
         Pause();
         EndWorld();
         return;
     }
-    waterNormalTex.Create(waterNormalSettings, loadWaterNormal);
 
 
     //Cubemap creation.
-
-    glEnable(GL_TEXTURE_CUBE_MAP);
-    ColorTextureSettings cubemapTexSettings(2, 2, ColorTextureSettings::CTS_32, false, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP));
     Array2D<Vector4f> cubemapWall(2, 2);
     cubemapWall.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
     Array2D<Vector4f> cubemapFloor(2, 2, Vector4f(0.25f, 0.25f, 0.0f, 1.0f)),
-                      cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
-    cubemapTex.Create(cubemapTexSettings, cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling);
+        cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    cubemapTex.Create();
+    cubemapTex.SetData(cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling, cubemapTex.UsesMipmaps());
 
 
     //Set up the test font.
-
     unsigned int testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 16);
     if (testFontID == FreeTypeHandler::ERROR_ID)
     {
@@ -120,7 +124,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->CreateTextRenderSlots(testFontID, 512, 64, true, TextureSettings(TextureSettings::FT_LINEAR, TextureSettings::WT_CLAMP)))
+    if (!TextRender->CreateTextRenderSlots(testFontID, 512, 64, true, TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP)))
     {
         std::cout << "Error creating font slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();
@@ -260,7 +264,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot);
+    gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot)->GetTextureHandle();
     gsTestMat = gsGen.Mat;
 
 
@@ -450,7 +454,9 @@ void OpenGLTestWorld::InitializeObjects(void)
 
 
     //Post-process chain.
-    ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, manager);
+    ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, false,
+                               TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP),
+                               PixelSizes::PS_32F, *RenderTargets);
     if (ppc->HasError())
     {
         std::cout << "Error creating post-process chain: " << ppc->GetError() << "\n";
@@ -467,7 +473,12 @@ OpenGLTestWorld::OpenGLTestWorld(void)
       gsTestMat(0), gsMesh(PrimitiveTypes::Points),
       particleMat(0), particleMesh(PrimitiveTypes::Points),
       particleManager(particleParams),
-      cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0)
+      cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0),
+      waterNormalTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, true),
+      cubemapTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, true),
+      worldColorTex1(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
+      worldColorTex2(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
+      worldDepthTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)
@@ -622,9 +633,9 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 
     //Render the world into a render target.
     RenderInfo info((SFMLOpenGLWorld*)this, (Camera*)&cam, &dummy, &worldM, &viewM, &projM);
-    manager[worldRenderID]->EnableDrawingInto();
+    (*RenderTargets)[worldRenderID]->EnableDrawingInto();
     RenderWorldGeometry(info);
-    manager[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y);
+    (*RenderTargets)[worldRenderID]->DisableDrawingInto(windowSize.x, windowSize.y, true);
 
     //Catch any general errors.
     std::string err = GetCurrentRenderingError();
@@ -641,11 +652,11 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
     bool useSpecial = sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
 
     if (useSpecial)
-        worldRendTex = manager[worldRenderID]->GetColorTextures()[1];
-    else worldRendTex = manager[worldRenderID]->GetColorTextures()[0];
+        worldRendTex = (*RenderTargets)[worldRenderID]->GetColorTextures()[1].MTex->GetTextureHandle();
+    else worldRendTex = (*RenderTargets)[worldRenderID]->GetColorTextures()[0].MTex->GetTextureHandle();
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, worldRendTex, manager[worldRenderID]->GetDepthTexture()))
+    if (!ppc->RenderChain(this, cam.Info, worldRendTex, (*RenderTargets)[worldRenderID]->GetDepthTexture().MTex->GetTextureHandle()))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();
@@ -664,9 +675,9 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
     RenderObjHandle finalRendTex;
     if (finalRend == 0)
     {
-        finalRendTex = manager[worldRenderID]->GetColorTextures()[useSpecial ? 1 : 0];
+        finalRendTex = (*RenderTargets)[worldRenderID]->GetColorTextures()[useSpecial ? 1 : 0].MTex->GetTextureHandle();
     }
-    else finalRendTex = finalRend->GetColorTextures()[0];
+    else finalRendTex = finalRend->GetColorTextures()[0].MTex->GetTextureHandle();
     finalScreenQuadParams.Texture2DUniforms["u_finalRenderSample"].Texture = finalRendTex;
     if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
@@ -687,16 +698,18 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	cam.Info.Height = (float)newH;
     windowSize.x = newW;
     windowSize.y = newH;
-    if (!manager.ResizeTarget(worldRenderID, newW, newH))
+    worldColorTex1.ClearData(newW, newH);
+    worldColorTex2.ClearData(newW, newH);
+    if (!(*RenderTargets)[worldRenderID]->UpdateSize())
     {
-        std::cout << "Error resizing world render target: " << manager.GetError() << "\n";
+        std::cout << "Error resizing world render target: " << (*RenderTargets)[worldRenderID]->GetErrorMessage() << "\n";
         Pause();
         EndWorld();
         return;
     }
     if (!ppc->ResizeRenderTargets(newW, newH))
     {
-        std::cout << "Error resizing PPC render target: " << manager.GetError() << "\n";
+        std::cout << "Error resizing PPC render target: " << ppc->GetError() << "\n";
         Pause();
         EndWorld();
         return;
