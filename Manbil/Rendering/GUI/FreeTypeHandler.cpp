@@ -224,21 +224,21 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
     {
         //Each pixel is 1 byte.
 
-        isGreyscale = true;
-        renderedTextColor.Reset(1, 1);
+        isGreyscale = false;
+        renderedTextGreyscale.Reset(1, 1);
 
         //TODO: Figure out wtf is going on.
-        renderedTextGreyscale.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2i loc, unsigned char * outP)
+        renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2i loc, Vector4b * outP)
         {
             loc.y = fce->glyph->bitmap.rows - loc.y - 1;
             unsigned int index = (unsigned int)loc.x + ((unsigned int)loc.y * absPitch);
             unsigned char value = fce->glyph->bitmap.buffer[index];
 
-            *outP = value;
+            *outP = Vector4b(value, value, value, value);
         });
 
-        return CharRenderType::CRT_GREYSCALE;
+        return CharRenderType::CRT_COLOR;
     }
     if (pixelMode == FT_Pixel_Mode::FT_PIXEL_MODE_LCD)
     {

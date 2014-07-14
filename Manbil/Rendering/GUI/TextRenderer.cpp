@@ -259,7 +259,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         char ch = textToRender.c_str()[i];
 
         //Render the character into an array.
-        if (!FreeTypeHandler::Instance.RenderChar(fontID, ch))
+        if (FreeTypeHandler::Instance.RenderChar(fontID, ch) == FreeTypeHandler::CharRenderType::CRT_ERROR)
         {
             errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + FreeTypeHandler::Instance.GetError();
             targ->DisableDrawingInto(bbWidth, bbHeight, true);
