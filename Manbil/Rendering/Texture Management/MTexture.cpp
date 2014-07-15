@@ -150,7 +150,7 @@ bool MTexture::SetDataFromFile(std::string filePath, PixelSizes newSize, std::st
         outError = "Must call 'Create' before using this texture!";
         return false;
     }
-    if (!IsPixelSizeColored(newSize))
+    if (!IsPixelSizeColor(newSize))
     {
         outError = "Pixel size is '" + DebugAssist::ToString(newSize) + "' -- not a color type!";
         return false;
@@ -192,7 +192,7 @@ bool MTexture::SetColorData(const Array2D<Vector4b> & pixelData, PixelSizes newS
 {
     if (!IsValidTexture()) return false;
 
-    if (IsPixelSizeColored(newSize)) pixelSize = newSize;
+    if (IsPixelSizeColor(newSize)) pixelSize = newSize;
 
     if (!IsColorTexture()) return false;
 
@@ -210,7 +210,7 @@ bool MTexture::SetColorData(const Array2D<Vector4f> & pixelData, PixelSizes newS
 {
     if (!IsValidTexture()) return false;
 
-    if (IsPixelSizeColored(newSize)) pixelSize = newSize;
+    if (IsPixelSizeColor(newSize)) pixelSize = newSize;
 
     if (!IsColorTexture()) return false;
 
@@ -221,6 +221,32 @@ bool MTexture::SetColorData(const Array2D<Vector4f> & pixelData, PixelSizes newS
     Bind();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, pixelData.GetArray());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+bool MTexture::UpdateColorData(const Array2D<Vector4b> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, pixelData.GetArray());
+
+    return true;
+}
+bool MTexture::UpdateColorData(const Array2D<Vector4f> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_RGBA, GL_FLOAT, pixelData.GetArray());
 
     return true;
 }
@@ -261,6 +287,32 @@ bool MTexture::SetGreyscaleData(const Array2D<float> & greyscaleData, PixelSizes
 
     return true;
 }
+bool MTexture::UpdateGreyscaleData(const Array2D<unsigned char> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_RED, GL_UNSIGNED_BYTE, pixelData.GetArray());
+
+    return true;
+}
+bool MTexture::UpdateGreyscaleData(const Array2D<float> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_RED, GL_FLOAT, pixelData.GetArray());
+
+    return true;
+}
 
 bool MTexture::SetDepthData(const Array2D<unsigned char> & depthData, PixelSizes newSize)
 {
@@ -291,6 +343,32 @@ bool MTexture::SetDepthData(const Array2D<float> & depthData, PixelSizes newSize
     height = depthData.GetHeight();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_DEPTH_COMPONENT, depthData.GetArray());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+
+    return true;
+}
+bool MTexture::UpdateDepthData(const Array2D<unsigned char> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, pixelData.GetArray());
+
+    return true;
+}
+bool MTexture::UpdateDepthData(const Array2D<float> & pixelData, unsigned int offX, unsigned int offY)
+{
+    if (offX + pixelData.GetWidth() > width ||
+        offY + pixelData.GetHeight() > height)
+    {
+        return false;
+    }
+
+    Bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, offX, offY, pixelData.GetWidth(), pixelData.GetHeight(), GL_DEPTH_COMPONENT, GL_FLOAT, pixelData.GetArray());
 
     return true;
 }

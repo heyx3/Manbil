@@ -1,6 +1,8 @@
 #include "MTextureCubemap.h"
 
 
+const MTextureCubemap * MTextureCubemap::currentlyBound = 0;
+
 void MTextureCubemap::SetSettings(const TextureSampleSettings & newSettings)
 {
     settings = newSettings;
@@ -76,7 +78,6 @@ void MTextureCubemap::SetWrappingType(TextureSampleSettings::WrappingTypes wrapp
     }
 }
 
-
 void MTextureCubemap::Create(const TextureSampleSettings & texSettings, bool useMipmaps, PixelSizes _pixelSize)
 {
     DeleteIfValid();
@@ -124,133 +125,202 @@ void MTextureCubemap::ClearData(unsigned int newW, unsigned int newH)
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
-bool MTextureCubemap::SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps)
+std::string MTextureCubemap::SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps)
 {
-    if (!IsValidTexture()) return false;
+    if (!IsValidTexture())
+        return "This cubemap hasn't been created yet!";
+
+    if (!IsColorTexture())
+        return "This cubemap isn't a color texture!";
 
     sf::Image img;
-    if (!img.loadFromFile(filePath)) return false;
+    if (!img.loadFromFile(filePath))
+        return "Couldn't load file " + filePath;
 
+    if (img.getSize().x != width || img.getSize().y != height)
+        return "Cubemap size is " + std::to_string(width) + "x" + std::to_string(height) +
+                  " but the image was " + std::to_string(img.getSize().x) + "x" + std::to_string(img.getSize().y);
+  
     Bind();
-    width = img.getSize().x;
-    height = img.getSize().y;
-    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, img.getPixelsPtr());
-    if (usesMipmaps && shouldUpdateMipmaps)
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+    if (shouldUpdateMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    return true;
+    return "";
 }
-
-bool MTextureCubemap::SetData(Array2D<Vector4b> & negXData, Array2D<Vector4b> & negYData, Array2D<Vector4b> & negZData,
-                              Array2D<Vector4b> & posXData, Array2D<Vector4b> & posYData, Array2D<Vector4b> & posZData,
-                              bool useMipmaps, PixelSizes _pixelSize)
+std::string MTextureCubemap::SetDataFromFiles(std::string negXPath, std::string negYPath, std::string negZPath,
+                                               std::string posXPath, std::string posYPath, std::string posZPath,
+                                               bool useMipmapping)
 {
-    if (!IsValidTexture()) return false;
+    if (!IsValidTexture())
+        return "This cubemap hasn't been created yet!";
 
-    if (!negXData.HasSameDimensions(negYData) || !negXData.HasSameDimensions(negZData) ||
-        !negXData.HasSameDimensions(posXData) || !negXData.HasSameDimensions(posYData) ||
-        !negXData.HasSameDimensions(posZData))
+    if (!IsColorTexture())
+        return "This cubemap isn't a color texture!";
+
+    sf::Image negX, negY, negZ, posX, posY, posZ;
+    if (!negX.loadFromFile(negXPath))
+        return "Couldn't load texture '" + negXPath + "' for negative X face.";
+    if (!negY.loadFromFile(negYPath))
+        return "Couldn't load texture '" + negYPath + "' for negative Y face.";
+    if (!negZ.loadFromFile(negZPath))
+        return "Couldn't load texture '" + negZPath + "' for negative Z face.";
+    if (!posX.loadFromFile(posXPath))
+        return "Couldn't load texture '" + posXPath + "' for positive X face.";
+    if (!posY.loadFromFile(posYPath))
+        return "Couldn't load texture '" + posYPath + "' for positive Y face.";
+    if (!posZ.loadFromFile(posZPath))
+        return "Couldn't load texture '" + posZPath + "' for positive Z face.";
+
+    sf::Vector2u sNegX = negX.getSize(), sNegY = negY.getSize(), sNegZ = negZ.getSize(),
+                 sPosX = posX.getSize(), sPosY = posY.getSize(), sPosZ = posZ.getSize();
+    if (sNegX != sNegY || sNegX != sNegZ || sNegX != sPosX || sNegX != sPosY || sNegX != sPosZ ||
+        sNegY != sNegZ || sNegY != sPosX || sNegY != sPosY || sNegY != sPosZ ||
+        sNegZ != sPosX || sNegZ != sPosY || sNegZ != sPosZ ||
+        sPosX != sPosY || sPosX != sPosZ ||
+        sPosY != sPosZ)
     {
-        return false;
+        #define PRINT_SF_VECTOR2U(v2u) (std::to_string(v2u.x) + "x" + std::to_string(v2u.y))
+        return "Not every image was the same size. NegX: " + PRINT_SF_VECTOR2U(sNegX) +
+                    "; NegY: " + PRINT_SF_VECTOR2U(sNegY) + "; NegZ: " + PRINT_SF_VECTOR2U(sNegZ) +
+                    "; PosX: " + PRINT_SF_VECTOR2U(sPosX) + "; PosY: " + PRINT_SF_VECTOR2U(sPosY) +
+                    "; PosZ: " + PRINT_SF_VECTOR2U(sPosZ);
     }
 
-    if (!IsPixelSizeDepth(pixelSize)) pixelSize = _pixelSize;
 
-    width = negXData.GetWidth();
-    height = negXData.GetHeight();
-    usesMipmaps = useMipmaps;
+    pixelSize = PS_8U;
+    width = sNegX.x;
+    height = sNegX.y;
+    usesMipmaps = useMipmapping;
 
     Bind();
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posXData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posYData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, posZData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negXData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negYData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, negZData.GetArray());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, negX.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, negY.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, negZ.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, posX.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, posY.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(PS_8U), sNegX.x, sNegX.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, posZ.getPixelsPtr());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    return true;
+    return "";
 }
-bool MTextureCubemap::SetData(Array2D<Vector4f> & negXData, Array2D<Vector4f> & negYData, Array2D<Vector4f> & negZData,
-                              Array2D<Vector4f> & posXData, Array2D<Vector4f> & posYData, Array2D<Vector4f> & posZData,
-                              bool useMipmaps, PixelSizes _pixelSize)
-{
-    if (!IsValidTexture()) return false;
 
-    if (!negXData.HasSameDimensions(negYData) || !negXData.HasSameDimensions(negZData) ||
-        !negXData.HasSameDimensions(posXData) || !negXData.HasSameDimensions(posYData) ||
-        !negXData.HasSameDimensions(posZData))
-    {
-        return false;
+
+
+//Yay, more macro abuse!
+
+#define IMPL_SET_DATA(pixelType, colorType, glDataType, glPixelType) \
+    bool MTextureCubemap::SetData ## colorType(const Array2D<pixelType> & negX, const Array2D<pixelType> & negY, const Array2D<pixelType> & negZ, \
+                                               const Array2D<pixelType> & posX, const Array2D<pixelType> & posY, const Array2D<pixelType> & posZ, \
+                                               bool newUseMipmaps, PixelSizes newPixelSize) \
+    { \
+        if (!IsValidTexture() || !AreSameSize(negX, negY, negZ, posX, posY, posZ)) \
+            return false; \
+        \
+        if (IsPixelSize ## colorType(newPixelSize)) pixelSize = newPixelSize; \
+        if (!Is ## colorType ## Texture()) return false; \
+        \
+        usesMipmaps = newUseMipmaps; \
+        width = negX.GetWidth(); \
+        height = negX.GetHeight(); \
+        \
+        Bind(); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, negX.GetArray()); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, negY.GetArray()); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, negZ.GetArray()); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, posX.GetArray()); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, posY.GetArray()); \
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, posZ.GetArray()); \
+        if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP); \
+        \
+        return true; \
     }
 
-    if (!IsPixelSizeDepth(pixelSize)) pixelSize = _pixelSize;
-
-    width = negXData.GetWidth();
-    height = negXData.GetHeight();
-    usesMipmaps = useMipmaps;
-
-    Bind();
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, posXData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, posYData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, posZData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, negXData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, negYData.GetArray());
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, ToGLenum(pixelSize),
-                 width, height, 0, GL_RGBA, GL_FLOAT, negZData.GetArray());
-    if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    return true;
-}
-
-bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4b> & pixelData, bool shouldUpdateMipmaps)
-{
-    if (pixelData.GetWidth() != width || pixelData.GetHeight() != height)
-        return false;
-
-    Bind();
-    width = pixelData.GetWidth();
-    height = pixelData.GetHeight();
-    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_UNSIGNED_BYTE, GL_RGBA, pixelData.GetArray());
-    if (usesMipmaps && shouldUpdateMipmaps)
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    return true;
-}
-bool MTextureCubemap::SetData(CubeTextureTypes face, const Array2D<Vector4f> & pixelData, bool shouldUpdateMipmaps)
-{
-    if (pixelData.GetWidth() != width || pixelData.GetHeight() != height)
-        return false;
-
-    Bind();
-    width = pixelData.GetWidth();
-    height = pixelData.GetHeight();
-    glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, GL_FLOAT, GL_RGBA, pixelData.GetArray());
-    if (usesMipmaps && shouldUpdateMipmaps)
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    return true;
-}
+IMPL_SET_DATA(Vector4b, Color, GL_RGBA, GL_UNSIGNED_BYTE)
+IMPL_SET_DATA(Vector4f, Color, GL_RGBA, GL_FLOAT)
+IMPL_SET_DATA(Vector4u, Color, GL_RGBA, GL_UNSIGNED_INT)
+IMPL_SET_DATA(unsigned char, Greyscale, GL_RED, GL_UNSIGNED_BYTE)
+IMPL_SET_DATA(float, Greyscale, GL_RED, GL_FLOAT)
+IMPL_SET_DATA(unsigned int, Greyscale, GL_RED, GL_UNSIGNED_INT)
+IMPL_SET_DATA(unsigned char, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE)
+IMPL_SET_DATA(float, Depth, GL_DEPTH_COMPONENT, GL_FLOAT)
+IMPL_SET_DATA(unsigned int, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT)
 
 
-void MTextureCubemap::GetData(CubeTextureTypes face, Array2D<Vector4b> & outData)
-{
-    Bind();
-    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
-}
-void MTextureCubemap::GetData(CubeTextureTypes face, Array2D<Vector4f> & outData)
-{
-    Bind();
-    glGetTexImage(TextureTypeToGLEnum(face), 0, GL_RGBA, GL_FLOAT, outData.GetArray());
-}
+#define IMPL_SET_FACE(pixelType, colorType, glDataType, glPixelType) \
+    bool MTextureCubemap::SetFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & pixelData, bool shouldUpdateMips) \
+    { \
+        if (!IsValidTexture() || !Is ## colorType ## Texture() || \
+            pixelData.GetWidth() != width || pixelData.GetHeight() != height) \
+            return false; \
+        \
+        Bind(); \
+        glTexImage2D(TextureTypeToGLEnum(face), 0, ToGLenum(pixelSize), width, height, 0, glDataType, glPixelType, pixelData.GetArray()); \
+        if (shouldUpdateMips && usesMipmaps) \
+            glGenerateMipmap(GL_TEXTURE_CUBE_MAP); \
+        \
+        return true; \
+    }
+
+IMPL_SET_FACE(Vector4b, Color, GL_RGBA, GL_UNSIGNED_BYTE)
+IMPL_SET_FACE(Vector4f, Color, GL_RGBA, GL_FLOAT)
+IMPL_SET_FACE(Vector4u, Color, GL_RGBA, GL_UNSIGNED_INT)
+IMPL_SET_FACE(unsigned char, Greyscale, GL_RED, GL_UNSIGNED_BYTE)
+IMPL_SET_FACE(float, Greyscale, GL_RED, GL_FLOAT)
+IMPL_SET_FACE(unsigned int, Greyscale, GL_RED, GL_UNSIGNED_INT)
+IMPL_SET_FACE(unsigned char, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE)
+IMPL_SET_FACE(float, Depth, GL_DEPTH_COMPONENT, GL_FLOAT)
+IMPL_SET_FACE(unsigned int, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT)
+
+
+#define IMPL_UPDATE_FACE(pixelType, colorType, glDataType, glPixelType) \
+    bool MTextureCubemap::UpdateFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & newData, bool updateMips, \
+                                                  unsigned int offX, unsigned int offY) \
+    { \
+        if (!IsValidTexture() || !Is ## colorType ## Texture() || \
+            offX + newData.GetWidth() > width || offX + newData.GetHeight() > height) \
+        { \
+            return false; \
+        } \
+        \
+        Bind(); \
+        glTexSubImage2D(TextureTypeToGLEnum(face), 0, offX, offY, newData.GetWidth(), newData.GetHeight(), glDataType, glPixelType, newData.GetArray()); \
+        if (updateMips && usesMipmaps) \
+            glGenerateMipmap(GL_TEXTURE_CUBE_MAP); \
+        \
+        return true; \
+    }
+
+IMPL_UPDATE_FACE(Vector4b, Color, GL_RGBA, GL_UNSIGNED_BYTE)
+IMPL_UPDATE_FACE(Vector4f, Color, GL_RGBA, GL_FLOAT)
+IMPL_UPDATE_FACE(Vector4u, Color, GL_RGBA, GL_UNSIGNED_INT)
+IMPL_UPDATE_FACE(unsigned char, Greyscale, GL_RED, GL_UNSIGNED_BYTE)
+IMPL_UPDATE_FACE(float, Greyscale, GL_RED, GL_FLOAT)
+IMPL_UPDATE_FACE(unsigned int, Greyscale, GL_RED, GL_UNSIGNED_INT)
+IMPL_UPDATE_FACE(unsigned char, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE)
+IMPL_UPDATE_FACE(float, Depth, GL_DEPTH_COMPONENT, GL_FLOAT)
+IMPL_UPDATE_FACE(unsigned int, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT)
+
+
+#define IMPL_GET_FACE(pixelType, colorType, glDataType, glPixelType) \
+    bool MTextureCubemap::GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType> & outData) \
+    { \
+        if (!IsValidTexture() || !Is ## colorType ## Texture() || \
+            outData.GetWidth() != width || outData.GetHeight() != height) \
+        { \
+            return false; \
+        } \
+        \
+        Bind(); \
+        glGetTexImage(TextureTypeToGLEnum(face), 0, glDataType, glPixelType, outData.GetArray()); \
+        \
+        return true; \
+    }
+
+IMPL_GET_FACE(Vector4f, Color, GL_RGBA, GL_FLOAT)
+IMPL_GET_FACE(Vector4u, Color, GL_RGBA, GL_UNSIGNED_INT)
+IMPL_GET_FACE(unsigned char, Greyscale, GL_RED, GL_UNSIGNED_BYTE)
+IMPL_GET_FACE(float, Greyscale, GL_RED, GL_FLOAT)
+IMPL_GET_FACE(unsigned int, Greyscale, GL_RED, GL_UNSIGNED_INT)
+IMPL_GET_FACE(unsigned char, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE)
+IMPL_GET_FACE(float, Depth, GL_DEPTH_COMPONENT, GL_FLOAT)
+IMPL_GET_FACE(unsigned int, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT)

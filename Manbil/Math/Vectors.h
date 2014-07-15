@@ -2,6 +2,9 @@
 
 #include "BasicMath.h"
 
+
+//TODO: Redo interfaces to use Vector2/3/4u instead of individual unsigned ints.
+
 namespace MyVectors
 {
 	#pragma region Byte vectors
@@ -121,7 +124,298 @@ namespace MyVectors
 	#pragma endregion
 
 
-    //TODO: Add Vector2u/3u/4u.
+    #pragma region Vector2u
+
+    class Vector2u
+    {
+    public:
+
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector2u & v) const { return v.GetHashCode(); }
+
+
+        unsigned int x;
+        unsigned int y;
+
+        Vector2u(unsigned int X = 0, unsigned int Y = 0) : x(X), y(Y) { }
+
+        Vector2u(Vector2u&& other)
+            : x(0), y(0)
+        {
+            x = other.x;
+            y = other.y;
+
+            other.x = 0;
+            other.y = 0;
+        }
+        Vector2u & operator=(Vector2u&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+
+                other.x = 0;
+                other.y = 0;
+            }
+
+            return *this;
+        }
+
+
+        Vector2u LessX(void) const { return Vector2u(x - 1, y); }
+        Vector2u MoreX(void) const { return Vector2u(x + 1, y); }
+        Vector2u LessY(void) const { return Vector2u(x, y - 1); }
+        Vector2u MoreY(void) const { return Vector2u(x, y + 1); }
+
+        Vector2u LessXY(void) const { return Vector2u(x - 1, y - 1); }
+        Vector2u MoreXLessY(void) const { return Vector2u(x + 1, y - 1); }
+        Vector2u LessXMoreY(void) const { return Vector2u(x - 1, y + 1); }
+        Vector2u MoreXY(void) const { return Vector2u(x + 1, y + 1); }
+
+        Vector2u& operator+=(const Vector2u& other) { x += other.x; y += other.y; return *this; }
+        Vector2u& operator-=(const Vector2u& other) { x -= other.x; y -= other.y; return *this; }
+        Vector2u& operator*=(unsigned int i) { x *= i; y *= i; return *this; }
+        Vector2u& operator/=(unsigned int i) { x /= i; y /= i; return *this; }
+
+        Vector2u operator+(const Vector2u& other) const { return Vector2u(x + other.x, y + other.y); }
+        Vector2u operator-(const Vector2u& other) const { return Vector2u(x - other.x, y - other.y); }
+        Vector2u operator*(unsigned int i) const { return Vector2u(x * i, y * i); }
+        Vector2u operator/(unsigned int i) const { return Vector2u(x / i, y / i); }
+
+        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+
+        bool operator==(const Vector2u& rhs) const { return Equals(rhs); }
+        bool operator!=(const Vector2u& other) const { return x != other.x || y != other.y; }
+        bool Equals(Vector2u v) const { return x == v.x && y == v.y; }
+
+        Vector2u Clamp(unsigned int min, unsigned int max) const
+        {
+            return Vector2u(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)));
+        }
+
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
+        unsigned int LengthSquared(void) const { return (x * x) + (y * y); }
+
+        //Scales this Vector2u's x, and y components by the given Vector2u's x and y components.
+        void MultiplyComponents(Vector2u scale) { x *= scale.x; y *= scale.y; }
+        //Scales this Vector2u's x, and y components by the given Vector2u's x and y components.
+        Vector2u ComponentProduct(Vector2u scale) const { Vector2u v(x, y); v.MultiplyComponents(scale); return v; }
+
+        float Distance(Vector2u other) const { return sqrtf((float)DistanceSquared(other)); }
+        unsigned int DistanceSquared(Vector2u other) const { unsigned int f1 = x - other.x, f2 = y - other.y; return (f1 * f1) + (f2 * f2); }
+        unsigned int ManhattanDistance(Vector2u other) const
+        {
+            return (unsigned int)BasicMath::Abs((int)x - (int)other.x) +
+                   (unsigned int)BasicMath::Abs((int)y - (int)other.y);
+        }
+
+        unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663); }
+    };
+
+    #pragma endregion
+
+    #pragma region Vector3u
+
+    class Vector3u
+    {
+    public:
+
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector3u & v) const { return v.GetHashCode(); }
+
+
+        unsigned int x, y, z;
+
+        Vector3u(unsigned int _x = 0, unsigned int _y = 0, unsigned int _z = 0) : x(_x), y(_y), z(_z) { }
+        Vector3u(Vector2u copy, unsigned int zValue) : x(copy.x), y(copy.y), z(zValue) { }
+        Vector3u(const Vector3u & copy) : x(copy.x), y(copy.y), z(copy.z) { }
+
+        Vector3u(Vector3u&& other) : x(0), y(0), z(0)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+        }
+        Vector3u & operator=(Vector3u&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+
+                other.x = 0;
+                other.y = 0;
+                other.z = 0;
+            }
+
+            return *this;
+        }
+
+
+        Vector3u LessX(void) const { return Vector3u(x - 1, y, z); }
+        Vector3u LessY(void) const { return Vector3u(x, y - 1, z); }
+        Vector3u LessZ(void) const { return Vector3u(x, y, z - 1); }
+        Vector3u MoreX(void) const { return Vector3u(x + 1, y, z); }
+        Vector3u MoreY(void) const { return Vector3u(x, y + 1, z); }
+        Vector3u MoreZ(void) const { return Vector3u(x, y, z + 1); }
+
+
+        Vector3u& operator+=(const Vector3u& r) { x += r.x; y += r.y; z += r.z; return *this; }
+        Vector3u& operator-=(const Vector3u& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
+        Vector3u& operator*=(unsigned int f) { x *= f; y *= f; z *= f; return *this; }
+        Vector3u& operator/=(unsigned int f) { x /= f; y /= f; z /= f; return *this; }
+
+        Vector3u operator+(const Vector3u& other) const { return Vector3u(x + other.x, y + other.y, z + other.z); }
+        Vector3u operator-(const Vector3u& other) const { return Vector3u(x - other.x, y - other.y, z - other.z); }
+        Vector3u operator*(unsigned int scale) const { return Vector3u(x * scale, y * scale, z * scale); }
+        Vector3u operator/(unsigned int invScale) const { return Vector3u(x / invScale, y / invScale, z / invScale); }
+
+        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+
+        bool operator==(const Vector3u& other) const { return Equals(other); }
+        bool operator!=(const Vector3u& other) const { return x != other.x || y != other.y || z != other.z; }
+        bool Equals(Vector3u v) const { return x == v.x && y == v.y && z == v.z; }
+
+        Vector3u Clamp(unsigned int min, unsigned int max) const
+        {
+            return Vector3u(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)),
+                            BasicMath::Max(min, BasicMath::Min(max, z)));
+        }
+
+        unsigned int Dot(Vector3u other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
+        float AngleBetween(Vector3u other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+
+        //Scales this Vector3u's x, y, and z components by the given Vector3u's x, y, and z components.
+        void MultiplyComponents(Vector3u scale) { x *= scale.x; y *= scale.y; z *= scale.z; }
+        //Scales this Vector3u's x, y, and z components by the given Vector3u's x, y, and z components.
+        Vector3u ComponentProduct(Vector3u scale) const { Vector3u v(x, y, z); v.MultiplyComponents(scale); return v; }
+
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
+        unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z); }
+
+        float Distance(Vector3u other) const { return sqrtf((float)DistanceSquared(other)); }
+        unsigned int DistanceSquared(Vector3u other) const { unsigned int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z; return (f1 * f2) + (f2 * f2) + (f3 * f3); }
+
+        unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791); }
+    };
+
+    #pragma endregion
+
+    #pragma region Vector4u
+
+    class Vector4u
+    {
+    public:
+
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
+        unsigned int operator()(const Vector4u & v) const { return v.GetHashCode(); }
+
+
+        unsigned int x;
+        unsigned int y;
+        unsigned int z;
+        unsigned int w;
+
+        Vector4u(unsigned int _x = 0, unsigned int _y = 0, unsigned int _z = 0, unsigned int _w = 0) : x(_x), y(_y), z(_z), w(_w) { }
+        Vector4u(Vector3u v3, unsigned int _w) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
+
+        Vector4u(Vector4u&& other)
+            : x(0), y(0), z(0), w(0)
+        {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            w = other.w;
+
+            other.x = 0;
+            other.y = 0;
+            other.z = 0;
+            other.w = 0;
+        }
+        Vector4u & operator=(Vector4u&& other)
+        {
+            if (this != &other)
+            {
+                x = other.x;
+                y = other.y;
+                z = other.z;
+                w = other.w;
+
+                other.x = 0;
+                other.y = 0;
+                other.z = 0;
+                other.w = 0;
+            }
+
+            return *this;
+        }
+
+
+        Vector4u& operator+=(const Vector4u& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
+        Vector4u& operator-=(const Vector4u& r) { x -= r.x; y -= r.y; z -= r.z; w -= r.w; return *this; }
+        Vector4u& operator*=(unsigned int f) { x *= f; y *= f; z *= f; w *= f; return *this; }
+        Vector4u& operator/=(unsigned int f) { x /= f; y /= f; z /= f; w /= f; return *this; }
+
+        Vector4u operator+(const Vector4u& other) const { return Vector4u(x + other.x, y + other.y, z + other.z, w + other.w); }
+        Vector4u operator-(const Vector4u& other) const { return Vector4u(x - other.x, y - other.y, z - other.z, w - other.w); }
+        Vector4u operator*(unsigned int scale) const { return Vector4u(x * scale, y * scale, z * scale, w * scale); }
+        Vector4u operator/(unsigned int invScale) const { return Vector4u(x / invScale, y / invScale, z / invScale, w / invScale); }
+
+        bool operator==(const Vector4u& other) const { return Equals(other); }
+        bool operator!=(const Vector4u& other) const { return x != other.x || y != other.y || z != other.z || w != other.w; }
+        bool Equals(Vector4u v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
+
+        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+
+        Vector4u Clamp(unsigned int min, unsigned int max) const
+        {
+            return Vector4u(BasicMath::Max(min, BasicMath::Min(max, x)),
+                            BasicMath::Max(min, BasicMath::Min(max, y)),
+                            BasicMath::Max(min, BasicMath::Min(max, z)),
+                            BasicMath::Max(min, BasicMath::Min(max, w)));
+        }
+
+        unsigned int Dot(Vector4u other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
+        float AngleBetween(Vector4u other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
+        unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
+        float FastInvLength(void) const { return BasicMath::FastInvSqrt1((float)LengthSquared()); }
+
+        float Distance(Vector4u other) const { return sqrtf((float)DistanceSquared(other)); }
+        unsigned int DistanceSquared(Vector4u other) const { unsigned int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z, f4 = w - other.w; return (f1 * f1) + (f2 * f2) + (f3 * f3) + (f4 * f4); }
+        unsigned int ManhattanDistance(Vector4u other) const
+        {
+            return (unsigned int)BasicMath::Abs((int)x - (int)other.x) +
+                   (unsigned int)BasicMath::Abs((int)y - (int)other.y) +
+                   (unsigned int)BasicMath::Abs((int)z - (int)other.z) +
+                   (unsigned int)BasicMath::Abs((int)w - (int)other.w);
+        }
+        float FastInvDistance(Vector4u other) const { return BasicMath::FastInvSqrt1((float)DistanceSquared(other)); }
+
+        //Scales this Vector4u's x, y, z, and w components by the given Vector4u's x, y, z, and w components.
+        void MultiplyComponents(Vector4u scale) { x *= scale.x; y *= scale.y; z *= scale.z; w *= scale.w; }
+        //Scales this Vector4u's x, y, z, and w components by the given Vector4u's x, y, z, and w components.
+        Vector4u ComponentProduct(Vector4u scale) const { Vector4u v(x, y, z, w); v.MultiplyComponents(scale); return v; }
+
+        unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791) ^ (w * 4256233); }
+    };
+
+    #pragma endregion
 
 
 	#pragma region Vector2i
@@ -407,12 +701,6 @@ namespace MyVectors
         void MultiplyComponents(Vector4i scale) { x *= scale.x; y *= scale.y; z *= scale.z; w *= scale.w; }
         //Scales this Vector4i's x, y, z, and w components by the given Vector4i's x, y, z, and w components.
         Vector4i ComponentProduct(Vector4i scale) const { Vector4i v(x, y, z, w); v.MultiplyComponents(scale); return v; }
-
-        void Normalize(void);
-        Vector4i Normalized(void) const;
-
-        void FastNormalize(void);
-        Vector4i FastNormalized(void) const;
 
         int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791) ^ (w * 4256233); }
     };

@@ -11,6 +11,10 @@ class MTextureCubemap
 {
 public:
 
+    //Gets the currently-bound cubemap texture. Returns 0 if no texture is currently-bound.
+    static const MTextureCubemap * CurrentlyBound(void) { return currentlyBound; }
+
+
     //Constructors/destructors.
 
     MTextureCubemap(const TextureSampleSettings & _settings, PixelSizes _pixelSize, bool useMipmapping)
@@ -34,7 +38,9 @@ public:
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
-    bool IsGreyscale(void) const { return IsPixelSizeGreyscale(pixelSize); }
+    bool IsColorTexture(void) const { return IsPixelSizeColor(pixelSize); }
+    bool IsGreyscaleTexture(void) const { return IsPixelSizeGreyscale(pixelSize); }
+    bool IsDepthTexture(void) const { return IsPixelSizeDepth(pixelSize); }
 
 
     //Setters.
@@ -63,50 +69,118 @@ public:
     //Returns whether anything needed to be deleted.
     bool DeleteIfValid(void);
 
+    //Clears all faces' data.
+    void ClearData(unsigned int newW = 0, unsigned int newH = 0);
+
 
     //Sets this cubemap texture as the active one.
     //If this isn't a valid texture, then the currently-active cubemap texture is just deactivated.
-    void Bind(void) const { glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle); }
-
-
-    //Clears all faces' data.
-    void ClearData(unsigned int newW, unsigned int newH);
+    void Bind(void) const
+    {
+        if (currentlyBound != this)
+        {
+            currentlyBound = (texHandle == 0) ? 0 : this;
+            glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle);
+        }
+    }
 
 
     //Sets the given face's data from the given file.
     //"shouldUpdateMipmaps" is only applicable if this texture uses mipmaps.
-    bool SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps);
+    //This operation fails if the texture can't be found, or isn't the same size as the rest of the cubemap.
+    //Returns an error message, or the empty string if everything went fine.
+    std::string SetDataFromFile(CubeTextureTypes face, std::string filePath, bool shouldUpdateMipmaps);
+    //Sets this cubemap's data from the given files.
+    //Returns an error message, or the empty string if everything went fine.
+    std::string SetDataFromFiles(std::string negXPath, std::string negYPath, std::string negZPath,
+                                 std::string posXPath, std::string posYPath, std::string posZPath)
+    {
+        return SetDataFromFiles(negXPath, negYPath, negZPath, posXPath, posYPath, posZPath, usesMipmaps);
+    }
+    //Sets this cubemap's data from the given files.
+    //Returns an error message, or the empty string if everything went fine.
+    std::string SetDataFromFiles(std::string negXPath, std::string negYPath, std::string negZPath,
+                                 std::string posXPath, std::string posYPath, std::string posZPath,
+                                 bool useMipmapping);
 
-    //If a "depth" pixel size is passed in, the current pixel size is used.
-    //This operation fails if the faces aren't all the same width/height.
-    //Returns whether this operation succeeded.
-    bool SetData(Array2D<Vector4b> & negXData, Array2D<Vector4b> & negYData, Array2D<Vector4b> & negZData,
-                 Array2D<Vector4b> & posXData, Array2D<Vector4b> & posYData, Array2D<Vector4b> & posZData,
-                 bool useMipmaps, PixelSizes pixelSize = PS_16U_DEPTH);
-    //If a "depth" pixel size is passed in, the current pixel size is used.
-    //This operation fails if the faces aren't all the same width/height.
-    //Returns whether this operation succeeded.
-    bool SetData(Array2D<Vector4f> & negXData, Array2D<Vector4f> & negYData, Array2D<Vector4f> & negZData,
-                 Array2D<Vector4f> & posXData, Array2D<Vector4f> & posYData, Array2D<Vector4f> & posZData,
-                 bool useMipmaps, PixelSizes pixelSize = PS_16U_DEPTH);
 
-    //If a "depth" pixel size is passed in, the current pixel size is used.
-    //This operation fails if the given array's size is not the same as the rest of the cubemap faces.
+    //Lots of macro abuse below because I am lazy.
+
+    //If an invalid pixel size is passed in, the current pixel size is used.
+    //All faces must be the same width/height.
     //Returns whether the operation succeeded.
-    //"shouldUpdateMipmaps" is only applicable if this texture uses mipmaps.
-    bool SetData(CubeTextureTypes face, const Array2D<Vector4b> & pixelData, bool shouldUpdateMipmaps);
-    //If a "depth" pixel size is passed in, the current pixel size is used.
-    //This operation fails if the given array's size is not the same as the rest of the cubemap faces.
-    //Returns whether the operation succeeded.
-    //"shouldUpdateMipmaps" is only applicable if this texture uses mipmaps.
-    bool SetData(CubeTextureTypes face, const Array2D<Vector4f> & pixelData, bool shouldUpdateMipmaps);
 
-    //Copies this texture's color data from the graphics card into the given array.
-    //Assumes the given array is already the right size.
-    void GetData(CubeTextureTypes face, Array2D<Vector4b> & outData);
-    //Copies this texture's color data from the graphics card into the given array.
-    //Assumes the given array is already the right size.
-    void GetData(CubeTextureTypes face, Array2D<Vector4f> & outData);
+#define DEF_SET_DATA(pixelType, colorType, defaultPixelSize) \
+    bool SetData ## colorType(const Array2D<pixelType> & negXData, const Array2D<pixelType> & negYData, const Array2D<pixelType> & negZData, \
+                              const Array2D<pixelType> & posXData, const Array2D<pixelType> & posYData, const Array2D<pixelType> & posZData, \
+                              PixelSizes newPixelSize = defaultPixelSize) \
+    { \
+        return SetData ## colorType(negXData, negYData, negZData, posXData, posYData, posZData, usesMipmaps, newPixelSize); \
+    } \
+    bool SetData ## colorType(const Array2D<pixelType> & negXData, const Array2D<pixelType> & negYData, const Array2D<pixelType> & negZData, \
+                              const Array2D<pixelType> & posXData, const Array2D<pixelType> & posYData, const Array2D<pixelType> & posZData, \
+                              bool useMipmaps, PixelSizes newPixelSize = defaultPixelSize)
+
+    DEF_SET_DATA(Vector4b, Color, PS_16U_DEPTH);
+    DEF_SET_DATA(Vector4f, Color, PS_16U_DEPTH);
+    DEF_SET_DATA(Vector4u, Color, PS_16U_DEPTH);
+    DEF_SET_DATA(unsigned char, Greyscale, PS_16U_DEPTH);
+    DEF_SET_DATA(float, Greyscale, PS_16U_DEPTH);
+    DEF_SET_DATA(unsigned int, Greyscale, PS_16U_DEPTH);
+    DEF_SET_DATA(unsigned char, Depth, PS_8U);
+    DEF_SET_DATA(float, Depth, PS_8U);
+    DEF_SET_DATA(unsigned int, Depth, PS_8U);
+
+
+    //If the given data is not the same size as the rest of the cubemap, the operation fails.
+    //Returns whether the operation succeeded.
+
+#define DEF_SET_FACE(pixelType, colorType) \
+    bool SetFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & pixelData, bool shouldUpdateMipmaps)
+
+    DEF_SET_FACE(Vector4b, Color);
+    DEF_SET_FACE(Vector4f, Color);
+    DEF_SET_FACE(Vector4u, Color);
+    DEF_SET_FACE(unsigned char, Greyscale);
+    DEF_SET_FACE(float, Greyscale);
+    DEF_SET_FACE(unsigned int, Greyscale);
+    DEF_SET_FACE(unsigned char, Depth);
+    DEF_SET_FACE(float, Depth);
+    DEF_SET_FACE(unsigned int, Depth);
+
+
+    //If the given array extends past the texture bounds, the operation fails.
+    //Returns whether the operation succeeded.
+
+#define DEF_UPDATE_FACE(pixelType, colorType) \
+    bool UpdateFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & newData, bool updateMips, unsigned int offsetX = 0, unsigned int offsetY = 0)
+
+    DEF_UPDATE_FACE(Vector4b, Color);
+    DEF_UPDATE_FACE(Vector4f, Color);
+    DEF_UPDATE_FACE(Vector4u, Color);
+    DEF_UPDATE_FACE(unsigned char, Greyscale);
+    DEF_UPDATE_FACE(float, Greyscale);
+    DEF_UPDATE_FACE(unsigned int, Greyscale);
+    DEF_UPDATE_FACE(unsigned char, Depth);
+    DEF_UPDATE_FACE(float, Depth);
+    DEF_UPDATE_FACE(unsigned int, Depth);
+
+
+    //If the given array is the wrong size, the operation fails.
+    //Returns whether the operation succeeded.
+
+#define DEF_GET_FACE(pixelType, colorType) \
+    bool GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType> & outData)
+
+    DEF_GET_FACE(Vector4b, Color);
+    DEF_GET_FACE(Vector4f, Color);
+    DEF_GET_FACE(Vector4u, Color);
+    DEF_GET_FACE(unsigned char, Greyscale);
+    DEF_GET_FACE(float, Greyscale);
+    DEF_GET_FACE(unsigned int, Greyscale);
+    DEF_GET_FACE(unsigned char, Depth);
+    DEF_GET_FACE(float, Depth);
+    DEF_GET_FACE(unsigned int, Depth);
 
 
 private:
@@ -118,4 +192,31 @@ private:
     TextureSampleSettings settings;
     PixelSizes pixelSize;
     bool usesMipmaps;
+
+
+    template<typename Type>
+    //Finds whether all given arrays have the exact same dimensions.
+    static bool AreSameSize(const Array2D<Type> & one, const Array2D<Type> & two, const Array2D<Type> & three,
+                            const Array2D<Type> & four, const Array2D<Type> & five, const Array2D<Type> & six)
+    {
+        //Oh dear god this expression.
+        return one.GetWidth() == two.GetWidth() && one.GetHeight() == two.GetHeight() &&
+            one.GetWidth() == three.GetWidth() && one.GetHeight() == three.GetHeight() &&
+            one.GetWidth() == four.GetWidth() && one.GetHeight() == four.GetHeight() &&
+            one.GetWidth() == five.GetWidth() && one.GetHeight() == five.GetHeight() &&
+            one.GetWidth() == six.GetWidth() && one.GetHeight() == six.GetHeight() &&
+            two.GetWidth() == three.GetWidth() && two.GetHeight() == three.GetHeight() &&
+            two.GetWidth() == four.GetWidth() && two.GetHeight() == four.GetHeight() &&
+            two.GetWidth() == five.GetWidth() && two.GetHeight() == five.GetHeight() &&
+            two.GetWidth() == six.GetWidth() && two.GetHeight() == six.GetHeight() &&
+            three.GetWidth() == four.GetWidth() && three.GetHeight() == four.GetHeight() &&
+            three.GetWidth() == five.GetWidth() && three.GetHeight() == five.GetHeight() &&
+            three.GetWidth() == six.GetWidth() && three.GetHeight() == six.GetHeight() &&
+            four.GetWidth() == five.GetWidth() && four.GetHeight() == five.GetHeight() &&
+            four.GetWidth() == six.GetWidth() && four.GetHeight() == six.GetHeight() &&
+            five.GetWidth() == six.GetWidth() && five.GetHeight() == six.GetHeight();
+    }
+
+
+    static const MTextureCubemap * currentlyBound;
 };

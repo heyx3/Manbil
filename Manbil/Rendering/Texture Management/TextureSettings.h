@@ -160,7 +160,7 @@ enum PixelSizes
     PS_32F_DEPTH,
 };
 //Does the given pixel size use RGBA?
-bool IsPixelSizeColored(PixelSizes pixelSize);
+bool IsPixelSizeColor(PixelSizes pixelSize);
 //Does the given pixel size only use the Red component (not RGBA)?
 bool IsPixelSizeGreyscale(PixelSizes pixelSize);
 //Does the given pixel size use a depth component (not RGBA)?

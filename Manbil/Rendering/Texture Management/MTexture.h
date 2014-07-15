@@ -41,7 +41,7 @@ public:
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
-    bool IsColorTexture(void) const { return IsPixelSizeColored(pixelSize); }
+    bool IsColorTexture(void) const { return IsPixelSizeColor(pixelSize); }
     bool IsGreyscaleTexture(void) const { return IsPixelSizeGreyscale(pixelSize); }
     bool IsDepthTexture(void) const { return IsPixelSizeDepth(pixelSize); }
 
@@ -76,6 +76,18 @@ public:
     void ClearData(unsigned int newW = 0, unsigned int newH = 0);
 
 
+    //Sets this texture as the active one.
+    //If this isn't a valid texture, then the currently-active texture is just deactivated.
+    void Bind(void) const
+    {
+        if (currentBound != this)
+        {
+            currentBound = (texHandle == 0) ? 0 : this;
+            glBindTexture(GL_TEXTURE_2D, texHandle);
+        }
+    }
+
+
     //Sets this texture's data from the given file.
     //This texture must currently have a color pixel size (not depth or greyscale).
     //Outputs an error message and returns false if something failed.
@@ -93,6 +105,14 @@ public:
     //If a non-color pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
     bool SetColorData(const Array2D<Vector4f> & pixelData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    //Updates this texture's color data without having to allocate new space.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateColorData(const Array2D<Vector4b> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
+    //Updates this texture's color data without having to allocate new space.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateColorData(const Array2D<Vector4f> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
 
     //This operation only succeeds if this texture's pixel type is a greyscale type.
     //If a non-greyscale type pixel size is passed in, the current pixel size is not changed.
@@ -102,6 +122,14 @@ public:
     //If a non-greyscale pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
     bool SetGreyscaleData(const Array2D<float> & greyscaleData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    //Updates this texture's greyscale data without having to allocate new space.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateGreyscaleData(const Array2D<unsigned char> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
+    //Updates this texture's greyscale data without having to allocate new space.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateGreyscaleData(const Array2D<float> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
 
 
     //This operation only succeeds if this texture's pixel type is a depth type.
@@ -112,48 +140,48 @@ public:
     //If a non-"depth" pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
     bool SetDepthData(const Array2D<float> & depthData, PixelSizes newSize = PixelSizes::PS_8U);
+    //Updates this texture's depth data without having to allocate new space.
+    //This operation fails if this is not a depth texture.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateDepthData(const Array2D<unsigned char> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
+    //Updates this texture's depth data without having to allocate new space.
+    //This operation fails if this is not a depth texture.
+    //This operation fails if any part of the pixel array is outside the texture bounds.
+    //Returns whether the operation succeeded.
+    bool UpdateDepthData(const Array2D<float> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0);
 
-    //Sets this texture as the active one.
-    //If this isn't a valid texture, then the currently-active texture is just deactivated.
-    void Bind(void) const
-    {
-        if (currentBound != this)
-        {
-            currentBound = (texHandle == 0) ? 0 : this;
-            glBindTexture(GL_TEXTURE_2D, texHandle);
-        }
-    }
 
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a color texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetColorData(Array2D<Vector4b> & outData);
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a color texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetColorData(Array2D<Vector4f> & outData);
 
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetGreyscaleData(Array2D<unsigned char> & outData);
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetGreyscaleData(Array2D<float> & outData);
 
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetDepthData(Array2D<unsigned char> & outData);
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
-    //Assumes the given array is already the right size.
+    //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
     bool GetDepthData(Array2D<float> & outData);
 

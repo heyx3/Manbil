@@ -888,9 +888,6 @@
     <Filter Include="Rendering\Water">
       <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FirePit">
-      <UniqueIdentifier>{caf37e2d-22d5-4334-a68e-0fed50c11039}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="water2d.txt">

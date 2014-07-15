@@ -112,7 +112,22 @@ void OpenGLTestWorld::InitializeTextures(void)
         cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
     glEnable(GL_TEXTURE_CUBE_MAP);
     cubemapTex.Create();
-    cubemapTex.SetData(cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling, cubemapTex.UsesMipmaps());
+    if (!cubemapTex.SetDataColor(cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling))
+    {
+        std::cout << "Error setting cubemap texture data.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+    error = cubemapTex.SetDataFromFiles("Content/Cubemaps/Sky_Neg_X.png", "Content/Cubemaps/Sky_Neg_Y.png", "Content/Cubemaps/Sky_Neg_Z.png",
+                                        "Content/Cubemaps/Sky_Pos_X.png", "Content/Cubemaps/Sky_Pos_Y.png", "Content/Cubemaps/Sky_Pos_Z.png");
+    if (!error.empty())
+    {
+        std::cout << "Error loading cubemap textures: " << error << "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 
 
     //Set up the test font.
@@ -380,7 +395,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     //Post-processing.
     typedef PostProcessEffect::PpePtr PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)), DataLine(0.2f))));
+    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)), DataLine(0.0001f))));
 
 
     //Final render.

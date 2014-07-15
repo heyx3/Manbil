@@ -20,7 +20,7 @@ GLint TextureSampleSettings::ToGLInt(WrappingTypes twa)
 
 
 
-bool IsPixelSizeColored(PixelSizes pixelSize)
+bool IsPixelSizeColor(PixelSizes pixelSize)
 {
     switch (pixelSize)
     {

@@ -1,8 +1,5 @@
 #include "Vectors.h"
 
-#pragma region Vector2i
-
-#pragma endregion
 
 #pragma region Vector2f
 
