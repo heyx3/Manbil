@@ -93,8 +93,9 @@
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
     <ClCompile Include="Input\LookRotation.cpp" />
-    <ClCompile Include="IO\DataSerializer.cpp" />
+    <ClCompile Include="IO\BinarySerialization.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
+    <ClCompile Include="IO\XmlSerialization.cpp" />
     <ClCompile Include="Math\BasicMath.cpp" />
     <ClCompile Include="Math\CachedFunc.cpp" />
     <ClCompile Include="Math\FastRand.cpp" />
@@ -212,8 +213,10 @@
     <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="Input\LookRotation.h" />
     <ClInclude Include="Input\Vector2Input.h" />
-    <ClInclude Include="IO\DataSerializer.h" />
+    <ClInclude Include="IO\BinarySerialization.h" />
+    <ClInclude Include="IO\DataSerialization.h" />
     <ClInclude Include="IO\tinyxml2.h" />
+    <ClInclude Include="IO\XmlSerialization.h" />
     <ClInclude Include="Math\BasicMath.h" />
     <ClInclude Include="Math\CachedFunc.h" />
     <ClInclude Include="Math\Array2D.h" />

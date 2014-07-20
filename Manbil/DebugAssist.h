@@ -6,6 +6,7 @@
 
 #include "Math/LowerMath.hpp"
 #include "Math/Shapes.hpp"
+#include "IO/BinarySerialization.h"
 #include "Rendering/GPU Particles/GPUParticleDefines.h"
 #include "Rendering/Texture Management/TextureSettings.h"
 
@@ -46,7 +47,7 @@ public:
     static std::string ToString(Box2D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
     static std::string ToString(Box3D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
 
-    static std::string ToString(PixelSizes pixelSize)
+    static std::string ToString(PixelSizes pixelSize, bool failOnNotFound = true)
     {
         switch (pixelSize)
         {
@@ -63,11 +64,11 @@ public:
             case PS_24U_DEPTH: return "Depth_24U";
             case PS_32F_DEPTH: return "Depth_32F";
 
-            default: assert(false); return "ERROR_UNKNOWN_SIZE:" + std::to_string(pixelSize);
+            default: assert(!failOnNotFound); return "ERROR_UNKNOWN_SIZE:" + std::to_string(pixelSize);
         }
     }
 
-    static std::string ToString(GPUPOutputs output)
+    static std::string ToString(GPUPOutputs output, bool failOnNotFound = true)
     {
         switch (output)
         {
@@ -75,7 +76,25 @@ public:
             case GPUPOutputs::GPUP_SIZE: return "GPUP_SIZE";
             case GPUPOutputs::GPUP_QUADROTATION: return "GPUP_QUADROTATION";
             case GPUPOutputs::GPUP_COLOR: return "GPUP_COLOR";
-            default: assert(false); return std::string() + "GPUP_ERROR_UNKNOWN_VALUE_OF_" + std::to_string(output);
+            default: assert(!failOnNotFound); return std::string() + "GPUP_ERROR_UNKNOWN_VALUE_OF_" + std::to_string(output);
+        }
+    }
+
+    static std::string ToString(BinaryDataTypes dataType, bool failOnNotFound = true)
+    {
+        switch (dataType)
+        {
+            case BinaryDataTypes::BDT_BOOL: return "bool";
+            case BinaryDataTypes::BDT_BYTE: return "byte";
+            case BinaryDataTypes::BDT_COLLECTION: return "collection";
+            case BinaryDataTypes::BDT_DATA_STRUCTURE: return "dataStructure";
+            case BinaryDataTypes::BDT_DOUBLE: return "double";
+            case BinaryDataTypes::BDT_FLOAT: return "float";
+            case BinaryDataTypes::BDT_INT: return "int";
+            case BinaryDataTypes::BDT_STRING: return "string";
+            case BinaryDataTypes::BDT_UINT: return "uint";
+
+            default: assert(!failOnNotFound); return "UNKNOWN";
         }
     }
 

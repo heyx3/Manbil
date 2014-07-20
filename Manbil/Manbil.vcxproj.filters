@@ -63,10 +63,7 @@
       <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="IO\tinyxml2.cpp">
-      <Filter>XML IO\tinyxml Library</Filter>
-    </ClCompile>
-    <ClCompile Include="IO\DataSerializer.cpp">
-      <Filter>XML IO</Filter>
+      <Filter>IO\tinyxml Library</Filter>
     </ClCompile>
     <ClCompile Include="MovingCamera.cpp">
       <Filter>Input</Filter>
@@ -318,6 +315,12 @@
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
+    <ClCompile Include="IO\XmlSerialization.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\BinarySerialization.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -405,10 +408,7 @@
       <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="IO\tinyxml2.h">
-      <Filter>XML IO\tinyxml Library</Filter>
-    </ClInclude>
-    <ClInclude Include="IO\DataSerializer.h">
-      <Filter>XML IO</Filter>
+      <Filter>IO\tinyxml Library</Filter>
     </ClInclude>
     <ClInclude Include="MovingCamera.h">
       <Filter>Input</Filter>
@@ -781,6 +781,15 @@
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
+    <ClInclude Include="IO\XmlSerialization.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\DataSerialization.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\BinarySerialization.h">
+      <Filter>IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -840,12 +849,6 @@
     <Filter Include="Worlds">
       <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="XML IO">
-      <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="XML IO\tinyxml Library">
-      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
     </Filter>
@@ -887,6 +890,12 @@
     </Filter>
     <Filter Include="Rendering\Water">
       <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\tinyxml Library">
+      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
