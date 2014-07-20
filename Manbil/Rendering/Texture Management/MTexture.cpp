@@ -135,7 +135,7 @@ bool MTexture::LoadImageFromFile(std::string filePath, Array2D<Vector4b> & outDa
     if (!img.loadFromFile(filePath)) return false;
 
     outData.Reset(img.getSize().x, img.getSize().y);
-    outData.Fill((Vector4b*)img.getPixelsPtr());
+    outData.Fill((Vector4b*)img.getPixelsPtr(), true);
 
     return true;
 }

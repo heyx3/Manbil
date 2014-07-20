@@ -81,6 +81,9 @@ public:
 	ArrayType& operator[](Vector2i l) { return arrayVals[GetIndex(l.x, l.y)]; }
 	const ArrayType& operator[](Vector2i l) const { return arrayVals[GetIndex(l.x, l.y)]; }
 
+    //Gets whether this array's width and height are the same.
+    bool IsSquare(void) const { return width == height; }
+
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
 
@@ -119,9 +122,12 @@ public:
         }
 	}
     //Copies the given elements to this array. Assumes that the size of this array matches with the given one.
-    void Fill(const ArrayType * values)
+    //If "useMemcpy" is true, this array will have its exact binary data copied quickly using memcpy.
+    //Otherwise, each element will be set using its assignment operator.
+    void Fill(const ArrayType * values, bool useMemcpy)
     {
-        for (unsigned int i = 0; i < (width * height); ++i)
+        if (useMemcpy) memcpy(arrayVals, values, width * height * sizeof(ArrayType));
+        else for (unsigned int i = 0; i < (width * height); ++i)
             arrayVals[i] = values[i];
     }
 
@@ -133,6 +139,57 @@ public:
         for (Vector2i loc; loc.y < height; ++loc.y)
             for (loc.x = 0; loc.x < width; ++loc.x)
                 getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
+    }
+
+    //Sets the given array to be a rotated version of this array.
+    //"useFastCopy" determines whether to use memcpy on the whole thing (faster)
+    //    or the assignment operator on each element (slower).
+    //The given array will be automatically resized to fit.
+    //Rotates this array by the given number of 90-degree clockwise rotations.
+    void RotateInto(int clockwiseRots, Array2D<ArrayType> & outArray, bool useFastCopy) const
+    {
+        //Wrap the value to the range [0, 3].
+        while (clockwiseRots < 0) clockwiseRots += 1024;
+        clockwiseRots %= 4;
+
+        const Array2D<ArrayType> * thisA = this;
+
+        switch (clockwiseRots)
+        {
+            case 0:
+                outArray.Reset(width, height);
+                outArray.Fill(arrayVals, useFastCopy);
+                break;
+
+            case 1:
+                outArray.Reset(height, width);
+                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                {
+                    Vector2i locF(thisA->GetHeight() - 1 - loc.y, loc.x);
+                    const ArrayType * value = &thisA->operator[](locF);
+                    *outValue = *value;
+                    //*outValue = thisA->operator[](Vector2i(thisA->GetHeight() - 1 - loc.y, loc.x));
+                });
+                break;
+
+            case 2:
+                outArray.Reset(height, width);
+                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                {
+                    *outValue = thisA->operator[](Vector2i(thisA->GetWidth() - 1 - loc.x, thisA->GetHeight() - 1 - loc.y));
+                });
+                break;
+
+            case 3:
+                outArray.Reset(height, width);
+                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                {
+                    *outValue = thisA->operator[](Vector2i(loc.y, thisA->GetWidth() - 1 - loc.x));
+                });
+                break;
+
+            default: assert(false);
+        }
     }
 
     //Resizes this array to the given size, preserving all data
@@ -161,7 +218,10 @@ private:
     unsigned int width, height;
 	ArrayType * arrayVals;
 
-    unsigned int GetIndex(unsigned int x, unsigned int y) const { return x + (y * width); }
+    unsigned int GetIndex(unsigned int x, unsigned int y) const
+    {
+        return x + (y * width);
+    }
 };
 
 #pragma warning(default: 4018)

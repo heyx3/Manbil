@@ -431,7 +431,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
             Array2D<Vector4b> texColor(0, 0);
             sf::Image img = renderedNoiseTex->copyToImage();
             texColor.Reset(img.getSize().x, img.getSize().y);
-            texColor.Fill((Vector4b*)img.getPixelsPtr());
+            texColor.Fill((Vector4b*)img.getPixelsPtr(), true);
 
             //Convert it to a heightmap array.
             Array2D<float> bumps(noiseSize, noiseSize);

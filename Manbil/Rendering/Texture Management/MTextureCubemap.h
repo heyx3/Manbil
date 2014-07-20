@@ -14,6 +14,27 @@ public:
     //Gets the currently-bound cubemap texture. Returns 0 if no texture is currently-bound.
     static const MTextureCubemap * CurrentlyBound(void) { return currentlyBound; }
 
+    template<typename ArrayType>
+    //Rotates/reflects the cubemap faces that need rotating for the X to correspond to horizontal and Y to vertical as expected.
+    //Assumes that all three faces have the same square dimensions.
+    //If "useFastCopy" is true, the array's binary data will be directly and quickly copied using "memcpy"
+    //   instead of using the assignment operator for each element.
+    static void TransformFaces(Array2D<ArrayType> & posX, Array2D<ArrayType> & negX, Array2D<ArrayType> & negY, bool useFastCopy = true)
+    {
+        assert(posX.IsSquare() && negX.IsSquare() && negY.IsSquare() &&
+               posX.GetWidth() == negX.GetWidth() && posX.GetWidth() == negY.GetWidth());
+        Array2D<ArrayType> tempArr(posX.GetWidth(), posX.GetHeight());
+        
+        tempArr.Fill(posX.GetArray(), useFastCopy);
+        tempArr.RotateInto(3, posX, useFastCopy);
+
+        tempArr.Fill(negX.GetArray(), useFastCopy);
+        tempArr.RotateInto(1, negX, useFastCopy);
+
+        tempArr.Fill(negY.GetArray(), useFastCopy);
+        tempArr.RotateInto(2, negY, useFastCopy);
+    }
+
 
     //Constructors/destructors.
 

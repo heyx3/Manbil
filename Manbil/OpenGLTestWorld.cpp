@@ -106,27 +106,34 @@ void OpenGLTestWorld::InitializeTextures(void)
 
 
     //Cubemap creation.
-    Array2D<Vector4f> cubemapWall(2, 2);
-    cubemapWall.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
-    Array2D<Vector4f> cubemapFloor(2, 2, Vector4f(0.25f, 0.25f, 0.0f, 1.0f)),
-        cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
-    glEnable(GL_TEXTURE_CUBE_MAP);
     cubemapTex.Create();
-    if (!cubemapTex.SetDataColor(cubemapWall, cubemapWall, cubemapFloor, cubemapWall, cubemapWall, cubemapCeiling))
+    if (false)
     {
-        std::cout << "Error setting cubemap texture data.\n";
-        Pause();
-        EndWorld();
-        return;
+        //Wall textures.
+        Array2D<Vector4f> cubemapNegX(2, 2), cubemapNegY(2, 2), cubemapPosX(2, 2), cubemapPosY(2, 2);
+        cubemapNegX.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapNegY.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapPosX.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapPosY.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        MTextureCubemap::TransformFaces(cubemapPosX, cubemapNegX, cubemapNegY);
+
+        //Floor/ceiling textures.
+        Array2D<Vector4f> cubemapFloor(2, 2, Vector4f(0.25f, 0.25f, 0.0f, 1.0f)),
+                          cubemapCeiling(2, 2, Vector4f(0.25f, 0.25f, 1.0f, 0.0f));
+
+        cubemapTex.SetDataColor(cubemapNegX, cubemapNegY, cubemapFloor, cubemapPosX, cubemapPosY, cubemapCeiling);
     }
-    error = cubemapTex.SetDataFromFiles("Content/Cubemaps/Sky_Neg_X.png", "Content/Cubemaps/Sky_Neg_Y.png", "Content/Cubemaps/Sky_Neg_Z.png",
-                                        "Content/Cubemaps/Sky_Pos_X.png", "Content/Cubemaps/Sky_Pos_Y.png", "Content/Cubemaps/Sky_Pos_Z.png");
-    if (!error.empty())
+    else
     {
-        std::cout << "Error loading cubemap textures: " << error << "\n";
-        Pause();
-        EndWorld();
-        return;
+        error = cubemapTex.SetDataFromFiles("Content/Cubemaps/Sky_Neg_X.png", "Content/Cubemaps/Sky_Neg_Y.png", "Content/Cubemaps/Sky_Neg_Z.png",
+                                            "Content/Cubemaps/Sky_Pos_X.png", "Content/Cubemaps/Sky_Pos_Y.png", "Content/Cubemaps/Sky_Pos_Z.png");
+        if (!error.empty())
+        {
+            std::cout << "Error loading cubemap textures: " << error << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
     }
 
 
@@ -363,7 +370,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                               TextureSampleCubemapNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
 
     DataLine cmWorldPos(cmVertexInputs, 0);
-    cmWorldPos = DataLine(DataNodePtr(new MultiplyNode(cmWorldPos, DataLine(3000.0f))), 0);
+    cmWorldPos = DataLine(DataNodePtr(new MultiplyNode(cmWorldPos, DataLine(2800.0f))), 0);
     cmWorldPos = DataLine(DataNodePtr(new AddNode(cmWorldPos, DataLine(DataNodePtr(new CameraDataNode()),
                                                                        CameraDataNode::GetCamPosOutputIndex()))), 0);
     cubemapChannels[RC::RC_VertexPosOutput] = DataLine(DataNodePtr(new WorldPosToScreenPosCalcNode(cmWorldPos)),
