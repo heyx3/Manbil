@@ -582,7 +582,7 @@ void OpenGLTestWorld::UpdateWorld(float elapsedSeconds)
         particleParams.FloatUniforms[HGPGlobalData::ParticleElapsedTimeUniformName].Value[0] -= 5.0f;
 
     if (Input.GetBoolInputValue(666))
-        water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 10.0f, 120.0f, 1.0f));
+        water->AddRipple(Water::RippleWaterArgs(cam.GetPosition(), 5000.0f, 40.0f, 120.0f, 4.0f));
 }
 
 void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
