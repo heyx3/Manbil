@@ -162,6 +162,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp" />
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp" />
     <ClCompile Include="Rendering\Texture Management\MTexture2D.cpp" />
+    <ClCompile Include="Rendering\Texture Management\MTexture3D.cpp" />
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp" />
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp" />
@@ -314,6 +316,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h" />
@@ -329,6 +332,7 @@
     <ClInclude Include="Rendering\PrimitiveGenerator.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
     <ClInclude Include="Rendering\Texture Management\MTexture2D.h" />
+    <ClInclude Include="Rendering\Texture Management\MTexture3D.h" />
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h" />
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />

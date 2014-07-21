@@ -11,6 +11,7 @@
 #include "Rendering/GPU Particles/High-level GPU Particles/HGPComponentManager.h"
 #include "Rendering/GUI/TextRenderer.h"
 #include "Rendering/Texture Management/MTextureCubemap.h"
+#include "Rendering/Texture Management/MTexture3D.h"
 
 
 class OpenGLTestWorld : public SFMLOpenGLWorld
@@ -48,6 +49,7 @@ private:
 
     Mesh gsMesh;
     Material * gsTestMat;
+    MTexture3D gsTestTex3D;
     UniformDictionary gsTestParams;
 
     HGPComponentManager particleManager;

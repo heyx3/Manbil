@@ -31,6 +31,7 @@ void UniformDictionary::AddUniforms(const UniformDictionary & other, bool overwr
     UD_RUN_ITERATE(other.IntArrayUniforms, IntArrayUniforms, overwrite);
     UD_RUN_ITERATE(other.MatrixUniforms, MatrixUniforms, overwrite);
     UD_RUN_ITERATE(other.Texture2DUniforms, Texture2DUniforms, overwrite);
+    UD_RUN_ITERATE(other.Texture3DUniforms, Texture3DUniforms, overwrite);
     UD_RUN_ITERATE(other.TextureCubemapUniforms, TextureCubemapUniforms, overwrite);
     UD_RUN_ITERATE(other.SubroutineUniforms, SubroutineUniforms, overwrite);
 }
@@ -42,6 +43,7 @@ void UniformDictionary::ClearUniforms(void)
     IntArrayUniforms.clear();
     MatrixUniforms.clear();
     Texture2DUniforms.clear();
+    Texture3DUniforms.clear();
     TextureCubemapUniforms.clear();
     SubroutineUniforms.clear();
 }
@@ -49,5 +51,6 @@ void UniformDictionary::ClearUniforms(void)
 unsigned int UniformDictionary::GetNumbUniforms(void) const
 {
     return FloatUniforms.size() + FloatArrayUniforms.size() + IntUniforms.size() + IntArrayUniforms.size() +
-           MatrixUniforms.size() + Texture2DUniforms.size() + TextureCubemapUniforms.size() + SubroutineUniforms.size();
+           MatrixUniforms.size() + Texture2DUniforms.size() + Texture3DUniforms.size() + TextureCubemapUniforms.size() +
+           SubroutineUniforms.size();
 }

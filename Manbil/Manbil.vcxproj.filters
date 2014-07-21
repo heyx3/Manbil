@@ -321,6 +321,12 @@
     <ClCompile Include="Rendering\Texture Management\MTexture2D.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\MTexture3D.cpp">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -789,6 +795,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTexture2D.h">
       <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\MTexture3D.h">
+      <Filter>Rendering\Texture Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

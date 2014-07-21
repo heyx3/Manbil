@@ -136,6 +136,24 @@ void OpenGLTestWorld::InitializeTextures(void)
         }
     }
 
+    //3D Texture map creation.
+    gsTestTex3D.Create();
+    Vector3u size(10, 10, 10);
+    Array3D<Vector4f> pixelData(size.x, size.y, size.z);
+    pixelData.FillFunc([size](Vector3i loc, Vector4f * outVal)
+    {
+        *outVal = Vector4f((float)loc.x / (size.x - 1),
+                           (float)loc.y / (size.y - 1),
+                           (float)loc.z / (size.z - 1),
+                           1.0f);
+    });
+    if (!gsTestTex3D.SetColorData(pixelData, PixelSizes::PS_32F))
+    {
+        std::cout << "Error setting data for gsTest 3D texture.\n";
+        Pause();
+        EndWorld();
+        return;
+    }
 
     //Set up the test font.
     unsigned int testFontID = TextRender->CreateAFont("Content/Fonts/Candara.ttf", 16);
@@ -154,7 +172,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         return;
     }
     testFontSlot = TextRenderer::FontSlot(testFontID, 0);
-    if (!TextRender->RenderString(testFontSlot, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", windowSize.x, windowSize.y))
+    if (!TextRender->RenderString(testFontSlot, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghigjklmopqrstuvwxyz", windowSize.x, windowSize.y))
     {
         std::cout << "Error rendering test string: " << TextRender->GetError() << "\n";
         Pause();
@@ -239,11 +257,21 @@ void OpenGLTestWorld::InitializeMaterials(void)
     #pragma region Geometry shader test
 
     std::unordered_map<RC, DataLine> gsChannels;
-    DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(DNP(new VertexInputNode(VertexPos::GetAttributeData())), 0))), 0);
+
+    DNP gsTestVertInputs(new VertexInputNode(VertexPos::GetAttributeData()));
+    DNP gsTestFragInputs(new FragmentInputNode(VertexAttributes(2, false)));
+
+    DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(gsTestVertInputs, 0))), 0);
+
+    DataLine timeTex3D(DNP(new MultiplyNode(DataLine(0.25f), DataLine(DNP(new TimeNode()), 0))), 0);
+    DataLine tex3DIn(DNP(new CombineVectorNode(DataLine(gsTestFragInputs, 0), timeTex3D)), 0);
+    DataLine tex3DValue(DNP(new TextureSample3DNode(tex3DIn, "u_tex3D")), TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+
+    DataLine textSamplerValue(DNP(new TextureSample2DNode(DataLine(gsTestFragInputs, 0), "u_textSampler")), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
+    textSamplerValue = DataLine(DNP(new CombineVectorNode(textSamplerValue, textSamplerValue, textSamplerValue)), 0);
+
     gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
-    gsChannels[RC::RC_Color] = DataLine(DNP(new TextureSample2DNode(DataLine(DNP(new FragmentInputNode(VertexAttributes(2, false))), 0), "u_textSampler")),
-                                        TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
-    gsChannels[RC::RC_Color] = DataLine(DNP(new CombineVectorNode(gsChannels[RC::RC_Color], gsChannels[RC::RC_Color], gsChannels[RC::RC_Color])), 0);
+    gsChannels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(textSamplerValue, tex3DValue)), 0);
     
     MaterialUsageFlags geoShaderUsage;
     geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
@@ -287,6 +315,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         return;
     }
     gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot)->GetTextureHandle();
+    gsTestParams.Texture3DUniforms["u_tex3D"].Texture = gsTestTex3D.GetTextureHandle();
     gsTestMat = gsGen.Mat;
 
 
@@ -496,6 +525,7 @@ OpenGLTestWorld::OpenGLTestWorld(void)
       particleMat(0), particleMesh(PrimitiveTypes::Points),
       particleManager(particleParams),
       cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0),
+      gsTestTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F, false),
       waterNormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
       cubemapTex(TextureSampleSettings3D(FT_LINEAR, WT_CLAMP), PS_32F, true),
       worldColorTex1(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
@@ -563,6 +593,7 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(cubemapMat);
     waterNormalTex.DeleteIfValid();
     cubemapTex.DeleteIfValid();
+    gsTestTex3D.DeleteIfValid();
 }
 
 void OpenGLTestWorld::OnInitializeError(std::string errorMsg)

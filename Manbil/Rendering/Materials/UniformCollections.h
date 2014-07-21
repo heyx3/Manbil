@@ -203,6 +203,20 @@ public:
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
+//Represents a 3D texture sampler uniform.
+struct UniformSampler3DValue
+{
+public:
+    RenderObjHandle Texture;
+    UniformLocation Location;
+    std::string Name;
+    UniformSampler3DValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(texture)
+    { }
+    UniformSampler3DValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+    std::string GetDeclaration(void) const { return "uniform sampler3D " + Name + ";"; }
+};
+
 //Represents a cubemap texture sampler uniform.
 struct UniformSamplerCubemapValue
 {
@@ -295,7 +309,7 @@ public:
     struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
     std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
                          MatrixUniforms,
-                         Texture2DUniforms, TextureCubemapUniforms,
+                         Texture2DUniforms, Texture3DUniforms, TextureCubemapUniforms,
                          IntUniforms, IntArrayUniforms,
                          SubroutineUniforms;
     //Returns "Uniform("", -1)" if the given name isn't found.
@@ -319,6 +333,7 @@ public:
     U_UMAP(UniformArrayValueI) IntArrayUniforms;
     U_UMAP(UniformMatrixValue) MatrixUniforms;
     U_UMAP(UniformSampler2DValue) Texture2DUniforms;
+    U_UMAP(UniformSampler3DValue) Texture3DUniforms;
     U_UMAP(UniformSamplerCubemapValue) TextureCubemapUniforms;
     U_UMAP(UniformSubroutineValue) SubroutineUniforms;
 

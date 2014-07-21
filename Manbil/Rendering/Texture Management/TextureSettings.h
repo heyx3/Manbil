@@ -100,13 +100,13 @@ public:
     //Sets the currently-bound 3D/cubemap texture to use this setting's min filter.
     void ApplyMinFilter(TextureTypes type, bool usesMipmaps) const
     {
-        assert(type == TextureTypes::TT_2D || type == TextureTypes::TT_CUBE);
+        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
         glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
     }
     //Sets the currently-bound 3D/cubemap texture to use this setting's mag filter.
     void ApplyMagFilter(TextureTypes type, bool usesMipmaps) const
     {
-        assert(type == TextureTypes::TT_2D || type == TextureTypes::TT_CUBE);
+        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
         glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
     }
     //Sets the currently-bound 3D/cubemap texture to use this setting's min and mag filters.
@@ -119,19 +119,19 @@ public:
     //Sets the currently-bound 3D/cubemap texture to use this setting's X wrapping behavior.
     void ApplyXWrapping(TextureTypes type) const
     {
-        assert(type == TextureTypes::TT_2D || type == TextureTypes::TT_CUBE);
+        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
         glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_S, ToGLInt(XWrap));
     }
     //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
     void ApplyYWrapping(TextureTypes type) const
     {
-        assert(type == TextureTypes::TT_2D || type == TextureTypes::TT_CUBE);
+        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
         glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_T, ToGLInt(YWrap));
     }
     //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
     void ApplyZWrapping(TextureTypes type) const
     {
-        assert(type == TextureTypes::TT_2D || type == TextureTypes::TT_CUBE);
+        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
         glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_R, ToGLInt(ZWrap));
     }
     //Sets the currently-bound 3D/cubemap texture to use this setting's XYZ wrapping behavior.
