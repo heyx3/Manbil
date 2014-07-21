@@ -41,20 +41,21 @@ public:
 
     void Reset(unsigned int _width, unsigned int _height)
 	{
-		width = _width;
-		height = _height;
+        //Only resize if the current array does not have the same number of elements.
+        if ((width * height) != (_width * _height))
+        {
+            delete[] arrayVals;
+            arrayVals = new ArrayType[_width * _height];
+        }
 
-		delete[] arrayVals;
-		arrayVals = new ArrayType[width * height];
+        width = _width;
+        height = _height;
 	}
     void Reset(unsigned int _width, unsigned int _height, const ArrayType & defaultValue)
 	{
 		Reset(_width, _height);
-
         for (unsigned int i = 0; i < width * height; ++i)
-		{
 			arrayVals[i] = defaultValue;
-		}
 	}
 
     Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1), BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1)); }
@@ -196,10 +197,13 @@ public:
     //    (although some data will of course be lost if the array gets shortened).
     void Resize(unsigned int newWidth, unsigned int newHeight, const ArrayType & defaultVal)
     {
-        Array2D<ArrayType> newArr(newWidth, newHeight);
-        newArr.Fill(*this, defaultVal);
-        Reset(newWidth, newHeight);
-        Fill(newArr, defaultVal);
+        if (width != newWidth || height != newHeight)
+        {
+            Array2D<ArrayType> newArr(newWidth, newHeight);
+            newArr.Fill(*this, defaultVal);
+            Reset(newWidth, newHeight);
+            Fill(newArr, defaultVal);
+        }
     }
 
 	const ArrayType * GetArray(void) const { return arrayVals; }

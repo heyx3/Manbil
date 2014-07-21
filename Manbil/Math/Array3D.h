@@ -43,12 +43,15 @@ public:
 
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth)
 	{
-		width = _width;
-		height = _height;
-        depth = _depth;
+        if ((width * height * depth) != (_width * _height * _depth))
+        {
+            delete[] arrayVals;
+            arrayVals = new ArrayType[_width * _height * _depth];
+        }
 
-		delete[] arrayVals;
-		arrayVals = new ArrayType[width * height * depth];
+        width = _width;
+        height = _height;
+        depth = _depth;
 	}
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth, const ArrayType & defaultValue)
 	{
@@ -100,6 +103,8 @@ public:
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
     unsigned int GetDepth(void) const { return depth; }
+
+    unsigned int GetNumbElements(void) const { return width * height * depth; }
 
 	//Fills every element with the given value.
 	void Fill(const ArrayType & value)
@@ -163,10 +168,13 @@ public:
     //    (although some data will of course be lost if the array gets shortened).
     void Resize(unsigned int newWidth, unsigned int newHeight, unsigned int newDepth, const ArrayType & defaultVal)
     {
-        Array3D<ArrayType> newArr(newWidth, newHeight, newDepth);
-        newArr.Fill(*this, defaultVal);
-        Reset(newWidth, newHeight);
-        Fill(newArr, defaultVal);
+        if (width != newWidth || height != newHeight || depth != newDepth)
+        {
+            Array3D<ArrayType> newArr(newWidth, newHeight, newDepth);
+            newArr.Fill(*this, defaultVal);
+            Reset(newWidth, newHeight);
+            Fill(newArr, defaultVal);
+        }
     }
 
 	ArrayType * GetArray(void) const { return arrayVals; }
