@@ -15,7 +15,7 @@ TransformObject TextRenderer::textRendererTransform = TransformObject();
 Matrix4f TextRenderer::viewMat = Matrix4f(),
          TextRenderer::projMat = Matrix4f(),
          TextRenderer::worldMat = Matrix4f();
-MTexture TextRenderer::tempTex = MTexture(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false);
+MTexture2D TextRenderer::tempTex = MTexture2D(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_8U_GREYSCALE, false);
 
 const char * textSamplerName = "u_charSampler";
 
@@ -121,7 +121,7 @@ unsigned int TextRenderer::CreateAFont(std::string fontPath, unsigned int pixelW
     return fontID;
 }
 bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
-                                         bool useMipmaps, TextureSampleSettings & settings, unsigned int numbSlots)
+                                         bool useMipmaps, TextureSampleSettings2D & settings, unsigned int numbSlots)
 {
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return false;
@@ -131,7 +131,7 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
     for (unsigned int i = 0; i < numbSlots; ++i)
     {
         //Create render target.
-        unsigned int rendTargetID = RTManager.CreateRenderTarget(PixelSizes::PS_16U_DEPTH);
+        unsigned int rendTargetID = RTManager.CreateRenderTarget(PS_16U_DEPTH);
         if (rendTargetID == RenderTargetManager::ERROR_ID)
         {
             errorMsg = "Error creating render target: " + RTManager.GetError();
@@ -141,14 +141,14 @@ bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int rende
         //Add the slot to the collection.
         Slot slot;
         slot.RenderTargetID = rendTargetID;
-        slot.ColorTex = new MTexture(settings, PixelSizes::PS_8U_GREYSCALE, true);
+        slot.ColorTex = new MTexture2D(settings, PS_8U_GREYSCALE, true);
         slot.String = "";
         slot.TextWidth = 0;
         slot.TextHeight = 0;
         slotCollection.insert(slotCollection.end(), slot);
 
         //Update the render target to use the color texture.
-        slot.ColorTex->Create(settings, useMipmaps, PixelSizes::PS_8U_GREYSCALE);
+        slot.ColorTex->Create(settings, useMipmaps, PS_8U_GREYSCALE);
         slot.ColorTex->ClearData(renderSpaceWidth, renderSpaceHeight);
         if (!RTManager[rendTargetID]->SetColorAttachment(RenderTargetTex(slot.ColorTex), true))
         {
@@ -207,7 +207,7 @@ const char * TextRenderer::GetString(FontSlot slot) const
 
     return slotP->String;
 }
-MTexture * TextRenderer::GetRenderedString(FontSlot slot) const
+MTexture2D * TextRenderer::GetRenderedString(FontSlot slot) const
 {
     const Slot * slotP;
     if (!TryFindFontSlot(slot, slotP)) return 0;
@@ -244,7 +244,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
     //Set up rendering.
     targ->EnableDrawingInto();
     RenderingState(RenderingState::C_BACK,
-                   RenderingState::BlendingExpressions::BE_SOURCE_COLOR, RenderingState::BlendingExpressions::BE_ONE_MINUS_SOURCE_COLOR,
+                   RenderingState::BE_SOURCE_COLOR, RenderingState::BE_ONE_MINUS_SOURCE_COLOR,
                    false, false).EnableState();
     ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 

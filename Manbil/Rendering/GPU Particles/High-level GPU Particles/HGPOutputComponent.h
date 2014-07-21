@@ -4,7 +4,7 @@
 
 #include "../../../Math/Higher Math/Gradient.h"
 #include "../../Materials/UniformCollections.h"
-#include "../../Texture Management/MTexture.h"
+#include "../../Texture Management/MTexture2D.h"
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../GPUParticleDefines.h"
 
@@ -47,11 +47,11 @@ struct HGPTextureQuality
 {
 public:
 
-    TextureSampleSettings::FilteringTypes FilterQuality;
+    FilteringTypes FilterQuality;
     PixelSizes PixelSize;
     unsigned int Width;
 
-    HGPTextureQuality(TextureSampleSettings::FilteringTypes filterQuality, PixelSizes pixelSize, unsigned int width)
+    HGPTextureQuality(FilteringTypes filterQuality, PixelSizes pixelSize, unsigned int width)
         : FilterQuality(filterQuality), PixelSize(pixelSize), Width(width)
     {
 
@@ -357,7 +357,7 @@ private:
     Gradient<ComponentSize> gradientValue;
     HGPTextureQuality gradientTexQuality;
 
-    MTexture gradientTex;
+    MTexture2D gradientTex;
 };
 
 

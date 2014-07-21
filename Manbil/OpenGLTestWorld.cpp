@@ -146,7 +146,7 @@ void OpenGLTestWorld::InitializeTextures(void)
         EndWorld();
         return;
     }
-    if (!TextRender->CreateTextRenderSlots(testFontID, 512, 64, true, TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP)))
+    if (!TextRender->CreateTextRenderSlots(testFontID, 512, 64, true, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
     {
         std::cout << "Error creating font slot for 'Content/Fonts/Candara.ttf': " << TextRender->GetError() << "\n";
         Pause();
@@ -477,7 +477,7 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     //Post-process chain.
     ppc = new PostProcessChain(ppcChain, windowSize.x, windowSize.y, false,
-                               TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP),
+                               TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
                                PixelSizes::PS_32F, *RenderTargets);
     if (ppc->HasError())
     {
@@ -496,11 +496,11 @@ OpenGLTestWorld::OpenGLTestWorld(void)
       particleMat(0), particleMesh(PrimitiveTypes::Points),
       particleManager(particleParams),
       cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0),
-      waterNormalTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, true),
-      cubemapTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, true),
-      worldColorTex1(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
-      worldColorTex2(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
-      worldDepthTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
+      waterNormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
+      cubemapTex(TextureSampleSettings3D(FT_LINEAR, WT_CLAMP), PS_32F, true),
+      worldColorTex1(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
+      worldColorTex2(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
+      worldDepthTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F_DEPTH, false)
 {
 }
 void OpenGLTestWorld::InitializeWorld(void)

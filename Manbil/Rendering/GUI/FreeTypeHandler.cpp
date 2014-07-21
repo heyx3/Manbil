@@ -1,7 +1,7 @@
 #include "FreeTypeHandler.h"
 
 #include <iostream>
-#include "../Texture Management/MTexture.h"
+#include "../Texture Management/MTexture2D.h"
 
 
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
@@ -262,7 +262,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
     }
 }
 
-void FreeTypeHandler::GetChar(MTexture & outTex) const
+void FreeTypeHandler::GetChar(MTexture2D & outTex) const
 {
     if (isGreyscale)
     {

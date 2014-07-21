@@ -10,7 +10,7 @@
 #include "../../Math/Vectors.h"
 #include "../../Math/Array2D.h"
 
-class MTexture;
+class MTexture2D;
 
 
 //Wraps all data about a font's size.
@@ -118,7 +118,7 @@ public:
     const Array2D<unsigned char> * GetGreyscaleChar(void) const { if (!isGreyscale) return 0; return &renderedTextGreyscale; }
 
     //Gets the most recently-rendered char and stores it into the given texture.
-    void GetChar(MTexture & outTex) const;
+    void GetChar(MTexture2D & outTex) const;
 
 
 private:

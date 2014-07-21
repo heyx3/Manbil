@@ -27,8 +27,8 @@ TwoDOpenGLTest::TwoDOpenGLTest(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y,
                       sf::ContextSettings(24, 0, 0, 4, 1)),
       cam(0), foreQuad(0), backQuad(0), quadMat(0),
-      foreTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U, true),
-      backTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_8U, true)
+      foreTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true),
+      backTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true)
 {
 
 }
@@ -127,7 +127,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
     //Load the foreground texture as a greyscale texture.
     Array2D<Vector4b> imgData(1, 1);
     Array2D<unsigned char> imgGreyscale(1, 1);
-    if (!MTexture::LoadImageFromFile("Content/Textures/shrub.png", imgData))
+    if (!MTexture2D::LoadImageFromFile("Content/Textures/shrub.png", imgData))
     {
         std::cout << "Error loading 'Content/Textures/shrub.png': " + error + "\n";
         Pause();

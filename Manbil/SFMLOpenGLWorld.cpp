@@ -15,6 +15,8 @@
 
 std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRenderer, bool drawingQuad)
 {
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     if (rift)
     {
         OculusDevice::InitializeSystem();

@@ -4,7 +4,7 @@
 #include <vector>
 #include "OpenGLIncludes.h"
 #include "Math/Vectors.h"
-#include "Rendering/Texture Management/MTexture.h"
+#include "Rendering/Texture Management/MTexture2D.h"
 #include "Rendering/Texture Management/MTextureCubemap.h"
 
 
@@ -13,11 +13,11 @@
 struct RenderTargetTex
 {
 public:
-    MTexture * MTex = 0;
+    MTexture2D * MTex = 0;
     MTextureCubemap * MTexCube = 0;
     CubeTextureTypes MTexCube_Face;
     RenderTargetTex(void) { }
-    RenderTargetTex(MTexture * mTex) : MTex(mTex) { }
+    RenderTargetTex(MTexture2D * mTex) : MTex(mTex) { }
     RenderTargetTex(MTextureCubemap * mTexCube, CubeTextureTypes face) : MTexCube(mTexCube), MTexCube_Face(face) { }
 };
 

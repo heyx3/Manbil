@@ -6,7 +6,6 @@
 
 //Represents a cubemap texture.
 //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-//PRIORITY: Add depth component support.
 class MTextureCubemap
 {
 public:
@@ -38,7 +37,7 @@ public:
 
     //Constructors/destructors.
 
-    MTextureCubemap(const TextureSampleSettings & _settings, PixelSizes _pixelSize, bool useMipmapping)
+    MTextureCubemap(const TextureSampleSettings3D & _settings, PixelSizes _pixelSize, bool useMipmapping)
         : texHandle(0), width(0), height(0), settings(_settings), pixelSize(_pixelSize), usesMipmaps(useMipmapping)
     {
         assert(!IsPixelSizeDepth(_pixelSize));
@@ -55,7 +54,7 @@ public:
 
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
-    const TextureSampleSettings & GetSamplingSettings(void) const { return settings; }
+    const TextureSampleSettings3D & GetSamplingSettings(void) const { return settings; }
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
@@ -66,15 +65,16 @@ public:
 
     //Setters.
 
-    void SetSettings(const TextureSampleSettings & newSettings);
+    void SetSettings(const TextureSampleSettings3D & newSettings);
 
-    void SetMinFilterType(TextureSampleSettings::FilteringTypes newFiltering);
-    void SetMagFilterType(TextureSampleSettings::FilteringTypes newFiltering);
-    void SetFilterType(TextureSampleSettings::FilteringTypes newFiltering);
+    void SetMinFilterType(FilteringTypes newFiltering);
+    void SetMagFilterType(FilteringTypes newFiltering);
+    void SetFilterType(FilteringTypes newFiltering);
 
-    void SetHorzWrappingType(TextureSampleSettings::WrappingTypes wrapping);
-    void SetVertWrappingType(TextureSampleSettings::WrappingTypes wrapping);
-    void SetWrappingType(TextureSampleSettings::WrappingTypes wrapping);
+    void SetXWrappingType(WrappingTypes wrapping);
+    void SetYWrappingType(WrappingTypes wrapping);
+    void SetZWrappingType(WrappingTypes wrapping);
+    void SetWrappingType(WrappingTypes wrapping);
 
 
     //Texture operations. All operations other than "Create" and "Bind" cause an OpenGL error if this is not a valid texture.
@@ -84,7 +84,7 @@ public:
     void Create(void) { Create(settings, usesMipmaps, pixelSize); }
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
-    void Create(const TextureSampleSettings & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
+    void Create(const TextureSampleSettings3D & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
 
     //If this is a valid texture, deletes it from OpenGL.
     //Returns whether anything needed to be deleted.
@@ -210,7 +210,7 @@ private:
 
     unsigned int width, height;
 
-    TextureSampleSettings settings;
+    TextureSampleSettings3D settings;
     PixelSizes pixelSize;
     bool usesMipmaps;
 

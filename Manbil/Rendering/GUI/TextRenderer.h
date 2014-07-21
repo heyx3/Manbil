@@ -2,7 +2,7 @@
 
 #include "FreeTypeHandler.h"
 #include "../Texture Management/RenderTargetManager.h"
-#include "../Texture Management/MTexture.h"
+#include "../Texture Management/MTexture2D.h"
 #include "../Helper Classes/DrawingQuad.h"
 
 
@@ -24,7 +24,7 @@ public:
 
 
     //TODO: Support text wrapping by changing the rendering algorithm. Render each character of a word into a separate texture and track the layout info, then see if the word will go off the right side of the texture. If so, start a new line there (also start a new line if the '\n' character is found).
-    //MTexture GetCharTextureHolder(unsigned int texture) { if (textures.size() <= texture) textures.insert(etc.....
+    //MTexture2D GetCharTextureHolder(unsigned int texture) { if (textures.size() <= texture) textures.insert(etc.....
 
 
     //Must be called before rendering any text.
@@ -53,7 +53,7 @@ public:
     //Creates the given number of render slots, all with the given width/height space.
     //Returns whether or not this function succeeded.
     bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight,
-                               bool useMipmapping, TextureSampleSettings & finalRenderSettings, unsigned int numbSlots = 1);
+                               bool useMipmapping, TextureSampleSettings2D & finalRenderSettings, unsigned int numbSlots = 1);
 
     //Gets whether the given slot exists.
     bool DoesSlotExist(FontSlot slot) const;
@@ -67,7 +67,7 @@ public:
     //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
     const char * GetString(FontSlot slot) const;
     //Gets the texture holding the rendered text from the given font/slot. Returns 0 if the given font/slot doesn't exist.
-    MTexture * GetRenderedString(FontSlot slot) const;
+    MTexture2D * GetRenderedString(FontSlot slot) const;
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
@@ -83,7 +83,7 @@ private:
     struct Slot
     {
         unsigned int RenderTargetID;
-        MTexture * ColorTex;
+        MTexture2D * ColorTex;
         const char * String;
         unsigned int TextWidth, TextHeight;
     };
@@ -116,7 +116,7 @@ private:
 
 
 
-    static MTexture tempTex;
+    static MTexture2D tempTex;
     static Material * textRenderer;
     static DrawingQuad * textRendererQuad;
     static UniformDictionary textRendererParams;

@@ -283,7 +283,7 @@ void Water::SetSeededWater(const SeededWaterArgs & args)
     Vector3f data(args.Amplitude, args.Period, args.Speed);
     Params.FloatUniforms["amplitude_period_speed"].SetValue(data);
 }
-void Water::SetSeededWaterSeed(const MTexture * newSeedValues)
+void Water::SetSeededWaterSeed(const MTexture2D * newSeedValues)
 {
     seedTex = newSeedValues;
     Params.Texture2DUniforms["seedMap"].Texture = seedTex->GetTextureHandle();

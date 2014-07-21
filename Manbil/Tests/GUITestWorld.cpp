@@ -59,7 +59,7 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
         return "Error creating font '" + fontPath + "': " + rendr->GetError();
     }
     if (!rendr->CreateTextRenderSlots(textRendererID, textSize.x, textSize.y, false,
-                                      TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_CLAMP)))
+                                      TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
     {
         return "Error creating render slot for '" + fontPath + "': " + rendr->GetError();
     }

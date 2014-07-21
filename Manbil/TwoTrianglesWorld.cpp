@@ -2,7 +2,7 @@
 
 #include "RenderingState.h"
 #include "ScreenClearer.h"
-#include "Rendering/Texture Management/MTexture.h"
+#include "Rendering/Texture Management/MTexture2D.h"
 #include "Input/Input Objects/KeyboardBoolInput.h"
 #include "MovingCamera.h"
 #include <iostream>
@@ -170,8 +170,8 @@ bool DoesMatUseCustomTex(void)
 #pragma region Textures
 
 
-MTexture customTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, false),
-         noiseTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, false);
+MTexture2D customTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_32F, false),
+           noiseTex(TextureSampleSettings2D(FT_NEAREST, WT_WRAP), PixelSizes::PS_32F, false);
 std::string customTexPath = "";
 
 //Gets the noise texture as well as a custom texture from the user if necessary.

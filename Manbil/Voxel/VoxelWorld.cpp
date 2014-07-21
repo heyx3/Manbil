@@ -47,9 +47,9 @@ VoxelWorld::VoxelWorld(void)
         voxelMat(0), voxelHighlightMat(0), voxelHighlightMesh(PrimitiveTypes::TriangleList),
         renderState(RenderingState::Cullables::C_BACK),
         player(manager), oculusDev(0), postProcessing(0),
-        voxelTex(TextureSampleSettings(TextureSampleSettings::FT_LINEAR, TextureSampleSettings::WT_WRAP), PixelSizes::PS_32F, true),
-        worldRenderTargetColorTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F, false),
-        worldRenderTargetDepthTex(TextureSampleSettings(TextureSampleSettings::FT_NEAREST, TextureSampleSettings::WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
+        voxelTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
+        worldRenderTargetColorTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
+        worldRenderTargetDepthTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F_DEPTH, false)
 {
 
 }

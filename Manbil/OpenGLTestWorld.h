@@ -58,7 +58,7 @@ private:
 	MovingCamera cam;
 
     unsigned int worldRenderID;
-    MTexture worldColorTex1, worldColorTex2, worldDepthTex;
+    MTexture2D worldColorTex1, worldColorTex2, worldDepthTex;
 
     PostProcessChain * ppc;
     std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
@@ -75,5 +75,5 @@ private:
 
     TextRenderer::FontSlot testFontSlot;
 
-    MTexture waterNormalTex;
+    MTexture2D waterNormalTex;
 };

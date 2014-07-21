@@ -294,9 +294,6 @@
     <ClCompile Include="Rendering\GUI\GUIElement.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\MTexture.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
@@ -320,6 +317,9 @@
     </ClCompile>
     <ClCompile Include="IO\BinarySerialization.cpp">
       <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\MTexture2D.cpp">
+      <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -760,9 +760,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\MTexture.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Texture Management\TextureSettings.h">
       <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
@@ -789,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="IO\BinarySerialization.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\MTexture2D.h">
+      <Filter>Rendering\Texture Management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

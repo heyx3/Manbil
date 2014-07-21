@@ -6,7 +6,7 @@
 #include "../../Material.h"
 #include "../../Math/HigherMath.hpp"
 #include "../../OptionalValue.h"
-#include "../Texture Management/MTexture.h"
+#include "../Texture Management/MTexture2D.h"
 
 
 //The Vertex struct used for water. Inputs:
@@ -99,8 +99,8 @@ public:
     struct SeedmapWaterCreationArgs
     {
     public:
-        const MTexture * SeedValues;
-        SeedmapWaterCreationArgs(const MTexture * seedValues = 0) : SeedValues(seedValues) { }
+        const MTexture2D * SeedValues;
+        SeedmapWaterCreationArgs(const MTexture2D * seedValues = 0) : SeedValues(seedValues) { }
     };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos, Vector3f scale,
@@ -144,7 +144,7 @@ public:
     //Changes the properties of the water.
     void SetSeededWater(const SeededWaterArgs & args);
     //Changes the heightmap used to seed this water.
-    void SetSeededWaterSeed(const MTexture * newSeedValues);
+    void SetSeededWaterSeed(const MTexture2D * newSeedValues);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
@@ -175,6 +175,6 @@ private:
     Vector4f * f_a_p;
     float * tsc;
 
-    const MTexture * seedTex;
+    const MTexture2D * seedTex;
     Mesh waterMesh;
 };

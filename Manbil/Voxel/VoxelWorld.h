@@ -10,7 +10,7 @@
 #include "../Math/Higher Math/Lighting.h"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
 #include "../Rendering/Texture Management/RenderTargetManager.h"
-#include "../Rendering/Texture Management/MTexture.h"
+#include "../Rendering/Texture Management/MTexture2D.h"
 
 class VoxelWorldPPC;
 
@@ -75,14 +75,14 @@ private:
 
     Material * voxelMat;
     UniformDictionary voxelParams;
-    MTexture voxelTex;
+    MTexture2D voxelTex;
 
     Material * voxelHighlightMat;
     Mesh voxelHighlightMesh;
     UniformDictionary voxelHighlightParams;
 
     unsigned int worldRenderTarget;
-    MTexture worldRenderTargetColorTex, worldRenderTargetDepthTex;
+    MTexture2D worldRenderTargetColorTex, worldRenderTargetDepthTex;
     VoxelWorldPPC * postProcessing;
 
     Material * finalWorldRenderMat;

@@ -171,7 +171,7 @@
     <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp" />
     <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp" />
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp" />
-    <ClCompile Include="Rendering\Texture Management\MTexture.cpp" />
+    <ClCompile Include="Rendering\Texture Management\MTexture2D.cpp" />
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp" />
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp" />
@@ -328,7 +328,7 @@
     <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h" />
     <ClInclude Include="Rendering\PrimitiveGenerator.h" />
     <ClInclude Include="Rendering\Rendering.hpp" />
-    <ClInclude Include="Rendering\Texture Management\MTexture.h" />
+    <ClInclude Include="Rendering\Texture Management\MTexture2D.h" />
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h" />
     <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Texture Management\TextureChannels.h" />

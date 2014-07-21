@@ -1,7 +1,7 @@
 #include "TextureSettings.h"
 
 
-GLint TextureSampleSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
+GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
 {
     return (tf == FilteringTypes::FT_LINEAR) ?
                 ((minFilter && genMips) ?
@@ -11,7 +11,7 @@ GLint TextureSampleSettings::ToGLInt(FilteringTypes tf, bool minFilter, bool gen
                      GL_NEAREST_MIPMAP_LINEAR :
                      GL_NEAREST);
 }
-GLint TextureSampleSettings::ToGLInt(WrappingTypes twa)
+GLint ToGLInt(WrappingTypes twa)
 {
     return (twa == WrappingTypes::WT_CLAMP) ?
                 GL_CLAMP_TO_EDGE :

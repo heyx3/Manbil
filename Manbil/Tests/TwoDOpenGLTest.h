@@ -36,7 +36,7 @@ private:
 
     Camera * cam;
 
-    MTexture backTex, foreTex;
+    MTexture2D backTex, foreTex;
 
     Material * quadMat;
     DrawingQuad * foreQuad, * backQuad;

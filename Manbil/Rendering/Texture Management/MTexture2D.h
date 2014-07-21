@@ -6,12 +6,12 @@
 
 //Represents a texture.
 //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-class MTexture
+class MTexture2D
 {
 public:
 
     //Gets the currently-bound texture. Returns 0 if no texture is currently-bound.
-    static const MTexture * CurrentlyBound(void) { return currentBound; }
+    static const MTexture2D * CurrentlyBound(void) { return currentBound; }
 
     //Loads the file at the given path into the given array.
     //Automatically resizes the array to fit the image size.
@@ -20,14 +20,14 @@ public:
 
     //Constructors/destructors.
 
-    MTexture(const TextureSampleSettings & _settings, PixelSizes _pixelSize, bool useMipmapping)
+    MTexture2D(const TextureSampleSettings2D & _settings, PixelSizes _pixelSize, bool useMipmapping)
         : texHandle(0), width(0), height(0), settings(_settings), pixelSize(_pixelSize), usesMipmaps(useMipmapping)
     {
 
     }
-    ~MTexture(void) { DeleteIfValid(); }
+    ~MTexture2D(void) { DeleteIfValid(); }
 
-    MTexture(MTexture & cpy); //Intentionally not implemented.
+    MTexture2D(MTexture2D & cpy); //Intentionally not implemented.
 
 
     //Getters.
@@ -37,7 +37,7 @@ public:
 
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
-    const TextureSampleSettings & GetSamplingSettings(void) const { return settings; }
+    const TextureSampleSettings2D & GetSamplingSettings(void) const { return settings; }
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
@@ -48,15 +48,15 @@ public:
 
     //Setters.
 
-    void SetSettings(const TextureSampleSettings & newSettings);
+    void SetSettings(const TextureSampleSettings2D & newSettings);
 
-    void SetMinFilterType(TextureSampleSettings::FilteringTypes newFiltering);
-    void SetMagFilterType(TextureSampleSettings::FilteringTypes newFiltering);
-    void SetFilterType(TextureSampleSettings::FilteringTypes newFiltering);
+    void SetMinFilterType(FilteringTypes newFiltering);
+    void SetMagFilterType(FilteringTypes newFiltering);
+    void SetFilterType(FilteringTypes newFiltering);
 
-    void SetHorzWrappingType(TextureSampleSettings::WrappingTypes wrapping);
-    void SetVertWrappingType(TextureSampleSettings::WrappingTypes wrapping);
-    void SetWrappingType(TextureSampleSettings::WrappingTypes wrapping);
+    void SetHorzWrappingType(WrappingTypes wrapping);
+    void SetVertWrappingType(WrappingTypes wrapping);
+    void SetWrappingType(WrappingTypes wrapping);
 
 
     //Texture operations. All operations other than "Create" and "Bind" fail if this is not a valid texture.
@@ -66,7 +66,7 @@ public:
     void Create(void) { Create(settings, usesMipmaps, pixelSize); }
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
-    void Create(const TextureSampleSettings & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
+    void Create(const TextureSampleSettings2D & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
 
     //If this is a valid texture, deletes it from OpenGL.
     //Returns whether anything needed to be deleted.
@@ -192,7 +192,7 @@ private:
 
     unsigned int width, height;
 
-    TextureSampleSettings settings;
+    TextureSampleSettings2D settings;
     PixelSizes pixelSize;
     bool usesMipmaps;
 
@@ -204,5 +204,5 @@ private:
     GLenum GetComponentType(void) const;
 
 
-    static const MTexture * currentBound;
+    static const MTexture2D * currentBound;
 };

@@ -6,7 +6,7 @@
 
 PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
                                    unsigned int screenWidth, unsigned int screenHeight, bool useMipmaps,
-                                   const TextureSampleSettings & renderTargetSettings, PixelSizes pixelSize,
+                                   const TextureSampleSettings2D & renderTargetSettings, PixelSizes pixelSize,
                                    RenderTargetManager & manager)
     : rtManager(manager), rt1(RenderTargetManager::ERROR_ID), rt2(RenderTargetManager::ERROR_ID),
       ct1(renderTargetSettings, pixelSize, useMipmaps), ct2(renderTargetSettings, pixelSize, useMipmaps)

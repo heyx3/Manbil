@@ -22,7 +22,7 @@ public:
 
     PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect>> effectChain,
                      unsigned int screenWidth, unsigned int screenHeight, bool useMipmaps,
-                     const TextureSampleSettings & renderTargetSettings, PixelSizes pixelSize,
+                     const TextureSampleSettings2D & renderTargetSettings, PixelSizes pixelSize,
                      RenderTargetManager & manager);
     ~PostProcessChain(void)
     {
@@ -84,6 +84,6 @@ private:
 
     RenderTargetManager & rtManager;
     unsigned int rt1, rt2;
-    MTexture ct1, ct2;
+    MTexture2D ct1, ct2;
     unsigned int totalPasses;
 };

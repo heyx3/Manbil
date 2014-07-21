@@ -14,14 +14,14 @@ class GUIElement
 public:
 
     //The background texture of the element.
-    MTexture * BackgroundTex;
+    MTexture2D * BackgroundTex;
     //The width/height of the collision box, not including the width/height of the background texture.
     Vector2i CollDimensionsExtra;
     //The offset of the collision box, relative to the center of the background texture.
     Vector2i CollCenterOffset;
     
 
-    GUIElement(MTexture * backgroundTex, Vector2i collDimensionsExtra, Vector2i collCenterOffset)
+    GUIElement(MTexture2D * backgroundTex, Vector2i collDimensionsExtra, Vector2i collCenterOffset)
         : BackgroundTex(backgroundTex), CollDimensionsExtra(collDimensionsExtra), CollCenterOffset(collCenterOffset)
     {
 
@@ -82,7 +82,7 @@ public:
     GUIScreen & Screen;
 
     TextRenderer & TextRender;
-    MTexture * BackgroundImage;
+    MTexture2D * BackgroundImage;
 
     Material * RenderMat;
     UniformDictionary RenderParams;

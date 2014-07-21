@@ -3,7 +3,7 @@
 
 const MTextureCubemap * MTextureCubemap::currentlyBound = 0;
 
-void MTextureCubemap::SetSettings(const TextureSampleSettings & newSettings)
+void MTextureCubemap::SetSettings(const TextureSampleSettings3D & newSettings)
 {
     settings = newSettings;
 
@@ -14,7 +14,7 @@ void MTextureCubemap::SetSettings(const TextureSampleSettings & newSettings)
     }
 }
 
-void MTextureCubemap::SetMinFilterType(TextureSampleSettings::FilteringTypes newFiltering)
+void MTextureCubemap::SetMinFilterType(FilteringTypes newFiltering)
 {
     settings.MinFilter = newFiltering;
 
@@ -24,7 +24,7 @@ void MTextureCubemap::SetMinFilterType(TextureSampleSettings::FilteringTypes new
         settings.ApplyMinFilter(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-void MTextureCubemap::SetMagFilterType(TextureSampleSettings::FilteringTypes newFiltering)
+void MTextureCubemap::SetMagFilterType(FilteringTypes newFiltering)
 {
     settings.MagFilter = newFiltering;
 
@@ -34,7 +34,7 @@ void MTextureCubemap::SetMagFilterType(TextureSampleSettings::FilteringTypes new
         settings.ApplyMagFilter(TextureTypes::TT_CUBE, UsesMipmaps());
     }
 }
-void MTextureCubemap::SetFilterType(TextureSampleSettings::FilteringTypes newFiltering)
+void MTextureCubemap::SetFilterType(FilteringTypes newFiltering)
 {
     settings.MinFilter = newFiltering;
     settings.MagFilter = newFiltering;
@@ -46,30 +46,41 @@ void MTextureCubemap::SetFilterType(TextureSampleSettings::FilteringTypes newFil
     }
 }
 
-void MTextureCubemap::SetHorzWrappingType(TextureSampleSettings::WrappingTypes wrapping)
+void MTextureCubemap::SetXWrappingType(WrappingTypes wrapping)
 {
-    settings.HorzWrap = wrapping;
+    settings.XWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyHorzWrapping(TextureTypes::TT_CUBE);
+        settings.ApplyXWrapping(TextureTypes::TT_CUBE);
     }
 }
-void MTextureCubemap::SetVertWrappingType(TextureSampleSettings::WrappingTypes wrapping)
+void MTextureCubemap::SetYWrappingType(WrappingTypes wrapping)
 {
-    settings.VertWrap = wrapping;
+    settings.YWrap = wrapping;
 
     if (IsValidTexture())
     {
         Bind();
-        settings.ApplyVertWrapping(TextureTypes::TT_CUBE);
+        settings.ApplyYWrapping(TextureTypes::TT_CUBE);
     }
 }
-void MTextureCubemap::SetWrappingType(TextureSampleSettings::WrappingTypes wrapping)
+void MTextureCubemap::SetZWrappingType(WrappingTypes wrapping)
 {
-    settings.HorzWrap = wrapping;
-    settings.VertWrap = wrapping;
+    settings.ZWrap = wrapping;
+
+    if (IsValidTexture())
+    {
+        Bind();
+        settings.ApplyZWrapping(TextureTypes::TT_CUBE);
+    }
+}
+void MTextureCubemap::SetWrappingType(WrappingTypes wrapping)
+{
+    settings.XWrap = wrapping;
+    settings.YWrap = wrapping;
+    settings.ZWrap = wrapping;
 
     if (IsValidTexture())
     {
@@ -78,7 +89,7 @@ void MTextureCubemap::SetWrappingType(TextureSampleSettings::WrappingTypes wrapp
     }
 }
 
-void MTextureCubemap::Create(const TextureSampleSettings & texSettings, bool useMipmaps, PixelSizes _pixelSize)
+void MTextureCubemap::Create(const TextureSampleSettings3D & texSettings, bool useMipmaps, PixelSizes _pixelSize)
 {
     DeleteIfValid();
 
