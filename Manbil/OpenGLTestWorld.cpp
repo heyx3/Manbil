@@ -349,7 +349,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         const unsigned int posSeeds[] = { 5, 1, 3, 2 },
                            velSeeds[] = { 0, 1, 2 },
                            accelSeeds[] = { 3, 4, 5 };
-        HGPComponentPtr(3) initialPos(new SpherePositionComponent(manager, Vector3f(0.0f, 0.0f, 50.0f), 20.0f, posSeeds));
+        HGPComponentPtr(3) initialPos(new SpherePositionComponent(manager, Vector3f(500.0f, 500.0f, 50.0f), 20.0f, posSeeds));
         HGPComponentPtr(3) initialVel(new RandomizedHGPComponent<3>(manager, HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(80.0f, 80.0f, 30.0f), manager)),
                                                                     HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(-80.0f, -80.0f, 70.0f), manager)),
                                                                     velSeeds)),
