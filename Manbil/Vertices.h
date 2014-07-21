@@ -14,6 +14,7 @@
 //For example, if the vertex only has UV and Normal, it should be the size of (2 + 3) * sizeof(float).
 //It also assumes that the attributes are ordered in the order this class was given.
 //TODO: This is used as input/output data specification for all the different kinds of shaders, so rename this something like "ShaderInOutAttributes".
+//TODO: Pull stuff into .cpp file.
 class VertexAttributes
 {
 public:
@@ -163,6 +164,14 @@ struct VertexPosTex2
     VertexPosTex2(Vector3f pos = Vector3f(), Vector2f texCoords1 = Vector2f(), Vector2f texCoords2 = Vector2f()) : Pos(pos), TexCoords1(texCoords1), TexCoords2(texCoords2) { }
 
     static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 2, false, false, false); }
+};
+
+struct VertexPosNormal
+{
+    Vector3f Pos, Normal;
+    VertexPosNormal(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f)) : Pos(pos), Normal(normal) { }
+
+    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 3, false, true); }
 };
 
 struct VertexPosTex1Normal
