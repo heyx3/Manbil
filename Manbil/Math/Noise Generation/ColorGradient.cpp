@@ -26,23 +26,12 @@ void ColorGradient::CheckErrors(void) const
 	}
 }
 
-void ColorGradient::GetColors(Array2D<Vector4f> & outCols, const Array2D<float> & noiseValues) const
+void ColorGradient::GetColors(Vector4f * outColors, const float * noiseValues, unsigned int numbElements) const
 {
 	CheckErrors();
 
-	int x, y;
-	Vector2i loc;
-	for (x = 0; x < outCols.GetWidth(); ++x)
-	{
-		loc.x = x;
-
-		for (y = 0; y < outCols.GetHeight(); ++y)
-		{
-			loc.y = y;
-
-			outCols[loc] = GetColorWOErrorChecking(noiseValues[loc]);
-		}
-	}
+    for (unsigned int i = 0; i < numbElements; ++i)
+        outColors[i] = GetColorWOErrorChecking(noiseValues[i]);
 }
 Vector4f ColorGradient::GetColorWOErrorChecking(float f) const
 {
