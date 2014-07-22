@@ -1,123 +1,70 @@
 #include "NoiseFilterRegion.h"
 
 
-void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
+void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrength)
 {
-    Vector2i loc;
-    for (loc.y = 0; loc.y < noiseSize.y; ++loc.y)
-    {
+    for (Vector2u loc; loc.y < noiseSize.y; ++loc.y)
         for (loc.x = 0; loc.x < noiseSize.x; ++loc.x)
-        {
             if (ActiveIn.Touches(noise[loc]))
                 toDo(pData, loc, StrengthLerp);
-        }
-    }
 }
 
-void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
+void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrength)
 {
-    Vector2i loc;
-    Vector2f locF;
-    float radSqr = BasicMath::Square(Radius);
-    Vector2i topLeft((int)(Center.x - Radius), (int)(Center.y - Radius)),
-        bottomRight((int)(0.5f + Center.x + Radius), (int)(0.5f + Center.y + Radius));
-    if (topLeft.x < 0) topLeft.x = 0;
-    if (topLeft.y < 0) topLeft.y = 0;
-    if (topLeft.x >= noiseSize.x) topLeft.x = noiseSize.x - 1;
-    if (topLeft.y >= noiseSize.y) topLeft.y = noiseSize.y - 1;
-    if (bottomRight.x < 0) bottomRight.x = 0;
-    if (bottomRight.y < 0) bottomRight.y = 0;
-    if (bottomRight.x >= noiseSize.x) bottomRight.x = noiseSize.x - 1;
-    if (bottomRight.y >= noiseSize.y) bottomRight.y = noiseSize.y - 1;
-
-    if (calcStrength)
+    Vector2i minCorner = (Center - Vector2f(Radius, Radius)).CastToInt(),
+             maxCorner = (Center + Vector2f(Radius, Radius)).Ceil();
+    if (!Wrap)
     {
-        if (Wrap)
+        minCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        minCorner.y = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        maxCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        maxCorner.y = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+    }
+
+    Vector2f locF;
+    float(*strengthCalculator)(Vector2f pos, CircularFilterRegion * thisR);
+    if (calcStrength) strengthCalculator = [](Vector2f p, CircularFilterRegion * thisR) { return thisR->GetStrengthDropoffScale(p); };
+    else strengthCalculator = [](Vector2f p, CircularFilterRegion * thisR) { return 1.0f; };
+
+    if (Wrap)
+    {
+        Vector2i wrapped;
+        for (Vector2i loc(0, minCorner.y); loc.y <= maxCorner.y; ++loc.y)
         {
-            Vector2i wrapped;
-            for (loc.y = topLeft.y; loc.y < bottomRight.y; ++loc.y)
+            locF.y = (float)loc.y;
+
+            wrapped.y = loc.y;
+            while (wrapped.y < 0) wrapped.y += noiseSize.y;
+            while (wrapped.y >= noiseSize.y) wrapped.y -= noiseSize.y;
+
+            for (loc.x = minCorner.x; loc.x <= maxCorner.x; ++loc.x)
             {
-                wrapped.y = noise.Wrap(Vector2i(0, loc.y)).y;
-                locF.y = (float)wrapped.y;
+                locF.x = (float)loc.x;
 
-                for (loc.x = topLeft.x; loc.x < bottomRight.x; ++loc.x)
-                {
-                    wrapped.x = noise.Wrap(Vector2i(loc.x, 0)).x;
-                    locF.x = (float)wrapped.x;
+                wrapped.x = loc.x;
+                while (wrapped.x < 0) wrapped.x += noiseSize.x;
+                while (wrapped.x >= noiseSize.x) wrapped.x -= noiseSize.x;
 
-                    if (Center.DistanceSquared(locF) <= radSqr)
-                    {
-                        if (ActiveIn.Touches(noise[wrapped]))
-                            toDo(pData, wrapped, StrengthLerp * GetStrengthDropoffScale(locF));
-                    }
-                }
+                Vector2u wrappedU(wrapped.x, wrapped.y);
+                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.Touches(noise[wrappedU]))
+                    toDo(pData, wrappedU, StrengthLerp * strengthCalculator(locF, this));
             }
         }
-        else
-        {
-            Vector2i min(BasicMath::Max(0, topLeft.x), BasicMath::Max(0, topLeft.y)),
-                     max(BasicMath::Min((int)noise.GetWidth() - 1, bottomRight.x),
-                         BasicMath::Min((int)noise.GetHeight() - 1, bottomRight.y));
-            for (loc.y = min.y; loc.y <= max.y; ++loc.y)
-            {
-                locF.y = (float)loc.y;
-
-                for (loc.x = min.x; loc.x <= max.x; ++loc.x)
-                {
-                    locF.x = (float)loc.x;
-
-                    if (Center.DistanceSquared(locF) <= radSqr)
-                    {
-                        if (ActiveIn.Touches(noise[loc]))
-                            toDo(pData, loc, StrengthLerp * GetStrengthDropoffScale(locF));
-                    }
-                }
-            }
-        }
-        
     }
     else
     {
-        if (Wrap)
+        Vector2u minCornerU(BasicMath::Max<unsigned int>(0, minCorner.x),
+                            BasicMath::Max<unsigned int>(0, minCorner.y));
+        for (Vector2u loc(0, minCornerU.y); loc.y <= (unsigned int)maxCorner.y; ++loc.y)
         {
-            Vector2i wrapped;
-            for (loc.y = topLeft.y; loc.y < bottomRight.y; ++loc.y)
+            locF.y = (float)loc.y;
+
+            for (loc.x = minCornerU.x; loc.x <= (unsigned int)maxCorner.x; ++loc.x)
             {
-                wrapped.y = noise.Wrap(Vector2i(0, loc.y)).y;
-                locF.y = (float)wrapped.y;
+                locF.x = (float)loc.x;
 
-                for (loc.x = topLeft.x; loc.x < bottomRight.x; ++loc.x)
-                {
-                    wrapped.x = noise.Wrap(Vector2i(loc.x, 0)).x;
-                    locF.x = (float)wrapped.x;
-
-                    if (Center.DistanceSquared(locF) <= radSqr)
-                    {
-                        if (ActiveIn.Touches(noise[wrapped]))
-                            toDo(pData, wrapped, StrengthLerp);
-                    }
-                }
-            }
-        }
-        else
-        {
-            Vector2i min(BasicMath::Max(0, topLeft.x), BasicMath::Max(0, topLeft.y)),
-                max(BasicMath::Min((int)noise.GetWidth() - 1, bottomRight.x),
-                BasicMath::Min((int)noise.GetHeight() - 1, bottomRight.y));
-            for (loc.y = min.y; loc.y <= max.y; ++loc.y)
-            {
-                locF.y = (float)loc.y;
-
-                for (loc.x = min.x; loc.x <= max.x; ++loc.x)
-                {
-                    locF.x = (float)loc.x;
-
-                    if (Center.DistanceSquared(locF) <= radSqr)
-                    {
-                        if (ActiveIn.Touches(noise[loc]))
-                            toDo(pData, loc, StrengthLerp);
-                    }
-                }
+                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.Touches(noise[loc]))
+                    toDo(pData, loc, StrengthLerp * strengthCalculator(locF, this));
             }
         }
     }
@@ -130,7 +77,7 @@ float CircularFilterRegion::GetStrengthDropoffScale(Vector2f pos) const
     }
 
     float maxDist = BasicMath::Abs(DropoffRadiusPercent) * Radius,
-        dist = pos.Distance(Center);
+          dist = pos.Distance(Center);
     if (DropoffRadiusPercent > 0.0f)
     {
         return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
@@ -141,33 +88,38 @@ float CircularFilterRegion::GetStrengthDropoffScale(Vector2f pos) const
     }
 }
 
-void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrength)
+void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrength)
 {
     if (Wrap)
     {
-        Vector2i loc, wrapped;
-        for (loc.y = TopLeft.y; loc.y <= BottomRight.y; ++loc.y)
+        Vector2i wrapped;
+        for (Vector2i loc(0, TopLeft.y); loc.y <= BottomRight.y; ++loc.y)
         {
-            wrapped.y = noise.Wrap(loc).y;
+            wrapped.y = loc.y;
+            while (wrapped.y < 0) wrapped.y += noiseSize.y;
+            while (wrapped.y >= noiseSize.y) wrapped.y -= noiseSize.y;
 
             for (loc.x = TopLeft.x; loc.x <= BottomRight.x; ++loc.x)
             {
-                wrapped.x = noise.Wrap(loc).x;
+                wrapped.x = loc.x;
+                while (wrapped.x < 0) wrapped.x += noiseSize.x;
+                while (wrapped.x >= noiseSize.x) wrapped.x -= noiseSize.x;
 
-                if (ActiveIn.Touches(noise[wrapped]))
-                    toDo(pData, wrapped, StrengthLerp);
+                Vector2u wrappedU((unsigned int)wrapped.x, (unsigned int)wrapped.y);
+
+                if (ActiveIn.Touches(noise[wrappedU]))
+                    toDo(pData, wrappedU, StrengthLerp);
             }
         }
     }
     else
     {
-        Vector2i min(BasicMath::Max(0, TopLeft.x), BasicMath::Max(0, TopLeft.y)),
-                 max(BasicMath::Min((int)noise.GetWidth() - 1, BottomRight.x),
-                     BasicMath::Min((int)noise.GetHeight() - 1, BottomRight.y));
-
-        Vector2i loc;
-        for (loc.y = min.y; loc.y <= max.y; ++loc.y)
-            for (loc.x = min.x; loc.x <= max.x; ++loc.x)
+        Vector2u topLeftU(BasicMath::Max<unsigned int>(0, TopLeft.x),
+                          BasicMath::Max<unsigned int>(0, TopLeft.y));
+        Vector2u maxCornerU(BasicMath::Min<unsigned int>(BottomRight.x, noiseSize.x),
+                            BasicMath::Min<unsigned int>(BottomRight.y, noiseSize.y));
+        for (Vector2u loc(0, topLeftU.y); loc.y <= maxCornerU.y; ++loc.y)
+            for (loc.x = topLeftU.x; loc.x <= maxCornerU.x; ++loc.x)
                 if (ActiveIn.Touches(noise[loc]))
                     toDo(pData, loc, StrengthLerp);
     }

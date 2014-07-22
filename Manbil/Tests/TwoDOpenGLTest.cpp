@@ -135,7 +135,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
         return;
     }
     imgGreyscale.Reset(imgData.GetWidth(), imgData.GetHeight());
-    imgGreyscale.FillFunc([&imgData](Vector2i loc, unsigned char * outP) { *outP = imgData[loc].y; });
+    imgGreyscale.FillFunc([&imgData](Vector2u loc, unsigned char * outP) { *outP = imgData[loc].y; });
     if (!foreTex.SetGreyscaleData(imgGreyscale, PixelSizes::PS_8U_GREYSCALE))
     {
         std::cout << "Error setting foreground texture data.\n";

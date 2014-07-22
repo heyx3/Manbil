@@ -493,6 +493,8 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, y)));
         }
 
+        Vector2u CastToUInt(void) const { return Vector2u((unsigned int)x, (unsigned int)y); }
+
         float Length(void) const { return sqrtf((float)LengthSquared()); }
 		int LengthSquared(void) const { return (x * x) + (y * y); }
 
@@ -587,6 +589,8 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, y)),
                             BasicMath::Max(min, BasicMath::Min(max, z)));
         }
+
+        Vector3u CastToUInt(void) const { return Vector3u((unsigned int)x, (unsigned int)y, (unsigned int)z); }
 
 		int Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 		float AngleBetween(Vector3i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
@@ -684,6 +688,8 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, z)),
                             BasicMath::Max(min, BasicMath::Min(max, w)));
         }
+
+        Vector4u CastToUInt(void) const { return Vector4u((unsigned int)x, (unsigned int)y, (unsigned int)z, (unsigned int)w); }
 
         int Dot(Vector4i other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
         float AngleBetween(Vector4i other) const { return acosf(Dot(other) / (Length() * other.Length())); }
@@ -1051,6 +1057,10 @@ namespace MyVectors
 
 	#pragma endregion
 
+
+    static inline Vector2i ToV2i(Vector2u inV) { return Vector2i((int)inV.x, (int)inV.y); }
+    static inline Vector3i ToV3i(Vector3u inV) { return Vector3i((int)inV.x, (int)inV.y, (int)inV.z); }
+    static inline Vector4i ToV3i(Vector4u inV) { return Vector4i((int)inV.x, (int)inV.y, (int)inV.z, (int)inV.w); }
 
     static inline Vector2f ToV2f(Vector2i inV) { return Vector2f((float)inV.x, (float)inV.y); }
     static inline Vector3f ToV3f(Vector3i inV) { return Vector3f((float)inV.x, (float)inV.y, (float)inV.z); }

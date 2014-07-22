@@ -34,8 +34,8 @@ public:
             : Chunk(chunk), ChunkRayCastResult(chunkRayCastResult) { }
     };
     //Casts a ray and returns the voxel that was hit.
-    //If nothing was hit, returns RayCastResult(0, Vector3i(-1, -1, -1)).
-    //The ray cast fails if it runs into a missing chunk.
+    //If nothing was hit, returns a ray cast result with invalid VoxelRayHit data.
+    //The ray cast fails if it runs into a missing chunk or passes the max cast distance.
     RayCastResult CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist = 999999.0f) const;
 
 
@@ -87,8 +87,8 @@ public:
     {
     public:
         VoxelChunk * Chunk;
-        Vector3i LocalIndex;
-        VoxelLocation(VoxelChunk * chunk = 0, Vector3i localIndex = Vector3i()) : Chunk(chunk), LocalIndex(localIndex) { }
+        Vector3u LocalIndex;
+        VoxelLocation(VoxelChunk * chunk = 0, Vector3u localIndex = Vector3u()) : Chunk(chunk), LocalIndex(localIndex) { }
     };
     //Gets the voxel equal to the given voxel offset by the given amount.
     VoxelLocation GetOffset(VoxelLocation voxel, Vector3i offset) const;

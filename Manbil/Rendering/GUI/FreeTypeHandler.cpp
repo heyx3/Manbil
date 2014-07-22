@@ -206,9 +206,9 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
         renderedTextColor.Reset(1, 1);
 
         renderedTextGreyscale.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2i loc, unsigned char * outP)
+        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2u loc, unsigned char * outP)
         {
-            unsigned int index = ((unsigned int)loc.x / 8) + ((unsigned int)loc.y * absPitch);
+            unsigned int index = (loc.x / 8) + (loc.y * absPitch);
             int bit = loc.x % 8;
 
             unsigned char value = fce->glyph->bitmap.buffer[index] | (128 >> bit);
@@ -229,10 +229,10 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
 
         //TODO: Figure out wtf is going on.
         renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextColor.FillFunc([&fce, absPitch](Vector2i loc, Vector4b * outP)
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b * outP)
         {
             loc.y = fce->glyph->bitmap.rows - loc.y - 1;
-            unsigned int index = (unsigned int)loc.x + ((unsigned int)loc.y * absPitch);
+            unsigned int index = loc.x + (loc.y * absPitch);
             unsigned char value = fce->glyph->bitmap.buffer[index];
 
             *outP = Vector4b(value, value, value, value);
@@ -247,9 +247,9 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
         isGreyscale = false;
 
         renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextColor.FillFunc([&fce, absPitch](Vector2i loc, Vector4b * outP)
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b * outP)
         {
-            unsigned int index = ((unsigned int)loc.x * 3) + ((unsigned int)loc.y * absPitch);
+            unsigned int index = (loc.x * 3) + (loc.y * absPitch);
             *outP = Vector4b(fce->glyph->bitmap.buffer[index], fce->glyph->bitmap.buffer[index + 1], fce->glyph->bitmap.buffer[index + 2], 255);
         });
 

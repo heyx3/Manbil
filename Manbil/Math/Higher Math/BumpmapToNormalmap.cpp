@@ -3,14 +3,15 @@
 void BumpmapToNormalmap::Convert(const Array2D<float> & heightmap, float heightScale, bool normalizeRange, Array2D<Vector3f> & normals)
 {
     Vector3f sum, tempSum, base, first, second;
-    for (Vector2i loc; loc.y < heightmap.GetHeight(); ++loc.y)
+    for (Vector2u loc; loc.y < heightmap.GetHeight(); ++loc.y)
     {
-        base.y = loc.y;
+        base.y = (float)loc.y;
+
         for (loc.x = 0; loc.x < heightmap.GetWidth(); ++loc.x)
         {
             sum = Vector3f();
 
-            base.x = loc.x;
+            base.x = (float)loc.x;
             base.z = heightScale * heightmap[loc];
 
             first = Vector3f(base.x - 1.0f, base.y, heightScale * heightmap[heightmap.Wrap(loc.LessX())]);

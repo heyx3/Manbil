@@ -105,7 +105,7 @@ public:
 	//   1) The given function should return the new noise value at full strength (1.0f) and not inverted;
 	//   2) The new value at the given noise point will be set to
 	//      lerp([original value], [function value], [function strength]).
-	void SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2i loc, Noise2D * noise)) const;
+	void SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2u loc, Noise2D * noise)) const;
 
 
 private:
@@ -207,7 +207,7 @@ public:
     //   1) The given function should return the new noise value at full strength (1.0f) and not inverted;
     //   2) The new value at the given noise point will be set to
     //      lerp([original value], [function value], [function strength]).
-    void SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * pData, Vector3i loc, Noise3D * noise)) const;
+    void SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * pData, Vector3u loc, Noise3D * noise)) const;
 };
 
 #pragma endregion

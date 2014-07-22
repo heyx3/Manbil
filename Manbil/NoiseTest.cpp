@@ -63,18 +63,17 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
     Gradient<3> colGrad(nodes);
 
 
-
-	int x, y, outX, outY;
+    unsigned int x, y, outX, outY;
 	float readNoise;
 	sf::Uint8 noiseVal;
 	float tempF;
 
 	//Go through every pixel.
-	for (x = 0; x < (int)noise.GetWidth(); ++x)
+	for (x = 0; x < noise.GetWidth(); ++x)
 	{
-		for (y = 0; y < (int)noise.GetHeight(); ++y)
+		for (y = 0; y < noise.GetHeight(); ++y)
 		{
-			tempF = noise[Vector2i(x, y)];
+			tempF = noise[Vector2u(x, y)];
 			readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
 
 			//Convert to a byte value.
@@ -95,10 +94,10 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 						  (unsigned char)BasicMath::RoundToInt(col.z),
 						  (unsigned char)BasicMath::RoundToInt(col.w));
 
-			outPixels[Vector2i(outX, outY)] = colB.x;
-			outPixels[Vector2i(outX + 1, outY)] = colB.y;
-			outPixels[Vector2i(outX + 2, outY)] = colB.z;
-			outPixels[Vector2i(outX + 3, outY)] = colB.w;
+			outPixels[Vector2u(outX, outY)] = colB.x;
+			outPixels[Vector2u(outX + 1, outY)] = colB.y;
+			outPixels[Vector2u(outX + 2, outY)] = colB.z;
+			outPixels[Vector2u(outX + 3, outY)] = colB.w;
 		}
 	}
 }
@@ -149,13 +148,13 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		#pragma region Layered Perlin
 
         const int pScale = 4;
-		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed, true, Vector2i(1, 1) * pScale),
-                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356, true, Vector2i(2, 2) * pScale),
-                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498, true, Vector2i(4, 4) * pScale),
-                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346, true, Vector2i(8, 8) * pScale),
-                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 619398, true, Vector2i(16, 16) * pScale),
-                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 45324, true, Vector2i(32, 32) * pScale),
-                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 21234, true, Vector2i(64, 64) * pScale);
+		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed, true, Vector2u(1, 1) * pScale),
+                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356, true, Vector2u(2, 2) * pScale),
+                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498, true, Vector2u(4, 4) * pScale),
+                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346, true, Vector2u(8, 8) * pScale),
+                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 619398, true, Vector2u(16, 16) * pScale),
+                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 45324, true, Vector2u(32, 32) * pScale),
+                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 21234, true, Vector2u(64, 64) * pScale);
         Generator2D * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
         float weights[7];
         float counter = 0.5f;
@@ -203,8 +202,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
     {
         #pragma region TwoD Perlin
 
-        const int pSize = 32;
-        Perlin2D perl((float)pSize, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2i(noiseSize / pSize, noiseSize / pSize));
+        const unsigned int pSize = 32;
+        Perlin2D perl((float)pSize, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2u(noiseSize / pSize, noiseSize / pSize));
         perl.Generate(finalNoise);
 
         NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
@@ -226,20 +225,21 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
 
-        finalNoise.FillFunc([&tempNoise, currentTime, depth](Vector2i loc, float * outFl)
+        finalNoise.FillFunc([&tempNoise, currentTime, depth](Vector2u loc, float * outFl)
         {
             const float timeScale = 0.01f;
 
             //Get the Z layer.
             float z = currentTime * timeScale;
+            assert(z >= -0.00001f);
             z = std::fmodf(z, (float)(depth - 1));
             z = 0.0f;
 
             //Interpolate between layers to get the value.
-            *outFl = BasicMath::Lerp(tempNoise[Vector3i(loc.x, loc.y, (int)floorf(z))],
-                                     tempNoise[Vector3i(loc.x, loc.y, (int)ceilf(z))],
-                                     BasicMath::Supersmooth(z - (int)floorf(z)));
-            *outFl = tempNoise[Vector3i(loc.x, loc.y, 0)];
+            *outFl = BasicMath::Lerp(tempNoise[Vector3u(loc.x, loc.y, (unsigned int)floorf(z))],
+                                     tempNoise[Vector3u(loc.x, loc.y, (unsigned int)ceilf(z))],
+                                     BasicMath::Supersmooth(z - floorf(z)));
+            *outFl = tempNoise[Vector3u(loc.x, loc.y, 0)];
         });
 
         NoiseFilterer2D filter;
@@ -333,7 +333,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                     plateauStartFadeInRadius = 0.725f; //The distance at which the noise just starts to become plateau (from being hilly).
 
         Vector2f locF;
-        for (Vector2i loc; loc.y < finalNoise.GetHeight(); ++loc.y)
+        for (Vector2u loc; loc.y < finalNoise.GetHeight(); ++loc.y)
         {
             locF.y = (float)loc.y;
 
@@ -343,7 +343,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 
                 //Come up with an interpolant that is on the same scale as the interpolation constants.
                 float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;
-                float distortion = 0.01f * (-1.0f + (2.0f * FastRand(Vector3i(loc.x, loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
+                float distortion = 0.01f * (-1.0f + (2.0f * FastRand(Vector3i((int)loc.x, (int)loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
                 distLerp += distortion;
 
                 //Fully rocky.
@@ -435,7 +435,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
 
             //Convert it to a heightmap array.
             Array2D<float> bumps(noiseSize, noiseSize);
-            bumps.FillFunc([&texColor](Vector2i loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
+            bumps.FillFunc([&texColor](Vector2u loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
 
             //Convert the heightmap to a normal map.
             Array2D<Vector3f> normals(noiseSize, noiseSize);
@@ -443,7 +443,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
 
             //Output the normal map to the texture.
             Array2D<Vector4b> normalColors(noiseSize, noiseSize);
-            normalColors.FillFunc([&normals](Vector2i loc, Vector4b * outCol)
+            normalColors.FillFunc([&normals](Vector2u loc, Vector4b * outCol)
             {
                 Vector3f c = normals[loc];
                 *outCol = Vector4b((unsigned char)BasicMath::Min(255.0f, c.x * 255.0f),

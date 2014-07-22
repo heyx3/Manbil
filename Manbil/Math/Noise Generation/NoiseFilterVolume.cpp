@@ -3,27 +3,27 @@
 #include "../Shapes/ThreeDShapes.h"
 
 
-void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
+void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrength)
 {
-    for (Vector3i loc; loc.z < noiseSize.z; ++loc.z)
+    for (Vector3u loc; loc.z < noiseSize.z; ++loc.z)
         for (loc.y = 0; loc.y < noiseSize.y; ++loc.y)
             for (loc.x = 0; loc.x < noiseSize.x; ++loc.x)
                 if (ActiveIn.Touches(noise[loc]))
                     toDo(pData, loc, StrengthLerp);
 }
 
-void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
+void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrength)
 {
     Vector3i minCorner = (Center - Vector3f(Radius, Radius, Radius)).CastToInt(),
              maxCorner = (Center + Vector3f(Radius, Radius, Radius)).Ceil();
     if (!Wrap)
     {
-        minCorner.x = BasicMath::Clamp(minCorner.x, 0, noiseSize.x - 1);
-        minCorner.y = BasicMath::Clamp(minCorner.y, 0, noiseSize.y - 1);
-        minCorner.z = BasicMath::Clamp(minCorner.z, 0, noiseSize.z - 1);
-        maxCorner.x = BasicMath::Clamp(maxCorner.x, 0, noiseSize.x - 1);
-        maxCorner.y = BasicMath::Clamp(maxCorner.y, 0, noiseSize.y - 1);
-        maxCorner.z = BasicMath::Clamp(maxCorner.z, 0, noiseSize.z - 1);
+        minCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        minCorner.y = BasicMath::Clamp<int>(minCorner.y, 0, noiseSize.y - 1);
+        minCorner.z = BasicMath::Clamp<int>(minCorner.z, 0, noiseSize.z - 1);
+        maxCorner.x = BasicMath::Clamp<int>(maxCorner.x, 0, noiseSize.x - 1);
+        maxCorner.y = BasicMath::Clamp<int>(maxCorner.y, 0, noiseSize.y - 1);
+        maxCorner.z = BasicMath::Clamp<int>(maxCorner.z, 0, noiseSize.z - 1);
     }
 
     Sphere sphere(Center, Radius);
@@ -59,9 +59,10 @@ void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Arra
                     while (wrapped.x < 0) wrapped.x += noiseSize.x;
                     while (wrapped.x >= noiseSize.x) wrapped.x -= noiseSize.x;
 
-                    if (sphere.IsPointInside(Vector3f(loc.x, loc.y, loc.z)) &&
-                        ActiveIn.Touches(noise[wrapped]))
-                        toDo(pData, wrapped, StrengthLerp * GetStrengthDropoffScale(locF));
+                    Vector3u wrappedU(wrapped.x, wrapped.y, wrapped.z);
+
+                    if (sphere.IsPointInside(locF) && ActiveIn.Touches(noise[wrappedU]))
+                        toDo(pData, wrappedU, StrengthLerp * strengthCalculator(locF, this));
 
                 }
             }
@@ -69,21 +70,23 @@ void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Arra
     }
     else
     {
-        for (Vector3i loc(0, 0, minCorner.z); loc.z <= maxCorner.z; ++loc.z)
+        Vector3u minCornerU(BasicMath::Max<unsigned int>(0, minCorner.x),
+                            BasicMath::Max<unsigned int>(0, minCorner.y),
+                            BasicMath::Max<unsigned int>(0, minCorner.z));
+        for (Vector3u loc(0, 0, minCornerU.z); loc.z <= (unsigned int)maxCorner.z; ++loc.z)
         {
             locF.z = (float)loc.z;
 
-            for (loc.y = minCorner.y; loc.y <= maxCorner.y; ++loc.y)
+            for (loc.y = minCornerU.y; loc.y <= (unsigned int)maxCorner.y; ++loc.y)
             {
                 locF.y = (float)loc.y;
 
-                for (loc.x = minCorner.x; loc.x <= maxCorner.x; ++loc.x)
+                for (loc.x = minCornerU.x; loc.x <= (unsigned int)maxCorner.x; ++loc.x)
                 {
                     locF.x = (float)loc.x;
 
-                    if (sphere.IsPointInside(Vector3f(loc.x, loc.y, loc.z)) &&
-                        ActiveIn.Touches(noise[loc]))
-                        toDo(pData, loc, StrengthLerp * GetStrengthDropoffScale(locF));
+                    if (sphere.IsPointInside(locF) && ActiveIn.Touches(noise[loc]))
+                        toDo(pData, loc, StrengthLerp * strengthCalculator(locF, this));
 
                 }
             }
@@ -109,7 +112,7 @@ float SphereFilterVolume::GetStrengthDropoffScale(Vector3f pos) const
     }
 }
 
-void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrength)
+void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrength)
 {
     if (Wrap)
     {
@@ -132,24 +135,25 @@ void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3
                     while (wrapped.x < 0) wrapped.x += noiseSize.x;
                     while (wrapped.x >= noiseSize.x) wrapped.x -= noiseSize.x;
 
-                    if (ActiveIn.Touches(noise[wrapped]))
-                        toDo(pData, wrapped, StrengthLerp);
+                    Vector3u wrappedU((unsigned int)wrapped.x, (unsigned int)wrapped.y, (unsigned int)wrapped.z);
+                    if (ActiveIn.Touches(noise[wrappedU]))
+                        toDo(pData, wrappedU, StrengthLerp);
                 }
             }
         }
     }
     else
     {
-        for (Vector3i loc(0, 0, MinCorner.z); loc.z <= MaxCorner.z; ++loc.z)
-        {
-            for (loc.y = MinCorner.y; loc.y <= MaxCorner.y; ++loc.y)
-            {
-                for (loc.x = MinCorner.x; loc.x <= MaxCorner.x; ++loc.x)
-                {
+        Vector3u minCornerU(BasicMath::Max<unsigned int>(0, MinCorner.x),
+                            BasicMath::Max<unsigned int>(0, MinCorner.y),
+                            BasicMath::Max<unsigned int>(0, MinCorner.z));
+        Vector3u maxCornerU(BasicMath::Min<unsigned int>(MaxCorner.x, noiseSize.x),
+                            BasicMath::Min<unsigned int>(MaxCorner.y, noiseSize.y),
+                            BasicMath::Min<unsigned int>(MaxCorner.z, noiseSize.z));
+        for (Vector3u loc(0, 0, minCornerU.z); loc.z <= maxCornerU.z; ++loc.z)
+            for (loc.y = minCornerU.y; loc.y <= maxCornerU.y; ++loc.y)
+                for (loc.x = minCornerU.x; loc.x <= maxCornerU.x; ++loc.x)
                     if (ActiveIn.Touches(noise[loc]))
                         toDo(pData, loc, StrengthLerp);
-                }
-            }
-        }
     }
 }

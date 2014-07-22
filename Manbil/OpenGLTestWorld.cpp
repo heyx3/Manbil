@@ -111,10 +111,10 @@ void OpenGLTestWorld::InitializeTextures(void)
     {
         //Wall textures.
         Array2D<Vector4f> cubemapNegX(2, 2), cubemapNegY(2, 2), cubemapPosX(2, 2), cubemapPosY(2, 2);
-        cubemapNegX.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
-        cubemapNegY.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
-        cubemapPosX.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
-        cubemapPosY.FillFunc([](Vector2i loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapNegX.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapNegY.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapPosX.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
+        cubemapPosY.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f(0.25f, 0.25f, (float)loc.y, 1.0f); });
         MTextureCubemap::TransformFaces(cubemapPosX, cubemapNegX, cubemapNegY);
 
         //Floor/ceiling textures.
@@ -140,7 +140,7 @@ void OpenGLTestWorld::InitializeTextures(void)
     gsTestTex3D.Create();
     Vector3u size(10, 10, 10);
     Array3D<Vector4f> pixelData(size.x, size.y, size.z);
-    pixelData.FillFunc([size](Vector3i loc, Vector4f * outVal)
+    pixelData.FillFunc([size](Vector3u loc, Vector4f * outVal)
     {
         *outVal = Vector4f((float)loc.x / (size.x - 1),
                            (float)loc.y / (size.y - 1),

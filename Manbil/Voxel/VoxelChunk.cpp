@@ -32,8 +32,10 @@ VC::MinMaxI VC::GetLocalShapeBoundsI(const Shape & shpe) const
     MinMaxI ret;
     Box3D bounds = shpe.GetBoundingBox();
 
-    ret.Min = ToLocalVoxelIndex(bounds.GetMinCorner());
-    ret.Max = ToLocalVoxelIndex(bounds.GetMaxCorner());
+    Vector3u sMin = ToLocalVoxelIndex(bounds.GetMinCorner()),
+             sMax = ToLocalVoxelIndex(bounds.GetMaxCorner());
+    ret.Min = Vector3i(sMin.x, sMin.y, sMin.z);
+    ret.Max = Vector3i(sMax.x, sMax.y, sMax.z);
 
     ret.Max += Vector3i(1, 1, 1);
 
@@ -71,7 +73,7 @@ bool VC::GetAnyVoxels(const Shape & shpe) const
     MinMaxI bounds = GetLocalShapeBoundsI(shpe);
 
     const VC * thisVC = this;
-    return DoToEveryVoxelPredicate([&shpe, thisVC](Vector3i lc) -> bool
+    return DoToEveryVoxelPredicate([&shpe, thisVC](Vector3u lc) -> bool
     {
         return (shpe.IsPointInside(thisVC->LocalToWorldSpace(lc)) &&
                 thisVC->GetVoxelLocal(lc));
@@ -82,7 +84,7 @@ bool VC::GetAllVoxels(const Shape & shpe) const
     MinMaxI bounds = GetLocalShapeBoundsI(shpe);
 
     const VC * thisVC = this;
-    return !DoToEveryVoxelPredicate([&shpe, thisVC](Vector3i lc) -> bool
+    return !DoToEveryVoxelPredicate([&shpe, thisVC](Vector3u lc) -> bool
     {
         return (shpe.IsPointInside(thisVC->LocalToWorldSpace(lc)) &&
                 !thisVC->GetVoxelLocal(lc));
@@ -94,7 +96,7 @@ void VC::ToggleVoxels(const Shape & shpe)
     MinMaxI bounds = GetLocalShapeBoundsI(shpe);
 
     VC * thisVC = this;
-    DoToEveryVoxel([&shpe, thisVC](Vector3i lc)
+    DoToEveryVoxel([&shpe, thisVC](Vector3u lc)
     {
         if (shpe.IsPointInside(thisVC->LocalToWorldSpace(lc)))
             thisVC->ToggleVoxelLocal(lc);
@@ -105,7 +107,7 @@ void VC::SetVoxels(const Shape & shpe, bool value)
     MinMaxI bounds = GetLocalShapeBoundsI(shpe);
 
     VC * thisVC = this;
-    DoToEveryVoxel([&shpe, thisVC, value](Vector3i lc)
+    DoToEveryVoxel([&shpe, thisVC, value](Vector3u lc)
     {
         if (shpe.IsPointInside(thisVC->LocalToWorldSpace(lc)))
             thisVC->SetVoxelLocal(lc, value);
@@ -173,7 +175,7 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 
         //Go through every voxel between the previous ray position and the current.
         //If any of them have a solid voxel, return that voxel's index.
-        if (DoToEveryVoxelPredicate([&vrh, thisVC, worldRayStart, rayDir, lastRayPos, currentRayPos](Vector3i loc)
+        if (DoToEveryVoxelPredicate([&vrh, thisVC, worldRayStart, rayDir, lastRayPos, currentRayPos](Vector3u loc)
         {
             if (thisVC->GetVoxelLocal(loc))
             {
@@ -246,7 +248,7 @@ void VC::BuildTriangles(std::vector<VoxelVertex> & vertices,
     const VoxelChunk * thisVC = this;
 
     //For every voxel, create a single point vertex.
-    DoToEveryVoxel([thisVC, &vertices, beforeMinX, beforeMinY, beforeMinZ, afterMaxX, afterMaxY, afterMaxZ](Vector3i loc)
+    DoToEveryVoxel([thisVC, &vertices, beforeMinX, beforeMinY, beforeMinZ, afterMaxX, afterMaxY, afterMaxZ](Vector3u loc)
     {
         if (!thisVC->GetVoxelLocal(loc)) return;
 
@@ -255,28 +257,28 @@ void VC::BuildTriangles(std::vector<VoxelVertex> & vertices,
         VoxelVertex vert;
 
         vert.MinExists.x = ((loc.x == 0 &&
-                                (beforeMinX == 0 || !beforeMinX->GetVoxelLocal(Vector3i(ChunkSize - 1, loc.y, loc.z)))) ||
+                                (beforeMinX == 0 || !beforeMinX->GetVoxelLocal(Vector3u(ChunkSize - 1, loc.y, loc.z)))) ||
                             (loc.x > 0 && !thisVC->GetVoxelLocal(loc.LessX()))) ?
                                 1.0f : 0.0f;
 
         vert.MinExists.y = ((loc.y == 0 &&
-                                (beforeMinY == 0 || !beforeMinY->GetVoxelLocal(Vector3i(loc.x, ChunkSize - 1, loc.z)))) ||
+                                (beforeMinY == 0 || !beforeMinY->GetVoxelLocal(Vector3u(loc.x, ChunkSize - 1, loc.z)))) ||
                             (loc.y > 0 && !thisVC->GetVoxelLocal(loc.LessY()))) ? 1.0f : 0.0f;
 
         vert.MinExists.z = ((loc.z == 0 &&
-                                (beforeMinZ == 0 || !beforeMinZ->GetVoxelLocal(Vector3i(loc.x, loc.y, ChunkSize - 1)))) ||
+                                (beforeMinZ == 0 || !beforeMinZ->GetVoxelLocal(Vector3u(loc.x, loc.y, ChunkSize - 1)))) ||
                             (loc.z > 0 && !thisVC->GetVoxelLocal(loc.LessZ()))) ? 1.0f : 0.0f;
 
         vert.MaxExists.x = ((loc.x == ChunkSize - 1 &&
-                                (afterMaxX == 0 || !afterMaxX->GetVoxelLocal(Vector3i(0, loc.y, loc.z)))) ||
+                                (afterMaxX == 0 || !afterMaxX->GetVoxelLocal(Vector3u(0, loc.y, loc.z)))) ||
                             (loc.x < ChunkSize - 1 && !thisVC->GetVoxelLocal(loc.MoreX()))) ? 1.0f : 0.0f;
 
         vert.MaxExists.y = ((loc.y == ChunkSize - 1 &&
-                                (afterMaxY == 0 || !afterMaxY->GetVoxelLocal(Vector3i(loc.x, 0, loc.z)))) ||
+                                (afterMaxY == 0 || !afterMaxY->GetVoxelLocal(Vector3u(loc.x, 0, loc.z)))) ||
                             (loc.y < ChunkSize - 1 && !thisVC->GetVoxelLocal(loc.MoreY()))) ? 1.0f : 0.0f;
 
         vert.MaxExists.z = ((loc.z == ChunkSize - 1 &&
-                                (afterMaxZ == 0 || !afterMaxZ->GetVoxelLocal(Vector3i(loc.x, loc.y, 0)))) ||
+                                (afterMaxZ == 0 || !afterMaxZ->GetVoxelLocal(Vector3u(loc.x, loc.y, 0)))) ||
                             (loc.z < ChunkSize - 1 && !thisVC->GetVoxelLocal(loc.MoreZ()))) ? 1.0f : 0.0f;
 
         //If at least one face is visible, add the vertex to the buffer.

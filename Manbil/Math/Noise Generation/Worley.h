@@ -25,7 +25,7 @@ public:
 	static inline float QuadraticDistance(Vector2f o, Vector2f p) { float f1 = BasicMath::Abs(o.x - p.x), f2 = BasicMath::Abs(o.y - p.y); return (f1 * f1) + (f1 * f2) + (f2 * f2); }
 
 	//Value functions.
-	static const int NUMB_DISTANCE_VALUES = 3;
+	static const unsigned int NUMB_DISTANCE_VALUES = 3;
 	struct DistanceValues { float Values[NUMB_DISTANCE_VALUES]; DistanceValues(void) { } };
 	typedef float (*GetValueFunc)(DistanceValues distVals);
 
@@ -34,11 +34,11 @@ public:
 	GetValueFunc ValueGenerator;
 	
 	//Other members.
-	int Seed, CellSize;
-    unsigned int MaxPointsPerCell, MinPointsPerCell;
+	int Seed;
+    unsigned int MaxPointsPerCell, MinPointsPerCell, CellSize;
 
 
-	Worley2D(int _Seed = 12345, int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
+	Worley2D(int _Seed = 12345, unsigned int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
 		: Seed(_Seed), CellSize(_CellSize), MinPointsPerCell(minPointsPerCell), MaxPointsPerCell(maxPointsPerCell),
           DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
 	~Worley2D(void) { }
@@ -71,11 +71,11 @@ public:
     GetValueFunc ValueGenerator;
 
     //Other members.
-    int Seed, CellSize;
-    unsigned int MaxPointsPerCell, MinPointsPerCell;
+    int Seed;
+    unsigned int MaxPointsPerCell, MinPointsPerCell, CellSize;
 
 
-    Worley3D(int _Seed = 12345, int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
+    Worley3D(int _Seed = 12345, unsigned int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
         : Seed(_Seed), CellSize(_CellSize), MinPointsPerCell(minPointsPerCell), MaxPointsPerCell(maxPointsPerCell),
           DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
     ~Worley3D(void) { }

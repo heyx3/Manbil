@@ -88,7 +88,7 @@ void VoxelWorld::SetUpVoxels(void)
         FlatNoise3D flat(1.0f);
         flat.Generate(noise);
 
-        noise[Vector3i()] = 0.0f;
+        noise[Vector3u()] = 0.0f;
     }
     else if (false)
     {
@@ -156,10 +156,11 @@ void VoxelWorld::SetUpVoxels(void)
     //Generate voxels from noise.
     for (auto location = manager.GetAllChunks().begin(); location != manager.GetAllChunks().end(); ++location)
     {
-        location->second->DoToEveryVoxel([&noise, &location](Vector3i localIndex)
+        location->second->DoToEveryVoxel([&noise, &location](Vector3u localIndex)
         {
-            Vector3i noiseIndex = localIndex + (location->first * VoxelChunk::ChunkSize);
-            location->second->SetVoxelLocal(localIndex, noise[noiseIndex] > 0.5f);
+            Vector3i noiseIndex = (location->first * VoxelChunk::ChunkSize) + Vector3i(localIndex.x, localIndex.y, localIndex.z);
+            assert(noiseIndex.x >= 0 && noiseIndex.y >= 0 && noiseIndex.z >= 0);
+            location->second->SetVoxelLocal(localIndex, noise[noiseIndex.CastToUInt()] > 0.5f);
         });
     }
 }

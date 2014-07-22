@@ -9,16 +9,23 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 {
 	FastRand fr(RandSeed);
 
-	int width = outValues.GetWidth(), height = outValues.GetHeight();
-	
-	Vector2i loc;
+	Vector2u noiseDim = outValues.GetDimensions();
 
 
-	//First compute the gradient at every grid.
+    //First compute the gradient at each grid point.
 
-	//Compute the gradient by hashing the grid coordinate
-	//  and using the hash to look up a select few pre-made gradients.
-	const int numGradients = 8;
+    //Calculate the number of gradients that will be needed.
+	unsigned int gradientWidth = BasicMath::RoundToInt(noiseDim.x / Scale.x),
+		         gradientHeight = BasicMath::RoundToInt(noiseDim.y / Scale.y);
+    if (gradientWidth == 0 || gradientHeight == 0)
+    {
+        outValues.Fill(0.0f);
+        return;
+    }
+	Array2D<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
+
+    //Generate the gradients. by hashing the grid coordinate and using that hash in a look-up table.
+	const unsigned int numGradients = 8;
 	const Vector2f gradientTable[numGradients] = 
 	{
 		Vector2f(1.0f, 1.0f),
@@ -31,23 +38,15 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 		Vector2f(0.0f, -1.0f),
 	};
 
-	int gradientWidth = BasicMath::RoundToInt(width / Scale.x),
-		gradientHeight = BasicMath::RoundToInt(height / Scale.y);
-    if (gradientWidth == 0 || gradientHeight == 0)
-    {
-        outValues.Fill(0.0f);
-        return;
-    }
-	Array2D<Vector2f> gradients(gradientWidth + 2, gradientHeight + 2);
-
+	Vector2u loc;
     Vector2i offLoc;
     Vector2i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y));
-    for (loc.y = 0; loc.y < (int)gradients.GetHeight(); ++loc.y)
+    for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
     {
         offLoc.y = loc.y + scaledOffset.y;
         offLoc.y %= GradientWrapInterval.y;
 
-        for (loc.x = 0; loc.x < (int)gradients.GetWidth(); ++loc.x)
+        for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
         {
             offLoc.x = loc.x + scaledOffset.x;
             offLoc.x %= GradientWrapInterval.x;
@@ -76,28 +75,27 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 		default: assert(false);
 	}
 
-
     //Keep track of the min/max in case the noise should be normalized.
     float min = std::numeric_limits<float>().max(),
           max = std::numeric_limits<float>().min();
 	Vector2f lerpGrid, relGrid;
-	Vector2i tlGrid;
+	Vector2u tlGrid;
 	Vector2f invScale(1.0f / Scale.x, 1.0f / Scale.y);
 	float tlDot, trDot, blDot, brDot;
     Vector2f withinGridOffset(fmodf(Offset.x, Scale.x), fmodf(Offset.y, Scale.y));
 
-    for (loc.y = 0; loc.y < height; ++loc.y)
+    for (loc.y = 0; loc.y < noiseDim.x; ++loc.y)
     {
         lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale.y;
 
-        tlGrid.y = (int)lerpGrid.y;
+        tlGrid.y = (unsigned int)lerpGrid.y;
         relGrid.y = lerpGrid.y - tlGrid.y;
 
-        for (loc.x = 0; loc.x < width; ++loc.x)
+        for (loc.x = 0; loc.x < noiseDim.y; ++loc.x)
         {
             lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale.x;
 
-            tlGrid.x = (int)lerpGrid.x;
+            tlGrid.x = (unsigned int)lerpGrid.x;
             relGrid.x = lerpGrid.x - tlGrid.x;
 
             //TODO: This bit caused artifacts in the 3D version. See if this can be removed.
@@ -149,14 +147,21 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
 {
     FastRand fr(RandSeed);
 
-    Vector3i dimensions(outNoise.GetWidth(), outNoise.GetHeight(), outNoise.GetDepth());
+    Vector3u dimensions = outNoise.GetDimensions();
 
 
     //First compute the gradient at every grid.
 
+    //Calculate the number of gradient points that will be needed.
+    Vector3u gradientDims((unsigned int)BasicMath::RoundToInt(dimensions.x / Scale.x) + 2,
+                          (unsigned int)BasicMath::RoundToInt(dimensions.y / Scale.y) + 2,
+                          (unsigned int)BasicMath::RoundToInt(dimensions.z / Scale.z) + 2);
+
+    Array3D<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
+
     //Compute the gradient by hashing the grid coordinate
     //  and using the hash to look up a select few pre-made gradients.
-    const int numGradients = 16;
+    const unsigned int numGradients = 16;
     const Vector3f gradientTable[numGradients] =
     {
         Vector3f(1, 1, 0),
@@ -179,26 +184,20 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
         Vector3f(-1, 1, 0),
         Vector3f(0, -1, -1),
     };
-
-    Vector3i gradientDims(BasicMath::RoundToInt(dimensions.x / Scale.x) + 2,
-                          BasicMath::RoundToInt(dimensions.y / Scale.y) + 2,
-                          BasicMath::RoundToInt(dimensions.z / Scale.z) + 2);
-
-    Array3D<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
-
-    Vector3i loc, offLoc;
+    Vector3u loc;
+    Vector3i offLoc;
     Vector3i scaledOffset((int)(Offset.x / Scale.x), (int)(Offset.y / Scale.y), (int)(Offset.z / Scale.z));
-    for (loc.z = 0; loc.z < gradients.GetDepth(); ++loc.z)
+    for (loc.z = 0; loc.z < gradientDims.z; ++loc.z)
     {
         offLoc.z = loc.z + scaledOffset.z;
         offLoc.z %= GradientWrapInterval.z;
 
-        for (loc.y = 0; loc.y < gradients.GetHeight(); ++loc.y)
+        for (loc.y = 0; loc.y < gradientDims.y; ++loc.y)
         {
             offLoc.y = loc.y + scaledOffset.y;
             offLoc.y %= GradientWrapInterval.y;
 
-            for (loc.x = 0; loc.x < gradients.GetWidth(); ++loc.x)
+            for (loc.x = 0; loc.x < gradientDims.x; ++loc.x)
             {
                 offLoc.x = loc.x + scaledOffset.x;
                 offLoc.x %= GradientWrapInterval.x;
@@ -233,7 +232,7 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
     float min = std::numeric_limits<float>().max(),
           max = std::numeric_limits<float>().min();
     Vector3f lerpGrid, relGrid, relGridLess;
-    Vector3i minGrid;
+    Vector3u minGrid;
     Vector3f invScale(1.0f / Scale.x, 1.0f / Scale.y, 1.0f / Scale.z);
     float minXYZ_dot, minXY_maxZ_dot, minX_maxY_minZ_dot, minX_maxYZ_dot,
           maxX_minYZ_dot, maxX_minY_maxZ_dot, maxXY_minZ_dot, maxXYZ_dot;
@@ -243,24 +242,24 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
     {
         lerpGrid.z = ((float)loc.z + withinGridOffset.z) * invScale.z;
 
-        minGrid.z = (int)lerpGrid.z;
-        relGrid.z = lerpGrid.z - minGrid.z;
+        minGrid.z = (unsigned int)lerpGrid.z;
+        relGrid.z = lerpGrid.z - (float)minGrid.z;
         relGridLess.z = relGrid.z - 1.0f;
 
         for (loc.y = 0; loc.y < dimensions.y; ++loc.y)
         {
             lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale.y;
 
-            minGrid.y = (int)lerpGrid.y;
-            relGrid.y = lerpGrid.y - minGrid.y;
+            minGrid.y = (unsigned int)lerpGrid.y;
+            relGrid.y = lerpGrid.y - (float)minGrid.y;
             relGridLess.y = relGrid.y - 1.0f;
 
             for (loc.x = 0; loc.x < dimensions.x; ++loc.x)
             {
                 lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale.x;
 
-                minGrid.x = (int)lerpGrid.x;
-                relGrid.x = lerpGrid.x - minGrid.x;
+                minGrid.x = (unsigned int)lerpGrid.x;
+                relGrid.x = lerpGrid.x - (float)minGrid.x;
                 relGridLess.x = relGrid.x - 1.0f;
 
                 //Get the dot of each grid corner's gradient and the vector from the coordinate to that grid corner.

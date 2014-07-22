@@ -9,10 +9,10 @@ class LayeredOctave2D : public Generator2D
 {
 public:
 
-	LayeredOctave2D(int numbOctaves, const float octaveWeights[], const Generator2D *const*const octaves);
+	LayeredOctave2D(unsigned int numbOctaves, const float octaveWeights[], const Generator2D *const*const octaves);
 	~LayeredOctave2D(void);
 
-	int GetNumbOctaves(void) const { return Octaves; }
+	unsigned int GetNumbOctaves(void) const { return Octaves; }
 
 	//Generates the layered noise and puts it into the given array.
 	virtual void Generate(Noise2D & outNoiseArray) const override;
@@ -20,7 +20,7 @@ public:
 private:
 
 	Generator2D ** noises;
-	int Octaves;
+	unsigned int Octaves;
 	float * OctaveStrengths;
 };
 
@@ -30,10 +30,10 @@ class LayeredOctave3D : public Generator3D
 {
 public:
 
-    LayeredOctave3D(int numbOctaves, const float octaveWeights[], const Generator3D *const*const octaves);
+    LayeredOctave3D(unsigned int numbOctaves, const float octaveWeights[], const Generator3D *const*const octaves);
     ~LayeredOctave3D(void);
 
-    int GetNumbOctaves(void) const { return Octaves; }
+    unsigned int GetNumbOctaves(void) const { return Octaves; }
 
     //Generates the layered noise and puts it into the given array.
     virtual void Generate(Noise3D & outNoiseArray) const override;
@@ -41,6 +41,6 @@ public:
 private:
 
     Generator3D ** noises;
-    int Octaves;
+    unsigned int Octaves;
     float * OctaveStrengths;
 };

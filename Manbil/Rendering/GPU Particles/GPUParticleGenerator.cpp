@@ -277,19 +277,21 @@ RenderObjHandle GPUParticleGenerator::GenerateGPUPParticles(GPUParticleGenerator
     //Generate the particle data.
     Array2D<ParticleVertex> particles(length, length);
     const float increment = 1.0f / (float)length;
-    for (Vector2i loc; loc.y < (int)length; ++loc.y)
+    for (Vector2u loc; loc.y < length; ++loc.y)
     {
         float yID = increment * loc.y;
 
-        for (loc.x = 0; loc.x < (int)length; ++loc.x)
+        for (loc.x = 0; loc.x < length; ++loc.x)
         {
             float xID = increment * loc.x;
 
-            FastRand fr(Vector3i(loc.x, loc.y, randSeed).GetHashCode());
+            FastRand fr(Vector3u(loc.x, loc.y, randSeed).GetHashCode());
             fr.GetRandInt();
             fr.GetRandInt();
 
-            particles[loc] = ParticleVertex(Vector2f(xID, yID), Vector4f(fr.GetZeroToOne(), fr.GetZeroToOne(), fr.GetZeroToOne(), fr.GetZeroToOne()), Vector2f(fr.GetZeroToOne(), fr.GetZeroToOne()));
+            particles[loc] = ParticleVertex(Vector2f(xID, yID),
+                                            Vector4f(fr.GetZeroToOne(), fr.GetZeroToOne(), fr.GetZeroToOne(), fr.GetZeroToOne()),
+                                            Vector2f(fr.GetZeroToOne(), fr.GetZeroToOne()));
         }
     }
 

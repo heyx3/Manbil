@@ -16,7 +16,7 @@ void NoiseToTexture::GetImage(Array2D<Vector4b> & outImage) const
 	{
 		for (y = 0; y < NoiseToUse->GetHeight(); ++y)
 		{
-			tempF = (*NoiseToUse)[Vector2i(x, y)];
+			tempF = (*NoiseToUse)[Vector2u(x, y)];
             readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
 
 			//Get the coordinates of the pixel in the out aray.
@@ -31,7 +31,7 @@ void NoiseToTexture::GetImage(Array2D<Vector4b> & outImage) const
 							(unsigned char)BasicMath::RoundToInt(col.y),
 							(unsigned char)BasicMath::RoundToInt(col.z),
 							(unsigned char)BasicMath::RoundToInt(col.w));
-            outImage[Vector2i(pixX, pixY)] = colB;
+            outImage[Vector2u(pixX, pixY)] = colB;
 		}
 	}
 }

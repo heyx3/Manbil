@@ -65,7 +65,14 @@ public:
 
     Vector3i Clamp(Vector3i in) const { return Vector3i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
                                                         BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1),
-                                                        BasicMath::Clamp<int>(in.z, 0, GetDepth() - 1)); }
+                                                        BasicMath::Clamp<int>(in.z, 0, GetDepth() - 1));
+    }
+    Vector3u Clamp(Vector3u in) const
+    {
+        return Vector3u(BasicMath::Min<unsigned int>(in.x, GetWidth() - 1),
+                        BasicMath::Min<unsigned int>(in.y, GetHeight() - 1),
+                        BasicMath::Min<unsigned int>(in.z, GetDepth() - 1));
+    }
     Vector3f Clamp(Vector3f in) const { return Vector3f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth - 1),
                                                         BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1),
                                                         BasicMath::Clamp<float>(in.z, 0.0f, GetDepth() - 1)); }
@@ -76,6 +83,14 @@ public:
         while (in.y < 0) in.y += GetHeight();
         while (in.y >= GetHeight()) in.y -= GetHeight();
         while (in.z < 0) in.z += GetDepth();
+        while (in.z >= GetDepth()) in.z -= GetDepth();
+
+        return in;
+    }
+    Vector3u Wrap(Vector3u in) const
+    {
+        while (in.x >= GetWidth()) in.x -= GetWidth();
+        while (in.y >= GetHeight()) in.y -= GetHeight();
         while (in.z >= GetDepth()) in.z -= GetDepth();
 
         return in;
@@ -92,8 +107,8 @@ public:
         return in;
     }
 
-	ArrayType& operator[](Vector3i l) { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
-    const ArrayType& operator[](Vector3i l) const { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
+	ArrayType& operator[](Vector3u l) { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
+    const ArrayType& operator[](Vector3u l) const { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
 
     bool HasSameDimensions(const Array3D<ArrayType> & other) const
     {
@@ -103,6 +118,7 @@ public:
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
     unsigned int GetDepth(void) const { return depth; }
+    Vector3u GetDimensions(void) const { return Vector3u(width, height, depth); }
 
     unsigned int GetNumbElements(void) const { return width * height * depth; }
 
@@ -117,24 +133,22 @@ public:
 	//Copies the given array into this one. Optionally specifies an offset for the min position of "toCopy".
     void Fill(const Array3D<ArrayType> & toCopy, const ArrayType & defaultValue, Vector3i copyOffset = Vector3i(0, 0, 0))
     {
-        Vector3i loc, offsetLoc;
+        Vector3i offsetLoc;
 
-        for (loc.z = 0; loc.z < depth; ++loc.z)
+        for (Vector3u loc; loc.z < depth; ++loc.z)
         {
-            offsetLoc.z = loc.z + copyOffset.z;
+            offsetLoc.z = loc.z - copyOffset.z;
 
             for (loc.y = 0; loc.y < height; ++loc.y)
             {
-                offsetLoc.y = loc.y + copyOffset.y;
+                offsetLoc.y = loc.y - copyOffset.y;
 
                 for (loc.x = 0; loc.x < width; ++loc.x)
                 {
-                    offsetLoc.x = loc.x + copyOffset.x;
+                    offsetLoc.x = loc.x - copyOffset.x;
 
-                    if (offsetLoc.x < 0 || offsetLoc.y < 0 || offsetLoc.z < 0 ||
-                        offsetLoc.x > width || offsetLoc.y > height || offsetLoc.z > depth)
-                        operator[](loc) = defaultValue;
-                    else operator[](loc) = toCopy[offsetLoc];
+                    bool inToCopy = (offsetLoc.x >= 0) && (offsetLoc.y >= 0) && (offsetLoc.z >= 0);
+                    operator[](loc) = (inToCopy ? toCopy[Vector3u(offsetLoc.x, offsetLoc.y, offsetLoc.z)] : defaultValue);
                 }
             }
         }
@@ -148,10 +162,10 @@ public:
 
     template<typename Func>
     //Fills every element using the given function.
-    //The function must have signature "void getValue(Vector3i loc, ArrayType * outValue)".
+    //The function must have signature "void getValue(Vector3u loc, ArrayType * outValue)".
     void FillFunc(Func getValue)
     {
-        Vector3i loc;
+        Vector3u loc;
         for (loc.z = 0; loc.z < depth; ++loc.z)
         {
             for (loc.y = 0; loc.y < height; ++loc.y)

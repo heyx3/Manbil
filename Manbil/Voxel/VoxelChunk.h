@@ -66,7 +66,7 @@ public:
     //Converters between World Space and World Chunk Space.
 
     //Converts world chunk coordinates to world coordinates.
-    static Vector3f ToWorldSpace(Vector3i chunkCoord) { return ToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
+    static Vector3f ToWorldSpace(Vector3u chunkCoord) { return ToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
     //Converts world chunk coordinates to world coordinates.
     static Vector3f ToWorldSpace(Vector3f chunkCoord) { return chunkCoord * VoxelSizeF; }
 
@@ -84,18 +84,20 @@ public:
     //Converters between World Space and Local Chunk Space.
 
     //Converts local chunk coordinates to world Coordinates.
-    Vector3f LocalToWorldSpace(Vector3i chunkCoord) const { return LocalToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
+    Vector3f LocalToWorldSpace(Vector3u chunkCoord) const { return LocalToWorldSpace(Vector3f((float)chunkCoord.x, (float)chunkCoord.y, (float)chunkCoord.z)); }
     //Converts local chunk coordinates to world Coordinates.
     Vector3f LocalToWorldSpace(Vector3f chunkCoord) const { return (chunkCoord * VoxelSizeF) + Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z); }
 
     //Converts world coordinates to local Chunk coordinates.
     Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)); }
     //Converts world coordinates to the coordinate of the nearest local voxel.
-    Vector3i ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)); }
+    Vector3u ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)).CastToUInt(); }
 
 
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
-    Vector3i Clamp(Vector3i inV) const { return inV.Clamp(0, ChunkSize); }
+    Vector3u Clamp(Vector3i inV) const { return inV.Clamp(0, ChunkSize).CastToUInt(); }
+    //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
+    Vector3u Clamp(Vector3u inV) const { return Vector3u(BasicMath::Min(inV.x, ChunkSize), BasicMath::Min(inV.y, ChunkSize), BasicMath::Min(inV.z, ChunkSize)); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3f Clamp(Vector3f inV) const { return inV.Clamp(0.0f, ChunkSizeF); }
 
@@ -118,16 +120,16 @@ public:
     const Array3D<bool> & GetVoxels(void) const { return voxels; }
 
     //'location' is in world coordinates.
-    bool GetVoxelWorld(Vector3f location) const { return GetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
+    //bool GetVoxelWorld(Vector3f location) const { return GetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
     //'location' is in world coordinates.
-    bool ToggleVoxelWorld(Vector3f location) { return ToggleVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
+    //bool ToggleVoxelWorld(Vector3f location) { return ToggleVoxelLocal((location / VoxelSizeF).Floored() - MinCorner); }
     //'location' is in world coordinates.
-    void SetVoxelWorld(Vector3f location, bool value) { SetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner, value); }
+    //void SetVoxelWorld(Vector3f location, bool value) { SetVoxelLocal((location / VoxelSizeF).Floored() - MinCorner, value); }
 
     //'location' is in chunk coordinates.
-    bool GetVoxelLocal(Vector3i location) const { return voxels[location]; }
+    bool GetVoxelLocal(Vector3u location) const { return voxels[location]; }
     //'location' is in chunk coordinates. Returns the new value of the voxel.
-    bool ToggleVoxelLocal(Vector3i location)
+    bool ToggleVoxelLocal(Vector3u location)
     {
         bool old = voxels[location];
         voxels[location] = !voxels[location];
@@ -137,7 +139,7 @@ public:
         return !old;
     }
     //'location' is in chunk coordinates.
-    void SetVoxelLocal(Vector3i location, bool value)
+    void SetVoxelLocal(Vector3u location, bool value)
     {
         bool old = voxels[location];
         if (old != value)
@@ -165,7 +167,7 @@ public:
     //Iterators through a box of voxels.
 
     template<typename Func>
-    //"Func" must have the signature "bool Func(Vector3i localIndex)".
+    //"Func" must have the signature "bool Func(Vector3u localIndex)".
     //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     //Returns whether or not "todo" ever returned "true".
@@ -188,8 +190,8 @@ public:
 
         int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
             yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
             zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
@@ -197,12 +199,12 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    if (todo(loc))
+                    if (todo(loc.CastToUInt()))
                         return true;
         return false;
     }
     template<typename Func>
-    //"Func" must have the signature "void Func(Vector3i localIndex)".
+    //"Func" must have the signature "void Func(Vector3u localIndex)".
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
@@ -223,8 +225,8 @@ public:
 
         int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
             yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
             zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
@@ -232,10 +234,10 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    todo(loc);
+                    todo(loc.CastToUInt());
     }
     template<typename Func>
-    //"Func" must have the signature "bool Func(Vector3i localIndex)".
+    //"Func" must have the signature "bool Func(Vector3u localIndex)".
     //"Func" returns whether to exit "DoToEveryVoxel" after calling it.
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     //Returns whether or not "todo" ever returned "true".
@@ -258,8 +260,8 @@ public:
 
         int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
             yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
             zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
@@ -267,7 +269,7 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    if (todo(loc))
+                    if (todo(loc.CastToUInt()))
                         return true;
         return false;
     }
@@ -290,11 +292,11 @@ public:
         {
             return;
         }
-
+        
         int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
             yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1);
-        int xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
+            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
             yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
             zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
 
@@ -302,26 +304,28 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    todo(loc);
+                    todo(loc.CastToUInt());
     }
 
 
     struct VoxelRayHit
     {
     public:
-        Vector3i VoxelIndex;
+        //A value of { ChunkSize, ChunkSize , ChunkSize } is considered invalid.
+        Vector3u VoxelIndex;
         Shape::RayTraceResult CastResult;
         //Has one of the following values: { +/-1, 0, 0 }, { 0, +/-1, 0}, { 0, 0, +/-1}.
         //Indicates which face of the cube was hit.
         //A value of { 0, 0, 0 } indicates that the field was never properly set.
         Vector3i Face;
-        VoxelRayHit(void) : VoxelIndex(-1, -1, -1) { }
+        VoxelRayHit(void) : VoxelIndex(ChunkSize, ChunkSize, ChunkSize) { }
+        bool IsValid(void) const { return VoxelIndex.x != ChunkSize; }
     };
     //Returns the ray cast and the index of the first voxel that is hit by the given ray
-    //    (in Local Chunk space), or Vector3i(-1, -1, -1) if nothing was hit.
+    //    (in Local Chunk space), or an invalid voxel index if nothing was hit.
     VoxelRayHit CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist = ChunkSizeF + ChunkSizeF) const;
 
-    //TODO: Put thsi into "VoxelMesh" class.
+    //TODO: Put this into "VoxelMesh" class.
     //Builds the world-space triangles/indices for this chunk, given all surrounding chunks.
     //Any of the surrounding chunks passed in may have values of 0 if they don't exist.
     void BuildTriangles(std::vector<VoxelVertex> & vertices,
@@ -337,7 +341,7 @@ public:
                      Vector3f(ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF, ChunkSizeF * VoxelSizeF));
     }
     //Gets the world-space bounds around the given voxel (local chunk space).
-    Box3D GetBounds(Vector3i chunkIndex) const
+    Box3D GetBounds(Vector3u chunkIndex) const
     {
         Vector3f dims(VoxelSizeF, VoxelSizeF, VoxelSizeF),
                  minCorner = LocalToWorldSpace(chunkIndex);

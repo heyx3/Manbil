@@ -2,25 +2,29 @@
 
 #include <queue>
 #include <math.h>
+#include <assert.h>
+
 
 int DiamondSquare::NOISE_IS_BAD_SIZE_EXCEPTION = 1;
 
 
-void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * variances, Noise2D & noise) const
+void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval * variances, Noise2D & noise) const
 {
+    assert(size > 0);
+
 	Interval var = variances[0];
-	int halfSize = size / 2;
+	unsigned int halfSize = size / 2;
 	float f, f2;
 	
-	Vector2i tl = topLeft,
-			 tm = tl + Vector2i(halfSize, 0),
-			 tr = tl + Vector2i(size - 1, 0),
-			 l = topLeft + Vector2i(0, halfSize),
-			 m = l + Vector2i(halfSize, 0),
-			 r = l + Vector2i(size - 1, 0),
-			 bl = topLeft + Vector2i(0, size - 1),
-			 bm = bl + Vector2i(halfSize, 0),
-			 br = bl + Vector2i(size - 1, 0);
+	Vector2u tl = topLeft,
+			 tm = tl + Vector2u(halfSize, 0),
+			 tr = tl + Vector2u(size - 1, 0),
+			 l = topLeft + Vector2u(0, halfSize),
+			 m = l + Vector2u(halfSize, 0),
+			 r = l + Vector2u(size - 1, 0),
+			 bl = topLeft + Vector2u(0, size - 1),
+			 bm = bl + Vector2u(halfSize, 0),
+			 br = bl + Vector2u(size - 1, 0);
 
 
 	//"Diamond" part of the algorithm.
@@ -71,7 +75,6 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 	//Recursive calls.
 	if (size > 3)
 	{
-		//size += 1;
 		size = ((size - 1) / 2) + 1;
 
 		variances = &variances[1];
@@ -84,7 +87,7 @@ void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * vari
 }
 void DiamondSquare::Generate(Noise2D & noise) const
 {
-	int noiseSize = noise.GetWidth();
+	unsigned int noiseSize = noise.GetWidth();
 
 	#pragma region Error-checking
 
@@ -95,17 +98,17 @@ void DiamondSquare::Generate(Noise2D & noise) const
 	}
 
 	//Make sure the noise array is of size (2^n) + 1.
-	int pow2 = 0;
-	float value = BasicMath::Round(pow(2.0f, pow2), 3);
+	unsigned int pow2 = 0;
+    unsigned int powValue;
 	for (pow2 = 0; ; ++pow2)
 	{
-		value = BasicMath::Round(pow(2.0f, pow2), 3);
+		powValue = BasicMath::IntPow(2, pow2);
 
-		if (noiseSize == value + 1)
+		if (noiseSize == (powValue + 1))
 		{
 			break;
 		}
-		if (noiseSize < value + 1)
+		if (noiseSize < (powValue + 1))
 		{
 			throw NOISE_IS_BAD_SIZE_EXCEPTION;
 		}
@@ -117,10 +120,10 @@ void DiamondSquare::Generate(Noise2D & noise) const
 
 	//Create an array representing the forced random variances.
 	std::vector<Interval> variances;
-	int uses = 0;
+	unsigned int uses = 0;
 	DiamondSquareStep temp;
 	std::vector<Interval>::iterator it;
-	for (int i = 0; i < NumbForcedVariances; ++i)
+	for (unsigned int i = 0; i < NumbForcedVariances; ++i)
 	{
 		temp = ForcedVariances[i];
 		uses = 0;
@@ -136,8 +139,8 @@ void DiamondSquare::Generate(Noise2D & noise) const
 	}
 
 	//If there aren't enough variances, add in the default.
-	int steps = BasicMath::RoundToInt(BasicMath::Log(noiseSize, 2.0f)) + 1;
-	for (int i = steps - variances.size(); i > 0; --i)
+	unsigned int steps = (unsigned int)BasicMath::RoundToInt(BasicMath::Log(noiseSize, 2.0f)) + 1;
+	for (unsigned int i = steps - variances.size(); i > 0; --i)
 	{
 		it = variances.end();
 
@@ -146,24 +149,24 @@ void DiamondSquare::Generate(Noise2D & noise) const
 
 	#pragma endregion
 
-	if (BasicMath::IsNaN(noise[Vector2i(0, 0)]))
+	if (BasicMath::IsNaN(noise[Vector2u(0, 0)]))
 	{
-		noise[Vector2i(0, 0)] = StartingCornerValues;
+		noise[Vector2u(0, 0)] = StartingCornerValues;
 	}
-	if (BasicMath::IsNaN(noise[Vector2i(0, noiseSize - 1)]))
+	if (BasicMath::IsNaN(noise[Vector2u(0, noiseSize - 1)]))
 	{
-		noise[Vector2i(0, noiseSize - 1)] = StartingCornerValues;
+		noise[Vector2u(0, noiseSize - 1)] = StartingCornerValues;
 	}
-	if (BasicMath::IsNaN(noise[Vector2i(noiseSize - 1, 0)]))
+	if (BasicMath::IsNaN(noise[Vector2u(noiseSize - 1, 0)]))
 	{
-		noise[Vector2i(noiseSize - 1, 0)] = StartingCornerValues;
+		noise[Vector2u(noiseSize - 1, 0)] = StartingCornerValues;
 	}
-	if (BasicMath::IsNaN(noise[Vector2i(noiseSize - 1, noiseSize - 1)]))
+	if (BasicMath::IsNaN(noise[Vector2u(noiseSize - 1, noiseSize - 1)]))
 	{
-		noise[Vector2i(noiseSize - 1, noiseSize - 1)] = StartingCornerValues;
+		noise[Vector2u(noiseSize - 1, noiseSize - 1)] = StartingCornerValues;
 	}
 
 	fr.Seed = Seed;
 
-	IterateAlgorithm(noiseSize, Vector2i(), variances.data(), noise);
+	IterateAlgorithm(noiseSize, Vector2u(), variances.data(), noise);
 }

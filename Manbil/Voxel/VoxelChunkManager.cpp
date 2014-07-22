@@ -69,7 +69,7 @@ bool VCM::GetAnyVoxels(const Shape & shpe) const
     return DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
-        return chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3i localVoxel)
+        return chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3u localVoxel)
         {
             return shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)) &&
                    chnk->GetVoxelLocal(localVoxel);
@@ -86,7 +86,7 @@ bool VCM::GetAllVoxels(const Shape & shpe) const
     return !DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
-        return !chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3i localVoxel)
+        return !chnk->DoToEveryVoxelPredicate([&shpe, chnk](Vector3u localVoxel)
         {
             return shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)) &&
                    !chnk->GetVoxelLocal(localVoxel);
@@ -103,7 +103,7 @@ void VCM::ToggleVoxels(const Shape & shpe)
     DoToEveryChunk([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
-        chnk->DoToEveryVoxel([&shpe, chnk](Vector3i localVoxel)
+        chnk->DoToEveryVoxel([&shpe, chnk](Vector3u localVoxel)
         {
             if (shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)))
                 chnk->ToggleVoxelLocal(localVoxel);
@@ -120,7 +120,7 @@ void VCM::SetVoxels(const Shape & shpe, bool value)
     DoToEveryChunk([&shpe, bounds, value](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
-        chnk->DoToEveryVoxel([&shpe, chnk, value](Vector3i localVoxel)
+        chnk->DoToEveryVoxel([&shpe, chnk, value](Vector3u localVoxel)
         {
             if (shpe.IsPointInside(chnk->LocalToWorldSpace(localVoxel)))
                 chnk->SetVoxelLocal(localVoxel, value);
@@ -133,40 +133,41 @@ void VCM::SetVoxels(const Shape & shpe, bool value)
 
 VCM::VoxelLocation VCM::GetOffset(VoxelLocation voxel, Vector3i face) const
 {
-    voxel.LocalIndex += face;
+    Vector3i added(voxel.LocalIndex.x + face.x, voxel.LocalIndex.y + face.y, voxel.LocalIndex.z + face.z);
     const int chunkSize = VoxelChunk::ChunkSize;
 
     Vector3i chunkIndex = GetChunkIndex(voxel.Chunk);
-    while (voxel.LocalIndex.x < 0)
+    while (added.x < 0)
     {
         chunkIndex = chunkIndex.LessX();
-        voxel.LocalIndex.x += chunkSize;
+        added.x += chunkSize;
     }
-    while (voxel.LocalIndex.y < 0)
+    while (added.y < 0)
     {
         chunkIndex = chunkIndex.LessY();
-        voxel.LocalIndex.y += chunkSize;
+        added.y += chunkSize;
     }
-    while (voxel.LocalIndex.z < 0)
+    while (added.z < 0)
     {
         chunkIndex = chunkIndex.LessZ();
-        voxel.LocalIndex.z += chunkSize;
+        added.z += chunkSize;
     }
-    while (voxel.LocalIndex.x > chunkSize - 1)
+    while (added.x > chunkSize - 1)
     {
         chunkIndex = chunkIndex.MoreX();
-        voxel.LocalIndex.x -= chunkSize;
+        added.x -= chunkSize;
     }
-    while (voxel.LocalIndex.y > chunkSize - 1)
+    while (added.y > chunkSize - 1)
     {
         chunkIndex = chunkIndex.MoreY();
-        voxel.LocalIndex.y -= chunkSize;
+        added.y -= chunkSize;
     }
-    while (voxel.LocalIndex.z > chunkSize - 1)
+    while (added.z > chunkSize - 1)
     {
         chunkIndex = chunkIndex.MoreZ();
-        voxel.LocalIndex.z -= chunkSize;
+        added.z -= chunkSize;
     }
+    voxel.LocalIndex = added.CastToUInt();
     voxel.Chunk = GetChunk(chunkIndex);
 
     return voxel;

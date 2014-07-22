@@ -8,9 +8,9 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
 {
     assert(InterpolateScale > 0.0f);
 
-    Vector2i toInterpSize((int)ceilf(outN.GetWidth() / InterpolateScale) + 1,
-                          (int)ceilf(outN.GetHeight() / InterpolateScale) + 1);
-	Noise2D toInterp((unsigned int)toInterpSize.x, (unsigned int)toInterpSize.y);
+    Vector2u toInterpSize((unsigned int)ceilf(outN.GetWidth() / InterpolateScale) + 1,
+                          (unsigned int)ceilf(outN.GetHeight() / InterpolateScale) + 1);
+	Noise2D toInterp(toInterpSize.x, toInterpSize.y);
     NoiseToInterpolate->Generate(toInterp);
 
     float(*smoothStepper)(float inVal);
@@ -30,17 +30,18 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
     }
 
 
-	int w = outN.GetWidth(), h = outN.GetHeight();
+	unsigned int w = outN.GetWidth(),
+                 h = outN.GetHeight();
 	float invScale = 1.0f / InterpolateScale;
-	Vector2i loc;
-    Vector2i srcLocMin, srcLocMax;
+	Vector2u loc;
+    Vector2u srcLocMin, srcLocMax;
     Vector2f lerpVal;
 
     for (loc.y = 0; loc.y < h; ++loc.y)
     {
         float srcY = (float)loc.y / InterpolateScale;
 
-        srcLocMin.y = (int)srcY;
+        srcLocMin.y = (unsigned int)srcY;
         srcLocMax.y = srcLocMin.y + 1;
         lerpVal.y = smoothStepper(srcY - (float)srcLocMin.y);
 
@@ -48,14 +49,14 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
         {
             float srcX = (float)loc.x / InterpolateScale;
 
-            srcLocMin.x = (int)srcX;
+            srcLocMin.x = (unsigned int)srcX;
             srcLocMax.x = srcLocMin.x + 1;
             lerpVal.x = smoothStepper(srcX - (float)srcLocMin.x);
 
             outN[loc] = BasicMath::Lerp(BasicMath::Lerp(toInterp[srcLocMin],
-                                                        toInterp[Vector2i(srcLocMax.x, srcLocMin.y)],
+                                                        toInterp[Vector2u(srcLocMax.x, srcLocMin.y)],
                                                         lerpVal.x),
-                                        BasicMath::Lerp(toInterp[Vector2i(srcLocMin.x, srcLocMax.y)],
+                                        BasicMath::Lerp(toInterp[Vector2u(srcLocMin.x, srcLocMax.y)],
                                                         toInterp[srcLocMax],
                                                         lerpVal.x),
                                         lerpVal.y);

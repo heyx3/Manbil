@@ -8,10 +8,10 @@ struct DiamondSquareStep
 	//The range of acceptable random values to add/subtract to the height value this iteration.
 	Interval VarianceValueRange;
 	//The number of iterations to use this random value range for.
-	int Iterations;
+	unsigned int Iterations;
 
 	DiamondSquareStep(void) : VarianceValueRange(Interval(0.5f, 0.5f)), Iterations(1) { }
-	DiamondSquareStep(Interval varianceValueRange, int iterations) : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
+	DiamondSquareStep(Interval varianceValueRange, unsigned int iterations) : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
 	~DiamondSquareStep(void) { }
 };
 
@@ -29,12 +29,17 @@ public:
 
 	Interval DefaultVariance;
 	DiamondSquareStep * ForcedVariances;
-	int NumbForcedVariances;
+	unsigned int NumbForcedVariances;
 	float StartingCornerValues;
 
 
-	DiamondSquare(int seed, Interval defaultVariance, DiamondSquareStep * forcedVariances, int nForcedVariances, float startingCornerValues)
-		: Seed(seed), DefaultVariance(defaultVariance), ForcedVariances(forcedVariances), NumbForcedVariances(nForcedVariances), StartingCornerValues(startingCornerValues) { }
+	DiamondSquare(int seed, Interval defaultVariance, DiamondSquareStep * forcedVariances,
+                  unsigned int nForcedVariances, float startingCornerValues)
+		: Seed(seed), DefaultVariance(defaultVariance), ForcedVariances(forcedVariances),
+          NumbForcedVariances(nForcedVariances), StartingCornerValues(startingCornerValues)
+    {
+
+    }
 
 
 	//If the given noise array is not M x M, where M is (2^n) + 1,
@@ -49,5 +54,5 @@ private:
 
 	mutable FastRand fr;
 
-	void DiamondSquare::IterateAlgorithm(int size, Vector2i topLeft, Interval * variances, Array2D<float> & noise) const;
+	void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval * variances, Array2D<float> & noise) const;
 };

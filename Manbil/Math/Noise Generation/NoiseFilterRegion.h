@@ -3,14 +3,12 @@
 #include "../LowerMath.hpp"
 
 
-//TODO: Fix all the spacial iteration in the cpp file. Use NoiseFilterVolume as a reference.
-
 //Represents a way to select a region of 2D noise to be filtered.
 class NoiseFilterRegion
 {
 public:
 
-	typedef void (*ActionFunc)(void* pData, Vector2i location, float strength);
+    typedef void(*ActionFunc)(void* pData, Vector2u location, float strength);
 
 	//The strength of the filter this region applies to, from 0 to 1.
 	float StrengthLerp;
@@ -21,7 +19,7 @@ public:
 
 	NoiseFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false) : Wrap(wrap), ActiveIn(activeIn), StrengthLerp(strengthLerp) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) = 0;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrengthDropoff = true) = 0;
 
 protected:
     static float GetMaxFloat(void) { return std::numeric_limits<float>().max(); }
@@ -34,7 +32,7 @@ public:
 
     MaxFilterRegion(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat())) : NoiseFilterRegion(strengthLerp, activeIn, false) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrengthDropoff = true) override;
 };
 
 //Represents a circular area.
@@ -51,7 +49,7 @@ public:
     CircularFilterRegion(Vector2f center, float radius, float strengthLerp = 1.0f, float dropoffRadiusPercent = 0.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false)
 		: NoiseFilterRegion(strengthLerp, activeIn, wrap), Center(center), Radius(radius), DropoffRadiusPercent(dropoffRadiusPercent) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrengthDropoff = true) override;
 	
 private:
 
@@ -68,5 +66,5 @@ public:
     RectangularFilterRegion(Vector2i topLeft, Vector2i bottomRight, float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false)
 		: NoiseFilterRegion(strengthLerp, activeIn, wrap), TopLeft(topLeft), BottomRight(bottomRight) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrengthDropoff = true) override;
 };

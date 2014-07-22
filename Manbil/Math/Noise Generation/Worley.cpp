@@ -26,16 +26,16 @@ bool IsGoodData(WAD2 & dat) { return dat.Distance != BadWADDistance; }
 void Insert(WorleyAlgorithmData2D* toInsertInto, WorleyAlgorithmData2D & toInsert)
 {
 	//Only need to use the closest 5 elements.
-	const int maxSize = Worley2D::NUMB_DISTANCE_VALUES;
+	const unsigned int maxSize = Worley2D::NUMB_DISTANCE_VALUES;
 
-	int i = 0;
+	unsigned int i = 0;
 	for (i = 0; i < maxSize && IsGoodData(toInsertInto[i]); ++i)
 	{
 		//If this is the right spot to insert the data...
 		if (toInsertInto[i].Distance > toInsert.Distance)
 		{
 			//Move all the other data up.
-			for (int j = maxSize - 1; j > i; --j)
+			for (unsigned int j = maxSize - 1; j > i; --j)
 			{
 				toInsertInto[j].Pos = toInsertInto[j - 1].Pos;
 				toInsertInto[j].Distance = toInsertInto[j - 1].Distance;
@@ -51,9 +51,6 @@ void Insert(WorleyAlgorithmData2D* toInsertInto, WorleyAlgorithmData2D & toInser
 	if (i < maxSize)
 	{
 		toInsertInto[i].Pos = toInsert.Pos;
-	}
-	if (i < maxSize)
-	{
 		toInsertInto[i].Distance = toInsert.Distance;
 	}
 }
@@ -64,16 +61,16 @@ void Worley2D::Generate(Array2D<float> & noise) const
 
 
 	//Get the size of a cell.
-	int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), noise.GetHeight());
+	unsigned int cSize = BasicMath::Min<unsigned int>(CellSize, noise.GetWidth(), noise.GetHeight());
     float cSizeF = (float)cSize;
 
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
-	Vector2i cells = Vector2i((noise.GetWidth() / cSize),
+	Vector2u cells = Vector2u((noise.GetWidth() / cSize),
 							  (noise.GetHeight() / cSize));
 
 	//Initialize cell contents.
-	int i;
-    Vector2i loc;
+	unsigned int i;
+    Vector2u loc;
 	struct Cell { std::vector<Vector2f> pointsInCell; };
 	Array2D<Cell> cellContents(cells.x, cells.y);
 
@@ -146,7 +143,7 @@ void Worley2D::Generate(Array2D<float> & noise) const
                          wrappedRightY = (tempLoci.y > newTempLoci.y);
 
                     //Go through every point in the cell.
-                    cellTemp = &cellContents[newTempLoci].pointsInCell;
+                    cellTemp = &cellContents[newTempLoci.CastToUInt()].pointsInCell;
 
                     for (i = 0; i < (int)cellTemp->size(); ++i)
                     {
@@ -217,16 +214,16 @@ bool IsGoodData(WAD3 & dat) { return dat.Distance != BadWADDistance; }
 void Insert(WorleyAlgorithmData3D* toInsertInto, WorleyAlgorithmData3D & toInsert)
 {
     //Only need to use the closest 5 elements.
-    const int maxSize = Worley3D::NUMB_DISTANCE_VALUES;
+    const unsigned int maxSize = Worley3D::NUMB_DISTANCE_VALUES;
 
-    int i;
+    unsigned int i;
     for (i = 0; i < maxSize && IsGoodData(toInsertInto[i]); ++i)
     {
         //If this is the right spot to insert the data...
         if (toInsertInto[i].Distance > toInsert.Distance)
         {
             //Move all the other data up.
-            for (int j = maxSize - 1; j > i; --j)
+            for (unsigned int j = maxSize - 1; j > i; --j)
             {
                 toInsertInto[j].Pos = toInsertInto[j - 1].Pos;
                 toInsertInto[j].Distance = toInsertInto[j - 1].Distance;
@@ -251,16 +248,16 @@ void Worley3D::Generate(Array3D<float> & noise) const
     unsigned int pointsPerCellRange = MaxPointsPerCell - MinPointsPerCell;
 
     //Get the size of a cell.
-    int cSize = BasicMath::Min<int>(CellSize, noise.GetWidth(), BasicMath::Min(noise.GetHeight(), noise.GetDepth()));
+    unsigned int cSize = BasicMath::Min(CellSize, noise.GetWidth(), BasicMath::Min(noise.GetHeight(), noise.GetDepth()));
 
     //Get the number of cells (use one extra row/column of cells behind the noise array).
-    Vector3i cells = Vector3i((noise.GetWidth() / cSize),
+    Vector3u cells = Vector3u((noise.GetWidth() / cSize),
                               (noise.GetHeight() / cSize),
                               (noise.GetDepth() / cSize));
 
     //Initialize cell contents.
-    int i;
-    Vector3i loc;
+    unsigned int i;
+    Vector3u loc;
     struct Cell { std::vector<Vector3f> pointsInCell; };
     Array3D<Cell> cellContents(cells.x, cells.y, cells.z);
 
@@ -347,7 +344,7 @@ void Worley3D::Generate(Array3D<float> & noise) const
                                  wrappedRightZ = (tempLoci.z > newTempLoci.z);
 
                             //Go through every point in the cell.
-                            cellTemp = &cellContents[newTempLoci].pointsInCell;
+                            cellTemp = &cellContents[newTempLoci.CastToUInt()].pointsInCell;
 
                             for (i = 0; i < (int)cellTemp->size(); ++i)
                             {

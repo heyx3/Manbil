@@ -26,15 +26,15 @@ public:
     //The offset of the noise (used to make different adjacent pieces of noise fit together without forcing the noise to be tileable).
     Vector2i Offset;
     //The generated noise will be tileable every "GradientWrapInterval.x" grid points along the X, and every "GradientWrapInterval.y" grid points along the Y.
-    Vector2i GradientWrapInterval;
+    Vector2u GradientWrapInterval;
     //This generator will often generate dark values. If this flag is true, those values will be normalized.
     bool RemapValues;
     
     Perlin2D(Vector2f scale, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345, bool remapValues = true,
-             Vector2i gradientWrapInterval = Vector2i(std::numeric_limits<int>().max(), std::numeric_limits<int>().max()))
+             Vector2u gradientWrapInterval = Vector2u(std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max()))
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
     Perlin2D(float scale = 1.0f, Smoothness amount = Smoothness::Linear, Vector2i offset = Vector2i(), int seed = 12345, bool remapValues = true,
-             Vector2i gradientWrapInterval = Vector2i(std::numeric_limits<int>().max(), std::numeric_limits<int>().max()))
+             Vector2u gradientWrapInterval = Vector2u(std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max()))
         : Scale(scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
 
 	virtual void Generate(Array2D<float> & outValues) const override;
@@ -63,15 +63,15 @@ public:
     Vector3i Offset;
     //The generated noise will be tileable every "GradientWrapInterval.x" grid points along the X,
     //   every "GradientWrapInterval.y" grid points along the Y, and every "GradientWrapInterval.z" grid points along the Z.
-    Vector3i GradientWrapInterval;
+    Vector3u GradientWrapInterval;
     //This generator will often generate dark values. If this flag is true, those values will be normalized.
     bool RemapValues;
 
     Perlin3D(float scale, Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345, bool remapValues = true,
-             Vector3i gradientWrapInterval = Vector3i(std::numeric_limits<int>().max(), std::numeric_limits<int>().max(), std::numeric_limits<int>().max()))
+             Vector3u gradientWrapInterval = Vector3u(std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max()))
         : Scale(scale, scale, scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
     Perlin3D(Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f), Smoothness amount = Smoothness::Linear, Vector3i offset = Vector3i(), int seed = 12345, bool remapValues = true,
-             Vector3i gradientWrapInterval = Vector3i(std::numeric_limits<int>().max(), std::numeric_limits<int>().max(), std::numeric_limits<int>().max()))
+             Vector3u gradientWrapInterval = Vector3u(std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max()))
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
 
     void Generate(Array3D<float> & outValues) const;

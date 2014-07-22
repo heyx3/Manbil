@@ -58,13 +58,33 @@ public:
 			arrayVals[i] = defaultValue;
 	}
 
-    Vector2i Clamp(Vector2i in) const { return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1), BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1)); }
-    Vector2f Clamp(Vector2f in) const { return Vector2f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth() - 1), BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1)); }
+    Vector2i Clamp(Vector2i in) const
+    {
+        return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
+                        BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1));
+    }
+    Vector2u Clamp(Vector2u in) const
+    {
+        return Vector2u(BasicMath::Min<unsigned int>(in.x, GetWidth() - 1),
+                        BasicMath::Min<unsigned int>(in.y, GetHeight() - 1));
+    }
+    Vector2f Clamp(Vector2f in) const
+    {
+        return Vector2f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth() - 1),
+                        BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1));
+    }
     Vector2i Wrap(Vector2i in) const
     {
         while (in.x < 0) in.x += GetWidth();
         while (in.x >= GetWidth()) in.x -= GetWidth();
         while (in.y < 0) in.y += GetHeight();
+        while (in.y >= GetHeight()) in.y -= GetHeight();
+
+        return in;
+    }
+    Vector2u Wrap(Vector2u in) const
+    {
+        while (in.x >= GetWidth()) in.x -= GetWidth();
         while (in.y >= GetHeight()) in.y -= GetHeight();
 
         return in;
@@ -79,14 +99,15 @@ public:
         return in;
     }
 
-	ArrayType& operator[](Vector2i l) { return arrayVals[GetIndex(l.x, l.y)]; }
-	const ArrayType& operator[](Vector2i l) const { return arrayVals[GetIndex(l.x, l.y)]; }
+	ArrayType& operator[](Vector2u l) { return arrayVals[GetIndex(l.x, l.y)]; }
+	const ArrayType& operator[](Vector2u l) const { return arrayVals[GetIndex(l.x, l.y)]; }
 
     //Gets whether this array's width and height are the same.
     bool IsSquare(void) const { return width == height; }
 
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
+    Vector2u GetDimensions(void) const { return Vector2u(width, height); }
 
     bool HasSameDimensions(const Array2D<ArrayType> & other) const
     {
@@ -106,19 +127,16 @@ public:
 	{
 		Vector2i offsetLoc;
 
-        for (Vector2i loc; loc.y < height; ++loc.y)
+        for (Vector2u loc; loc.y < height; ++loc.y)
         {
-            offsetLoc.y = loc.y + copyOffset.y;
+            offsetLoc.y = loc.y - copyOffset.y;
 
             for (loc.x = 0; loc.x < width; ++loc.x)
             {
-                offsetLoc.x = loc.x + copyOffset.x;
+                offsetLoc.x = loc.x - copyOffset.x;
 
-                if (offsetLoc.x < 0 || offsetLoc.y < 0 ||
-                    offsetLoc.x > width || offsetLoc.y > height ||
-                    offsetLoc.x > toCopy.width || offsetLoc.y > toCopy.height)
-                    operator[](loc) = defaultValue;
-                else operator[](loc) = toCopy[offsetLoc];
+                bool inToCopy = (offsetLoc.x >= 0) && (offsetLoc.y >= 0);
+                operator[](loc) = (inToCopy ? toCopy[Vector2u(offsetLoc.x, offsetLoc.y)] : defaultValue);
             }
         }
 	}
@@ -134,10 +152,10 @@ public:
 
     template<typename Func>
     //Fills every element using the given function.
-    //The function must have signature "void getValue(Vector2i loc, ArrayType * outValue)".
+    //The function must have signature "void getValue(Vector2u loc, ArrayType * outValue)".
     void FillFunc(Func getValue)
     {
-        for (Vector2i loc; loc.y < height; ++loc.y)
+        for (Vector2u loc; loc.y < height; ++loc.y)
             for (loc.x = 0; loc.x < width; ++loc.x)
                 getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
     }
@@ -164,28 +182,28 @@ public:
 
             case 1:
                 outArray.Reset(height, width);
-                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                outArray.FillFunc([thisA](Vector2u loc, ArrayType * outValue)
                 {
-                    Vector2i locF(thisA->GetHeight() - 1 - loc.y, loc.x);
+                    Vector2u locF(thisA->GetHeight() - 1 - loc.y, loc.x);
                     const ArrayType * value = &thisA->operator[](locF);
                     *outValue = *value;
-                    //*outValue = thisA->operator[](Vector2i(thisA->GetHeight() - 1 - loc.y, loc.x));
                 });
                 break;
 
             case 2:
                 outArray.Reset(height, width);
-                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                outArray.FillFunc([thisA](Vector2u loc, ArrayType * outValue)
                 {
-                    *outValue = thisA->operator[](Vector2i(thisA->GetWidth() - 1 - loc.x, thisA->GetHeight() - 1 - loc.y));
+                    *outValue = thisA->operator[](Vector2u(thisA->GetWidth() - 1 - loc.x,
+                                                           thisA->GetHeight() - 1 - loc.y));
                 });
                 break;
 
             case 3:
                 outArray.Reset(height, width);
-                outArray.FillFunc([thisA](Vector2i loc, ArrayType * outValue)
+                outArray.FillFunc([thisA](Vector2u loc, ArrayType * outValue)
                 {
-                    *outValue = thisA->operator[](Vector2i(loc.y, thisA->GetWidth() - 1 - loc.x));
+                    *outValue = thisA->operator[](Vector2u(loc.y, thisA->GetWidth() - 1 - loc.x));
                 });
                 break;
 

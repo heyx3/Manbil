@@ -9,7 +9,7 @@ class NoiseFilterVolume
 {
 public:
 
-	typedef void (*ActionFunc)(void* pData, Vector3i location, float strength);
+    typedef void(*ActionFunc)(void* pData, Vector3u location, float strength);
 
 	//The strength of the filter this region applies to, from 0 to 1.
 	float StrengthLerp;
@@ -20,7 +20,7 @@ public:
 
     NoiseFilterVolume(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false) : Wrap(wrap), ActiveIn(activeIn), StrengthLerp(strengthLerp) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrengthDropoff = true) = 0;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrengthDropoff = true) = 0;
 
 protected:
     static float GetMaxFloat(void) { return std::numeric_limits<float>().max(); }
@@ -33,7 +33,7 @@ public:
 
     MaxFilterVolume(float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat())) : NoiseFilterVolume(strengthLerp, activeIn, false) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrengthDropoff = true) override;
 };
 
 //Represents a spherical area.
@@ -51,7 +51,7 @@ public:
         : NoiseFilterVolume(strengthLerp, activeIn, wrap), Center(center), Radius(radius), DropoffRadiusPercent(dropoffRadiusPercent)
     { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrengthDropoff = true) override;
 	
 private:
 
@@ -68,5 +68,5 @@ public:
     CubeFilterVolume(Vector3i minCorner, Vector3i maxCorner, float strengthLerp = 1.0f, Interval activeIn = Interval(0.0f, GetMaxFloat()), bool wrap = false)
 		: NoiseFilterVolume(strengthLerp, activeIn, wrap), MinCorner(minCorner), MaxCorner(maxCorner) { }
 
-	virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3i noiseSize, bool calcStrengthDropoff = true) override;
+    virtual void DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrengthDropoff = true) override;
 };

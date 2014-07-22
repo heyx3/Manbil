@@ -42,41 +42,33 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 
     //Just create a flat terrain and let it do the math.
 
-    Terrain terr(size);
     //Put the noise into the terrain heightmap so that the terrain class will automatically put each noise value into the correct vertex.
     //However, because we're putting noise into the z coordinate, don't calculate normals until after the noise is extracted.
+    Terrain terr(size);
     terr.SetHeightmap(noise);
-    int nVs = terr.GetVerticesCount(),
-        nIs = terr.GetIndicesCount();
-    Vector3f * poses = new Vector3f[nVs];
-    Vector2f * texCoords = new Vector2f[nVs];
-    terr.CreateVertexPositions(poses);
-    terr.CreateVertexTexCoords(texCoords);
+    std::vector<Terrain::TerrainVertex> terrVertices;
+    std::vector<unsigned int> terrIndices;
+    terr.GenerateVerticesIndices(terrVertices, terrIndices);
 
-    WaterVertex * vertices = new WaterVertex[nVs];
+    //Convert the terrain vertices into water vertices.
+    std::vector<WaterVertex> waterVertices;
+    waterVertices.reserve(terrVertices.size());
     FastRand fr(146230);
-    for (int i = 0; i < nVs; ++i)
+    for (unsigned int i = 0; i < terrVertices.size(); ++i)
     {
-        //Don't forget to pull the noise out of the Z coordinate and put it into the RandSeeds vertex input.
-        vertices[i] = WaterVertex(scle.ComponentProduct(Vector3f(poses[i].x, poses[i].y, 0.0f)) + offset,
-                                  texCoords[i],
-                                  Vector2f(-1.0f + (2.0f * poses[i].z), (12.0f * poses[i].z)));
-        poses[i].z = 0.0f;
+        waterVertices.insert(waterVertices.end(),
+                             WaterVertex(scle.ComponentProduct(Vector3f(terrVertices[i].Pos.x, terrVertices[i].Pos.y, 0.0f)) + offset,
+                                         terrVertices[i].TexCoords,
+                                         Vector2f(-1.0f + (2.0f * terrVertices[i].Pos.z), (12.0f * terrVertices[i].Pos.z))));
+        waterVertices[i].Pos.z = 0.0f;
     }
-    delete[] poses, texCoords;
 
-    //Generate indices.
-    unsigned int * indices = new unsigned int[nIs];
-    terr.CreateVertexIndices(indices);
-    
     //Create the vertex and index buffers.
     RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, vertices, nVs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, indices, nIs, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateVertexBuffer(vbo, waterVertices.data(), waterVertices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(ibo, terrIndices.data(), terrIndices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
     outM.SetVertexIndexData(&vid, 1);
-
-    delete[] vertices, indices;
 }
 
 Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
