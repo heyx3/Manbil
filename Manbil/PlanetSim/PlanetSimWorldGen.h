@@ -37,6 +37,6 @@ public:
     //Generates the vertices/indices for a single region of space on the surface of the given planet.
     //The "min" and "max" values are inclusive and wrap horizontally around the vertex map.
     static void GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices, Vector2u min, Vector2u max,
-                                    float minHeight, float heightScale,
+                                    float worldScale, float minHeight, float heightScale,
                                     std::vector<PlanetVertex> & outVertices, std::vector<unsigned int> & outIndices);
 };

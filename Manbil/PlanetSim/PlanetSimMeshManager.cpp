@@ -27,7 +27,7 @@ void PlanetSimMeshManager::GeneratePlanet(const Array2D<float> & heightmap, floa
             subdivInds.clear();
 
             Vector2u start = subdiv.ComponentProduct(subdivSize);
-            WorldGen::GenerateSubdivision(planetVertices, start, heightmap.Clamp(start + subdivSize), minHeight, heightScale, subdivVerts, subdivInds);
+            WorldGen::GenerateSubdivision(planetVertices, start, heightmap.Clamp(start + subdivSize), planetScale, minHeight, heightScale, subdivVerts, subdivInds);
 
             RenderObjHandle vbo, ibo;
             RenderDataHandler::CreateVertexBuffer(vbo, subdivVerts.data(), subdivVerts.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);

@@ -112,7 +112,7 @@ void PlanetSimWorld::InitializeWorld(void)
 
     #pragma region Objects
 
-    Array2D<float> noise(512, 512);
+    Array2D<float> noise(1024, 1024);
 
 
     #pragma region Generate the heightmap
@@ -130,14 +130,16 @@ void PlanetSimWorld::InitializeWorld(void)
         Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 1, 99999)),
     };
     Generator2D * gens[] = { &perlins[0], &perlins[1], &perlins[2], &perlins[3], &perlins[4], &perlins[5], &perlins[6], &perlins[7] };
-    float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f, 0.00390625f };
+    float weights[] = { 0.65f, 0.18f, 0.09f, 0.045f, 0.03125f, 0.006875f, 0.0037775f, 0.00171875f };
     LayeredOctave2D layered(sizeof(weights) / sizeof(float), weights, gens);
 
+    FlatNoise2D floorNoise(0.15f);
+    Combine2Noises2D floorFunc(&Combine2Noises2D::Max2, &layered, &floorNoise);
 
     NoiseFilterer2D filter;
-    RectangularFilterRegion rfr(Vector2i(0, noise.GetHeight() - 10), Vector2i(noise.GetWidth(), noise.GetHeight() + 9), 0.65f, Interval(0.0f, 2.1f), true);
+    RectangularFilterRegion rfr(Vector2i(0, noise.GetHeight() - 5), Vector2i(noise.GetWidth(), noise.GetHeight() + 4), 0.65f, Interval(0.0f, 2.1f), true);
     filter.FillRegion = &rfr;
-    filter.NoiseToFilter = &layered;
+    filter.NoiseToFilter = &floorFunc;
     filter.FilterFunc = &NoiseFilterer2D::Average;
 
     filter.Generate(noise);
@@ -147,9 +149,9 @@ void PlanetSimWorld::InitializeWorld(void)
 
 
     //Generate the planet.
-    const float minHeight = 0.8f;
+    const float minHeight = 0.9f;
     const float heightScale = 0.2f;
-    planetMeshes.GeneratePlanet(noise, 3000.0f, minHeight, heightScale, Vector2u(256, 256));
+    planetMeshes.GeneratePlanet(noise, 3000.0f, minHeight, heightScale, Vector2u(1024, 1024));
 
     #pragma endregion
 
