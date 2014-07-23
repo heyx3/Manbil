@@ -17,7 +17,7 @@ public:
 	TransformObject Transform;
     
 
-	Mesh(PrimitiveTypes pType, int numbVIData = 0, VertexIndexData * viDataArray = 0);
+	Mesh(PrimitiveTypes pType = PrimitiveTypes::TriangleList, int numbVIData = 0, VertexIndexData * viDataArray = 0);
 	Mesh(const Mesh & cpy);
 
 	~Mesh(void) { if (viData != 0) delete[] viData; }
@@ -41,6 +41,7 @@ public:
 	void SetVertexIndexData(const VertexIndexData * toCopy, int numbToCopy);
 
 	PrimitiveTypes GetPrimType(void) const { return primType; }
+    void SetPrimType(PrimitiveTypes type) { primType = type; }
 
 	void operator=(const Mesh & other);
 

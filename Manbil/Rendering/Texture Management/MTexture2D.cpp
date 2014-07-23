@@ -198,7 +198,6 @@ bool MTexture2D::SetColorData(const Array2D<Vector4b> & pixelData, PixelSizes ne
 
     width = pixelData.GetWidth();
     height = pixelData.GetHeight();
-    pixelSize = newSize;
 
     Bind();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.GetArray());
@@ -216,7 +215,6 @@ bool MTexture2D::SetColorData(const Array2D<Vector4f> & pixelData, PixelSizes ne
 
     width = pixelData.GetWidth();
     height = pixelData.GetHeight();
-    pixelSize = newSize;
 
     Bind();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_FLOAT, pixelData.GetArray());
@@ -261,7 +259,6 @@ bool MTexture2D::SetGreyscaleData(const Array2D<unsigned char> & greyscaleData, 
 
     width = greyscaleData.GetWidth();
     height = greyscaleData.GetHeight();
-    pixelSize = newSize;
 
     Bind();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RED, GL_UNSIGNED_BYTE, greyscaleData.GetArray());
@@ -279,7 +276,6 @@ bool MTexture2D::SetGreyscaleData(const Array2D<float> & greyscaleData, PixelSiz
 
     width = greyscaleData.GetWidth();
     height = greyscaleData.GetHeight();
-    pixelSize = newSize;
 
     Bind();
     glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RED, GL_FLOAT, greyscaleData.GetArray());

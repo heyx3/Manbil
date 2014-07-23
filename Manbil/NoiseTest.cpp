@@ -198,13 +198,13 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
-    else if (false)
+    else if (true)
     {
         #pragma region TwoD Perlin
 
         const unsigned int pSize = 32;
-        Perlin2D perl((float)pSize, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2u(noiseSize / pSize, noiseSize / pSize));
-        perl.Generate(finalNoise);
+        Perlin2D perlin(20.0f, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2u(noiseSize / 20, noiseSize / 20));
+        perlin.Generate(finalNoise);
 
         NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
         nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.00001f, true, false);
@@ -253,7 +253,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-    else if (true)
+    else if (false)
     {
         #pragma region Layered Interpolated White Noise
 

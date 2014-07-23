@@ -153,7 +153,6 @@ bool MTexture3D::SetColorData(const Array3D<Vector4b> & pixelData, PixelSizes ne
     width = pixelData.GetWidth();
     height = pixelData.GetHeight();
     depth = pixelData.GetDepth();
-    pixelSize = newSize;
 
     Bind();
     glTexImage3D(GL_TEXTURE_3D, 0, ToGLenum(pixelSize), width, height, depth, 0,
@@ -173,7 +172,6 @@ bool MTexture3D::SetColorData(const Array3D<Vector4f> & pixelData, PixelSizes ne
     width = pixelData.GetWidth();
     height = pixelData.GetHeight();
     depth = pixelData.GetDepth();
-    pixelSize = newSize;
 
     Bind();
     glTexImage3D(GL_TEXTURE_3D, 0, ToGLenum(pixelSize), width, height, depth, 0,
@@ -224,7 +222,6 @@ bool MTexture3D::SetGreyscaleData(const Array3D<unsigned char> & greyscaleData, 
     width = greyscaleData.GetWidth();
     height = greyscaleData.GetHeight();
     depth = greyscaleData.GetDepth();
-    pixelSize = newSize;
 
     Bind();
     glTexImage3D(GL_TEXTURE_3D, 0, ToGLenum(pixelSize), width, height, depth, 0,
@@ -244,7 +241,6 @@ bool MTexture3D::SetGreyscaleData(const Array3D<float> & greyscaleData, PixelSiz
     width = greyscaleData.GetWidth();
     height = greyscaleData.GetHeight();
     depth = greyscaleData.GetDepth();
-    pixelSize = newSize;
 
     Bind();
     glTexImage3D(GL_TEXTURE_3D, 0, ToGLenum(pixelSize), width, height, depth, 0,
