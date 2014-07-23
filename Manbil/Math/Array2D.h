@@ -58,6 +58,17 @@ public:
 			arrayVals[i] = defaultValue;
 	}
 
+    //Gets the array index for the given position.
+    unsigned int GetIndex(unsigned int x, unsigned int y) const
+    {
+        return x + (y * width);
+    }
+    //Gets the location in this array that corresponds to the given index.
+    Vector2u GetLocation(unsigned int index) const
+    {
+        return Vector2u(index % width, index / width);
+    }
+
     Vector2i Clamp(Vector2i in) const
     {
         return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
@@ -108,6 +119,7 @@ public:
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
     Vector2u GetDimensions(void) const { return Vector2u(width, height); }
+    unsigned int GetArea(void) const { return width * height; }
 
     bool HasSameDimensions(const Array2D<ArrayType> & other) const
     {
@@ -239,11 +251,6 @@ private:
 
     unsigned int width, height;
 	ArrayType * arrayVals;
-
-    unsigned int GetIndex(unsigned int x, unsigned int y) const
-    {
-        return x + (y * width);
-    }
 };
 
 #pragma warning(default: 4018)

@@ -62,6 +62,17 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
+    
+    //Gets the array index for the given position.
+    unsigned int GetIndex(unsigned int x, unsigned int y, unsigned int z) const
+    {
+        return x + (y * width) + (z * width * height);
+    }
+    //Gets the location in this array that corresponds to the given index.
+    Vector3u GetLocation(unsigned int index) const
+    {
+        return Vector3u(index % width, index / width, index / (width * height));
+    }
 
     Vector3i Clamp(Vector3i in) const { return Vector3i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
                                                         BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1),
@@ -119,6 +130,7 @@ public:
     unsigned int GetHeight(void) const { return height; }
     unsigned int GetDepth(void) const { return depth; }
     Vector3u GetDimensions(void) const { return Vector3u(width, height, depth); }
+    unsigned int GetVolume(void) const { return width * height * depth; }
 
     unsigned int GetNumbElements(void) const { return width * height * depth; }
 
@@ -204,11 +216,6 @@ private:
 
     unsigned int width, height, depth;
 	ArrayType * arrayVals;
-
-    unsigned int GetIndex(unsigned int x, unsigned int y, unsigned int z) const
-    {
-        return x + (y * width) + (z * width * height);
-    }
 };
 
 #pragma warning(default: 4018)

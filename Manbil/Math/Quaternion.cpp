@@ -172,7 +172,7 @@ void Quaternion::Rotate(Vector3f & v) const
 	v.y = finalW.y;
 	v.z = finalW.z;
 
-	v.Normalize();
+	//v.Normalize();
 }
 
 void Quaternion::Round(int decimals)

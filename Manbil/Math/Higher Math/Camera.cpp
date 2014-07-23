@@ -15,7 +15,6 @@ void Camera::AddPitch(float radians)
 
 	Quaternion rotation(GetSideways(), radians);
 	rotation.Rotate(forward);
-
 	forward.Normalize();
 
 	float dot = forward.Dot(up);
@@ -31,6 +30,7 @@ void Camera::AddYaw(float radians)
 	Quaternion rotation(up, radians);
 
 	rotation.Rotate(forward);
+    forward.Normalize();
 }
 void Camera::AddRoll(float radians)
 {
@@ -38,7 +38,6 @@ void Camera::AddRoll(float radians)
 
 	Quaternion rotation(forward, radians);
 	rotation.Rotate(up);
-
 	up.Normalize();
 }
 
@@ -58,7 +57,9 @@ void Camera::SetRotation(Vector3f newForward, Vector3f newUp, bool alreadyNormal
 void Camera::Rotate(Quaternion rotation)
 {
     rotation.Rotate(forward);
+    forward.Normalize();
     rotation.Rotate(up);
+    up.Normalize();
 }
 
 void Camera::GetViewTransform(Matrix4f & outM) const

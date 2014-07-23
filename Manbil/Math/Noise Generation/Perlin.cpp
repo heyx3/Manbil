@@ -84,14 +84,14 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 	float tlDot, trDot, blDot, brDot;
     Vector2f withinGridOffset(fmodf(Offset.x, Scale.x), fmodf(Offset.y, Scale.y));
 
-    for (loc.y = 0; loc.y < noiseDim.x; ++loc.y)
+    for (loc.y = 0; loc.y < noiseDim.y; ++loc.y)
     {
         lerpGrid.y = ((float)loc.y + withinGridOffset.y) * invScale.y;
 
         tlGrid.y = (unsigned int)lerpGrid.y;
         relGrid.y = lerpGrid.y - tlGrid.y;
 
-        for (loc.x = 0; loc.x < noiseDim.y; ++loc.x)
+        for (loc.x = 0; loc.x < noiseDim.x; ++loc.x)
         {
             lerpGrid.x = ((float)loc.x + withinGridOffset.x) * invScale.x;
 

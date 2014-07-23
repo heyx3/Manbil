@@ -118,8 +118,8 @@ public:
         return intervalStart + (intervalSize * rounded);
     }
     struct ClampIntBoundsResult { int zero, one; ClampIntBoundsResult(int _zero, int _one) : zero(_zero), one(_one) { } };
-    //Gets the given value clamped to the closest value of (intervalStart + (n * intervalSize)) for some integer n.
-    //This function gets the two values of n that the given value lies between.
+    //Calculates the given value clamped to the closest value of (intervalStart + (n * intervalSize)) for any integer n.
+    //This function returns the two values of n that the given value lies between.
     static inline ClampIntBoundsResult ClampIntervalBounds(float intervalStart, float intervalSize, float value)
     {
         float sub = value - intervalStart;
@@ -128,6 +128,12 @@ public:
         int rounded = RoundToInt(divided);
         bool nearStart = (rounded == (int)divided);
         return (nearStart ? ClampIntBoundsResult(rounded, rounded + 1) : ClampIntBoundsResult(rounded - 1, rounded));
+    }
+
+    //Gets whether "n" is an integer multiple of "multiple".
+    static inline bool IsMultiple(int n, int multiple)
+    {
+        return (n % multiple) == 0;
     }
 
     //Gets the value that, if plugged into "lerp", would output "value".

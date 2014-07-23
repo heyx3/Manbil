@@ -73,7 +73,6 @@ void Terrain::GenerateVerticesIndices(std::vector<TerrainVertex> & outVertices, 
 
     float texCoordIncrement = 1.0f / (float)GetSize();
     unsigned int vertIndex = 0;
-    unsigned int indIndex = 0;
     Vector2f posF;
     for (Vector2u pos(0, topLeft.y); pos.y <= bottomRight.y; ++pos.y)
     {
@@ -143,7 +142,7 @@ void Terrain::GenerateVerticesIndices(std::vector<TerrainVertex> & outVertices, 
         vertIndex = i;
 
         Vector3f lessX = outVertices[vertIndex - 1].Pos;
-        moreY = outVertices[vertIndex + areaSize.y].Pos;
+        moreY = outVertices[vertIndex + areaSize.x].Pos;
         Vector3f toLessX = (lessX - outVertices[vertIndex].Pos).Normalized();
         toMoreY = (moreY - outVertices[vertIndex].Pos).Normalized();
 

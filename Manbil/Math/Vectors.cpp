@@ -6,7 +6,7 @@
 void Vector2f::Rotate(float radians)
 {
 	float cosTheta = cosf(radians),
-		sinTheta = sinf(radians);
+		  sinTheta = sinf(radians);
 
 	x = (x * cosTheta) - (y * sinTheta);
 	y = (y * cosTheta) + (x * sinTheta);

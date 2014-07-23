@@ -26,6 +26,10 @@ public:
     static std::string ToString(Vector3b v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " }"; }
     static std::string ToString(Vector4b v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + " }"; }
 
+    static std::string ToString(Vector2u v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + " }"; }
+    static std::string ToString(Vector3u v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " }"; }
+    static std::string ToString(Vector4u v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + " }"; }
+
     static std::string ToString(Vector2i v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + " }"; }
     static std::string ToString(Vector3i v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " }"; }
     static std::string ToString(Vector4i v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + " }"; }
