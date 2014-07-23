@@ -2,7 +2,6 @@
 
 char ColorGradient::Exception_NoStartingNode = 1,
 	 ColorGradient::Exception_NoEndingNode = 2,
-	 ColorGradient::Exception_FloatNotInRange = 3,
 	 ColorGradient::Exception_NodesNotOrdered = 4;
 
 void ColorGradient::CheckErrors(void) const
@@ -35,11 +34,7 @@ void ColorGradient::GetColors(Vector4f * outColors, const float * noiseValues, u
 }
 Vector4f ColorGradient::GetColorWOErrorChecking(float f) const
 {
-	//Make sure "f" is in range.
-	if (f < OrderedNodes[0].Position || f > OrderedNodes[OrderedNodes.size() - 1].Position)
-	{
-		throw Exception_FloatNotInRange;
-	}
+    f = BasicMath::Clamp(f, OrderedNodes[0].Position, OrderedNodes[OrderedNodes.size() - 1].Position);
 
 	//Edge cases. Choose a random node side if the given value sits right on a Node.
 	if (f == OrderedNodes[0].Position)

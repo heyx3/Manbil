@@ -11,7 +11,6 @@ public:
 
 	static char Exception_NoStartingNode,
 				Exception_NoEndingNode,
-				Exception_FloatNotInRange,
 				Exception_NodesNotOrdered;
 
 	std::vector<ColorNode> OrderedNodes;
