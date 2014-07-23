@@ -105,7 +105,7 @@ void WorldGen::GenerateVertices(const Array2D<float> & heightmap, Array2D<Planet
 
 
 void WorldGen::GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices, Vector2u min, Vector2u max,
-                                   float minHeight, float heightScale,
+                                   float worldScale, float minHeight, float heightScale,
                                    std::vector<PlanetVertex> & outVertices, std::vector<unsigned int> & outIndices)
 {
     Vector2u size = max - min + Vector2u(1, 1);
@@ -163,7 +163,7 @@ void WorldGen::GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices,
         avgNormal /= (float)size.x;
 
         unsigned int index = outVertices.size();
-        outVertices.insert(outVertices.end(), PlanetVertex(Vector3f(0.0f, 0.0f, minHeight + (avgHeight * heightScale)),
+        outVertices.insert(outVertices.end(), PlanetVertex(Vector3f(0.0f, 0.0f, minHeight + (avgHeight * heightScale)) * worldScale,
                                                            avgNormal, avgHeight));
 
         //Make a triangle from each adjacent pair of vertices on the top border to the top vertex.
@@ -190,7 +190,7 @@ void WorldGen::GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices,
         avgNormal /= (float)size.x;
 
         unsigned int index = outVertices.size();
-        outVertices.insert(outVertices.end(), PlanetVertex(Vector3f(0.0f, 0.0f, -(minHeight + (avgHeight * heightScale))),
+        outVertices.insert(outVertices.end(), PlanetVertex(Vector3f(0.0f, 0.0f, -(minHeight + (avgHeight * heightScale))) * worldScale,
                                                            avgNormal, avgHeight));
 
         //Make a triangle from each adjacent pair of vertices on the bottom border to the bottom vertex.
