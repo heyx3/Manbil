@@ -67,6 +67,7 @@ void PlanetSimWorld::InitializeWorld(void)
 
     #pragma endregion
     
+
     #pragma region Materials
 
 
@@ -108,22 +109,35 @@ void PlanetSimWorld::InitializeWorld(void)
 
     #pragma endregion
     
+
     #pragma region Objects
 
     Array2D<float> noise(512, 512);
 
+
     #pragma region Generate the heightmap
 
 
-    const unsigned int size = 32;
-    assert(BasicMath::IsMultiple(noise.GetWidth(), size));
-    assert(BasicMath::IsMultiple(noise.GetHeight(), size));
-    Perlin2D perlin((float)size, Perlin2D::Quintic, Vector2i(), 12345, true, Vector2u(noise.GetWidth() / size, noise.GetHeight() / size));
+    Perlin2D perlins[] =
+    {
+        Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 128, 99999)),
+        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 64, 99999)),
+        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 32, 99999)),
+        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 16, 99999)),
+        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 8, 99999)),
+        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 4, 99999)),
+        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 2, 99999)),
+        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 1, 99999)),
+    };
+    Generator2D * gens[] = { &perlins[0], &perlins[1], &perlins[2], &perlins[3], &perlins[4], &perlins[5], &perlins[6], &perlins[7] };
+    float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f, 0.00390625f };
+    LayeredOctave2D layered(sizeof(weights) / sizeof(float), weights, gens);
+
 
     NoiseFilterer2D filter;
     RectangularFilterRegion rfr(Vector2i(0, noise.GetHeight() - 10), Vector2i(noise.GetWidth(), noise.GetHeight() + 9), 0.65f, Interval(0.0f, 2.1f), true);
     filter.FillRegion = &rfr;
-    filter.NoiseToFilter = &perlin;
+    filter.NoiseToFilter = &layered;
     filter.FilterFunc = &NoiseFilterer2D::Average;
 
     filter.Generate(noise);
