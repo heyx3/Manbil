@@ -10,13 +10,15 @@
 
 
 
-const std::string PlanetSimWorld::planetTex3DName = "u_planetTex3D";
+const std::string PlanetSimWorld::planetTex3DName = "u_planetTex3D",
+                  PlanetSimWorld::planetTexHeightName = "u_planetHeightTex";
 
 
 PlanetSimWorld::PlanetSimWorld(void)
     : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1)),
-      planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F, true), planetMat(0),
-      cam(Vector3f(-500.0f, 0.0f, 0.0f), 500.0f, 0.025f)
+      planetHeightTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false), planetMat(0),
+      planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F_GREYSCALE, true),
+      cam(Vector3f(8000.0f, 0.0f, 0.0f), 500.0f, 0.025f, Vector3f(-1.0f, 0.0f, 0.0f))
 {
 
 }
@@ -46,24 +48,51 @@ void PlanetSimWorld::InitializeWorld(void)
     
     #pragma region Textures
 
+
+    ColorGradient gradient;
+    std::vector<ColorNode> & nodes = gradient.OrderedNodes;
+
+    //Planet's 3D texture.
+
     Array3D<float> planetTexNoiseDat(100, 100, 100);
     Array3D<Vector4f> planetTexData(100, 100, 100);
 
     Perlin3D planetTexNoise(10.0f, Perlin3D::Smoothness::Quintic, Vector3i(), 12345, true, Vector3u(10, 10, 10));
     planetTexNoise.Generate(planetTexNoiseDat);
 
-    ColorGradient plTexGrad;
-    std::vector<ColorNode> & nodes = plTexGrad.OrderedNodes;
-    nodes.insert(nodes.end(), ColorNode(0.0f, Vector4f(0.2f, 0.6f, 0.2f, 1.0f)));
-    nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(0.6f, 0.2f, 0.2f, 1.0f)));
-    plTexGrad.GetColors(planetTexData.GetArray(), planetTexNoiseDat.GetArray(), planetTexData.GetNumbElements());
+    nodes.insert(nodes.end(), ColorNode(0.0f, Vector4f(0.8f, 0.8f, 0.8f, 1.0f)));
+    nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+    gradient.GetColors(planetTexData.GetArray(), planetTexNoiseDat.GetArray(), planetTexData.GetNumbElements());
+    planetTexNoiseDat.FillFunc([&planetTexData](Vector3u loc, float * outVal) { *outVal = planetTexData[loc].x; });
 
     planetTex3D.Create();
-    if (!planetTex3D.SetColorData(planetTexData))
+    if (!planetTex3D.SetGreyscaleData(planetTexNoiseDat))
     {
         PrintError("Unable to set data for planet's 3D texture.");
         return;
     }
+
+    //Heightmap texture.
+
+    Array2D<Vector4f> heightTex(1024, 1);
+    Array2D<float> heightTexInput(1024, 1);
+    heightTexInput.FillFunc([](Vector2u loc, float * outVal) { *outVal = (float)loc.x / 1023.0f; });
+
+    nodes.clear();
+    nodes.insert(nodes.end(), ColorNode(0.4f, Vector4f(0.2f, 0.8f, 0.2f, 1.0f)));
+    nodes.insert(nodes.end(), ColorNode(0.48f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
+    nodes.insert(nodes.end(), ColorNode(0.55f, Vector4f(0.35f, 0.1f, 0.0f, 1.0f)));
+    nodes.insert(nodes.end(), ColorNode(0.75f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
+    nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+    gradient.GetColors(heightTex.GetArray(), heightTexInput.GetArray(), heightTex.GetArea());
+
+    planetHeightTex.Create();
+    if (!planetHeightTex.SetColorData(heightTex))
+    {
+        PrintError("Unable to set data for planet's heightmap texture.");
+        return;
+    }
+
 
     #pragma endregion
     
@@ -78,10 +107,17 @@ void PlanetSimWorld::InitializeWorld(void)
     DataNodePtr vertexIns(new VertexInputNode(PlanetVertex::GetAttributeData()));
     DataNodePtr fragmentIns(new FragmentInputNode(PlanetVertex::GetAttributeData()));
 
-    DataLine tex3DUVScale(0.01f);
+    DataLine tex3DUVScale(0.03f);
     DataLine tex3DUVs(DataNodePtr(new MultiplyNode(DataLine(fragmentIns, 0), tex3DUVScale)), 0);
     DataLine tex3D(DataNodePtr(new TextureSample3DNode(tex3DUVs, planetTex3DName)),
-                   TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+                   TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_Red));
+
+    DataLine texHeightmapUVs(DataNodePtr(new CombineVectorNode(DataLine(fragmentIns, 2), DataLine(0.5f))), 0);
+    DataLine texHeightmap(DataNodePtr(new TextureSample2DNode(texHeightmapUVs, planetTexHeightName)),
+                          TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+
+    DataLine finalTexColor(DataNodePtr(new MultiplyNode(texHeightmap, tex3D)), 0);
+
     DataLine lightDir(VectorF(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()));
     DataLine lighting(DataNodePtr(new LightingNode(DataLine(fragmentIns, 0), DataLine(fragmentIns, 1), lightDir,
                       DataLine(0.2f), DataLine(0.8f), DataLine(0.0f))), 0);
@@ -91,7 +127,7 @@ void PlanetSimWorld::InitializeWorld(void)
     plChans[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 0);
     plChans[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexIns, 1);
     plChans[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(vertexIns, 2);
-    plChans[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, tex3D)), 0);
+    plChans[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, finalTexColor)), 0);
 
     //Material generation.
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(plChans, planetParams, PlanetVertex::GetAttributeData(),
@@ -105,12 +141,14 @@ void PlanetSimWorld::InitializeWorld(void)
 
     //Material parameters.
     planetParams.Texture3DUniforms[planetTex3DName].Texture = planetTex3D.GetTextureHandle();
+    planetParams.Texture2DUniforms[planetTexHeightName].Texture = planetHeightTex.GetTextureHandle();
 
 
     #pragma endregion
     
 
     #pragma region Objects
+
 
     Array2D<float> noise(1024, 1024);
 
@@ -133,7 +171,7 @@ void PlanetSimWorld::InitializeWorld(void)
     float weights[] = { 0.65f, 0.18f, 0.09f, 0.045f, 0.03125f, 0.006875f, 0.0037775f, 0.00171875f };
     LayeredOctave2D layered(sizeof(weights) / sizeof(float), weights, gens);
 
-    FlatNoise2D floorNoise(0.15f);
+    FlatNoise2D floorNoise(0.3f);
     Combine2Noises2D floorFunc(&Combine2Noises2D::Max2, &layered, &floorNoise);
 
     NoiseFilterer2D filter;
@@ -149,9 +187,10 @@ void PlanetSimWorld::InitializeWorld(void)
 
 
     //Generate the planet.
-    const float minHeight = 0.9f;
-    const float heightScale = 0.2f;
-    planetMeshes.GeneratePlanet(noise, 3000.0f, minHeight, heightScale, Vector2u(1024, 1024));
+    const float minHeight = 0.75f;
+    const float heightScale = 0.25f;
+    planetMeshes.GeneratePlanet(noise, 6000.0f, minHeight, heightScale, Vector2u(1024, 1024));
+
 
     #pragma endregion
 

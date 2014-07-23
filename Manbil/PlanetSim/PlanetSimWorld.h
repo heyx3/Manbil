@@ -31,6 +31,7 @@ private:
 
     Material * planetMat;
     UniformDictionary planetParams;
+    MTexture2D planetHeightTex;
     MTexture3D planetTex3D;
 
     PlanetSimMeshManager planetMeshes;
@@ -38,5 +39,5 @@ private:
 
     Vector2u windowSize;
 
-    static const std::string planetTex3DName;
+    static const std::string planetTex3DName, planetTexHeightName;
 };
