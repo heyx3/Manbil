@@ -9,9 +9,7 @@ class ColorGradient
 {
 public:
 
-	static char Exception_NoStartingNode,
-				Exception_NoEndingNode,
-				Exception_NodesNotOrdered;
+	static char Exception_NodesNotOrdered;
 
 	std::vector<ColorNode> OrderedNodes;
 

@@ -1,20 +1,9 @@
 #include "ColorGradient.h"
 
-char ColorGradient::Exception_NoStartingNode = 1,
-	 ColorGradient::Exception_NoEndingNode = 2,
-	 ColorGradient::Exception_NodesNotOrdered = 4;
+char ColorGradient::Exception_NodesNotOrdered = 4;
 
 void ColorGradient::CheckErrors(void) const
 {
-	if (OrderedNodes[0].Position != 0.0f)
-	{
-		throw Exception_NoStartingNode;
-	}
-	if (OrderedNodes[OrderedNodes.size() - 1].Position != 1.0f)
-	{
-		throw Exception_NoEndingNode;
-	}
-	
 	for (int index = OrderedNodes.size() - 1; index >= 0; --index)
 	{
 		if (index < OrderedNodes.size() - 1 &&
