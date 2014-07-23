@@ -11,6 +11,7 @@
 #include "Voxel/VoxelWorld.h"
 #include "Tests/TwoDOpenGLTest.h"
 #include "Tests/GUITestWorld.h"
+#include "PlanetSim/PlanetSimWorld.h"
 
 
 #include <iostream>
@@ -354,14 +355,15 @@ int main()
     //TestIOStuff();
 
 
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
     //GUITestWorld().RunWorld();
-
+    
     //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
     //VoxelWorld().RunWorld();
+    PlanetSimWorld().RunWorld();
 }

@@ -327,6 +327,18 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="PlanetSim\PlanetSimWorld.cpp">
+      <Filter>PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetSim\PlanetSimWorldGen.cpp">
+      <Filter>PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetSim\PlanetSimMeshManager.cpp">
+      <Filter>PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetSim\PlanetSimCamera.cpp">
+      <Filter>PlanetSim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -802,6 +814,18 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
+    <ClInclude Include="PlanetSim\PlanetSimWorld.h">
+      <Filter>PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetSim\PlanetSimWorldGen.h">
+      <Filter>PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetSim\PlanetSimMeshManager.h">
+      <Filter>PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetSim\PlanetSimCamera.h">
+      <Filter>PlanetSim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -908,6 +932,9 @@
     </Filter>
     <Filter Include="IO\tinyxml Library">
       <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlanetSim">
+      <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
