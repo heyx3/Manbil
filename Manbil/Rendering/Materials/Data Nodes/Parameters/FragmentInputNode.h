@@ -26,7 +26,7 @@ public:
                std::string() + "Invalid input number " + std::to_string(outputIndex) +
                ", must be less than " + std::to_string(Attributes.GetNumbAttributes()));
 
-        if (GetGeoShaderData()->IsValidData())
+        if (GetGeoShaderData() != 0 && GetGeoShaderData()->IsValidData())
         {
             return GetGeoShaderData()->OutputTypes.OutputNames[outputIndex];
         }

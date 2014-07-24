@@ -16,12 +16,12 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 
         case Shaders::SH_GeometryShader:
             Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(dat->IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
+            Assert(dat != 0 && dat->IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
             return MaterialConstants::VertexOutNameBase + std::to_string(gInputIndex) + "[" + std::to_string(gInputArrayIndex) + "]";
 
         case Shaders::SH_Fragment_Shader:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
-            if (dat->IsValidData())
+            if (dat != 0 && dat->IsValidData())
                 return dat->OutputTypes.OutputNames[fInputIndex];
             else return MaterialConstants::VertexOutNameBase + std::to_string(fInputIndex);
 

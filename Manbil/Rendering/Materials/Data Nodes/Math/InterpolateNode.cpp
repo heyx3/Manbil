@@ -36,10 +36,10 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
     std::string vType2 = VectorF(GetInterpInput().GetDataLineSize()).GetGLSLType();
     std::string funcName = GetName() + "_verySmoothStep";
 
-    std::string str = vType + funcName + "(" + vType + " minV, " + vType + " maxV, " + vType2 + " interpolantV)\n\
+    std::string str = vType + " " + funcName + "(" + vType + " minV, " + vType + " maxV, " + vType2 + " interpolantV)\n\
                       {\n\
-                         \tfloat interpValue = interpolant * interpolant * interpolant *\n\
-                            \t\t(10.0 + (interpolant * (-15.0 + (6.0 * interpolant))));\n\
+                         \tfloat interpValue = interpolantV * interpolantV * interpolantV *\n\
+                            \t\t(10.0 + (interpolantV * (-15.0 + (6.0 * interpolantV))));\n\
                          \treturn minV + (interpValue * (maxV - minV));\n\
                       }\n";
 

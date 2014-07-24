@@ -26,6 +26,7 @@
 #include "Miscellaneous/WhiteNoiseNode.h"
 #include "Miscellaneous/LightingNode.h"
 #include "Miscellaneous/DataNodeGenerators.h"
+#include "Miscellaneous/CustomExpressionNode.h"
 
 #include "Parameters/VertexInputNode.h"
 #include "Parameters/FragmentInputNode.h"
