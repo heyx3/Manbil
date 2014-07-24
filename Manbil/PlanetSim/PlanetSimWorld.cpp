@@ -18,7 +18,7 @@ PlanetSimWorld::PlanetSimWorld(void)
     : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1)),
       planetHeightTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false), planetMat(0),
       planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F_GREYSCALE, true),
-      cam(Vector3f(8000.0f, 0.0f, 0.0f), 500.0f, 0.025f, Vector3f(-1.0f, 0.0f, 0.0f))
+      cam(Vector3f(8000.0f, 0.0f, 0.0f), 400.0f, 0.025f, Vector3f(-1.0f, 0.0f, 0.0f))
 {
 
 }
@@ -79,11 +79,19 @@ void PlanetSimWorld::InitializeWorld(void)
     heightTexInput.FillFunc([](Vector2u loc, float * outVal) { *outVal = (float)loc.x / 1023.0f; });
 
     nodes.clear();
-    nodes.insert(nodes.end(), ColorNode(0.4f, Vector4f(0.2f, 0.8f, 0.2f, 1.0f)));
-    nodes.insert(nodes.end(), ColorNode(0.48f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
-    nodes.insert(nodes.end(), ColorNode(0.55f, Vector4f(0.35f, 0.1f, 0.0f, 1.0f)));
-    nodes.insert(nodes.end(), ColorNode(0.75f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
-    nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+    if (true)
+    {
+        nodes.insert(nodes.end(), ColorNode(0.0f, Vector4f(0.2f, 0.8f, 0.2f, 1.0f)));
+        nodes.insert(nodes.end(), ColorNode(0.4f, Vector4f(0.4f, 0.2f, 0.1f, 1.0f)));
+        nodes.insert(nodes.end(), ColorNode(0.55f, Vector4f(0.3f, 0.1f, 0.0f, 1.0f)));
+        nodes.insert(nodes.end(), ColorNode(0.75f, Vector4f(0.4f, 0.2f, 0.1f, 1.0f)));
+        nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+    }
+    else
+    {
+        nodes.insert(nodes.end(), ColorNode(0.0f, Vector4f(0.35f, 0.1f, 0.0f, 1.0f)));
+        nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
+    }
     gradient.GetColors(heightTex.GetArray(), heightTexInput.GetArray(), heightTex.GetArea());
 
     planetHeightTex.Create();
@@ -102,12 +110,16 @@ void PlanetSimWorld::InitializeWorld(void)
 
     //Material channels.
 
-    std::unordered_map<RenderingChannels, DataLine> plChans;
+    DataNode::SetGeoData(0);
 
+    std::unordered_map<RenderingChannels, DataLine> plChans;
+    
     DataNodePtr vertexIns(new VertexInputNode(PlanetVertex::GetAttributeData()));
     DataNodePtr fragmentIns(new FragmentInputNode(PlanetVertex::GetAttributeData()));
+    DataNodePtr camInfo(new CameraDataNode());
+    DataNodePtr projInfo(new ProjectionDataNode());
 
-    DataLine tex3DUVScale(0.03f);
+    DataLine tex3DUVScale(0.02f);
     DataLine tex3DUVs(DataNodePtr(new MultiplyNode(DataLine(fragmentIns, 0), tex3DUVScale)), 0);
     DataLine tex3D(DataNodePtr(new TextureSample3DNode(tex3DUVs, planetTex3DName)),
                    TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_Red));
@@ -120,14 +132,25 @@ void PlanetSimWorld::InitializeWorld(void)
 
     DataLine lightDir(VectorF(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()));
     DataLine lighting(DataNodePtr(new LightingNode(DataLine(fragmentIns, 0), DataLine(fragmentIns, 1), lightDir,
-                      DataLine(0.2f), DataLine(0.8f), DataLine(0.0f))), 0);
+                                                   DataLine(0.2f), DataLine(0.8f), DataLine(0.0f))), 0);
+
+    DataLine litTexColor(DataNodePtr(new MultiplyNode(lighting, finalTexColor)), 0);
+
+    DataLine distFromPlayer(DataNodePtr(new DistanceNode(DataLine(camInfo, CameraDataNode::GetCamPosOutputIndex()),
+                                                         DataLine(fragmentIns, 0))), 0);
+    DataLine lerpDistFromPlayer(DataNodePtr(new DivideNode(distFromPlayer, DataLine(projInfo, ProjectionDataNode::GetZFarOutputIndex()))), 0);
+    DataLine planetFogLerp(DataNodePtr(new CustomExpressionNode("(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)", 1,
+                                                                lerpDistFromPlayer, DataLine(fragmentIns, 2))), 0);
+    DataLine planetFogColor(VectorF(Vector3f(1.0f, 1.0f, 1.0f)));
+    DataLine planetFogHeightPower(VectorF(0.7f));
+    DataLine planetFogLitTex(DataNodePtr(new InterpolateNode(planetFogColor, litTexColor, planetFogLerp, InterpolateNode::IT_VerySmooth)), 0);
 
     plChans[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new ObjectPosToScreenPosCalcNode(DataLine(vertexIns, 0))),
                                                               ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
     plChans[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 0);
     plChans[RenderingChannels::RC_VERTEX_OUT_1] = DataLine(vertexIns, 1);
     plChans[RenderingChannels::RC_VERTEX_OUT_2] = DataLine(vertexIns, 2);
-    plChans[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new MultiplyNode(lighting, finalTexColor)), 0);
+    plChans[RenderingChannels::RC_Color] = planetFogLitTex;
 
     //Material generation.
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(plChans, planetParams, PlanetVertex::GetAttributeData(),
@@ -156,28 +179,40 @@ void PlanetSimWorld::InitializeWorld(void)
     #pragma region Generate the heightmap
 
 
+    //Base heightmap
     Perlin2D perlins[] =
     {
         Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 128, 99999)),
-        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 64, 99999)),
-        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 32, 99999)),
-        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 16, 99999)),
-        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 8, 99999)),
-        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 4, 99999)),
-        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 2, 99999)),
-        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 123639, true, Vector2u(noise.GetWidth() / 1, 99999)),
+        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), 345234, true, Vector2u(noise.GetWidth() / 64, 99999)),
+        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 2362, true, Vector2u(noise.GetWidth() / 32, 99999)),
+        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 98356, true, Vector2u(noise.GetWidth() / 16, 99999)),
+        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 36, true, Vector2u(noise.GetWidth() / 8, 99999)),
+        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 236, true, Vector2u(noise.GetWidth() / 4, 99999)),
+        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 23452, true, Vector2u(noise.GetWidth() / 2, 99999)),
+        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 23721, true, Vector2u(noise.GetWidth() / 1, 99999)),
     };
     Generator2D * gens[] = { &perlins[0], &perlins[1], &perlins[2], &perlins[3], &perlins[4], &perlins[5], &perlins[6], &perlins[7] };
     float weights[] = { 0.65f, 0.18f, 0.09f, 0.045f, 0.03125f, 0.006875f, 0.0037775f, 0.00171875f };
     LayeredOctave2D layered(sizeof(weights) / sizeof(float), weights, gens);
 
-    FlatNoise2D floorNoise(0.3f);
-    Combine2Noises2D floorFunc(&Combine2Noises2D::Max2, &layered, &floorNoise);
+    //Use pow() to make the heightmap steeper.
+    FlatNoise2D powNoise(1.25f);
+    Combine2Noises2D powFunc(&NoiseFuncs::Pow2, &layered, &powNoise);
 
+    //Create a floor.
+    FlatNoise2D floorNoise(0.2f);
+    Combine2Noises2D floorFunc(&NoiseFuncs::Max2, &powFunc, &floorNoise);
+
+    //Add a little noise so that the floor isn't totally flat.
+    Perlin2D miniNoise(8.0f, Perlin2D::Quintic, Vector2i(), 162361, true, Vector2u(8, 8));
+    FlatNoise2D miniNoiseWeight(0.0055f);
+    Combine3Noises2D addMiniNoise(&NoiseFuncs::MultiplyThenAdd, &miniNoise, &miniNoiseWeight, &floorFunc);
+
+    //Average out the top and bottom of the planet so that the top vertex and bottom vertex don't look too out of place.
     NoiseFilterer2D filter;
-    RectangularFilterRegion rfr(Vector2i(0, noise.GetHeight() - 5), Vector2i(noise.GetWidth(), noise.GetHeight() + 4), 0.65f, Interval(0.0f, 2.1f), true);
+    RectangularFilterRegion rfr(Vector2i(0, noise.GetHeight() - 5), Vector2i(noise.GetWidth(), noise.GetHeight() + 4), 0.8f, Interval(0.0f, 2.1f), true);
     filter.FillRegion = &rfr;
-    filter.NoiseToFilter = &floorFunc;
+    filter.NoiseToFilter = &addMiniNoise;
     filter.FilterFunc = &NoiseFilterer2D::Average;
 
     filter.Generate(noise);
@@ -188,7 +223,7 @@ void PlanetSimWorld::InitializeWorld(void)
 
     //Generate the planet.
     const float minHeight = 0.75f;
-    const float heightScale = 0.25f;
+    const float heightScale = 0.2f;
     planetMeshes.GeneratePlanet(noise, 6000.0f, minHeight, heightScale, Vector2u(1024, 1024));
 
 
