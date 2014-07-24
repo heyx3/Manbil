@@ -339,6 +339,9 @@
     <ClCompile Include="PlanetSim\PlanetSimCamera.cpp">
       <Filter>PlanetSim</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -825,6 +828,9 @@
     </ClInclude>
     <ClInclude Include="PlanetSim\PlanetSimCamera.h">
       <Filter>PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

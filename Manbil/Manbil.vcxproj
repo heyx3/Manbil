@@ -157,6 +157,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.h" />
