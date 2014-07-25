@@ -15,6 +15,11 @@ An overview of the different systems by folder. NOTE: this layout uses the filte
   * Each input instance can inherit from BoolInput, FloatInput, or Vector2Input.
   * For example, mouse clicks and keyboard presses are BoolInputs, while mouse movement is a Vector2Input.
 
+* "IO": abstracted interface for simple serialization of data structures to/from some kind of stream.
+  * DataSerialization.h: "DataReader"/"DataWriter" are abstract classes that provide functionality to read/write different kinds of data, respectively. "ISerializable" is an abstract class that provides an interface for instructing the class to read/write itself using DataReader/DataWriter instances.
+  * XmlSerialization.h/.cpp: "XmlReader"/"XmlWriter" are implementations of DataReader/DataWriter that input/output to XML files.
+  * BinarySerialization.h/.cpp: "BinaryReader"/"BinaryWriter" are implementations of DataReader/DataWriter that input/output to binary files. They optionally can include headers in front of each piece of data in the file to ensure safe type-checking.
+
 * "Math": high-level and low-level mathematics. Provides "2D" and "3D" arrays that are actually just one-dimensional arrays in order to facilitate better cache usage.
   * FastRand.h: an efficient PRNG.
   * Vectors.h, Matrix4f.h, Quaternion.h: Provide the basic framework for 3D math -- vectors, matrices, and quaternions.
