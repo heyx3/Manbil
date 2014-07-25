@@ -14,7 +14,7 @@ public:
     //Outputs the dot of the surface normal and the normal from the surface to the camera.
     //A value of 1 indicates the camera is pointing directly at the surface.
     static DataLine FresnelEffect(DataLine surfacePos, DataLine surfaceNormal,
-                                  DataLine cameraPos = DataLine(DataNodePtr(new CameraDataNode()), CameraDataNode::GetCamPosOutputIndex()));
+                                  DataLine cameraPos = CameraDataNode::GetCamPos());
 
     //Calculates a UV output using an offset, panned, and/or scaled input UV (done in that order).
     //Any effects with default values (values that don't change anything) are optimized out.
@@ -25,7 +25,7 @@ public:
                                     DataLine scale = DataLine(VectorF(Vector2f(1.0f, 1.0f))),
                                     DataLine offset = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
                                     DataLine pan = DataLine(VectorF(Vector2f(0.0f, 0.0f))),
-                                    DataLine time = DataLine(DataNodePtr(new TimeNode()), 0));
+                                    DataLine time = TimeNode::GetTime());
 
     //Takes the object-space position from the given vertex input and converts it into homogenous screen-space coordinates.
     //The vertex type must have a static function with the header "VertexAttributes GetAttributeData(void)".

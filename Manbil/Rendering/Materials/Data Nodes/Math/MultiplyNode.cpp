@@ -2,6 +2,8 @@
 
 unsigned int GetMax(const std::vector<DataLine> & lines)
 {
+    if (lines.size() == 0) return 0;
+
     unsigned int max = lines[0].GetDataLineSize();
     for (unsigned int i = 1; i < lines.size(); ++i)
     {
@@ -13,6 +15,8 @@ unsigned int GetMax(const std::vector<DataLine> & lines)
 MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply)
 : DataNode(toMultiply, MakeVector(GetMax(toMultiply)))
 {
+    Assert(toMultiply.size() > 0, "Need at least one input for this MultiplyNode!");
+
     unsigned int size = GetOutputs()[0];
     for (unsigned int i = 0; i < toMultiply.size(); ++i)
     {

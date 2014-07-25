@@ -10,9 +10,8 @@ public:
 
     virtual std::string GetName(void) const override { return "reflectNode"; }
 
-    RefractNode(const DataLine & toRefract, const DataLine & refractNormal, const DataLine & indexOfRefraction, bool isNormalNormalized)
-        : DataNode(MakeVector(toRefract, refractNormal, indexOfRefraction), MakeVector(toRefract.GetDataLineSize())),
-                   isNormNormalized(isNormalNormalized)
+    RefractNode(const DataLine & toRefract, const DataLine & refractNormal, const DataLine & indexOfRefraction)
+        : DataNode(MakeVector(toRefract, refractNormal, indexOfRefraction), MakeVector(toRefract.GetDataLineSize()))
     {
         Assert(toRefract.GetDataLineSize() == refractNormal.GetDataLineSize(),
                "'toRefract' doesn't have the same size as 'refractNormal'!");
@@ -24,16 +23,9 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
-        outCode += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = reflect(" + GetInputs()[0].GetValue() + ", ";
-
-        if (isNormNormalized) outCode += GetInputs()[1].GetValue();
-        else outCode += "normalize(" + GetInputs()[1].GetValue() + ")";
-
-        outCode += ", " + GetInputs()[2].GetValue() + ");\n";
+        outCode += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) +
+                        " = reflect(" + GetInputs()[0].GetValue() + ", " +
+                                    GetInputs()[1].GetValue() + ", " +
+                                    GetInputs()[2].GetValue() + ");\n";
     }
-
-
-private:
-
-    bool isNormNormalized;
 };

@@ -4,6 +4,7 @@
 #include "../../MaterialData.h"
 #include "../../../../Vertices.h"
 
+//TODO: Pull out into .cpp.
 
 //Represents the value of vertex inputs.
 //NOTE: This node is only usable in the vertex shader!

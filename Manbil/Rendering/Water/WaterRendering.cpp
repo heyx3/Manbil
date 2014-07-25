@@ -217,8 +217,7 @@ DataLine WaterSurfaceDistortNode::GetWaterSeedIn(const VertexAttributes & fragme
 DataLine WaterSurfaceDistortNode::GetTimeIn(const VertexAttributes & fragmentInputs, int fragInputIndex)
 {
     DataNodePtr seedIn(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex)));
-    return DataLine(DataNodePtr(new AddNode(DataLine(DataNodePtr(new TimeNode()), 0),
-                                            DataLine(seedIn, 1))), 0);
+    return DataLine(DataNodePtr(new AddNode(TimeNode::GetTime(), DataLine(seedIn, 1))), 0);
 }
 std::string WaterSurfaceDistortNode::GetOutputName(unsigned int index) const
 {

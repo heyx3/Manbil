@@ -3,6 +3,8 @@
 #include "../DataNode.h"
 #include "../../MaterialData.h"
 
+//TODO: Pull out into .cpp.
+
 
 #pragma warning(disable: 4100)
 

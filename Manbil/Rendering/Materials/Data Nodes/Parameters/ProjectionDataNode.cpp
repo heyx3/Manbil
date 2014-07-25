@@ -3,6 +3,9 @@
 #include "../../MaterialData.h"
 
 
+DataNodePtr ProjectionDataNode::instance = DataNodePtr(new ProjectionDataNode());
+
+
 std::string ProjectionDataNode::GetOutputName(unsigned int index) const
 {
     switch (index)
@@ -17,4 +20,36 @@ std::string ProjectionDataNode::GetOutputName(unsigned int index) const
             Assert(false, std::string() + "Invalid output index " + ToString(index));
             return "INVALID_PROJECTION_DATA_NAME";
     }
+}
+
+void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
+{
+    switch (outputIndex)
+    {
+        case 0:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_WIDTH);
+            break;
+        case 1:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_HEIGHT);
+            break;
+        case 2:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_ZNEAR);
+            break;
+        case 3:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_ZFAR);
+            break;
+        case 4:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_FOV);
+            break;
+
+        default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
+    }
+}
+
+std::vector<unsigned int> ProjectionDataNode::MakeOutputs(void)
+{
+    std::vector<unsigned int> ret;
+    for (unsigned int i = 0; i < 5; ++i)
+        ret.insert(ret.end(), 1);
+    return ret;
 }

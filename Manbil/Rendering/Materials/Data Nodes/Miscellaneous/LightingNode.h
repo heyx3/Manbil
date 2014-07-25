@@ -20,7 +20,7 @@ public:
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
                  DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
                  DataLine specular = DataLine(1.5f), DataLine specIntensity = DataLine(128.0f),
-                 DataLine camPos = DataLine(DataNodePtr(new CameraDataNode()), CameraDataNode::GetCamPosOutputIndex()));
+                 DataLine camPos = CameraDataNode::GetCamPos());
 
 
 protected:
@@ -32,14 +32,14 @@ private:
 
     std::string GetFuncName(void) const { return "getBrightness" + std::to_string(GetUniqueID()); }
 
-    const DataLine & GetAmbientInput() const { return GetInputs()[0]; }
-    const DataLine & GetDiffuseInput() const { return GetInputs()[1]; }
-    const DataLine & GetSpecularInput() const { return GetInputs()[2]; }
-    const DataLine & GetSpecularIntensityInput() const { return GetInputs()[3]; }
-    const DataLine & GetCameraPosInput() const { return GetInputs()[4]; }
-    const DataLine & GetSurfaceNormalInput() const { return GetInputs()[5]; }
-    const DataLine & GetLightDirInput() const { return GetInputs()[6]; }
-    const DataLine & GetSurfacePosInput() const { return GetInputs()[7]; }
+    const DataLine & GetSurfacePosInput() const { return GetInputs()[0]; }
+    const DataLine & GetSurfaceNormalInput() const { return GetInputs()[1]; }
+    const DataLine & GetLightDirInput() const { return GetInputs()[2]; }
+    const DataLine & GetAmbientInput() const { return GetInputs()[3]; }
+    const DataLine & GetDiffuseInput() const { return GetInputs()[4]; }
+    const DataLine & GetSpecularInput() const { return GetInputs()[5]; }
+    const DataLine & GetSpecularIntensityInput() const { return GetInputs()[6]; }
+    const DataLine & GetCameraPosInput() const { return GetInputs()[7]; }
 
     static std::vector<DataLine> MakeInputVector(const DataLine & amb, const DataLine & diff, const DataLine & spec, const DataLine & specIntense,
                                                  const DataLine & camPos, const DataLine & surfPos,

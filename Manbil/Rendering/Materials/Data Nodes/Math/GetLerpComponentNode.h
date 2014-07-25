@@ -2,6 +2,7 @@
 
 #include "../DataNode.h"
 
+//TODO: Pull out into .cpp.
 
 //Outputs the lerp component for a given value when given a max and min.
 class GetLerpComponentNode : public DataNode

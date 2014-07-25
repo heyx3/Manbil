@@ -55,13 +55,13 @@ std::vector<DataLine> LightingNode::MakeInputVector(const DataLine & amb, const 
                                                     const DataLine & surfNormal, const DataLine & lightDir)
 {
     std::vector<DataLine> ret;
+    ret.insert(ret.end(), surfPos);
+    ret.insert(ret.end(), surfNormal);
+    ret.insert(ret.end(), lightDir);
     ret.insert(ret.end(), amb);
     ret.insert(ret.end(), diff);
     ret.insert(ret.end(), spec);
     ret.insert(ret.end(), specIntense);
     ret.insert(ret.end(), camPos);
-    ret.insert(ret.end(), surfNormal);
-    ret.insert(ret.end(), lightDir);
-    ret.insert(ret.end(), surfPos);
     return ret;
 }

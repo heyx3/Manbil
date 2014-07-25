@@ -2,6 +2,7 @@
 
 #include "../DataNode.h"
 
+//TODO: Pull into .cpp.
 
 //Combines multiple smaller floats/vectors into one large vector.
 class CombineVectorNode : public DataNode

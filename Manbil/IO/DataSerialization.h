@@ -53,6 +53,7 @@ public:
     //   with optional data passed in.
     typedef bool(*ElementWriter)(const void* elementCollection, unsigned int elementIndex, DataWriter * writer,
                                  std::string & outError, void* optionalData);
+    //"writerFunc" has the signature "(bool F(void*, unsigned int, DataWriter*, std::string&, void*))".
     virtual bool WriteCollection(std::string name, ElementWriter writerFunc, const void* collection, unsigned int collectionSize,
                                  std::string & outError, void *optionalData = 0) = 0;
 
@@ -78,6 +79,7 @@ public:
     typedef bool(*ElementReader)(void* elementCollection, unsigned int elementIndex, DataReader * reader,
                                  std::string & outError, void* optionalData);
     //Reads a collection of byte data into "outData".
+    //"readerFunc" has the signature "(bool F(void*, unsigned int, DataReader*, std::string&, void*))".
     virtual bool ReadCollection(ElementReader readerFunc, unsigned int bytesPerElement, std::string & outError,
                                 std::vector<unsigned char> & outData, void * optionalData = 0) = 0;
     virtual bool ReadDataStructure(ISerializable & toSerialize, std::string & outError) = 0;

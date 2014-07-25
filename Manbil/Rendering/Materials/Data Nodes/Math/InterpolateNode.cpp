@@ -3,21 +3,7 @@
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type)
     : DataNode(MakeVector(min, max, interp), MakeVector(BasicMath::Max(max.GetDataLineSize(), interp.GetDataLineSize())))
 {
-    Assert(type != IT_Power, "Used non-'Power' constructor for 'Power' interpolation!");
     intType = type;
-
-    unsigned int minS = min.GetDataLineSize(),
-                 maxS = max.GetDataLineSize(),
-                 intS = interp.GetDataLineSize();
-
-    Assert(minS == maxS, "'min' and 'max' are different sizes!");
-    Assert(intS == minS || intS == 1, "interpolant must be size 1 or the size of the min/max inputs!");
-}
-
-InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, DataLine power)
-    : DataNode(MakeVector(min, max, interp, power), MakeVector(BasicMath::Max(max.GetDataLineSize(), interp.GetDataLineSize())))
-{
-    intType = InterpolationType::IT_Power;
 
     unsigned int minS = min.GetDataLineSize(),
                  maxS = max.GetDataLineSize(),
@@ -70,13 +56,6 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
         outCode += "\t" + returnType + " " + GetOutputName(0) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
                                                                                                          GetMaxInput().GetValue() + ", " +
                                                                                                          GetInterpInput().GetValue() + ");\n";
-        break;
-
-    case IT_Power:
-        outCode += "\t" + returnType + " " + GetOutputName(0) + " = mix(" + GetMinInput().GetValue() + ", " +
-                                                                            GetMaxInput().GetValue() + ", " +
-                                                                            "pow(" + GetInterpInput().GetValue() + ", " +
-                                                                                     GetPowerInput().GetValue() + "));\n";
         break;
 
     default:

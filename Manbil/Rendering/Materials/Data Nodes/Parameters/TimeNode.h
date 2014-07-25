@@ -12,9 +12,10 @@ class TimeNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "timeNode"; }
+    static DataNodePtr GetInstance(void) { return instance; }
+    static DataLine GetTime(void) { return DataLine(instance, 0); }
 
-    TimeNode(void) : DataNode(std::vector<DataLine>(), MakeVector(1)) { }
+    virtual std::string GetName(void) const override { return "timeNode"; }
 
     virtual std::string GetOutputName(unsigned int index) const override
     {
@@ -34,6 +35,12 @@ protected:
     {
         //No outputting needed.
     }
+
+private:
+
+    static DataNodePtr instance;
+
+    TimeNode(void) : DataNode(std::vector<DataLine>(), MakeVector(1)) { }
 };
 
 #pragma warning(default: 4100)

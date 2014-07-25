@@ -263,7 +263,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(gsTestVertInputs, 0))), 0);
 
-    DataLine timeTex3D(DNP(new MultiplyNode(DataLine(0.25f), DataLine(DNP(new TimeNode()), 0))), 0);
+    DataLine timeTex3D(DNP(new MultiplyNode(DataLine(0.25f), TimeNode::GetTime())), 0);
     DataLine tex3DIn(DNP(new CombineVectorNode(DataLine(gsTestFragInputs, 0), timeTex3D)), 0);
     DataLine tex3DValue(DNP(new TextureSample3DNode(tex3DIn, "u_tex3D")), TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
 
@@ -331,7 +331,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
                  particleRandSeedInputs(DNP(new ShaderInNode(4, 1, 1, 0, 1)), 0);
         DataLine particleSeed1(DNP(new VectorComponentsNode(particleRandSeedInputs)), 0);
-        DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, DataLine(DataNodePtr(new TimeNode()), 0))), 0);
+        DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, TimeNode::GetTime())), 0);
         DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
         DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
 
@@ -400,8 +400,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     DataLine cmWorldPos(cmVertexInputs, 0);
     cmWorldPos = DataLine(DataNodePtr(new MultiplyNode(cmWorldPos, DataLine(2800.0f))), 0);
-    cmWorldPos = DataLine(DataNodePtr(new AddNode(cmWorldPos, DataLine(DataNodePtr(new CameraDataNode()),
-                                                                       CameraDataNode::GetCamPosOutputIndex()))), 0);
+    cmWorldPos = DataLine(DataNodePtr(new AddNode(cmWorldPos, CameraDataNode::GetCamPos())), 0);
     cubemapChannels[RC::RC_VertexPosOutput] = DataLine(DataNodePtr(new WorldPosToScreenPosCalcNode(cmWorldPos)),
                                                        WorldPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
 

@@ -2,6 +2,8 @@
 
 #include "../DataNode.h"
 
+//TODO: Pull out into .cpp.
+
 
 //Handles an identical shader input across different kinds of shaders.
 class ShaderInNode : public DataNode

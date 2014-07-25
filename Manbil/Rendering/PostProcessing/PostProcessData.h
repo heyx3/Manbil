@@ -7,7 +7,7 @@
 
 //Takes in a depth texture sample (in other words, the depth buffer value from 0 to 1)
 //      and linearizes it based on the camera's zFar and zNear.
-//TODO: Move out of "PostProcessData" and into one of the standard DataNode folders.
+//TODO: Move out of "PostProcessData" and into one of the standard DataNode folders. Add to serialization system!
 class LinearDepthSampleNode : public DataNode
 {
 public:
@@ -38,11 +38,9 @@ private:
 
     static std::vector<DataLine> BuildInputs(const DataLine & depthSampler)
     {
-        DataNodePtr projDats(new ProjectionDataNode());
-
         std::vector<DataLine> ret;
-        ret.insert(ret.end(), DataLine(projDats, ProjectionDataNode::GetZNearOutputIndex()));
-        ret.insert(ret.end(), DataLine(projDats, ProjectionDataNode::GetZFarOutputIndex()));
+        ret.insert(ret.end(), ProjectionDataNode::GetZNear());
+        ret.insert(ret.end(), ProjectionDataNode::GetZFar());
         ret.insert(ret.end(), depthSampler);
         return ret;
     }

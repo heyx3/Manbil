@@ -2,6 +2,8 @@
 
 #include "../DataNode.h"
 
+//TODO: Pull out into .cpp.
+
 
 //Different calculated values based on shader vertex inputs.
 

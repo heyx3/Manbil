@@ -116,8 +116,6 @@ void PlanetSimWorld::InitializeWorld(void)
     
     DataNodePtr vertexIns(new VertexInputNode(PlanetVertex::GetAttributeData()));
     DataNodePtr fragmentIns(new FragmentInputNode(PlanetVertex::GetAttributeData()));
-    DataNodePtr camInfo(new CameraDataNode());
-    DataNodePtr projInfo(new ProjectionDataNode());
 
     DataLine tex3DUVScale(0.02f);
     DataLine tex3DUVs(DataNodePtr(new MultiplyNode(DataLine(fragmentIns, 0), tex3DUVScale)), 0);
@@ -136,9 +134,8 @@ void PlanetSimWorld::InitializeWorld(void)
 
     DataLine litTexColor(DataNodePtr(new MultiplyNode(lighting, finalTexColor)), 0);
 
-    DataLine distFromPlayer(DataNodePtr(new DistanceNode(DataLine(camInfo, CameraDataNode::GetCamPosOutputIndex()),
-                                                         DataLine(fragmentIns, 0))), 0);
-    DataLine lerpDistFromPlayer(DataNodePtr(new DivideNode(distFromPlayer, DataLine(projInfo, ProjectionDataNode::GetZFarOutputIndex()))), 0);
+    DataLine distFromPlayer(DataNodePtr(new DistanceNode(CameraDataNode::GetCamPos(), DataLine(fragmentIns, 0))), 0);
+    DataLine lerpDistFromPlayer(DataNodePtr(new DivideNode(distFromPlayer, ProjectionDataNode::GetZFar())), 0);
     DataLine planetFogLerp(DataNodePtr(new CustomExpressionNode("(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)", 1,
                                                                 lerpDistFromPlayer, DataLine(fragmentIns, 2))), 0);
     DataLine planetFogColor(VectorF(Vector3f(1.0f, 1.0f, 1.0f)));

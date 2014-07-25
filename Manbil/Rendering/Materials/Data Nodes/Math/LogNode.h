@@ -10,7 +10,7 @@ public:
 
     virtual std::string GetName(void) const override { return "logNode"; }
 
-    LogNode(const DataLine & value, const DataLine & base)
+    LogNode(const DataLine & value, DataLine base = DataLine(VectorF(2.0f)))
         : DataNode(MakeVector(value, base), MakeVector(value.GetDataLineSize()))
     {
         Assert(base.GetDataLineSize() == 1, "base must have a size of 1! Instead it has size " + std::to_string(base.GetDataLineSize()));

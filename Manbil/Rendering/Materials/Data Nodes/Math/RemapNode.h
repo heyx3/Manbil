@@ -2,6 +2,7 @@
 
 #include "../DataNode.h"
 
+//TODO: Pull into .cpp.
 
 //Remapts an input from some range to some other range.
 class RemapNode : public DataNode

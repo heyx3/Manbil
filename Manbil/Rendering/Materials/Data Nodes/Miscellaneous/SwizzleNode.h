@@ -3,6 +3,8 @@
 #include "../DataNode.h"
 
 
+//TODO: Pull into .cpp.
+
 //Outputs a combination of an input's components.
 class SwizzleNode : public DataNode
 {

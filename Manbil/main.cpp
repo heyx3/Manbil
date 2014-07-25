@@ -358,12 +358,12 @@ int main()
     //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    //GUITestWorld().RunWorld();
+    GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
     //VoxelWorld().RunWorld();
-    PlanetSimWorld().RunWorld();
+    //PlanetSimWorld().RunWorld();
 }

@@ -4,6 +4,7 @@
 #include "../DataNode.h"
 #include "../../../../Math/Vectors.h"
 
+//TODO: Pull into .cpp.
 
 //Represents a simple subtraction operator.
 class SubtractNode : public DataNode
