@@ -12,6 +12,9 @@ public:
 
     enum Components { C_X, C_Y, C_Z, C_W, };
 
+    unsigned int GetNumbComponents(void) const { return nComps; }
+    Components GetComponent(unsigned int index) const { return comps[index]; }
+
     virtual std::string GetName(void) const override { return "swizzleNode"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {

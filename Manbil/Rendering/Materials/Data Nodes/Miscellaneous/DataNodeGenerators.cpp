@@ -4,9 +4,9 @@
 
 
 DataLine FresnelEffect(DataLine surfacePos, DataLine surfaceNormal, DataLine cameraPos)
-    {
-        return DataLine(DataNodePtr(new DotNode(surfaceNormal, DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new SubtractNode(cameraPos, surfacePos)), 0))), 0))), 0);
-    }
+{
+    return DataLine(DataNodePtr(new DotNode(surfaceNormal, DataLine(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new SubtractNode(cameraPos, surfacePos)), 0))), 0))), 0);
+}
 
 
 DataLine DataNodeGenerators::CreateComplexUV(const DataLine & uvs, DataLine scale, DataLine offset, DataLine pan, DataLine time)

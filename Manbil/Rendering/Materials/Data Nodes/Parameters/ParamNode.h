@@ -9,6 +9,9 @@ class ParamNode : public DataNode
 {
 public:
 
+    const std::string & GetParamName(void) const { return name; }
+    unsigned int GetParamSize(void) const { return vSize; }
+
     ParamNode(unsigned int vectorSize, std::string glslName)
         : vSize(vectorSize), name(glslName), DataNode(std::vector<DataLine>(), MakeVector(vectorSize))
     {

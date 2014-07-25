@@ -10,6 +10,8 @@ class CustomExpressionNode : public DataNode
 {
 public:
 
+    const std::string & GetExpression(void) const { return expression; }
+
     virtual std::string GetName(void) const override { return "expressionNode"; }
     virtual std::string GetOutputName(unsigned int index) const override
     {

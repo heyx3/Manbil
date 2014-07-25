@@ -5,7 +5,6 @@
 
 
 
-
 const std::string DataNodeNames::Name_Add = "add",
                   DataNodeNames::Name_Subtract = "subtract",
                   DataNodeNames::Name_Divide = "divide",
@@ -607,6 +606,7 @@ public:
 
         #pragma region Output data based on the type of node this is
 
+
         if (!data->WriteUInt(inputs.size(), "numbInputs", outError))
         {
             outError = "Error writing the number of inputs for '" + TypeName + "' node named '" + Name + "': " + outError;
@@ -616,108 +616,228 @@ public:
         //Checks whether this node's type name is equal to the given string in "DataNodeNames".
         #define TYPE_IS(str) (TypeName.compare(DataNodeNames:: ## str) == 0)
 
-        //Writes out very simple, one-input-one-output nodes.
-        #define WRITE_SIMPLE_NODE(nameVar, nameStr, nodeType) \
+        #define WRITE_INPUT_STRUCTURE(index, varName) \
+            if (!data->WriteDataStructure(inputs[index], varName, outError)) \
+            { \
+                outError = "Error writing input value '" + std::string(varName) + "' for " + TypeName + " node '" + Name + "': " + outError; \
+                return false; \
+            }
+
+        //Writes out inputs for a node with 1 input.
+        #define WRITE_SIMPLE_1NODE(nameVar, varStr) \
             else if (TYPE_IS(nameVar)) \
             { \
-                if (!data->WriteDataStructure(inputs[0], nameStr, outError)) \
-                { \
-                    outError = "Error writing input value for '" + std::string(nodeType) + "' node: " + outError; \
-                    return false; \
-                } \
+                WRITE_INPUT_STRUCTURE(0, varStr) \
             }
+        //Writes out inputs for a node with 2 inputs.
+        #define WRITE_SIMPLE_2NODE(nameVar, var1Str, var2Str) \
+            else if (TYPE_IS(nameVar)) \
+            { \
+                WRITE_INPUT_STRUCTURE(0, var1Str) \
+                WRITE_INPUT_STRUCTURE(1, var2Str) \
+            }
+        //Writes out inputs for a node with 3 inputs.
+        #define WRITE_SIMPLE_3NODE(nameVar, var1Str, var2Str, var3Str) \
+            else if (TYPE_IS(nameVar)) \
+            { \
+                WRITE_INPUT_STRUCTURE(0, var1Str) \
+                WRITE_INPUT_STRUCTURE(1, var2Str) \
+                WRITE_INPUT_STRUCTURE(3, var3Str) \
+            }
+                    
 
         if (TYPE_IS(Name_Add))
         {
             for (unsigned int i = 0; i < inputs.size(); ++i)
             {
-                if (!data->WriteDataStructure(inputs[i], "input" + std::to_string(i), outError))
-                {
-                    outError = "Error writing input index " + std::to_string(i) + " for node '" + Name + "' of type '" + TypeName + "': " + outError;
-                    return false;
-                }
+                WRITE_INPUT_STRUCTURE(i, std::string("input") + std::to_string(i))
             }
         }
         else if (TYPE_IS(Name_Subtract))
         {
-            if (!data->WriteDataStructure(inputs[0], "baseValue", outError))
-            {
-                outError = "Error writing subtraction node's 'baseValue' input: " + outError;
-                return false;
-            }
+            WRITE_INPUT_STRUCTURE(0, "baseValue")
             for (unsigned int i = 1; i < inputs.size(); ++i)
             {
-                if (!data->WriteDataStructure(inputs[i], "subValue" + std::to_string(i), outError))
-                {
-                    outError = "Error writing subtraction value index " + std::to_string(i) + " for node '" + Name + "': " + outError;
-                    return false;
-                }
+                WRITE_INPUT_STRUCTURE(i, std::string("subValue") + std::to_string(i))
             }
         }
         else if (TYPE_IS(Name_Multiply))
         {
             for (unsigned int i = 0; i < inputs.size(); ++i)
             {
-                if (!data->WriteDataStructure(inputs[i], "multiply" + std::to_string(i), outError))
-                {
-                    outError = "Error writing input index " + std::to_string(i) + " for multiplication node '" + Name + "': " + outError;
-                    return false;
-                }
+                WRITE_INPUT_STRUCTURE(i, std::string("multiplyVal") + std::to_string(i))
             }
         }
         else if (TYPE_IS(Name_Divide))
         {
-            if (!data->WriteDataStructure(inputs[0], "baseValue", outError))
-            {
-                outError = "Error writing division node's 'baseValue' input: " + outError;
-                return false;
-            }
+            WRITE_INPUT_STRUCTURE(0, "baseValue")
             for (unsigned int i = 1; i < inputs.size(); ++i)
             {
-                if (!data->WriteDataStructure(inputs[i], "divideBy" + std::to_string(i), outError))
-                {
-                    outError = "Error writing 'divideBy' value index " + std::to_string(i) + " for node '" + Name + "': " + outError;
-                    return false;
-                }
+                WRITE_INPUT_STRUCTURE(i, std::string("divideBy") + std::to_string(i))
             }
         }
         else if (TYPE_IS(Name_Combine))
         {
             for (unsigned int i = 0; i < inputs.size(); ++i)
             {
-                if (!data->WriteDataStructure(inputs[i], "input" + std::to_string(i), outError))
+                WRITE_INPUT_STRUCTURE(i, std::string("input") + std::to_string(i))
+            }
+        }
+        WRITE_SIMPLE_1NODE(Name_Sign, "input")
+        WRITE_SIMPLE_1NODE(Name_Ceil, "input")
+        WRITE_SIMPLE_1NODE(Name_Floor, "input")
+        WRITE_SIMPLE_1NODE(Name_Abs, "input")
+        WRITE_SIMPLE_1NODE(Name_Sin, "input")
+        WRITE_SIMPLE_1NODE(Name_Cos, "input")
+        WRITE_SIMPLE_1NODE(Name_ASin, "input")
+        WRITE_SIMPLE_1NODE(Name_ACos, "input")
+        WRITE_SIMPLE_1NODE(Name_Normalize, "vectorIn")
+        WRITE_SIMPLE_1NODE(Name_Fract, "input")
+        WRITE_SIMPLE_1NODE(Name_OneMinus, "input")
+        WRITE_SIMPLE_1NODE(Name_Negative, "input")
+        WRITE_SIMPLE_1NODE(Name_SplitComponents, "toSplit")
+        WRITE_SIMPLE_1NODE(Name_WhiteNoise, "seed")
+        WRITE_SIMPLE_1NODE(Name_ObjectPosToScreen, "inputObjectPos")
+        WRITE_SIMPLE_1NODE(Name_ObjectNormalToScreen, "inputObjectNormal")
+        WRITE_SIMPLE_1NODE(Name_ObjectPosToWorld, "inputObjectPos")
+        WRITE_SIMPLE_1NODE(Name_ObjectNormalToWorld, "inputObjectNormal")
+        WRITE_SIMPLE_1NODE(Name_WorldPosToScreen, "inputWorldPos")
+        WRITE_SIMPLE_1NODE(Name_WorldNormalToScreen, "inputWorldNormal")
+        WRITE_SIMPLE_2NODE(Name_Max, "first", "second")
+        WRITE_SIMPLE_2NODE(Name_Min, "first", "second")
+        WRITE_SIMPLE_2NODE(Name_Modulo, "numerator", "denominator")
+        WRITE_SIMPLE_2NODE(Name_Pow, "base", "exponent")
+        WRITE_SIMPLE_2NODE(Name_Reflect, "toReflect", "reflectionNormal")
+        WRITE_SIMPLE_2NODE(Name_Log, "inputValue", "base")
+        WRITE_SIMPLE_2NODE(Name_Cross, "first", "second")
+        WRITE_SIMPLE_2NODE(Name_Dot, "first", "second")
+        WRITE_SIMPLE_2NODE(Name_Distance, "first", "second")
+        WRITE_SIMPLE_3NODE(Name_Clamp, "min", "max", "inputVal")
+        WRITE_SIMPLE_3NODE(Name_GetLerpComponent, "min", "max", "value")
+        WRITE_SIMPLE_3NODE(Name_Lerp, "min", "max", "lerpVal")
+        WRITE_SIMPLE_3NODE(Name_SmoothLerp, "min", "max", "lerpVal")
+        WRITE_SIMPLE_3NODE(Name_SuperSmoothLerp, "min", "max", "lerpVal")
+        WRITE_SIMPLE_3NODE(Name_Refract, "toRefract", "refractionNormal", "indexOfRefraction")
+        WRITE_SIMPLE_3NODE(Name_RotateAroundAxis, "toRotate", "rotationAxis", "rotationAmount")
+        else if (TYPE_IS(Name_Remap))
+        {
+            WRITE_INPUT_STRUCTURE(0, "valueToMap")
+            WRITE_INPUT_STRUCTURE(1, "srcMin")
+            WRITE_INPUT_STRUCTURE(2, "srcMax")
+            WRITE_INPUT_STRUCTURE(3, "destMin")
+            WRITE_INPUT_STRUCTURE(4, "destMax")
+        }
+        else if (TYPE_IS(Name_SurfaceLightCalc))
+        {
+            WRITE_INPUT_STRUCTURE(0, "surfaceWorldPos")
+            WRITE_INPUT_STRUCTURE(1, "surfaceWorldNormal")
+            WRITE_INPUT_STRUCTURE(2, "lightDir")
+            WRITE_INPUT_STRUCTURE(3, "ambient")
+            WRITE_INPUT_STRUCTURE(4, "diffuse")
+            WRITE_INPUT_STRUCTURE(5, "specular")
+            WRITE_INPUT_STRUCTURE(5, "specIntensity")
+            WRITE_INPUT_STRUCTURE(5, "camWorldPos")
+        }
+        else if (TYPE_IS(Name_CustomExpression))
+        {
+            for (unsigned int i = 0; i < inputs.size(); ++i)
+            {
+                WRITE_INPUT_STRUCTURE(i, std::string("exprInput") + std::to_string(i))
+            }
+
+            CustomExpressionNode * nde = (CustomExpressionNode*)Node.get();
+            if (!data->WriteString(nde->GetExpression(), "expression", outError))
+            {
+                outError = "Error writing node '" + Name + "'s custom expression '" + nde->GetExpression() + "': " + outError;
+                return false;
+            }
+            if (!data->WriteUInt(Node->GetOutputs()[0], "outputSize", outError))
+            {
+                outError = "Error writing node's output size (" + std::to_string(Node->GetOutputs()[0]) + "): " + outError;
+                return false;
+            }
+        }
+        else if (TYPE_IS(Name_Parameter))
+        {
+            ParamNode* nde = (ParamNode*)Node.get();
+            if (!data->WriteString(nde->GetParamName(), "paramName", outError))
+            {
+                outError = "Error writing param node '" + Name + "'s parameter name '" + nde->GetParamName() + "': " + outError;
+                return false;
+            }
+            if (!data->WriteUInt(nde->GetParamSize(), "paramSize", outError))
+            {
+                outError = "Error writing param node '" + Name + "'s parameter size '" + std::to_string(nde->GetParamSize()) + "': " + outError;
+                return false;
+            }
+        }
+        else if (TYPE_IS(Name_Texture2D))
+        {
+            TextureSample2DNode* nde = (TextureSample2DNode*)Node.get();
+            if (!data->WriteString(nde->GetSamplerUniformName(), "texName", outError))
+            {
+                outError = "Error writing tex2D node '" + Name + "'s texture param name '" + nde->GetSamplerUniformName() + "': " + outError;
+                return false;
+            }
+        }
+        else if (TYPE_IS(Name_Texture3D))
+        {
+            TextureSample3DNode* nde = (TextureSample3DNode*)Node.get();
+            if (!data->WriteString(nde->GetSamplerUniformName(), "texName", outError))
+            {
+                outError = "Error writing tex3D node '" + Name + "'s texture param name '" + nde->GetSamplerUniformName() + "': " + outError;
+                return false;
+            }
+        }
+        else if (TYPE_IS(Name_TextureCubemap))
+        {
+            TextureSampleCubemapNode* nde = (TextureSampleCubemapNode*)Node.get();
+            if (!data->WriteString(nde->GetSamplerUniformName(), "texName", outError))
+            {
+                outError = "Error writing texCube node '" + Name + "'s texture param name '" + nde->GetSamplerUniformName() + "': " + outError;
+                return false;
+            }
+        }
+        else if (TYPE_IS(Name_Swizzle))
+        {
+            WRITE_INPUT_STRUCTURE(0, "toBeSwizzled")
+
+            SwizzleNode * nde = (SwizzleNode*)Node.get();
+            if (!data->WriteUInt(nde->GetNumbComponents(), "numbComponents", outError))
+            {
+                outError = "Error writing number of swizzle components (" + std::to_string(nde->GetNumbComponents()) + ") for swizzle node '" + Name + "': " + outError;
+                return false;
+            }
+
+            std::string swizzleStr;
+            for (unsigned int i = 0; i < nde->GetNumbComponents(); ++i)
+            {
+                switch (nde->GetComponent(i))
                 {
-                    outError = "Error writing input index " + std::to_string(i) + " for vector combination node '" + Name + "': " + outError;
+                    case SwizzleNode::C_X:
+                        swizzleStr = "x";
+                        break;
+                    case SwizzleNode::C_Y:
+                        swizzleStr = "y";
+                        break;
+                    case SwizzleNode::C_Z:
+                        swizzleStr = "z";
+                        break;
+                    case SwizzleNode::C_W:
+                        swizzleStr = "w";
+                        break;
+
+                    default:
+                        outError = "Unknown swizzle component. Index: " + std::to_string(i) + "; value: '" + std::to_string(nde->GetComponent(i)) + "'";
+                        return false;
+                }
+                if (!data->WriteString(swizzleStr, "swizzleComponent" + std::to_string(i + 1), outError))
+                {
+                    outError = "Error writing swizzle component #" + std::to_string(i + 1) + ", '" + swizzleStr + "': " + outError;
                     return false;
                 }
             }
         }
-        else if (TYPE_IS(Name_Log))
-        {
-            if (!data->WriteDataStructure(inputs[0], "inputValue", outError))
-            {
-                outError = "Error writing log value for logarithm node: " + outError;
-                return false;
-            }
-            if (!data->WriteDataStructure(inputs[1], "base", outError))
-            {
-                outError = "Error writing log base for logarithm node: " + outError;
-                return false;
-            }
-        }
-        WRITE_SIMPLE_NODE(Name_Sign, "input", "sign")
-        WRITE_SIMPLE_NODE(Name_Ceil, "input", "ceil")
-        WRITE_SIMPLE_NODE(Name_Floor, "input", "floor")
-        WRITE_SIMPLE_NODE(Name_Abs, "input", "abs")
-        WRITE_SIMPLE_NODE(Name_Sin, "input", "sine")
-        WRITE_SIMPLE_NODE(Name_Cos, "input", "cosine")
-        WRITE_SIMPLE_NODE(Name_ASin, "input", "inverse sine")
-        WRITE_SIMPLE_NODE(Name_ACos, "input", "inverse cosine")
-        WRITE_SIMPLE_NODE(Name_Normalize, "vectorIn", "normalize")
-        WRITE_SIMPLE_NODE(Name_Fract, "input", "fract")
-        WRITE_SIMPLE_NODE(Name_OneMinus, "input", "oneMinus")
-        WRITE_SIMPLE_NODE(Name_Negative, "input", "negative")
-        //else if ()
         else
         {
             outError = "This node, '" + Name + "', is an unknown type '" + TypeName + "'";
