@@ -342,6 +342,12 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Serialization\DataNodeSerialization.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -832,6 +838,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Serialization\DataNodeSerialization.h">
+      <Filter>Rendering\Materials\Data Nodes\Serialization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -941,6 +950,9 @@
     </Filter>
     <Filter Include="PlanetSim">
       <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Materials\Data Nodes\Serialization">
+      <UniqueIdentifier>{100a1f9a-ce9c-45e5-a33b-177dbe4c68ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
