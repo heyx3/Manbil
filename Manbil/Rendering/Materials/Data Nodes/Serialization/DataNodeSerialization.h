@@ -61,12 +61,19 @@ public:
 };
 
 //Represents a material comprised of vertex and fragment shaders.
-//TODO: Encode geometry shader support.
+//PRIORITY: Add geometry shader support.
 class DataNodeSerialization : public ISerializable
 {
 public:
 
+    static std::string ToString(RenderingChannels channel);
+    static RenderingChannels ToChannel(std::string channel);
+
+
     std::unordered_map<RenderingChannels, DataLine> Channels;
+    std::unordered_map<DataNode*, std::string> NodeNames;
+    std::unordered_map<DataNode*, std::string> NodeTypeNames;
+
 
     virtual bool ReadData(DataReader * data, std::string & outError) override;
     virtual bool WriteData(DataWriter * data, std::string & outError) const override;

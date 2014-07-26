@@ -2,6 +2,7 @@
 
 #include "../DataNodeIncludes.h"
 #include <sstream>
+#include <queue>
 
 
 
@@ -211,6 +212,9 @@ public:
     std::string Name;
     std::string TypeName;
     std::vector<DataLine> Inputs;
+
+
+    DataNodeDeclaration(void) : Node(0), Name(""), TypeName(""), Inputs() { }
 
 
     virtual bool ReadData(DataReader * data, std::string & outError) override
@@ -549,6 +553,7 @@ public:
         #pragma endregion
 
 
+        //Put this entry into the static node map.
         if (NodeMap.find(Name) != NodeMap.end())
         {
             outError = "A DataNode with the name '" + Name + "' already exists!";
@@ -560,7 +565,7 @@ public:
     }
     virtual bool WriteData(DataWriter * data, std::string & outError) const override
     {
-        if (!data->WriteString(Name, "name", outError))
+        if (!data->WriteString(Name, "nodeName", outError))
         {
             outError = "Error writing this node's name, '" + Name + "': " + outError;
             return false;
@@ -846,18 +851,347 @@ public:
 
 
         #pragma endregion
+
+
+        return true;
     }
 };
 
-static std::unordered_map<std::string, DataNodePtr> NodeMap;
+std::unordered_map<std::string, DataNodePtr> DataNodeDeclaration::NodeMap = std::unordered_map<std::string, DataNodePtr>();
 
+
+//A declaration of the DataLine that goes into a certain rendering channel.
+class RenderingChannelDeclaration : public ISerializable
+{
+public:
+
+    RenderingChannels Channel;
+    DataNodeInput DataLineInput;
+
+    RenderingChannelDeclaration(void) : Channel(RenderingChannels::RC_VERTEX_OUT_INVALID), DataLineInput() { }
+
+    virtual bool ReadData(DataReader * data, std::string & outError) override
+    {
+        MaybeValue<std::string> tryChannel = data->ReadString(outError);
+        if (!tryChannel.HasValue())
+        {
+            outError = "Error reading in channel value: " + outError;
+            return false;
+        }
+        Channel = DataNodeSerialization::ToChannel(tryChannel.GetValue());
+
+        if (!data->ReadDataStructure(DataLineInput, outError))
+        {
+            outError = "Error reading in data line input: " + outError;
+            return false;
+        }
+
+        return true;
+    }
+    virtual bool WriteData(DataWriter * data, std::string & outError) const override
+    {
+        if (!data->WriteString(DataNodeSerialization::ToString(Channel), "channel", outError))
+        {
+            outError = "Error writing channel value '" + DataNodeSerialization::ToString(Channel) + "': " + outError;
+            return false;
+        }
+
+        if (!data->WriteDataStructure(DataLineInput, "input", outError))
+        {
+            outError = "Error writing channel input value: " + outError;
+            return false;
+        }
+
+        return true;
+    }
+};
+
+
+
+//The DataNode system is a Directed Acyclic Graph.
+//Each node's "max depth" is defined here as the length of the longest-possible branch leading to this node from the root.
+//This function goes through the data node hierarchy breadth-first and calculates each node's max depth using the given node as the root.
+unsigned int TraverseDataNodeTree(DataNodePtr ptr, std::unordered_map<DataNodePtr, unsigned int> & nodeDepths)
+{
+    struct DataNodeGraphElement
+    {
+    public:
+        DataNodePtr Ptr;
+        unsigned int MaxDepth;
+        DataNodeGraphElement(DataNodePtr ptr, unsigned int maxDepth) : Ptr(ptr), MaxDepth(maxDepth) { }
+    };
+
+    //Do a breadth-first search for the nodes.
+    std::queue<DataNodeGraphElement> toSearch;
+    toSearch.push(DataNodeGraphElement(ptr, 0));
+    while (!toSearch.empty())
+    {
+        //Get the node to put in the output vector.
+        DataNodeGraphElement currentSearch = toSearch.front();
+        toSearch.pop();
+
+        //See if it already existed in the output vector.
+        //If it did, keep the entry with the highest depth.
+        auto depthLookup = nodeDepths.find(currentSearch.Ptr);
+        if (depthLookup == nodeDepths.end())
+            nodeDepths[currentSearch.Ptr] = currentSearch.MaxDepth;
+        else
+            nodeDepths[currentSearch.Ptr] = BasicMath::Max(currentSearch.MaxDepth, nodeDepths[currentSearch.Ptr]);
+
+        //Add the node's inputs (a.k.a. its children) to the search queue.
+        for (unsigned int i = 0; i < currentSearch.Ptr->GetInputs().size(); ++i)
+            if (!currentSearch.Ptr->GetInputs()[i].IsConstant())
+                toSearch.push(DataNodeGraphElement(currentSearch.Ptr->GetInputs()[i].GetDataNodeValue(), currentSearch.MaxDepth + 1));
+    }
+}
+
+
+std::string DataNodeSerialization::ToString(RenderingChannels channel)
+{
+    switch (channel)
+    {
+        case RenderingChannels::RC_VertexPosOutput:
+            return "VertShader_PosOut";
+
+        case RenderingChannels::RC_VERTEX_OUT_0:
+        case RenderingChannels::RC_VERTEX_OUT_1:
+        case RenderingChannels::RC_VERTEX_OUT_2:
+        case RenderingChannels::RC_VERTEX_OUT_3:
+        case RenderingChannels::RC_VERTEX_OUT_4:
+        case RenderingChannels::RC_VERTEX_OUT_5:
+        case RenderingChannels::RC_VERTEX_OUT_6:
+        case RenderingChannels::RC_VERTEX_OUT_7:
+        case RenderingChannels::RC_VERTEX_OUT_8:
+        case RenderingChannels::RC_VERTEX_OUT_9:
+        case RenderingChannels::RC_VERTEX_OUT_10:
+        case RenderingChannels::RC_VERTEX_OUT_11:
+        case RenderingChannels::RC_VERTEX_OUT_12:
+        case RenderingChannels::RC_VERTEX_OUT_13:
+        case RenderingChannels::RC_VERTEX_OUT_14:
+        case RenderingChannels::RC_VERTEX_OUT_15:
+        case RenderingChannels::RC_VERTEX_OUT_16:
+            return "VertShader_ShaderOut" + std::to_string(GetVertexOutputNumber(channel));
+
+        case RenderingChannels::RC_Color:
+            return "FragShader_RGBOut";
+        case RenderingChannels::RC_Opacity:
+            return "FragShader_AlphaOut";
+
+        case RenderingChannels::RC_COLOR_OUT_2:
+        case RenderingChannels::RC_COLOR_OUT_3:
+        case RenderingChannels::RC_COLOR_OUT_4:
+            return "FragShader_ExtraColorOut" + std::to_string(GetColorOutputNumber(channel) - 1);
+
+        default: return "UNKNOWN_CHANNEL";
+    }
+}
+RenderingChannels DataNodeSerialization::ToChannel(std::string str)
+{
+    if (str.compare("VertShader_PosOut"))
+        return RenderingChannels::RC_VertexPosOutput;
+    if (str.find("VertShader_ShaderOut0") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_0;
+    if (str.find("VertShader_ShaderOut1") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_1;
+    if (str.find("VertShader_ShaderOut2") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_2;
+    if (str.find("VertShader_ShaderOut3") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_3;
+    if (str.find("VertShader_ShaderOut4") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_4;
+    if (str.find("VertShader_ShaderOut5") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_5;
+    if (str.find("VertShader_ShaderOut6") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_6;
+    if (str.find("VertShader_ShaderOut7") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_7;
+    if (str.find("VertShader_ShaderOut8") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_8;
+    if (str.find("VertShader_ShaderOut9") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_9;
+    if (str.find("VertShader_ShaderOut10") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_10;
+    if (str.find("VertShader_ShaderOut11") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_11;
+    if (str.find("VertShader_ShaderOut12") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_12;
+    if (str.find("VertShader_ShaderOut13") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_13;
+    if (str.find("VertShader_ShaderOut14") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_14;
+    if (str.find("VertShader_ShaderOut15") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_15;
+    if (str.find("VertShader_ShaderOut16") != std::string::npos)
+        return RenderingChannels::RC_VERTEX_OUT_16;
+
+    if (str.find("FragShader_RGBOut") != std::string::npos)
+        return RenderingChannels::RC_Color;
+    if (str.find("FragShader_AlphaOut") != std::string::npos)
+        return RenderingChannels::RC_Opacity;
+    if (str.find("FragShader_ExtraColorOut1") != std::string::npos)
+        return RenderingChannels::RC_COLOR_OUT_2;
+    if (str.find("FragShader_ExtraColorOut2") != std::string::npos)
+        return RenderingChannels::RC_COLOR_OUT_3;
+    if (str.find("FragShader_ExtraColorOut3") != std::string::npos)
+        return RenderingChannels::RC_COLOR_OUT_4;
+
+    return RenderingChannels::RC_VERTEX_OUT_INVALID;
+}
 
 
 bool DataNodeSerialization::ReadData(DataReader * data, std::string & outError)
 {
+    DataNodeDeclaration::NodeMap.clear();
+    Channels.clear();
+    NodeNames.clear();
+    NodeTypeNames.clear();
 
+    //Read in the total number of data nodes.
+    MaybeValue<unsigned int> tryNumbNodes = data->ReadUInt(outError);
+    if (!tryNumbNodes.HasValue())
+    {
+        outError = "Error reading out the total number of nodes: " + outError;
+        return false;
+    }
+    Channels.reserve(tryNumbNodes.GetValue());
+    NodeNames.reserve(tryNumbNodes.GetValue());
+    NodeTypeNames.reserve(tryNumbNodes.GetValue());
+
+    //Read the data nodes.
+    std::vector<DataNodeDeclaration> decls;
+    decls.resize(tryNumbNodes.GetValue());
+    for (unsigned int i = 0; i < tryNumbNodes.GetValue(); ++i)
+    {
+        if (!data->ReadDataStructure(decls[i], outError))
+        {
+            outError = "Error reading data node #" + std::to_string(i + 1) + ": " + outError;
+            return false;
+        }
+
+        NodeNames[decls[i].Node.get()] = decls[i].Name;
+        NodeTypeNames[decls[i].Node.get()] = decls[i].TypeName;
+    }
+
+    //Read in the total number of channels.
+    MaybeValue<unsigned int> tryNumbChannels = data->ReadUInt(outError);
+    if (!tryNumbChannels.HasValue())
+    {
+        outError = "Error reading out the total number of channels: " + outError;
+        return false;
+    }
+
+    //Read in each channel.
+    Channels.reserve(tryNumbChannels.GetValue());
+    for (unsigned int i = 0; i < tryNumbChannels.GetValue(); ++i)
+    {
+        //Read in the channel declaration.
+        RenderingChannelDeclaration decl;
+        if (!data->ReadDataStructure(decl, outError))
+        {
+            outError = "Error reading out the " + std::to_string(i + 1) + "-th rendering channel declaration: " + outError;
+            return false;
+        }
+
+        //Make sure that channel hasn't already been declared.
+        if (Channels.find(decl.Channel) != Channels.end())
+        {
+            outError = "The " + std::to_string(i + 1) + "-th rendering channel declaration in the file is a re-declaration of the '" + ToString(decl.Channel) + "' channel!";
+            return false;
+        }
+
+        //Set the channel input.
+        DataLine channelIn;
+        if (decl.DataLineInput.IsConstantValue())
+        {
+            channelIn = DataLine(decl.DataLineInput.ConstantValue);
+        }
+        else
+        {
+            //Make sure the given input exists.
+            auto nodeLookup = DataNodeDeclaration::NodeMap.find(decl.DataLineInput.Name);
+            if (nodeLookup == DataNodeDeclaration::NodeMap.end())
+            {
+                outError = "Rendering channel '" + ToString(decl.Channel) + "'s input node named '" + decl.DataLineInput.Name + "' cannot be found!";
+                return false;
+            }
+
+            channelIn = DataLine(nodeLookup->second, decl.DataLineInput.OutputIndex);
+        }
+        Channels[decl.Channel] = channelIn;
+    }
+
+
+    return true;
 }
 bool DataNodeSerialization::WriteData(DataWriter * data, std::string & outError) const
 {
+    //Get all nodes and calculate their maximum depth in the tree.
+    std::unordered_map<DataNodePtr, unsigned int> nodeTreeDepths;
+    unsigned int maxDepth = 0;
+    for (auto loc = Channels.begin(); loc != Channels.end(); ++loc)
+        if (!loc->second.IsConstant())
+            maxDepth = BasicMath::Max(maxDepth, TraverseDataNodeTree(loc->second.GetDataNodeValue(), nodeTreeDepths));
 
+    //First write the number of data nodes.
+    if (!data->WriteUInt(nodeTreeDepths.size(), "totalNumberOfNodes", outError))
+    {
+        outError = "Error writing out the total number of data nodes (" + std::to_string(nodeTreeDepths.size()) + "): " + outError;
+        return false;
+    }
+
+    //Go through every depth level starting at the deepest one and write those nodes.
+    do
+    {
+        for (auto loc = nodeTreeDepths.begin(); loc != nodeTreeDepths.end(); ++loc)
+        {
+            //Create the output data structure.
+            DataNodeDeclaration decl;
+            decl.Name = NodeNames.find(loc->first.get())->second;
+            decl.TypeName = NodeTypeNames.find(loc->first.get())->second;
+            decl.Node = loc->first;
+            decl.Inputs = loc->first->GetInputs();
+
+            //Create a quick description of the outputs.
+            std::string outputDecls = std::to_string(loc->first->GetOutputs().size());
+            outputDecls += " outputs: ";
+            for (unsigned int i = 0; i < loc->first->GetOutputs().size(); ++i)
+            {
+                if (i > 0) outputDecls += ", ";
+                outputDecls += std::to_string(loc->first->GetOutputs()[i]);
+            }
+
+            //Write the structure.
+            if (!data->WriteDataStructure(decl, outputDecls, outError))
+            {
+                outError = "Error outputting node '" + decl.Name + "', of type '" + decl.TypeName + "': " + outError;
+                return false;
+            }
+        }
+
+        maxDepth -= 1;
+    } while (maxDepth > 0);
+
+    //Now write the outputs for each channel.
+    if (!data->WriteUInt(Channels.size(), "numberOfChannels", outError))
+    {
+        outError = "Error outputting the number of rendering channels (" + std::to_string(Channels.size()) + ": " + outError;
+        return false;
+    }
+    for (auto channel = Channels.begin(); channel != Channels.end(); ++channel)
+    {
+        RenderingChannelDeclaration decl;
+        decl.Channel = channel->first;
+        decl.DataLineInput = (channel->second.IsConstant() ?
+                                  DataNodeInput(channel->second.GetConstantValue()) :
+                                  DataNodeInput(NodeNames.find(channel->second.GetDataNodeValue().get())->second,
+                                                channel->second.GetDataNodeLineIndex()));
+
+        if (!data->WriteDataStructure(decl, "outputChannel", outError))
+        {
+            outError = "Error outputting the DataLine for rendering channel '" + ToString(decl.Channel) + "': " + outError;
+            return false;
+        }
+    }
+
+    return true;
 }
