@@ -43,6 +43,7 @@ public:
 	//Sets a matrix value. Assumes the correct shader program is already bound.
 	static void SetMatrixValue(UniformLocation loc, const Matrix4f & mat);
     //Sets a subroutine value. Assumes the correct shader program is already bound.
+    //PRIORITY: The gl function used here sets ALL subroutine values. Either change this function's signature or find a GL function that only sets one subroutine uniform's value.
     static void SetSubroutineValue(UniformLocation loc, ShaderHandler::Shaders shader, RenderObjHandle valueName);
 
 
