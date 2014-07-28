@@ -38,6 +38,27 @@ public:
     static std::string ToString(Vector3f v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " }"; }
     static std::string ToString(Vector4f v) { return std::string() + "{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + " }"; }
 
+    static std::string ToString(VectorF v)
+    {
+        std::string outS = "{ ";
+        for (unsigned int i = 0; i < v.GetSize(); ++i)
+        {
+            if (i > 0) outS += ", ";
+            outS += std::to_string(v.GetValue()[i]);
+        }
+        return outS + " }";
+    }
+    static std::string ToString(VectorI v)
+    {
+        std::string outS = "{ ";
+        for (unsigned int i = 0; i < v.GetSize(); ++i)
+        {
+            if (i > 0) outS += ", ";
+            outS += std::to_string(v.GetValue()[i]);
+        }
+        return outS + " }";
+    }
+
     static std::string ToString(Quaternion q) { return std::string() + "{ (" + std::to_string(q.x) + ", " + std::to_string(q.y) + ", " + std::to_string(q.z) + "), " + std::to_string(q.w) + " }"; }
 
     static std::string ToString(Interval i) { return std::string() + "[" + std::to_string(i.GetStart()) + ", " + std::to_string(i.GetEnd()) + "]"; }
@@ -90,13 +111,17 @@ public:
         {
             case BinaryDataTypes::BDT_BOOL: return "bool";
             case BinaryDataTypes::BDT_BYTE: return "byte";
-            case BinaryDataTypes::BDT_COLLECTION: return "collection";
-            case BinaryDataTypes::BDT_DATA_STRUCTURE: return "dataStructure";
             case BinaryDataTypes::BDT_DOUBLE: return "double";
             case BinaryDataTypes::BDT_FLOAT: return "float";
             case BinaryDataTypes::BDT_INT: return "int";
             case BinaryDataTypes::BDT_STRING: return "string";
             case BinaryDataTypes::BDT_UINT: return "uint";
+
+            case BinaryDataTypes::BDT_COLLECTION: return "collection";
+            case BinaryDataTypes::BDT_COLLECTION_END: return "collectionEND";
+
+            case BinaryDataTypes::BDT_DATA_STRUCTURE: return "dataStructure";
+            case BinaryDataTypes::BDT_DATA_STRUCTURE_END: return "dataStructureEND";
 
             default: assert(!failOnNotFound); return "UNKNOWN";
         }
