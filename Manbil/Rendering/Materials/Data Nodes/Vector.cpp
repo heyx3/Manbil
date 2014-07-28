@@ -54,6 +54,76 @@ VectorF VectorF::operator/(const VectorF & other) const
     return retVal;
 }
 
+bool VectorF::operator==(const VectorF& other) const
+{
+    if (size != other.size)
+        return false;
+
+    for (unsigned int i = 0; i < size; ++i)
+        if (values[i] != other.values[i])
+            return false;
+
+    return true;
+}
+bool VectorF::operator!=(const VectorF& other) const
+{
+    if (size == other.size)
+        return false;
+
+    for (unsigned int i = 0; i < size; ++i)
+        if (values[i] == other.values[i])
+            return false;
+
+    return true;
+}
+
+bool VectorF::WriteData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteUInt(size, "size", outError))
+    {
+        outError = "Error writing size of vector (" + std::to_string(size) + "): " + outError;
+        return false;
+    }
+
+    for (unsigned int el = 0; el < size; ++el)
+    {
+        std::string name = (el == 0) ? "x" : ((el == 1) ? "y" : ((el == 2) ? "z" : "w"));
+        if (!writer->WriteFloat(values[el], name, outError))
+        {
+            outError = "Error writing " + name + " value '" + std::to_string(values[el]) + "': " + outError;
+            return false;
+        }
+    }
+
+    return true;
+}
+bool VectorF::ReadData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> trySize = reader->ReadUInt(outError);
+    if (!trySize.HasValue())
+    {
+        outError = "Error reading size of VectorF: " + outError;
+        return false;
+    }
+
+    size = trySize.GetValue();
+    for (unsigned int el = 0; el < size; ++el)
+    {
+        MaybeValue<float> tryValue = reader->ReadFloat(outError);
+        if (!tryValue.HasValue())
+        {
+            outError = "Error reading " + std::string() + 
+                ((el == 0) ? "x" : ((el == 1) ? "y" : ((el == 2) ? "z" : "w"))) + "value: " + outError;
+            return false;
+        }
+
+        values[el] = tryValue.GetValue();
+    }
+
+    return true;
+}
+
+
 
 std::string VectorI::GetGLSLType(void) const
 {
@@ -104,4 +174,73 @@ VectorI VectorI::operator/(const VectorI & other) const
     for (unsigned int i = 0; i < size; ++i)
         retVal.values[i] = values[i] / other.values[i];
     return retVal;
+}
+
+bool VectorI::operator==(const VectorI& other) const
+{
+    if (size != other.size)
+        return false;
+
+    for (unsigned int i = 0; i < size; ++i)
+        if (values[i] != other.values[i])
+            return false;
+
+    return true;
+}
+bool VectorI::operator!=(const VectorI& other) const
+{
+    if (size == other.size)
+        return false;
+
+    for (unsigned int i = 0; i < size; ++i)
+        if (values[i] == other.values[i])
+            return false;
+
+    return true;
+}
+
+bool VectorI::WriteData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteUInt(size, "size", outError))
+    {
+        outError = "Error writing size of vector (" + std::to_string(size) + "): " + outError;
+        return false;
+    }
+
+    for (unsigned int el = 0; el < size; ++el)
+    {
+        std::string name = (el == 0) ? "x" : ((el == 1) ? "y" : ((el == 2) ? "z" : "w"));
+        if (!writer->WriteInt(values[el], name, outError))
+        {
+            outError = "Error writing " + name + " value '" + std::to_string(values[el]) + "': " + outError;
+            return false;
+        }
+    }
+
+    return true;
+}
+bool VectorI::ReadData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> trySize = reader->ReadUInt(outError);
+    if (!trySize.HasValue())
+    {
+        outError = "Error reading size of VectorI: " + outError;
+        return false;
+    }
+
+    size = trySize.GetValue();
+    for (unsigned int el = 0; el < size; ++el)
+    {
+        MaybeValue<int> tryValue = reader->ReadInt(outError);
+        if (!tryValue.HasValue())
+        {
+            outError = "Error reading " + std::string() +
+                ((el == 0) ? "x" : ((el == 1) ? "y" : ((el == 2) ? "z" : "w"))) + "value: " + outError;
+            return false;
+        }
+
+        values[el] = tryValue.GetValue();
+    }
+
+    return true;
 }

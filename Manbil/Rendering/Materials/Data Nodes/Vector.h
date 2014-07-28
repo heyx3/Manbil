@@ -2,10 +2,11 @@
 
 #include <string>
 #include "../../../Math/Vectors.h"
+#include "../../../IO/DataSerialization.h"
 
 //Represents a collection of 1-4 floats.
 //If a VectorF has 0 floats, it is considered invalid.
-struct VectorF
+struct VectorF : public ISerializable
 {
 public:
 
@@ -50,28 +51,8 @@ public:
     //Assumes both vectors are the same size. Divides this VectorF's components by the other's components.
     VectorF operator/(const VectorF & other) const;
 
-    bool operator==(const VectorF& other) const
-    {
-        if (size != other.size)
-            return false;
-
-        for (unsigned int i = 0; i < size; ++i)
-            if (values[i] != other.values[i])
-                return false;
-
-        return true;
-    }
-    bool operator!=(const VectorF& other) const
-    {
-        if (size == other.size)
-            return false;
-
-        for (unsigned int i = 0; i < size; ++i)
-            if (values[i] == other.values[i])
-                return false;
-
-        return true;
-    }
+    bool operator==(const VectorF& other) const;
+    bool operator!=(const VectorF& other) const;
     bool operator==(float f) const
     {
         return (size == 1 && values[0] == f);
@@ -108,6 +89,9 @@ public:
 
     std::string GetGLSLType(void) const;
 
+    bool WriteData(DataWriter * writer, std::string & outError) const override;
+    bool ReadData(DataReader * reader, std::string & outError) override;
+
 private:
 
     unsigned int size;
@@ -116,7 +100,7 @@ private:
 
 //Represents a collection of 1-4 ints.
 //If a VectorI has 0 ints, it is considered invalid.
-struct VectorI
+struct VectorI : public ISerializable
 {
 public:
 
@@ -158,28 +142,8 @@ public:
     //Assumes both VectorIs are the same size. Divides this VectorI's components by the other's components.
     VectorI operator/(const VectorI & other) const;
 
-    bool operator==(const VectorI& other) const
-    {
-        if (size != other.size)
-            return false;
-
-        for (unsigned int i = 0; i < size; ++i)
-            if (values[i] != other.values[i])
-                return false;
-
-        return true;
-    }
-    bool operator!=(const VectorI& other) const
-    {
-        if (size == other.size)
-            return false;
-
-        for (unsigned int i = 0; i < size; ++i)
-            if (values[i] == other.values[i])
-                return false;
-
-        return true;
-    }
+    bool operator==(const VectorI& other) const;
+    bool operator!=(const VectorI& other) const;
     bool operator==(int i) const
     {
         return (size == 1 && values[0] == i);
@@ -214,8 +178,10 @@ public:
     }
 
 
-
     std::string GetGLSLType(void) const;
+
+    bool WriteData(DataWriter * writer, std::string & outError) const override;
+    bool ReadData(DataReader * reader, std::string & outError) override;
 
 private:
 
