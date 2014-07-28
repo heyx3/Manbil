@@ -267,6 +267,21 @@ bool DataNode::ReadData(DataReader * reader, std::string & outError)
     return true;
 }
 
+bool DataNode::UsesInput(unsigned int inputIndex) const
+{
+    Assert(inputIndex < inputs.size(),
+           "Input index " + std::to_string(inputIndex) + " is too big! The largest index should be " + std::to_string(inputs.size() - 1));
+    return true;
+}
+bool DataNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
+{
+    Assert(inputIndex < inputs.size() && outputIndex < outputs.size(),
+           "Input index " + std::to_string(inputIndex) +
+           " or output index " + std::to_string(outputIndex) + " are too big! " +
+           "The input index should be at most " + std::to_string(inputs.size() - 1) +
+           " and the output index should be at most " + std::to_string(outputs.size() - 1));
+    return true;
+}
 
 
 std::vector<DataLine> DataNode::MakeVector(const DataLine & dat)

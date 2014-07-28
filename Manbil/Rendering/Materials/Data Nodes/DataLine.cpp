@@ -4,7 +4,7 @@
 #include "../../../DebugAssist.h"
 
 
-unsigned int DataLine::GetDataLineSize(void) const
+unsigned int DataLine::GetSize(void) const
 {
     if (isConstantValue)
     {
@@ -45,6 +45,11 @@ std::string DataLine::GetValue(void) const
     }
 }
 
+DataNode* DataLine::GetNode(void) const
+{
+    assert(!isConstantValue);
+    return DataNode::GetNode(nonConstantValue);
+}
 
 bool DataLine::WriteData(DataWriter * writer, std::string & outError) const
 {

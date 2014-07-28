@@ -7,6 +7,8 @@
 #include <assert.h>
 
 
+class DataNode;
+
 //Represents an input into a DataNode. Its value is either a constant or the output of a DataNode.
 struct DataLine : public ISerializable
 {
@@ -34,7 +36,7 @@ public:
 
 
     //Gets the number of floats in this data line.
-    unsigned int GetDataLineSize(void) const;
+    unsigned int GetSize(void) const;
 
     //This function is only valid if this DataLine has a constant input value.
     VectorF GetConstantValue(void) const { assert(isConstantValue); return constantValue; }
@@ -45,7 +47,7 @@ public:
     unsigned int GetNonConstantOutputIndex(void) const { assert(!isConstantValue); return nonConstantOutputIndex; }
 
     //Assumes this DataLine isn't constant.
-    DataNode* GetNode(void) const { assert(!isConstantValue); return DataNode::GetNode(nonConstantValue); }
+    DataNode* GetNode(void) const;
 
     //Gets the GLSL expression for this data line output.
     std::string GetValue(void) const;

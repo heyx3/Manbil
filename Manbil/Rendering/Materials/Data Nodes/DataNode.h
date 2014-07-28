@@ -71,11 +71,11 @@ public:
 
 
     //Gets the variable name for this node's given output.
-    virtual std::string GetOutputName(unsigned int outputIndex) { return name + "_output_" + std::to_string(outputIndex); }
+    virtual std::string GetOutputName(unsigned int outputIndex) const { return name + "_out" + std::to_string(outputIndex); }
 
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override sealed;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override sealed;
 
 
 protected:
@@ -129,12 +129,12 @@ protected:
 
     //Gets whether the given input is used at all, given the current state (i.e. shader type and geometry shader data).
     //By default, returns true.
-    virtual bool UsesInput(unsigned int inputIndex) const { assert(inputIndex < inputs.size()); return true; }
+    virtual bool UsesInput(unsigned int inputIndex) const;
     //Gets whether the given input is used in calculating the given output.
     //By default, returns true.
-    virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const { assert(inputIndex < inputs.size() && outputIndex < outputs.size()); return true; }
+    virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const;
 
-    //Returns the new outputs for this node after the inputs have just been changed.
+    //Outputs the new outputs for this node after the inputs have just been changed.
     virtual void ResetOutputs(std::vector<unsigned int> & newOuts) const = 0;
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const { }
@@ -144,6 +144,7 @@ protected:
 
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const { return true; }
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) { return true; }
+
     virtual std::string GetInputDescription(unsigned int index) const { return "in" + std::to_string(index + 1); }
 
 
