@@ -5,11 +5,13 @@
 #include "../MaterialUsageFlags.h"
 #include "GeometryShaderInfo.h"
 
+
 #pragma warning(disable: 4100)
 
-//Represents a basic, atomic operation in a shader.
-//TODO: Get all child nodes that are only used once, and for those nodes, directly use the output instead of writing it to a temp variable.
-class DataNode
+//Provides some kind of output in a shader, usually as the result of one or more inputs.
+//Automatically tracks all nodes by their name. Use the static function "GetNode" to get the node with the given name.
+//TODO: Get all child nodes that are only used once, and for those nodes directly use the output instead of writing it to a temp variable.
+class DataNode : public ISerializable
 {
 public:
 
@@ -17,67 +19,63 @@ public:
     //    is found to be invalid.
     static int EXCEPTION_ASSERT_FAILED;
 
+    //Returns 0 if the given name can't be found.
+    static DataNode* GetNode(std::string name);
+
+
+    //Some useful typedefs.
 
     typedef ShaderHandler::Shaders Shaders;
-    typedef std::shared_ptr<DataNode> DataNodePtr;
+
+    
+    //Sets data about the material being constructed for all nodes to use as a reference.
 
     static void SetShaderType(Shaders shadeType) { shaderType = shadeType; }
     static void SetGeoData(const GeoShaderData * dat) { geoData = dat; }
 
 
-    DataNode(const std::vector<DataLine> & _inputs, const std::vector<unsigned int> & outputSizes)
-        : id(GetNextID()), inputs(_inputs), outputs(outputSizes) { }
+
+    //Constructors/destructors.
+
+    DataNode(const std::vector<DataLine> & _inputs, std::string _name = "");
     DataNode(const DataNode & cpy); // Intentionally left blank.
+
+    virtual ~DataNode(void);
+
+
+    //Error-handling and name getter.
 
     bool HasError(void) const { return !errorMsg.empty(); }
     std::string GetError(void) const { return errorMsg; }
 
-
-    //Marks any applicable info about this data node, given the output index.
-    //By default, doesn't set anything and calls "SetFlags" for all inputs.
-    void SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const;
-
-    //Adds all needed parameter/uniform declarations (in the form, e.x. "vec3 myParam") to "outDecls",
-    //    including all child nodes' declarations.
-    //Takes in a list of all nodes that have already added their parameters to "outUniforms".
-    void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<unsigned int> & writtenNodeIDs) const;
-    //Adds all needed function declarations to "outDecls", including all child nodes' functions.
-    //Takes in a list of all nodes that have already added their functions to "outDecls".
-    void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<unsigned int> & writtenNodeIDs) const;
-    //Appends generated GLSL code for this node (including all code for child nodes) to the end of "outCode".
-    //Takes in a list of all nodes that have already added their code to "outCode".
-    void WriteOutputs(std::string & outCode, std::vector<unsigned int> & writtenNodeIDs) const;
+    std::string GetName(void) const { return name; }
+    void SetName(std::string newName);
 
 
-    //Gets the identifier unique for this dataNode.
-    unsigned int GetUniqueID(void) const { return id; }
+    //Getters/setters for input/output lists.
 
-    //Gets the name of this data node. MUST BE A VALID GLSL VARIABLE/FUNCTION NAME.
-    virtual std::string GetName(void) const { return "unknownNode"; }
-
-
-    //Gets this node's input lines.
     const std::vector<DataLine> & GetInputs(void) const { return inputs; }
-    //Gets this node's input lines.
-    std::vector<DataLine> & GetInputs(void) { return inputs; }
-    //Gets this node's output lines. Each element represents the size of that output line's VectorF.
     const std::vector<unsigned int> & GetOutputs(void) const { return outputs; }
-    //Gets this node's output lines. Each element represents the size of that output line's VectorF.
-    std::vector<unsigned int> & GetOutputs(void) { return outputs; }
 
-    //Replaces the given input with the given line.
-    void ReplaceInput(unsigned int inputIndex, const DataLine & replacement)
-    {
-        inputs[inputIndex] = replacement;
-    }
+    //Note that the inputs should be in the same order they were specified in the constructor.
+    void ReplaceInput(unsigned int inputIndex, const DataLine & replacement);
+
+    
+    //Functions to traverse down this node and its inputs to build data about these nodes.
+
+    void SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const;
+    void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<const DataNode*> & writtenNodes) const;
+    void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<const DataNode*> & writtenNodes) const;
+
+    void WriteOutputs(std::string & outCode, std::vector<const DataNode*> & writtenNodeIDs) const;
 
 
     //Gets the variable name for this node's given output.
-    virtual std::string GetOutputName(unsigned int outputIndex) const
-    {
-        Assert(outputIndex < outputs.size(), "");
-        return GetName() + std::to_string(id) + "_" + std::to_string(outputIndex);
-    }
+    virtual std::string GetOutputName(unsigned int outputIndex) { return name + "_output_" + std::to_string(outputIndex); }
+
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 
 
 protected:
@@ -91,28 +89,8 @@ protected:
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3, const DataLine & dat4);
     static std::vector<DataLine> MakeVector(const DataLine & dat, unsigned int wherePut, const std::vector<DataLine> & moreDats);
 
-    static std::vector<unsigned int> MakeVector(unsigned int dat);
-    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2);
-    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3);
-    static std::vector<unsigned int> MakeVector(unsigned int dat, unsigned int dat2, unsigned int dat3, unsigned int dat4);
-
     static Shaders GetShaderType(void) { return shaderType; }
     static const GeoShaderData * GetGeoShaderData(void) { return geoData; }
-
-
-    mutable std::string errorMsg;
-
-    //If the given value is false:
-    //1) Sets this DataNode's error message to the given message.
-    //2) Throws EXCEPTION_ASSERT_FAILED.
-    void Assert(bool value, std::string error) const
-    {
-        if (!value)
-        {
-            errorMsg = error;
-            throw EXCEPTION_ASSERT_FAILED;
-        }
-    }
 
     static std::string ToString(Shaders shader)
     {
@@ -130,38 +108,63 @@ protected:
     }
 
 
-    //Gets whether the given input is used at all, given the current state (i.e. shader type).
+    mutable std::string errorMsg;
+
+    //If the given value is false:
+    //1) Sets this DataNode's error message to the given message.
+    //2) Throws EXCEPTION_ASSERT_FAILED.
+    void Assert(bool value, std::string error) const
+    {
+        if (!value)
+        {
+            errorMsg = error;
+            throw EXCEPTION_ASSERT_FAILED;
+        }
+    }
+
+
+    //Replaces all inputs and outputs.
+    void ReplaceAll(std::vector<DataLine> & newInputs, std::vector<unsigned int> & newOutputs);
+
+
+    //Gets whether the given input is used at all, given the current state (i.e. shader type and geometry shader data).
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex) const { assert(inputIndex < inputs.size()); return true; }
     //Gets whether the given input is used in calculating the given output.
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const { assert(inputIndex < inputs.size() && outputIndex < outputs.size()); return true; }
 
-    //Sets any information about what this node does/uses.
+    //Returns the new outputs for this node after the inputs have just been changed.
+    virtual void ResetOutputs(std::vector<unsigned int> & newOuts) const = 0;
+
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const { }
-    //Gets any uniforms this node defines.
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const { }
-    //Gets any GLSL helper function declarations this node needs to use.
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const { }
-    //Writes the output for this node, assuming all inputs have already written their output.
     virtual void WriteMyOutputs(std::string & outCode) const = 0;
+
+    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const { return true; }
+    virtual bool ReadExtraData(DataReader * reader, std::string & outError) { return true; }
+    virtual std::string GetInputDescription(unsigned int index) const { return "in" + std::to_string(index + 1); }
 
 
 private:
 
-    //The current type of shader currently being generated.
+    //Keeps track of what names correspond with what nodes.
+    static std::unordered_map<std::string, DataNode*> nameToNode;
+
     static Shaders shaderType;
-    //The geometry shader connected to the shader currently being generated.
     static const GeoShaderData * geoData;
 
-    static unsigned int nextID;
-    static unsigned int GetNextID(void) { unsigned int id = nextID; nextID += 1; return id; }
+    static unsigned int lastID;
+    static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
 
 
     std::vector<DataLine> inputs;
     std::vector<unsigned int> outputs;
 
-    unsigned int id;
+    std::string name;
 };
+
+typedef std::shared_ptr<DataNode> DataNodePtr;
 
 #pragma warning(default: 4100)
