@@ -2,8 +2,6 @@
 
 #include "../DataNode.h"
 
-//TODO: Pull out into .cpp.
-
 
 //Handles an identical shader input across different kinds of shaders.
 class ShaderInNode : public DataNode
@@ -15,30 +13,25 @@ public:
     bool HasFragmentInput(void) const { return fInputIndex >= 0; }
 
 
-    virtual std::string GetName(void) const override { return "shaderInNode"; }
+    virtual std::string GetTypeName(void) const override { return "shaderInputs"; }
+
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
 
-    ShaderInNode(unsigned int size, int vertexInputIndex = -1, int geometryInputIndex = -1, unsigned int geometryInputArrayIndex = 0, int fragmentInputIndex = -1)
-        : vInputIndex(vertexInputIndex), gInputIndex(geometryInputIndex), fInputIndex(fragmentInputIndex), gInputArrayIndex(geometryInputArrayIndex),
-          DataNode(std::vector<DataLine>(), MakeVector(size))
-    {
-        Assert(size > 0, "Size of input is 0! Must be from 1-4, inclusive.");
-        Assert(size < 5, std::string() + "Size of input is " + std::to_string(size) + "! Must be from 1-4, inclusive.");
-    }
+    ShaderInNode(unsigned int size, std::string name = "", int vertexInputIndex = -1, int fragmentInputIndex = -1,
+                 int geometryInputIndex = -1, unsigned int geometryInputArrayIndex = 0);
 
 protected:
 
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outCode) const
-    {
-        //Don't write anything; this node outputs shader inputs.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outCode) const;
 
 
 private:
 
     int vInputIndex, gInputIndex, fInputIndex;
     unsigned int gInputArrayIndex;
+
+    unsigned int outSize;
 };
