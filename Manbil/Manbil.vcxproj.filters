@@ -348,6 +348,12 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RemapNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

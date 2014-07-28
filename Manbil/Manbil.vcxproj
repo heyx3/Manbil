@@ -155,6 +155,8 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\LogNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RemapNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp" />
