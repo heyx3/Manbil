@@ -19,17 +19,15 @@ public:
     static const std::string ElapsedTimeName,
                              WorldMatName, ViewMatName, ProjMatName, ViewProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
-                             CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName,
-                             VertexInNameBase, VertexOutNameBase,
-                             FragmentOutName;
+                             CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName;
 
     //Gets the vertex shader input declarations for vertices with the given attributes.
-    static std::string GetVertexInputDeclarations(const VertexAttributes & attribs);
+    static std::string GetVertexInputDeclarations(const ShaderInOutAttributes & attribs);
     //Gets the uniform declarations for a material with the given usage flags.
     static std::string GetUniformDeclarations(const MaterialUsageFlags & flags);
 
     //Gets everything that's needed in a vertex shader before the actual main function (or helper functions).
-    static std::string GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags);
+    static std::string GetVertexHeader(std::string outputDeclarations, const ShaderInOutAttributes & attribs, const MaterialUsageFlags & flags);
     //Gets everything that's needed in a geometry shader before the actual main function (or helper function).
     static std::string GetGeometryHeader(std::string outputDeclarations, PrimitiveTypes input, PrimitiveTypes output, unsigned int maxVertices, const MaterialUsageFlags & flags);
     //Gets everything that's needed in a fragment shader before the actual main function (or helper functions).

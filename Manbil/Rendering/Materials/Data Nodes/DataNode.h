@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DataLine.h"
 #include "../UniformCollections.h"
 #include "../MaterialUsageFlags.h"
-#include "GeometryShaderInfo.h"
+#include "ShaderGenerator.h"
+
 
 
 #pragma warning(disable: 4100)
@@ -15,6 +15,18 @@ class DataNode : public ISerializable
 {
 public:
 
+    //The information about the material currently being built.
+    static MaterialOutputs MaterialOuts;
+    //The geometry shader being used.
+    static GeoShaderData GeometryShader;
+    //The vertex inputs.
+    static ShaderInOutAttributes VertexIns;
+    //The shader currently being generated.
+    static ShaderHandler::Shaders CurrentShader;
+    
+    typedef DataNodePtr(*NodeFactory)(std::vector<DataLine> & inputs, std::string name);
+
+
     //Thrown when something about this DataNode (or an attempt to input/output this DataNode)
     //    is found to be invalid.
     static int EXCEPTION_ASSERT_FAILED;
@@ -23,39 +35,30 @@ public:
     static DataNode* GetNode(std::string name);
 
 
-    //Some useful typedefs.
-
-    typedef ShaderHandler::Shaders Shaders;
-
-    
-    //Sets data about the material being constructed for all nodes to use as a reference.
-
-    static void SetShaderType(Shaders shadeType) { shaderType = shadeType; }
-    static void SetGeoData(const GeoShaderData * dat) { geoData = dat; }
-
-
-
     //Constructors/destructors.
 
-    DataNode(const std::vector<DataLine> & _inputs, std::string _name = "");
+    DataNode(const std::vector<DataLine> & _inputs, NodeFactory howToCreateMe, std::string _name = "");
     DataNode(const DataNode & cpy); // Intentionally left blank.
 
     virtual ~DataNode(void);
 
 
-    //Error-handling and name getter.
+    //Error-handling.
 
     bool HasError(void) const { return !errorMsg.empty(); }
     std::string GetError(void) const { return errorMsg; }
 
+
+    //Data getters/setters.
+
     std::string GetName(void) const { return name; }
     void SetName(std::string newName);
 
+    virtual std::string GetTypeName(void) const = 0;
 
-    //Getters/setters for input/output lists.
 
     const std::vector<DataLine> & GetInputs(void) const { return inputs; }
-    const std::vector<unsigned int> & GetOutputs(void) const { return outputs; }
+    std::vector<DataLine> & GetInputs(void) { return inputs; }
 
     //Note that the inputs should be in the same order they were specified in the constructor.
     void ReplaceInput(unsigned int inputIndex, const DataLine & replacement);
@@ -72,6 +75,11 @@ public:
 
     //Gets the variable name for this node's given output.
     virtual std::string GetOutputName(unsigned int outputIndex) const { return name + "_out" + std::to_string(outputIndex); }
+    //Gets the variable size for this node's given output.
+    virtual unsigned int GetOutputSize(unsigned int outputIndex) const = 0;
+    //Gets the number of outputs this node has.
+    //Default behavior: returns 1 -- most nodes have a single output.
+    virtual unsigned int GetNumbOutputs(void) const { return 1; }
 
 
     virtual bool WriteData(DataWriter * writer, std::string & outError) const override sealed;
@@ -89,16 +97,13 @@ protected:
     static std::vector<DataLine> MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3, const DataLine & dat4);
     static std::vector<DataLine> MakeVector(const DataLine & dat, unsigned int wherePut, const std::vector<DataLine> & moreDats);
 
-    static Shaders GetShaderType(void) { return shaderType; }
-    static const GeoShaderData * GetGeoShaderData(void) { return geoData; }
-
-    static std::string ToString(Shaders shader)
+    static std::string ToString(ShaderHandler::Shaders shader)
     {
         switch (shader)
         {
-            case Shaders::SH_Vertex_Shader: return "Vertex_Shader";
-            case Shaders::SH_Fragment_Shader: return "Fragment_Shader";
-            case Shaders::SH_GeometryShader: return "Geometry Shader";
+            case ShaderHandler::Shaders::SH_Vertex_Shader: return "Vertex_Shader";
+            case ShaderHandler::Shaders::SH_Fragment_Shader: return "Fragment_Shader";
+            case ShaderHandler::Shaders::SH_GeometryShader: return "Geometry Shader";
             default: assert(false); return "UNKNOWN_SHADER_TYPE";
         }
     }
@@ -134,9 +139,6 @@ protected:
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const;
 
-    //Outputs the new outputs for this node after the inputs have just been changed.
-    virtual void ResetOutputs(std::vector<unsigned int> & newOuts) const = 0;
-
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const { }
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const { }
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const { }
@@ -152,17 +154,15 @@ private:
 
     //Keeps track of what names correspond with what nodes.
     static std::unordered_map<std::string, DataNode*> nameToNode;
-
-    static Shaders shaderType;
-    static const GeoShaderData * geoData;
+    //Holds how to create each kind of DataNode.
+    static std::unordered_map<std::string, NodeFactory> FactoriesByTypename;
 
     static unsigned int lastID;
     static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
 
 
-    std::vector<DataLine> inputs;
-    std::vector<unsigned int> outputs;
 
+    std::vector<DataLine> inputs;
     std::string name;
 };
 

@@ -17,19 +17,16 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraHeightName = "u_cam_height",
                   MaterialConstants::CameraZNearName = "u_cam_zNear",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
-                  MaterialConstants::CameraFovName = "u_cam_fov",
+                  MaterialConstants::CameraFovName = "u_cam_fov";
 
-                  MaterialConstants::VertexInNameBase = "vIn_",
-                  MaterialConstants::VertexOutNameBase = "vOut_",
-
-                  MaterialConstants::FragmentOutName = "FinalOutput";
-
-std::string MaterialConstants::GetVertexInputDeclarations(const VertexAttributes & attribs)
+std::string MaterialConstants::GetVertexInputDeclarations(const ShaderInOutAttributes & attribs)
 {
     std::string output;
     unsigned int nAttribs = attribs.GetNumbAttributes();
     for (unsigned int i = 0; i < nAttribs; ++i)
-        output += "layout (location = " + std::to_string(i) + ") in " + VectorF((unsigned int)attribs.GetAttributeSize(i)).GetGLSLType() + " " + VertexInNameBase + std::to_string(i) + ";\n";
+        output += "layout (location = " + std::to_string(i) + ") in " +
+                    VectorF((unsigned int)attribs.GetAttributeSize(i)).GetGLSLType() + " " +
+                    attribs.GetAttributeName(i) + ";\n";
     return output;
 }
 RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
@@ -74,7 +71,7 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
     return uniformDecls;
 }
 
-std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const VertexAttributes & attribs, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const ShaderInOutAttributes & attribs, const MaterialUsageFlags & flags)
 {
     return std::string() +
 "#version 400                                                    \n\

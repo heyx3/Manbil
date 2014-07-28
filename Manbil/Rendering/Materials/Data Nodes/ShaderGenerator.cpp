@@ -7,67 +7,8 @@
 
 
 typedef ShaderGenerator SG;
-typedef RenderingChannels RC;
 typedef ShaderHandler::Shaders Shaders;
-typedef std::unordered_map<RenderingChannels, DataLine> RenderChannels;
 
-
-
-DataNode::Shaders SG::GetShaderType(RC channel)
-{
-    if (IsChannelVertexOutput(channel, false))
-        return DataNode::Shaders::SH_Vertex_Shader;
-    if (IsChannelColorOutput(channel, false))
-        return DataNode::Shaders::SH_Fragment_Shader;
-
-    switch (channel)
-    {
-        case RC::RC_VertexPosOutput:
-            return DataNode::Shaders::SH_Vertex_Shader;
-
-        case RC::RC_Color:
-        case RC::RC_Opacity:
-            return DataNode::Shaders::SH_Fragment_Shader;
-
-        default:
-            assert(false);
-            return DataNode::Shaders::SH_Vertex_Shader;
-    }
-}
-
-unsigned int SG::GetChannelInputSize(RC channel)
-{
-    switch (channel)
-    {
-        case RC::RC_VertexPosOutput:
-            return 4;
-            
-        case RC::RC_Color:
-            return 3;
-
-        case RC::RC_COLOR_OUT_2:
-        case RC::RC_COLOR_OUT_3:
-        case RC::RC_COLOR_OUT_4:
-            return 4;
-
-        case RC::RC_Opacity:
-            return 1;
-
-        default:
-            assert(IsChannelVertexOutput(channel, true));
-            return 0;
-    }
-}
-
-void SG::AddMissingChannels(RenderChannels & channels, RenderingModes mode, bool useLighting, const LightSettings & settings)
-{
-    if (channels.find(RC::RC_Color) == channels.end())
-        channels[RC::RC_Color] = DataLine(Vector3f(1.0f, 0.0f, 1.0f));
-    if (channels.find(RC::RC_VertexPosOutput) == channels.end())
-        assert(false);
-    if (channels.find(RC::RC_Opacity) == channels.end())
-        channels[RC::RC_Opacity] = DataLine(1.0f);
-}
 
 
 std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
@@ -117,7 +58,7 @@ std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
 
 
 SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                           UniformDictionary & uniforms, const VertexAttributes & attribs,
+                                           UniformDictionary & uniforms, const ShaderInOutAttributes & attribs,
                                            RenderingModes mode, bool useLighting, const LightSettings & settings,
                                            GeoShaderData geometryShader)
 {
@@ -196,7 +137,7 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
 }
 
 std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                        RenderingModes mode, bool useLighting, const LightSettings & settings, const VertexAttributes & attribs,
+                                        RenderingModes mode, bool useLighting, const LightSettings & settings, const ShaderInOutAttributes & attribs,
                                         std::unordered_map<RenderingChannels, DataLine> & channels,
                                         GeoShaderData geoShaderData)
 {

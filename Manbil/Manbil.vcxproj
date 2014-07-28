@@ -165,6 +165,8 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\WhiteNoiseNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
@@ -172,7 +174,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.cpp" />
-    <ClCompile Include="Rendering\Materials\Data Nodes\Serialization\DataNodeSerialization.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp" />
     <ClCompile Include="Rendering\Materials\MaterialData.cpp" />
@@ -335,7 +337,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Serialization\DataNodeSerialization.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h" />
     <ClInclude Include="Rendering\Materials\MaterialData.h" />

@@ -14,8 +14,7 @@
 //For example, if the vertex only has UV and Normal, it should be the size of (2 + 3) * sizeof(float).
 //It also assumes that the attributes are ordered in the order this class was given.
 //TODO: This is used as input/output data specification for all the different kinds of shaders, so rename this something like "ShaderInOutAttributes".
-//TODO: Pull stuff into .cpp file.
-class VertexAttributes
+class ShaderInOutAttributes
 {
 public:
 
@@ -24,59 +23,18 @@ public:
     static const int MAX_ATTRIBUTES = 5;
 
 
-    VertexAttributes(void) { attributeSizes[0] = -1; }
-    VertexAttributes(int attribSize, bool normalized) { attributeSizes[0] = attribSize; attributeNormalized[0] = normalized; attributeSizes[1] = -1; }
-    VertexAttributes(int attribSize1, int attribSize2, bool normalized1, bool normalized2)
-    {
-        attributeSizes[0] = attribSize1;
-        attributeSizes[1] = attribSize2;
-        attributeSizes[2] = -1;
-        attributeNormalized[0] = normalized1;
-        attributeNormalized[1] = normalized2;
-    }
-    VertexAttributes(int attribSize1, int attribSize2, int attribSize3, bool normalized1, bool normalized2, bool normalized3)
-    {
-        attributeSizes[0] = attribSize1;
-        attributeSizes[1] = attribSize2;
-        attributeSizes[2] = attribSize3;
-        attributeSizes[3] = -1;
-        attributeNormalized[0] = normalized1;
-        attributeNormalized[1] = normalized2;
-        attributeNormalized[2] = normalized3;
-    }
-    VertexAttributes(int attribSize1, int attribSize2, int attribSize3, int attribSize4, bool normalized1, bool normalized2, bool normalized3, bool normalized4)
-    {
-        attributeSizes[0] = attribSize1;
-        attributeSizes[1] = attribSize2;
-        attributeSizes[2] = attribSize3;
-        attributeSizes[3] = attribSize4;
-        attributeSizes[4] = -1;
-        attributeNormalized[0] = normalized1;
-        attributeNormalized[1] = normalized2;
-        attributeNormalized[2] = normalized3;
-        attributeNormalized[3] = normalized4;
-    }
-    VertexAttributes(int attribSize1, int attribSize2, int attribSize3, int attribSize4, int attribSize5, bool normalized1, bool normalized2, bool normalized3, bool normalized4, bool normalized5)
-    {
-        attributeSizes[0] = attribSize1;
-        attributeSizes[1] = attribSize2;
-        attributeSizes[2] = attribSize3;
-        attributeSizes[3] = attribSize4;
-        attributeSizes[4] = attribSize5;
-        attributeNormalized[0] = normalized1;
-        attributeNormalized[1] = normalized2;
-        attributeNormalized[2] = normalized3;
-        attributeNormalized[3] = normalized4;
-        attributeNormalized[4] = normalized5;
-    }
-    VertexAttributes(const VertexAttributes & cpy)
-    {
-        for (unsigned int i = 0; i < MAX_ATTRIBUTES; ++i)
-        {
-            attributeSizes[i] = cpy.attributeSizes[i];
-            attributeNormalized[i] = cpy.attributeNormalized[i];
-        }
-    }
+    ShaderInOutAttributes(void) { attributeSizes[0] = -1; }
+    ShaderInOutAttributes(int attribSize, bool normalized, std::string name);
+    ShaderInOutAttributes(int attribSize1, int attribSize2, bool normalized1, bool normalized2, std::string name1, std::string name2);
+    ShaderInOutAttributes(int attribSize1, int attribSize2, int attribSize3, bool normalized1, bool normalized2, bool normalized3,
+                     std::string name1, std::string name2, std::string name3);
+    ShaderInOutAttributes(int attribSize1, int attribSize2, int attribSize3, int attribSize4,
+                     bool normalized1, bool normalized2, bool normalized3, bool normalized4,
+                     std::string name1, std::string name2, std::string name3, std::string name4);
+    ShaderInOutAttributes(int attribSize1, int attribSize2, int attribSize3, int attribSize4, int attribSize5,
+                     bool normalized1, bool normalized2, bool normalized3, bool normalized4, bool normalized5,
+                     std::string name1, std::string name2, std::string name3, std::string name4, std::string name5);
+    ShaderInOutAttributes(const ShaderInOutAttributes & cpy);
 
     
     //Gets the number of attributes for the vertex type this instance represents.
@@ -91,10 +49,12 @@ public:
     int GetAttributeSize(unsigned int index) const { return (IsValidAttribute(index) ? attributeSizes[index] : 0); }
     //Returns whether the given attribute will be normalized.
     bool GetAttributeNormalized(unsigned int index) const { return attributeNormalized[index]; }
+    //Returns the name of the given attribute.
+    std::string GetAttributeName(unsigned int index) const { return attributeNames[index]; }
 
 
     //Checks whether the two attributes have the exact same attribute properties.
-    bool operator==(const VertexAttributes & other) const;
+    bool operator==(const ShaderInOutAttributes & other) const;
 
 
     //Prepares the type of vertices represented by this instance to be used by OpenGL.
@@ -117,6 +77,8 @@ private:
     int attributeSizes[MAX_ATTRIBUTES];
     //Parallel to "attributeSizes". Indicates whether each attribute should be normalized.
     bool attributeNormalized[MAX_ATTRIBUTES];
+    //The name of each attribute in the shader code.
+    std::string attributeNames[MAX_ATTRIBUTES];
 };
 
 
@@ -135,7 +97,7 @@ struct VertexPos
 	Vector3f Pos;
 	VertexPos(Vector3f pos = Vector3f()) : Pos(pos) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, false, "in_pos"); }
 };
 
 struct VertexPosColor
@@ -145,7 +107,7 @@ struct VertexPosColor
 
     VertexPosColor(Vector3f pos = Vector3f(), Vector3f color = Vector3f(1.0f, 1.0f, 1.0f)) : Pos(pos), Col(color) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 3, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, false, false, "in_pos", "in_color"); }
 };
 
 struct VertexPosTex1
@@ -154,7 +116,7 @@ struct VertexPosTex1
 	Vector2f TexCoords;
     VertexPosTex1(Vector3f pos = Vector3f(), Vector2f texCoords = Vector2f()) : Pos(pos), TexCoords(texCoords) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, false, false, "in_pos", "in_uv"); }
 };
 
 struct VertexPosTex2
@@ -163,7 +125,7 @@ struct VertexPosTex2
 	Vector2f TexCoords1, TexCoords2;
     VertexPosTex2(Vector3f pos = Vector3f(), Vector2f texCoords1 = Vector2f(), Vector2f texCoords2 = Vector2f()) : Pos(pos), TexCoords1(texCoords1), TexCoords2(texCoords2) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 2, false, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 2, false, false, false, "in_pos", "in_uv1", "in_uv2"); }
 };
 
 struct VertexPosNormal
@@ -171,7 +133,7 @@ struct VertexPosNormal
     Vector3f Pos, Normal;
     VertexPosNormal(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f)) : Pos(pos), Normal(normal) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 3, false, true); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, false, true, "in_pos", "in_normal"); }
 };
 
 struct VertexPosTex1Normal
@@ -181,7 +143,7 @@ struct VertexPosTex1Normal
 	Vector3f Normal;
 	VertexPosTex1Normal(Vector3f pos = Vector3f(), Vector2f texCoords = Vector2f(), Vector3f normal = Vector3f(0, 0, 1)) : Pos(pos), TexCoords(texCoords), Normal(normal) { }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 3, false, false, true); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 3, false, false, true, "in_pos", "in_uv", "in_normal"); }
 };
 
 struct VertexPosTex1NormalColor
@@ -196,5 +158,5 @@ struct VertexPosTex1NormalColor
 
     }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 3, 4, false, false, true, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 3, 4, false, false, true, false, "in_pos", "in_uv", "in_normal", "in_color"); }
 };

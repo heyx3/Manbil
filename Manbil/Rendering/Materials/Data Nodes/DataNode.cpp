@@ -1,8 +1,6 @@
 #include "DataNode.h"
 
 
-DataNode::Shaders DataNode::shaderType = DataNode::Shaders::SH_Vertex_Shader;
-const GeoShaderData * DataNode::geoData = 0;
 unsigned int DataNode::lastID = 0;
 
 int DataNode::EXCEPTION_ASSERT_FAILED = 1352;
@@ -16,14 +14,15 @@ DataNode* DataNode::GetNode(std::string name)
 }
 
 
-DataNode::DataNode(const std::vector<DataLine> & _inputs, std::string _name)
+DataNode::DataNode(const std::vector<DataLine> & _inputs, NodeFactory myFactory, std::string _name)
     : inputs(_inputs), name((_name.size() == 0) ? ("node" + std::to_string(GenerateUniqueID())) : _name)
 {
     Assert(nameToNode.find(name) == nameToNode.end(),
            "A node with the name '" + name + "' already exists!");
     nameToNode[name] = this;
 
-    ResetOutputs(outputs);
+    if (FactoriesByTypename.find(GetTypeName()) == FactoriesByTypename.end())
+        FactoriesByTypename[GetTypeName()] = myFactory;
 }
 DataNode::~DataNode(void)
 {
@@ -32,10 +31,6 @@ DataNode::~DataNode(void)
 
 void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
-    Assert(outputIndex < outputs.size(),
-           std::string() + "Output index " + std::to_string(outputIndex) +
-             " is too big. The max output index value is " + std::to_string(outputs.size() - 1));
-
     for (unsigned int input = 0; input < inputs.size(); ++input)
     {
         if (!inputs[input].IsConstant() && UsesInput(input, outputIndex))
@@ -261,9 +256,6 @@ bool DataNode::ReadData(DataReader * reader, std::string & outError)
 
     if (!ReadExtraData(reader, outError)) return false;
 
-    outputs.clear();
-    ResetOutputs(outputs);
-
     return true;
 }
 
@@ -275,11 +267,11 @@ bool DataNode::UsesInput(unsigned int inputIndex) const
 }
 bool DataNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
 {
-    Assert(inputIndex < inputs.size() && outputIndex < outputs.size(),
+    Assert(inputIndex < inputs.size() && outputIndex < GetNumbOutputs(),
            "Input index " + std::to_string(inputIndex) +
-           " or output index " + std::to_string(outputIndex) + " are too big! " +
-           "The input index should be at most " + std::to_string(inputs.size() - 1) +
-           " and the output index should be at most " + std::to_string(outputs.size() - 1));
+               " or output index " + std::to_string(outputIndex) + " are too big! " +
+               "The input index should be at most " + std::to_string(inputs.size() - 1) +
+               " and the output index should be at most " + std::to_string(GetNumbOutputs() - 1));
     return true;
 }
 
