@@ -14,8 +14,12 @@ enum BinaryDataTypes : unsigned char
     BDT_FLOAT = 4,
     BDT_DOUBLE = 5,
     BDT_STRING = 6,
+
     BDT_COLLECTION = 7,
-    BDT_DATA_STRUCTURE = 8,
+    BDT_COLLECTION_END = 8,
+
+    BDT_DATA_STRUCTURE = 9,
+    BDT_DATA_STRUCTURE_END = 10,
 };
 
 

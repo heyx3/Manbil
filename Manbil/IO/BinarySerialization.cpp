@@ -98,6 +98,9 @@ bool BinaryWriter::WriteCollection(std::string name, ElementWriter writerFunc, c
     while (i < size && writerFunc(collection, i, this, outError, optionalData))
         i += 1;
 
+    //Insert the footer indicating the end of the data type.
+    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_COLLECTION_END);
+
     return outError.empty();
 }
 
@@ -107,7 +110,10 @@ bool BinaryWriter::WriteDataStructure(const ISerializable & toSerialize, std::st
     if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_DATA_STRUCTURE);
 
     //Write the class.
-    return toSerialize.WriteData(this, outError);
+    if (!toSerialize.WriteData(this, outError)) return false;
+
+    //Insert the footer describing the end of the structure.
+    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_DATA_STRUCTURE_END);
 }
 
 
@@ -290,6 +296,24 @@ bool BinaryReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPe
         }
     }
 
+    //Check that the data structure is at its end.
+    if (EnsureTypeSafety)
+    {
+        BinaryDataTypes collFooter;
+        if (!NextData(1, &collFooter))
+        {
+            outError = "Unexpected end of file when reading footer data";
+            return false;
+        }
+
+        //Make sure it's the expected type.
+        if (collFooter != BDT_COLLECTION_END)
+        {
+            outError = "Invalid footer: expected 'collectionEND' but found '" + DebugAssist::ToString(collFooter, false) + "' instead";
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -315,6 +339,21 @@ bool BinaryReader::ReadDataStructure(ISerializable & toSerialize, std::string & 
     {
         outError = "Error reading data structure: " + outError;
         return false;
+    }
+
+    //Check the footer describing the end of the data structure.
+    if (EnsureTypeSafety)
+    {
+        BinaryDataTypes bdt;
+        if (!NextData(1, &bdt))
+        {
+            outError = "Unexpected end of file.";
+            return false;
+        }
+        if (bdt != BDT_DATA_STRUCTURE_END)
+        {
+            outError = "Expected 'DataStructureEND' type but got '" + DebugAssist::ToString(bdt, false) + " instead";
+        }
     }
 
     return true;
