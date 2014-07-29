@@ -13,10 +13,16 @@ class TimeNode : public DataNode
 public:
 
     static DataNodePtr GetInstance(void) { return instance; }
-    static DataLine GetTime(void) { return DataLine(instance, 0); }
+    static DataLine GetTime(void) { return DataLine(instance->GetName(), 0); }
 
-    virtual std::string GetName(void) const override { return "timeNode"; }
 
+    virtual std::string GetTypeName(void) const override { return "timeUniform"; }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override
+    {
+        Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
+        return 1;
+    }
     virtual std::string GetOutputName(unsigned int index) const override
     {
         Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
@@ -30,17 +36,18 @@ protected:
     {
         flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_TIME);
     }
-
     virtual void WriteMyOutputs(std::string & outCode) const override
     {
         //No outputting needed.
     }
 
+
 private:
 
     static DataNodePtr instance;
 
-    TimeNode(void) : DataNode(std::vector<DataLine>(), MakeVector(1)) { }
+    TimeNode(void)
+        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "elapsedTimeUniform") { }
 };
 
 #pragma warning(default: 4100)

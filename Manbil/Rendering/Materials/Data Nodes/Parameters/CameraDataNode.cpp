@@ -20,6 +20,23 @@ std::string CameraDataNode::GetOutputName(unsigned int index) const
             return "UNKNOWN_CAMERA_DAT_NAME";
     }
 }
+unsigned int CameraDataNode::GetOutputSize(unsigned int index) const
+{
+    switch (index)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            return 3;
+
+        default:
+            Assert(false, std::string() + "Invalid output index " + ToString(index));
+            return 0;
+    }
+}
+
+
 void CameraDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
     switch (outputIndex)

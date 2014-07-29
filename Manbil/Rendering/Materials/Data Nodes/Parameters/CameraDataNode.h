@@ -9,13 +9,18 @@ class CameraDataNode : public DataNode
 public:
 
     static DataNodePtr GetInstance(void) { return instance; }
-    static DataLine GetCamPos(void) { return DataLine(GetInstance(), GetCamPosOutputIndex()); }
-    static DataLine GetCamForward(void) { return DataLine(GetInstance(), GetCamForwardOutputIndex()); }
-    static DataLine GetCamUp(void) { return DataLine(GetInstance(), GetCamUpwardOutputIndex()); }
-    static DataLine GetCamSide(void) { return DataLine(GetInstance(), GetCamSidewaysOutputIndex()); }
+    static DataLine GetCamPos(void) { return DataLine(instance->GetName(), GetCamPosOutputIndex()); }
+    static DataLine GetCamForward(void) { return DataLine(instance->GetName(), GetCamForwardOutputIndex()); }
+    static DataLine GetCamUp(void) { return DataLine(instance->GetName(), GetCamUpwardOutputIndex()); }
+    static DataLine GetCamSide(void) { return DataLine(instance->GetName(), GetCamSidewaysOutputIndex()); }
 
 
-    virtual std::string GetName(void) const override { return "cameraDataNode"; }
+    virtual std::string GetTypeName(void) const override { return "cameraData"; }
+
+
+    virtual unsigned int GetNumbOutputs(void) const override { return 4; }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
 
@@ -39,5 +44,6 @@ private:
     static unsigned int GetCamUpwardOutputIndex(void) { return 2; }
     static unsigned int GetCamSidewaysOutputIndex(void) { return 3; }
 
-    CameraDataNode(void) : DataNode(std::vector<DataLine>(), MakeVector(3, 3, 3, 3)) { }
+    CameraDataNode(void)
+        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "camDataUniforms") { }
 };

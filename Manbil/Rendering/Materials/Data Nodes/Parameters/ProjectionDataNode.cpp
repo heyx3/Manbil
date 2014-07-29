@@ -21,6 +21,22 @@ std::string ProjectionDataNode::GetOutputName(unsigned int index) const
             return "INVALID_PROJECTION_DATA_NAME";
     }
 }
+unsigned int ProjectionDataNode::GetOutputSize(unsigned int index) const
+{
+    switch (index)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            return 1;
+
+        default:
+            Assert(false, std::string() + "Invalid output index " + ToString(index));
+            return 0;
+    }
+}
 
 void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
@@ -44,12 +60,4 @@ void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
 
         default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
     }
-}
-
-std::vector<unsigned int> ProjectionDataNode::MakeOutputs(void)
-{
-    std::vector<unsigned int> ret;
-    for (unsigned int i = 0; i < 5; ++i)
-        ret.insert(ret.end(), 1);
-    return ret;
 }
