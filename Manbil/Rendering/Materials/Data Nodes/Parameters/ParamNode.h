@@ -9,39 +9,27 @@ class ParamNode : public DataNode
 {
 public:
 
-    const std::string & GetParamName(void) const { return name; }
-    unsigned int GetParamSize(void) const { return vSize; }
+    const std::string & GetParamName(void) const { return pName; }
 
-    ParamNode(unsigned int vectorSize, std::string glslName)
-        : vSize(vectorSize), name(glslName), DataNode(std::vector<DataLine>(), MakeVector(vectorSize))
-    {
 
-    }
+    virtual std::string GetTypeName(void) const override { return "parameter"; }
 
-    virtual std::string GetName(void) const override { return "paramNode"; }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override
-    {
-        float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        outUniforms.FloatUniforms[GetOutputName(0)] = UniformValueF(data, vSize, GetOutputName(0));
-    }
+    ParamNode(unsigned int vectorSize, std::string paramName, std::string name = "");
 
-    virtual std::string GetOutputName(unsigned int outputIndex) const override
-    {
-        Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
-        return name;
-    }
+    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override;
 
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        //No need to write any outputs; the uniform variable is the output.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outCode) const override;
+
+
+    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
 
 private:
 
-    std::string name;
+    std::string pName;
     unsigned int vSize;
 };

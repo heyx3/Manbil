@@ -34,6 +34,12 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+    virtual std::string GetInputDescription(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return "Tex Coord 2D";
+    }
+
 
 private:
 

@@ -9,24 +9,39 @@ class WhiteNoiseNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "whiteNoiseNode"; }
+    virtual std::string GetTypeName(void) const override { return "whiteNoise"; }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return 1;
+    }
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return GetName() + "_noiseVal";
+    }
 
     //The "randPeriodMultiplier" argument represents the quality of the noise.
     //A larger value yields more randomness.
     //A smaller value yields less flickering.
-    WhiteNoiseNode(const DataLine & seed, DataLine randPeriodMultiplier = DataLine(43758.5453f)) : DataNode(makeInputs(seed, randPeriodMultiplier), MakeVector(1)) { }
-
-    virtual std::string GetOutputName(unsigned int index) const override
+    WhiteNoiseNode(const DataLine & seed, std::string name = "", DataLine randPeriodMultiplier = DataLine(43758.5453f))
+        : DataNode(MakeVector(seed, randPeriodMultiplier),
+                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new WhiteNoiseNode(ins[0], _name, ins[1])); },
+                   name)
     {
-        Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index));
-        return GetName() + std::to_string(GetUniqueID()) + "_noise";
+        Assert(seed.GetSize() == randPeriodMultiplier.GetSize(),
+               std::string() + "Seed and 'period multiplier' must be the same size!");
     }
+
 
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
-private:
-
-    static std::vector<DataLine> makeInputs(const DataLine & seed, DataLine randPeriodMultiplier);
+    virtual std::string GetInputDescription(unsigned int index) const override
+    {
+        Assert(index <= 1, "Invalid output index " + ToString(index));
+        return (index == 0 ? "Seed" : "RandPeriodMultiplier");
+    }
 };

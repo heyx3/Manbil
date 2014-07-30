@@ -360,6 +360,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

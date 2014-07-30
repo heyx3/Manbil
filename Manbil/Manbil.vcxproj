@@ -167,6 +167,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
