@@ -26,7 +26,7 @@ struct WaterVertex
 
     }
 
-    static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 2, 2, false, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 2, false, false, false); }
 };
 
 

@@ -73,13 +73,13 @@ public:
     //Returns a DataLine that samples the color texture.
     //This should be the value for the first post-process effect's "colorIn" constructor argument.
     //Subsequent effects should use the previous effect's color output.
-    static DataLine ColorSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
+    static DataLine ColorSamplerIn(ShaderInOutAttributes fragmentIn = ShaderInOutAttributes(2, false), int fragmentUVInputIndex = 0)
     {
         return DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), ColorSampler)),
                         TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples the depth texture.
-    static DataLine DepthSamplerIn(VertexAttributes fragmentIn = VertexAttributes(2, false), int fragmentUVInputIndex = 0)
+    static DataLine DepthSamplerIn(ShaderInOutAttributes fragmentIn = ShaderInOutAttributes(2, false), int fragmentUVInputIndex = 0)
     {
         DataLine depthTex(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentIn)), fragmentUVInputIndex), DepthSampler)),
                           TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
@@ -148,7 +148,7 @@ protected:
     }
 
     //Gets the inputs into the fragment shader. By default, the only input is UVs.
-    virtual VertexAttributes GetFragmentInAttributes(void) const { return VertexAttributes(2, false); }
+    virtual ShaderInOutAttributes GetFragmentInAttributes(void) const { return ShaderInOutAttributes(2, false); }
     //Gets the index of the fragment shader input that corresponds to UVs. By default, it is 0 (the first and only input).
     virtual int GetUVFragInputIndex(void) const { return 0; }
 

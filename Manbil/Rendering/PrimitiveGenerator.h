@@ -21,7 +21,7 @@ public:
         Vector3f Pos;
         Vector3f Normal;
         CubemapVertex(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(1.0f, 0.0f, 0.0f)) : Pos(pos), Normal(normal) { }
-        static VertexAttributes GetAttributeData(void) { return VertexAttributes(3, 3, false, true); }
+        static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, false, true, "in_pos", "in_normal"); }
     };
     static void GenerateCubemapCube(std::vector<CubemapVertex> & outVertices, std::vector<unsigned int> & outIndices, bool smoothNormals,
                                     bool faceInward, Vector3f minCorner = Vector3f(-1.0f, -1.0f, -1.0f), Vector3f maxCorner = Vector3f(1.0f, 1.0f, 1.0f));

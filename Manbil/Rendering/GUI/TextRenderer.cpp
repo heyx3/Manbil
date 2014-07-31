@@ -45,7 +45,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
     //Material.
     textRendererParams.ClearUniforms();
-    VertexAttributes quadAtts = DrawingQuad::GetAttributeData(),
+    ShaderInOutAttributes quadAtts = DrawingQuad::GetAttributeData(),
                      fragmentInputs(2, false);
     DataNodePtr vertexIns(new VertexInputNode(quadAtts));
     DataNodePtr fragIns(new FragmentInputNode(fragmentInputs));

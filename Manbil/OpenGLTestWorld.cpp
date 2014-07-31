@@ -194,7 +194,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     //Vertex output 2: water rand seeds.
     //Vertex output 3: world-space position.
 
-    VertexAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
+    ShaderInOutAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
     DataLine materialUVs(DNP(new ShaderInNode(2, 1, -1, 0, 1)), 0);
     DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
     DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
@@ -259,7 +259,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
     std::unordered_map<RC, DataLine> gsChannels;
 
     DNP gsTestVertInputs(new VertexInputNode(VertexPos::GetAttributeData()));
-    DNP gsTestFragInputs(new FragmentInputNode(VertexAttributes(2, false)));
+    DNP gsTestFragInputs(new FragmentInputNode(ShaderInOutAttributes(2, false)));
 
     DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(gsTestVertInputs, 0))), 0);
 
@@ -393,7 +393,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
     std::unordered_map<RC, DataLine> cubemapChannels;
     DataNodePtr cmVertexInputs(new VertexInputNode(PrimitiveGenerator::CubemapVertex::GetAttributeData()));
-    DataNodePtr cmFragInputs(new FragmentInputNode(VertexAttributes(3, false)));
+    DataNodePtr cmFragInputs(new FragmentInputNode(ShaderInOutAttributes(3, false)));
 
     DataLine cubemapSampleRGB(DataNodePtr(new TextureSampleCubemapNode(DataLine(cmFragInputs, 0), "u_cubemapTex")),
                               TextureSampleCubemapNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));

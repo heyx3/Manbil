@@ -257,7 +257,7 @@ void VoxelWorld::InitializeWorld(void)
 
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
+    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(ShaderInOutAttributes(2, false))), 0),
                                                                                        "u_finalWorldRender")),
                                                      TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     UniformDictionary dict;
@@ -359,7 +359,7 @@ void main()                                                                     
     }                                                                                          \n\
 }");
 
-    DataNodePtr voxelFragInput(new FragmentInputNode(VertexAttributes(3, 2, false, false)));
+    DataNodePtr voxelFragInput(new FragmentInputNode(ShaderInOutAttributes(3, 2, false, false)));
     DataLine surfNormal(DataNodePtr(new ParamNode(3, "u_surfaceNormal")), 0);
     DataLine lighting(DataNodePtr(new LightingNode(DataLine(voxelFragInput, 0),
                                                    surfNormal,

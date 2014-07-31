@@ -20,14 +20,14 @@ class Material
 public:
 
     //Gets the vertex data for this material.
-    const VertexAttributes GetAttributeData(void) const { return attributes; }
+    const ShaderInOutAttributes GetAttributeData(void) const { return attributes; }
 
 
     Material(const Material & cpy); //Intentionally not implemented.
 
     //Geometry shader is optional.
     Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
-             const VertexAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings,
+             const ShaderInOutAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings,
              std::string geometryShader = "");
     ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
 
@@ -66,7 +66,7 @@ private:
     RenderingModes mode;
 
     UniformList uniforms;
-    VertexAttributes attributes;
+    ShaderInOutAttributes attributes;
 
     RenderObjHandle shaderProg;
 

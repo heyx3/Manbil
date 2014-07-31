@@ -210,11 +210,11 @@ void WaterNode::WriteMyOutputs(std::string & outCode) const
 
 
 
-DataLine WaterSurfaceDistortNode::GetWaterSeedIn(const VertexAttributes & fragmentInputs, int fragInputIndex)
+DataLine WaterSurfaceDistortNode::GetWaterSeedIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
 {
     return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex))), 0);
 }
-DataLine WaterSurfaceDistortNode::GetTimeIn(const VertexAttributes & fragmentInputs, int fragInputIndex)
+DataLine WaterSurfaceDistortNode::GetTimeIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
 {
     DataNodePtr seedIn(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex)));
     return DataLine(DataNodePtr(new AddNode(TimeNode::GetTime(), DataLine(seedIn, 1))), 0);

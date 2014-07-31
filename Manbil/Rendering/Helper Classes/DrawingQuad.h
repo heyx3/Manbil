@@ -20,7 +20,7 @@ public:
     static bool IsInitialized(void) { return vid.GetVerticesCount() >= 0; }
 
     //Gets the vertex attributes that this quad uses.
-    static VertexAttributes GetAttributeData(void) { return VertexPosTex1Normal::GetAttributeData(); }
+    static ShaderInOutAttributes GetAttributeData(void) { return VertexPosTex1Normal::GetAttributeData(); }
 
 
     Mesh & GetMesh(void) { return quad; }

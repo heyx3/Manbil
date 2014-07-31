@@ -60,10 +60,10 @@ public:
 
     //Gets a value for the "seedIn" argument for this node's constructor that works well with the Water object.
     //It uses a value that was stored in the WaterVertex::RandSeeds input, so it needs to know the fragment input that has it.
-    static DataLine GetWaterSeedIn(const VertexAttributes & fragmentInputs, int randSeedInputIndex);
+    static DataLine GetWaterSeedIn(const ShaderInOutAttributes & fragmentInputs, int randSeedInputIndex);
     //Gets a value for the "timeValue" argument for this node's constructor that works well with the Water object.
     //It uses a value stored in the WaterVertex::RandSeeds input, so it needs to know the fragment input that has it.
-    static DataLine GetTimeIn(const VertexAttributes & fragmentInputs, int randSeedInputIndex);
+    static DataLine GetTimeIn(const ShaderInOutAttributes & fragmentInputs, int randSeedInputIndex);
 
 
     virtual std::string GetName(void) const override { return "waterSurfaceDistortNode"; }
@@ -74,10 +74,10 @@ public:
     //Also takes in the amplitude and period of the random shifting around of the surface.
     //Note that the water mesh puts random values into the vertex color, so it is useful
     //   for offsetting the elapsed time or seeding the distortion.
-    WaterSurfaceDistortNode(DataLine seedIn = GetWaterSeedIn(VertexAttributes(), -1),
+    WaterSurfaceDistortNode(DataLine seedIn = GetWaterSeedIn(ShaderInOutAttributes(), -1),
                             DataLine shiftAmplitude = DataLine(VectorF(0.01f)),
                             DataLine shiftPeriod = DataLine(VectorF(0.5f)),
-                            DataLine timeValue = GetTimeIn(VertexAttributes(), -1));
+                            DataLine timeValue = GetTimeIn(ShaderInOutAttributes(), -1));
 
 
 protected:

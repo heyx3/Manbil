@@ -14,7 +14,7 @@ const int HGPGlobalData::EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT = 19285;
 const DataLine HGPGlobalData::ParticleIDInput = DataLine(DataNodePtr(new ShaderInNode(2, 0, 0, 0, 0)), 0),
                HGPGlobalData::ParticleRandSeedInputs1 = DataLine(DataNodePtr(new ShaderInNode(4, 1, 1, 0, 1)), 0),
                HGPGlobalData::ParticleRandSeedInputs2 = DataLine(DataNodePtr(new ShaderInNode(2, 2, 2, 0, 2)), 0),
-               HGPGlobalData::ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, 4, 2, 2, false, false, false, false))), 3);
+               HGPGlobalData::ParticleUVs = DataLine(DataNodePtr(new FragmentInputNode(ShaderInOutAttributes(2, 4, 2, 2, false, false, false, false))), 3);
 const DataNodePtr HGPGlobalData::ParticleRandSeedComponents1 = DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1));
 const DataNodePtr HGPGlobalData::ParticleRandSeedComponents2 = DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2));
 

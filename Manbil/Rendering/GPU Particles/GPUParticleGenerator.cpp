@@ -7,7 +7,7 @@
 
 ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMaterial(std::unordered_map<GPUPOutputs, DataLine> outputs, UniformDictionary & outUniforms, RenderingModes mode)
 {
-    VertexAttributes particleAttributes = ParticleVertex::GetAttributeData();
+    ShaderInOutAttributes particleAttributes = ParticleVertex::GetAttributeData();
     DataNodePtr vertexInputNode = DataNodePtr(new VertexInputNode(particleAttributes));
 
     //First check for any missing outputs.

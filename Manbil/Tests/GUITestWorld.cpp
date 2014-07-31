@@ -146,7 +146,7 @@ void GUITestWorld::InitializeWorld(void)
     channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(1.0f))), 0);
     channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
     //The text texture only stores the red component (to save space).
-    DataLine redText(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(VertexAttributes(2, false))), 0),
+    DataLine redText(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(ShaderInOutAttributes(2, false))), 0),
                                                        textSamplerName)),
                      TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
     channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new CombineVectorNode(redText, redText, redText)), 0);
