@@ -15,7 +15,7 @@ struct DataLine : public ISerializable
 public:
 
     //Creates a DataLine that gets its input value from a DataNode.
-    DataLine(std::string nodeName, unsigned int outputLineIndex)
+    DataLine(std::string nodeName, unsigned int outputLineIndex = 0)
         : isConstantValue(false), nonConstantValue(nodeName), nonConstantOutputIndex(outputLineIndex) { }
     //Creates a DataLine with a constant input value.
     DataLine(const VectorF & constantInput) : isConstantValue(true), constantValue(constantInput) { }
