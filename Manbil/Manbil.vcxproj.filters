@@ -261,9 +261,6 @@
     <ClCompile Include="Oculus\OculusDevice.cpp">
       <Filter>Oculus Rift Stuff</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp">
       <Filter>Rendering\GPU Particles</Filter>
     </ClCompile>
@@ -362,6 +359,9 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -750,9 +750,6 @@
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Oculus\OculusDevice.h">
       <Filter>Oculus Rift Stuff</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\DataNodeGenerators.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>

@@ -1,19 +1,54 @@
 #include "CustomExpressionNode.h"
 
 
-void CustomExpressionNode::WriteMyOutputs(std::string & outCode) const
+
+DataNode::NodeFactory customExprNodeFactory = [](std::vector<DataLine> & ins, std::string name)
 {
-    outCode += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = " + expression + ";\n";
+    return DataNodePtr(new CustomExpressionNode("0.0f", 1, ins, name));
+};
+
+
+CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, std::string name)
+    : expression(expr), expressionOutputSize(outSize), DataNode(std::vector<DataLine>(), customExprNodeFactory, name)
+{
+
+}
+CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, std::string name)
+    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1), customExprNodeFactory, name)
+{
+
+}
+CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, DataLine in2, std::string name)
+    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1, in2), customExprNodeFactory, name)
+{
+
+}
+CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, DataLine in2, DataLine in3, std::string name)
+    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1, in2, in3), customExprNodeFactory, name)
+{
+
+}
+CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, const std::vector<DataLine> & ins, std::string name)
+    : expression(expr), expressionOutputSize(outSize), DataNode(ins, customExprNodeFactory, name)
+{
+
 }
 
-std::string CustomExpressionNode::InterpretExpression(std::string expr, std::vector<DataLine> input)
-{
-    std::string newStr = expr;
 
-    for (unsigned int i = 0; i < input.size(); ++i)
+void CustomExpressionNode::WriteMyOutputs(std::string & outCode) const
+{
+    outCode += "\t" + VectorF(expressionOutputSize).GetGLSLType() + " " +
+                    GetOutputName(0) + " = " + InterpretExpression() + ";\n";
+}
+
+std::string CustomExpressionNode::InterpretExpression() const
+{
+    std::string newStr = expression;
+
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
     {
         std::string variable = "'" + std::to_string(i) + "'",
-                    value = "(" + input[i].GetValue() + ")";
+                    value = "(" + GetInputs()[i].GetValue() + ")";
 
         std::string::size_type index = newStr.find(variable);
         unsigned int numbInstances = 0;
@@ -25,8 +60,47 @@ std::string CustomExpressionNode::InterpretExpression(std::string expr, std::vec
             index = newStr.find(variable);
         }
 
-        Assert(numbInstances > 0, "Couldn't find any instances of input index " + std::to_string(i) + " in the expression \"" + expr + "\"");
+        Assert(numbInstances > 0,
+               "Couldn't find any instances of input index " + ToString(i) +
+                    " in the expression \"" + expression + "\"");
     }
 
     return newStr;
+}
+
+
+bool CustomExpressionNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteString(expression, "GLSL Expression", outError))
+    {
+        outError = "Error writing out the expression value '" + expression + "': " + outError;
+        return false;
+    }
+    if (!writer->WriteUInt(expressionOutputSize, "Output Size", outError))
+    {
+        outError = "Error writing out the expression's output size " + ToString(expressionOutputSize) + ": " + outError;
+        return false;
+    }
+
+    return true;
+}
+bool CustomExpressionNode::ReadExtraData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<std::string> tryExpr = reader->ReadString(outError);
+    if (!tryExpr.HasValue())
+    {
+        outError = "Error trying to read out the expression string: " + outError;
+        return false;
+    }
+    expression = tryExpr.GetValue();
+
+    MaybeValue<unsigned int> trySize = reader->ReadUInt(outError);
+    if (!trySize.HasValue())
+    {
+        outError = "Error trying to read out the expression size: " + outError;
+        return false;
+    }
+    expressionOutputSize = trySize.GetValue();
+
+    return true;
 }

@@ -9,16 +9,21 @@ class LightingNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "lightingNode"; }
+    virtual std::string GetTypeName(void) const override { return "surfaceBrightnessCalc"; }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return 1;
+    }
     virtual std::string GetOutputName(unsigned int outputIndex) const override
     {
-        Assert(outputIndex == 0, std::string() + "Invalid output index " + std::to_string(outputIndex));
-        return GetName() + std::to_string(GetUniqueID()) + "_brightness";
+        Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
+        return GetName() + "_brightness";
     }
 
-
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
-                 DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
+                 std::string name = "", DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
                  DataLine specular = DataLine(1.5f), DataLine specIntensity = DataLine(128.0f),
                  DataLine camPos = CameraDataNode::GetCamPos());
 
@@ -28,9 +33,12 @@ protected:
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
+    virtual std::string GetInputDescription(unsigned int index) const override;
+
+
 private:
 
-    std::string GetFuncName(void) const { return "getBrightness" + std::to_string(GetUniqueID()); }
+    std::string GetFuncName(void) const { return GetName() + "_getBrightness"; }
 
     const DataLine & GetSurfacePosInput() const { return GetInputs()[0]; }
     const DataLine & GetSurfaceNormalInput() const { return GetInputs()[1]; }

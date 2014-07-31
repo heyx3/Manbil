@@ -9,15 +9,18 @@ class VectorComponentsNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const { return "vectorComponentsNode"; }
+    virtual std::string GetTypeName(void) const override { return "vectorComponents"; }
 
-    const DataLine & GetVectorInput(void) const { return GetInputs()[0]; }
+    virtual unsigned int GetNumbOutputs(void) const override { return GetInputs()[0].GetSize(); }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
-    VectorComponentsNode(const DataLine & inData) : DataNode(MakeVector(inData), buildOutputs(inData)) { }
-
-
-    virtual std::string GetOutputName(unsigned int outputIndex) const override;
+    VectorComponentsNode(const DataLine & inData, std::string name = "")
+        : DataNode(MakeVector(inData),
+                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new VectorComponentsNode(ins[0], _name)); },
+                   name) { }
 
 
 protected:
@@ -29,8 +32,5 @@ protected:
     }
 #pragma warning(default: 4100)
 
-private:
-
-    //Generates the outputs for this node given the input.
-    static std::vector<unsigned int> buildOutputs(const DataLine & inData);
+    virtual std::string GetInputDescription(unsigned int index) const override;
 };

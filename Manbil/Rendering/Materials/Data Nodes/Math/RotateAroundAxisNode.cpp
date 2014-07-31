@@ -3,8 +3,11 @@
 #include "../../../../Math/Quaternion.h"
 
 
+
 RotateAroundAxisNode::RotateAroundAxisNode(const DataLine & toRot, const DataLine & axis, const DataLine & angle, std::string name)
-    : DataNode(MakeVector(toRot, axis, angle), name)
+    : DataNode(MakeVector(toRot, axis, angle),
+               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new RotateAroundAxisNode(ins[0], ins[1], ins[2], _name)); },
+               name)
 {
     Assert(toRot.GetSize() == 3, "Value to rotate should be size 3, but it is size " + std::to_string(toRot.GetSize()));
     Assert(axis.GetSize() == 3, "Axis to rotate around should be size 3, but it is size " + std::to_string(axis.GetSize()));
@@ -21,6 +24,7 @@ void RotateAroundAxisNode::GetMyFunctionDeclarations(std::vector<std::string> & 
     //New way of computing rotation:
     //   vec3 temp = 2.0f * cross(quaternion.xyz, toRot);
     //   return toRot + (quaternion.w * temp) + cross(quaternion.xyz, temp);
+    //TODO: Test this node's permutations.
 
 
     bool axisConst = GetRotateAxisInput().IsConstant(),
@@ -33,20 +37,6 @@ void RotateAroundAxisNode::GetMyFunctionDeclarations(std::vector<std::string> & 
     if (axisConst) axis = *(Vector3f*)GetRotateAxisInput().GetConstantValue().GetValue();
     if (inputConst) input = *(Vector3f*)GetToRotateInput().GetConstantValue().GetValue();
     if (angleConst) angle = GetRotateAmountInput().GetConstantValue().GetValue()[0];
-
-
-    //If all inputs are hard-coded, hard-code the rotation result.
-    if (axisConst && angleConst && inputConst)
-    {
-        Quaternion rot(axis, angle);
-        Vector3f rotated = rot.Rotated(input);
-
-        outDecls.insert(outDecls.end(), "vec3 " + GetName() + "_rotFunc() { return " + DataLine(rotated).GetValue() + "; }\n\n");
-    }
-
-    std::string quatXYZ;
-
-
 
 
     std::string rotFunc = "vec3 " + GetName() + "_rotFunc(";
@@ -159,4 +149,18 @@ void RotateAroundAxisNode::WriteMyOutputs(std::string & outCode) const
 
 
     outCode += "\tvec3 " + GetOutputName(0) + " = " + funcInvoker + ";\n";
+}
+
+std::string RotateAroundAxisNode::GetInputDescription(unsigned int index) const
+{
+    switch (index)
+    {
+        case 0: return "Vector3 to rotate";
+        case 1: return "Axis to rotate around";
+        case 2: return "Angle to rotate by";
+
+        default:
+            Assert(false, "Unexpected input index " + ToString(index));
+            return "INVALID_INPUT_INDEX_" + ToString(index);
+    }
 }

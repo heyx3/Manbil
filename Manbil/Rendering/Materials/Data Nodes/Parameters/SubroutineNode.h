@@ -2,7 +2,7 @@
 
 #include "../DataNode.h"
 
-
+/*
 //Takes in an arbitrary number of DataLines representing different subroutine functions.
 //TODO: Test and pull out into .cpp file.
 class SubroutineNode : public DataNode
@@ -61,3 +61,4 @@ protected:
         outCode += ");\n";
     }
 };
+*/

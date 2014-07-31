@@ -3,44 +3,52 @@
 #include "../DataNode.h"
 
 
-#define SFNCLASS(funcName, className, name, outputName) \
+#define SFNCLASS(funcName, className, outputName) \
 class className : public DataNode \
     { \
     public: \
-        className(const DataLine & input) : DataNode(MakeVector(input), MakeVector(input.GetDataLineSize())) { } \
-        virtual std::string GetName(void) const override { return #name ; } \
+        className(const DataLine & input, std::string name = "") \
+            : DataNode(MakeVector(input), [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new className(ins[0], _name)); }, name) { } \
+        \
+        virtual std::string GetTypeName(void) const override { return #outputName ; } \
+        \
+        virtual unsigned int GetOutputSize(unsigned int index) const override \
+        { \
+            Assert(index == 0, std::string() + "Invalid output index " + ToString(index)); \
+            return GetInputs()[0].GetSize(); \
+        } \
         virtual std::string GetOutputName(unsigned int index) const override \
         { \
-            Assert(index == 0, std::string() + "Invalid output index " + std::to_string(index)); \
-            return GetName() + std::to_string(GetUniqueID()) + "_" + #outputName ; \
+            Assert(index == 0, std::string() + "Invalid output index " + ToString(index)); \
+            return GetName() + "_" + #outputName ; \
         } \
     \
     protected: \
         virtual void WriteMyOutputs(std::string & outCode) const override \
         { \
-            std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType(); \
+            std::string vecType = VectorF(GetInputs()[0].GetSize()).GetGLSLType(); \
             outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
         } \
     };
 
 
-SFNCLASS(sign, SignNode, signNode, sign)
+SFNCLASS(sign, SignNode, sign)
 
-SFNCLASS(ceil, CeilNode, ceilNode, ceil)
-SFNCLASS(floor, FloorNode, floorNode, floor)
+SFNCLASS(ceil, CeilNode, ceil)
+SFNCLASS(floor, FloorNode, floor)
 
-SFNCLASS(abs, AbsNode, absNode, abs)
+SFNCLASS(abs, AbsNode, abs)
 
-SFNCLASS(sin, SineNode, sinNode, sin)
-SFNCLASS(cos, CosineNode, cosNode, cos)
+SFNCLASS(sin, SineNode, sin)
+SFNCLASS(cos, CosineNode, cos)
 
-SFNCLASS(asin, InverseSineNode, invSineNode, invSine)
-SFNCLASS(acos, InverseCosineNode, invCosNode, invCosine)
+SFNCLASS(asin, InverseSineNode, invSine)
+SFNCLASS(acos, InverseCosineNode, invCosine)
 
-SFNCLASS(normalize, NormalizeNode, normalizeNode, normalize)
+SFNCLASS(normalize, NormalizeNode, normalize)
 
-SFNCLASS(fract, FractNode, fractNode, fract)
+SFNCLASS(fract, FractNode, fract)
 
-SFNCLASS(1.0 - , OneMinusNode, oneMinusNode, oneMinus)
+SFNCLASS(1.0 - , OneMinusNode, oneMinus)
 
-SFNCLASS(-, NegativeNode, negativeNode, negative)
+SFNCLASS(-, NegativeNode, negative)
