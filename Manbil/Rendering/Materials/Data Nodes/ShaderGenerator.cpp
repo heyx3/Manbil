@@ -1,14 +1,14 @@
 #include "ShaderGenerator.h"
 
-#include "DataNodeIncludes.h"
 #include "../../../Math/Higher Math/Lighting.h"
 #include "../../../Material.h"
 #include "../../../DebugAssist.h"
+#include "SerializedMaterial.h"
+#include "DataNode.h"
 
 
 typedef ShaderGenerator SG;
 typedef ShaderHandler::Shaders Shaders;
-
 
 
 std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
@@ -57,17 +57,17 @@ std::string SG::GenerateUniformDeclarations(const UniformDictionary & dict)
 }
 
 
-SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels, DataLine> & channels,
-                                           UniformDictionary & uniforms, const ShaderInOutAttributes & attribs,
-                                           RenderingModes mode, bool useLighting, const LightSettings & settings,
-                                           GeoShaderData geometryShader)
+SG::GeneratedMaterial SG::GenerateMaterial(UniformDictionary & outUniforms, RenderingModes mode)
 {
+    const ShaderInOutAttributes & vertexIns = DataNode::VertexIns;
+    GeoShaderData & geometryShader = DataNode::GeometryShader;
+
     std::string vs, fs;
-    std::string error = GenerateVertFragShaders(vs, fs, uniforms, mode, useLighting, settings, attribs, channels, geometryShader);
+    std::string error = GenerateVertFragShaders(vs, fs, outUniforms, mode);
 
     std::string geo = "";
     if (geometryShader.IsValidData())
-        geo = GenerateGeometryShader(channels, geometryShader);
+        geo = GenerateGeometryShader();
 
     //Make sure the shaders were generated successfully.
     if (!error.empty())
@@ -76,12 +76,12 @@ SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels,
         return GeneratedMaterial(std::string("Error generating geometry shader: '") + geo + "'");
 
     if (geometryShader.IsValidData())
-        uniforms.AddUniforms(geometryShader.Params, true);
+        outUniforms.AddUniforms(geometryShader.Params, true);
 
 
     //Attempt to create the material.
 
-    Material * mat = new Material(vs, fs, uniforms, attribs, mode, useLighting, settings, geo);
+    Material * mat = new Material(vs, fs, outUniforms, vertexIns, mode, geo);
     GeneratedMaterial genMat(mat->GetErrorMsg());
 
     if (genMat.ErrorMessage.empty())
@@ -91,36 +91,36 @@ SG::GeneratedMaterial SG::GenerateMaterial(std::unordered_map<RenderingChannels,
     return genMat;
 }
 
-std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannels, DataLine> & vertexOutputs, const GeoShaderData & data)
+std::string SG::GenerateGeometryShader(void)
 {
+    const std::vector<ShaderOutput> & vertexOutputs = DataNode::MaterialOuts.VertexOutputs;
+    const GeoShaderData & data = DataNode::GeometryShader;
+
     if (!data.IsValidData()) return "ERROR: Invalid GeoShaderData instance.";
 
 
     //First generate the vertex inputs.
     std::string code = "//Inputs from Vertex Shader.\n";
-    for (auto iterator = vertexOutputs.begin(); iterator != vertexOutputs.end(); ++iterator)
+    for (unsigned int i = 0; i < vertexOutputs.size(); ++i)
     {
-        if (IsChannelVertexOutput(iterator->first, false))
+        unsigned int size = vertexOutputs[i].Value.GetSize();
+        if (size == 0)
         {
-            unsigned int vOutputIndex = GetVertexOutputNumber(iterator->first);
-            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(vOutputIndex);
-
-            int size = iterator->second.GetDataLineSize();
-            if (size == 0) return std::string() + "ERROR: size of data line output '" + ChannelToString(iterator->first) + "' is 0.";
-
-            code += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + "[" + std::to_string(PrimitiveTypeToNVertices(data.InputPrimitive)) + "];\n";
+            return "ERROR: size of vertex output index " + std::to_string(i) +
+                       ", '" + vertexOutputs[i].Value.GetNonConstantValue() + "', has a size of 0.";\
         }
+
+        code += "in " + VectorF(size).GetGLSLType() + " " + vertexOutputs[i].Name + "[" + std::to_string(PrimitiveTypeToNVertices(data.InputPrimitive)) + "];\n";
     }
     code += "\n";
 
 
-    //Next generate the vertex outputs.
+    //Next generate the geometry outputs.
     code += "//Shader outputs.\n";
-    unsigned int n = data.OutputTypes.GetNumbOutputs();
+    unsigned int n = data.OutputTypes.GetNumbAttributes();
     for (unsigned int i = 0; i < n; ++i)
     {
-        code += "out " + VectorF(data.OutputTypes.OutputSizes[i]).GetGLSLType() +
-                " " + data.OutputTypes.OutputNames[i] + ";\n";
+        code += "out " + VectorF(data.OutputTypes.GetAttributeSize(i)).GetGLSLType() + " " + data.OutputTypes.GetAttributeName(i) + ";\n";
     }
 
     //Now create the header.
@@ -136,68 +136,86 @@ std::string SG::GenerateGeometryShader(const std::unordered_map<RenderingChannel
     return code;
 }
 
-std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms,
-                                        RenderingModes mode, bool useLighting, const LightSettings & settings, const ShaderInOutAttributes & attribs,
-                                        std::unordered_map<RenderingChannels, DataLine> & channels,
-                                        GeoShaderData geoShaderData)
+std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader,
+                                        UniformDictionary & outUniforms, RenderingModes mode)
 {
+    const ShaderInOutAttributes & vertexIns = DataNode::VertexIns;
+    const MaterialOutputs & matData = DataNode::MaterialOuts;
+    const GeoShaderData & geoShaderData = DataNode::GeometryShader;
+
+
     bool useGeoShader = geoShaderData.IsValidData();
-    DataNode::SetGeoData(&geoShaderData);
 
-    AddMissingChannels(channels, mode, useLighting, settings);
-
-    //First, make sure the channels are all correctly set up.
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    //First make sure all shader outputs are valid sizes.
+    if (!matData.VertexPosOutput.GetSize() != 4)
+        return "Vertex pos output value must be size 4, but it is size " + std::to_string(matData.VertexPosOutput.GetSize());
+    for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
     {
-        //Make sure each channel has a valid input size. Vertex outputs can be any size.
-        bool isChanVertOut = IsChannelVertexOutput(iterator->first, false);
-        unsigned int channelSize = GetChannelInputSize(iterator->first),
-                     inputSize = iterator->second.GetDataLineSize();
-        if (!isChanVertOut && channelSize != inputSize)
-            return std::string() + "Channel " + ChannelToString(iterator->first) + "'s input must be size " +
-                                    std::to_string(channelSize) + ", but is size " + std::to_string(inputSize);
+        if (matData.FragmentOutputs[i].Value.GetSize() != 4)
+        {
+            return "Fragment output index " + std::to_string(i) +
+                        " must be size 4, but it is size " +
+                        std::to_string(matData.FragmentOutputs[i].Value.GetSize());
+        }
     }
 
-    //Make sure color outputs are defined correctly.
-    if (channels.find(RenderingChannels::RC_COLOR_OUT_4) != channels.end())
-        if (channels.find(RenderingChannels::RC_COLOR_OUT_3) == channels.end())
-            return "Color output 4 was set, but not color output 3!";
-    if (channels.find(RenderingChannels::RC_COLOR_OUT_3) != channels.end())
-        if (channels.find(RenderingChannels::RC_COLOR_OUT_2) == channels.end())
-            return "Color output 3 was set, but not color output 2!";
-
-
     //Get information about what external data each shader uses.
-    MaterialUsageFlags vertFlags, fragFlags;
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    MaterialUsageFlags vertFlags;
+    DataNode::CurrentShader = Shaders::SH_Vertex_Shader;
+    for (unsigned int i = 0; i < matData.VertexOutputs.size(); ++i)
     {
-        if (iterator->second.IsConstant()) continue;
+        if (matData.VertexOutputs[i].Value.IsConstant()) continue;
+
+        const ShaderOutput & vertOut = matData.VertexOutputs[i];
 
         try
         {
-            switch (GetShaderType(iterator->first))
-            {
-                case DataNode::Shaders::SH_Vertex_Shader:
-                    DataNode::SetShaderType(Shaders::SH_Vertex_Shader);
-                    iterator->second.GetDataNodeValue()->SetFlags(vertFlags, iterator->second.GetDataNodeLineIndex());
-                    break;
-                case DataNode::Shaders::SH_Fragment_Shader:
-                    DataNode::SetShaderType(Shaders::SH_Fragment_Shader);
-                    iterator->second.GetDataNodeValue()->SetFlags(fragFlags, iterator->second.GetDataNodeLineIndex());
-                    break;
+            if (vertOut.Value.GetNode() == 0)
+                return "Vertex output '" + vertOut.Name + "'s node value '" +
+                            vertOut.Value.GetNonConstantValue() + "' doesn't exist!";
 
-                default: assert(false);
-            }
+            vertOut.Value.GetNode()->SetFlags(vertFlags, vertOut.Value.GetNonConstantOutputIndex());
         }
         catch (int ex)
         {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return std::string() + "Error setting flags for channel " + ChannelToString(iterator->first) +
-                       ", node " + iterator->second.GetDataNodeValue()->GetName() + ": " +
-                       iterator->second.GetDataNodeValue()->GetError();
+            if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
+                return "Unexpected exception writing usage flags for vertex input '" + vertOut.Name +
+                            "' (the only expected one is DataNode::EXCEPTION_ASSERT_FAILED, " +
+                            std::to_string(DataNode::EXCEPTION_ASSERT_FAILED) + "): " + std::to_string(ex);
+            return "Error setting flags for vertex output '" + vertOut.Name +
+                        "', node '" + vertOut.Value.GetNonConstantValue() +
+                        ": " + vertOut.Value.GetNode()->GetError();
         }
     }
+    MaterialUsageFlags fragFlags;
+    DataNode::CurrentShader = Shaders::SH_Fragment_Shader;
+    for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
+    {
+        if (matData.FragmentOutputs[i].Value.IsConstant()) continue;
 
+        const ShaderOutput & fragOut = matData.FragmentOutputs[i];
+
+        try
+        {
+            if (fragOut.Value.GetNode() == 0)
+                return "Fragment output '" + fragOut.Name + "'s node value '" +
+                            fragOut.Value.GetNonConstantValue() + "' doesn't exist!";
+
+            fragOut.Value.GetNode()->SetFlags(fragFlags, fragOut.Value.GetNonConstantOutputIndex());
+        }
+        catch (int ex)
+        {
+            if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
+                return "Unexpected exception writing usage flags for fragment input '" + fragOut.Name +
+                            "' (the only expected one is DataNode::EXCEPTION_ASSERT_FAILED, " +
+                            std::to_string(DataNode::EXCEPTION_ASSERT_FAILED) + "): " + std::to_string(ex);
+
+            return "Error setting flags for fragment output '" + fragOut.Name +
+                "', node '" + fragOut.Value.GetNonConstantValue() +
+                ": " + fragOut.Value.GetNode()->GetError();
+        }
+    }
+    //PRIORITY: Finish.
 
     //Generate the vertex output/fragment input declarations.
     std::string vertOutput, fragInput;

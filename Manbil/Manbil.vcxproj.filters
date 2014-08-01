@@ -384,6 +384,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -870,6 +873,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\SerializedMaterial.h">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

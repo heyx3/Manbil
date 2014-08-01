@@ -3,6 +3,7 @@
 #include "../UniformCollections.h"
 #include "../MaterialUsageFlags.h"
 #include "ShaderGenerator.h"
+#include "SerializedMaterial.h"
 
 
 
