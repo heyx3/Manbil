@@ -46,7 +46,7 @@ public:
         return n;
     }
     //Returns 0 if the given index doesn't point to a valid attribute. Otherwise, returns the size of the attribute.
-    int GetAttributeSize(unsigned int index) const { return (IsValidAttribute(index) ? attributeSizes[index] : 0); }
+    unsigned int GetAttributeSize(unsigned int index) const { return (IsValidAttribute(index) ? (unsigned int)attributeSizes[index] : 0); }
     //Returns whether the given attribute will be normalized.
     bool GetAttributeNormalized(unsigned int index) const { return attributeNormalized[index]; }
     //Returns the name of the given attribute.
