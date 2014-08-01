@@ -149,7 +149,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ViewProjMatName.c_str(), viewProjMatL);
 }
 
-bool Material::Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & params)
+bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & params)
 {
     ClearAllRenderingErrors();
 

@@ -33,20 +33,3 @@ public:
     //Gets everything that's needed in a fragment shader before the actual main function (or helper functions).
     static std::string GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags);
 };
-
-
-//The different rendering passes.
-//TODO: Change this (regular render pass, emissive render pass, surface normal render pass, etc).
-enum RenderPasses
-{
-    //Render normals, depth, diffuse, etc. -- basic data, multiple render targets.
-    BaseComponents = 0,
-    //Render basic lighting, along with ambient occlusion -- two different render targets.
-    //If ambient occlusion isn't enabled, the ambient occlusion render target won't be rendered to.
-    CombineComponents,
-    //Apply ambient occlusion. Obviously this pass is only done if ambient occlusion is done.
-    ApplyOcclusion,
-
-    //The total number of different render passes.
-    Numb_Passes,
-};

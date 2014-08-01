@@ -41,13 +41,13 @@ public:
     RenderingModes GetMode(void) const { return mode; }
 
 #pragma warning(disable: 4100)
-    const UniformList & GetUniforms(RenderPasses pass) const { return uniforms; }
+    const UniformList & GetUniforms(void) const { return uniforms; }
 #pragma warning(default: 4100)
 
     int GetHashCode(void) const { return shaderProg; }
 
     //Returns whether the render was successful.
-    bool Render(RenderPasses pass, const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & unifDict);
+    bool Render(const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & unifDict);
 
 
 private:
