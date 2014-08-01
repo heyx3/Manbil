@@ -151,10 +151,17 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\CrossNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\DistanceNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DivideNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\LogNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\PowNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ReflectNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RefractNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\RemapNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp" />
@@ -308,7 +315,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\LogNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNode.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ModuloNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h" />

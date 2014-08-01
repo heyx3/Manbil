@@ -8,16 +8,34 @@ class LogNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "logNode"; }
+    virtual std::string GetTypeName(void) const override { return "log"; }
 
-    LogNode(const DataLine & value, DataLine base = DataLine(VectorF(2.0f)))
-        : DataNode(MakeVector(value, base), MakeVector(value.GetDataLineSize()))
+    virtual unsigned int GetOutputSize(unsigned int index) const override
     {
-        Assert(base.GetDataLineSize() == 1, "base must have a size of 1! Instead it has size " + std::to_string(base.GetDataLineSize()));
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return GetInputs()[0].GetSize();
+    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return GetInputs()[0].GetSize();
+    }
+
+    LogNode(const DataLine & value, DataLine base = DataLine(VectorF(2.0f)), std::string name = "")
+        : DataNode(MakeVector(value, base),
+                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new LogNode(ins[0], ins[1], _name)); },
+                   name)
+    {
+        Assert(base.GetSize() == 1, "Base must have a size of 1! It has size " + ToString(base.GetSize()));
     }
 
 
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
+
+    virtual std::string GetInputDescription(unsigned int index) const override
+    {
+        return (index == 0 ? "Value" : "Log Base");
+    }
 };

@@ -10,10 +10,17 @@ class DivideNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "divisionNode"; }
+    virtual std::string GetTypeName(void) const override { return "division"; }
 
-    DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide);
-    DivideNode(DataLine baseValue, DataLine toDivide);
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return GetName() + "_divided";
+    }
+
+    DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name = "");
+    DivideNode(DataLine baseValue, DataLine toDivide, std::string name = "") : DivideNode(baseValue, MakeVector(toDivide), name) { }
 
 
 protected:

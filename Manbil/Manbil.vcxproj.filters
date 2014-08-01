@@ -363,6 +363,27 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\RefractNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ReflectNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\PowNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\DistanceNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\CrossNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -638,9 +659,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ModuloNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\LogNode.h">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
@@ -849,6 +867,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.h">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

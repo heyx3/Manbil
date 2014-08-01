@@ -10,10 +10,13 @@ class MultiplyNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "multiplicationNode"; }
+    virtual std::string GetTypeName(void) const override { return "multiplication"; }
 
-    MultiplyNode(const std::vector<DataLine> & toMultiply);
-    MultiplyNode(DataLine toMultiply1, DataLine toMultiply2);
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
+
+    MultiplyNode(const std::vector<DataLine> & toMultiply, std::string name = "");
+    MultiplyNode(DataLine toMultiply1, DataLine toMultiply2, std::string name = "");
 
 
 protected:

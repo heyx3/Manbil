@@ -8,27 +8,19 @@ class ClampNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "clampNode"; }
+    virtual std::string GetTypeName(void) const override { return "clamp"; }
 
-    ClampNode(const DataLine & min, const DataLine & max, const DataLine & value)
-        : DataNode(MakeVector(min, max, value), MakeVector(min.GetDataLineSize()))
-    {
-        Assert(min.GetDataLineSize() == max.GetDataLineSize(),
-               "Min and max value aren't the same size!");
-        Assert(min.GetDataLineSize() == value.GetDataLineSize(),
-               "Min/max and value to clamp aren't the same size!");
-    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
+
+    ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name = "");
+
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
-        outCode += "\t" + vecType + " " + GetOutputName(0) +
-                    " = clamp(" + GetValueInput().GetValue() + ", " +
-                                  GetMinInput().GetValue() + ", " +
-                                  GetMaxInput().GetValue() + ");\n";
-    }
+    virtual void WriteMyOutputs(std::string & outCode) const override;
+
+    virtual std::string GetInputDescription(unsigned int index) const override;
 
 
 private:

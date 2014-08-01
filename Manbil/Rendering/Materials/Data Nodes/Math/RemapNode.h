@@ -9,6 +9,15 @@ class RemapNode : public DataNode
 {
 public:
 
+    virtual std::string GetTypeName(void) const override { return "remap"; }
+
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override
+    {
+        Assert(index == 0, "Invalid output index " + ToString(index));
+        return GetName() + "_remapped";
+    }
+
     RemapNode(const DataLine & toRemap, const DataLine & srcMin, const DataLine & srcMax,
               DataLine destMin = DataLine(VectorF(0.0f)), DataLine destMax = DataLine(VectorF(1.0f)),
               std::string name = "");
@@ -16,15 +25,15 @@ public:
 
 protected:
 
-    virtual void ResetOutputs(std::vector<unsigned int> & newOuts) const override;
     virtual void WriteMyOutputs(std::string & outOutputs) const override;
+
+    virtual std::string GetInputDescription(unsigned int index) const override;
 
 
 private:
 
-    typedef const DataLine & DataLineR;
-
-    std::vector<DataLine> MakeVector(DataLineR value, DataLineR srcMin, DataLineR srcMax, DataLineR destMin, DataLineR destMax);
+    std::vector<DataLine> MakeVector(const DataLine & value, const DataLine & srcMin, const DataLine & srcMax,
+                                     const DataLine & destMin, const DataLine & destMax);
 
     const DataLine & GetValueInput(void) const { return GetInputs()[0]; }
     const DataLine & GetSrcMinInput(void) const { return GetInputs()[1]; }

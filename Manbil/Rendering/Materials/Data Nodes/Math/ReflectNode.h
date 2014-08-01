@@ -2,31 +2,23 @@
 
 #include "../DataNode.h"
 
-//TODO: Pull into .cpp.
 
 //Outputs a vector reflected around another vector.
 class ReflectNode : public DataNode
 {
 public:
 
-    virtual std::string GetName(void) const override { return "reflectNode"; }
+    virtual std::string GetTypeName(void) const override { return "reflect"; }
 
-    ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal)
-        : DataNode(MakeVector(toReflect, reflectNormal), MakeVector(toReflect.GetDataLineSize()))
-    {
-        Assert(toReflect.GetDataLineSize() == reflectNormal.GetDataLineSize(),
-               "'toReflect' isn't the same size as 'reflectNormal'!");
-    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
+
+    ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, std::string name = "");
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        outCode += "\t" + VectorF(GetOutputs()[0]).GetGLSLType() + " " + GetOutputName(0) + " = reflect(" + GetInputs()[0].GetValue() + ", ";
-        
-        outCode += GetInputs()[1].GetValue();
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
-        outCode += ");\n";
-    }
+    virtual std::string GetInputDescription(unsigned int index) const override;
 };

@@ -1,41 +1,43 @@
 #include "DivideNode.h"
 
+
+
 unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & baseValue)
 {
     DataLine max = baseValue;
 
     for (unsigned int i = 0; i < toDivide.size(); ++i)
-        if (toDivide[i].GetDataLineSize() > max.GetDataLineSize())
+        if (toDivide[i].GetSize() > max.GetSize())
             max = toDivide[i];
 
-    return max.GetDataLineSize();
+    return max.GetSize();
 }
 
 
-DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide)
-    : DataNode(MakeVector(baseValue, 0, toDivide), MakeVector(GetMax(toDivide, baseValue)))
+unsigned int DivideNode::GetOutputSize(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return GetMax(std::vector<DataLine>(GetInputs().begin() + 1, GetInputs().end()), GetInputs()[0]);
+}
+
+DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name)
+    : DataNode(MakeVector(baseValue, 0, toDivide),
+               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new DivideNode(ins[0], std::vector<DataLine>(ins.begin() + 1, ins.end()), _name)); },
+               name)
 {
     Assert(toDivide.size() > 0, "'toDivide' vector must have at least one element!");
 
-    unsigned int size = GetOutputs()[0];
+    unsigned int size = GetOutputSize(0);
     for (unsigned int i = 0; i < toDivide.size(); ++i)
-        Assert(toDivide[i].GetDataLineSize() == size ||
-               toDivide[i].GetDataLineSize() == 1,
-               std::string() + "The " + std::to_string(i + 1) +
-               "-th element in 'toDivide' doesn't have a size of 1 or " + std::to_string(size) + "!");
-}
-DivideNode::DivideNode(DataLine toDivide1, DataLine toDivide2)
-    : DataNode(MakeVector(toDivide1, toDivide2), MakeVector(BasicMath::Max(toDivide1.GetDataLineSize(), toDivide2.GetDataLineSize())))
-{
-    Assert(toDivide1.GetDataLineSize() == toDivide2.GetDataLineSize() ||
-           toDivide1.GetDataLineSize() == 1 ||
-           toDivide2.GetDataLineSize() == 1,
-           "Numerator and Denominator must have same size (or at least one of them must have size 1)!");
+        Assert(toDivide[i].GetSize() == size ||
+               toDivide[i].GetSize() == 1,
+               std::string() + "The " + ToString(i + 1) +
+               "-th element in 'toDivide' doesn't have a size of 1 or " + ToString(size) + "!");
 }
 
 void DivideNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputs()[0]).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (unsigned int i = 0; i < GetInputs().size(); ++i)
