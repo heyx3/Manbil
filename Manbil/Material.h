@@ -27,7 +27,7 @@ public:
 
     //Geometry shader is optional.
     Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
-             const ShaderInOutAttributes & attributes, RenderingModes mode, bool isLit, LightSettings lightSettings,
+             const ShaderInOutAttributes & attributes, RenderingModes mode,
              std::string geometryShader = "");
     ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
 
@@ -39,8 +39,6 @@ public:
     void ClearErrorMsg(void) { errorMsg.clear(); }
 
     RenderingModes GetMode(void) const { return mode; }
-    bool GetIsLit(void) const { return isLit; }
-    const LightSettings & GetLightSettings(void) const { return lightSettings; }
 
 #pragma warning(disable: 4100)
     const UniformList & GetUniforms(RenderPasses pass) const { return uniforms; }
@@ -61,8 +59,6 @@ private:
 
     std::string errorMsg;
 
-    bool isLit;
-    LightSettings lightSettings;
     RenderingModes mode;
 
     UniformList uniforms;

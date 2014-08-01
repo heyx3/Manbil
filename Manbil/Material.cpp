@@ -3,8 +3,8 @@
 #include "Mesh.h"
 
 
-Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, const ShaderInOutAttributes & attrs, RenderingModes m, bool il, LightSettings ls, std::string geoShader)
-    : isLit(il), lightSettings(ls), mode(m), attributes(attrs)
+Material::Material(const std::string & vs, const std::string & fs, UniformDictionary & dict, const ShaderInOutAttributes & attrs, RenderingModes m, std::string geoShader)
+    : mode(m), attributes(attrs)
 {
     ShaderHandler::CreateShaderProgram(shaderProg);
 
