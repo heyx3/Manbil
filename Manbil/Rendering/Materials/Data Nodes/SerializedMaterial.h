@@ -39,8 +39,6 @@ public:
     virtual bool ReadData(DataReader * reader, std::string & outError) override;
 };
 
-
-
 //Represents a material as a set of DataNodes and DataLines.
 struct SerializedMaterial : public ISerializable
 {

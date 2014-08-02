@@ -215,56 +215,34 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
                 ": " + fragOut.Value.GetNode()->GetError();
         }
     }
-    //PRIORITY: Finish.
 
     //Generate the vertex output/fragment input declarations.
     std::string vertOutput, fragInput;
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    for (unsigned int vertOut = 0; vertOut < matData.VertexOutputs.size(); ++vertOut)
     {
-        if (IsChannelVertexOutput(iterator->first, false))
-        {
-            unsigned int vOutputIndex = GetVertexOutputNumber(iterator->first);
-            std::string name = MaterialConstants::VertexOutNameBase + std::to_string(vOutputIndex);
+        vertOutput += "out " + VectorF(matData.VertexOutputs[vertOut].Value.GetSize()).GetGLSLType() + " " +
+                            matData.VertexOutputs[vertOut].Name + ";\n";
 
-            vertOutput += "out " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
-
-            //If there is no geometry shader, the vertex outputs exactly match the fragment inputs.
-            //Otherwise, the fragment inputs will exactly match the geometry shader outputs (this is done right after this "for" loop).
-            if (!useGeoShader)
-                fragInput += "in " + VectorF(iterator->second.GetDataLineSize()).GetGLSLType() + " " + name + ";\n";
-        }
+        //If not using a geometry shader, the fragment inputs are the same as the vertex outputs.
+        if (!useGeoShader)
+            fragInput += "in " + VectorF(matData.VertexOutputs[vertOut].Value.GetSize()).GetGLSLType() + " " +
+                            matData.VertexOutputs[vertOut].Name + ";\n";
     }
+
+    //If using a geometry shader, the fragment inputs are the same as the geometry outputs.
     if (useGeoShader)
-    {
-        unsigned int numb = geoShaderData.OutputTypes.GetNumbOutputs();
-        for (unsigned int i = 0; i < numb; ++i)
-            fragInput += "in " + VectorF(geoShaderData.OutputTypes.OutputSizes[i]).GetGLSLType() + " " + geoShaderData.OutputTypes.OutputNames[i] + ";\n";
-    }
+        for (unsigned int geoOut = 0; geoOut < geoShaderData.OutputTypes.GetNumbAttributes(); ++geoOut)
+            fragInput += "in " + VectorF(geoShaderData.OutputTypes.GetAttributeSize(geoOut)).GetGLSLType() + " " +
+                            geoShaderData.OutputTypes.GetAttributeName(geoOut) + ";\n";
 
-    //Generate the color outputs.
+    //Generate the fragment outputs.
     std::string fragOutput;
-    std::unordered_map<RenderingChannels, std::string> outputNames;
-    if (channels.find(RenderingChannels::RC_COLOR_OUT_2) == channels.end())
-    {
-        fragOutput = "out vec4 " + MaterialConstants::FragmentOutName + ";\n";
-        outputNames[RenderingChannels::RC_Color] = MaterialConstants::FragmentOutName;
-    }
-    else
-    {
-        for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
-        {
-            if (!IsChannelColorOutput(iterator->first, true)) continue;
-
-            unsigned int numb = GetColorOutputNumber(iterator->first);
-            fragOutput += "layout (location = " + std::to_string(numb - 1) + ") out vec4 " +
-                          MaterialConstants::FragmentOutName + std::to_string(numb) + ";\n";
-            outputNames[iterator->first] = MaterialConstants::FragmentOutName + std::to_string(numb);
-        }
-    }
+    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+        fragOutput += "out vec4 " + matData.FragmentOutputs[fragOut].Name + ";\n";
 
 
     //Generate the headers for each shader.
-    std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, attribs, vertFlags),
+    std::string vertShader = MaterialConstants::GetVertexHeader(vertOutput, vertexIns, vertFlags),
                 fragShader = MaterialConstants::GetFragmentHeader(fragInput, fragOutput, fragFlags);
 
 
@@ -273,48 +251,73 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
     UniformDictionary vertexUniformDict, fragmentUniformDict;
     std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;
     std::string vertexCode, fragmentCode;
-    std::vector<unsigned int> vertexUniforms, fragmentUniforms,
-                              vertexFunctions, fragmentFunctions,
-                              vertexCodes, fragmentCodes;
+    std::vector<const DataNode*> vertexUniforms, fragmentUniforms,
+                           vertexFunctions, fragmentFunctions,
+                           vertexCodes, fragmentCodes;
 
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
+    DataNode::CurrentShader = Shaders::SH_Vertex_Shader;
+    for (int vertOut = -1; vertOut < (int)matData.VertexOutputs.size(); ++vertOut)
     {
-        const DataLine & data = iterator->second;
-        if (!data.IsConstant())
+        const DataLine & inDat = (vertOut < 0 ?
+                                     matData.VertexPosOutput :
+                                     matData.VertexOutputs[(unsigned int)vertOut].Value);
+        if (!inDat.IsConstant())
         {
-            std::string oldVCode = vertexCode,
-                        oldFCode = fragmentCode;
+            DataNode* node = inDat.GetNode();
+            if (node == 0) return "Node '" + inDat.GetNonConstantValue() + "' doesn't exist!";
+
+            //Track whether code was added.
+            unsigned int oldCodeLength = vertexCode.size();
+
             try
             {
-                switch (GetShaderType(iterator->first))
-                {
-                    case DataNode::Shaders::SH_Vertex_Shader:
-                        DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
-                        data.GetDataNodeValue()->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
-                        data.GetDataNodeValue()->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
-                        data.GetDataNodeValue()->WriteOutputs(vertexCode, vertexCodes);
-                        break;
-
-                    case DataNode::Shaders::SH_Fragment_Shader:
-                        DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
-                        data.GetDataNodeValue()->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
-                        data.GetDataNodeValue()->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
-                        data.GetDataNodeValue()->WriteOutputs(fragmentCode, fragmentCodes);
-                        break;
-
-                    default: assert(false);
-                }
+                node->GetParameterDeclarations(vertexUniformDict, vertexUniforms);
+                node->GetFunctionDeclarations(vertexFunctionDecls, vertexFunctions);
+                node->WriteOutputs(vertexCode, vertexCodes);
             }
             catch (int ex)
             {
-                assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-                return std::string() + "Error setting parameters, functions, and outputs for channel " +
-                    ChannelToString(iterator->first) + ", node " + data.GetDataNodeValue()->GetName() + ": " +
-                    data.GetDataNodeValue()->GetError();
+                if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
+                    return "Unexpected exception in node '" + node->GetName() + "': " + std::to_string(ex);
+
+                return "Error setting parameters, functions, and outputs for node '" + node->GetName() + "': " + node->GetError();
             }
 
-            if (oldVCode != vertexCode) vertexCode += "\n";
-            if (oldFCode != fragmentCode) fragmentCode += "\n";
+            //If code was added to the shader, add a line break for clarity.
+            if (oldCodeLength != vertexCode.size())
+                vertexCode += "\n";
+        }
+    }
+    DataNode::CurrentShader = Shaders::SH_Fragment_Shader;
+    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+    {
+        const DataLine & inDat = matData.FragmentOutputs[fragOut].Value;
+
+        if (!inDat.IsConstant())
+        {
+            DataNode* node = inDat.GetNode();
+            if (node == 0) return "Node '" + inDat.GetNonConstantValue() + "' doesn't exist!";
+
+            //Track whether code was added.
+            unsigned int oldCodeLength = fragmentCode.size();
+
+            try
+            {
+                node->GetParameterDeclarations(fragmentUniformDict, fragmentUniforms);
+                node->GetFunctionDeclarations(fragmentFunctionDecls, fragmentFunctions);
+                node->WriteOutputs(fragmentCode, fragmentCodes);
+            }
+            catch (int ex)
+            {
+                if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
+                    return "Unexpected exception in node '" + node->GetName() + "': " + std::to_string(ex);
+
+                return "Error setting parameters, functions, and outputs for node '" + node->GetName() + "': " + node->GetError();
+            }
+
+            //If code was added to the shader, add a line break for clarity.
+            if (oldCodeLength != fragmentCode.size())
+                fragmentCode += "\n";
         }
     }
 
@@ -344,7 +347,7 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
 
 
     //Set up the main() functions.
-    DataNode::SetShaderType(DataNode::Shaders::SH_Vertex_Shader);
+    DataNode::CurrentShader = Shaders::SH_Vertex_Shader;
     vertShader += "\n\
 void main()                                                                                             \n\
 {                                                                                                       \n\
@@ -352,16 +355,14 @@ void main()                                                                     
     " + vertexCode + "                                                                                  \n\
                                                                                                         \n\
 ";
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
-        if (IsChannelVertexOutput(iterator->first, false))
-            vertShader += "    " + (MaterialConstants::VertexOutNameBase + std::to_string(GetVertexOutputNumber(iterator->first))) +
-                          " = " + iterator->second.GetValue() + ";\n";
-    vertShader += 
+    for (unsigned int vertOut = 0; vertOut < matData.VertexOutputs.size(); ++vertOut)
+        vertShader += "    " + matData.VertexOutputs[vertOut].Name + " = " + matData.VertexOutputs[vertOut].Value.GetValue() + ";\n";
+    vertShader +=
 "                                                                                                        \n\
-    gl_Position = " + channels[RenderingChannels::RC_VertexPosOutput].GetValue() + ";              \n\
+    gl_Position = " + matData.VertexPosOutput.GetValue() + ";              \n\
 }";
 
-    DataNode::SetShaderType(DataNode::Shaders::SH_Fragment_Shader);
+    DataNode::CurrentShader = Shaders::SH_Fragment_Shader;
     fragShader += "                                                                                     \n\
 void main()                                                                                             \n\
 {                                                                                                       \n\
@@ -370,23 +371,15 @@ void main()                                                                     
                                                                                                         \n";
 
     //Now output the final color(s).
-    for (auto iterator = channels.begin(); iterator != channels.end(); ++iterator)
-    {
-        if (iterator->first == RC::RC_Color)
-        {
-            fragShader += "\t" + outputNames[iterator->first] + " = vec4(" + channels[RC::RC_Color].GetValue() + ", " + channels[RC::RC_Opacity].GetValue() + ");\n";
-        }
-        else if (IsChannelColorOutput(iterator->first, false))
-        {
-            fragShader += "\t" + outputNames[iterator->first] + " = " + channels[iterator->first].GetValue() + ";\n";
-        }
-    }
+    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+        fragShader += "\t" + matData.FragmentOutputs[fragOut].Name +
+                        " = vec4(" + matData.FragmentOutputs[fragOut].Value.GetValue() + ";\n";
     fragShader += "}";
 
 
+    //Output the generated shaders.
     outVShader += vertShader;
     outFShader += fragShader;
-
 
 
     //Finalize the uniforms.
