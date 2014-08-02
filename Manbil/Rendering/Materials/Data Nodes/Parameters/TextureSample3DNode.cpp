@@ -54,7 +54,7 @@ unsigned int TextureSample3DNode::GetOutputSize(unsigned int index) const
 
 TextureSample3DNode::TextureSample3DNode(const DataLine & uvs, std::string samplerName, std::string name)
     : DataNode(MakeVector(uvs),
-               [](std::vector<DataLine> & inputs, std::string name) { return DataNodePtr(new TextureSample3DNode(inputs[0])); },
+               []() { return DataNodePtr(new TextureSample3DNode(DataLine(VectorF(0.5f, 0.5f, 0.5f)))); },
                name),
       SamplerName(samplerName)
 {
@@ -71,6 +71,13 @@ void TextureSample3DNode::GetMyParameterDeclarations(UniformDictionary & uniform
 void TextureSample3DNode::WriteMyOutputs(std::string & outCode) const
 {
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + SamplerName + ", " + GetInputs()[0].GetValue() + ");\n";
+}
+
+
+std::string TextureSample3DNode::GetInputDescription(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return "Tex Coord 3D";
 }
 
 

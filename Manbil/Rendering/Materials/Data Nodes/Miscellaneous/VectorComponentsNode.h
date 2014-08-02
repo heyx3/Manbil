@@ -17,20 +17,12 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override;
 
 
-    VectorComponentsNode(const DataLine & inData, std::string name = "")
-        : DataNode(MakeVector(inData),
-                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new VectorComponentsNode(ins[0], _name)); },
-                   name) { }
+    VectorComponentsNode(const DataLine & inData, std::string name = "");
 
 
 protected:
 
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        //No need to write anything; we're just pulling out components of another vector.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
 };

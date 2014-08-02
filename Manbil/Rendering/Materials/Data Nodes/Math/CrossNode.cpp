@@ -13,7 +13,7 @@ std::string CrossNode::GetOutputName(unsigned int index) const
 
 CrossNode::CrossNode(const DataLine & firstL, const DataLine & secondL, std::string name)
     : DataNode(MakeVector(firstL, secondL),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new CrossNode(ins[0], ins[1], _name)); },
+               []() { return DataNodePtr(new CrossNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 1.0f, 0.0f)))); },
                name)
 {
     Assert(GetInputs()[0].GetSize() == 3, "First input isn't a vec3!");

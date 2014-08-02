@@ -25,7 +25,10 @@ public:
     //The shader currently being generated.
     static ShaderHandler::Shaders CurrentShader;
     
-    typedef DataNodePtr(*NodeFactory)(std::vector<DataLine> & inputs, std::string name);
+    typedef DataNodePtr(*NodeFactory)(void);
+
+    //Returns a pointer to 0 if the given type name is unknown.
+    static DataNodePtr CreateNode(std::string typeName);
 
 
     //Thrown when something about this DataNode (or an attempt to input/output this DataNode)

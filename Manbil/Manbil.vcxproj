@@ -150,6 +150,9 @@
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp" />
@@ -176,7 +179,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.cpp" />
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp" />
@@ -336,7 +339,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.h" />
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h" />

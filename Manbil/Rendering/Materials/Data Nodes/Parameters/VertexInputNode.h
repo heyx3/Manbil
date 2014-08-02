@@ -34,6 +34,5 @@ private:
 
     static DataNodePtr instance;
 
-    VertexInputNode(void)
-        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "vertexIns") { }
+    VertexInputNode(void);
 };

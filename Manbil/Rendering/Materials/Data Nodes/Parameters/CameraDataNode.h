@@ -28,12 +28,7 @@ protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override;
 
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        //No output writing needed.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 
 private:
@@ -44,6 +39,5 @@ private:
     static unsigned int GetCamUpwardOutputIndex(void) { return 2; }
     static unsigned int GetCamSidewaysOutputIndex(void) { return 3; }
 
-    CameraDataNode(void)
-        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "camDataUniforms") { }
+    CameraDataNode(void);
 };

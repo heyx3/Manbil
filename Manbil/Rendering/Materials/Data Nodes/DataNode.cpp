@@ -13,6 +13,12 @@ DataNode* DataNode::GetNode(std::string name)
     return found->second;
 }
 
+DataNodePtr DataNode::CreateNode(std::string typeName)
+{
+    auto found = FactoriesByTypename.find(typeName);
+    if (found == FactoriesByTypename.end()) return DataNodePtr(0);
+    return found->second();
+}
 
 DataNode::DataNode(const std::vector<DataLine> & _inputs, NodeFactory myFactory, std::string _name)
     : inputs(_inputs), name((_name.size() == 0) ? ("node" + std::to_string(GenerateUniqueID())) : _name)

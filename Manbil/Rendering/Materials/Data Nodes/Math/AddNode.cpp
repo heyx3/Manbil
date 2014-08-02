@@ -14,7 +14,7 @@ std::string AddNode::GetOutputName(unsigned int index) const
 
 AddNode::AddNode(const std::vector<DataLine> & toAdd, std::string name)
     : DataNode(toAdd,
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new AddNode(ins, _name)); },
+               []() { return DataNodePtr(new AddNode(DataLine(1.0f), DataLine(0.0f))); },
                name)
 {
     unsigned int size = toAdd[0].GetSize();

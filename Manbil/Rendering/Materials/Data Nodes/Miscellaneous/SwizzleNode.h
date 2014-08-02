@@ -29,12 +29,7 @@ public:
 
 protected:
 
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outStr) const override
-    {
-        //No need to write anything.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outStr) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
 

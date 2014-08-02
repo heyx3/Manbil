@@ -41,3 +41,6 @@ void GeometryInputNode::WriteMyOutputs(std::string & outCode) const
     //Don't actually output anything, since the output name is an "in" variable.
 }
 #pragma warning(default: 4100)
+
+
+GeometryInputNode::GeometryInputNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "geometryIns") { }

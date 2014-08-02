@@ -12,9 +12,9 @@ std::string ClampNode::GetOutputName(unsigned int index) const
     return GetName() = "_clamped";
 }
 
-ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name = "")
+ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
     : DataNode(MakeVector(min, max, value),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new ClampNode(ins[0], ins[1], ins[2], _name)); },
+               []() { return DataNodePtr(new ClampNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
                name)
 {
     Assert(min.GetSize() == max.GetSize(),

@@ -11,11 +11,7 @@ public:
     virtual std::string GetTypeName(void) const override { return "combineToMakeVector"; }
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return GetName() + "_combined";
-    }
+    virtual std::string GetOutputName(unsigned int index) const override;
 
 
     CombineVectorNode(const DataLine & input1, const DataLine & input2, std::string name = "") : CombineVectorNode(MakeVector(input1, input2), name) { }

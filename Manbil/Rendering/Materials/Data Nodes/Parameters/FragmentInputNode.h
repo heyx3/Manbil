@@ -36,8 +36,7 @@ private:
 
     static DataNodePtr instance;
 
-    FragmentInputNode(void)
-        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "fragIns") { }
+    FragmentInputNode(void);
 };
 
 #pragma warning(default: 4100)

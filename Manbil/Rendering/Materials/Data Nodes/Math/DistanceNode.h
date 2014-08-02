@@ -13,7 +13,7 @@ public:
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
-    DistanceNode(const DataLine & pos1, const DataLine & pos2, std::string name);
+    DistanceNode(const DataLine & pos1, const DataLine & pos2, std::string name = "");
 
 
 protected:

@@ -10,35 +10,15 @@ public:
 
     virtual std::string GetTypeName(void) const override { return "max"; }
 
-    virtual unsigned int GetOutputSize(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return BasicMath::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
-    }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return GetName() + "_maxed";
-    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
-    MaxNode(const DataLine & in1, const DataLine & in2, std::string name = "")
-        : DataNode(MakeVector(in1, in2),
-                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new MaxNode(ins[0], ins[1])); },
-                   name)
-    {
-        Assert(in1.GetSize() == 1 || in2.GetSize() == 1 ||
-               in1.GetSize() == in2.GetSize(),
-               "Both inputs need to be either size 1 or the same size!");
-    }
+    MaxNode(const DataLine & in1, const DataLine & in2, std::string name = "");
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
-        outCode += "\t" + vecType + " " + GetOutputName(0) + " = max(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
-    }
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 };
 
 //Outputs the min of an input.
@@ -48,33 +28,13 @@ public:
 
     virtual std::string GetTypeName(void) const override { return "min"; }
 
-    virtual unsigned int GetOutputSize(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return BasicMath::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
-    }
-    virtual std::string GetOutputName(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return GetName() + "_maxed";
-    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
-    MinNode(const DataLine & in1, const DataLine & in2, std::string name = "")
-        : DataNode(MakeVector(in1, in2),
-                   [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new MinNode(ins[0], ins[1])); },
-                   name)
-    {
-        Assert(in1.GetSize() == 1 || in2.GetSize() == 1 ||
-               in1.GetSize() == in2.GetSize(),
-               "Both inputs need to be either size 1 or the same size!");
-    }
+    MinNode(const DataLine & in1, const DataLine & in2, std::string name = "");
 
 
 protected:
 
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
-        outCode += "\t" + vecType + " " + GetOutputName(0) + " = min(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
-    }
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 };

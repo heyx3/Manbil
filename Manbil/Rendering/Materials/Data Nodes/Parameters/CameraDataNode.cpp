@@ -57,3 +57,13 @@ void CameraDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputI
         default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
     }
 }
+
+#pragma warning(disable: 4100)
+void CameraDataNode::WriteMyOutputs(std::string & outCode) const
+{
+    //No output writing needed.
+}
+#pragma warning(default: 4100)
+
+
+CameraDataNode::CameraDataNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "camDataUniforms") { }

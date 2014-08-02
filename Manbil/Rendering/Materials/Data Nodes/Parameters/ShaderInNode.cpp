@@ -60,7 +60,7 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 ShaderInNode::ShaderInNode(unsigned int size, std::string name, int vertIn, int fragIn, int geoIn, unsigned int geoArrIn)
     : vInputIndex(vertIn), gInputIndex(geoIn), fInputIndex(fragIn), gInputArrayIndex(geoArrIn), outSize(size),
     DataNode(std::vector<DataLine>(),
-             [](std::vector<DataLine> & inputs, std::string _name) { return DataNodePtr(new ShaderInNode(0, _name)); },
+             []() { return DataNodePtr(new ShaderInNode(0)); },
              name)
 {
 

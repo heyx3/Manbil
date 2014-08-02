@@ -61,3 +61,14 @@ void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
         default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
     }
 }
+
+
+#pragma warning(disable: 4100)
+void ProjectionDataNode::WriteMyOutputs(std::string & outCode) const
+{
+    //No output writing needed.
+}
+#pragma warning(default: 4100)
+
+
+ProjectionDataNode::ProjectionDataNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "projectionUniforms") { }

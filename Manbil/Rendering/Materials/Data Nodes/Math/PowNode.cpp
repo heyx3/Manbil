@@ -17,7 +17,7 @@ const DataLine & PowNode::GetExponentInput(void) const { return GetInputs()[1]; 
 
 PowNode::PowNode(const DataLine & base, const DataLine & exponent, std::string name = "")
     : DataNode(MakeVector(base, exponent),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new PowNode(ins[0], ins[1], _name)); },
+               []() { return DataNodePtr(new PowNode(DataLine(1.0f), DataLine(1.0f))); },
                name)
 {
     Assert(exponent.GetSize() == base.GetSize(), "'exponent' input is not the same size as 'base' input!");

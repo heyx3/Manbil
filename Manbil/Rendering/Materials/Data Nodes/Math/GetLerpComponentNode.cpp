@@ -14,7 +14,7 @@ std::string GetLerpComponentNode::GetOutputName(unsigned int index) const
 
 GetLerpComponentNode::GetLerpComponentNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
     : DataNode(MakeVector(min, max, value),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new GetLerpComponentNode(ins[0], ins[1], ins[2], _name)); },
+               []() { return DataNodePtr(new GetLerpComponentNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
                name)
 {
     Assert(min.GetSize() == max.GetSize(),

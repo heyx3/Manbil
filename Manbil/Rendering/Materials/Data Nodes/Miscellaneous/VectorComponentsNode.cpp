@@ -28,8 +28,23 @@ std::string VectorComponentsNode::GetOutputName(unsigned int index) const
     return ret;
 }
 
+VectorComponentsNode::VectorComponentsNode(const DataLine & inData, std::string name)
+    : DataNode(MakeVector(inData),
+               []() { return DataNodePtr(new VectorComponentsNode(DataLine(1.0f))); },
+               name)
+{
+
+}
+
 std::string VectorComponentsNode::GetInputDescription(unsigned int index) const
 {
     Assert(index == 0, "Invalid output index " + ToString(index));
     return "toSplit";
 }
+
+#pragma warning(disable: 4100)
+void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const
+{
+    //No need to write anything; we're just pulling out components of another vector.
+}
+#pragma warning(default: 4100)

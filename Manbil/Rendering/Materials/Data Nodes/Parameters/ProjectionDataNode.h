@@ -27,13 +27,7 @@ public:
 protected:
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override;
-
-#pragma warning(disable: 4100)
-    virtual void WriteMyOutputs(std::string & outCode) const override
-    {
-        //No output writing needed.
-    }
-#pragma warning(default: 4100)
+    virtual void WriteMyOutputs(std::string & outCode) const override;
 
 private:
 
@@ -44,6 +38,5 @@ private:
     static unsigned int GetZFarOutputIndex(void) { return 3; }
     static unsigned int GetFovOutputIndex(void) { return 4; }
 
-    ProjectionDataNode(void)
-        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "projectionUniforms") { }
+    ProjectionDataNode(void);
 };

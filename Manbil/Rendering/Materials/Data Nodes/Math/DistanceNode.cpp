@@ -13,7 +13,7 @@ std::string DistanceNode::GetOutputName(unsigned int index) const
 
 DistanceNode::DistanceNode(const DataLine & pos1, const DataLine & pos2, std::string name)
     : DataNode(MakeVector(pos1, pos2),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new DistanceNode(ins[0], ins[1], _name)); },
+               []() { return DataNodePtr(new DistanceNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(1.0f, 1.0f, 1.0f)))); },
                name)
 {
     Assert(pos1.GetSize() == pos2.GetSize(), "The two position inputs aren't the same size!");

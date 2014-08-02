@@ -1,5 +1,27 @@
 #include "WhiteNoiseNode.h"
 
+
+
+unsigned int WhiteNoiseNode::GetOutputSize(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return 1;
+}
+std::string WhiteNoiseNode::GetOutputName(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return GetName() + "_noiseVal";
+}
+
+WhiteNoiseNode::WhiteNoiseNode(const DataLine & seed, std::string name = "", DataLine randPeriodMultiplier = DataLine(43758.5453f))
+    : DataNode(MakeVector(seed, randPeriodMultiplier),
+               []() { return DataNodePtr(new WhiteNoiseNode(DataLine(5.31f))); },
+               name)
+{
+    Assert(seed.GetSize() == randPeriodMultiplier.GetSize(),
+           std::string() + "Seed and 'period multiplier' must be the same size!");
+}
+
 void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string multiplier;
@@ -33,4 +55,10 @@ void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
                 output = GetOutputName(0);
 
     outCode += "\t" + vecType + " " + output + " = fract(sin(dot(" + seed1 + ", " + seed2 + ")) * " + multiplier + ");\n";
+}
+
+std::string WhiteNoiseNode::GetInputDescription(unsigned int index) const
+{
+    Assert(index <= 1, "Invalid output index " + ToString(index));
+    return (index == 0 ? "Seed" : "RandPeriodMultiplier");
 }

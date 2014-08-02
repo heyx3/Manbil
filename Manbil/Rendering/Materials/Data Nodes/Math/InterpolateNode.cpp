@@ -1,8 +1,21 @@
 #include "InterpolateNode.h"
 
+
+unsigned int InterpolateNode::GetOutputSize(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return BasicMath::Max(GetMaxInput().GetSize(), GetInterpInput().GetSize());
+}
+std::string InterpolateNode::GetOutputName(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return GetName() + "_interpolated";
+}
+
+
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type, std::string name)
     : DataNode(MakeVector(min, max, interp),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new InterpolateNode(ins[0], ins[1], ins[2], IT_Linear, _name)); },
+               []() { return DataNodePtr(new InterpolateNode(DataLine(0.0f), DataLine(0.0f), DataLine(0.5f), IT_Linear)); },
                name),
       intType(type)
 {
@@ -34,7 +47,6 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
 
     outFuncs.insert(outFuncs.begin(), str);
 }
-
 void InterpolateNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string minMaxType = VectorF(GetMinInput().GetSize()).GetGLSLType(),
@@ -66,10 +78,12 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
     }
 }
 
+
 std::string InterpolateNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0 ? "Min" : (index == 1 ? "Max" : "To Interpolate"));
 }
+
 
 bool InterpolateNode::WriteExtraData(DataWriter * writer, std::string & outError) const
 {

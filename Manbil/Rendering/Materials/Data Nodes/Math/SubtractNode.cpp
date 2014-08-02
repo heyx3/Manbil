@@ -1,10 +1,7 @@
 #include "SubtractNode.h"
 
 
-DataNode::NodeFactory subtractNodeFactory = [](std::vector<DataLine> & ins, std::string name)
-{
-    return DataNodePtr(new SubtractNode(ins[0], std::vector<DataLine>(ins.begin() + 1, ins.end()), name));
-};
+DataNode::NodeFactory subtractNodeFactory = []() { return DataNodePtr(new SubtractNode(DataLine(VectorF(1.0f, 1.0f, 1.0f, 1.0f)), DataLine())); };
 
 
 SubtractNode::SubtractNode(const DataLine & baseVal, const std::vector<DataLine> & toSubtract, std::string name)
@@ -16,11 +13,6 @@ SubtractNode::SubtractNode(const DataLine & baseVal, const std::vector<DataLine>
         Assert(toSubtract[i].GetSize() == size,
                "Subtraction input " + ToString(i + 1) +
                    " is not the same size as the 'baseVal' input (" + ToString(size) + ")");
-}
-SubtractNode(const DataLine & baseValue, const DataLine & toSubtract, std::string name)
-    : SubtractNode(baseVal, MakeVector(toSubtract), name)
-{
-
 }
 
 void SubtractNode::WriteMyOutputs(std::string & outCode) const

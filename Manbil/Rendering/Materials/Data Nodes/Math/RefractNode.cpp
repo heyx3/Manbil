@@ -13,7 +13,7 @@ std::string RefractNode::GetOutputName(unsigned int index) const
 
 RefractNode::RefractNode(const DataLine & toRefract, const DataLine & refractNormal, const DataLine & indexOfRefraction, std::string name)
     : DataNode(MakeVector(toRefract, refractNormal, indexOfRefraction),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new RefractNode(ins[0], ins[1], ins[2], _name)); },
+               []() { return DataNodePtr(new RefractNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(1.0f))); },
                name)
 {
     Assert(toRefract.GetSize() == 3, "'toRefract' doesn't have a size of 3!");

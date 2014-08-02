@@ -1,9 +1,9 @@
 #include "SwizzleNode.h"
 
 
-DataNode::NodeFactory swizzleNodeFactory = [](std::vector<DataLine> & ins, std::string name)
+DataNode::NodeFactory swizzleNodeFactory = []()
 {
-    return DataNodePtr(new SwizzleNode(ins[0], SwizzleNode::C_X));
+    return DataNodePtr(new SwizzleNode(DataLine(VectorF(1.0f, 0.0f)), SwizzleNode::C_X));
 };
 
 
@@ -16,7 +16,7 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
 {
     Assert(index == 0, "Invalid output index " + ToString(index));
     
-    std::string outStr = GetInput().GetValue();
+    std::string outStr = GetInputs()[0].GetValue();
 
     if (GetOutputSize(0) > 1)
     {
@@ -72,6 +72,12 @@ std::string SwizzleNode::GetInputDescription(unsigned int index) const
     return "toSwizzle";
 }
 
+#pragma warning(disable: 4100)
+void SwizzleNode::WriteMyOutputs(std::string & outStr) const
+{
+    //No need to write anything.
+}
+#pragma warning(default: 4100)
 
 bool SwizzleNode::WriteExtraData(DataWriter * writer, std::string & outError) const
 {

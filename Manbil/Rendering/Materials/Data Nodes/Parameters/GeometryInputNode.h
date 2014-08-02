@@ -35,6 +35,5 @@ private:
 
     void AssertGeoShader(void) const;
 
-    GeometryInputNode(void)
-        : DataNode(std::vector<DataLine>(), [](std::vector<DataLine> & i, std::string n) { return instance; }, "geometryIns") { }
+    GeometryInputNode(void);
 };

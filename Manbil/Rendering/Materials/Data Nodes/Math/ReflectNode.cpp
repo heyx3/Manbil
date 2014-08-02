@@ -14,7 +14,7 @@ std::string ReflectNode::GetOutputName(unsigned int index) const
 
 ReflectNode::ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, std::string name = "")
     : DataNode(MakeVector(toReflect, reflectNormal),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new ReflectNode(ins[0], ins[1], _name)); },
+               []() { return DataNodePtr(new ReflectNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
                name)
 {
     Assert(toReflect.GetSize() == 3, "'toReflect' isn't size 3!");

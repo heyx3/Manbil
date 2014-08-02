@@ -10,11 +10,16 @@ unsigned int CombineVectorNode::GetOutputSize(unsigned int index) const
         count += GetInputs()[i].GetSize();
     return count;
 }
+std::string CombineVectorNode::GetOutputName(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return GetName() + "_combined";
+}
 
 
 CombineVectorNode::CombineVectorNode(const std::vector<DataLine> & inputs, std::string name)
     : DataNode(inputs,
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new CombineVectorNode(ins, _name)); },
+               []() { return DataNodePtr(new CombineVectorNode(DataLine(VectorF(1.0f)), DataLine(VectorF(1.0f)))); },
                name)
 {
     Assert(inputs.size() > 0, "There aren't any elements in the output vector!");

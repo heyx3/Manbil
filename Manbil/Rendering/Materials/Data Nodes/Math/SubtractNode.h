@@ -22,7 +22,7 @@ public:
     }
 
     SubtractNode(const DataLine & baseValue, const std::vector<DataLine> & toSubtract, std::string name = "");
-    SubtractNode(const DataLine & baseValue, const DataLine & toSubtract, std::string name = "");
+    SubtractNode(const DataLine & baseValue, const DataLine & toSubtract, std::string name = "") : SubtractNode(baseValue, MakeVector(toSubtract), name) { }
 
 
 protected:

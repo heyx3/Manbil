@@ -11,16 +11,8 @@ public:
 
     virtual std::string GetTypeName(void) const override { return "surfaceBrightnessCalc"; }
 
-    virtual unsigned int GetOutputSize(unsigned int index) const override
-    {
-        Assert(index == 0, "Invalid output index " + ToString(index));
-        return 1;
-    }
-    virtual std::string GetOutputName(unsigned int outputIndex) const override
-    {
-        Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
-        return GetName() + "_brightness";
-    }
+    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
                  std::string name = "", DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),

@@ -245,9 +245,6 @@
     <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
@@ -386,6 +383,18 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp">
       <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -750,9 +759,6 @@
     <ClInclude Include="Rendering\Materials\MaterialUsageFlags.h">
       <Filter>Rendering\Materials</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderComputationNodes.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
@@ -876,6 +882,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\SerializedMaterial.h">
       <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

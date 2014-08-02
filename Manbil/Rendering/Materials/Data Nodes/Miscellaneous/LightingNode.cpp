@@ -1,11 +1,24 @@
 #include "LightingNode.h"
 
 
+
+unsigned int LightingNode::GetOutputSize(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return 1;
+}
+std::string LightingNode::GetOutputName(unsigned int outputIndex) const
+{
+    Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
+    return GetName() + "_brightness";
+}
+
+
 LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
                            std::string name, DataLine ambient, DataLine diffuse,
                            DataLine specular, DataLine specIntensity, DataLine camPos)
     : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity, camPos, surfaceWorldPos, surfaceWorldNormal, lightDir),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new LightingNode(ins[0], ins[1], ins[2], _name, ins[3], ins[4], ins[5], ins[6], ins[7])); },
+               []() { return DataNodePtr(new LightingNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(VectorF(0.0f, 0.0, -1.0f)))); },
                name)
 {
     Assert(ambient.GetSize() == 1, "Ambient input must be size 1; is size " + ToString(ambient.GetSize()));

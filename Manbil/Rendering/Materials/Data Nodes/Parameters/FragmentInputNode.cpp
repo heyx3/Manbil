@@ -45,3 +45,6 @@ void FragmentInputNode::WriteMyOutputs(std::string & outCode) const
            std::string() + "Invalid shader type (must be Fragment): " + ToString(CurrentShader));
     //Dont' actually do anything, since the output is just an "in" variable.
 }
+
+
+FragmentInputNode::FragmentInputNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "fragIns") { }

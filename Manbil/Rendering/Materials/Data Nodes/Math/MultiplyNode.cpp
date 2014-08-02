@@ -23,7 +23,7 @@ std::string MultiplyNode::GetOutputName(unsigned int index) const
 
 MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply, std::string name)
     : DataNode(toMultiply,
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new MultiplyNode(ins, _name)); },
+               []() { return DataNodePtr(new MultiplyNode(DataLine(1.0f), DataLine(1.0f))); },
                name)
 {
     Assert(toMultiply.size() > 0, "Need at least one input for this MultiplyNode!");
@@ -34,11 +34,6 @@ MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply, std::string
         Assert(toMultiply[i].GetSize() == size || toMultiply[i].GetSize() == 1,
                "Input #" + ToString(i) + " is not size 1 or " + std::to_string(size));
     }
-}
-MultiplyNode::MultiplyNode(DataLine in1, DataLine in2, std::string name)
-    : MultiplyNode(MakeVector(in1, in2), name)
-{
-
 }
 
 void MultiplyNode::WriteMyOutputs(std::string & outCode) const

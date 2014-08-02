@@ -55,7 +55,7 @@ unsigned int TextureSampleCubemapNode::GetOutputIndex(ChannelsOut channel)
 
 TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, std::string _samplerName, std::string name)
     : DataNode(MakeVector(texCoords),
-               [](std::vector<DataLine> & inputs, std::string name) { return DataNodePtr(new TextureSampleCubemapNode(inputs[0])); },
+               []() { return DataNodePtr(new TextureSampleCubemapNode(DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
                name),
       SamplerName(_samplerName)
 {
@@ -72,6 +72,13 @@ void TextureSampleCubemapNode::GetMyParameterDeclarations(UniformDictionary & un
 void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 {
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + SamplerName + ", " + GetInputs()[0].GetValue() + ");\n";
+}
+
+
+std::string TextureSampleCubemapNode::GetInputDescription(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return "Tex Coord vector";
 }
 
 

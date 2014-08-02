@@ -2,34 +2,29 @@
 
 
 
-DataNode::NodeFactory customExprNodeFactory = [](std::vector<DataLine> & ins, std::string name)
-{
-    return DataNodePtr(new CustomExpressionNode("0.0f", 1, ins, name));
-};
-
-
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, std::string name)
-    : expression(expr), expressionOutputSize(outSize), DataNode(std::vector<DataLine>(), customExprNodeFactory, name)
+    : CustomExpressionNode(expr, outSize, std::vector<DataLine>(), name)
 {
 
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, std::string name)
-    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1), customExprNodeFactory, name)
+    : CustomExpressionNode(expr, outSize, MakeVector(in1), name)
 {
 
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, DataLine in2, std::string name)
-    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1, in2), customExprNodeFactory, name)
+    : CustomExpressionNode(expr, outSize, MakeVector(in1, in2), name)
 {
 
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, DataLine in1, DataLine in2, DataLine in3, std::string name)
-    : expression(expr), expressionOutputSize(outSize), DataNode(MakeVector(in1, in2, in3), customExprNodeFactory, name)
+    : CustomExpressionNode(expr, outSize, MakeVector(in1, in2, in3), name)
 {
 
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, const std::vector<DataLine> & ins, std::string name)
-    : expression(expr), expressionOutputSize(outSize), DataNode(ins, customExprNodeFactory, name)
+    : expression(expr), expressionOutputSize(outSize),
+      DataNode(ins, []() { return DataNodePtr(new CustomExpressionNode("0.0f", 1)); }, name)
 {
 
 }

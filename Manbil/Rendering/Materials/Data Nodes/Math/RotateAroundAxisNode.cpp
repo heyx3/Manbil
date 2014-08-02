@@ -6,7 +6,7 @@
 
 RotateAroundAxisNode::RotateAroundAxisNode(const DataLine & toRot, const DataLine & axis, const DataLine & angle, std::string name)
     : DataNode(MakeVector(toRot, axis, angle),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new RotateAroundAxisNode(ins[0], ins[1], ins[2], _name)); },
+               []() { return DataNodePtr(new RotateAroundAxisNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(0.0f))); },
                name)
 {
     Assert(toRot.GetSize() == 3, "Value to rotate should be size 3, but it is size " + std::to_string(toRot.GetSize()));

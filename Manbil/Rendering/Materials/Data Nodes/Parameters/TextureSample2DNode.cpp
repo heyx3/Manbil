@@ -56,7 +56,7 @@ unsigned int TextureSample2DNode::GetOutputSize(unsigned int index) const
 
 TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string samplerName, std::string name)
     : DataNode(MakeVector(uvs),
-               [](std::vector<DataLine> & inputs, std::string name) { return DataNodePtr(new TextureSample2DNode(inputs[0])); },
+               []() { return DataNodePtr(new TextureSample2DNode(DataLine(VectorF(0.5f, 0.5f)))); },
                name),
       SamplerName(samplerName)
 {
@@ -73,6 +73,13 @@ void TextureSample2DNode::GetMyParameterDeclarations(UniformDictionary & uniform
 void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 {
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture2D(" + SamplerName + ", " + GetInputs()[0].GetValue() + ");\n";
+}
+
+
+std::string TextureSample2DNode::GetInputDescription(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return "Tex Coord 2D";
 }
 
 

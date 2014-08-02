@@ -19,10 +19,15 @@ unsigned int DivideNode::GetOutputSize(unsigned int index) const
     Assert(index == 0, "Invalid output index " + ToString(index));
     return GetMax(std::vector<DataLine>(GetInputs().begin() + 1, GetInputs().end()), GetInputs()[0]);
 }
+std::string DivideNode::GetOutputName(unsigned int index) const
+{
+    Assert(index == 0, "Invalid output index " + ToString(index));
+    return GetName() + "_divided";
+}
 
 DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name)
     : DataNode(MakeVector(baseValue, 0, toDivide),
-               [](std::vector<DataLine> & ins, std::string _name) { return DataNodePtr(new DivideNode(ins[0], std::vector<DataLine>(ins.begin() + 1, ins.end()), _name)); },
+               []() { return DataNodePtr(new DivideNode(DataLine(1.0f), DataLine(0.0f))); },
                name)
 {
     Assert(toDivide.size() > 0, "'toDivide' vector must have at least one element!");

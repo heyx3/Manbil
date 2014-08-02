@@ -16,7 +16,7 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override;
 
     MultiplyNode(const std::vector<DataLine> & toMultiply, std::string name = "");
-    MultiplyNode(DataLine toMultiply1, DataLine toMultiply2, std::string name = "");
+    MultiplyNode(DataLine toMultiply1, DataLine toMultiply2, std::string name = "") : MultiplyNode(MakeVector(toMultiply1, toMultiply2), name) { }
 
 
 protected:
