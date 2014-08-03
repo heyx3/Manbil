@@ -1,52 +1,59 @@
 #include "WaterRendering.h"
 
 
+unsigned int WaterNode::GetOutputSize(unsigned int index) const
+{
+    Assert(index < 2, "Invalid output index " + ToString(index));
+    return 3;
+}
 std::string WaterNode::GetOutputName(unsigned int i) const
 {
-    Assert(i < 2, std::string() + "Invalid output index " + ToString(i));
-    return GetName() + std::to_string(GetUniqueID()) + (i == 0 ? "_waterHeightOffset" : "waterNormal");
+    Assert(i < 2, "Invalid output index " + ToString(i));
+    return GetName() + (i == 0 ? "_waterHeightOffset" : "waterNormal");
 }
+
 WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
-                     unsigned int _maxRipples, unsigned int _maxFlows)
+                     std::string name, unsigned int _maxRipples, unsigned int _maxFlows)
     : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput),
-               MakeVector(3, 3)),
+               []() { return DataNodePtr(new WaterNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 0.0f)))); },
+               name),
       maxRipples(_maxRipples), maxFlows(_maxFlows)
 {
-    Assert(vertexObjPosInput.GetDataLineSize() == 3,
-           std::string() + "vertex shader object-space position input must have size 3; has size " + ToString(vertexObjPosInput.GetDataLineSize()));
-    Assert(fragmentObjPosInput.GetDataLineSize() == 3,
-           std::string() + "fragment shader object-space position input must have size 3; has size " + ToString(fragmentObjPosInput.GetDataLineSize()));
+    Assert(vertexObjPosInput.GetSize() == 3,
+           "vertex shader object-space position input must have size 3; has size " + ToString(vertexObjPosInput.GetSize()));
+    Assert(fragmentObjPosInput.GetSize() == 3,
+           "fragment shader object-space position input must have size 3; has size " + ToString(fragmentObjPosInput.GetSize()));
 }
 
 
 bool WaterNode::UsesInput(unsigned int inputIndex) const
 {
-    switch (GetShaderType())
+    switch (CurrentShader)
     {
-        case Shaders::SH_Vertex_Shader:
+        case ShaderHandler::Shaders::SH_Vertex_Shader:
             return &GetInputs()[inputIndex] == &GetObjectPosVInput();
 
-        case Shaders::SH_Fragment_Shader:
+        case ShaderHandler::Shaders::SH_Fragment_Shader:
             return &GetInputs()[inputIndex] == &GetObjectPosVOutput();
 
         default:
-            Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
+            Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
             return DataNode::UsesInput(inputIndex);
     }
 }
 bool WaterNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
 {
-    switch (GetShaderType())
+    switch (CurrentShader)
     {
-    case Shaders::SH_Vertex_Shader:
-        return (inputIndex == 0);
+        case ShaderHandler::Shaders::SH_Vertex_Shader:
+            return (inputIndex == 0);
 
-    case Shaders::SH_Fragment_Shader:
-        return (inputIndex == 1);
+        case ShaderHandler::Shaders::SH_Fragment_Shader:
+            return (inputIndex == 1);
 
-    default:
-        Assert(false, std::string() + "Unknown shader type " + ToString(GetShaderType()));
-        return DataNode::UsesInput(inputIndex, outputIndex);
+        default:
+            Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
+            return DataNode::UsesInput(inputIndex, outputIndex);
     }
 }
 
@@ -133,85 +140,133 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) c
          float period = " + fap + ".w;                                                              \n\
          float timeSinceCreated = " + tsc + ";                                                      \n\
                                                                                                     \n\
-         float dist = dot(flowDir, horizontalPos);                                                  \n\
-                                                                                                    \n\
-         float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
-         float waveScale = amplitude;                                                               \n\
-                                                                                                    \n\
-         float heightOffset = sin(innerVal);                                                        \n\
-         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
-         offset += waveScale * heightOffset;                                                        \n\
-     }\n";
+                                                                                                             float dist = dot(flowDir, horizontalPos);                                                  \n\
+                                                                                                                                                                                                                 \n\
+                                                                                                                                                                                                                          float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
+                                                                                                                                                                                                                                   float waveScale = amplitude;                                                               \n\
+                                                                                                                                                                                                                                                                                                                                       \n\
+                                                                                                                                                                                                                                                                                                                                                float heightOffset = sin(innerVal);                                                        \n\
+                                                                                                                                                                                                                                                                                                                                                         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
+                                                                                                                                                                                                                                                                                                                                                                  offset += waveScale * heightOffset;                                                        \n\
+                                                                                                                                                                                                                                                                                                                                                                       }\n";
     }
     func +=
-"    return offset;                                                                                 \n\
-}\n";
+        "    return offset;                                                                                 \n\
+        }\n";
     outDecls.insert(outDecls.end(), func);
 
     func = std::string() +
-"struct NormalData                                                                      \n\
-{                                                                                       \n\
-    vec3 normal, tangent, bitangent;                                                    \n\
-};                                                                                      \n\
-NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
-{                                                                                       \n\
-    NormalData dat;                                                                     \n\
-    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
-    dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
-    dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
-                                                                                        \n\
-    vec2 epsilon = vec2(0.1);                                                           \n\
-                                                                                        \n\
-    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
-                                                                                        \n\
-    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
-         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
-         zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
-         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
-                                                                                        \n\
-    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
-    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
-         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
-         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
-         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
-                                                                                        \n\
-    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
-                       normalize(p_zero_one - p_zero_zero)),                            \n\
-         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
-                       normalize(p_zero_nOne - p_zero_zero)),                           \n\
-         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
-                                                                                        \n\
-    dat.normal = normFinal;                                                             \n\
-    return dat;                                                                         \n\
-}                                                                                       \n\
-";
+        "struct NormalData                                                                      \n\
+        {                                                                                       \n\
+            vec3 normal, tangent, bitangent;                                                    \n\
+            };                                                                                      \n\
+            NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
+            {                                                                                       \n\
+                NormalData dat;                                                                     \n\
+                    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
+                        dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
+                            dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
+                                                                                                                    \n\
+                                                                                                                        vec2 epsilon = vec2(0.1);                                                           \n\
+                                                                                                                                                                                                                \n\
+                                                                                                                                                                                                                    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
+                                                                                                                                                                                                                                                                                                            \n\
+                                                                                                                                                                                                                                                                                                                vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
+                                                                                                                                                                                                                                                                                                                         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
+                                                                                                                                                                                                                                                                                                                                  zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
+                                                                                                                                                                                                                                                                                                                                           zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                   \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                       vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                           vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                             p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         normalize(p_zero_one - p_zero_zero)),                            \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         normalize(p_zero_nOne - p_zero_zero)),                           \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              dat.normal = normFinal;                                                             \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  return dat;                                                                         \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }                                                                                       \n\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ";
     outDecls.insert(outDecls.end(), func);
 }
 void WaterNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string posOutput = GetOutputName(GetVertexPosOutputIndex()),
-                normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
+        normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
 
-    switch (GetShaderType())
+    switch (CurrentShader)
     {
-        case Shaders::SH_Vertex_Shader:
-            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
-            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
-            break;
+    case ShaderHandler::Shaders::SH_Vertex_Shader:
+        outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
+        outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
+        break;
 
-        case Shaders::SH_Fragment_Shader:
-            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
-            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
-            break;
+    case ShaderHandler::Shaders::SH_Fragment_Shader:
+        outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
+        outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
+        break;
 
-        default: assert(false);
+    default: assert(false);
     }
 }
 
+std::string WaterNode::GetInputDescription(unsigned int index) const
+{
+    return std::string("Object-space postion of the element in the ") + (index == 0 ? "Vertex" : "Fragment") + " shader";
+}
+
+bool WaterNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteUInt(maxFlows, "Max Number Flows", outError))
+    {
+        outError = "Error writing 'max flows' value of " + ToString(maxFlows) + ": " + outError;
+        return false;
+    }
+    if (!writer->WriteUInt(maxRipples, "Max Number Ripples", outError))
+    {
+        outError = "Error writing 'max ripples' value of " + ToString(maxRipples) + ": " + outError;
+        return false;
+    }
+
+    return true;
+}
+bool WaterNode::ReadExtraData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> tryMax = reader->ReadUInt(outError);
+    if (!tryMax.HasValue())
+    {
+        outError = "Error reading the max number of flows: " + outError;
+        return false;
+    }
+    maxFlows = tryMax.GetValue();
+
+    tryMax = reader->ReadUInt(outError);
+    if (!tryMax.HasValue())
+    {
+        outError = "Error reading the max number of ripples: " + outError;
+        return false;
+    }
+    maxRipples = tryMax.GetValue();
+
+    return true;
+}
 
 
+void PrepareWaterDataNodesToBeRead()
+{
+    WaterNode(DataLine(VectorF(1.0f, 1.0f, 1.0f)), DataLine(VectorF(1.0f, 1.0f, 1.0f)), "a", 0);
+}
+
+
+/*
 DataLine WaterSurfaceDistortNode::GetWaterSeedIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
 {
+
     return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex))), 0);
 }
 DataLine WaterSurfaceDistortNode::GetTimeIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
@@ -242,3 +297,4 @@ void WaterSurfaceDistortNode::WriteMyOutputs(std::string & strOut) const
                 "sin(" + GetPeriodInput().GetValue() + " * " +
                 GetTimeInput().GetValue() + "));\n";
 }
+*/

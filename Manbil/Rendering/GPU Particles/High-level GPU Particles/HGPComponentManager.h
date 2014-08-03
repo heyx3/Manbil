@@ -12,16 +12,7 @@ public:
     UniformDictionary & Params;
 
 
-    HGPComponentManager(UniformDictionary & params)
-        : Params(params)
-    {
-        HGPComponentManager & thisM = *this;
-        worldPosition = HGPComponentPtr(3)(new ConstantHGPComponent<3>(VectorF((unsigned int)3), thisM));
-        rotation = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1), thisM));
-        size = HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), thisM));
-        color = HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), thisM));
-        duration = HGPComponentPtr(1)(new ConstantHGPComponent<1>(VectorF((unsigned int)1, 5.0f), thisM));
-    }
+    HGPComponentManager(UniformDictionary & params, std::string _name = "");
 
 
     HGPComponentPtr(3) GetWorldPosition(void) const { return worldPosition; }
@@ -36,86 +27,24 @@ public:
     void SetRotation(HGPComponentPtr(1) newRotation) { SwapOutComponent(rotation, newRotation); }
     void SetSize(HGPComponentPtr(2) newSize) { SwapOutComponent(size, newSize); }
     void SetColor(HGPComponentPtr(4) newColor) { SwapOutComponent(color, newColor); }
-    void SetDuration(HGPComponentPtr(1) newDuration)
-    {
-        SwapOutComponent(duration, newDuration);
-        timeLerp = DataLine(DataNodePtr(new GetLerpComponentNode(DataLine(0.0f), duration->GetComponentOutput(), HGPGlobalData::ParticleElapsedTime)), 0);
-    }
+    void SetDuration(HGPComponentPtr(1) newDuration);
 
 
     //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
-    void SwapOutComponent(HGPComponentPtr(1) oldC, HGPComponentPtr(1) newC)
-    {
-        if (rotation.get() == oldC.get())
-            rotation = newC;
-        else rotation->SwapOutSubComponent(oldC, newC);
-
-        if (duration.get() == oldC.get())
-            duration = newC;
-        else duration->SwapOutSubComponent(oldC, newC);
-
-        worldPosition->SwapOutSubComponent(oldC, newC);
-        size->SwapOutSubComponent(oldC, newC);
-        color->SwapOutSubComponent(oldC, newC);
-    }
+    void SwapOutComponent(HGPComponentPtr(1) oldC, HGPComponentPtr(1) newC);
     //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
-    void SwapOutComponent(HGPComponentPtr(2) oldC, HGPComponentPtr(2) newC)
-    {
-        if (size.get() == oldC.get())
-            size = newC;
-        else size->SwapOutSubComponent(oldC, newC);
-
-        worldPosition->SwapOutSubComponent(oldC, newC);
-        rotation->SwapOutSubComponent(oldC, newC);
-        color->SwapOutSubComponent(oldC, newC);
-        duration->SwapOutSubComponent(oldC, newC);
-    }
+    void SwapOutComponent(HGPComponentPtr(2) oldC, HGPComponentPtr(2) newC);
     //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
-    void SwapOutComponent(HGPComponentPtr(3) oldC, HGPComponentPtr(3) newC)
-    {
-        if (worldPosition.get() == oldC.get())
-            worldPosition = newC;
-        else worldPosition->SwapOutSubComponent(oldC, newC);
-
-        size->SwapOutSubComponent(oldC, newC);
-        rotation->SwapOutSubComponent(oldC, newC);
-        color->SwapOutSubComponent(oldC, newC);
-        duration->SwapOutSubComponent(oldC, newC);
-    }
+    void SwapOutComponent(HGPComponentPtr(3) oldC, HGPComponentPtr(3) newC);
     //Searches down this component's directed graph recursively and replaces all instances of the given old component with the given new component.
-    void SwapOutComponent(HGPComponentPtr(4) oldC, HGPComponentPtr(4) newC)
-    {
-        if (color.get() == oldC.get())
-            color = newC;
-        else color->SwapOutSubComponent(oldC, newC);
-
-        size->SwapOutSubComponent(oldC, newC);
-        rotation->SwapOutSubComponent(oldC, newC);
-        worldPosition->SwapOutSubComponent(oldC, newC);
-        duration->SwapOutSubComponent(oldC, newC);
-    }
+    void SwapOutComponent(HGPComponentPtr(4) oldC, HGPComponentPtr(4) newC);
 
 
-    void Initialize(void) { worldPosition->InitializeComponent(); rotation->InitializeComponent(); size->InitializeComponent(); color->InitializeComponent(); duration->InitializeComponent(); }
-    void Update(float elapsedTime)
-    {
-        worldPosition->UpdateComponent();
-        rotation->UpdateComponent();
-        size->UpdateComponent();
-        color->UpdateComponent();
-        duration->UpdateComponent();
-
-        Params.FloatUniforms[HGPGlobalData::ParticleElapsedTimeUniformName].Value[0] += elapsedTime;
-    }
+    void Initialize(void);
+    void Update(float elapsedTime);
 
     //Puts DataLines into the given output map to create particles that behave according to this manager's components.
-    void SetGPUPOutputs(std::unordered_map<GPUPOutputs, DataLine> & outputs)
-    {
-        outputs[GPUPOutputs::GPUP_WORLDPOSITION] = worldPosition->GetComponentOutput();
-        outputs[GPUPOutputs::GPUP_QUADROTATION] = rotation->GetComponentOutput();
-        outputs[GPUPOutputs::GPUP_SIZE] = size->GetComponentOutput();
-        outputs[GPUPOutputs::GPUP_COLOR] = color->GetComponentOutput();
-    }
+    void SetGPUPOutputs(std::unordered_map<GPUPOutputs, DataLine> & outputs);
 
 
 private:
@@ -126,5 +55,9 @@ private:
     HGPComponentPtr(4) color;
     HGPComponentPtr(1) duration;
 
+    std::string name;
+    static unsigned int nameCounter;
+
+    DataNodePtr timeLerpComponentNode;
     DataLine timeLerp;
 };

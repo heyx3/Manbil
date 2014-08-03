@@ -1,5 +1,6 @@
 #include "SpecialHGPComponents.h"
 
+
 DataLine ConstantAccelerationHGPComponent::GenerateComponentOutput(void) const
 {
     const DataLine & t = HGPGlobalData::ParticleElapsedTime;
@@ -10,7 +11,11 @@ DataLine ConstantAccelerationHGPComponent::GenerateComponentOutput(void) const
     accelTerm.insert(accelTerm.end(), t);
     accelTerm.insert(accelTerm.end(), acceleration->GetComponentOutput());
 
-    return DataLine(DataNodePtr(new AddNode(initialPosition->GetComponentOutput(),
-                                            DataLine(DataNodePtr(new MultiplyNode(t, initialVelocity->GetComponentOutput())), 0),
-                                            DataLine(DataNodePtr(new MultiplyNode(accelTerm)), 0))), 0);
+    velocityMult = DataNodePtr(new MultiplyNode(t, initialVelocity->GetComponentOutput(), GetName() + "_velocityTerm"));
+    accelMult = DataNodePtr(new MultiplyNode(accelTerm, GetName() + "_accelTerm"));
+
+    addResult = DataNodePtr(new AddNode(initialPosition->GetComponentOutput(), DataLine(velocityMult->GetName()),
+                                        DataLine(accelMult->GetName()), GetName() + "_addResult"));
+
+    return DataLine(addResult->GetName());
 }

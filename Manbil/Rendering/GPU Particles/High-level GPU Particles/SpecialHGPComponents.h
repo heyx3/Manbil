@@ -3,6 +3,8 @@
 #include "HGPComponentManager.h"
 
 
+//TODO: Move into .cpp.
+
 
 //Outputs the world position given a constant acceleration and initial velocity/position.
 class ConstantAccelerationHGPComponent : public HGPOutputComponent<3>
@@ -98,6 +100,7 @@ protected:
 
 private:
 
+    mutable DataNodePtr velocityMult, accelMult, addResult;
     HGPComponentPtr(3) acceleration, initialVelocity, initialPosition;
 };
 
@@ -174,14 +177,17 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        return DataLine(DataNodePtr(new AddNode(initialPos->GetComponentOutput(),
-                                                DataLine(DataNodePtr(new MultiplyNode(HGPGlobalData::ParticleElapsedTime,
-                                                                                      velocity->GetComponentOutput())), 0))), 0);
+        multTime = DataNodePtr(new MultiplyNode(HGPGlobalData::ParticleElapsedTime,
+                                                velocity->GetComponentOutput()));
+        addMultTime = DataNodePtr(new AddNode(initialPos->GetComponentOutput(),
+                                              DataLine(addMultTime->GetName())));
+        return DataLine(addMultTime->GetName());
     }
 
 
 private:
 
+    mutable DataNodePtr multTime, addMultTime;
     HGPComponentPtr(3) initialPos, velocity;
 };
 
@@ -214,17 +220,29 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine threeRandSeeds(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]), HGPGlobalData::GetRandSeed(randSeeds[1]), HGPGlobalData::GetRandSeed(randSeeds[2]))), 0);
-
-        DataLine dir(DataNodePtr(new NormalizeNode(DataLine(DataNodePtr(new InterpolateNode(DataLine(Vector3f(-1.0f, -1.0f, -1.0f)), DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
-                                                                                            threeRandSeeds, InterpolateNode::InterpolationType::IT_Linear)), 0))), 0);
-        DataLine radius(DataNodePtr(new MultiplyNode(DataLine(sphereRadius), HGPGlobalData::GetRandSeed(randSeeds[3]))), 0);
-
-        return DataLine(DataNodePtr(new AddNode(DataLine(sphereCenter),
-                                                DataLine(DataNodePtr(new MultiplyNode(dir, radius)), 0))), 0);
+        combineSeeds = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
+                                                         HGPGlobalData::GetRandSeed(randSeeds[1]),
+                                                         HGPGlobalData::GetRandSeed(randSeeds[2]),
+                                                         GetName() + "_combineSeeds"));
+        interpolateSeeds = DataNodePtr(new InterpolateNode(DataLine(Vector3f(-1.0f, -1.0f, -1.0f)),
+                                                           DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
+                                                           DataLine(combineSeeds->GetName()),
+                                                           InterpolateNode::InterpolationType::IT_Linear,
+                                                           GetName() + "_interpolated"));
+        normalizeInterp = DataNodePtr(new NormalizeNode(DataLine(interpolateSeeds->GetName())));
+        multiplyRadius = DataNodePtr(new MultiplyNode(DataLine(sphereRadius),
+                                                      HGPGlobalData::GetRandSeed(randSeeds[3]),
+                                                      DataLine(normalizeInterp->GetName()),
+                                                      GetName() + "_multiplyRadius"));
+        finalAdd = DataNodePtr(new AddNode(DataLine(sphereCenter), DataLine(multiplyRadius->GetName())));
+        
+        return DataLine(finalAdd->GetName());
     }
 
 private:
+    
+    mutable DataNodePtr combineSeeds, interpolateSeeds, normalizeInterp,
+                        multiplyRadius, finalAdd;
 
     Vector3f sphereCenter;
     float sphereRadius;
@@ -259,12 +277,21 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine threeRandSeeds(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]), HGPGlobalData::GetRandSeed(randSeeds[1]), HGPGlobalData::GetRandSeed(randSeeds[2]))), 0);
-        return DataLine(DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max), threeRandSeeds, InterpolateNode::InterpolationType::IT_Linear)), 0);
+        randSeedsPtr = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
+                                                         HGPGlobalData::GetRandSeed(randSeeds[1]),
+                                                         HGPGlobalData::GetRandSeed(randSeeds[2]),
+                                                         GetName() + "_randSeeds"));
+        interpolateSeeds = DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max),
+                                                           DataLine(randSeedsPtr->GetName()),
+                                                           InterpolateNode::IT_Linear));
+        
+        return DataLine(interpolateSeeds->GetName());
     }
 
 
 private:
+
+    mutable DataNodePtr randSeedsPtr, interpolateSeeds;
 
     Vector3f min;
     Vector3f max;

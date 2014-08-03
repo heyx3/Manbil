@@ -396,6 +396,15 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\DataNodeIncludes.cpp">
+      <Filter>Rendering\Materials\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.cpp">
+      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -884,6 +893,9 @@
       <Filter>Rendering\Materials\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>

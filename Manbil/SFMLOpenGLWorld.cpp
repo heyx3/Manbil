@@ -6,6 +6,9 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include "Rendering/GUI/TextRenderer.h"
+#include "Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "Rendering/Water/WaterRendering.h"
+#include "Rendering/PostProcessing/PostProcessData.h"
 
 //The following #include statements are just for "InitializeStaticSystems".
 #include "Oculus/OculusDevice.h"
@@ -16,6 +19,13 @@
 std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRenderer, bool drawingQuad)
 {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+
+    //Set up data nodes to be readable from a file.
+    PrepareBasicNodesToBeRead();
+    PrepareWaterDataNodesToBeRead();
+    PreparePpeEffectsToBeRead();
+
 
     if (rift)
     {

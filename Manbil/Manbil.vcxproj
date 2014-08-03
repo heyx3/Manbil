@@ -142,6 +142,7 @@
     <ClCompile Include="RenderingState.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp" />
+    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp" />
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp" />
@@ -150,9 +151,11 @@
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\DataNodeIncludes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp" />
@@ -310,6 +313,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\SerializedMaterial.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ClampNode.h" />

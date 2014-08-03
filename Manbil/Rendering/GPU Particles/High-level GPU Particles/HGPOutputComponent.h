@@ -28,13 +28,16 @@ namespace HGPGlobalData
     //The exception that is thrown if an instance of this component fails a sanity check.
     extern const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT;
 
+    extern const DataNodePtr _ParticleIDInputPtr, _ParticleRandSeedInputs1Ptr, _ParticleRandSeedInputs2Ptr;
     extern const DataLine ParticleIDInput, ParticleRandSeedInputs1, ParticleRandSeedInputs2, ParticleUVs;
+
     extern const DataNodePtr ParticleRandSeedComponents1, ParticleRandSeedComponents2;
 
     //Assuming the given value is between 0 and 5, gets the corresponding particle rand seed input.
     extern DataLine GetRandSeed(unsigned int randSeedIndex);
     
     extern const std::string ParticleElapsedTimeUniformName;
+    extern const DataNodePtr _ParticleElapsedTimePtr;
     extern const DataLine ParticleElapsedTime;
 
     extern UniformDictionary & GetParams(HGPComponentManager & manager);
@@ -74,12 +77,17 @@ public:
     HGPComponentManager & Manager;
     UniformDictionary & GetParams(void) const { return HGPGlobalData::GetParams(Manager); }
 
+    std::string GetName(void) const { return name; }
 
-    HGPOutputComponent(HGPComponentManager & manager)
-        : Manager(manager)
+
+    HGPOutputComponent(HGPComponentManager & manager, std::string _name = "")
+        : Manager(manager), name(_name)
     {
-        id = HGPGlobalData::NextHGPComponentID;
-        HGPGlobalData::NextHGPComponentID += 1;
+        if (name.empty())
+        {
+            name = "HGPOut" + std::to_string(HGPGlobalData::NextHGPComponentID);
+            HGPGlobalData::NextHGPComponentID += 1;
+        }
     }
     HGPOutputComponent(const HGPOutputComponent & cpy); //Intentionally not implemented.
 
@@ -138,9 +146,6 @@ public:
         }
         return componentOutput;
     }
-
-    unsigned int GetUniqueID(void) const { return id; }
-    std::string GetUniqueIDStr(void) const { return std::to_string(id); }
 
     std::string GetError(void) const { return errorMsg; }
     bool HasError(void) const { return !errorMsg.empty(); }
@@ -208,7 +213,7 @@ protected:
 private:
 
     mutable DataLine componentOutput;
-    unsigned int id;
+    std::string name;
 
     mutable bool createdComponentYet = false;
 
@@ -230,7 +235,8 @@ public:
     VectorF GetConstantValue(void) const { return constValue; }
     void SetConstantValue(VectorF newVal) const { constValue = newVal; UpdateComponentOutput(); }
 
-    ConstantHGPComponent(const VectorF & constantValue, HGPComponentManager & manager) : HGPOutputComponent(manager), constValue(constantValue) { }
+    ConstantHGPComponent(const VectorF & constantValue, HGPComponentManager & manager, std::string name = "")
+        : HGPOutputComponent<ComponentSize>(manager, name), constValue(constantValue) { }
 
     virtual bool IsConstant(void) const override { return true; }
 
@@ -265,8 +271,9 @@ public:
     std::string GetSamplerName(void) const { return std::string("u_gradientSampler") + GetUniqueIDStr(); }
     
 
-    GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality, HGPComponentManager & manager)
-        : HGPOutputComponent(manager), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality),
+    GradientHGPComponent(const Gradient<ComponentSize> & gradientVal, const HGPTextureQuality & gradientTextureQuality,
+                         HGPComponentManager & manager, std::string name = "")
+        : HGPOutputComponent<ComponentSize>(manager, name), gradientValue(gradientVal), gradientTexQuality(gradientTextureQuality),
           gradientTex(TextureSampleSettings(), PixelSizes::PS_8U, false)
     {
 
@@ -328,17 +335,23 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        DataLine uvLookup(DataNodePtr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager), DataLine(VectorF(0.5f)))), 0);
-        DataLine textureSample(DataNodePtr(new TextureSample2DNode(uvLookup, GetSamplerName())), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+        uvLookupPtr = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager),
+                                                        DataLine(VectorF(0.5f)),
+                                                        GetName() + "_uvLookup"));
+        textureSamplePtr = DataNodePtr(new TextureSample2DNode(DataLine(GetName() + "_uvLookup"),
+                                                               GetSamplerName(), GetName() + "_texSample"));
+
+        DataLine texSampleOut(textureSamplePtr->GetName(), TextureSample2DNode::GetOutputIndex(CO_AllChannels));
 
         switch (ComponentSize)
         {
-            case 1: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X)), 0);
-            case 2: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
-            case 3: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
-            case 4: return DataLine(DataNodePtr(new SwizzleNode(textureSample, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
+            case 1: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X)), 0);
+            case 2: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
+            case 3: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
+            case 4: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
             default:
-                Assert(std::string() + "Invalid ComponentSize value of " + std::to_string(ComponentSize) + "; must be between 1-4 inclusive!");
+                Assert("Invalid ComponentSize value of " + std::to_string(ComponentSize) +
+                           "; must be between 1-4 inclusive!");
                 return DataLine(DataNodePtr(), 666);
         }
     }
@@ -346,7 +359,8 @@ protected:
 
 private:
 
-    //Given a float array of size "LookupTextureWidth", fills it with the values of the gradient.
+    //Given a float array whose size is specified in the texture quality settings
+    //    for this component, fills the array with the values of the gradient.
     void GenerateTextureData(VectorF * values) const
     {
         const float toTValue = 1.0f / (float)(LookupTextureWidth - 1);
@@ -358,6 +372,8 @@ private:
     HGPTextureQuality gradientTexQuality;
 
     MTexture2D gradientTex;
+
+    mutable DataNodePtr uvLookupPtr, textureSamplePtr, swizzlePtr;
 };
 
 
@@ -538,13 +554,18 @@ protected:
         for (unsigned int i = 0; i < ComponentSize; ++i)
             randSeeds.insert(randSeeds.end(), HGPGlobalData::GetRandSeed(randSeedIndex[i]));
 
-        DataLine finalSeed(DataNodePtr(new CombineVectorNode(randSeeds)), 0);
+        finalSeed = DataNodePtr(new CombineVectorNode(randSeeds, GetName() + "_finalSeed"));
+        interpolatedValue = DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(),
+                                                            DataLine(GetName() + "_finalSeed"),
+                                                            InterpolateNode::IT_Linear));
 
-        return DataLine(DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(), finalSeed, InterpolateNode::InterpolationType::IT_Linear)), 0);
+        return DataLine(interpolatedValue->GetName(), 0);
     }
 
 private:
 
     unsigned int randSeedIndex[ComponentSize];
     HGPComponentPtr(ComponentSize) min, max;
+
+    mutable DataNodePtr finalSeed, interpolatedValue;
 };

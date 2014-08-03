@@ -22,9 +22,18 @@ public:
     static GeoShaderData GeometryShader;
     //The vertex inputs.
     static ShaderInOutAttributes VertexIns;
+
+    static void ClearMaterialData(void)
+    {
+        MaterialOuts.ClearData();
+        GeometryShader.MaxVertices = 0;
+        GeometryShader.ShaderCode = "";
+    }
+
     //The shader currently being generated.
     static ShaderHandler::Shaders CurrentShader;
     
+
     typedef DataNodePtr(*NodeFactory)(void);
 
     //Returns a pointer to 0 if the given type name is unknown.

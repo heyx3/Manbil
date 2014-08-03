@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Materials/Data Nodes/SerializedMaterial.h"
 
 
 
@@ -24,12 +25,16 @@ public:
     static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
 
 
-    virtual std::string GetName(void) const override { return "waterNode"; }
+    virtual std::string GetTypeName(void) const override { return "Water Computations"; }
+
+    virtual unsigned int GetNumbOutputs(void) const override { return 2; }
+
+    virtual unsigned int GetOutputSize(unsigned int i) const override;
     virtual std::string GetOutputName(unsigned int i) const override;
 
     //Takes as input the input for object-space vertex/fragment position (one for each shader, Vertex and Fragment).
     //Also takes in the uniform values for ripples/flows.
-    WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
+    WaterNode(const DataLine & objPos_VertexShader, const DataLine & objPos_FragmentShader, std::string name = "",
               unsigned int _maxRipples = 0, unsigned int _maxFlows = 0);
 
 protected:
@@ -41,17 +46,25 @@ protected:
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const override;
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
+    virtual std::string GetInputDescription(unsigned int index) const override;
+
+    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+
+
 private:
 
     unsigned int maxRipples, maxFlows;
-
 
     const DataLine & GetObjectPosVInput(void) const { return GetInputs()[0]; }
     const DataLine & GetObjectPosVOutput(void) const { return GetInputs()[1]; }
 };
 
 
+//Sets up these water-related DataNodes to be readable from a file.
+extern void PrepareWaterDataNodesToBeRead(void);
 
+/*
 //A DataNode that outputs an offset for UV coordinates that creates an interesting water surface distortion effect.
 //NOTE: This node only works in fragment shaders!
 class WaterSurfaceDistortNode : public DataNode
@@ -66,7 +79,7 @@ public:
     static DataLine GetTimeIn(const ShaderInOutAttributes & fragmentInputs, int randSeedInputIndex);
 
 
-    virtual std::string GetName(void) const override { return "waterSurfaceDistortNode"; }
+    virtual std::string GetTypeName(void) const override { return "waterSurfaceDistortNode"; }
     virtual std::string GetOutputName(unsigned int index) const override;
 
 
@@ -90,3 +103,7 @@ private:
     const DataLine & GetPeriodInput(void) const { return GetInputs()[2]; }
     const DataLine & GetTimeInput(void) const { return GetInputs()[3]; }
 };
+
+DataNodePtr GenerateGoodWaterSurfaceDistortion(SerializedMaterial & matNodes)
+
+*/
