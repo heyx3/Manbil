@@ -17,10 +17,23 @@ public:
     //Creates a DataLine that gets its input value from a DataNode.
     DataLine(std::string nodeName, unsigned int outputLineIndex = 0)
         : isConstantValue(false), nonConstantValue(nodeName), nonConstantOutputIndex(outputLineIndex) { }
+    //Creates a DataLine that gets its input value from a DataNode.
+    DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex = 0) : DataLine(nodePtr->GetName(), outputLineIndex) { }
+
     //Creates a DataLine with a constant input value.
     DataLine(const VectorF & constantInput) : isConstantValue(true), constantValue(constantInput) { }
-    //Creates a DataLine with the default value { 0, 0, 0, 0 }.
+    //Creates a DataLine with a constant float value.
+    DataLine(float value) : isConstantValue(true), constantValue(value) { }
+    //Creates a DataLine with a constant vec2 value.
+    DataLine(Vector2f value) : isConstantValue(true), constantValue(value) { }
+    //Creates a DataLine with a constant vec3 value.
+    DataLine(Vector3f value) : isConstantValue(true), constantValue(value) { }
+    //Creates a DataLine with a constant vec4 value.
+    DataLine(Vector4f value) : isConstantValue(true), constantValue(value) { }
+
+    //Creates a DataLine with the default constant value { 0, 0, 0, 0 }.
     DataLine(void) : isConstantValue(true), constantValue(VectorF(Vector4f(0.0f, 0.0f, 0.0f, 0.0f))) { }
+
 
     //Does this DataLine have a constant value?
     bool IsConstant(void) const { return isConstantValue; }

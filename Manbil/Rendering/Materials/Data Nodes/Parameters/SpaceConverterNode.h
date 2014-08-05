@@ -13,6 +13,18 @@ class SpaceConverterNode : public DataNode
 {
 public:
 
+    //A commonly-used version of this node.
+    static std::shared_ptr<DataNode> ObjPosToScreenPos(DataLine inP, std::string name = "")
+    {
+        return std::shared_ptr<DataNode>(new SpaceConverterNode(inP, ST_OBJECT, ST_SCREEN, DT_POSITION, name));
+    }
+    //A commonly-used version of this node.
+    static std::shared_ptr<DataNode> ObjPosToWorldPos(DataLine inP, std::string name = "")
+    {
+        return std::shared_ptr<DataNode>(new SpaceConverterNode(inP, ST_OBJECT, ST_WORLD, DT_POSITION, name));
+    }
+
+
     //The different coordinate spaces.
     enum SpaceTypes
     {
