@@ -26,7 +26,7 @@ struct WaterVertex
 
     }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 2, false, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 2, false, false, false, "vIn_pos", "vIn_texCoord", "vIn_randSeeds"); }
 };
 
 
@@ -113,7 +113,7 @@ public:
     //Gets the location of the water-related uniforms from the given material.
     void UpdateUniformLocations(const Material * mat)
     {
-        std::vector<UniformList::Uniform> fArrUs = mat->GetUniforms(RenderPasses::BaseComponents).FloatArrayUniforms;
+        std::vector<UniformList::Uniform> fArrUs = mat->GetUniforms().FloatArrayUniforms;
         Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Location =
             UniformList::FindUniform("dropoffPoints_timesSinceCreated_heights_periods", fArrUs).Loc;
         Params.FloatArrayUniforms["sourcesXY_speeds"].Location =

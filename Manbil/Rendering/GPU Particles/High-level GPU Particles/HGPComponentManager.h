@@ -23,10 +23,10 @@ public:
 
     const DataLine & GetTimeInterpolant(void) const { return timeLerp; }
 
-    void SetWorldPosition(HGPComponentPtr(3) newWorldPos) { SwapOutComponent(worldPosition, newWorldPos); }
-    void SetRotation(HGPComponentPtr(1) newRotation) { SwapOutComponent(rotation, newRotation); }
-    void SetSize(HGPComponentPtr(2) newSize) { SwapOutComponent(size, newSize); }
-    void SetColor(HGPComponentPtr(4) newColor) { SwapOutComponent(color, newColor); }
+    void SetWorldPosition(HGPComponentPtr(3) newWorldPos);
+    void SetRotation(HGPComponentPtr(1) newRotation);
+    void SetSize(HGPComponentPtr(2) newSize);
+    void SetColor(HGPComponentPtr(4) newColor);
     void SetDuration(HGPComponentPtr(1) newDuration);
 
 
@@ -58,6 +58,6 @@ private:
     std::string name;
     static unsigned int nameCounter;
 
-    DataNodePtr timeLerpComponentNode;
+    DataNode::Ptr timeLerpComponentNode;
     DataLine timeLerp;
 };

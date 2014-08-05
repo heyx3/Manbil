@@ -30,7 +30,7 @@ std::string VectorComponentsNode::GetOutputName(unsigned int index) const
 
 VectorComponentsNode::VectorComponentsNode(const DataLine & inData, std::string name)
     : DataNode(MakeVector(inData),
-               []() { return DataNodePtr(new VectorComponentsNode(DataLine(1.0f))); },
+               []() { return Ptr(new VectorComponentsNode(DataLine(1.0f))); },
                name)
 {
 

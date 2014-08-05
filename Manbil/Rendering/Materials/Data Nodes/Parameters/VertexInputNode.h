@@ -14,7 +14,7 @@ class VertexInputNode : public DataNode
 {
 public:
 
-    static DataNodePtr GetInstance(void) { return instance; }
+    static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
 
     
     virtual std::string GetTypeName(void) const override { return "vertexInputs"; }
@@ -32,7 +32,7 @@ protected:
 
 private:
 
-    static DataNodePtr instance;
+    static std::shared_ptr<DataNode> instance;
 
     VertexInputNode(void);
 };

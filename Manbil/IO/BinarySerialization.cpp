@@ -49,6 +49,8 @@ bool BinaryWriter::WriteSimpleData(unsigned int sizeofType, BinaryDataTypes data
 
     return true;
 }
+
+#pragma warning(disable: 4100)
 bool BinaryWriter::WriteBool(bool value, std::string name, std::string & outError)
 {
     return WriteSimpleData(sizeof(bool), BDT_BOOL, &value);
@@ -80,6 +82,7 @@ bool BinaryWriter::WriteString(const std::string & value, std::string name, std:
 
     return WriteSimpleData(sizeof(char) * value.size(), BDT_STRING, value.c_str());
 }
+#pragma warning(default: 4100)
 
 bool BinaryWriter::WriteCollection(std::string name, ElementWriter writerFunc, const void* collection, unsigned int size,
                                    std::string & outError, void *optionalData)
@@ -114,6 +117,8 @@ bool BinaryWriter::WriteDataStructure(const ISerializable & toSerialize, std::st
 
     //Insert the footer describing the end of the structure.
     if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_DATA_STRUCTURE_END);
+
+    return true;
 }
 
 

@@ -13,10 +13,10 @@ DataNode* DataNode::GetNode(std::string name)
     return found->second;
 }
 
-DataNodePtr DataNode::CreateNode(std::string typeName)
+std::shared_ptr<DataNode> DataNode::CreateNode(std::string typeName)
 {
     auto found = FactoriesByTypename.find(typeName);
-    if (found == FactoriesByTypename.end()) return DataNodePtr(0);
+    if (found == FactoriesByTypename.end()) return std::shared_ptr<DataNode>(0);
     return found->second();
 }
 

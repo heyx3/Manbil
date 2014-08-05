@@ -88,7 +88,7 @@ bool ShaderOutput::ReadData(DataReader * reader, std::string & outError)
     return true;
 }
 
-
+#pragma warning(disable: 4100)
 bool MaterialOutputs::WriteData(DataWriter * writer, std::string & outError) const
 {
     if (!writer->WriteDataStructure(VertexPosOutput, "Vertex Position Output", outError))
@@ -155,6 +155,7 @@ bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
     for (unsigned i = 0; i < FragmentOutputs.size(); ++i)
         FragmentOutputs[i] = ((ShaderOutput*)tryCollData.data())[i];
 }
+#pragma warning(default: 4100)
 
 bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) const
 {
@@ -264,7 +265,7 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
             if (element->second == depthU)
             {
                 //Find the shared pointer that corresponds to this node.
-                DataNodePtr elementN;
+                DataNode::Ptr elementN;
                 for (unsigned int i = 0; i < Nodes.size(); ++i)
                 {
                     if (Nodes[i].get() == element->first)

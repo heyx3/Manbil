@@ -27,7 +27,7 @@ std::string DivideNode::GetOutputName(unsigned int index) const
 
 DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name)
     : DataNode(MakeVector(baseValue, 0, toDivide),
-               []() { return DataNodePtr(new DivideNode(DataLine(1.0f), DataLine(0.0f))); },
+               []() { return std::shared_ptr<DataNode>(new DivideNode(DataLine(1.0f), DataLine(0.0f))); },
                name)
 {
     Assert(toDivide.size() > 0, "'toDivide' vector must have at least one element!");

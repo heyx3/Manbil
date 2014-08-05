@@ -14,7 +14,7 @@ std::string ClampNode::GetOutputName(unsigned int index) const
 
 ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
     : DataNode(MakeVector(min, max, value),
-               []() { return DataNodePtr(new ClampNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
+               []() { return Ptr(new ClampNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
                name)
 {
     Assert(min.GetSize() == max.GetSize(),

@@ -8,7 +8,7 @@ class ProjectionDataNode : public DataNode
 {
 public:
 
-    static DataNodePtr GetInstance(void) { return instance; }
+    static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
     static DataLine GetWidth(void) { return DataLine(instance->GetName(), GetWidthOutputIndex()); }
     static DataLine GetHeight(void) { return DataLine(instance->GetName(), GetHeightOutputIndex()); }
     static DataLine GetZNear(void) { return DataLine(instance->GetName(), GetZNearOutputIndex()); }
@@ -31,7 +31,7 @@ protected:
 
 private:
 
-    static DataNodePtr instance;
+    static std::shared_ptr<DataNode> instance;
     static unsigned int GetWidthOutputIndex(void) { return 0; }
     static unsigned int GetHeightOutputIndex(void) { return 1; }
     static unsigned int GetZNearOutputIndex(void) { return 2; }

@@ -3,7 +3,7 @@
 
 DataNode::NodeFactory swizzleNodeFactory = []()
 {
-    return DataNodePtr(new SwizzleNode(DataLine(VectorF(1.0f, 0.0f)), SwizzleNode::C_X));
+    return DataNode::Ptr(new SwizzleNode(DataLine(VectorF(1.0f, 0.0f)), SwizzleNode::C_X));
 };
 
 
@@ -153,6 +153,12 @@ bool SwizzleNode::ReadExtraData(DataReader * reader, std::string & outError)
             comps[i] = C_Z;
         else if (tryCmp.GetValue().compare("w") == 0 || tryCmp.GetValue().compare("a") == 0)
             comps[i] = C_W;
-        else Assert(false, "Unknown component in output '" + outName + "': " + tryCmp.GetValue());
+        else
+        {
+            outError = "Unknown component in output '" + outName + "': " + tryCmp.GetValue();
+            return false;
+        }
     }
+
+    return true;
 }

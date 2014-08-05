@@ -6,7 +6,7 @@
 
 const std::string PostProcessEffect::ColorSampler = "u_colorTex",
                   PostProcessEffect::DepthSampler = "u_depthTex";
-std::vector<DataNodePtr> * PostProcessEffect::NodeStorage = 0;
+std::vector<DataNode::Ptr> * PostProcessEffect::NodeStorage = 0;
 
 
 void PreparePpeEffectsToBeRead()
@@ -198,30 +198,30 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
                                VectorF(increment * (float)(i - 7), 0.0f) :
                                VectorF(0.0f, increment * (float)(i - 7), 0.0f));
         std::string nodeName = GetName() + "_add" + ToString(i);
-        NodeStorage->insert(NodeStorage->end(), DataNodePtr(new AddNode(uvAdded, uvs, nodeName)));
+        NodeStorage->insert(NodeStorage->end(), Ptr(new AddNode(uvAdded, uvs, nodeName)));
         vertOuts.insert(vertOuts.end(), ShaderOutput("outUV_" + ToString(i), DataLine(nodeName)));
     }
 
     /*
     typedef RenderingChannels rc;
-    DataLine uvs(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
+    DataLine uvs(Ptr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
 
     if (CurrentPass == 2)
     {
-        channels[rc::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0028f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0024f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0020f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0016f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_4] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0012f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_5] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0008f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_6] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(-0.0004f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_7] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0004f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_8] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0008f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_9] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0012f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_10] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0016f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_11] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0020f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_12] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0024f, 0.0f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_13] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0028f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_0] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0028f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_1] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0024f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_2] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0020f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_3] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0016f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_4] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0012f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_5] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0008f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_6] = DataLine(Ptr(new AddNode(DataLine(Vector2f(-0.0004f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_7] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0004f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_8] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0008f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_9] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0012f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_10] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0016f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_11] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0020f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_12] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0024f, 0.0f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_13] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0028f, 0.0f)), uvs)), 0);
 
         channels[rc::RC_VERTEX_OUT_14] = uvs;
     }
@@ -229,20 +229,20 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
     {
         Assert(CurrentPass == 3, std::string() + "Invalid pass number: " + ToString(CurrentPass));
 
-        channels[rc::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0028f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_1] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0024f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_2] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0020f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_3] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0016f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_4] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0012f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_5] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0008f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_6] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, -0.0004f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_7] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0004f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_8] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0008f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_9] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0012f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_10] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0016f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_11] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0020f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_12] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0024f)), uvs)), 0);
-        channels[rc::RC_VERTEX_OUT_13] = DataLine(DataNodePtr(new AddNode(DataLine(Vector2f(0.0f, 0.0028f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_0] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0028f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_1] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0024f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_2] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0020f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_3] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0016f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_4] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0012f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_5] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0008f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_6] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, -0.0004f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_7] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0004f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_8] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0008f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_9] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0012f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_10] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0016f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_11] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0020f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_12] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0024f)), uvs)), 0);
+        channels[rc::RC_VERTEX_OUT_13] = DataLine(Ptr(new AddNode(DataLine(Vector2f(0.0f, 0.0028f)), uvs)), 0);
 
         channels[rc::RC_VERTEX_OUT_14] = uvs;
     }

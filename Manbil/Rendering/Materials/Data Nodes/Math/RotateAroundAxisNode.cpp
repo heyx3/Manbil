@@ -6,7 +6,7 @@
 
 RotateAroundAxisNode::RotateAroundAxisNode(const DataLine & toRot, const DataLine & axis, const DataLine & angle, std::string name)
     : DataNode(MakeVector(toRot, axis, angle),
-               []() { return DataNodePtr(new RotateAroundAxisNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(0.0f))); },
+               []() { return Ptr(new RotateAroundAxisNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(0.0f))); },
                name)
 {
     Assert(toRot.GetSize() == 3, "Value to rotate should be size 3, but it is size " + std::to_string(toRot.GetSize()));
@@ -41,6 +41,7 @@ void RotateAroundAxisNode::GetMyFunctionDeclarations(std::vector<std::string> & 
 
     std::string rotFunc = "vec3 " + GetName() + "_rotFunc(";
 
+#pragma warning(disable: 4701)
     if (axisConst && angleConst && inputConst)
     {
         Quaternion rot(axis, angle);
@@ -117,6 +118,7 @@ void RotateAroundAxisNode::GetMyFunctionDeclarations(std::vector<std::string> & 
     return toRot + (cos(rotAngle * 0.5f) * temp) + cross(quatXYZ, temp);\n\
 }\n\n";
     }
+#pragma warning(default: 4701)
 
     outDecls.insert(outDecls.end(), rotFunc);
 }

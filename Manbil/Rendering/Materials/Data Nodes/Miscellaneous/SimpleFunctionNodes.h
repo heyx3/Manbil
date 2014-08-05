@@ -8,7 +8,7 @@ class className : public DataNode \
     { \
     public: \
         className(const DataLine & input, std::string name = "") \
-            : DataNode(MakeVector(input), []() { return DataNodePtr(new className(DataLine(1.0f))); }, name) { } \
+            : DataNode(MakeVector(input), []() { return Ptr(new className(DataLine(1.0f))); }, name) { } \
         \
         virtual std::string GetTypeName(void) const override { return #outputName ; } \
         \

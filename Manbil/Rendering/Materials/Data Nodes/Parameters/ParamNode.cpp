@@ -4,7 +4,7 @@
 ParamNode::ParamNode(unsigned int vectorSize, std::string paramName, std::string name)
     : vSize(vectorSize), pName(paramName),
     DataNode(std::vector<DataLine>(),
-             []() { return DataNodePtr(new ParamNode(1, "ERROR_BAD_PARAM")); },
+             []() { return Ptr(new ParamNode(1, "ERROR_BAD_PARAM")); },
              name)
 {
 

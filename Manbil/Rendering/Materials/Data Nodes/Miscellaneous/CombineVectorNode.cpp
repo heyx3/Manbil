@@ -19,7 +19,7 @@ std::string CombineVectorNode::GetOutputName(unsigned int index) const
 
 CombineVectorNode::CombineVectorNode(const std::vector<DataLine> & inputs, std::string name)
     : DataNode(inputs,
-               []() { return DataNodePtr(new CombineVectorNode(DataLine(VectorF(1.0f)), DataLine(VectorF(1.0f)))); },
+               []() { return Ptr(new CombineVectorNode(DataLine(VectorF(1.0f)), DataLine(VectorF(1.0f)))); },
                name)
 {
     Assert(inputs.size() > 0, "There aren't any elements in the output vector!");
@@ -36,7 +36,7 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + vecType + "(";
 
     unsigned int counter = 1;
-    for (int input = 0; input < GetInputs().size(); ++input)
+    for (unsigned int input = 0; input < GetInputs().size(); ++input)
     {
         const DataLine & inp = GetInputs()[input];
 

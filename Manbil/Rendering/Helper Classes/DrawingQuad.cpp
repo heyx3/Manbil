@@ -63,7 +63,7 @@ DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
     return *this;
 }
 
-bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, const UniformDictionary & params, Material & mat)
+bool DrawingQuad::Render(const RenderInfo & info, const UniformDictionary & params, Material & mat)
 {
     assert(mat.GetAttributeData() == GetAttributeData());
 
@@ -74,7 +74,7 @@ bool DrawingQuad::Render(RenderPasses pass, const RenderInfo & info, const Unifo
     Vector2f delta = origin;
 
     quad.Transform.IncrementPosition(Vector3f(delta.x, delta.y, 0.0f));
-    bool rendered = mat.Render(pass, info, meshes, params);
+    bool rendered = mat.Render(info, meshes, params);
     quad.Transform.IncrementPosition(-Vector3f(delta.x, delta.y, 0.0f));
 
     return rendered;

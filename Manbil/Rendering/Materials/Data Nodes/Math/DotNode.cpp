@@ -12,9 +12,9 @@ std::string DotNode::GetOutputName(unsigned int index) const
     return GetName() + "_dotted";
 }
 
-DotNode::DotNode(const DataLine & first, const DataLine & second, std::string name = "")
+DotNode::DotNode(const DataLine & first, const DataLine & second, std::string name)
     : DataNode(MakeVector(first, second),
-               []() { return DataNodePtr(new DotNode(DataLine(1.0f), DataLine(1.0f))); },
+               []() { return std::shared_ptr<DataNode>(new DotNode(DataLine(1.0f), DataLine(1.0f))); },
                name)
 {
     Assert(first.GetSize() == second.GetSize(), "The two inputs must be the same size!");

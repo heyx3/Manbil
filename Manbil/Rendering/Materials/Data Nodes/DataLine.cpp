@@ -14,7 +14,7 @@ unsigned int DataLine::GetSize(void) const
     {
         DataNode * found = GetNode();
         if (found == 0) return 0;
-        return found->GetOutputs()[nonConstantOutputIndex];
+        return found->GetOutputSize(nonConstantOutputIndex);
     }
 }
 

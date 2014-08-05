@@ -28,14 +28,25 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
     //All passes don't need any kind of transformation for the vertices.
     std::vector<DataLine> vectorBuilder;
-    vectorBuilder.insert(vectorBuilder.end(), DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 0));
+    vectorBuilder.insert(vectorBuilder.end(), DataLine(VertexInputNode::GetInstance()->GetName(), 0));
     vectorBuilder.insert(vectorBuilder.end(), DataLine(1.0f));
-    DataLine objectPos4(DataNodePtr(new CombineVectorNode(vectorBuilder)), 0);
+    DataNode::Ptr combineToPos4(new CombineVectorNode(vectorBuilder, "ppeVertPosOut"));
+
+
+    //Set up DataNode material data structures.
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = DrawingQuad::GetAttributeData();
+    DataNode::MaterialOuts.VertexPosOutput = DataLine(combineToPos4->GetName());
+   
+    std::vector<DataNode::Ptr> nodeStorage;
+    PostProcessEffect::NodeStorage = &nodeStorage;
+
 
     //Build each pass group.
     std::vector<std::vector<PostProcessEffect::PpePtr>> passGroups;
     unsigned int passGroup = 0;
     totalPasses = 0;
+    
     for (unsigned int effect = 0; effect < effectChain.size(); ++effect)
     {
         //If this is the start of a new pass, create the collection of effects for it.
@@ -72,7 +83,8 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     {
         assert(passGroups[passGroup].size() > 0);
 
-        std::unordered_map<RenderingChannels, DataLine> channels;
+        DataNode::MaterialOuts.FragmentOutputs.clear();
+        DataNode::MaterialOuts.VertexOutputs.clear();
 
         //If this is a multi-pass group, create the multiple passes.
         if (passGroups[passGroup][0]->NumbPasses > 1)
@@ -81,7 +93,8 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             PostProcessEffect::PpePtr effct = passGroups[passGroup][0];
             effct->ChangePreviousEffect();
-            channels[RenderingChannels::RC_Color] = DataLine(effct, PostProcessEffect::GetColorOutputIndex());
+            DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                          ShaderOutput("out_FinalColor", DataLine(effct->GetName(), PostProcessEffect::GetColorOutputIndex())));
 
             //If there is a group before/after this, skip the first/last pass, since it will be lumped in with that other group.
             unsigned int startPass = 1,
@@ -95,15 +108,16 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             {
                 effct->CurrentPass = pass;
 
-                channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-                channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
-                effct->OverrideVertexOutputs(channels);
+                DataNode::MaterialOuts.VertexOutputs.clear();
+                DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
+                                                            ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+                effct->OverrideVertexOutputs(DataNode::MaterialOuts.VertexOutputs);
 
                 UniformDictionary unfs;
-                ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+                ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(unfs, RenderingModes::RM_Opaque);
                 if (!genM.ErrorMessage.empty())
                 {
-                    errorMsg = std::string() + "Error generating shaders for pass #" + std::to_string(pass) + " of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
+                    errorMsg = "Error generating shaders for pass #" + std::to_string(pass) + " of multi-pass effect '" + effct->GetName() + "': " + genM.ErrorMessage;
                     return;
                 }
 
@@ -155,13 +169,16 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
             //Now create the material.
 
-            channels[RenderingChannels::RC_Color] = DataLine(current, PostProcessEffect::GetColorOutputIndex());
-            channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-            channels[RenderingChannels::RC_VertexPosOutput] = objectPos4;
-            current->OverrideVertexOutputs(channels);
+            DataNode::MaterialOuts.VertexOutputs.clear();
+            DataNode::MaterialOuts.FragmentOutputs.clear();
+            DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
+                                                        ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+            DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                          ShaderOutput("out_FinalColor", DataLine(current->GetName(), current->GetColorOutputIndex())));
+            current->OverrideVertexOutputs(DataNode::MaterialOuts.VertexOutputs);
 
             UniformDictionary unfs;
-            ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, unfs, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+            ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(unfs, RenderingModes::RM_Opaque);
             if (!genM.ErrorMessage.empty())
             {
                 errorMsg = std::string() + "Error generating shaders for material #" + std::to_string(materials.size()) + ": " + genM.ErrorMessage;
@@ -244,7 +261,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         assert(source != 0 && dest != 0);
 
         //Set up the uniforms for this pass.
-        const UniformList & matUniforms = materials[i]->GetUniforms(RenderPasses::BaseComponents);
+        const UniformList & matUniforms = materials[i]->GetUniforms();
         params.ClearUniforms();
         params.AddUniforms(oldUniforms, true);
         params.Texture2DUniforms[PostProcessEffect::ColorSampler] =
@@ -260,7 +277,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         ScreenClearer().ClearScreen();
 
         //Render.
-        if (!quad.Render(RenderPasses::BaseComponents, info, params, *materials[i]))
+        if (!quad.Render(info, params, *materials[i]))
         {
             errorMsg = "Error rendering material " + std::to_string(i) + ": " + materials[i]->GetErrorMsg();
             return false;

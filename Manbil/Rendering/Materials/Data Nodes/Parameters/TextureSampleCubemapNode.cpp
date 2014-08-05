@@ -55,7 +55,7 @@ unsigned int TextureSampleCubemapNode::GetOutputIndex(ChannelsOut channel)
 
 TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, std::string _samplerName, std::string name)
     : DataNode(MakeVector(texCoords),
-               []() { return DataNodePtr(new TextureSampleCubemapNode(DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
+               []() { return Ptr(new TextureSampleCubemapNode(DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
                name),
       SamplerName(_samplerName)
 {

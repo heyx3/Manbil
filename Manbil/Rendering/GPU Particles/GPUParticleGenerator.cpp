@@ -31,7 +31,7 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
 
     //First, convert the particle inputs into vertex shader outputs.
     DataNode::CurrentShader = ShaderHandler::SH_Vertex_Shader;
-    DataNodePtr worldPos(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION], DataLine(VectorF(1.0f)), "worldPos"));
+    DataNode::Ptr worldPos(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION], DataLine(VectorF(1.0f)), "worldPos"));
     DataNode::MaterialOuts.VertexPosOutput = std::string("worldPos");
     vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_particleID", DataLine(VertexInputNode::GetInstance()->GetName(), 0)));
     vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_randSeeds1", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));

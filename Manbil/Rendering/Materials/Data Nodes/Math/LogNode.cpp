@@ -6,15 +6,15 @@ unsigned int LogNode::GetOutputSize(unsigned int index) const
     Assert(index == 0, "Invalid output index " + ToString(index));
     return GetInputs()[0].GetSize();
 }
-unsigned int LogNode::GetOutputSize(unsigned int index) const
+std::string LogNode::GetOutputName(unsigned int index) const
 {
     Assert(index == 0, "Invalid output index " + ToString(index));
-    return GetInputs()[0].GetSize();
+    return GetName() + "_logResult";
 }
 
-LogNode::LogNode(const DataLine & value, DataLine base = DataLine(VectorF(2.0f)), std::string name = "")
+LogNode::LogNode(const DataLine & value, DataLine base, std::string name)
     : DataNode(MakeVector(value, base),
-               []() { return DataNodePtr(new LogNode(DataLine(1.0f), DataLine(2.0f))); },
+               []() { return Ptr(new LogNode(DataLine(1.0f), DataLine(2.0f))); },
                name)
 {
     Assert(base.GetSize() == 1, "Base must have a size of 1! It has size " + ToString(base.GetSize()));

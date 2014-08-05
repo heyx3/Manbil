@@ -15,7 +15,7 @@ unsigned int RemapNode::GetOutputSize(unsigned int index) const
 RemapNode::RemapNode(const DataLine & toRemap, const DataLine & srcMin, const DataLine & srcMax,
                      DataLine destMin, DataLine destMax, std::string name)
     : DataNode(MakeVector(toRemap, srcMin, srcMax, destMin, destMax),
-               []() { return DataNodePtr(new RemapNode(DataLine(0.0f), DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f))); },
+               []() { return Ptr(new RemapNode(DataLine(0.0f), DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f))); },
                name)
 {
     unsigned int size = GetOutputSize(0);
@@ -67,4 +67,5 @@ std::vector<DataLine> RemapNode::MakeVector(const DataLine & val, const DataLine
     dls.insert(dls.end(), srcMax);
     dls.insert(dls.end(), destMin);
     dls.insert(dls.end(), destMax);
+    return dls;
 }

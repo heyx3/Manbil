@@ -12,9 +12,9 @@ std::string MaxNode::GetOutputName(unsigned int index) const
     return GetName() + "_maxed";
 }
 
-MaxNode::MaxNode(const DataLine & in1, const DataLine & in2, std::string name = "")
+MaxNode::MaxNode(const DataLine & in1, const DataLine & in2, std::string name)
     : DataNode(MakeVector(in1, in2),
-               []() { return DataNodePtr(new MaxNode(DataLine(0.0f), DataLine(0.0f))); },
+               []() { return Ptr(new MaxNode(DataLine(0.0f), DataLine(0.0f))); },
                name)
 {
     Assert(in1.GetSize() == 1 || in2.GetSize() == 1 ||
@@ -40,9 +40,9 @@ std::string MinNode::GetOutputName(unsigned int index) const
     return GetName() + "_maxed";
 }
 
-MinNode::MinNode(const DataLine & in1, const DataLine & in2, std::string name = "")
+MinNode::MinNode(const DataLine & in1, const DataLine & in2, std::string name)
     : DataNode(MakeVector(in1, in2),
-               []() { return DataNodePtr(new MinNode(DataLine(0.0f), DataLine(0.0f))); },
+               []() { return Ptr(new MinNode(DataLine(0.0f), DataLine(0.0f))); },
                name)
 {
     Assert(in1.GetSize() == 1 || in2.GetSize() == 1 ||

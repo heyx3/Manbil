@@ -11,18 +11,18 @@ unsigned int HGPGlobalData::NextHGPComponentID = 1;
 const int HGPGlobalData::EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT = 19285;
 
 
-const DataNodePtr HGPGlobalData::_ParticleIDInputPtr = DataNodePtr(new ShaderInNode(2, "particleIDInputs", 0, 0, 0, 0)),
-                  HGPGlobalData::_ParticleRandSeedInputs1Ptr = DataNodePtr(new ShaderInNode(4, "particleRandSeedInputs1", 1, 1, 0, 1)),
-                  HGPGlobalData::_ParticleRandSeedInputs2Ptr = DataNodePtr(new ShaderInNode(2, "particleRandSeedInputs2", 2, 2, 0, 2));
+const DataNode::Ptr HGPGlobalData::_ParticleIDInputPtr = DataNode::Ptr(new ShaderInNode(2, "particleIDInputs", 0, 0, 0, 0)),
+                  HGPGlobalData::_ParticleRandSeedInputs1Ptr = DataNode::Ptr(new ShaderInNode(4, "particleRandSeedInputs1", 1, 1, 0, 1)),
+                  HGPGlobalData::_ParticleRandSeedInputs2Ptr = DataNode::Ptr(new ShaderInNode(2, "particleRandSeedInputs2", 2, 2, 0, 2));
 const DataLine HGPGlobalData::ParticleIDInput = DataLine("particleIDInputs"),
                HGPGlobalData::ParticleRandSeedInputs1 = DataLine("particleRandSeedInputs1"),
                HGPGlobalData::ParticleRandSeedInputs2 = DataLine("particleRandSeedInputs2"),
                HGPGlobalData::ParticleUVs = DataLine(FragmentInputNode::GetInstance()->GetName(), 3);
 
-const DataNodePtr HGPGlobalData::ParticleRandSeedComponents1 =
-    DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1, "particleRandSeedComponents"));
-const DataNodePtr HGPGlobalData::ParticleRandSeedComponents2 =
-    DataNodePtr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2, "particleRandSeedComponents"));
+const DataNode::Ptr HGPGlobalData::ParticleRandSeedComponents1 =
+      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1, "particleRandSeedComponents"));
+const DataNode::Ptr HGPGlobalData::ParticleRandSeedComponents2 =
+      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2, "particleRandSeedComponents"));
 
 
 DataLine HGPGlobalData::GetRandSeed(unsigned int randSeedIndex)
@@ -35,7 +35,7 @@ DataLine HGPGlobalData::GetRandSeed(unsigned int randSeedIndex)
 }
 
 const std::string HGPGlobalData::ParticleElapsedTimeUniformName = "u_particleTime";
-const DataNodePtr _ParticleElapsedTimePtr = DataNodePtr(new ParamNode(1, HGPGlobalData::ParticleElapsedTimeUniformName, "particleElapsedTimeParam"));
+const DataNode::Ptr _ParticleElapsedTimePtr = DataNode::Ptr(new ParamNode(1, HGPGlobalData::ParticleElapsedTimeUniformName, "particleElapsedTimeParam"));
 const DataLine HGPGlobalData::ParticleElapsedTime = DataLine("particleElapsedTimeParam");
 
 

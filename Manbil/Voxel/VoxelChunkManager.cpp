@@ -37,6 +37,8 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         //Check every chunk that the ray intersected with
         //   (don't check the very last one, since that will be checked next iteration).
         RayCastResult castRes;
+
+#pragma warning(disable: 4100)
         if (DoToEveryChunkPredicate([&castRes, rayStart, rayDir, maxDist, oldChunkIndex, newChunkIndex](Vector3i cIndex, VoxelChunk * cnk)
             {
                 //If any voxels were hit, return the hit.
@@ -51,6 +53,7 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
         {
             return castRes;
         }
+#pragma warning(default: 4100)
 
         rayStart += moveIncrement;
         maxDist -= chunkMoveLength;
@@ -66,6 +69,7 @@ bool VCM::GetAnyVoxels(const Shape & shpe) const
 {
     VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
+#pragma warning(disable: 4100)
     return DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
@@ -77,12 +81,14 @@ bool VCM::GetAnyVoxels(const Shape & shpe) const
            bounds.Max - voxelIndexOffset);
     }, bounds.Min / VC::ChunkSize,
        bounds.Max / VC::ChunkSize);
+#pragma warning(default: 4100)
 }
 //Gets whether ALL voxels with the majority of their volume inside the given Shape are solid.
 bool VCM::GetAllVoxels(const Shape & shpe) const
 {
     VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
+#pragma warning(disable: 4100)
     return !DoToEveryChunkPredicate([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
@@ -94,12 +100,14 @@ bool VCM::GetAllVoxels(const Shape & shpe) const
            bounds.Max - voxelIndexOffset);
     }, bounds.Min / VC::ChunkSize,
        bounds.Max / VC::ChunkSize);
+#pragma warning(default: 4100)
 }
 //Toggles all voxels with the majority of their volume inside the given Shape.
 void VCM::ToggleVoxels(const Shape & shpe)
 {
     VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
 
+#pragma warning(disable: 4100)
     DoToEveryChunk([&shpe, bounds](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
@@ -111,12 +119,14 @@ void VCM::ToggleVoxels(const Shape & shpe)
            bounds.Max - voxelIndexOffset);
     }, bounds.Min / VC::ChunkSize,
        bounds.Max / VC::ChunkSize);
+#pragma warning(default: 4100)
 }
 //Sets all voxels with the majority of their volume inside the given Shape.
 void VCM::SetVoxels(const Shape & shpe, bool value)
 {
     VC::MinMaxI bounds = VoxelChunk::GetShapeBoundsI(shpe);
-
+    
+#pragma warning(disable: 4100)
     DoToEveryChunk([&shpe, bounds, value](Vector3i lc, VoxelChunk * chnk)
     {
         Vector3i voxelIndexOffset = chnk->MinCorner / VC::VoxelSize;
@@ -128,6 +138,7 @@ void VCM::SetVoxels(const Shape & shpe, bool value)
            bounds.Max - voxelIndexOffset);
     }, bounds.Min / VC::ChunkSize,
        bounds.Max / VC::ChunkSize);
+#pragma warning(default: 4100)
 }
 
 

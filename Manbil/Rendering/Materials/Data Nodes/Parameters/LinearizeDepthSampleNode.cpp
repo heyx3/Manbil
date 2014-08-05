@@ -14,13 +14,13 @@ std::string LinearizeDepthSampleNode::GetOutputName(unsigned int i) const
 
 LinearizeDepthSampleNode::LinearizeDepthSampleNode(const DataLine & dIn, std::string name)
     : DataNode(MakeVector(dIn),
-               []() { return DataNodePtr(new LinearizeDepthSampleNode(DataLine(VectorF(0.5f)))); },
+               []() { return Ptr(new LinearizeDepthSampleNode(DataLine(VectorF(0.5f)))); },
                name)
 {
     Assert(dIn.GetSize() == 1, "Depth sample input must have size 1, not size " + ToString(dIn.GetSize()));
 }
 
-void LinearizeDepthSampleNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const override
+void LinearizeDepthSampleNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
     flags.EnableFlag(MaterialUsageFlags::DNF_USES_ZNEAR);
     flags.EnableFlag(MaterialUsageFlags::DNF_USES_ZFAR);

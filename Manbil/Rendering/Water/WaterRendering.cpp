@@ -15,7 +15,7 @@ std::string WaterNode::GetOutputName(unsigned int i) const
 WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
                      std::string name, unsigned int _maxRipples, unsigned int _maxFlows)
     : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput),
-               []() { return DataNodePtr(new WaterNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 0.0f)))); },
+               []() { return Ptr(new WaterNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 0.0f)))); },
                name),
       maxRipples(_maxRipples), maxFlows(_maxFlows)
 {
@@ -267,12 +267,12 @@ void PrepareWaterDataNodesToBeRead()
 DataLine WaterSurfaceDistortNode::GetWaterSeedIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
 {
 
-    return DataLine(DataNodePtr(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex))), 0);
+    return DataLine(Ptr(new VectorComponentsNode(DataLine(Ptr(new FragmentInputNode(fragmentInputs)), fragInputIndex))), 0);
 }
 DataLine WaterSurfaceDistortNode::GetTimeIn(const ShaderInOutAttributes & fragmentInputs, int fragInputIndex)
 {
-    DataNodePtr seedIn(new VectorComponentsNode(DataLine(DataNodePtr(new FragmentInputNode(fragmentInputs)), fragInputIndex)));
-    return DataLine(DataNodePtr(new AddNode(TimeNode::GetTime(), DataLine(seedIn, 1))), 0);
+    Ptr seedIn(new VectorComponentsNode(DataLine(Ptr(new FragmentInputNode(fragmentInputs)), fragInputIndex)));
+    return DataLine(Ptr(new AddNode(TimeNode::GetTime(), DataLine(seedIn, 1))), 0);
 }
 std::string WaterSurfaceDistortNode::GetOutputName(unsigned int index) const
 {

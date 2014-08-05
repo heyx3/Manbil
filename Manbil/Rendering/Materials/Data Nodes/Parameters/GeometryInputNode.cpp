@@ -2,7 +2,7 @@
 
 
 
-DataNodePtr GeometryInputNode::instance = DataNodePtr(new GeometryInputNode());
+std::shared_ptr<DataNode> GeometryInputNode::instance = std::shared_ptr<DataNode>(new GeometryInputNode());
 
 
 unsigned int GeometryInputNode::GetNumbOutputs(void) const

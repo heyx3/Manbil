@@ -14,7 +14,6 @@ class ShaderGenerator
 public:
 
 
-
     //Generates a geometry shader, or an error message beginning with "ERROR:" if there was an error.
     //Uses the material data stored statically by the DataNode class.
     static std::string GenerateGeometryShader(void);
@@ -26,8 +25,7 @@ public:
     //Generates a vertex and fragment shader given data nodes.
     //Returns an error message, or an empty string if there was no error.
     //Uses the material data stored statically by the DataNode class.
-    static std::string GenerateVertFragShaders(std::string & outVShader, std::string & outFShader,
-                                               UniformDictionary & outUniforms, RenderingModes mode);
+    static std::string GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms);
 
 
     //The return type for GenerateMaterial.

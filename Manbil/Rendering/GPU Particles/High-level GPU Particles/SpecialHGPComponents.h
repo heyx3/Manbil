@@ -100,7 +100,7 @@ protected:
 
 private:
 
-    mutable DataNodePtr velocityMult, accelMult, addResult;
+    mutable DataNode::Ptr velocityMult, accelMult, addResult;
     HGPComponentPtr(3) acceleration, initialVelocity, initialPosition;
 };
 
@@ -177,17 +177,17 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        multTime = DataNodePtr(new MultiplyNode(HGPGlobalData::ParticleElapsedTime,
-                                                velocity->GetComponentOutput()));
-        addMultTime = DataNodePtr(new AddNode(initialPos->GetComponentOutput(),
-                                              DataLine(addMultTime->GetName())));
+        multTime = DataNode::Ptr(new MultiplyNode(HGPGlobalData::ParticleElapsedTime,
+                                                  velocity->GetComponentOutput()));
+        addMultTime = DataNode::Ptr(new AddNode(initialPos->GetComponentOutput(),
+                                                DataLine(addMultTime->GetName())));
         return DataLine(addMultTime->GetName());
     }
 
 
 private:
 
-    mutable DataNodePtr multTime, addMultTime;
+    mutable DataNode::Ptr multTime, addMultTime;
     HGPComponentPtr(3) initialPos, velocity;
 };
 
@@ -220,29 +220,29 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        combineSeeds = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
-                                                         HGPGlobalData::GetRandSeed(randSeeds[1]),
-                                                         HGPGlobalData::GetRandSeed(randSeeds[2]),
-                                                         GetName() + "_combineSeeds"));
-        interpolateSeeds = DataNodePtr(new InterpolateNode(DataLine(Vector3f(-1.0f, -1.0f, -1.0f)),
-                                                           DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
-                                                           DataLine(combineSeeds->GetName()),
-                                                           InterpolateNode::InterpolationType::IT_Linear,
-                                                           GetName() + "_interpolated"));
-        normalizeInterp = DataNodePtr(new NormalizeNode(DataLine(interpolateSeeds->GetName())));
-        multiplyRadius = DataNodePtr(new MultiplyNode(DataLine(sphereRadius),
-                                                      HGPGlobalData::GetRandSeed(randSeeds[3]),
-                                                      DataLine(normalizeInterp->GetName()),
-                                                      GetName() + "_multiplyRadius"));
-        finalAdd = DataNodePtr(new AddNode(DataLine(sphereCenter), DataLine(multiplyRadius->GetName())));
+        combineSeeds = DataNode::Ptr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
+                                                           HGPGlobalData::GetRandSeed(randSeeds[1]),
+                                                           HGPGlobalData::GetRandSeed(randSeeds[2]),
+                                                           GetName() + "_combineSeeds"));
+        interpolateSeeds = DataNode::Ptr(new InterpolateNode(DataLine(Vector3f(-1.0f, -1.0f, -1.0f)),
+                                                             DataLine(Vector3f(1.0f, 1.0f, 1.0f)),
+                                                             DataLine(combineSeeds->GetName()),
+                                                             InterpolateNode::InterpolationType::IT_Linear,
+                                                             GetName() + "_interpolated"));
+        normalizeInterp = DataNode::Ptr(new NormalizeNode(DataLine(interpolateSeeds->GetName())));
+        multiplyRadius = DataNode::Ptr(new MultiplyNode(DataLine(sphereRadius),
+                                                        HGPGlobalData::GetRandSeed(randSeeds[3]),
+                                                        DataLine(normalizeInterp->GetName()),
+                                                        GetName() + "_multiplyRadius"));
+        finalAdd = DataNode::Ptr(new AddNode(DataLine(sphereCenter), DataLine(multiplyRadius->GetName())));
         
         return DataLine(finalAdd->GetName());
     }
 
 private:
     
-    mutable DataNodePtr combineSeeds, interpolateSeeds, normalizeInterp,
-                        multiplyRadius, finalAdd;
+    mutable DataNode::Ptr combineSeeds, interpolateSeeds, normalizeInterp,
+                          multiplyRadius, finalAdd;
 
     Vector3f sphereCenter;
     float sphereRadius;
@@ -277,13 +277,13 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        randSeedsPtr = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
-                                                         HGPGlobalData::GetRandSeed(randSeeds[1]),
-                                                         HGPGlobalData::GetRandSeed(randSeeds[2]),
-                                                         GetName() + "_randSeeds"));
-        interpolateSeeds = DataNodePtr(new InterpolateNode(DataLine(min), DataLine(max),
-                                                           DataLine(randSeedsPtr->GetName()),
-                                                           InterpolateNode::IT_Linear));
+        randSeedsPtr = DataNode::Ptr(new CombineVectorNode(HGPGlobalData::GetRandSeed(randSeeds[0]),
+                                                           HGPGlobalData::GetRandSeed(randSeeds[1]),
+                                                           HGPGlobalData::GetRandSeed(randSeeds[2]),
+                                                           GetName() + "_randSeeds"));
+        interpolateSeeds = DataNode::Ptr(new InterpolateNode(DataLine(min), DataLine(max),
+                                                             DataLine(randSeedsPtr->GetName()),
+                                                             InterpolateNode::IT_Linear));
         
         return DataLine(interpolateSeeds->GetName());
     }
@@ -291,7 +291,7 @@ protected:
 
 private:
 
-    mutable DataNodePtr randSeedsPtr, interpolateSeeds;
+    mutable DataNode::Ptr randSeedsPtr, interpolateSeeds;
 
     Vector3f min;
     Vector3f max;

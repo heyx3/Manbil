@@ -8,7 +8,7 @@ class CameraDataNode : public DataNode
 {
 public:
 
-    static DataNodePtr GetInstance(void) { return instance; }
+    static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
     static DataLine GetCamPos(void) { return DataLine(instance->GetName(), GetCamPosOutputIndex()); }
     static DataLine GetCamForward(void) { return DataLine(instance->GetName(), GetCamForwardOutputIndex()); }
     static DataLine GetCamUp(void) { return DataLine(instance->GetName(), GetCamUpwardOutputIndex()); }
@@ -33,7 +33,7 @@ protected:
 
 private:
 
-    static DataNodePtr instance;
+    static std::shared_ptr<DataNode> instance;
     static unsigned int GetCamPosOutputIndex(void) { return 0; }
     static unsigned int GetCamForwardOutputIndex(void) { return 1; }
     static unsigned int GetCamUpwardOutputIndex(void) { return 2; }

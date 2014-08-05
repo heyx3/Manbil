@@ -9,6 +9,7 @@
 #include "IO/BinarySerialization.h"
 #include "Rendering/GPU Particles/GPUParticleDefines.h"
 #include "Rendering/Texture Management/TextureSettings.h"
+#include "Rendering/Materials/Data Nodes/Vector.h"
 
 
 

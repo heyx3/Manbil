@@ -28,16 +28,16 @@ namespace HGPGlobalData
     //The exception that is thrown if an instance of this component fails a sanity check.
     extern const int EXCEPTION_CHRONOLOGICAL_HGP_COMPONENT;
 
-    extern const DataNodePtr _ParticleIDInputPtr, _ParticleRandSeedInputs1Ptr, _ParticleRandSeedInputs2Ptr;
+    extern const DataNode::Ptr _ParticleIDInputPtr, _ParticleRandSeedInputs1Ptr, _ParticleRandSeedInputs2Ptr;
     extern const DataLine ParticleIDInput, ParticleRandSeedInputs1, ParticleRandSeedInputs2, ParticleUVs;
 
-    extern const DataNodePtr ParticleRandSeedComponents1, ParticleRandSeedComponents2;
+    extern const DataNode::Ptr ParticleRandSeedComponents1, ParticleRandSeedComponents2;
 
     //Assuming the given value is between 0 and 5, gets the corresponding particle rand seed input.
     extern DataLine GetRandSeed(unsigned int randSeedIndex);
     
     extern const std::string ParticleElapsedTimeUniformName;
-    extern const DataNodePtr _ParticleElapsedTimePtr;
+    extern const DataNode::Ptr _ParticleElapsedTimePtr;
     extern const DataLine ParticleElapsedTime;
 
     extern UniformDictionary & GetParams(HGPComponentManager & manager);
@@ -335,24 +335,24 @@ protected:
 
     virtual DataLine GenerateComponentOutput(void) const override
     {
-        uvLookupPtr = DataNodePtr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager),
+        uvLookupPtr = Ptr(new CombineVectorNode(HGPGlobalData::GetTimeLerp(Manager),
                                                         DataLine(VectorF(0.5f)),
                                                         GetName() + "_uvLookup"));
-        textureSamplePtr = DataNodePtr(new TextureSample2DNode(DataLine(GetName() + "_uvLookup"),
+        textureSamplePtr = Ptr(new TextureSample2DNode(DataLine(GetName() + "_uvLookup"),
                                                                GetSamplerName(), GetName() + "_texSample"));
 
         DataLine texSampleOut(textureSamplePtr->GetName(), TextureSample2DNode::GetOutputIndex(CO_AllChannels));
 
         switch (ComponentSize)
         {
-            case 1: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X)), 0);
-            case 2: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
-            case 3: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
-            case 4: return DataLine(DataNodePtr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
+            case 1: return DataLine(Ptr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X)), 0);
+            case 2: return DataLine(Ptr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y)), 0);
+            case 3: return DataLine(Ptr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z)), 0);
+            case 4: return DataLine(Ptr(new SwizzleNode(texSampleOut, SwizzleNode::Components::C_X, SwizzleNode::Components::C_Y, SwizzleNode::Components::C_Z, SwizzleNode::Components::C_W)), 0);
             default:
                 Assert("Invalid ComponentSize value of " + std::to_string(ComponentSize) +
                            "; must be between 1-4 inclusive!");
-                return DataLine(DataNodePtr(), 666);
+                return DataLine(Ptr(), 666);
         }
     }
 
@@ -373,7 +373,7 @@ private:
 
     MTexture2D gradientTex;
 
-    mutable DataNodePtr uvLookupPtr, textureSamplePtr, swizzlePtr;
+    mutable DataNode::Ptr uvLookupPtr, textureSamplePtr, swizzlePtr;
 };
 
 
@@ -554,10 +554,10 @@ protected:
         for (unsigned int i = 0; i < ComponentSize; ++i)
             randSeeds.insert(randSeeds.end(), HGPGlobalData::GetRandSeed(randSeedIndex[i]));
 
-        finalSeed = DataNodePtr(new CombineVectorNode(randSeeds, GetName() + "_finalSeed"));
-        interpolatedValue = DataNodePtr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(),
-                                                            DataLine(GetName() + "_finalSeed"),
-                                                            InterpolateNode::IT_Linear));
+        finalSeed = DataNode::Ptr(new CombineVectorNode(randSeeds, GetName() + "_finalSeed"));
+        interpolatedValue = DataNode::Ptr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(),
+                                                              DataLine(GetName() + "_finalSeed"),
+                                                              InterpolateNode::IT_Linear));
 
         return DataLine(interpolatedValue->GetName(), 0);
     }
@@ -567,5 +567,5 @@ private:
     unsigned int randSeedIndex[ComponentSize];
     HGPComponentPtr(ComponentSize) min, max;
 
-    mutable DataNodePtr finalSeed, interpolatedValue;
+    mutable DataNode::Ptr finalSeed, interpolatedValue;
 };

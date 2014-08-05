@@ -23,7 +23,7 @@ public:
     //The names of the color/depth texture sampler uniforms.
     static const std::string ColorSampler, DepthSampler;
 
-    static std::vector<DataNodePtr> * NodeStorage;
+    static std::vector<Ptr> * NodeStorage;
 
 
     static unsigned int GetColorOutputIndex(void) { return 0; }
@@ -35,17 +35,17 @@ public:
     static DataLine ColorSamplerIn(std::string namePrefix, int fragmentUVInputIndex = 0)
     {
         DataLine uv(FragmentInputNode::GetInstance()->GetName(), fragmentUVInputIndex);
-        NodeStorage->insert(NodeStorage->end(), DataNodePtr(new TextureSample2DNode(uv, ColorSampler, namePrefix + "ColorSampler")));
+        NodeStorage->insert(NodeStorage->end(), Ptr(new TextureSample2DNode(uv, ColorSampler, namePrefix + "ColorSampler")));
         return DataLine(namePrefix + "ColorSampler", TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     }
     //Returns a DataLine that samples and linearizes the depth texture.
     static DataLine DepthSamplerIn(std::string namePrefix, unsigned int fragmentUVInputIndex = 0)
     {
         DataLine uv(FragmentInputNode::GetInstance()->GetName(), fragmentUVInputIndex);
-        NodeStorage->insert(NodeStorage->end(), DataNodePtr(new TextureSample2DNode(uv, DepthSampler, namePrefix + "DepthSampler")));
+        NodeStorage->insert(NodeStorage->end(), Ptr(new TextureSample2DNode(uv, DepthSampler, namePrefix + "DepthSampler")));
         DataLine depthSample(namePrefix + "DepthSampler", TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
 
-        NodeStorage->insert(NodeStorage->end(), DataNodePtr(new LinearizeDepthSampleNode(depthSample, namePrefix + "DepthLinearizer")));
+        NodeStorage->insert(NodeStorage->end(), Ptr(new LinearizeDepthSampleNode(depthSample, namePrefix + "DepthLinearizer")));
         return DataLine(namePrefix + "DepthLinearizer", 0);
     }
 
@@ -72,9 +72,9 @@ public:
     unsigned int CurrentPass;
 
     //Gets the depth output size only.
-    virtual unsigned int GetOutputSize(unsigned int index) const override sealed;
+    virtual unsigned int GetOutputSize(unsigned int index) const final;
     //Gets the depth output name only.
-    virtual std::string GetOutputName(unsigned int index) const override sealed;
+    virtual std::string GetOutputName(unsigned int index) const final;
 
 
     PostProcessEffect(NodeFactory nodeFactory, PpePtr previousEffect = PpePtr(), std::vector<DataLine> otherInputs = std::vector<DataLine>(),
@@ -121,7 +121,7 @@ public:
     virtual std::string GetTypeName(void) const override { return "Tint Effect"; }
 
     ColorTintEffect(DataLine colorScales = DataLine(VectorF(1.0f, 1.0f, 1.0f)), std::string name = "", PpePtr previousEffect = PpePtr())
-        : PostProcessEffect([]() { return DataNodePtr(new ColorTintEffect()); },
+        : PostProcessEffect([]() { return Ptr(new ColorTintEffect()); },
                             previousEffect, DataNode::MakeVector(colorScales))
     { }
     
@@ -157,7 +157,7 @@ public:
     unsigned int Iterations;
 
     ContrastEffect(Strengths strength, unsigned int iterations, std::string name = "", PpePtr prevEffect = PpePtr())
-        : PostProcessEffect([]() { return DataNodePtr(new ContrastEffect(S_Light, 1)); },
+        : PostProcessEffect([]() { return Ptr(new ContrastEffect(S_Light, 1)); },
                             prevEffect, std::vector<DataLine>(), 1, name),
           Strength(strength), Iterations(iterations) { }
 
@@ -188,7 +188,7 @@ public:
               DataLine fogThickness = DataLine(VectorF(1.0f)),
               std::string name = "",
               PpePtr prevEffect = PpePtr())
-        : PostProcessEffect([]() { return DataNodePtr(new FogEffect()); }, prevEffect,
+        : PostProcessEffect([]() { return Ptr(new FogEffect()); }, prevEffect,
                             DataNode::MakeVector(dropoff, fogColor, fogThickness), 1, name) { }
 
 
@@ -219,7 +219,7 @@ public:
     virtual std::string GetTypeName(void) const override { return "Gaussian Blur Effect"; }
 
     GaussianBlurEffect(std::string name = "", PpePtr prevEffect = PpePtr())
-        : PostProcessEffect([]() { return DataNodePtr(new GaussianBlurEffect()); }, prevEffect, std::vector<DataLine>(), 4, name) { }
+        : PostProcessEffect([]() { return Ptr(new GaussianBlurEffect()); }, prevEffect, std::vector<DataLine>(), 4, name) { }
 
     virtual void OverrideVertexOutputs(std::vector<ShaderOutput> & vertOuts) const override;
 

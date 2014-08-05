@@ -5,7 +5,7 @@
 unsigned int HGPComponentManager::nameCounter = 0;
 
 
-HGPComponentManager::HGPComponentManager(UniformDictionary & params, std::string _name = "")
+HGPComponentManager::HGPComponentManager(UniformDictionary & params, std::string _name)
     : Params(params), name(_name)
 {
     if (name.empty())
@@ -29,9 +29,9 @@ void HGPComponentManager::SetColor(HGPComponentPtr(4) newColor) { SwapOutCompone
 void HGPComponentManager::SetDuration(HGPComponentPtr(1) newDuration)
 {
     SwapOutComponent(duration, newDuration);
-    timeLerpComponentNode = DataNodePtr(new GetLerpComponentNode(DataLine(0.0f), duration->GetComponentOutput(),
-                                                                 HGPGlobalData::ParticleElapsedTime,
-                                                                 name + "_timeLerpCalc"));
+    timeLerpComponentNode = DataNode::Ptr(new GetLerpComponentNode(DataLine(0.0f), duration->GetComponentOutput(),
+                                                                   HGPGlobalData::ParticleElapsedTime,
+                                                                   name + "_timeLerpCalc"));
     timeLerp = DataLine(name + "_timeLerpCalc");
 }
 

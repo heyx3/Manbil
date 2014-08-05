@@ -13,9 +13,9 @@ std::string WhiteNoiseNode::GetOutputName(unsigned int index) const
     return GetName() + "_noiseVal";
 }
 
-WhiteNoiseNode::WhiteNoiseNode(const DataLine & seed, std::string name = "", DataLine randPeriodMultiplier = DataLine(43758.5453f))
+WhiteNoiseNode::WhiteNoiseNode(const DataLine & seed, std::string name, DataLine randPeriodMultiplier)
     : DataNode(MakeVector(seed, randPeriodMultiplier),
-               []() { return DataNodePtr(new WhiteNoiseNode(DataLine(5.31f))); },
+               []() { return Ptr(new WhiteNoiseNode(DataLine(5.31f))); },
                name)
 {
     Assert(seed.GetSize() == randPeriodMultiplier.GetSize(),
@@ -33,16 +33,16 @@ void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
     switch (GetOutputSize(0))
     {
         case 1:
-            multiplier = ToString(mult1);
+            multiplier = std::to_string(mult1);
             break;
         case 2:
-            multiplier = std::string() + "vec2(" + ToString(mult1) + ", " + ToString(mult2) + ")";
+            multiplier = "vec2(" + std::to_string(mult1) + ", " + std::to_string(mult2) + ")";
             break;
         case 3:
-            multiplier = std::string() + "vec3(" + ToString(mult1) + ", " + ToString(mult2) + ", " + ToString(mult3) + ")";
+            multiplier = "vec3(" + std::to_string(mult1) + ", " + std::to_string(mult2) + ", " + std::to_string(mult3) + ")";
             break;
         case 4:
-            multiplier = std::string() + "vec4(" + ToString(mult1) + ", " + ToString(mult2) + ", " + ToString(mult3) + ", " + ToString(mult4) + ")";
+            multiplier = "vec4(" + std::to_string(mult1) + ", " + std::to_string(mult2) + ", " + std::to_string(mult3) + ", " + std::to_string(mult4) + ")";
             break;
 
         default:

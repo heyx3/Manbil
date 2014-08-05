@@ -18,7 +18,7 @@ public:
     Vector3f MinExists, MaxExists;
     VoxelVertex(Vector3f pos = Vector3f(), Vector3f minExists = Vector3f(1, 1, 1), Vector3f maxExists = Vector3f(1, 1, 1)) : Pos(pos), MinExists(minExists), MaxExists(maxExists) { }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 3, false, false, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 3, false, false, false, "vIn_pos", "vIn_minExists", "vIn_maxExists"); }
 };
 
 

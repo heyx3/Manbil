@@ -1,7 +1,7 @@
 #include "SubtractNode.h"
 
 
-DataNode::NodeFactory subtractNodeFactory = []() { return DataNodePtr(new SubtractNode(DataLine(VectorF(1.0f, 1.0f, 1.0f, 1.0f)), DataLine())); };
+DataNode::NodeFactory subtractNodeFactory = []() { return DataNode::Ptr(new SubtractNode(DataLine(VectorF(1.0f, 1.0f, 1.0f, 1.0f)), DataLine())); };
 
 
 SubtractNode::SubtractNode(const DataLine & baseVal, const std::vector<DataLine> & toSubtract, std::string name)

@@ -34,10 +34,11 @@ public:
     static ShaderHandler::Shaders CurrentShader;
     
 
-    typedef DataNodePtr(*NodeFactory)(void);
+    typedef std::shared_ptr<DataNode> Ptr;
+    typedef std::shared_ptr<DataNode>(*NodeFactory)(void);
 
     //Returns a pointer to 0 if the given type name is unknown.
-    static DataNodePtr CreateNode(std::string typeName);
+    static std::shared_ptr<DataNode> CreateNode(std::string typeName);
 
 
     //Thrown when something about this DataNode (or an attempt to input/output this DataNode)
@@ -95,8 +96,8 @@ public:
     virtual unsigned int GetNumbOutputs(void) const { return 1; }
 
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override sealed;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override sealed;
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const final;
+    virtual bool ReadData(DataReader * reader, std::string & outError) final;
 
 
 protected:
@@ -174,11 +175,10 @@ private:
     static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
 
 
-
     std::vector<DataLine> inputs;
     std::string name;
 };
 
-typedef std::shared_ptr<DataNode> DataNodePtr;
+//typedef std::shared_ptr<DataNode> Ptr;
 
 #pragma warning(default: 4100)

@@ -4,7 +4,7 @@
 #include "GUIScreen.h"
 #include "../Materials/Data Nodes/DataLine.h"
 #include <string>
-
+/*
 
 
 //Represents a single element in a UI.
@@ -202,3 +202,5 @@ private:
     //Returns whether this operation was successful.
     bool SetSubroutineFunctionID(std::string subroutineUniform, unsigned int index);
 };
+
+*/

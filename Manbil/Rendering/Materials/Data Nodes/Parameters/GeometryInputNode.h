@@ -12,7 +12,7 @@ class GeometryInputNode : public DataNode
 {
 public:
 
-    static DataNodePtr GetInstance(void) { return instance; }
+    static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
 
 
     virtual std::string GetTypeName(void) const override { return "geometryInputs"; }
@@ -30,7 +30,7 @@ protected:
 
 private:
 
-    static DataNodePtr instance;
+    static std::shared_ptr<DataNode> instance;
 
 
     void AssertGeoShader(void) const;

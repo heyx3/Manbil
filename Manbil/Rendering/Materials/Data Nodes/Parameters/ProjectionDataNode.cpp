@@ -3,7 +3,7 @@
 #include "../../MaterialData.h"
 
 
-DataNodePtr ProjectionDataNode::instance = DataNodePtr(new ProjectionDataNode());
+std::shared_ptr<DataNode> ProjectionDataNode::instance = std::shared_ptr<DataNode>(new ProjectionDataNode());
 
 
 std::string ProjectionDataNode::GetOutputName(unsigned int index) const

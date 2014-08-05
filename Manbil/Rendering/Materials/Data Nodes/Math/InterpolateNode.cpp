@@ -15,7 +15,7 @@ std::string InterpolateNode::GetOutputName(unsigned int index) const
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type, std::string name)
     : DataNode(MakeVector(min, max, interp),
-               []() { return DataNodePtr(new InterpolateNode(DataLine(0.0f), DataLine(0.0f), DataLine(0.5f), IT_Linear)); },
+               []() { return Ptr(new InterpolateNode(DataLine(0.0f), DataLine(0.0f), DataLine(0.5f), IT_Linear)); },
                name),
       intType(type)
 {

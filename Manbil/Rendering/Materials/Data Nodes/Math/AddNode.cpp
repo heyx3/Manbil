@@ -14,7 +14,7 @@ std::string AddNode::GetOutputName(unsigned int index) const
 
 AddNode::AddNode(const std::vector<DataLine> & toAdd, std::string name)
     : DataNode(toAdd,
-               []() { return DataNodePtr(new AddNode(DataLine(1.0f), DataLine(0.0f))); },
+               []() { return std::shared_ptr<DataNode>(new AddNode(DataLine(1.0f), DataLine(0.0f))); },
                name)
 {
     unsigned int size = toAdd[0].GetSize();
@@ -28,7 +28,7 @@ void AddNode::WriteMyOutputs(std::string & outCode) const
     std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
-    for (int i = 0; i < GetInputs().size(); ++i)
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
     {
         outCode += GetInputs()[i].GetValue();
 

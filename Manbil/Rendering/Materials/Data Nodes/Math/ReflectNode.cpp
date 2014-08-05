@@ -12,9 +12,9 @@ std::string ReflectNode::GetOutputName(unsigned int index) const
     return GetName() + "_reflected";
 }
 
-ReflectNode::ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, std::string name = "")
+ReflectNode::ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, std::string name)
     : DataNode(MakeVector(toReflect, reflectNormal),
-               []() { return DataNodePtr(new ReflectNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
+               []() { return Ptr(new ReflectNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
                name)
 {
     Assert(toReflect.GetSize() == 3, "'toReflect' isn't size 3!");

@@ -11,11 +11,11 @@ DataLine ConstantAccelerationHGPComponent::GenerateComponentOutput(void) const
     accelTerm.insert(accelTerm.end(), t);
     accelTerm.insert(accelTerm.end(), acceleration->GetComponentOutput());
 
-    velocityMult = DataNodePtr(new MultiplyNode(t, initialVelocity->GetComponentOutput(), GetName() + "_velocityTerm"));
-    accelMult = DataNodePtr(new MultiplyNode(accelTerm, GetName() + "_accelTerm"));
+    velocityMult = DataNode::Ptr(new MultiplyNode(t, initialVelocity->GetComponentOutput(), GetName() + "_velocityTerm"));
+    accelMult = DataNode::Ptr(new MultiplyNode(accelTerm, GetName() + "_accelTerm"));
 
-    addResult = DataNodePtr(new AddNode(initialPosition->GetComponentOutput(), DataLine(velocityMult->GetName()),
-                                        DataLine(accelMult->GetName()), GetName() + "_addResult"));
+    addResult = DataNode::Ptr(new AddNode(initialPosition->GetComponentOutput(), DataLine(velocityMult->GetName()),
+                                          DataLine(accelMult->GetName()), GetName() + "_addResult"));
 
     return DataLine(addResult->GetName());
 }

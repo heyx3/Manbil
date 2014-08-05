@@ -104,6 +104,6 @@ private:
     const DataLine & GetTimeInput(void) const { return GetInputs()[3]; }
 };
 
-DataNodePtr GenerateGoodWaterSurfaceDistortion(SerializedMaterial & matNodes)
+Ptr GenerateGoodWaterSurfaceDistortion(SerializedMaterial & matNodes)
 
 */

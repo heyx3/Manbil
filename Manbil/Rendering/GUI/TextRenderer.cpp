@@ -2,7 +2,6 @@
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Materials/Data Nodes/ShaderGenerator.h"
-#include "../Materials/Data Nodes/Miscellaneous/DataNodeGenerators.h"
 #include "../../ScreenClearer.h"
 
 
@@ -44,30 +43,35 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
 
     //Material.
+
     textRendererParams.ClearUniforms();
-    ShaderInOutAttributes quadAtts = DrawingQuad::GetAttributeData(),
-                     fragmentInputs(2, false);
-    DataNodePtr vertexIns(new VertexInputNode(quadAtts));
-    DataNodePtr fragIns(new FragmentInputNode(fragmentInputs));
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = DrawingQuad::GetAttributeData();
 
-    DataLine textSampler(DataNodePtr(new TextureSample2DNode(DataLine(fragIns, 0), textSamplerName)),
-                         TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels));
+    DataNode::Ptr textSampler(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstance()->GetName()),
+                                                      textSamplerName, "textSampler"));
+    DataNode::Ptr objPosToWorld(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance()->GetName()),
+                                                       SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
+                                                       SpaceConverterNode::DT_POSITION, "objPosToWorld"));
+    DataNode::Ptr vertexPosOut(new CombineVectorNode(DataLine(objPosToWorld->GetName()), DataLine(1.0f)));
+    DataNode::Ptr textR(new SwizzleNode(DataLine(textSampler->GetName(),
+                                                 TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
+                                        SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                        "swizzleTextSample"));
 
-    std::unordered_map<RenderingChannels, DataLine> channels;
-    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexIns, 0))), 0);
-    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(1.0f))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new SwizzleNode(textSampler, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X)), 0);
-    channels[RenderingChannels::RC_Opacity] = DataLine(DataNodePtr(new VectorComponentsNode(textSampler)), 0);
+    DataNode::MaterialOuts.VertexPosOutput = DataLine(vertexPosOut->GetName(), 0);
 
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, textRendererParams, quadAtts, RenderingModes::RM_Opaque, false, LightSettings(false));
+    std::vector<ShaderOutput> & vertOuts = DataNode::MaterialOuts.VertexOutputs,
+                              & fragOuts = DataNode::MaterialOuts.FragmentOutputs;
+    vertOuts.insert(vertOuts.end(), ShaderOutput("out_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+    fragOuts.insert(fragOuts.end(), ShaderOutput("out_FinalColor", DataLine(textR->GetName())));
+
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(textRendererParams, RenderingModes::RM_Opaque);
     if (!genM.ErrorMessage.empty())
     {
         delete textRendererQuad;
-        return std::string() + "Error generating text renderer material: " + genM.ErrorMessage;
+        return "Error generating text renderer material: " + genM.ErrorMessage;
     }
-
-    textRenderer = genM.Mat;
 
     return "";
 }
@@ -288,7 +292,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
             textRendererQuad->MakeSizePositive();
 
             //Render the character into the render target.
-            if (!textRendererQuad->Render(RenderPasses::BaseComponents, textRendererInfo, textRendererParams, *textRenderer))
+            if (!textRendererQuad->Render(textRendererInfo, textRendererParams, *textRenderer))
             {
                 errorMsg = std::string() + "Error rendering character #" + std::to_string(i) + ", '" + ch + "': " + textRenderer->GetErrorMsg();
                 targ->DisableDrawingInto(bbWidth, bbHeight, true);

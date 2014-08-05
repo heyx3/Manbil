@@ -2,7 +2,7 @@
 
 
 
-DataNodePtr VertexInputNode::instance = DataNodePtr(new VertexInputNode());
+std::shared_ptr<DataNode> VertexInputNode::instance = std::shared_ptr<DataNode>(new VertexInputNode());
 
 
 unsigned int VertexInputNode::GetOutputSize(unsigned int outputIndex) const
@@ -26,7 +26,6 @@ std::string VertexInputNode::GetOutputName(unsigned int outputIndex) const
 
 
 #pragma warning(disable: 4100)
-
 void VertexInputNode::WriteMyOutputs(std::string & outCode) const
 {
     Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
@@ -34,5 +33,6 @@ void VertexInputNode::WriteMyOutputs(std::string & outCode) const
     //Don't actually output anything, since the output name is an "in" variable.
 }
 #pragma warning(default: 4100)
+
 
 VertexInputNode::VertexInputNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "vertexIns") { }

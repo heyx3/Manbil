@@ -3,7 +3,7 @@
 #include "../../MaterialData.h"
 
 
-DataNodePtr CameraDataNode::instance = DataNodePtr(new CameraDataNode());
+DataNode::Ptr CameraDataNode::instance = Ptr(new CameraDataNode());
 
 
 std::string CameraDataNode::GetOutputName(unsigned int index) const

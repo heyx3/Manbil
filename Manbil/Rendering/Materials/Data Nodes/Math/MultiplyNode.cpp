@@ -23,7 +23,7 @@ std::string MultiplyNode::GetOutputName(unsigned int index) const
 
 MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply, std::string name)
     : DataNode(toMultiply,
-               []() { return DataNodePtr(new MultiplyNode(DataLine(1.0f), DataLine(1.0f))); },
+               []() { return Ptr(new MultiplyNode(DataLine(1.0f), DataLine(1.0f))); },
                name)
 {
     Assert(toMultiply.size() > 0, "Need at least one input for this MultiplyNode!");

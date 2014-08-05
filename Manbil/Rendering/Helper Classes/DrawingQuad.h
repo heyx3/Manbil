@@ -47,7 +47,7 @@ public:
 
     DrawingQuad & operator=(const DrawingQuad & cpy);
 
-    bool Render(RenderPasses pass, const RenderInfo & info, const UniformDictionary & params, Material & mat);
+    bool Render(const RenderInfo & info, const UniformDictionary & params, Material & mat);
 
 private:
 

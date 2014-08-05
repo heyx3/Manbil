@@ -56,7 +56,7 @@ unsigned int TextureSample2DNode::GetOutputSize(unsigned int index) const
 
 TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string samplerName, std::string name)
     : DataNode(MakeVector(uvs),
-               []() { return DataNodePtr(new TextureSample2DNode(DataLine(VectorF(0.5f, 0.5f)))); },
+               []() { return Ptr(new TextureSample2DNode(DataLine(VectorF(0.5f, 0.5f)))); },
                name),
       SamplerName(samplerName)
 {

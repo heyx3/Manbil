@@ -12,9 +12,9 @@ std::string ModuloNode::GetOutputName(unsigned int index) const
     return GetName() + "_result";
 }
 
-ModuloNode::ModuloNode(const DataLine & numerator, const DataLine & divisor, std::string name = "")
+ModuloNode::ModuloNode(const DataLine & numerator, const DataLine & divisor, std::string name)
     : DataNode(MakeVector(numerator, divisor),
-               []() { return DataNodePtr(new ModuloNode(DataLine(0.0f), DataLine(2.0f))); },
+               []() { return Ptr(new ModuloNode(DataLine(0.0f), DataLine(2.0f))); },
                name)
 {
     Assert(numerator.GetSize() == divisor.GetSize() || divisor.GetSize() == 1,

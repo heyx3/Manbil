@@ -63,7 +63,7 @@ SG::GeneratedMaterial SG::GenerateMaterial(UniformDictionary & outUniforms, Rend
     GeoShaderData & geometryShader = DataNode::GeometryShader;
 
     std::string vs, fs;
-    std::string error = GenerateVertFragShaders(vs, fs, outUniforms, mode);
+    std::string error = GenerateVertFragShaders(vs, fs, outUniforms);
 
     std::string geo = "";
     if (geometryShader.IsValidData())
@@ -136,8 +136,7 @@ std::string SG::GenerateGeometryShader(void)
     return code;
 }
 
-std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader,
-                                        UniformDictionary & outUniforms, RenderingModes mode)
+std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & outFShader, UniformDictionary & outUniforms)
 {
     const ShaderInOutAttributes & vertexIns = DataNode::VertexIns;
     const MaterialOutputs & matData = DataNode::MaterialOuts;
@@ -147,7 +146,7 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
     bool useGeoShader = geoShaderData.IsValidData();
 
     //First make sure all shader outputs are valid sizes.
-    if (!matData.VertexPosOutput.GetSize() != 4)
+    if (matData.VertexPosOutput.GetSize() != 4)
         return "Vertex pos output value must be size 4, but it is size " + std::to_string(matData.VertexPosOutput.GetSize());
     for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
     {

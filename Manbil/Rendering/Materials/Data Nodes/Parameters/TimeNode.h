@@ -12,7 +12,7 @@ class TimeNode : public DataNode
 {
 public:
 
-    static DataNodePtr GetInstance(void) { return instance; }
+    static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
     static DataLine GetTime(void) { return DataLine(instance->GetName(), 0); }
 
 
@@ -30,7 +30,7 @@ protected:
 
 private:
 
-    static DataNodePtr instance;
+    static std::shared_ptr<DataNode> instance;
 
     TimeNode(void);
 };

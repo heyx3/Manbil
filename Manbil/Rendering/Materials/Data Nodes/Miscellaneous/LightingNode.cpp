@@ -18,7 +18,7 @@ LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & su
                            std::string name, DataLine ambient, DataLine diffuse,
                            DataLine specular, DataLine specIntensity, DataLine camPos)
     : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity, camPos, surfaceWorldPos, surfaceWorldNormal, lightDir),
-               []() { return DataNodePtr(new LightingNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(VectorF(0.0f, 0.0, -1.0f)))); },
+               []() { return Ptr(new LightingNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(VectorF(0.0f, 0.0, -1.0f)))); },
                name)
 {
     Assert(ambient.GetSize() == 1, "Ambient input must be size 1; is size " + ToString(ambient.GetSize()));

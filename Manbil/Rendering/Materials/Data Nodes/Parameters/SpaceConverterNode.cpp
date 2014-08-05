@@ -34,13 +34,14 @@ std::string SpaceConverterNode::GetOutputName(unsigned int index) const
 
 SpaceConverterNode::SpaceConverterNode(const DataLine & inV, SpaceTypes src, SpaceTypes dest, DataTypes dat, std::string name)
     : DataNode(MakeVector(inV),
-               []() { return DataNodePtr(new SpaceConverterNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), ST_OBJECT, ST_SCREEN, DT_NORMAL)); },
+               []() { return Ptr(new SpaceConverterNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), ST_OBJECT, ST_SCREEN, DT_NORMAL)); },
                name),
       SrcSpace(src), DestSpace(dest), DataType(dat)
 {
     Assert(AssertValidSrcDestSpaces(), errorMsg);
 }
 
+#pragma warning(disable: 4100)
 void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
     Assert(AssertValidSrcDestSpaces(), errorMsg);
@@ -86,6 +87,8 @@ void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
         default: Assert(false, "Invalid src space " + ToString(SrcSpace));
     }
 }
+#pragma warning(default: 4100)
+
 void SpaceConverterNode::WriteMyOutputs(std::string & outCode) const
 {
     Assert(AssertValidSrcDestSpaces(), errorMsg);

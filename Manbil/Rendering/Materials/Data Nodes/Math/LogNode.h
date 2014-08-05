@@ -11,7 +11,7 @@ public:
     virtual std::string GetTypeName(void) const override { return "log"; }
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
-    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual std::string GetOutputName(unsigned int index) const override;
 
     LogNode(const DataLine & value, DataLine base = DataLine(VectorF(2.0f)), std::string name = "");
 

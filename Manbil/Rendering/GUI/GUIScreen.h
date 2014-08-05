@@ -5,8 +5,10 @@
 #include "../../Math/Vectors.h"
 #include "../Texture Management/RenderTargetManager.h"
 
+/*
 class GUIElement;
 typedef std::shared_ptr<GUIElement> GUIElementPtr;
+
 
 
 //A collection of GUI elements.
@@ -35,3 +37,5 @@ private:
 
     unsigned int finalScreenRenderTargetID;
 };
+
+*/

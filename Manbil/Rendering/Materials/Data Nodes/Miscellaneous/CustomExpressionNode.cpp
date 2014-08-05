@@ -24,7 +24,7 @@ CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSiz
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, const std::vector<DataLine> & ins, std::string name)
     : expression(expr), expressionOutputSize(outSize),
-      DataNode(ins, []() { return DataNodePtr(new CustomExpressionNode("0.0f", 1)); }, name)
+      DataNode(ins, []() { return Ptr(new CustomExpressionNode("0.0f", 1)); }, name)
 {
 
 }

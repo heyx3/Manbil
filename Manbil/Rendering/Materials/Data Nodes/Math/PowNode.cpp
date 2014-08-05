@@ -12,12 +12,9 @@ std::string PowNode::GetOutputName(unsigned int index) const
     return GetName() + "_powResult";
 }
 
-const DataLine & PowNode::GetBaseInput(void) const { return GetInputs()[0]; }
-const DataLine & PowNode::GetExponentInput(void) const { return GetInputs()[1]; }
-
-PowNode::PowNode(const DataLine & base, const DataLine & exponent, std::string name = "")
+PowNode::PowNode(const DataLine & base, const DataLine & exponent, std::string name)
     : DataNode(MakeVector(base, exponent),
-               []() { return DataNodePtr(new PowNode(DataLine(1.0f), DataLine(1.0f))); },
+               []() { return Ptr(new PowNode(DataLine(1.0f), DataLine(1.0f))); },
                name)
 {
     Assert(exponent.GetSize() == base.GetSize(), "'exponent' input is not the same size as 'base' input!");
