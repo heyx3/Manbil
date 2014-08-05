@@ -18,7 +18,7 @@ public:
     DataLine(std::string nodeName, unsigned int outputLineIndex = 0)
         : isConstantValue(false), nonConstantValue(nodeName), nonConstantOutputIndex(outputLineIndex) { }
     //Creates a DataLine that gets its input value from a DataNode.
-    DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex = 0) : DataLine(nodePtr->GetName(), outputLineIndex) { }
+    DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex = 0);
 
     //Creates a DataLine with a constant input value.
     DataLine(const VectorF & constantInput) : isConstantValue(true), constantValue(constantInput) { }

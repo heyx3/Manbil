@@ -4,6 +4,10 @@
 #include "../../../DebugAssist.h"
 
 
+
+DataLine::DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex)
+    : DataLine(nodePtr->GetName(), outputLineIndex) { }
+
 unsigned int DataLine::GetSize(void) const
 {
     if (isConstantValue)
