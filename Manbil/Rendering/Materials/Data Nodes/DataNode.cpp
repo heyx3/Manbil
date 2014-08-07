@@ -69,6 +69,10 @@ void DataNode::AssertAllInputsValid(void) const
                 auto found = DataNode_nameToNode->find(inputs[i].GetNonConstantValue());
                 Assert(found != DataNode_nameToNode->end(),
                        "The input named '" + inputs[i].GetNonConstantValue() + "' doesn't exist!");
+                Assert(inputs[i].GetNonConstantOutputIndex() < found->second->GetNumbOutputs(),
+                       "The input named '" + found->second->GetName() + "' only has " +
+                           ToString(found->second->GetNumbOutputs()) + " outputs, but the output index was " +
+                           ToString(inputs[i].GetNonConstantOutputIndex()));
 
                 outError = &found->second->errorMsg;
                 found->second->AssertAllInputsValid();

@@ -55,7 +55,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
                                                        SpaceConverterNode::DT_POSITION, "objPosToWorld"));
     DataNode::Ptr vertexPosOut(new CombineVectorNode(DataLine(objPosToWorld->GetName()), DataLine(1.0f)));
     DataNode::Ptr textR(new SwizzleNode(DataLine(textSampler->GetName(),
-                                                 TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
+                                                 TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllChannels)),
                                         SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
                                         "swizzleTextSample"));
 
@@ -72,6 +72,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
         delete textRendererQuad;
         return "Error generating text renderer material: " + genM.ErrorMessage;
     }
+    textRenderer = genM.Mat;
 
     return "";
 }

@@ -239,12 +239,14 @@ void OpenGLTestWorld::InitializeMaterials(void)
         DNP lightCalc(new LightingNode(DataLine(FragmentInputNode::GetInstance(), 3),
                                        finalWorldNormal, DataLine(Vector3f(-1.0f, -1.0f, -0.1f).Normalized()),
                                        "lightCalc", DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
-        DNP finalColor(new MultiplyNode(lightCalc, DataLine(VectorF(0.275f, 0.275f, 1.0f))));
+        DNP finalColorRGB(new MultiplyNode(lightCalc, DataLine(VectorF(0.275f, 0.275f, 1.0f)), "finalColorRGB")),
+            finalColor(new CombineVectorNode(finalColorRGB, 1.0f, "finalColor"));
 
         DNP worldNormalToTexValue(new RemapNode(finalWorldNormal, DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f), "worldNormToTexVal"));
+        DNP worldNormalColor(new CombineVectorNode(worldNormalToTexValue, 1.0f, "worldNormalColor"));
 
         fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalColor));
-        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_WorldNormal", worldNormalToTexValue));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_WorldNormal", worldNormalColor));
 
         texSamplerName = ((TextureSample2DNode*)normalMapPtr.get())->SamplerName;
 
@@ -354,16 +356,21 @@ void OpenGLTestWorld::InitializeMaterials(void)
         UVs = vec2(0.0f, 0.0f);                                                                       \n\
         EmitVertex();                                                                                 \n\
     }";
-        GeoShaderData geoDat(ShaderInOutAttributes(2, false, "UVs"), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
+        gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontSlot)) * 0.1f, "u_quadSize");
+        DataNode::GeometryShader = GeoShaderData(ShaderInOutAttributes(2, false, "UVs"), geoShaderUsage,
+                                                 4, Points, TriangleStrip, gsTestParams, geoCode);
 
         //Fragment outputs.
         DNP timeTexUVs2D(new MultiplyNode(0.25f, TimeNode::GetTime(), "texUVs2D")),
             timeTexUVs3D(new CombineVectorNode(FragmentInputNode::GetInstance(), timeTexUVs2D, "texUVs3D")),
-            timeTexSample(new TextureSample3DNode(timeTexUVs3D, "u_tex3D", "tex3DSample"));
+            timeTexSample(new TextureSample3DNode(timeTexUVs3D, "u_tex3D", "tex3DSample")),
+            timeTexSampleFinal(new CombineVectorNode(DataLine(timeTexSample,
+                                                              TextureSample3DNode::GetOutputIndex(CO_AllColorChannels)),
+                                                     1.0f, "tex3DSampleFinal"));
         DNP textSamplerPtr(new TextureSample2DNode(FragmentInputNode::GetInstance(), "u_textSampler", "textSampler"));
         DataLine textSamplerRed(textSamplerPtr, TextureSample2DNode::GetOutputIndex(CO_Red));
-        DNP textSamplerFinal(new CombineVectorNode(textSamplerRed, textSamplerRed, textSamplerRed, "textSamplerFinal"));
-        DNP finalDiffuse(new MultiplyNode(textSamplerFinal, timeTexSample));
+        DNP textSamplerFinal(new CombineVectorNode(textSamplerRed, textSamplerRed, textSamplerRed, 1.0f, "textSamplerFinal"));
+        DNP finalDiffuse(new MultiplyNode(textSamplerFinal, timeTexSampleFinal));
         fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalDiffuse));
     
         //Material generation.
@@ -375,7 +382,6 @@ void OpenGLTestWorld::InitializeMaterials(void)
             EndWorld();
             return;
         }
-        gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontSlot)) * 0.1f, "u_quadSize");
         gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot)->GetTextureHandle();
         gsTestParams.Texture3DUniforms["u_tex3D"].Texture = gsTestTex3D.GetTextureHandle();
         gsTestMat = gsGen.Mat;

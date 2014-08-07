@@ -15,18 +15,12 @@ unsigned int FragmentInputNode::GetNumbOutputs(void) const
 
 unsigned int FragmentInputNode::GetOutputSize(unsigned int index) const
 {
-    Assert(CurrentShader == ShaderHandler::SH_Fragment_Shader,
-           "Invalid shader type (must be Fragment): " + ToString(CurrentShader));
-
     return GeometryShader.IsValidData() ?
                GeometryShader.OutputTypes.GetAttributeSize(index) :
                MaterialOuts.VertexOutputs[index].Value.GetSize();
 }
 std::string FragmentInputNode::GetOutputName(unsigned int index) const
 {
-    Assert(CurrentShader == ShaderHandler::SH_Fragment_Shader,
-           "Invalid shader type (must be Fragment): " + ToString(CurrentShader));
-
     return GeometryShader.IsValidData() ?
                GeometryShader.OutputTypes.GetAttributeName(index) :
                MaterialOuts.VertexOutputs[index].Name;

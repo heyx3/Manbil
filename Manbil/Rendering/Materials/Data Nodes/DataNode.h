@@ -34,8 +34,7 @@ public:
     static ShaderHandler::Shaders CurrentShader;
 
     //Put this at the bottom of a DataNode class's declaration in the .h file (inside the declaration)
-    //  to make it readable by a DataSerializer. Not necessary if the class already has a static instance of itself,
-    //  like a singleton.
+    //  to make it readable by a DataSerializer. Must be used with MAKE_NODE_READABLE_CPP.
     #define MAKE_NODE_READABLE_H(nodeClass) \
         public: \
             virtual std::string GetTypeName(void) const override { return #nodeClass; } \
@@ -47,7 +46,7 @@ public:
             }; \
             static Initializer IGNORE_MEEEE;
     //Put this in a DataNode class's .cpp file to make it readable by a DataSerializer.
-    //Not necessary if the class already has a static instance of itself, like a singleton.
+    //Must be used with MAKE_NODE_READABLE_H.
     #define MAKE_NODE_READABLE_CPP(nodeClass, ...) \
         nodeClass::Initializer::Initializer(void) \
         { \

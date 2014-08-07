@@ -56,7 +56,7 @@ void LightingNode::WriteMyOutputs(std::string & outCode) const
         GetSpecularIntensityInput().GetValue() + ", " +
         GetLightDirInput().GetValue() + ", " +
         GetSurfaceNormalInput().GetValue();
-    if (GetSpecularInput().IsConstant(0.0f))
+    if (!GetSpecularInput().IsConstant(0.0f))
         outCode += ", normalize(" + GetCameraPosInput().GetValue() + " - " + GetSurfacePosInput().GetValue() + ")";
     outCode += ");\n";
 }

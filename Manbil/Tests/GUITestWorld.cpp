@@ -155,9 +155,9 @@ void GUITestWorld::InitializeWorld(void)
     
     DNP textSamplePtr(new TextureSample2DNode(FragmentInputNode::GetInstance(), textSamplerName, "textSample"));
     DataLine textSampleRed(textSamplePtr, TextureSample2DNode::GetOutputIndex(CO_Red));
-    DNP textSampleRGB(new CombineVectorNode(textSampleRed, textSampleRed, textSampleRed, "textSampleRGB"));
+    DNP textSampleRGB1(new CombineVectorNode(textSampleRed, textSampleRed, textSampleRed, 1.0f, "textSampleRGB"));
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor", textSampleRGB));
+                                                  ShaderOutput("fOut_FinalColor", textSampleRGB1));
 
     ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(quadParams, RenderingModes::RM_Opaque);
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating quad material", genMat.ErrorMessage))

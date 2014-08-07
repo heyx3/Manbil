@@ -437,13 +437,13 @@ void TestMaterialIOStuff()
 int main()
 {
     //TestIOStuff();
-    TestMaterialIOStuff();
+    //TestMaterialIOStuff();
 
 
-    //OpenGLTestWorld().RunWorld();
+    OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-   // GUITestWorld().RunWorld();
+    //GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
 

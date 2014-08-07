@@ -14,12 +14,21 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
 
         for (unsigned int i = 0; i < nComps; ++i)
         {
-            switch (comps[i])
+            Components iComp = comps[i];
+            switch (iComp)
             {
-                case C_X: outStr += "x";
-                case C_Y: outStr += "y";
-                case C_Z: outStr += "z";
-                case C_W: outStr += "w";
+                case C_X:
+                    outStr += "x";
+                    break;
+                case C_Y:
+                    outStr += "y";
+                    break;
+                case C_Z:
+                    outStr += "z";
+                    break;
+                case C_W:
+                    outStr += "w";
+                    break;
 
                 default: Assert(false, "Unknown component '" + ToString(comps[i]));
             }

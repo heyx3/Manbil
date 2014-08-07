@@ -14,8 +14,6 @@ public:
     Components GetComponent(unsigned int index) const { return comps[index]; }
 
 
-    virtual unsigned int GetNumbOutputs(void) const override { return 0; }
-
 #pragma warning(disable: 4100)
     virtual unsigned int GetOutputSize(unsigned int index) const override { return nComps; }
 #pragma warning(default: 4100)
