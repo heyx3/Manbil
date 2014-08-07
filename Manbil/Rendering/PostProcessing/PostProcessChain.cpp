@@ -91,7 +91,9 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             PostProcessEffect::PpePtr effct = passGroups[passGroup][0];
             effct->ChangePreviousEffect();
             DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                          ShaderOutput("out_FinalColor", DataLine(effct->GetName(), PostProcessEffect::GetColorOutputIndex())));
+                                                          ShaderOutput("out_FinalColor",
+                                                                       DataLine(effct->GetName(),
+                                                                                PostProcessEffect::GetColorOutputIndex())));
 
             //If there is a group before/after this, skip the first/last pass, since it will be lumped in with that other group.
             unsigned int startPass = 1,

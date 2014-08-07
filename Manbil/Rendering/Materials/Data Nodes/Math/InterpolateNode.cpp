@@ -29,6 +29,7 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
     std::string vType2 = VectorF(GetInterpInput().GetSize()).GetGLSLType();
     std::string funcName = GetName() + "_verySmoothStep";
 
+    //TODO: See if part of this function can be replaced with a single mix() or smoothstep().
     std::string str = vType + " " + funcName + "(" + vType + " minV, " + vType + " maxV, " + vType2 + " interpolantV)\n\
                       {\n\
                          \tfloat interpValue = interpolantV * interpolantV * interpolantV *\n\

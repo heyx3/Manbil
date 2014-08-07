@@ -157,11 +157,14 @@ void PlanetSimWorld::InitializeWorld(void)
     DNP planetFogLerp(new CustomExpressionNode("(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)", 1,
                                                DataLine(distFromPlayerLerp->GetName()), "planetFogLerp"));
     DataLine planetFogColor(VectorF(1.0f, 1.0f, 1.0f));
-    DNP finalPlanetFog(new InterpolateNode(planetFogColor, DataLine(litTexColor->GetName()), DataLine(planetFogLerp->GetName()), InterpolateNode::IT_VerySmooth));
+    DNP finalPlanetFog(new InterpolateNode(planetFogColor, DataLine(litTexColor->GetName()),
+                                           DataLine(planetFogLerp->GetName()),
+                                           InterpolateNode::IT_VerySmooth));
+    DNP finalPlanetColor(new CombineVectorNode(finalPlanetFog, 1.0f, "finalPlanetColor"));
 
     //Color output.
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor", DataLine(finalPlanetFog->GetName())));
+                                                  ShaderOutput("fOut_FinalColor", finalPlanetColor));
 
     //Material generation.
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(planetParams, RenderingModes::RM_Opaque);

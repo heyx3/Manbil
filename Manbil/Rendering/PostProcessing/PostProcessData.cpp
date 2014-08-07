@@ -31,12 +31,10 @@ void PostProcessEffect::ChangePreviousEffect(PpePtr newPrevEffect)
 }
 unsigned int PostProcessEffect::GetOutputSize(unsigned int index) const
 {
-    Assert(index <= 1, "Output index is greater than 1: " + ToString(index));
-    return (index == 0 ? 3 : 1);
+    return (index == 0 ? 4 : 1);
 }
 std::string PostProcessEffect::GetOutputName(unsigned int index) const
 {
-    Assert(index <= 1, "Output index is greater than 1: " + ToString(index));
     return GetName() + (index == 0 ? "_colorOut" : "_depthOut");
 }
 std::vector<DataLine> PostProcessEffect::MakeVector(PpePtr prevEffect, std::string namePrefix, const std::vector<DataLine> & otherInputs)
@@ -44,8 +42,8 @@ std::vector<DataLine> PostProcessEffect::MakeVector(PpePtr prevEffect, std::stri
     std::vector<DataLine> ret = otherInputs;
     if (prevEffect.get() == 0)
     {
-        ret.insert(ret.end(), ColorSamplerIn(namePrefix));
-        ret.insert(ret.end(), DepthSamplerIn(namePrefix));
+        ret.insert(ret.end(), DataLine());
+        ret.insert(ret.end(), DataLine());
     }
     else
     {
@@ -103,7 +101,7 @@ void ContrastEffect::WriteMyOutputs(std::string & strOut) const
     }
     func += GetName();
 
-    strOut += "\tvec3 " + GetOutputName(0) + " = " + func + "(" + GetColorInput().GetValue() + ");\n";
+    strOut += "\tvec4 " + GetOutputName(0) + " = " + func + "(" + GetColorInput().GetValue() + ", 1.0f);\n";
 }
 
 bool ContrastEffect::WriteExtraData(DataWriter * writer, std::string & outError) const
@@ -175,9 +173,9 @@ void FogEffect::WriteMyOutputs(std::string & strOut) const
                               std::string("(1.0 - ") + innerLerpVal + ")" :
                               std::string("pow(1.0 - ") + innerLerpVal + ", " + GetDropoffInput().GetValue() + ")");
     strOut += "\n\
-    vec3 " + GetOutputName(0) + " = mix(" + GetFogColorInput().GetValue() + ", " +
-                                        GetColorInput().GetValue() + ", \n\
-                                        " + lerpVal + ");\n";
+    vec4 " + GetOutputName(0) + " = vec4(mix(" + GetFogColorInput().GetValue() + ", " +
+                                             GetColorInput().GetValue() + ", \n\
+                                             " + lerpVal + "), 1.0f);\n";
 }
 
 
@@ -251,23 +249,25 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
     
     if (CurrentShader == ShaderHandler::SH_Fragment_Shader)
     {
+        std::string tempOut = GetName() + "_temp";
         std::string output = GetOutputName(GetColorOutputIndex());
         outStr += "\n\t//Use built-in interpolation step to speed up texture sampling.\n\
-    vec3 " + output + " = vec3(0.0);\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_0).xyz  * 0.0044299121055113265;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_1).xyz  * 0.00895781211794;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_2).xyz  * 0.0215963866053;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_3).xyz  * 0.0443683338718;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_4).xyz  * 0.0776744219933;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_5).xyz  * 0.115876621105;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_6).xyz  * 0.147308056121;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_7).xyz  * 0.159576912161;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_8).xyz  * 0.147308056121;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_9).xyz  * 0.115876621105;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_10).xyz * 0.0776744219933;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_11).xyz * 0.0443683338718;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_12).xyz * 0.0215963866053;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_13).xyz * 0.00895781211794;\n\
-    " + output + " += texture2D(" + ColorSampler + ", outUV_14).xyz * 0.0044299121055113265;\n";
+    vec3 " + tempOut + " = vec4(0.0);\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_0).xyz  * 0.0044299121055113265;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_1).xyz  * 0.00895781211794;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_2).xyz  * 0.0215963866053;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_3).xyz  * 0.0443683338718;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_4).xyz  * 0.0776744219933;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_5).xyz  * 0.115876621105;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_6).xyz  * 0.147308056121;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_7).xyz  * 0.159576912161;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_8).xyz  * 0.147308056121;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_9).xyz  * 0.115876621105;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_10).xyz * 0.0776744219933;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_11).xyz * 0.0443683338718;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_12).xyz * 0.0215963866053;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_13).xyz * 0.00895781211794;\n\
+    " + tempOut + " += texture2D(" + ColorSampler + ", outUV_14).xyz * 0.0044299121055113265;\n\
+    " + output + " = vec4(" + tempOut + ", 1.0f);\n";
     }
 }

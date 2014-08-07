@@ -19,8 +19,6 @@ public:
     //The names of the color/depth texture sampler uniforms.
     static const std::string ColorSampler, DepthSampler;
 
-    static std::vector<Ptr> NodeStorage;
-
 
     static unsigned int GetColorOutputIndex(void) { return 0; }
     static unsigned int GetDepthOutputIndex(void) { return 1; }
@@ -32,7 +30,10 @@ public:
     DataLine ColorSamplerIn(std::string namePrefix, int fragmentUVInputIndex = 0)
     {
         DataLine uv(FragmentInputNode::GetInstanceName(), fragmentUVInputIndex);
+        
+        colorSamplerPtr = Ptr(0);
         colorSamplerPtr = Ptr(new TextureSample2DNode(uv, ColorSampler, namePrefix + "ColorSampler"));
+
         return DataLine(colorSamplerPtr->GetName(),
                         TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
     }
@@ -40,10 +41,15 @@ public:
     DataLine DepthSamplerIn(std::string namePrefix, unsigned int fragmentUVInputIndex = 0)
     {
         DataLine uv(FragmentInputNode::GetInstanceName(), fragmentUVInputIndex);
+
+        depthSamplerPtr = Ptr(0);
         depthSamplerPtr = Ptr(new TextureSample2DNode(uv, DepthSampler, namePrefix + "DepthSampler"));
+
+        depthLinearizerPtr = Ptr(0);
         depthLinearizerPtr =
             Ptr(new LinearizeDepthSampleNode(DataLine(depthSamplerPtr->GetName(),
-                                                      TextureSample2DNode::GetOutputIndex(CO_AllColorChannels))));
+                                                      TextureSample2DNode::GetOutputIndex(CO_Red))));
+
         return DataLine(depthLinearizerPtr->GetName());
     }
 
@@ -77,14 +83,14 @@ public:
 
     PostProcessEffect(PpePtr previousEffect = PpePtr(), std::vector<DataLine> otherInputs = std::vector<DataLine>(),
                       unsigned int numbPasses = 1, std::string name = "")
-        : colorSamplerPtr(0), depthSamplerPtr(0), depthLinearizerPtr(0),
-          DataNode(MakeVector(previousEffect,
+        : DataNode(MakeVector(previousEffect,
                               (name.empty() ? ("node" + ToString(GenerateUniqueID()) + "_") : (name + "_")),
                               otherInputs),
-                  name),
+                   name),
           PrevEffect(previousEffect), NumbPasses(numbPasses), CurrentPass(1)
     {
-
+        ReplaceInput(GetInputs().size() - 2, ColorSamplerIn(GetName() + "_"));
+        ReplaceInput(GetInputs().size() - 1, DepthSamplerIn(GetName() + "_"));
     }
 
 
@@ -101,6 +107,8 @@ public:
 protected:
 
     PpePtr PrevEffect;
+    
+    DataNode::Ptr colorSamplerPtr, depthSamplerPtr, depthLinearizerPtr;
 
     //Gets all inputs in the correct order not including the color and depth input.
     std::vector<DataLine> GetNonColorDepthInputs(void) const { return std::vector<DataLine>(GetInputs().begin(), GetInputs().end() - 2); }
@@ -115,8 +123,6 @@ protected:
 
 
 private:
-
-    DataNode::Ptr colorSamplerPtr, depthSamplerPtr, depthLinearizerPtr;
 
     //Creates the input std::vector for this node (by appending the correct color and depth inputs to the given vector).
     std::vector<DataLine> MakeVector(PpePtr prevEffect, std::string namePrefix, const std::vector<DataLine> & otherInputs);

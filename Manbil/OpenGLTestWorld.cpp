@@ -396,27 +396,31 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
         HGPComponentManager manager(particleParams);
+        /*
         const unsigned int posSeeds[] = { 5, 1, 3, 2 },
                            velSeeds[] = { 0, 1, 2 },
                            accelSeeds[] = { 3, 4, 5 };
-        HGPComponentPtr(3) initialPos(new SpherePositionComponent(manager, Vector3f(500.0f, 500.0f, 50.0f), 20.0f, posSeeds));
-        HGPComponentPtr(3) initialVel(new RandomizedHGPComponent<3>(manager, HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(80.0f, 80.0f, 30.0f), manager)),
-                                                                    HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(-80.0f, -80.0f, 70.0f), manager)),
-                                                                    velSeeds)),
-                           accel(new RandomizedHGPComponent<3>(manager, HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(0.0f, 0.0f, -30.0f), manager)),
-                                                               HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(0.0f, 0.0f, -90.0f), manager)),
-                                                               accelSeeds));
+        HGPComponentPtr(3) initialPos(new SpherePositionComponent(manager, Vector3f(500.0f, 500.0f, 50.0f), 20.0f, posSeeds, "initialPos"));
+        HGPComponentPtr(3) initialVel(new RandomizedHGPComponent<3>(manager, HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(80.0f, 80.0f, 30.0f), manager, "minVel")),
+                                                                    HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(-80.0f, -80.0f, 70.0f), manager, "maxVel")),
+                                                                    velSeeds, "initialVel")),
+                           accel(new RandomizedHGPComponent<3>(manager, HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(0.0f, 0.0f, -30.0f), manager, "minAccel")),
+                                                               HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(0.0f, 0.0f, -90.0f), manager, "maxAccel")),
+                                                               accelSeeds, "accel"));
         const unsigned int sizeSeeds[] = { 3, 1 },
                            colorSeeds[] = { 0, 4, 2, 5 };
-        manager.SetWorldPosition(HGPComponentPtr(3)(new ConstantAccelerationHGPComponent(manager, accel, initialVel, initialPos)));
-        manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.1f), manager)),
-                                                                         HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), manager)),
-                                                                         sizeSeeds)));
-        manager.SetColor(HGPComponentPtr(4)(new RandomizedHGPComponent<4>(manager, HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF(0.0f, 0.0f, 0.0f, 1.0f), manager)),
-                                                                          HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), manager)),
-                                                                          colorSeeds)));
+        manager.SetWorldPosition(HGPComponentPtr(3)(new ConstantAccelerationHGPComponent(manager, accel, initialVel, initialPos, "kinematicComp")));
+        manager.SetSize(HGPComponentPtr(2)(new RandomizedHGPComponent<2>(manager, HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 0.1f), manager, "minSize")),
+                                                                         HGPComponentPtr(2)(new ConstantHGPComponent<2>(VectorF((unsigned int)2, 1.0f), manager, "maxSize")),
+                                                                         sizeSeeds, "sizeComp")));
+        manager.SetColor(HGPComponentPtr(4)(new RandomizedHGPComponent<4>(manager, HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF(0.0f, 0.0f, 0.0f, 1.0f), manager, "minColor")),
+                                                                          HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), manager, "maxColor")),
+                                                                          colorSeeds, "colorComp")));
+        */
+        manager.SetWorldPosition(HGPComponentPtr(3)(new ConstantHGPComponent<3>(Vector3f(500.0f, 500.0f, 50.0f), manager, "constWorldPos")));
+        manager.SetSize(HGPComponentPtr(2)(new ConstantHGPComponent<2>(Vector2f(0.5f, 0.5f), manager, "constSize")));
+        manager.SetColor(HGPComponentPtr(4)(new ConstantHGPComponent<4>(Vector4f(0.5f, 0.5f, 0.5f, 1.0f), manager, "constColor")));
         manager.SetGPUPOutputs(gpupOuts);
-        //gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(Ptr(new CombineVectorNode(HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, DataLine(1.0f))), 0);
         manager.Initialize();
 
         ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
@@ -462,7 +466,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
         DataLine cubemapUVs = FragmentInputNode::GetInstance();
         DNP cubemapSamplePtr(new TextureSampleCubemapNode(cubemapUVs, "u_cubemapTex", "cubemapSample"));
         DataLine cubemapSampleRGB(cubemapSamplePtr, TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
-        fragOuts.insert(fragOuts.end(), ShaderOutput("vOut_FinalColor", cubemapSampleRGB));
+        DNP finalCubeColor(new CombineVectorNode(cubemapSampleRGB, 1.0f, "finalCubeColor"));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("vOut_FinalColor", finalCubeColor));
 
         ShaderGenerator::GeneratedMaterial cmGen = ShaderGenerator::GenerateMaterial(cubemapParams, RenderingModes::RM_Opaque);
         if (!cmGen.ErrorMessage.empty())
@@ -500,12 +505,11 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
 
-        DNP texSampler(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstance(), 1),
-                                               "u_finalRenderSample", "sampleRender"));
-        fragOuts.insert(fragOuts.end(),
-                        ShaderOutput("fOut_FinalColor",
-                                     DataLine(texSampler,
-                                              TextureSample2DNode::GetOutputIndex(CO_AllColorChannels))));
+        DNP texSamplerPtr(new TextureSample2DNode(FragmentInputNode::GetInstance(),
+                                                  "u_finalRenderSample", "sampleRender"));
+        DataLine texSampler(texSamplerPtr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+        DNP finalRenderCol(new CombineVectorNode(texSampler, 1.0f, "finalRenderCol"));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalRenderCol));
 
         UniformDictionary uniformDict;
         ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(uniformDict, RenderingModes::RM_Opaque);
