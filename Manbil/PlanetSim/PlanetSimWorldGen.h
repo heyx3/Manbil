@@ -20,7 +20,7 @@ struct PlanetVertex
 
     }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 1, false, true, false); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 1, false, true, false, "vIn_Pos", "vIn_Normal", "vIn_Heightmap"); }
 };
 
 

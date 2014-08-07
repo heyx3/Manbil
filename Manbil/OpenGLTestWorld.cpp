@@ -182,169 +182,213 @@ void OpenGLTestWorld::InitializeTextures(void)
 }
 void OpenGLTestWorld::InitializeMaterials(void)
 {
-    typedef DataNodePtr DNP;
-    typedef RenderingChannels RC;
+    typedef DataNode::Ptr DNP;
 
+    std::vector<ShaderOutput> & vertOuts = DataNode::MaterialOuts.VertexOutputs,
+                              & fragOuts = DataNode::MaterialOuts.FragmentOutputs;
 
-    #pragma region Water
-
-
-    //Vertex output 0: object-space position.
-    //Vertex output 1: UV coords.
-    //Vertex output 2: water rand seeds.
-    //Vertex output 3: world-space position.
-
-    ShaderInOutAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
-    DataLine materialUVs(DNP(new ShaderInNode(2, 1, -1, 0, 1)), 0);
-    DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
-    DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
-    DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
-                                DataLine(fragmentInput, 0),
-                                3, 2));
-    channels[RC::RC_VERTEX_OUT_0] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-    channels[RC::RC_VERTEX_OUT_1] = materialUVs;
-    channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 2);
-    channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_0])), 0);
-
-    DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(fragInputAttributes, 2),
-                                                           DataLine(0.01f), DataLine(0.5f),
-                                                           WaterSurfaceDistortNode::GetTimeIn(fragInputAttributes, 2)));
-    DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(materialUVs,
-                                                                DataLine(VectorF(10.0f, 10.0f)),
-                                                                DataLine(VectorF(0.0f, 0.0f)),
-                                                                DataLine(VectorF(-0.15f, 0.0f)));
-    DNP normalMap(new TextureSample2DNode(normalMapUVs, "u_normalMapTex"));
-    texSamplerName = ((TextureSample2DNode*)(normalMap.get()))->GetSamplerUniformName();
-
-    DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
-                                                               DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
-    DataLine waterNormal(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0);
-    DNP light(new LightingNode(DataLine(fragmentInput, 3),
-                               waterNormal,//DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
-                               DataLine(Vector3f(-1, -1, -0.1f).Normalized()),
-                               DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
-
-    DNP finalColor(new MultiplyNode(DataLine(light, 0), DataLine(Vector3f(0.275f, 0.275f, 1.0f))));
-
-    channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
-                                                           DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
-    channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
-                                                ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-    channels[RC::RC_COLOR_OUT_2] = DataLine(DNP(new CombineVectorNode(DataLine(DNP(new RemapNode(waterNormal, DataLine(-1.0f), DataLine(1.0f))), 0), DataLine(1.0f))), 0);
-
-    UniformDictionary unDict;
-    ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(channels, unDict, WaterVertex::GetAttributeData(), RenderingModes::RM_Opaque, true, LightSettings(false));
-    if (!wM.ErrorMessage.empty())
     {
-        std::cout << "Error generating water shaders: " << wM.ErrorMessage << "\n";
-        Pause();
-        EndWorld();
-        return;
+        #pragma region Water
+
+
+        //Vertex output 0: object-space position.
+        //Vertex output 1: UV coords.
+        //Vertex output 2: water rand seeds.
+        //Vertex output 3: world-space position.
+
+
+        DataNode::ClearMaterialData();
+        DataNode::VertexIns = WaterVertex::GetAttributeData();
+
+        //Vertex position output.
+        DNP waterCalcs(new WaterNode(DataLine(VertexInputNode::GetInstance()),
+                                     DataLine(FragmentInputNode::GetInstance()),
+                                     "waterCalculations", 3, 2));
+        DNP screenPos(new SpaceConverterNode(DataLine(waterCalcs, WaterNode::GetVertexPosOutputIndex()),
+                                             SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
+                                             SpaceConverterNode::DT_POSITION, "objToScreenPos"));
+        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+
+        //Vertex shader outputs.
+        DNP worldPos(new SpaceConverterNode(DataLine(waterCalcs, WaterNode::GetVertexPosOutputIndex()),
+                                            SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
+                                            SpaceConverterNode::DT_POSITION, "objToWorldPos"));
+        vertOuts.insert(vertOuts.end(),
+                        ShaderOutput("vOut_objPos", DataLine(waterCalcs, WaterNode::GetVertexPosOutputIndex())));
+        vertOuts.insert(vertOuts.end(),
+                        ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
+        vertOuts.insert(vertOuts.end(),
+                        ShaderOutput("vOut_objNormal", DataLine(VertexInputNode::GetInstance(), 2)));
+        vertOuts.insert(vertOuts.end(),
+                        ShaderOutput("vOut_worldPos", DataLine(worldPos)));
+
+        //Fragment shader outputs.
+        DataLine normalMapScale(10.0f),
+                 normalMapPan(VectorF(-0.15f, 0.0f));
+        DNP normalMapScaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMapScale, "normalMapScaled")),
+            normalMapPanned(new AddNode(normalMapScaled, normalMapPan));
+        DNP normalMapPtr(new TextureSample2DNode(normalMapPanned, "u_normalMapTex", "normalMapSample"));
+        DataLine normalMap(normalMapPtr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+
+        DNP applyNormalMap(new AddNode(normalMap, DataLine(waterCalcs, WaterNode::GetSurfaceNormalOutputIndex()), "afterNormalMapping"));
+        DNP finalObjNormal(new NormalizeNode(applyNormalMap, "finalObjNormal"));
+        DNP worldNormal(new SpaceConverterNode(finalObjNormal, SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
+                                               SpaceConverterNode::DT_NORMAL, "worldNormal"));
+        DNP finalWorldNormal(new NormalizeNode(worldNormal));
+
+        DNP lightCalc(new LightingNode(DataLine(FragmentInputNode::GetInstance(), 3),
+                                       finalWorldNormal, DataLine(Vector3f(-1.0f, -1.0f, -0.1f).Normalized()),
+                                       "lightCalc", DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
+        DNP finalColor(new MultiplyNode(lightCalc, DataLine(VectorF(0.275f, 0.275f, 1.0f))));
+
+        DNP worldNormalToTexValue(new RemapNode(finalWorldNormal, DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f), "worldNormToTexVal"));
+
+        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalColor));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_WorldNormal", worldNormalToTexValue));
+
+        texSamplerName = ((TextureSample2DNode*)normalMapPtr.get())->SamplerName;
+
+        UniformDictionary unDict;
+        ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(unDict, RenderingModes::RM_Opaque);
+        if (!wM.ErrorMessage.empty())
+        {
+            std::cout << "Error generating water shaders: " << wM.ErrorMessage << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        waterMat = wM.Mat;
+        if (waterMat->HasError())
+        {
+            std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+
+        /*
+        ShaderInOutAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
+        DataLine materialUVs(DNP(new ShaderInNode(2, 1, -1, 0, 1)), 0);
+        DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
+        DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
+        DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
+                                    DataLine(fragmentInput, 0),
+                                    3, 2));
+        channels[RC::RC_VERTEX_OUT_0] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
+        channels[RC::RC_VERTEX_OUT_1] = materialUVs;
+        channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 2);
+        channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_0])), 0);
+
+        DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(fragInputAttributes, 2),
+                                                               DataLine(0.01f), DataLine(0.5f),
+                                                               WaterSurfaceDistortNode::GetTimeIn(fragInputAttributes, 2)));
+        DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(materialUVs,
+                                                                    DataLine(VectorF(10.0f, 10.0f)),
+                                                                    DataLine(VectorF(0.0f, 0.0f)),
+                                                                    DataLine(VectorF(-0.15f, 0.0f)));
+        DNP normalMap(new TextureSample2DNode(normalMapUVs, "u_normalMapTex"));
+        texSamplerName = ((TextureSample2DNode*)(normalMap.get()))->GetSamplerUniformName();
+
+        DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
+                                                                   DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
+        DataLine waterNormal(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0);
+        DNP light(new LightingNode(DataLine(fragmentInput, 3),
+                                   waterNormal,//DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
+                                   DataLine(Vector3f(-1, -1, -0.1f).Normalized()),
+                                   DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
+
+        DNP finalColor(new MultiplyNode(DataLine(light, 0), DataLine(Vector3f(0.275f, 0.275f, 1.0f))));
+
+        channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
+                                                               DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
+        channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
+                                                    ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
+        channels[RC::RC_COLOR_OUT_2] = DataLine(DNP(new CombineVectorNode(DataLine(DNP(new RemapNode(waterNormal, DataLine(-1.0f), DataLine(1.0f))), 0), DataLine(1.0f))), 0);
+        */
+
+        #pragma endregion
     }
-    waterMat = wM.Mat;
-    if (waterMat->HasError())
+
     {
-        std::cout << "Error creating water material: " << waterMat->GetErrorMsg() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
+        #pragma region Geometry shader test
 
+        
+        DataNode::ClearMaterialData();
+        DataNode::VertexIns = VertexPos::GetAttributeData();
 
-    #pragma endregion
+        //Vertex pos output.
+        DNP worldPos(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance()),
+                                            SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
+                                            SpaceConverterNode::DT_POSITION, "worldPos"));
+        DNP vertexPosOut(new CombineVectorNode(worldPos, 1.0f));
+        DataNode::MaterialOuts.VertexPosOutput = DataLine(vertexPosOut);
 
+        //Geometry Outputs.
+        MaterialUsageFlags geoShaderUsage;
+        geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
+        geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
+        geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
+        geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
+        std::string vpTransf = "(" + MC::ViewProjMatName + " * vec4(";
+        std::string geoCode = std::string() +
+    "void main()                                                                                      \n\
+    {                                                                                                 \n\
+        vec3 pos = gl_in[0].gl_Position.xyz;                                                          \n\
+        vec3 up = " + MC::CameraUpName + ";                                                           \n\
+        vec3 side = " + MC::CameraSideName + ";                                                       \n\
+        up = cross(" + MC::CameraForwardName + ", side);                                              \n\
+                                                                                                      \n\
+        gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
+        UVs = vec2(1.0f, 1.0f);                                                                       \n\
+        EmitVertex();                                                                                 \n\
+                                                                                                      \n\
+        gl_Position = " + vpTransf + "pos + (-(u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));    \n\
+        UVs = vec2(1.0f, 0.0f);                                                                       \n\
+        EmitVertex();                                                                                 \n\
+                                                                                                      \n\
+        gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) - (u_quadSize.x * side)), 1.0));     \n\
+        UVs = vec2(0.0f, 1.0f);                                                                       \n\
+        EmitVertex();                                                                                 \n\
+                                                                                                      \n\
+        gl_Position = " + vpTransf + "pos - ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
+        UVs = vec2(0.0f, 0.0f);                                                                       \n\
+        EmitVertex();                                                                                 \n\
+    }";
+        GeoShaderData geoDat(ShaderInOutAttributes(2, false, "UVs"), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
 
-    #pragma region Geometry shader test
-
-    std::unordered_map<RC, DataLine> gsChannels;
-
-    DNP gsTestVertInputs(new VertexInputNode(VertexPos::GetAttributeData()));
-    DNP gsTestFragInputs(new FragmentInputNode(ShaderInOutAttributes(2, false)));
-
-    DataLine worldPos(DNP(new ObjectPosToWorldPosCalcNode(DataLine(gsTestVertInputs, 0))), 0);
-
-    DataLine timeTex3D(DNP(new MultiplyNode(DataLine(0.25f), TimeNode::GetTime())), 0);
-    DataLine tex3DIn(DNP(new CombineVectorNode(DataLine(gsTestFragInputs, 0), timeTex3D)), 0);
-    DataLine tex3DValue(DNP(new TextureSample3DNode(tex3DIn, "u_tex3D")), TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-
-    DataLine textSamplerValue(DNP(new TextureSample2DNode(DataLine(gsTestFragInputs, 0), "u_textSampler")), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
-    textSamplerValue = DataLine(DNP(new CombineVectorNode(textSamplerValue, textSamplerValue, textSamplerValue)), 0);
-
-    gsChannels[RC::RC_VertexPosOutput] = DataLine(DNP(new CombineVectorNode(worldPos, DataLine(VectorF(1.0f)))), 0);
-    gsChannels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(textSamplerValue, tex3DValue)), 0);
+        //Fragment outputs.
+        DNP timeTexUVs2D(new MultiplyNode(0.25f, TimeNode::GetTime(), "texUVs2D")),
+            timeTexUVs3D(new CombineVectorNode(FragmentInputNode::GetInstance(), timeTexUVs2D, "texUVs3D")),
+            timeTexSample(new TextureSample3DNode(timeTexUVs3D, "u_tex3D", "tex3DSample"));
+        DNP textSamplerPtr(new TextureSample2DNode(FragmentInputNode::GetInstance(), "u_textSampler", "textSampler"));
+        DataLine textSamplerRed(textSamplerPtr, TextureSample2DNode::GetOutputIndex(CO_Red));
+        DNP textSamplerFinal(new CombineVectorNode(textSamplerRed, textSamplerRed, textSamplerRed, "textSamplerFinal"));
+        DNP finalDiffuse(new MultiplyNode(textSamplerFinal, timeTexSample));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalDiffuse));
     
-    MaterialUsageFlags geoShaderUsage;
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
-    geoShaderUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
-    std::string vpTransf = "(" + MC::ViewProjMatName + " * vec4(";
-    std::string geoCode = std::string() +
-"void main()                                                                                      \n\
-{                                                                                                 \n\
-    vec3 pos = gl_in[0].gl_Position.xyz;                                                          \n\
-    vec3 up = " + MC::CameraUpName + ";                                                           \n\
-    vec3 side = " + MC::CameraSideName + ";                                                       \n\
-    up = cross(" + MC::CameraForwardName + ", side);                                              \n\
-                                                                                                  \n\
-    gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
-    UVs = vec2(1.0f, 1.0f);                                                                       \n\
-    EmitVertex();                                                                                 \n\
-                                                                                                  \n\
-    gl_Position = " + vpTransf + "pos + (-(u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));    \n\
-    UVs = vec2(1.0f, 0.0f);                                                                       \n\
-    EmitVertex();                                                                                 \n\
-                                                                                                  \n\
-    gl_Position = " + vpTransf + "pos + ((u_quadSize.y * up) - (u_quadSize.x * side)), 1.0));     \n\
-    UVs = vec2(0.0f, 1.0f);                                                                       \n\
-    EmitVertex();                                                                                 \n\
-                                                                                                  \n\
-    gl_Position = " + vpTransf + "pos - ((u_quadSize.y * up) + (u_quadSize.x * side)), 1.0));     \n\
-    UVs = vec2(0.0f, 0.0f);                                                                       \n\
-    EmitVertex();                                                                                 \n\
-}";
-    
-    gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontSlot)) * 0.1f, "u_quadSize");
-    GeoShaderData geoDat(GeoShaderOutput("UVs", 2), geoShaderUsage, 4, Points, TriangleStrip, gsTestParams, geoCode);
-    ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsChannels, gsTestParams, VertexPos::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false), geoDat);
-    if (!gsGen.ErrorMessage.empty())
-    {
-        std::cout << "Error generating shaders for geometry shader test: " << gsGen.ErrorMessage << "\n";
-        Pause();
-        EndWorld();
-        return;
+        //Material generation.
+        ShaderGenerator::GeneratedMaterial gsGen = ShaderGenerator::GenerateMaterial(gsTestParams, RenderingModes::RM_Opaque);
+        if (!gsGen.ErrorMessage.empty())
+        {
+            std::cout << "Error generating shaders for geometry shader test: " << gsGen.ErrorMessage << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        gsTestParams.FloatUniforms["u_quadSize"] = UniformValueF(ToV2f(TextRender->GetSlotRenderSize(testFontSlot)) * 0.1f, "u_quadSize");
+        gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot)->GetTextureHandle();
+        gsTestParams.Texture3DUniforms["u_tex3D"].Texture = gsTestTex3D.GetTextureHandle();
+        gsTestMat = gsGen.Mat;
+
+
+        #pragma endregion
     }
-    gsTestParams.Texture2DUniforms["u_textSampler"].Texture = TextRender->GetRenderedString(testFontSlot)->GetTextureHandle();
-    gsTestParams.Texture3DUniforms["u_tex3D"].Texture = gsTestTex3D.GetTextureHandle();
-    gsTestMat = gsGen.Mat;
 
-
-    #pragma endregion
-
-
-    #pragma region Particles
-
-
-    std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
-    if (false)
     {
-        DataLine particleIDInputs(DNP(new ShaderInNode(2, 0, 0, 0, 0)), 0),
-                 particleRandSeedInputs(DNP(new ShaderInNode(4, 1, 1, 0, 1)), 0);
-        DataLine particleSeed1(DNP(new VectorComponentsNode(particleRandSeedInputs)), 0);
-        DataLine elapsedTime(DataNodePtr(new AddNode(particleSeed1, TimeNode::GetTime())), 0);
-        DataLine sineTime(DataNodePtr(new SineNode(elapsedTime)), 0);
-        DataLine sineTime_0_1(DataNodePtr(new RemapNode(sineTime, DataLine(VectorF(-1.0f)), DataLine(VectorF(1.0f)))), 0);
+        #pragma region Particles
 
-        gpupOuts[GPUPOutputs::GPUP_WORLDPOSITION] = DataLine(DNP(new AddNode(DataLine(Vector3f(0.0f, 0.0f, 50.0f)),
-                                                                             DataLine(DNP(new CombineVectorNode(DataLine(DNP(new MultiplyNode(DataLine(10.0f), particleIDInputs)), 0),
-                                                                                                                DataLine(VectorF(0.0f)))), 0))), 0);
-        gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DNP(new CombineVectorNode(particleRandSeedInputs, DataLine(1.0f))), 0);
-        gpupOuts[GPUPOutputs::GPUP_SIZE] = DataLine(DataNodePtr(new MultiplyNode(DataLine(VectorF(1.0f)),
-                                                                                 DataLine(DataNodePtr(new CombineVectorNode(sineTime_0_1, sineTime_0_1)), 0))), 0);
-        gpupOuts[GPUPOutputs::GPUP_QUADROTATION] = elapsedTime;
-    }
-    else
-    {
+
+        std::unordered_map<GPUPOutputs, DataLine> gpupOuts;
         HGPComponentManager manager(particleParams);
         const unsigned int posSeeds[] = { 5, 1, 3, 2 },
                            velSeeds[] = { 0, 1, 2 },
@@ -366,101 +410,121 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                                                           HGPComponentPtr(4)(new ConstantHGPComponent<4>(VectorF((unsigned int)4, 1.0f), manager)),
                                                                           colorSeeds)));
         manager.SetGPUPOutputs(gpupOuts);
-        //gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(DataNodePtr(new CombineVectorNode(HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, DataLine(1.0f))), 0);
+        //gpupOuts[GPUPOutputs::GPUP_COLOR] = DataLine(Ptr(new CombineVectorNode(HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, HGPGlobalData::FifthRandSeed, DataLine(1.0f))), 0);
         manager.Initialize();
+
+        ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
+        if (!gen.ErrorMessage.empty())
+        {
+            std::cout << "Error generating shaders for particle effect: " << gen.ErrorMessage << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        particleMat = gen.Mat;
+
+        GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_262144;
+        particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
+                                                        GPUParticleGenerator::GenerateGPUPParticles(numb)));
+
+
+        #pragma endregion
     }
 
-    ShaderGenerator::GeneratedMaterial gen = GPUParticleGenerator::GenerateGPUParticleMaterial(gpupOuts, particleParams, RenderingModes::RM_Opaque);
-    if (!gen.ErrorMessage.empty())
     {
-        std::cout << "Error generating shaders for particle effect: " << gen.ErrorMessage << "\n";
-        Pause();
-        EndWorld();
-        return;
+        #pragma region Cubemap
+
+
+        DataNode::ClearMaterialData();
+        DataNode::VertexIns = PrimitiveGenerator::CubemapVertex::GetAttributeData();
+
+        //Vertex pos output.
+        DataLine worldPos = VertexInputNode::GetInstance();
+        DataLine worldScale = 2800.0f;
+        DNP scaledWorldPos(new MultiplyNode(worldPos, worldScale, "scaleWorldPos"));
+        DNP centeredWorldPos(new AddNode(scaledWorldPos, CameraDataNode::GetCamPos(), "centerWorldPos"));
+        DNP screenPos(new SpaceConverterNode(centeredWorldPos,
+                                             SpaceConverterNode::ST_WORLD, SpaceConverterNode::ST_SCREEN,
+                                             SpaceConverterNode::DT_POSITION,
+                                             "worldPosToScreenPos"));
+        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+
+        //Vertex shader outputs.
+        vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_worldPos", worldPos));
+
+        //Fragment shader outputs.
+        DataLine cubemapUVs = FragmentInputNode::GetInstance();
+        DNP cubemapSamplePtr(new TextureSampleCubemapNode(cubemapUVs, "u_cubemapTex", "cubemapSample"));
+        DataLine cubemapSampleRGB(cubemapSamplePtr, TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
+        fragOuts.insert(fragOuts.end(), ShaderOutput("vOut_FinalColor", cubemapSampleRGB));
+
+        ShaderGenerator::GeneratedMaterial cmGen = ShaderGenerator::GenerateMaterial(cubemapParams, RenderingModes::RM_Opaque);
+        if (!cmGen.ErrorMessage.empty())
+        {
+            std::cout << "Error generating shaders for cubemap material: " << cmGen.ErrorMessage << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        cubemapParams.TextureCubemapUniforms["u_cubemapTex"].Texture = cubemapTex.GetTextureHandle();
+        cubemapMat = cmGen.Mat;
+
+
+        #pragma endregion
     }
-    particleMat = gen.Mat;
 
-    GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_262144;
-    particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
-                                                    GPUParticleGenerator::GenerateGPUPParticles(numb)));
-
-
-    #pragma endregion
-
-
-    #pragma region Cubemap
-
-
-    std::unordered_map<RC, DataLine> cubemapChannels;
-    DataNodePtr cmVertexInputs(new VertexInputNode(PrimitiveGenerator::CubemapVertex::GetAttributeData()));
-    DataNodePtr cmFragInputs(new FragmentInputNode(ShaderInOutAttributes(3, false)));
-
-    DataLine cubemapSampleRGB(DataNodePtr(new TextureSampleCubemapNode(DataLine(cmFragInputs, 0), "u_cubemapTex")),
-                              TextureSampleCubemapNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-
-    DataLine cmWorldPos(cmVertexInputs, 0);
-    cmWorldPos = DataLine(DataNodePtr(new MultiplyNode(cmWorldPos, DataLine(2800.0f))), 0);
-    cmWorldPos = DataLine(DataNodePtr(new AddNode(cmWorldPos, CameraDataNode::GetCamPos())), 0);
-    cubemapChannels[RC::RC_VertexPosOutput] = DataLine(DataNodePtr(new WorldPosToScreenPosCalcNode(cmWorldPos)),
-                                                       WorldPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-
-    cubemapChannels[RC::RC_VERTEX_OUT_0] = DataLine(cmVertexInputs, 0);
-    cubemapChannels[RC::RC_Color] = DataLine(DataNodePtr(new RemapNode(DataLine(cmFragInputs, 0),
-                                                                       DataLine(Vector3f(-1.0f, -1.0f, -1.0f)),
-                                                                       DataLine(Vector3f(1.0f, 1.0f, 1.0f)))), 0);
-    cubemapChannels[RC::RC_Color] = cubemapSampleRGB;
-
-    ShaderGenerator::GeneratedMaterial cmGen = ShaderGenerator::GenerateMaterial(cubemapChannels, cubemapParams, PrimitiveGenerator::CubemapVertex::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
-    if (!cmGen.ErrorMessage.empty())
     {
-        std::cout << "Error generating shaders for cubemap material: " << cmGen.ErrorMessage << "\n";
-        Pause();
-        EndWorld();
-        return;
+        #pragma region Post-process and final render
+
+
+        //Post-processing.
+        typedef PostProcessEffect::PpePtr PpePtr;
+        ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)), DataLine(0.0001f))));
+
+
+        //Final render.
+
+        DataNode::ClearMaterialData();
+        DataNode::VertexIns = DrawingQuad::GetAttributeData();
+
+        DNP objToScreenPos(new SpaceConverterNode(VertexInputNode::GetInstance(),
+                                                  SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
+                                                  SpaceConverterNode::DT_POSITION, "objToScreenPos"));
+        DataNode::MaterialOuts.VertexPosOutput = DataLine(objToScreenPos, 1);
+
+        vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
+
+        DNP texSampler(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstance(), 1),
+                                               "u_finalRenderSample", "sampleRender"));
+        fragOuts.insert(fragOuts.end(),
+                        ShaderOutput("fOut_FinalColor",
+                                     DataLine(texSampler,
+                                              TextureSample2DNode::GetOutputIndex(CO_AllColorChannels))));
+
+        UniformDictionary uniformDict;
+        ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(uniformDict, RenderingModes::RM_Opaque);
+        if (!genM.ErrorMessage.empty())
+        {
+            std::cout << "Error generating shaders for final screen material: " << genM.ErrorMessage << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        finalScreenMat = genM.Mat;
+        if (finalScreenMat->HasError())
+        {
+            std::cout << "final screen material creation error: " << finalScreenMat->GetErrorMsg() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+
+        finalScreenQuad = new DrawingQuad();
+        finalScreenQuadParams = uniformDict;
+
+
+        #pragma endregion
     }
-    cubemapParams.TextureCubemapUniforms["u_cubemapTex"].Texture = cubemapTex.GetTextureHandle();
-    cubemapMat = cmGen.Mat;
-
-
-    #pragma endregion
-
-
-    #pragma region Post-process and final render
-
-
-    //Post-processing.
-    typedef PostProcessEffect::PpePtr PpePtr;
-    ppcChain.insert(ppcChain.end(), PpePtr(new FogEffect(DataLine(1.5f), DataLine(Vector3f(1.0f, 1.0f, 1.0f)), DataLine(0.0001f))));
-
-
-    //Final render.
-    finalScreenMatChannels[RC::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<DrawingQuad>(0);
-    finalScreenMatChannels[RC::RC_VERTEX_OUT_1] = DataLine(DNP(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-    DNP finalTexSampler(new TextureSample2DNode(DataLine(DNP(new FragmentInputNode(DrawingQuad::GetAttributeData())), 1), "u_finalRenderSample"));
-    finalScreenMatChannels[RC::RC_Color] = DataLine(finalTexSampler, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-    UniformDictionary uniformDict;
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(finalScreenMatChannels, uniformDict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
-    if (!genM.ErrorMessage.empty())
-    {
-        std::cout << "Error generating shaders for final screen material: " << genM.ErrorMessage << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-    finalScreenMat = genM.Mat;
-    if (finalScreenMat->HasError())
-    {
-        std::cout << "final screen material creation error: " << finalScreenMat->GetErrorMsg() << "\n";
-        Pause();
-        EndWorld();
-        return;
-    }
-
-    finalScreenQuad = new DrawingQuad();
-    finalScreenQuadParams = uniformDict;
-
-
-    #pragma endregion
 }
 void OpenGLTestWorld::InitializeObjects(void)
 {
@@ -485,7 +549,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     water->UpdateUniformLocations(waterMat);
     water->Params.Texture2DUniforms[texSamplerName] =
         UniformSampler2DValue(waterNormalTex.GetTextureHandle(), texSamplerName,
-                            waterMat->GetUniforms(RenderPasses::BaseComponents).FindUniform(texSamplerName, waterMat->GetUniforms(RenderPasses::BaseComponents).Texture2DUniforms).Loc);
+                              waterMat->GetUniforms().FindUniform(texSamplerName, waterMat->GetUniforms().Texture2DUniforms).Loc);
     //TODO: Try changing the above line to just use "... .Texture = waterNormalTex.GetTextureHandle()". Look for similiar issues in other worlds.
 
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
@@ -631,7 +695,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
 
     //Water.
     meshList.insert(meshList.end(), &water->GetMesh());
-    if (!waterMat->Render(RenderPasses::BaseComponents, info, meshList, water->Params))
+    if (!waterMat->Render(info, meshList, water->Params))
     {
         std::cout << "Error rendering water: " << waterMat->GetErrorMsg() << ".\n";
         Pause();
@@ -642,7 +706,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     //Geometry shader test.
     meshList.clear();
     meshList.insert(meshList.end(), &gsMesh);
-    if (!gsTestMat->Render(RenderPasses::BaseComponents, info, meshList, gsTestParams))
+    if (!gsTestMat->Render(info, meshList, gsTestParams))
     {
         std::cout << "Error rendering geometry shader test: " << gsTestMat->GetErrorMsg() << ".\n";
         Pause();
@@ -653,7 +717,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     //Particles.
     meshList.clear();
     meshList.insert(meshList.end(), &particleMesh);
-    if (!particleMat->Render(RenderPasses::BaseComponents, info, meshList, particleParams))
+    if (!particleMat->Render(info, meshList, particleParams))
     {
         std::cout << "Error rendering particles: " << particleMat->GetErrorMsg() << ".\n";
         Pause();
@@ -664,7 +728,7 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo & info)
     //Cubemap.
     meshList.clear();
     meshList.insert(meshList.end(), &cubemapMesh);
-    if (!cubemapMat->Render(RenderPasses::BaseComponents, info, meshList, cubemapParams))
+    if (!cubemapMat->Render(info, meshList, cubemapParams))
     {
         std::cout << "Error rendering cubemap: " << cubemapMat->GetErrorMsg() << ".\n";
         Pause();
@@ -731,7 +795,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
     }
     else finalRendTex = finalRend->GetColorTextures()[0].MTex->GetTextureHandle();
     finalScreenQuadParams.Texture2DUniforms["u_finalRenderSample"].Texture = finalRendTex;
-    if (!finalScreenQuad->Render(RenderPasses::BaseComponents, RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
+    if (!finalScreenQuad->Render(RenderInfo(this, &cam, &trans, &identity, &identity, &identity), finalScreenQuadParams, *finalScreenMat))
     {
         std::cout << "Error rendering final screen output: " << finalScreenMat->GetErrorMsg() << "\n";
         Pause();

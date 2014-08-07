@@ -140,18 +140,26 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Create the quad rendering material.
-    std::unordered_map<RenderingChannels, DataLine> channels;
-    DataNodePtr vertexIns(new VertexInputNode(DrawingQuad::GetAttributeData()));
-    DataLine worldPos(DataNodePtr(new ObjectPosToWorldPosCalcNode(DataLine(vertexIns, 0))), 0);
-    channels[RenderingChannels::RC_VertexPosOutput] = DataLine(DataNodePtr(new CombineVectorNode(worldPos, DataLine(1.0f))), 0);
-    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(vertexIns, 1);
-    //The text texture only stores the red component (to save space).
-    DataLine redText(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(ShaderInOutAttributes(2, false))), 0),
-                                                       textSamplerName)),
-                     TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_Red));
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new CombineVectorNode(redText, redText, redText)), 0);
-    channels[RenderingChannels::RC_Opacity] = redText;
-    ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(channels, quadParams, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+
+    typedef std::shared_ptr<DataNode> DNP;
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = DrawingQuad::GetAttributeData();
+
+    DNP objPosToWorld = SpaceConverterNode::ObjPosToWorldPos(VertexInputNode::GetInstance(), "objPosToWorld");
+    DNP objPosToWorldHomg(new CombineVectorNode(objPosToWorld, 1.0f));
+    DataNode::MaterialOuts.VertexPosOutput = objPosToWorldHomg;
+
+    DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
+                                                ShaderOutput("vOut_UV",
+                                                             DataLine(VertexInputNode::GetInstance(), 1)));
+    
+    DNP textSamplePtr(new TextureSample2DNode(FragmentInputNode::GetInstance(), textSamplerName, "textSample"));
+    DataLine textSampleRed(textSamplePtr, TextureSample2DNode::GetOutputIndex(CO_Red));
+    DNP textSampleRGB(new CombineVectorNode(textSampleRed, textSampleRed, textSampleRed, "textSampleRGB"));
+    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                  ShaderOutput("fOut_FinalColor", textSampleRGB));
+
+    ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(quadParams, RenderingModes::RM_Opaque);
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating quad material", genMat.ErrorMessage))
         return;
     quadMat = genMat.Mat;
@@ -201,6 +209,6 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     RenderInfo info(this, &cam, &quad->GetMesh().Transform, &worldM, &viewM, &projM);
 
     //Render the quad.
-    if (!ReactToError(quad->Render(RenderPasses::BaseComponents, info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
+    if (!ReactToError(quad->Render(info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
         return;
 }

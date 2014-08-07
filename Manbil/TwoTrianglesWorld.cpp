@@ -54,7 +54,7 @@ void CreateQuad(void)
 bool CreateMaterial(const std::string & vs, const std::string & fs, UniformDictionary & uniforms)
 {
     if (mat != 0) delete mat;
-    mat = new Material(vs, fs, uniforms, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+    mat = new Material(vs, fs, uniforms, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque);
 
     return !mat->HasError();
 }
@@ -69,12 +69,13 @@ void GetCreateMaterial(bool askForFile = true)
     typedef MaterialConstants MC;
 
     //The vertex shader is a very simple, constant program.
+    ShaderInOutAttributes vertIns = DrawingQuad::GetAttributeData();
     MaterialUsageFlags vertFlags;
-    vs = MC::GetVertexHeader("out vec2 in_UV;\n", VertexPosTex1Normal::GetAttributeData(), vertFlags) + "\n\n\
+    vs = MC::GetVertexHeader("out vec2 in_UV;\n", vertIns, vertFlags) + "\n\n\
 void main()                              \n\
 {                                        \n\
-    gl_Position = vec4(" + MC::VertexInNameBase + "0, 1.0);  \n\
-    in_UV = " + MC::VertexInNameBase + "1;\n\
+    gl_Position = vec4(" + vertIns.GetAttributeName(0) + ", 1.0);  \n\
+    in_UV = " + vertIns.GetAttributeName(1) + ";\n\
 }";
     //Add any custom QuadWorld uniforms.
     uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(0.0f);
@@ -121,7 +122,7 @@ void main()                              \n\
         flags.EnableFlag(FL::DNF_USES_CAM_SIDEWAYS);
         flags.EnableFlag(FL::DNF_USES_WIDTH);
         flags.EnableFlag(FL::DNF_USES_HEIGHT);
-        fs = MC::GetFragmentHeader("in vec2 in_UV;\n", "out vec4 " + MC::FragmentOutName + ";\n", flags);
+        fs = MC::GetFragmentHeader("in vec2 in_UV;\n", "out vec4 out_FinalColor;\n", flags);
         fs += "\n\
 uniform float " + TTW::ShaderElapsedName + ";   \n\
 uniform sampler2D " + TTW::CustomSamplerName + ";\n\
@@ -154,7 +155,7 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
 //Gets whether or not "mat" uses the custom user texture.
 bool DoesMatUseCustomTex(void)
 {
-    const std::vector<UniformList::Uniform> & uniforms = mat->GetUniforms(RenderPasses::BaseComponents).Texture2DUniforms;
+    const std::vector<UniformList::Uniform> & uniforms = mat->GetUniforms().Texture2DUniforms;
     auto location = std::find_if(uniforms.begin(), uniforms.end(),
                                  [](const UniformList::Uniform & unf)
                                  {
@@ -374,7 +375,7 @@ void TTW::RenderOpenGL(float elapsedSeconds)
 
 
 	ScreenClearer().ClearScreen();
-    if (!quad->Render(RenderPasses::BaseComponents, info, params, *mat))
+    if (!quad->Render(info, params, *mat))
     {
         PrintData("Error rendering quad", mat->GetErrorMsg());
         std::cout << "\n\n\n";

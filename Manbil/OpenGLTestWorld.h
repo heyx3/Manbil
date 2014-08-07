@@ -45,7 +45,6 @@ private:
 
     Water * water;
     Material * waterMat;
-    std::unordered_map<RenderingChannels, DataLine> channels;
 
     Mesh gsMesh;
     Material * gsTestMat;
@@ -71,7 +70,6 @@ private:
     MTextureCubemap cubemapTex;
 
     DrawingQuad * finalScreenQuad;
-    std::unordered_map<RenderingChannels, DataLine> finalScreenMatChannels;
     Material * finalScreenMat;
     UniformDictionary finalScreenQuadParams;
 

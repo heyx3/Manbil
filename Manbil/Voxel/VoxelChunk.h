@@ -9,6 +9,7 @@
 
 
 
+//Has a pos (vec3), "MinExists" data(vec3), and "MaxExists" data (vec3).
 struct VoxelVertex
 {
 public:

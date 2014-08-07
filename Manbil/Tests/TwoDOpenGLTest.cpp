@@ -156,14 +156,29 @@ void TwoDOpenGLTest::InitializeWorld(void)
 
     //Materials.
 
-    std::unordered_map<RenderingChannels, DataLine> channels;
-    channels[RenderingChannels::RC_VertexPosOutput] = DataNodeGenerators::ObjectPosToScreenPos<VertexPosTex1Normal>(0);
-    channels[RenderingChannels::RC_VERTEX_OUT_0] = DataLine(DataNodePtr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
-    channels[RenderingChannels::RC_Color] = DataLine(DataNodePtr(new TextureSample2DNode(DataLine(DataNodePtr(new FragmentInputNode(ShaderInOutAttributes(2, false))), 0), "u_myTex")),
-                                                     TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+    typedef DataNode::Ptr DNP;
+
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = DrawingQuad::GetAttributeData();
+
+    DataNode::CurrentShader = ShaderHandler::SH_Vertex_Shader;
+    DNP objPosToScreen(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance()),
+                                              SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
+                                              SpaceConverterNode::DT_POSITION, "objToScreenPos"));
+    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
+
+    DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
+                                                ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
+
+    DataNode::CurrentShader = ShaderHandler::SH_Fragment_Shader;
+    DNP texSamplePtr(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstance()), "u_myTex", "texSampler"));
+    DataLine texSample(texSamplePtr->GetName(), TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+    DNP finalColor(new CombineVectorNode(DataLine(texSample), DataLine(1.0f), "finalColor"));
+    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                  ShaderOutput("fOut_FinalColor", DataLine(finalColor)));
 
     UniformDictionary uniformDict;
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(channels, uniformDict, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque, false, LightSettings(false));
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(uniformDict, RenderingModes::RM_Opaque);
     if (!genM.ErrorMessage.empty())
     {
         std::cout << "Error generating quad mat shaders: " << genM.ErrorMessage;
@@ -271,14 +286,14 @@ void TwoDOpenGLTest::RenderOpenGL(float elapsedSeconds)
 
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.0f, 0.0f, 1.0f)).ClearScreen();
 
-    if (!backQuad->Render(RenderPasses::BaseComponents, info, backParam, *quadMat))
+    if (!backQuad->Render(info, backParam, *quadMat))
     {
         std::cout << "Error rendering background: " << quadMat->GetErrorMsg();
         Pause();
         EndWorld();
         return;
     }
-    if (!foreQuad->Render(RenderPasses::BaseComponents, info, foreParam, *quadMat))
+    if (!foreQuad->Render(info, foreParam, *quadMat))
     {
         std::cout << "Error rendering foreground: " << quadMat->GetErrorMsg();
         Pause();

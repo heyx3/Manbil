@@ -20,13 +20,6 @@ std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRendere
 {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-
-    //Set up data nodes to be readable from a file.
-    PrepareBasicNodesToBeRead();
-    PrepareWaterDataNodesToBeRead();
-    PreparePpeEffectsToBeRead();
-
-
     if (rift)
     {
         OculusDevice::InitializeSystem();
