@@ -205,12 +205,13 @@ MaybeValue<std::string> XmlReader::ReadString(std::string & outError)
 {
     XML_READ_ERROR_CHECK(std::string, "string")
 
-    return MaybeValue<std::string>(currentChild->Attribute("value"));
+    std::string val = currentChild->Attribute("value");
+    currentChild = currentChild->NextSiblingElement();
+    return MaybeValue<std::string>(val);
 }
 
 
 //Other implementations of "Read" functions are all nearly identical.
-
 #define IMPL_XML_READ(dataType, dataTypeName, queryAttributeData, dataTypeStr, preDataType) \
     MaybeValue<dataType> XmlReader::Read ## dataTypeName(std::string & outError) \
     { \
