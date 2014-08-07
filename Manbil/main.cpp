@@ -347,18 +347,103 @@ void TestIOStuff()
 #pragma endregion
 
 
+void TestMaterialIOStuff()
+{
+    char dummy;
 
-//PRIORITY: Apparently you can declare a function header like "void Func(void) = delete" to define it but prevent calls to it. Use this for things like copy constructors that are currently declared but not implemented.
+    //Generate the material data.
+    SerializedMaterial ser;
+    ser.VertexInputs = DrawingQuad::GetAttributeData();
+    DataNode::Ptr vertPosOut(new CombineVectorNode(VertexInputNode::GetInstanceName(), 1.0f, "vertPosOutput"));
+    ser.MaterialOuts.VertexPosOutput = vertPosOut->GetName();
+    ser.MaterialOuts.VertexOutputs.insert(ser.MaterialOuts.VertexOutputs.end(),
+                                          ShaderOutput("vOut_Pos", DataLine(VertexInputNode::GetInstanceName(), 0)));
+    DataNode::Ptr remapToColor(new RemapNode(FragmentInputNode::GetInstance(), -1.0f, 1.0f, 0.0f, 1.0f, "posToColor"));
+    DataNode::Ptr fragOut(new CombineVectorNode(remapToColor, 1.0f, "finalCol"));
+    ser.MaterialOuts.FragmentOutputs.insert(ser.MaterialOuts.FragmentOutputs.end(),
+                                            ShaderOutput("fOut_Color", fragOut));
+
+    DataNode::VertexIns = ser.VertexInputs;
+    DataNode::MaterialOuts = ser.MaterialOuts;
+    std::string fragShader, vertShader;
+    UniformDictionary params;
+    std::string error = ShaderGenerator::GenerateVertFragShaders(vertShader, fragShader, params);
+    if (!error.empty())
+    {
+        std::cout << "Error generating shaders: " << error << "\n";
+        std::cin >> dummy;
+        return;
+    }
+
+    std::cout << "Vertex Shader:\n" << vertShader << "\n\n\n\nFragment Shader:\n" << fragShader << "\n\n\n\n";
+    std::cin >> dummy;
+
+    XmlWriter writer;
+    if (!writer.WriteDataStructure(ser, "Test Material", error))
+    {
+        std::cout << "Error writing material: " << error;
+        std::cin >> dummy;
+        return;
+    }
+    error = writer.SaveData("Content/Materials/SerializationTest.xml");
+    if (!error.empty())
+    {
+        std::cout << "Error writing material file to 'Content/Materials/SerializationTest.xml': " << error;
+        std::cin >> dummy;
+        return;
+    }
+
+    std::cout << "Successfully wrote material to 'Content/Materials/SerializationTest.xml'.\n\n\n";
+    std::cin >> dummy;
+
+    vertPosOut.reset();
+    remapToColor.reset();
+    fragOut.reset();
+    XmlReader reader("Content/Materials/SerializationTest.xml", error);
+    if (!error.empty())
+    {
+        std::cout << "Error reading material file 'Content/Materials/SerializationTest.xml': " << error;
+        std::cin >> dummy;
+        return;
+    }
+    if (!reader.ReadDataStructure(ser, error))
+    {
+        std::cout << "Error reading material data: " << error;
+        std::cin >> dummy;
+        return;
+    }
+
+    fragShader.clear();
+    vertShader.clear();
+    params.ClearUniforms();
+    DataNode::VertexIns = ser.VertexInputs;
+    DataNode::MaterialOuts = ser.MaterialOuts;
+    error = ShaderGenerator::GenerateVertFragShaders(vertShader, fragShader, params);
+    if (!error.empty())
+    {
+        std::cout << "Error generating shaders for material from file: " << error;
+        std::cin >> dummy;
+        return;
+    }
+
+    std::cout << "\n\n\n\n\nVertex Shader:\n" << vertShader << "\n\n\n\nFragment Shader:\n" << fragShader << "\n\n\n\n";
+    std::cin >> dummy;
+}
+
+
+
+//PRIORITY: Replace "intentionally not implemented" functions with the ' = delete' syntax.
 
 int main()
 {
     //TestIOStuff();
+    TestMaterialIOStuff();
 
 
     //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    GUITestWorld().RunWorld();
+   // GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
 
