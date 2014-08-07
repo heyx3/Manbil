@@ -2,7 +2,10 @@
 
 #include "../../../IO/DataSerialization.h"
 #include "DataLine.h"
+#include "../../../Vertices.h"
 
+
+class DataNode;
 
 
 //An output of a shader. Has a name and a value.
@@ -44,18 +47,26 @@ struct SerializedMaterial : public ISerializable
 {
 public:
 
-    //The actual nodes.
-    std::vector<std::shared_ptr<DataNode>> Nodes;
+    //The vertex inputs.
+    ShaderInOutAttributes VertexInputs;
+    //PRIORITY: Make GeoShaderData serializable and put it in here.
     //The material expression graph.
     MaterialOutputs MaterialOuts;
 
-    SerializedMaterial(std::vector<std::shared_ptr<DataNode>> nodes = std::vector<std::shared_ptr<DataNode>>(),
+    //Gets the nodes created after calling "ReadData".
+    const std::vector<std::shared_ptr<DataNode>> & GetNodesRead(void) const { return nodeStorage; }
+
+    SerializedMaterial(ShaderInOutAttributes vertexIns = ShaderInOutAttributes(),
                        MaterialOutputs materialOuts = MaterialOutputs())
-        : Nodes(nodes), MaterialOuts(materialOuts)
+        : VertexInputs(vertexIns), MaterialOuts(materialOuts)
     {
 
     }
 
     virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadData(DataReader * reader, std::string & outError) override;
+
+private:
+
+    std::vector<std::shared_ptr<DataNode>> nodeStorage;
 };

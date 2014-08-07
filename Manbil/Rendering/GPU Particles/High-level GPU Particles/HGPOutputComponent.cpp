@@ -17,12 +17,12 @@ const DataNode::Ptr HGPGlobalData::_ParticleIDInputPtr = DataNode::Ptr(new Shade
 const DataLine HGPGlobalData::ParticleIDInput = DataLine("particleIDInputs"),
                HGPGlobalData::ParticleRandSeedInputs1 = DataLine("particleRandSeedInputs1"),
                HGPGlobalData::ParticleRandSeedInputs2 = DataLine("particleRandSeedInputs2"),
-               HGPGlobalData::ParticleUVs = DataLine(FragmentInputNode::GetInstance()->GetName(), 3);
+               HGPGlobalData::ParticleUVs = DataLine(FragmentInputNode::GetInstanceName(), 3);
 
 const DataNode::Ptr HGPGlobalData::ParticleRandSeedComponents1 =
-      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1, "particleRandSeedComponents"));
+      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs1, "particleRandSeedComponents1"));
 const DataNode::Ptr HGPGlobalData::ParticleRandSeedComponents2 =
-      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2, "particleRandSeedComponents"));
+      DataNode::Ptr(new VectorComponentsNode(HGPGlobalData::ParticleRandSeedInputs2, "particleRandSeedComponents2"));
 
 
 DataLine HGPGlobalData::GetRandSeed(unsigned int randSeedIndex)

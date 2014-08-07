@@ -33,9 +33,9 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     DataNode::CurrentShader = ShaderHandler::SH_Vertex_Shader;
     DataNode::Ptr worldPos(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION], DataLine(VectorF(1.0f)), "worldPos"));
     DataNode::MaterialOuts.VertexPosOutput = std::string("worldPos");
-    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_particleID", DataLine(VertexInputNode::GetInstance()->GetName(), 0)));
-    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_randSeeds1", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
-    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_randSeeds2", DataLine(VertexInputNode::GetInstance()->GetName(), 2)));
+    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_particleID", DataLine(VertexInputNode::GetInstanceName(), 0)));
+    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_randSeeds1", DataLine(VertexInputNode::GetInstanceName(), 1)));
+    vertexOuts.insert(vertexOuts.end(), ShaderOutput("vOut_randSeeds2", DataLine(VertexInputNode::GetInstanceName(), 2)));
 
 
     //Next, use the geometry shader to turn points into quads.
@@ -53,131 +53,48 @@ ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMate
     std::string finalOutputs;
     std::vector<const DataNode*> usedNodesParams, usedNodesFuncs, writtenNodeIDs;
  
+    //Generate info/code for the geometry shader inputs.
 #pragma warning(disable: 4101)
-    if (!outputs[GPUPOutputs::GPUP_SIZE].IsConstant())
+    for (unsigned int i = 0; i < 3; ++i)
     {
-        DataNode* sizeNode = outputs[GPUPOutputs::GPUP_SIZE].GetNode();
-        if (sizeNode == 0) return "Size input node '" + outputs[GPUPOutputs::GPUP_SIZE].GetNonConstantValue() + "' doesn't exist!";
+        std::string typeName;
+        GPUPOutputs typeT;
+        switch (i)
+        {
+            case 0:
+                typeT = GPUPOutputs::GPUP_SIZE;
+                typeName = "GPUP_SIZE";
+                break;
+            case 1:
+                typeName = "GPUP_QUADROTATION";
+                break;
+            case 2:
+                typeName = "GPUP_WORLDPOSITION";
+                break;
 
-        try
-        {
-            sizeNode->SetFlags(DataNode::GeometryShader.UsageFlags, outputs[GPUPOutputs::GPUP_SIZE].GetSize());
+            default: assert(false);
         }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error setting flags for channel 'GPUP_SIZE': " + sizeNode->GetError());
-        }
-        try
-        {
-            sizeNode->GetParameterDeclarations(DataNode::GeometryShader.Params, usedNodesParams);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error getting params for channel 'GPUP_SIZE': " + sizeNode->GetError());
-        }
-        try
-        {
-            sizeNode->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error writing functions for channel 'GPUP_SIZE': " + sizeNode->GetError());
-        }
-        try
-        {
-            sizeNode->WriteOutputs(finalOutputs, writtenNodeIDs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error writing outputs for channel 'GPUP_SIZE': " + sizeNode->GetError());
-        }
-    }
-    if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant())
-    {
-        DataNode* rotNode = outputs[GPUPOutputs::GPUP_QUADROTATION].GetNode();
-        if (rotNode == 0) return "Rotation input node '" + outputs[GPUPOutputs::GPUP_QUADROTATION].GetNonConstantValue() + "' doesn't exist!";
 
+        if (outputs[typeT].IsConstant()) continue;
+        DataNode* pNode = outputs[typeT].GetNode();
+        std::string action;
         try
         {
-            rotNode->SetFlags(DataNode::GeometryShader.UsageFlags, outputs[GPUPOutputs::GPUP_QUADROTATION].GetNonConstantOutputIndex());
+            action = "Invalid input chain";
+            pNode->AssertAllInputsValid();
+            action = "Error setting flags";
+            pNode->SetFlags(DataNode::GeometryShader.UsageFlags, outputs[typeT].GetSize());
+            action = "Error getting params";
+            pNode->GetParameterDeclarations(DataNode::GeometryShader.Params, usedNodesParams);
+            action = "Error writing functions";
+            pNode->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
+            action = "Error writing outputs";
+            pNode->WriteOutputs(finalOutputs, writtenNodeIDs);
         }
         catch (int ex)
         {
             assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error setting flags for channel 'GPUP_QUADROTATION': " + rotNode->GetError());
-        }
-        try
-        {
-            rotNode->GetParameterDeclarations(DataNode::GeometryShader.Params, usedNodesParams);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error getting params for channel 'GPUP_QUADROTATION': " + rotNode->GetError());
-        }
-        try
-        {
-            rotNode->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing functions for channel 'GPUP_QUADROTATION': " + rotNode->GetError());
-        }
-        try
-        {
-            rotNode->WriteOutputs(finalOutputs, writtenNodeIDs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error writing outputs for channel 'GPUP_QUADROTATION': " + rotNode->GetError());
-        }
-    }
-    if (!outputs[GPUPOutputs::GPUP_WORLDPOSITION].IsConstant())
-    {
-        DataNode* posNode = outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetNode();
-        if (posNode == 0) return "Position input node '" + outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetNonConstantValue() + "' doesn't exist!";
-
-        try
-        {
-            posNode->SetFlags(DataNode::GeometryShader.UsageFlags, outputs[GPUPOutputs::GPUP_WORLDPOSITION].GetNonConstantOutputIndex());
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error setting flags for channel 'GPUP_WORLDPOSITION': " + posNode->GetError());
-        }
-        try
-        {
-            posNode->GetParameterDeclarations(DataNode::GeometryShader.Params, usedNodesParams);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error getting params for channel 'GPUP_WORLDPOSITION': " + posNode->GetError());
-        }
-        try
-        {
-            posNode->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial(std::string() + "Error writing functions for channel 'GPUP_WORLDPOSITION': " + posNode->GetError());
-        }
-        try
-        {
-            posNode->WriteOutputs(finalOutputs, writtenNodeIDs);
-        }
-        catch (int ex)
-        {
-            assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
-            return ShaderGenerator::GeneratedMaterial("Error writing outputs for channel 'GPUP_WORLDPOSITION': " + posNode->GetError());
+            return ShaderGenerator::GeneratedMaterial(action + " for channel '" + typeName + "': " + pNode->GetError());
         }
     }
 #pragma warning(default: 4101)
@@ -269,8 +186,7 @@ void main()                                                                     
 
 
     //Fragment shader uses the color output.
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("out_particleColor", outputs[GPUPOutputs::GPUP_COLOR]));
+    fragmentOuts.insert(fragmentOuts.end(), ShaderOutput("out_particleColor", outputs[GPUPOutputs::GPUP_COLOR]));
 
 
     return ShaderGenerator::GenerateMaterial(outUniforms, mode);

@@ -146,8 +146,10 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
     bool useGeoShader = geoShaderData.IsValidData();
 
     //First make sure all shader outputs are valid sizes.
+    //Note that vertex outputs can be any size, so they don't need to be tested.
     if (matData.VertexPosOutput.GetSize() != 4)
         return "Vertex pos output value must be size 4, but it is size " + std::to_string(matData.VertexPosOutput.GetSize());
+    DataNode::CurrentShader = Shaders::SH_Fragment_Shader;
     for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
     {
         if (matData.FragmentOutputs[i].Value.GetSize() != 4)
@@ -158,9 +160,63 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
         }
     }
 
+    //Now make sure all shader outputs have valid inputs.
+    std::string outputInfo = "";
+    DataNode* currentNode = 0;
+    try
+    {
+        DataNode::CurrentShader = Shaders::SH_Vertex_Shader;
+        if (!matData.VertexPosOutput.IsConstant())
+        {
+            outputInfo = "vertex pos output node";
+            currentNode = matData.VertexPosOutput.GetNode();
+            if (currentNode == 0) return "Vertex position output node '" + matData.VertexPosOutput.GetNonConstantValue() + "' doesn't exist!";
+            currentNode->AssertAllInputsValid();
+
+            for (unsigned int i = 0; i < matData.VertexOutputs.size(); ++i)
+            {
+                if (!matData.VertexOutputs[i].Value.IsConstant())
+                {
+                    outputInfo = "vertex shader output #" + std::to_string(i + 1);
+                    currentNode = matData.VertexOutputs[i].Value.GetNode();
+                    if (currentNode == 0) return "Vertex shader output node '" + matData.VertexOutputs[i].Value.GetNonConstantValue() + "' doesn't exist!";
+                    currentNode->AssertAllInputsValid();
+                }
+            }
+
+            DataNode::CurrentShader = Shaders::SH_Fragment_Shader;
+            for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
+            {
+                if (!matData.FragmentOutputs[i].Value.IsConstant())
+                {
+                    outputInfo = "fragment shader output #" + std::to_string(i + 1);
+                    currentNode = matData.FragmentOutputs[i].Value.GetNode();
+                    if (currentNode == 0) return "Fragment shader output node '" + matData.FragmentOutputs[i].Value.GetNonConstantValue() + "' doesn't exist!";
+                    currentNode->AssertAllInputsValid();
+                }
+            }
+        }
+    }
+    catch (int ex)
+    {
+        assert(ex == DataNode::EXCEPTION_ASSERT_FAILED);
+        assert(currentNode != 0);
+        return "Error with inputs for " + outputInfo + ": " + currentNode->GetError();
+    }
+
     //Get information about what external data each shader uses.
     MaterialUsageFlags vertFlags;
     DataNode::CurrentShader = Shaders::SH_Vertex_Shader;
+    try
+    {
+        matData.VertexPosOutput.GetNode()->SetFlags(vertFlags, matData.VertexPosOutput.GetNonConstantOutputIndex());
+    }
+    catch (int ex)
+    {
+        if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
+            return "Unexpected exception writing usage flags for vertex pos output node '" +
+                       matData.VertexPosOutput.GetNonConstantValue() + ": " + std::to_string(ex);
+    }
     for (unsigned int i = 0; i < matData.VertexOutputs.size(); ++i)
     {
         if (matData.VertexOutputs[i].Value.IsConstant()) continue;
@@ -169,16 +225,12 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
 
         try
         {
-            if (vertOut.Value.GetNode() == 0)
-                return "Vertex output '" + vertOut.Name + "'s node value '" +
-                            vertOut.Value.GetNonConstantValue() + "' doesn't exist!";
-
             vertOut.Value.GetNode()->SetFlags(vertFlags, vertOut.Value.GetNonConstantOutputIndex());
         }
         catch (int ex)
         {
             if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
-                return "Unexpected exception writing usage flags for vertex input '" + vertOut.Name +
+                return "Unexpected exception writing usage flags for vertex output '" + vertOut.Name +
                             "' (the only expected one is DataNode::EXCEPTION_ASSERT_FAILED, " +
                             std::to_string(DataNode::EXCEPTION_ASSERT_FAILED) + "): " + std::to_string(ex);
             return "Error setting flags for vertex output '" + vertOut.Name +
@@ -196,10 +248,6 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
 
         try
         {
-            if (fragOut.Value.GetNode() == 0)
-                return "Fragment output '" + fragOut.Name + "'s node value '" +
-                            fragOut.Value.GetNonConstantValue() + "' doesn't exist!";
-
             fragOut.Value.GetNode()->SetFlags(fragFlags, fragOut.Value.GetNonConstantOutputIndex());
         }
         catch (int ex)
@@ -263,7 +311,6 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
         if (!inDat.IsConstant())
         {
             DataNode* node = inDat.GetNode();
-            if (node == 0) return "Node '" + inDat.GetNonConstantValue() + "' doesn't exist!";
 
             //Track whether code was added.
             unsigned int oldCodeLength = vertexCode.size();
@@ -295,7 +342,6 @@ std::string SG::GenerateVertFragShaders(std::string & outVShader, std::string & 
         if (!inDat.IsConstant())
         {
             DataNode* node = inDat.GetNode();
-            if (node == 0) return "Node '" + inDat.GetNonConstantValue() + "' doesn't exist!";
 
             //Track whether code was added.
             unsigned int oldCodeLength = fragmentCode.size();
@@ -372,7 +418,7 @@ void main()                                                                     
     //Now output the final color(s).
     for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
         fragShader += "\t" + matData.FragmentOutputs[fragOut].Name +
-                        " = vec4(" + matData.FragmentOutputs[fragOut].Value.GetValue() + ";\n";
+                        " = " + matData.FragmentOutputs[fragOut].Value.GetValue() + ";\n";
     fragShader += "}";
 
 

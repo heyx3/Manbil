@@ -1,6 +1,6 @@
 #include "SerializedMaterial.h"
 
-#include "DataNode.h"
+#include "DataNodeIncludes.h"
 #include <stack>
 
 
@@ -9,8 +9,9 @@ struct SerializedNode : public ISerializable
 {
 public:
 
-    std::shared_ptr<DataNode> Node;
-    SerializedNode(std::shared_ptr<DataNode> node = std::shared_ptr<DataNode>()) : Node(node) { }
+    //Unmanaged raw pointer. Needs to be managed by whoever called "ReadData" on this instance.
+    DataNode* Node;
+    SerializedNode(DataNode * node = 0) : Node(node) { }
 
     virtual bool WriteData(DataWriter * writer, std::string & outError) const override
     {
@@ -37,7 +38,7 @@ public:
         }
 
         Node = DataNode::CreateNode(tryType.GetValue());
-        if (Node.get() == 0)
+        if (Node == 0)
         {
             outError = "Node type '" + tryType.GetValue() + "' is unknown!";
             return false;
@@ -96,6 +97,37 @@ bool MaterialOutputs::WriteData(DataWriter * writer, std::string & outError) con
         outError = "Error writing out the vertex position output: " + outError;
         return false;
     }
+
+    if (!writer->WriteUInt(VertexOutputs.size(), "Numb Vertex Outputs", outError))
+    {
+        outError = "Error writing out the size of the vertex output collection: " + outError;
+        return false;
+    }
+    for (unsigned int i = 0; i < VertexOutputs.size(); ++i)
+    {
+        if (!writer->WriteDataStructure(VertexOutputs[i], "Vertex Output #" + std::to_string(i + 1), outError))
+        {
+            outError = "Error writing out vertex output #" + std::to_string(i + 1) + ": " + outError;
+            return false;
+        }
+    }
+
+    if (!writer->WriteUInt(FragmentOutputs.size(), "Numb Fragment Outputs", outError))
+    {
+        outError = "Error writing out the size of the fragment output collection: " + outError;
+        return false;
+    }
+    for (unsigned int i = 0; i < FragmentOutputs.size(); ++i)
+    {
+        if (!writer->WriteDataStructure(FragmentOutputs[i], "Fragment Output #" + std::to_string(i + 1), outError))
+        {
+            outError = "Error writing out fragment output #" + std::to_string(i + 1) + ": " + outError;
+            return false;
+        }
+    }
+
+
+    /*
     if (!writer->WriteCollection("Vertex Outputs",
                                  [](const void* coll, unsigned int index, DataWriter * write, std::string & outErr, void* d)
                                  {
@@ -116,6 +148,7 @@ bool MaterialOutputs::WriteData(DataWriter * writer, std::string & outError) con
         outError = "Error writing out the fragment outputs: " + outError;
         return false;
     }
+    */
 
     return true;
 }
@@ -127,10 +160,50 @@ bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
         return false;
     }
 
+    MaybeValue<unsigned int> tryNumbVerts = reader->ReadUInt(outError);
+    if (!tryNumbVerts.HasValue())
+    {
+        outError = "Error reading in the number of vertex outputs: " + outError;
+        return false;
+    }
+    VertexOutputs.resize(tryNumbVerts.GetValue());
+    for (unsigned int i = 0; i < tryNumbVerts.GetValue(); ++i)
+    {
+        if (!reader->ReadDataStructure(VertexOutputs[i], outError))
+        {
+            outError = "Error reading in the " + std::to_string(i + 1) + "-th vertex output: " + outError;
+            return false;
+        }
+    }
+
+    MaybeValue<unsigned int> tryNumbFrags = reader->ReadUInt(outError);
+    if (!tryNumbFrags.HasValue())
+    {
+        outError = "Error reading in the number of fragment outputs: " + outError;
+        return false;
+    }
+    FragmentOutputs.resize(tryNumbFrags.GetValue());
+    for (unsigned int i = 0; i < tryNumbFrags.GetValue(); ++i)
+    {
+        if (!reader->ReadDataStructure(FragmentOutputs[i], outError))
+        {
+            outError = "Error reading in the " + std::to_string(i + 1) + "-th fragment output: " + outError;
+            return false;
+        }
+    }
+
+    /*
     std::vector<unsigned char> tryCollData;
     if (!reader->ReadCollection([](void* coll, unsigned int index, DataReader * read, std::string & outErr, void* d)
                                 {
-                                    return read->ReadDataStructure(((ShaderOutput*)coll)[index].Value, outErr);
+                                    ShaderOutput* outps = (ShaderOutput*)coll;
+                                    outps[index] = ShaderOutput("vOut" + std::to_string(index));
+                                    ShaderOutput* pOuts = &outps[index];
+                                    unsigned int a = sizeof(std::string),
+                                                 b = sizeof(DataLine),
+                                                 c = sizeof(ShaderOutput);
+                                    ISerializable * dat = &pOuts->Value;
+                                    return read->ReadDataStructure(*dat, outErr);
                                 }, sizeof(ShaderOutput), outError, tryCollData))
     {
         outError = "Error reading in the vertex outputs: " + outError;
@@ -144,7 +217,9 @@ bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
     tryCollData.clear();
     if (!reader->ReadCollection([](void* coll, unsigned int index, DataReader * read, std::string & outErr, void* d)
                                 {
-                                    return read->ReadDataStructure(((ShaderOutput*)coll)[index].Value, outErr);
+                                    ShaderOutput* outps = (ShaderOutput*)coll;
+                                    outps[index] = ShaderOutput("fOut" + std::to_string(index));
+                                    return read->ReadDataStructure(outps[index].Value, outErr);
                                 }, sizeof(ShaderOutput), outError, tryCollData))
     {
         outError = "Error reading in the fragment outputs: " + outError;
@@ -154,15 +229,29 @@ bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
     FragmentOutputs.resize(tryCollData.size() / sizeof(ShaderOutput));
     for (unsigned i = 0; i < FragmentOutputs.size(); ++i)
         FragmentOutputs[i] = ((ShaderOutput*)tryCollData.data())[i];
+        */
+    return true;
 }
 #pragma warning(default: 4100)
 
+
+//Gets whether the given node is a special singleton node that shouldn't be written out.
+bool IsSingleton(DataNode* node)
+{
+    return node == VertexInputNode::GetInstance().get() ||
+           node == GeometryInputNode::GetInstance().get() ||
+           node == FragmentInputNode::GetInstance().get() ||
+           node == TimeNode::GetInstance().get() ||
+           node == CameraDataNode::GetInstance().get() ||
+           node == ProjectionDataNode::GetInstance().get();
+}
+
 bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) const
 {
-    //First write out the number of nodes that will be written.
-    if (!writer->WriteUInt(Nodes.size(), "NumbNodes", outError))
+    //First, write out the expected vertex inputs.
+    if (!writer->WriteDataStructure(VertexInputs, "Vertex Inputs", outError))
     {
-        outError = "Error writing out the number of nodes (" + std::to_string(Nodes.size()) + "): " + outError;
+        outError = "Error writing out the vertex inputs: " + outError;
         return false;
     }
 
@@ -182,7 +271,6 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
     //   and ends at the specified node.
     //Sort all nodes by their max depth.
     std::unordered_map<DataNode*, unsigned int> nodesAndDepth;
-    nodesAndDepth.reserve(Nodes.size());
     unsigned int maxDepth = 0;
     for (unsigned int i = 0; i < rootNodes.size(); ++i)
     {
@@ -201,6 +289,7 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
         {
             DataNode *Start, *End;
             Traversal(DataNode* start = 0, DataNode* end = 0) : Start(start), End(end) { }
+            bool operator==(const Traversal & other) const { return Start == other.Start && End == other.End; }
         };
         std::vector<Traversal> traversed;
 
@@ -211,6 +300,8 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
             NodeAndDepth toSearch = searchSpace.top();
             searchSpace.pop();
 
+            //If the node is a special singleton, it shouldn't be written out.
+            if (IsSingleton(toSearch.Node)) continue;
             //If the node already exists, and doesn't have a greater depth here,
             //   then there is no need to traverse its children again.
             auto found = nodesAndDepth.find(toSearch.Node);
@@ -253,9 +344,17 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
         }
     }
 
+    //Before writing any nodes, write out the number of nodes that will be written.
+    if (!writer->WriteUInt(nodesAndDepth.size(), "NumbNodes", outError))
+    {
+        outError = "Error writing out the number of nodes (" + std::to_string(nodesAndDepth.size()) + "): " + outError;
+        return false;
+    }
+
+
     //Now that we have all nodes sorted by their depth, start with the lowest nodes (i.e. the fewest dependencies)
     //    and work up.
-    for (int depth = (int)maxDepth; depth > 0; --depth)
+    for (int depth = (int)maxDepth; depth >= 0; --depth)
     {
         unsigned int depthU = (unsigned int)depth;
 
@@ -264,29 +363,18 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
         {
             if (element->second == depthU)
             {
-                //Find the shared pointer that corresponds to this node.
-                DataNode::Ptr elementN;
-                for (unsigned int i = 0; i < Nodes.size(); ++i)
-                {
-                    if (Nodes[i].get() == element->first)
-                    {
-                        elementN = Nodes[i];
-                        break;
-                    }
-                }
-
                 //Generate a description of the outputs.
-                std::string outputDescription = std::to_string(elementN->GetNumbOutputs()) + " Outputs: ";
-                for (unsigned int i = 0; i < elementN->GetNumbOutputs(); ++i)
+                std::string outputDescription = std::to_string(element->first->GetNumbOutputs()) + " Outputs: ";
+                for (unsigned int i = 0; i < element->first->GetNumbOutputs(); ++i)
                 {
                     if (i > 0) outputDescription += ", ";
-                    outputDescription += std::to_string(elementN->GetOutputSize(i));
+                    outputDescription += std::to_string(element->first->GetOutputSize(i));
                 }
 
                 //Write the node.
-                if (!writer->WriteDataStructure(SerializedNode(elementN), outputDescription, outError))
+                if (!writer->WriteDataStructure(SerializedNode(element->first), outputDescription, outError))
                 {
-                    outError = "Error writing declaration of node '" + elementN->GetName() + "': " + outError;
+                    outError = "Error writing declaration of node '" + element->first->GetName() + "': " + outError;
                     return false;
                 }
             }
@@ -304,6 +392,13 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
 }
 bool SerializedMaterial::ReadData(DataReader * reader, std::string & outError)
 {
+    //Try reading in the vertex inputs.
+    if (!reader->ReadDataStructure(VertexInputs, outError))
+    {
+        outError = "Error reading in the vertex inputs: " + outError;
+        return false;
+    }
+
     //Try reading in the number of declared DataNodes.
     MaybeValue<unsigned int> tryNumbNodes = reader->ReadUInt(outError);
     if (!tryNumbNodes.HasValue())
@@ -313,6 +408,7 @@ bool SerializedMaterial::ReadData(DataReader * reader, std::string & outError)
     }
 
     //Try to read in each DataNode.
+    nodeStorage.clear();
     for (unsigned int i = 0; i < tryNumbNodes.GetValue(); ++i)
     {
         SerializedNode serNode;
@@ -322,7 +418,7 @@ bool SerializedMaterial::ReadData(DataReader * reader, std::string & outError)
             return false;
         }
 
-        Nodes.insert(Nodes.end(), serNode.Node);
+        nodeStorage.insert(nodeStorage.end(), DataNode::Ptr(serNode.Node));
     }
 
     //Try to read in the material outputs.
