@@ -8,6 +8,7 @@ class ProjectionDataNode : public DataNode
 {
 public:
 
+    static std::string GetInstanceName(void) { return "projectionDataNode"; }
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
     static DataLine GetWidth(void) { return DataLine(instance->GetName(), GetWidthOutputIndex()); }
     static DataLine GetHeight(void) { return DataLine(instance->GetName(), GetHeightOutputIndex()); }
@@ -15,8 +16,6 @@ public:
     static DataLine GetZFar(void) { return DataLine(instance->GetName(), GetZFarOutputIndex()); }
     static DataLine GetFov(void) { return DataLine(instance->GetName(), GetFovOutputIndex()); }
 
-
-    virtual std::string GetTypeName(void) const override { return "projectionData"; }
 
     virtual unsigned int GetNumbOutputs(void) const override { return 5; }
 
@@ -39,4 +38,7 @@ private:
     static unsigned int GetFovOutputIndex(void) { return 4; }
 
     ProjectionDataNode(void);
+
+
+    MAKE_NODE_READABLE_H(ProjectionDataNode)
 };

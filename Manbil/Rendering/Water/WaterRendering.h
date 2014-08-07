@@ -25,8 +25,6 @@ public:
     static unsigned int GetSurfaceNormalOutputIndex(void) { return 1; }
 
 
-    virtual std::string GetTypeName(void) const override { return "Water Computations"; }
-
     virtual unsigned int GetNumbOutputs(void) const override { return 2; }
 
     virtual unsigned int GetOutputSize(unsigned int i) const override;
@@ -51,6 +49,8 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
 
 private:
 
@@ -58,11 +58,9 @@ private:
 
     const DataLine & GetObjectPosVInput(void) const { return GetInputs()[0]; }
     const DataLine & GetObjectPosVOutput(void) const { return GetInputs()[1]; }
+
+    MAKE_NODE_READABLE_H(WaterNode);
 };
-
-
-//Sets up these water-related DataNodes to be readable from a file.
-extern void PrepareWaterDataNodesToBeRead(void);
 
 /*
 //A DataNode that outputs an offset for UV coordinates that creates an interesting water surface distortion effect.

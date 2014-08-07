@@ -3,15 +3,11 @@
 #include "../../../../Math/Quaternion.h"
 
 
+MAKE_NODE_READABLE_CPP(RotateAroundAxisNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 0.0f)
 
 RotateAroundAxisNode::RotateAroundAxisNode(const DataLine & toRot, const DataLine & axis, const DataLine & angle, std::string name)
-    : DataNode(MakeVector(toRot, axis, angle),
-               []() { return Ptr(new RotateAroundAxisNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(0.0f))); },
-               name)
+    : DataNode(MakeVector(toRot, axis, angle), name)
 {
-    Assert(toRot.GetSize() == 3, "Value to rotate should be size 3, but it is size " + std::to_string(toRot.GetSize()));
-    Assert(axis.GetSize() == 3, "Axis to rotate around should be size 3, but it is size " + std::to_string(axis.GetSize()));
-    Assert(angle.GetSize() == 1, "Angle to rotate by should be size 1, but it is size " + std::to_string(angle.GetSize()));
 }
 
 void RotateAroundAxisNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
@@ -165,4 +161,14 @@ std::string RotateAroundAxisNode::GetInputDescription(unsigned int index) const
             Assert(false, "Unexpected input index " + ToString(index));
             return "INVALID_INPUT_INDEX_" + ToString(index);
     }
+}
+
+void RotateAroundAxisNode::AssertMyInputsValid(void) const
+{
+    Assert(GetToRotateInput().GetSize() == 3,
+           "Value to rotate should be size 3, but it is size " + ToString(GetToRotateInput().GetSize()));
+    Assert(GetRotateAxisInput().GetSize() == 3,
+           "Axis to rotate around should be size 3, but it is size " + ToString(GetRotateAxisInput().GetSize()));
+    Assert(GetRotateAmountInput().GetSize() == 1,
+           "Angle to rotate by should be size 1, but it is size " + ToString(GetRotateAmountInput().GetSize()));
 }

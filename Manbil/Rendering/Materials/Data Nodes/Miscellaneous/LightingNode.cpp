@@ -1,15 +1,15 @@
 #include "LightingNode.h"
 
 
+MAKE_NODE_READABLE_CPP(LightingNode, Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), "", 0.0f, 0.0f, 0.0f, 0.0f, Vector3f())
+
 
 unsigned int LightingNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return 1;
 }
 std::string LightingNode::GetOutputName(unsigned int outputIndex) const
 {
-    Assert(outputIndex == 0, std::string() + "Invalid output index " + ToString(outputIndex));
     return GetName() + "_brightness";
 }
 
@@ -17,19 +17,10 @@ std::string LightingNode::GetOutputName(unsigned int outputIndex) const
 LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
                            std::string name, DataLine ambient, DataLine diffuse,
                            DataLine specular, DataLine specIntensity, DataLine camPos)
-    : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity, camPos, surfaceWorldPos, surfaceWorldNormal, lightDir),
-               []() { return Ptr(new LightingNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)), DataLine(VectorF(0.0f, 0.0, -1.0f)))); },
-               name)
+    : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity,
+                               camPos, surfaceWorldPos, surfaceWorldNormal, lightDir), name)
 {
-    Assert(ambient.GetSize() == 1, "Ambient input must be size 1; is size " + ToString(ambient.GetSize()));
-    Assert(diffuse.GetSize() == 1, "Diffuse input must be size 1; is size " + ToString(diffuse.GetSize()));
-    Assert(specular.GetSize() == 1, "Specular input must be size 1; is size " + ToString(specular.GetSize()));
-    Assert(specIntensity.GetSize() == 1, "Specular intensity input must be size 1; is size " + ToString(specIntensity.GetSize()));
 
-    Assert(camPos.GetSize() == 3, "CamPos input must be size 3; is size " + ToString(camPos.GetSize()));
-    Assert(surfaceWorldPos.GetSize() == 3, "SurfaceWorldPos input must be size 3; is size " + ToString(surfaceWorldPos.GetSize()));
-    Assert(surfaceWorldNormal.GetSize() == 3, "SurfaceWorldNormal input must be size 3; is size " + ToString(surfaceWorldNormal.GetSize()));
-    Assert(lightDir.GetSize() == 3, "LightDir input must be size 3; is size " + ToString(lightDir.GetSize()));
 }
 
 void LightingNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
@@ -102,4 +93,18 @@ std::string LightingNode::GetInputDescription(unsigned int index) const
             Assert(false, "Invalid input index " + ToString(index));
             return "BAD_INPUT_INDEX";
     }
+}
+
+
+void LightingNode::AssertMyInputsValid(void) const
+{
+    Assert(GetAmbientInput().GetSize() == 1, "Ambient input must be size 1; is size " + ToString(GetAmbientInput().GetSize()));
+    Assert(GetDiffuseInput().GetSize() == 1, "Diffuse input must be size 1; is size " + ToString(GetDiffuseInput().GetSize()));
+    Assert(GetSpecularInput().GetSize() == 1, "Specular input must be size 1; is size " + ToString(GetSpecularInput().GetSize()));
+    Assert(GetSpecularIntensityInput().GetSize() == 1, "Specular intensity input must be size 1; is size " + ToString(GetSpecularIntensityInput().GetSize()));
+
+    Assert(GetCameraPosInput().GetSize() == 3, "CamPos input must be size 3; is size " + ToString(GetCameraPosInput().GetSize()));
+    Assert(GetSurfacePosInput().GetSize() == 3, "SurfaceWorldPos input must be size 3; is size " + ToString(GetSurfacePosInput().GetSize()));
+    Assert(GetSurfaceNormalInput().GetSize() == 3, "SurfaceWorldNormal input must be size 3; is size " + ToString(GetSurfaceNormalInput().GetSize()));
+    Assert(GetLightDirInput().GetSize() == 3, "LightDir input must be size 3; is size " + ToString(GetLightDirInput().GetSize()));
 }

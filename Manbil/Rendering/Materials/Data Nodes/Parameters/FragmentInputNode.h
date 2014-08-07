@@ -16,10 +16,9 @@ class FragmentInputNode : public DataNode
 {
 public:
 
+    static std::string GetInstanceName(void) { return "fragmentInputs"; }
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
 
-
-    virtual std::string GetTypeName(void) const override { return "fragmentInputs"; }
 
     virtual unsigned int GetNumbOutputs(void) const override;
 
@@ -37,6 +36,8 @@ private:
     static std::shared_ptr<DataNode> instance;
 
     FragmentInputNode(void);
+    
+    MAKE_NODE_READABLE_H(FragmentInputNode)
 };
 
 #pragma warning(default: 4100)

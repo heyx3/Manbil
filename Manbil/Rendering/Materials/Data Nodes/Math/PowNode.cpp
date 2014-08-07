@@ -1,23 +1,21 @@
 #include "PowNode.h"
 
 
+MAKE_NODE_READABLE_CPP(PowNode, 1.0f, 1.0f)
+
+
 unsigned int PowNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetBaseInput().GetSize();
 }
 std::string PowNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_powResult";
 }
 
 PowNode::PowNode(const DataLine & base, const DataLine & exponent, std::string name)
-    : DataNode(MakeVector(base, exponent),
-               []() { return Ptr(new PowNode(DataLine(1.0f), DataLine(1.0f))); },
-               name)
+    : DataNode(MakeVector(base, exponent), name)
 {
-    Assert(exponent.GetSize() == base.GetSize(), "'exponent' input is not the same size as 'base' input!");
 }
 
 void PowNode::WriteMyOutputs(std::string & outCode) const
@@ -30,4 +28,10 @@ void PowNode::WriteMyOutputs(std::string & outCode) const
 std::string PowNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0) ? "Base" : "Exponent";
+}
+
+void PowNode::AssertMyInputsValid(void) const
+{
+    Assert(GetExponentInput().GetSize() == GetBaseInput().GetSize(),
+           "'exponent' input is not the same size as 'base' input!");
 }

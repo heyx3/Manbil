@@ -1,26 +1,18 @@
 #include "VertexInputNode.h"
 
 
+MAKE_NODE_READABLE_CPP(VertexInputNode, )
+
 
 std::shared_ptr<DataNode> VertexInputNode::instance = std::shared_ptr<DataNode>(new VertexInputNode());
 
 
 unsigned int VertexInputNode::GetOutputSize(unsigned int outputIndex) const
 {
-    Assert(outputIndex < VertexIns.GetNumbAttributes(),
-           std::string() + "Invalid attribute number " + ToString(outputIndex) +
-           ", must be less than " + ToString(VertexIns.GetNumbAttributes()));
-    Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
-           std::string() + "Invalid shader type (must be Vertex): " + ToString(CurrentShader));
     return VertexIns.GetAttributeSize(outputIndex);
 }
 std::string VertexInputNode::GetOutputName(unsigned int outputIndex) const
 {
-    Assert(outputIndex < VertexIns.GetNumbAttributes(),
-           std::string() + "Invalid attribute number " + ToString(outputIndex) +
-           ", must be less than " + ToString(VertexIns.GetNumbAttributes()));
-    Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
-           std::string() + "Invalid shader type (must be Vertex): " + ToString(CurrentShader));
     return VertexIns.GetAttributeName(outputIndex);
 }
 
@@ -35,4 +27,4 @@ void VertexInputNode::WriteMyOutputs(std::string & outCode) const
 #pragma warning(default: 4100)
 
 
-VertexInputNode::VertexInputNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "vertexIns") { }
+VertexInputNode::VertexInputNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName()) { }

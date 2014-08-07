@@ -14,8 +14,6 @@ public:
     };
 
 
-    virtual std::string GetTypeName(void) const override { return "interpolation"; }
-
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -36,8 +34,12 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
 
 private:
 
     InterpolationType intType;
+
+    MAKE_NODE_READABLE_H(InterpolateNode)
 };

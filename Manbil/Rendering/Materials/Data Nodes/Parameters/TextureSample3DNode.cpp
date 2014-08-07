@@ -1,6 +1,8 @@
 #include "TextureSample3DNode.h"
 
 
+MAKE_NODE_READABLE_CPP(TextureSample3DNode, Vector3f())
+
 
 unsigned int TextureSample3DNode::GetOutputIndex(ChannelsOut channel)
 {
@@ -53,13 +55,9 @@ unsigned int TextureSample3DNode::GetOutputSize(unsigned int index) const
 
 
 TextureSample3DNode::TextureSample3DNode(const DataLine & uvs, std::string samplerName, std::string name)
-    : DataNode(MakeVector(uvs),
-               []() { return Ptr(new TextureSample3DNode(DataLine(VectorF(0.5f, 0.5f, 0.5f)))); },
-               name),
+    : DataNode(MakeVector(uvs), name),
       SamplerName(samplerName)
 {
-    Assert(uvs.GetSize() == 3, "UV input isn't size 3; it's size " + ToString(uvs.GetSize()));
-
     if (SamplerName.empty()) SamplerName = "u_" + GetName() + "_3DTex";
 }
 
@@ -101,4 +99,10 @@ bool TextureSample3DNode::ReadExtraData(DataReader * reader, std::string & outEr
     }
 
     return true;
+}
+
+
+void TextureSample3DNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs()[0].GetSize() == 3, "UV input isn't size 3; it's size " + ToString(GetInputs()[0].GetSize()));
 }

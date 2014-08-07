@@ -1,23 +1,22 @@
 #include "ParamNode.h"
 
 
+MAKE_NODE_READABLE_CPP(ParamNode, 1, "badParam")
+
+
 ParamNode::ParamNode(unsigned int vectorSize, std::string paramName, std::string name)
     : vSize(vectorSize), pName(paramName),
-    DataNode(std::vector<DataLine>(),
-             []() { return Ptr(new ParamNode(1, "ERROR_BAD_PARAM")); },
-             name)
+    DataNode(std::vector<DataLine>(), name)
 {
 
 }
 
 unsigned int ParamNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
     return vSize;
 }
 std::string ParamNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
     return pName;
 }
 

@@ -8,9 +8,8 @@ class className : public DataNode \
     { \
     public: \
         className(const DataLine & input, std::string name = "") \
-            : DataNode(MakeVector(input), []() { return Ptr(new className(DataLine(1.0f))); }, name) { } \
+            : DataNode(MakeVector(input), name) { } \
         \
-        virtual std::string GetTypeName(void) const override { return #outputName ; } \
         \
         virtual unsigned int GetOutputSize(unsigned int index) const override \
         { \
@@ -29,6 +28,8 @@ class className : public DataNode \
             std::string vecType = VectorF(GetInputs()[0].GetSize()).GetGLSLType(); \
             outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
         } \
+        \
+        MAKE_NODE_READABLE_H(className) \
     };
 
 

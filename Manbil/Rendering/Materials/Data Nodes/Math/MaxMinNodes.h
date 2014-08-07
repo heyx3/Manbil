@@ -8,8 +8,6 @@ class MaxNode : public DataNode
 {
 public:
 
-    virtual std::string GetTypeName(void) const override { return "max"; }
-
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -19,14 +17,16 @@ public:
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
+
+    virtual void AssertMyInputsValid(void) const override;
+
+    MAKE_NODE_READABLE_H(MaxNode)
 };
 
 //Outputs the min of an input.
 class MinNode : public DataNode
 {
 public:
-
-    virtual std::string GetTypeName(void) const override { return "min"; }
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
@@ -37,4 +37,8 @@ public:
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
+
+    virtual void AssertMyInputsValid(void) const override;
+
+    MAKE_NODE_READABLE_H(MinNode)
 };

@@ -1,6 +1,7 @@
 #include "GeometryInputNode.h"
 
 
+MAKE_NODE_READABLE_CPP(GeometryInputNode, )
 
 std::shared_ptr<DataNode> GeometryInputNode::instance = std::shared_ptr<DataNode>(new GeometryInputNode());
 
@@ -13,16 +14,10 @@ unsigned int GeometryInputNode::GetNumbOutputs(void) const
 
 unsigned int GeometryInputNode::GetOutputSize(unsigned int outputIndex) const
 {
-    Assert(outputIndex < GetNumbOutputs(),
-           std::string() + "Output index was " + ToString(outputIndex) +
-           " but there are only " + ToString(GetNumbOutputs()) + " outputs!");
     return MaterialOuts.VertexOutputs[outputIndex].Value.GetSize();
 }
 std::string GeometryInputNode::GetOutputName(unsigned int outputIndex) const
 {
-    Assert(outputIndex < GetNumbOutputs(),
-           std::string() + "Output index was " + ToString(outputIndex) +
-           " but there are only " + ToString(GetNumbOutputs()) + " outputs!");
     return MaterialOuts.VertexOutputs[outputIndex].Name;
 }
 
@@ -43,4 +38,5 @@ void GeometryInputNode::WriteMyOutputs(std::string & outCode) const
 #pragma warning(default: 4100)
 
 
-GeometryInputNode::GeometryInputNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "geometryIns") { }
+GeometryInputNode::GeometryInputNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName())
+{ }

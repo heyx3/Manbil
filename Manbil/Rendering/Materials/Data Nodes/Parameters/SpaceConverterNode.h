@@ -51,8 +51,6 @@ public:
     SpaceTypes SrcSpace, DestSpace;
     DataTypes DataType;
 
-    
-    virtual std::string GetTypeName(void) const override { return "Space Converter"; }
 
     virtual unsigned int GetNumbOutputs(void) const override;
 
@@ -73,6 +71,8 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
 
 private:
 
@@ -85,4 +85,7 @@ private:
 
     static bool ST_FromString(std::string str, SpaceTypes & outSt);
     static bool DT_FromString(std::string str, DataTypes & outDt);
+
+
+    MAKE_NODE_READABLE_H(SpaceConverterNode)
 };

@@ -32,13 +32,43 @@ public:
 
     //The shader currently being generated.
     static ShaderHandler::Shaders CurrentShader;
-    
 
+    //Put this at the bottom of a DataNode class's declaration in the .h file (inside the declaration)
+    //  to make it readable by a DataSerializer. Not necessary if the class already has a static instance of itself,
+    //  like a singleton.
+    #define MAKE_NODE_READABLE_H(nodeClass) \
+        public: \
+            virtual std::string GetTypeName(void) const override { return #nodeClass; } \
+        private: \
+            struct Initializer \
+            { \
+            public: \
+                Initializer(void); \
+            }; \
+            static Initializer IGNORE_MEEEE;
+    //Put this in a DataNode class's .cpp file to make it readable by a DataSerializer.
+    //Not necessary if the class already has a static instance of itself, like a singleton.
+    #define MAKE_NODE_READABLE_CPP(nodeClass, ...) \
+        nodeClass::Initializer::Initializer(void) \
+        { \
+            if (DataNode_factoriesByTypename == 0) \
+            { \
+                DataNode_factoriesByTypename = new std::unordered_map<std::string, NodeFactory>(); \
+            } \
+            if (DataNode_factoriesByTypename->find(#nodeClass) == DataNode_factoriesByTypename->end()) \
+                DataNode_factoriesByTypename->operator[](#nodeClass) = []() { return (DataNode*)new nodeClass(__VA_ARGS__); }; \
+        } \
+        nodeClass::Initializer nodeClass::IGNORE_MEEEE = nodeClass::Initializer();
+
+
+    typedef DataNode*(*NodeFactory)(void);
     typedef std::shared_ptr<DataNode> Ptr;
-    typedef std::shared_ptr<DataNode>(*NodeFactory)(void);
 
-    //Returns a pointer to 0 if the given type name is unknown.
-    static std::shared_ptr<DataNode> CreateNode(std::string typeName);
+    //Creates a node of the given type name with no useful data yet.
+    //The type name is just the stringify-ed class name, e.x. "AddNode" or "LightingNode".
+    //Creates a raw unmanaged pointer.
+    //Returns 0 if the given type name doesn't correspond to a node.
+    static DataNode* CreateNode(std::string typeName);
 
 
     //Thrown when something about this DataNode (or an attempt to input/output this DataNode)
@@ -51,8 +81,8 @@ public:
 
     //Constructors/destructors.
 
-    DataNode(const std::vector<DataLine> & _inputs, NodeFactory howToCreateMe, std::string _name = "");
-    DataNode(const DataNode & cpy); // Intentionally left blank.
+    DataNode(const std::vector<DataLine> & _inputs, std::string _name = "");
+    //DataNode(const DataNode & cpy) = delete; // Intentionally left blank.
 
     virtual ~DataNode(void);
 
@@ -68,7 +98,7 @@ public:
     std::string GetName(void) const { return name; }
     void SetName(std::string newName);
 
-    virtual std::string GetTypeName(void) const = 0;
+    virtual std::string GetTypeName(void) const { return "ERROR_BAD_TYPE_NAME"; }
 
 
     const std::vector<DataLine> & GetInputs(void) const { return inputs; }
@@ -78,8 +108,8 @@ public:
     void ReplaceInput(unsigned int inputIndex, const DataLine & replacement);
 
     
-    //Functions to traverse down this node and its inputs to build data about these nodes.
-
+    //Functions to traverse down this node and its inputs.
+    void AssertAllInputsValid(void) const;
     void SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const;
     void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<const DataNode*> & writtenNodes) const;
     void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<const DataNode*> & writtenNodes) const;
@@ -153,6 +183,8 @@ protected:
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const;
 
+    virtual void AssertMyInputsValid(void) const { }
+
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const { }
     virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const { }
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const { }
@@ -161,18 +193,20 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const { return true; }
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) { return true; }
 
-    virtual std::string GetInputDescription(unsigned int index) const { return "in" + std::to_string(index + 1); }
+    virtual std::string GetInputDescription(unsigned int index) const { return "in" + ToString(index + 1); }
+
+
+    static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
+
+    //Keeps track of what names correspond with what nodes.
+    static std::unordered_map<std::string, DataNode*> * DataNode_nameToNode;
+    //Holds how to create each kind of DataNode.
+    static std::unordered_map<std::string, DataNode::NodeFactory> * DataNode_factoriesByTypename;
 
 
 private:
 
-    //Keeps track of what names correspond with what nodes.
-    static std::unordered_map<std::string, DataNode*> nameToNode;
-    //Holds how to create each kind of DataNode.
-    static std::unordered_map<std::string, NodeFactory> FactoriesByTypename;
-
     static unsigned int lastID;
-    static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
 
 
     std::vector<DataLine> inputs;

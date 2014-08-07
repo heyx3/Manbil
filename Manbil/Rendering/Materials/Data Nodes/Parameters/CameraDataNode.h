@@ -9,13 +9,11 @@ class CameraDataNode : public DataNode
 public:
 
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
+    static std::string GetInstanceName(void) { return "cameraData"; }
     static DataLine GetCamPos(void) { return DataLine(instance->GetName(), GetCamPosOutputIndex()); }
     static DataLine GetCamForward(void) { return DataLine(instance->GetName(), GetCamForwardOutputIndex()); }
     static DataLine GetCamUp(void) { return DataLine(instance->GetName(), GetCamUpwardOutputIndex()); }
     static DataLine GetCamSide(void) { return DataLine(instance->GetName(), GetCamSidewaysOutputIndex()); }
-
-
-    virtual std::string GetTypeName(void) const override { return "cameraData"; }
 
 
     virtual unsigned int GetNumbOutputs(void) const override { return 4; }
@@ -40,4 +38,6 @@ private:
     static unsigned int GetCamSidewaysOutputIndex(void) { return 3; }
 
     CameraDataNode(void);
+
+    MAKE_NODE_READABLE_H(CameraDataNode)
 };

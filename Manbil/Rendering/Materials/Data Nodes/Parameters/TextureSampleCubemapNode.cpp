@@ -1,6 +1,8 @@
 #include "TextureSampleCubemapNode.h"
 
 
+MAKE_NODE_READABLE_CPP(TextureSampleCubemapNode, Vector3f(1.0f, 0.0f, 0.0f), "fakeSampler")
+
 
 std::string TextureSampleCubemapNode::GetOutputName(unsigned int index) const
 {
@@ -54,13 +56,9 @@ unsigned int TextureSampleCubemapNode::GetOutputIndex(ChannelsOut channel)
 
 
 TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, std::string _samplerName, std::string name)
-    : DataNode(MakeVector(texCoords),
-               []() { return Ptr(new TextureSampleCubemapNode(DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
-               name),
+    : DataNode(MakeVector(texCoords), name),
       SamplerName(_samplerName)
 {
-    Assert(texCoords.GetSize() == 3, "Texture coord input isn't size 3; it's size " + ToString(texCoords.GetSize()));
-
     if (SamplerName.empty()) SamplerName = "u_" + GetName() + "_cubeTex";
 }
 
@@ -77,7 +75,6 @@ void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 
 std::string TextureSampleCubemapNode::GetInputDescription(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return "Tex Coord vector";
 }
 
@@ -102,4 +99,9 @@ bool TextureSampleCubemapNode::ReadExtraData(DataReader * reader, std::string & 
     }
 
     return true;
+}
+
+void TextureSampleCubemapNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs()[0].GetSize() == 3, "Texture coord input isn't size 3; it's size " + ToString(GetInputs()[0].GetSize()));
 }

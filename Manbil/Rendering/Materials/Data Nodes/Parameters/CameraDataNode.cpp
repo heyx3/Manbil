@@ -3,6 +3,8 @@
 #include "../../MaterialData.h"
 
 
+MAKE_NODE_READABLE_CPP(CameraDataNode, )
+
 DataNode::Ptr CameraDataNode::instance = Ptr(new CameraDataNode());
 
 
@@ -66,4 +68,4 @@ void CameraDataNode::WriteMyOutputs(std::string & outCode) const
 #pragma warning(default: 4100)
 
 
-CameraDataNode::CameraDataNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "camDataUniforms") { }
+CameraDataNode::CameraDataNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName()) { }

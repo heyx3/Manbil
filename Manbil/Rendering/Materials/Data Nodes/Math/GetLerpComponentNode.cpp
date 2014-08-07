@@ -1,26 +1,21 @@
 #include "GetLerpComponentNode.h"
 
 
+MAKE_NODE_READABLE_CPP(GetLerpComponentNode, 0.0f, 1.0f, 0.5f)
+
+
 unsigned int GetLerpComponentNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetMinInput().GetSize();
 }
 std::string GetLerpComponentNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_lerpComponent";
 }
 
 GetLerpComponentNode::GetLerpComponentNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
-    : DataNode(MakeVector(min, max, value),
-               []() { return std::shared_ptr<DataNode>(new GetLerpComponentNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
-               name)
+    : DataNode(MakeVector(min, max, value), name)
 {
-    Assert(min.GetSize() == max.GetSize(),
-           std::string() + "'min' size is " + ToString(min.GetSize()) + " but 'max' size is " + ToString(max.GetSize()));
-    Assert(value.GetSize() == min.GetSize() || value.GetSize() == 1,
-           std::string() + "Value must be size 1 or " + ToString(min.GetSize()) + " but is it size " + ToString(value.GetSize()));
 }
 
 void GetLerpComponentNode::WriteMyOutputs(std::string & outCode) const
@@ -35,4 +30,14 @@ void GetLerpComponentNode::WriteMyOutputs(std::string & outCode) const
 std::string GetLerpComponentNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0 ? "Min" : (index == 1 ? "Max" : "Value"));
+}
+
+void GetLerpComponentNode::AssertMyInputsValid(void) const
+{
+    Assert(GetMinInput().GetSize() == GetMaxInput().GetSize(),
+           "'min' size is " + ToString(GetMinInput().GetSize()) +
+               " but 'max' input size is " + ToString(GetMaxInput().GetSize()));
+    Assert(GetValueInput().GetSize() == GetMinInput().GetSize() || GetValueInput().GetSize() == 1,
+           "'value' input must be size 1 or " + ToString(GetMinInput().GetSize()) +
+               " but is it size " + ToString(GetValueInput().GetSize()));
 }

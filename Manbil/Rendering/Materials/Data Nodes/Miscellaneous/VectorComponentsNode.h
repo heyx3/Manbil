@@ -9,8 +9,6 @@ class VectorComponentsNode : public DataNode
 {
 public:
 
-    virtual std::string GetTypeName(void) const override { return "vectorComponents"; }
-
     virtual unsigned int GetNumbOutputs(void) const override { return GetInputs()[0].GetSize(); }
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
@@ -25,4 +23,6 @@ protected:
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
+
+    MAKE_NODE_READABLE_H(VectorComponentsNode)
 };

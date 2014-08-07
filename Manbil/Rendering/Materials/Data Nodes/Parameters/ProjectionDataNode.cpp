@@ -3,6 +3,8 @@
 #include "../../MaterialData.h"
 
 
+MAKE_NODE_READABLE_CPP(ProjectionDataNode, )
+
 std::shared_ptr<DataNode> ProjectionDataNode::instance = std::shared_ptr<DataNode>(new ProjectionDataNode());
 
 
@@ -71,4 +73,5 @@ void ProjectionDataNode::WriteMyOutputs(std::string & outCode) const
 #pragma warning(default: 4100)
 
 
-ProjectionDataNode::ProjectionDataNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "projectionUniforms") { }
+ProjectionDataNode::ProjectionDataNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName())
+{ }

@@ -1,10 +1,11 @@
 #include "RemapNode.h"
 
 
+MAKE_NODE_READABLE_CPP(RemapNode, 0.0f, -1.0f, 1.0f)
+
 
 unsigned int RemapNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + index);
     return BasicMath::Max(GetInputs()[0].GetSize(),
                           BasicMath::Max(GetInputs()[1].GetSize(),
                           BasicMath::Max(GetInputs()[2].GetSize(),
@@ -14,22 +15,8 @@ unsigned int RemapNode::GetOutputSize(unsigned int index) const
 
 RemapNode::RemapNode(const DataLine & toRemap, const DataLine & srcMin, const DataLine & srcMax,
                      DataLine destMin, DataLine destMax, std::string name)
-    : DataNode(MakeVector(toRemap, srcMin, srcMax, destMin, destMax),
-               []() { return Ptr(new RemapNode(DataLine(0.0f), DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f))); },
-               name)
+    : DataNode(MakeVector(toRemap, srcMin, srcMax, destMin, destMax), name)
 {
-    unsigned int size = GetOutputSize(0);
-
-    Assert(toRemap.GetSize() == 1 || toRemap.GetSize() == size,
-           "'toRemap' input value isn't size 1 or " + std::to_string(size) + "!");
-    Assert(srcMin.GetSize() == 1 || srcMin.GetSize() == size,
-           "'srcMin' input value isn't size 1 or " + std::to_string(size) + "!");
-    Assert(srcMax.GetSize() == 1 || srcMax.GetSize() == size,
-           "'srcMax' input value isn't size 1 or " + std::to_string(size) + "!");
-    Assert(destMin.GetSize() == 1 || destMin.GetSize() == size,
-           "'destMin' input value isn't size 1 or " + std::to_string(size) + "!");
-    Assert(destMax.GetSize() == 1 || destMax.GetSize() == size,
-           "'destMax' input value isn't size 1 or " + std::to_string(size) + "!");
 }
 
 void RemapNode::WriteMyOutputs(std::string & outOutputs) const
@@ -68,4 +55,20 @@ std::vector<DataLine> RemapNode::MakeVector(const DataLine & val, const DataLine
     dls.insert(dls.end(), destMin);
     dls.insert(dls.end(), destMax);
     return dls;
+}
+
+void RemapNode::AssertMyInputsValid(void) const
+{
+    unsigned int size = GetOutputSize(0);
+
+    Assert(GetInputs()[0].GetSize() == 1 || GetInputs()[0].GetSize() == size,
+           "'toRemap' input value isn't size 1 or " + ToString(size) + "!");
+    Assert(GetInputs()[1].GetSize() == 1 || GetInputs()[1].GetSize() == size,
+           "'srcMin' input value isn't size 1 or " + ToString(size) + "!");
+    Assert(GetInputs()[2].GetSize() == 1 || GetInputs()[2].GetSize() == size,
+           "'srcMax' input value isn't size 1 or " + ToString(size) + "!");
+    Assert(GetInputs()[3].GetSize() == 1 || GetInputs()[3].GetSize() == size,
+           "'destMin' input value isn't size 1 or " + ToString(size) + "!");
+    Assert(GetInputs()[4].GetSize() == 1 || GetInputs()[4].GetSize() == size,
+           "'destMax' input value isn't size 1 or " + ToString(size) + "!");
 }

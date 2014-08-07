@@ -8,8 +8,6 @@ class DistanceNode : public DataNode
 {
 public:
 
-    virtual std::string GetTypeName(void) const override { return "distance"; }
-
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -19,4 +17,8 @@ public:
 protected:
     
     virtual void WriteMyOutputs(std::string & outCode) const override;
+
+    virtual void AssertMyInputsValid(void) const override;
+
+    MAKE_NODE_READABLE_H(DistanceNode)
 };

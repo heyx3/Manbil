@@ -1,17 +1,17 @@
 #include "TimeNode.h"
 
 
+MAKE_NODE_READABLE_CPP(TimeNode, )
+
 std::shared_ptr<DataNode> TimeNode::instance = std::shared_ptr<DataNode>(new TimeNode());
 
 
 unsigned int TimeNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
     return 1;
 }
 std::string TimeNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, std::string() + "Invalid output index " + ToString(index));
     return MaterialConstants::ElapsedTimeName;
 }
 
@@ -29,4 +29,4 @@ void TimeNode::WriteMyOutputs(std::string & outCode) const
 
 
 
-TimeNode::TimeNode(void) : DataNode(std::vector<DataLine>(), []() { return instance; }, "elapsedTimeUniform") { }
+TimeNode::TimeNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName()){ }

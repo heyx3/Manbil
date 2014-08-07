@@ -1,21 +1,11 @@
 #include "SwizzleNode.h"
 
 
-DataNode::NodeFactory swizzleNodeFactory = []()
-{
-    return DataNode::Ptr(new SwizzleNode(DataLine(VectorF(1.0f, 0.0f)), SwizzleNode::C_X));
-};
+MAKE_NODE_READABLE_CPP(SwizzleNode, Vector2f(), C_X)
 
 
-unsigned int SwizzleNode::GetOutputSize(unsigned int index) const
-{
-    Assert(index == 0, "Invalid output index " + ToString(index));
-    return nComps;
-}
 std::string SwizzleNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
-    
     std::string outStr = GetInputs()[0].GetValue();
 
     if (GetOutputSize(0) > 1)
@@ -40,25 +30,25 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
 }
 
 SwizzleNode::SwizzleNode(const DataLine & in, Components x, std::string name)
-    : DataNode(MakeVector(in), swizzleNodeFactory, name), nComps(1)
+    : DataNode(MakeVector(in), name), nComps(1)
 {
     comps[0] = x;
 }
 SwizzleNode::SwizzleNode(const DataLine & in, Components x, Components y, std::string name)
-    : DataNode(MakeVector(in), swizzleNodeFactory, name), nComps(2)
+    : DataNode(MakeVector(in), name), nComps(2)
 {
     comps[0] = x;
     comps[1] = y;
 }
 SwizzleNode::SwizzleNode(const DataLine & in, Components x, Components y, Components z, std::string name)
-    : DataNode(MakeVector(in), swizzleNodeFactory, name), nComps(3)
+    : DataNode(MakeVector(in), name), nComps(3)
 {
     comps[0] = x;
     comps[1] = y;
     comps[2] = z;
 }
 SwizzleNode::SwizzleNode(const DataLine & in, Components x, Components y, Components z, Components w, std::string name)
-    : DataNode(MakeVector(in), swizzleNodeFactory, name), nComps(4)
+    : DataNode(MakeVector(in), name), nComps(4)
 {
     comps[0] = x;
     comps[1] = y;

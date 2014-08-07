@@ -3,11 +3,11 @@
 #include "../../MaterialData.h"
 
 
+MAKE_NODE_READABLE_CPP(ShaderInNode, 1)
+
 
 unsigned int ShaderInNode::GetOutputSize(unsigned int outputIndex) const
 {
-    Assert(outputIndex == 0, std::string() + "Output index must be 0, but it was " + ToString(outputIndex));
-
     switch (CurrentShader)
     {
         case ShaderHandler::SH_Vertex_Shader:
@@ -32,8 +32,6 @@ unsigned int ShaderInNode::GetOutputSize(unsigned int outputIndex) const
 }
 std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 {
-    Assert(outputIndex == 0, std::string() + "Output index must be 0, but it was " + ToString(outputIndex));
-
     switch (CurrentShader)
     {
         case ShaderHandler::SH_Vertex_Shader:
@@ -59,9 +57,7 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 
 ShaderInNode::ShaderInNode(unsigned int size, std::string name, int vertIn, int fragIn, int geoIn, unsigned int geoArrIn)
     : vInputIndex(vertIn), gInputIndex(geoIn), fInputIndex(fragIn), gInputArrayIndex(geoArrIn), outSize(size),
-    DataNode(std::vector<DataLine>(),
-             []() { return Ptr(new ShaderInNode(0)); },
-             name)
+    DataNode(std::vector<DataLine>(), name)
 {
 
 }
@@ -74,3 +70,83 @@ void ShaderInNode::WriteMyOutputs(std::string & outCode) const
 }
 
 #pragma warning (default: 4100)
+
+
+bool ShaderInNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteUInt(outSize, "Output Size", outError))
+    {
+        outError = "Error writing the output size, " + ToString(outSize) + ": " + outError;
+        return false;
+    }
+
+    if (!writer->WriteInt(vInputIndex, "Vertex Input Index", outError))
+    {
+        outError = "Error writing the vertex input index " + std::to_string(vInputIndex) + ": " + outError;
+        return false;
+    }
+
+    if (!writer->WriteInt(fInputIndex, "Fragment Input Index", outError))
+    {
+        outError = "Error writing the fragment input index " + std::to_string(fInputIndex) + ": " + outError;
+        return false;
+    }
+
+    if (!writer->WriteInt(gInputIndex, "Geometry Input Index", outError))
+    {
+        outError = "Error writing the geometry input index " + std::to_string(gInputIndex) + ": " + outError;
+        return false;
+    }
+
+    if (!writer->WriteUInt(gInputArrayIndex, "Geometry Input Array Index", outError))
+    {
+        outError = "Error writing the geometry input array index " + ToString(gInputArrayIndex) + ": " + outError;
+        return false;
+    }
+
+    return true;
+}
+bool ShaderInNode::ReadExtraData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> tryOutSize = reader->ReadUInt(outError);
+    if (!tryOutSize.HasValue())
+    {
+        outError = "Error reading output size: " + outError;
+        return false;
+    }
+    outSize = tryOutSize.GetValue();
+
+    MaybeValue<int> tryVertIn = reader->ReadInt(outError);
+    if (!tryVertIn.HasValue())
+    {
+        outError = "Error reading vertex input index: " + outError;
+        return false;
+    }
+    vInputIndex = tryVertIn.GetValue();
+
+    MaybeValue<int> tryFragIn = reader->ReadInt(outError);
+    if (!tryFragIn.HasValue())
+    {
+        outError = "Error reading fragment input index: " + outError;
+        return false;
+    }
+    fInputIndex = tryFragIn.GetValue();
+
+    MaybeValue<int> tryGeoValue = reader->ReadInt(outError);
+    if (!tryGeoValue.HasValue())
+    {
+        outError = "Error reading geometry input index: " + outError;
+        return false;
+    }
+    gInputIndex = tryGeoValue.GetValue();
+
+    MaybeValue<unsigned int> tryGeoArrValue = reader->ReadUInt(outError);
+    if (!tryGeoArrValue.HasValue())
+    {
+        outError = "Error reading geometry array input index: " + outError;
+        return false;
+    }
+    gInputArrayIndex = tryGeoArrValue.GetValue();
+
+    return true;
+}

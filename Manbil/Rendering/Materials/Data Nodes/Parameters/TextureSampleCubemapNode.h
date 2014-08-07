@@ -18,8 +18,6 @@ public:
     TextureSampleCubemapNode(const DataLine & textureCoords, std::string _samplerName = "", std::string name = "");
 
 
-    virtual std::string GetTypeName(void) const override { return "cubemapTextureSampler"; }
-
     virtual unsigned int GetNumbOutputs(void) const override { return 6; }
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
@@ -35,9 +33,12 @@ protected:
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
+    virtual void AssertMyInputsValid(void) const override;
 
 
 private:
 
     std::string GetSampleOutputName(void) const { return GetName() + "_sampled"; }
+
+    MAKE_NODE_READABLE_H(TextureSampleCubemapNode)
 };

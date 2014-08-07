@@ -9,8 +9,6 @@ class LightingNode : public DataNode
 {
 public:
 
-    virtual std::string GetTypeName(void) const override { return "surfaceBrightnessCalc"; }
-
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
@@ -26,6 +24,8 @@ protected:
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
+
+    virtual void AssertMyInputsValid(void) const override;
 
 
 private:
@@ -44,4 +44,6 @@ private:
     static std::vector<DataLine> MakeInputVector(const DataLine & amb, const DataLine & diff, const DataLine & spec, const DataLine & specIntense,
                                                  const DataLine & camPos, const DataLine & surfPos,
                                                  const DataLine & surfNormal, const DataLine & lightDir);
+
+    MAKE_NODE_READABLE_H(LightingNode)
 };

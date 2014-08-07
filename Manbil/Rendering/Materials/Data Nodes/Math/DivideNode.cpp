@@ -1,6 +1,8 @@
 #include "DivideNode.h"
 
 
+MAKE_NODE_READABLE_CPP(DivideNode, 1.0f, 1.0f)
+
 
 unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & baseValue)
 {
@@ -16,28 +18,16 @@ unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & bas
 
 unsigned int DivideNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetMax(std::vector<DataLine>(GetInputs().begin() + 1, GetInputs().end()), GetInputs()[0]);
 }
 std::string DivideNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_divided";
 }
 
 DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name)
-    : DataNode(MakeVector(baseValue, 0, toDivide),
-               []() { return std::shared_ptr<DataNode>(new DivideNode(DataLine(1.0f), DataLine(0.0f))); },
-               name)
+    : DataNode(MakeVector(baseValue, 0, toDivide), name)
 {
-    Assert(toDivide.size() > 0, "'toDivide' vector must have at least one element!");
-
-    unsigned int size = GetOutputSize(0);
-    for (unsigned int i = 0; i < toDivide.size(); ++i)
-        Assert(toDivide[i].GetSize() == size ||
-               toDivide[i].GetSize() == 1,
-               std::string() + "The " + ToString(i + 1) +
-               "-th element in 'toDivide' doesn't have a size of 1 or " + ToString(size) + "!");
 }
 
 void DivideNode::WriteMyOutputs(std::string & outCode) const
@@ -52,4 +42,17 @@ void DivideNode::WriteMyOutputs(std::string & outCode) const
         if (i < GetInputs().size() - 1) outCode += " / ";
         else outCode += ";\n";
     }
+}
+
+void DivideNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs().size() > 0, "'toDivide' vector must have at least one element!");
+
+    unsigned int size = GetOutputSize(0);
+
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
+        Assert(GetInputs()[i].GetSize() == size ||
+                  GetInputs()[i].GetSize() == 1,
+               "The " + ToString(i + 1) +
+                  "-th input doesn't have a size of 1 or " + ToString(size) + "!");
 }

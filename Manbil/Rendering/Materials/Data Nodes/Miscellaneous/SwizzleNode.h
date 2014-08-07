@@ -14,11 +14,11 @@ public:
     Components GetComponent(unsigned int index) const { return comps[index]; }
 
 
-    virtual std::string GetTypeName(void) const override { return "swizzle"; }
-
     virtual unsigned int GetNumbOutputs(void) const override { return 0; }
-    
-    virtual unsigned int GetOutputSize(unsigned int index) const override;
+
+#pragma warning(disable: 4100)
+    virtual unsigned int GetOutputSize(unsigned int index) const override { return nComps; }
+#pragma warning(default: 4100)
     virtual std::string GetOutputName(unsigned int index) const override;
 
 
@@ -36,8 +36,11 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+
 private:
 
     Components comps[4];
     unsigned int nComps;
+
+    MAKE_NODE_READABLE_H(SwizzleNode)
 };

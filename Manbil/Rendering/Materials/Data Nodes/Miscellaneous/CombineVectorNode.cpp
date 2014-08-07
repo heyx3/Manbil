@@ -1,10 +1,11 @@
 #include "CombineVectorNode.h"
 
 
+MAKE_NODE_READABLE_CPP(CombineVectorNode, 1.0f, 1.0f)
+
 
 unsigned int CombineVectorNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     unsigned int count = 0;
     for (unsigned int i = 0; i < GetInputs().size(); ++i)
         count += GetInputs()[i].GetSize();
@@ -12,18 +13,20 @@ unsigned int CombineVectorNode::GetOutputSize(unsigned int index) const
 }
 std::string CombineVectorNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_combined";
 }
 
 
 CombineVectorNode::CombineVectorNode(const std::vector<DataLine> & inputs, std::string name)
-    : DataNode(inputs,
-               []() { return Ptr(new CombineVectorNode(DataLine(VectorF(1.0f)), DataLine(VectorF(1.0f)))); },
-               name)
+    : DataNode(inputs, name)
 {
-    Assert(inputs.size() > 0, "There aren't any elements in the output vector!");
-    Assert(inputs.size() < 5, "Too many elements in the output vector! Can only have up to 4, but there are " + ToString(inputs.size()));
+}
+
+
+void CombineVectorNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs().size() > 0, "There aren't any elements in the output vector!");
+    Assert(GetInputs().size() < 5, "Too many elements in the output vector! Can only have up to 4, but there are " + ToString(GetInputs().size()));
 }
 
 
@@ -40,7 +43,7 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
     {
         const DataLine & inp = GetInputs()[input];
 
-        for (int element = 0; element < inp.GetSize(); ++element)
+        for (unsigned int element = 0; element < inp.GetSize(); ++element)
         {
             outCode += inp.GetValue();
             if (inp.GetSize() > 1)

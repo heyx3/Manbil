@@ -1,6 +1,8 @@
 #include "TextureSample2DNode.h"
 
 
+MAKE_NODE_READABLE_CPP(TextureSample2DNode, Vector2f())
+
 
 std::string TextureSample2DNode::GetOutputName(unsigned int index) const
 {
@@ -55,13 +57,9 @@ unsigned int TextureSample2DNode::GetOutputSize(unsigned int index) const
 
 
 TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string samplerName, std::string name)
-    : DataNode(MakeVector(uvs),
-               []() { return Ptr(new TextureSample2DNode(DataLine(VectorF(0.5f, 0.5f)))); },
-               name),
+    : DataNode(MakeVector(uvs), name),
       SamplerName(samplerName)
 {
-    Assert(uvs.GetSize() == 2, "UV input isn't size 2; it's size " + ToString(uvs.GetSize()));
-
     if (SamplerName.empty()) SamplerName = "u_" + GetName() + "_2DTex";
 }
 
@@ -78,7 +76,6 @@ void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 
 std::string TextureSample2DNode::GetInputDescription(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return "Tex Coord 2D";
 }
 
@@ -103,4 +100,10 @@ bool TextureSample2DNode::ReadExtraData(DataReader * reader, std::string & outEr
     }
 
     return true;
+}
+
+
+void TextureSample2DNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs()[0].GetSize() == 2, "UV input isn't size 2; it's size " + ToString(GetInputs()[0].GetSize()));
 }

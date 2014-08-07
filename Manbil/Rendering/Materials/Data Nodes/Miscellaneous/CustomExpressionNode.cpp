@@ -1,6 +1,8 @@
 #include "CustomExpressionNode.h"
 
 
+MAKE_NODE_READABLE_CPP(CustomExpressionNode, "1.0f", 1)
+
 
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, std::string name)
     : CustomExpressionNode(expr, outSize, std::vector<DataLine>(), name)
@@ -24,7 +26,7 @@ CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSiz
 }
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, const std::vector<DataLine> & ins, std::string name)
     : expression(expr), expressionOutputSize(outSize),
-      DataNode(ins, []() { return Ptr(new CustomExpressionNode("0.0f", 1)); }, name)
+      DataNode(ins, name)
 {
 
 }

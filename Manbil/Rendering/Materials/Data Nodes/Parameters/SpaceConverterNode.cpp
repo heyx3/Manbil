@@ -3,6 +3,7 @@
 #include "../../MaterialData.h"
 
 
+MAKE_NODE_READABLE_CPP(SpaceConverterNode, Vector3f(1.0f, 0.0f, 0.0f), ST_OBJECT, ST_SCREEN, DT_NORMAL)
 
 unsigned int SpaceConverterNode::GetNumbOutputs(void) const
 {
@@ -18,13 +19,10 @@ unsigned int SpaceConverterNode::GetNumbOutputs(void) const
 
 unsigned int SpaceConverterNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index < GetNumbOutputs(), "Invalid output index " + ToString(index));
     return (index == 0 ? 3 : 4);
 }
 std::string SpaceConverterNode::GetOutputName(unsigned int index) const
 {
-    Assert(index < GetNumbOutputs(), "Invalid output index " + ToString(index));
-
     std::string nme = GetName() + "_" + ST_ToString(DestSpace) + DT_ToString(DataType);
     if (index == 1) nme += "_Homog";
 
@@ -33,9 +31,7 @@ std::string SpaceConverterNode::GetOutputName(unsigned int index) const
 
 
 SpaceConverterNode::SpaceConverterNode(const DataLine & inV, SpaceTypes src, SpaceTypes dest, DataTypes dat, std::string name)
-    : DataNode(MakeVector(inV),
-               []() { return Ptr(new SpaceConverterNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), ST_OBJECT, ST_SCREEN, DT_NORMAL)); },
-               name),
+    : DataNode(MakeVector(inV), name),
       SrcSpace(src), DestSpace(dest), DataType(dat)
 {
     Assert(AssertValidSrcDestSpaces(), errorMsg);
@@ -326,4 +322,10 @@ bool SpaceConverterNode::DT_FromString(std::string str, DataTypes & outDt)
         return true;
     }
     return false;
+}
+
+
+void SpaceConverterNode::AssertMyInputsValid(void) const
+{
+    Assert(AssertValidSrcDestSpaces(), errorMsg);
 }

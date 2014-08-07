@@ -1,24 +1,21 @@
 #include "ReflectNode.h"
 
 
+MAKE_NODE_READABLE_CPP(ReflectNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f))
+
+
 unsigned int ReflectNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return 3;
 }
 std::string ReflectNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_reflected";
 }
 
 ReflectNode::ReflectNode(const DataLine & toReflect, const DataLine & reflectNormal, std::string name)
-    : DataNode(MakeVector(toReflect, reflectNormal),
-               []() { return Ptr(new ReflectNode(DataLine(VectorF(1.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 1.0f)))); },
-               name)
+    : DataNode(MakeVector(toReflect, reflectNormal), name)
 {
-    Assert(toReflect.GetSize() == 3, "'toReflect' isn't size 3!");
-    Assert(reflectNormal.GetSize() == 3, "'reflectNormal' isn't size 3!");
 }
 
 void ReflectNode::WriteMyOutputs(std::string & outCode) const
@@ -30,4 +27,10 @@ void ReflectNode::WriteMyOutputs(std::string & outCode) const
 std::string ReflectNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0) ? "Vector to reflect" : "Reflection normal";
+}
+
+void ReflectNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs()[0].GetSize() == 3, "'toReflect' input isn't size 3!");
+    Assert(GetInputs()[1].GetSize() == 3, "'reflectNormal' input isn't size 3!");
 }

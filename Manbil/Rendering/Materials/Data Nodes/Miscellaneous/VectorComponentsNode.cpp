@@ -1,14 +1,15 @@
 #include "VectorComponentsNode.h"
 
 
+MAKE_NODE_READABLE_CPP(VectorComponentsNode, 1.0f)
+
+
 unsigned int VectorComponentsNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index < GetNumbOutputs(), "Invalid output index " + ToString(index));
     return 1;
 }
 std::string VectorComponentsNode::GetOutputName(unsigned int index) const
 {
-    Assert(index < GetNumbOutputs(), "Invalid output index " + ToString(index));
 
     std::string ret = GetInputs()[0].GetValue() + ".";
 
@@ -29,16 +30,13 @@ std::string VectorComponentsNode::GetOutputName(unsigned int index) const
 }
 
 VectorComponentsNode::VectorComponentsNode(const DataLine & inData, std::string name)
-    : DataNode(MakeVector(inData),
-               []() { return Ptr(new VectorComponentsNode(DataLine(1.0f))); },
-               name)
+    : DataNode(MakeVector(inData), name)
 {
 
 }
 
 std::string VectorComponentsNode::GetInputDescription(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return "toSplit";
 }
 

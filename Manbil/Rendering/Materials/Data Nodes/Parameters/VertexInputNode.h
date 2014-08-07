@@ -14,10 +14,9 @@ class VertexInputNode : public DataNode
 {
 public:
 
+    static std::string GetInstanceName(void) { return "vertexInputs"; }
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
 
-    
-    virtual std::string GetTypeName(void) const override { return "vertexInputs"; }
 
     virtual unsigned int GetNumbOutputs(void) const override { return VertexIns.GetNumbAttributes(); }
 
@@ -35,4 +34,7 @@ private:
     static std::shared_ptr<DataNode> instance;
 
     VertexInputNode(void);
+
+
+    MAKE_NODE_READABLE_H(VertexInputNode)
 };

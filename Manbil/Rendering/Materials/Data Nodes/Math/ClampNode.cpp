@@ -1,26 +1,20 @@
 #include "ClampNode.h"
 
 
+MAKE_NODE_READABLE_CPP(ClampNode, 0.0f, 1.0f, 0.5f)
+
 unsigned int ClampNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetMinInput().GetSize();
 }
 std::string ClampNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() = "_clamped";
 }
 
 ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
-    : DataNode(MakeVector(min, max, value),
-               []() { return Ptr(new ClampNode(DataLine(0.0f), DataLine(1.0f), DataLine(0.5f))); },
-               name)
+    : DataNode(MakeVector(min, max, value), name)
 {
-    Assert(min.GetSize() == max.GetSize(),
-           "Min and max value aren't the same size!");
-    Assert(min.GetSize() == value.GetSize(),
-           "Min/max and value to clamp aren't the same size!");
 }
 
 void ClampNode::WriteMyOutputs(std::string & outCode) const
@@ -35,4 +29,12 @@ void ClampNode::WriteMyOutputs(std::string & outCode) const
 std::string ClampNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0 ? "Min" : (index == 1 ? "Max" : "Value to clamp"));
+}
+
+void ClampNode::AssertMyInputsValid(void) const
+{
+    Assert(GetMinInput().GetSize() == GetMaxInput().GetSize(),
+           "Min and max inputs aren't the same size!");
+    Assert(GetMinInput().GetSize() == GetValueInput().GetSize(),
+           "Min and 'value' inputs aren't the same size!");
 }

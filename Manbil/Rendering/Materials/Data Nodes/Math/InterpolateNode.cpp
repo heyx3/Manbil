@@ -1,32 +1,23 @@
 #include "InterpolateNode.h"
 
 
+MAKE_NODE_READABLE_CPP(InterpolateNode, 0.0f, 1.0f, 0.5f, InterpolateNode::IT_Linear)
+
 unsigned int InterpolateNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return BasicMath::Max(GetMaxInput().GetSize(), GetInterpInput().GetSize());
 }
 std::string InterpolateNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_interpolated";
 }
 
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type, std::string name)
-    : DataNode(MakeVector(min, max, interp),
-               []() { return Ptr(new InterpolateNode(DataLine(0.0f), DataLine(0.0f), DataLine(0.5f), IT_Linear)); },
-               name),
+    : DataNode(MakeVector(min, max, interp), name),
       intType(type)
 {
-    intType = type;
 
-    unsigned int minS = min.GetSize(),
-                 maxS = max.GetSize(),
-                 intS = interp.GetSize();
-
-    Assert(minS == maxS, "'min' and 'max' are different sizes!");
-    Assert(intS == minS || intS == 1, "interpolant must be size 1 or the size of the min/max inputs!");
 }
 
 
@@ -140,4 +131,14 @@ bool InterpolateNode::ReadExtraData(DataReader * reader, std::string & outError)
     }
 
     return true;
+}
+
+void InterpolateNode::AssertMyInputsValid(void) const
+{
+    unsigned int minS = GetMinInput().GetSize(),
+                 maxS = GetMaxInput().GetSize(),
+                 intS = GetInterpInput().GetSize();
+
+    Assert(minS == maxS, "'min' and 'max' are different sizes!");
+    Assert(intS == minS || intS == 1, "interpolant must be size 1 or the size of the min/max inputs!");
 }

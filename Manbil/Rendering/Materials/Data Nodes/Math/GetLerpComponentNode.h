@@ -8,8 +8,6 @@ class GetLerpComponentNode : public DataNode
 {
 public:
 
-    virtual std::string GetTypeName(void) const override { return "getLerpComponent"; }
-
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;
 
@@ -21,10 +19,15 @@ protected:
     
     virtual std::string GetInputDescription(unsigned int index) const override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
 
 private:
 
     const DataLine & GetMinInput(void) const { return GetInputs()[0]; }
     const DataLine & GetMaxInput(void) const { return GetInputs()[1]; }
     const DataLine & GetValueInput(void) const { return GetInputs()[2]; }
+
+
+    MAKE_NODE_READABLE_H(GetLerpComponentNode)
 };

@@ -1,23 +1,21 @@
 #include "LogNode.h"
 
 
+MAKE_NODE_READABLE_CPP(LogNode, 1.0f, 2.0f)
+
+
 unsigned int LogNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetInputs()[0].GetSize();
 }
 std::string LogNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_logResult";
 }
 
 LogNode::LogNode(const DataLine & value, DataLine base, std::string name)
-    : DataNode(MakeVector(value, base),
-               []() { return Ptr(new LogNode(DataLine(1.0f), DataLine(2.0f))); },
-               name)
+    : DataNode(MakeVector(value, base), name)
 {
-    Assert(base.GetSize() == 1, "Base must have a size of 1! It has size " + ToString(base.GetSize()));
 }
 
 void LogNode::WriteMyOutputs(std::string & outCode) const
@@ -40,4 +38,10 @@ void LogNode::WriteMyOutputs(std::string & outCode) const
 std::string LogNode::GetInputDescription(unsigned int index) const
 {
     return (index == 0 ? "Value" : "Log Base");
+}
+
+void LogNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs()[1].GetSize() == 1,
+           "Base must have a size of 1! It has size " + ToString(GetInputs()[1].GetSize()));
 }

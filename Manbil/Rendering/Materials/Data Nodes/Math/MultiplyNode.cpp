@@ -1,6 +1,8 @@
 #include "MultiplyNode.h"
 
 
+MAKE_NODE_READABLE_CPP(MultiplyNode, 1.0f, 1.0f)
+
 
 unsigned int GetMaxDLSize(const std::vector<DataLine> & lines)
 {
@@ -12,28 +14,17 @@ unsigned int GetMaxDLSize(const std::vector<DataLine> & lines)
 
 unsigned int MultiplyNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetMaxDLSize(GetInputs());
 }
 std::string MultiplyNode::GetOutputName(unsigned int index) const
 {
-    Assert(index == 0, "Invalid output index " + ToString(index));
     return GetName() + "_multiplied";
 }
 
 MultiplyNode::MultiplyNode(const std::vector<DataLine> & toMultiply, std::string name)
-    : DataNode(toMultiply,
-               []() { return Ptr(new MultiplyNode(DataLine(1.0f), DataLine(1.0f))); },
-               name)
+    : DataNode(toMultiply, name)
 {
-    Assert(toMultiply.size() > 0, "Need at least one input for this MultiplyNode!");
 
-    unsigned int size = GetOutputSize(0);
-    for (unsigned int i = 0; i < toMultiply.size(); ++i)
-    {
-        Assert(toMultiply[i].GetSize() == size || toMultiply[i].GetSize() == 1,
-               "Input #" + ToString(i) + " is not size 1 or " + std::to_string(size));
-    }
 }
 
 void MultiplyNode::WriteMyOutputs(std::string & outCode) const
@@ -47,5 +38,17 @@ void MultiplyNode::WriteMyOutputs(std::string & outCode) const
 
         if (i < GetInputs().size() - 1) outCode += " * ";
         else outCode += ";\n";
+    }
+}
+
+void MultiplyNode::AssertMyInputsValid(void) const
+{
+    Assert(GetInputs().size() > 0, "Need at least one input for this MultiplyNode!");
+
+    unsigned int size = GetOutputSize(0);
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
+    {
+        Assert(GetInputs()[i].GetSize() == size || GetInputs()[i].GetSize() == 1,
+               "Input #" + ToString(i) + " is not size 1 or " + ToString(size));
     }
 }

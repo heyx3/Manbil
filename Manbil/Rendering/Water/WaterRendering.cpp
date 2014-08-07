@@ -1,28 +1,23 @@
 #include "WaterRendering.h"
 
 
+MAKE_NODE_READABLE_CPP(WaterNode, Vector3f(), Vector3f())
+
 unsigned int WaterNode::GetOutputSize(unsigned int index) const
 {
-    Assert(index < 2, "Invalid output index " + ToString(index));
     return 3;
 }
 std::string WaterNode::GetOutputName(unsigned int i) const
 {
-    Assert(i < 2, "Invalid output index " + ToString(i));
     return GetName() + (i == 0 ? "_waterHeightOffset" : "waterNormal");
 }
 
 WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
                      std::string name, unsigned int _maxRipples, unsigned int _maxFlows)
-    : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput),
-               []() { return Ptr(new WaterNode(DataLine(VectorF(0.0f, 0.0f, 0.0f)), DataLine(VectorF(0.0f, 0.0f, 0.0f)))); },
-               name),
+    : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput), name),
       maxRipples(_maxRipples), maxFlows(_maxFlows)
 {
-    Assert(vertexObjPosInput.GetSize() == 3,
-           "vertex shader object-space position input must have size 3; has size " + ToString(vertexObjPosInput.GetSize()));
-    Assert(fragmentObjPosInput.GetSize() == 3,
-           "fragment shader object-space position input must have size 3; has size " + ToString(fragmentObjPosInput.GetSize()));
+
 }
 
 
@@ -130,68 +125,68 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) c
         std::string fap = "flow_amplitude_period[i]",
                     tsc = "timesSinceCreated[i]";
         func +=
-"    //Directional flows.                                                                           \n\
-     for (int i = 0; i < " + std::to_string(maxFlows) + "; ++i)                                     \n\
-     {                                                                                              \n\
-         vec2 flowDir = " + fap + ".xy;                                                             \n\
-         float speed = length(flowDir);                                                             \n\
-         flowDir /= speed;                                                                          \n\
-         float amplitude = " + fap + ".z;                                                           \n\
-         float period = " + fap + ".w;                                                              \n\
-         float timeSinceCreated = " + tsc + ";                                                      \n\
-                                                                                                    \n\
-                                                                                                             float dist = dot(flowDir, horizontalPos);                                                  \n\
-                                                                                                                                                                                                                 \n\
-                                                                                                                                                                                                                          float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
-                                                                                                                                                                                                                                   float waveScale = amplitude;                                                               \n\
-                                                                                                                                                                                                                                                                                                                                       \n\
-                                                                                                                                                                                                                                                                                                                                                float heightOffset = sin(innerVal);                                                        \n\
-                                                                                                                                                                                                                                                                                                                                                         heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
-                                                                                                                                                                                                                                                                                                                                                                  offset += waveScale * heightOffset;                                                        \n\
-                                                                                                                                                                                                                                                                                                                                                                       }\n";
+"    //Directional flows.                                                                          \n\
+    for (int i = 0; i < " + std::to_string(maxFlows) + "; ++i)                                     \n\
+    {                                                                                              \n\
+        vec2 flowDir = " + fap + ".xy;                                                             \n\
+        float speed = length(flowDir);                                                             \n\
+        flowDir /= speed;                                                                          \n\
+        float amplitude = " + fap + ".z;                                                           \n\
+        float period = " + fap + ".w;                                                              \n\
+        float timeSinceCreated = " + tsc + ";                                                      \n\
+                                                                                                   \n\
+        float dist = dot(flowDir, horizontalPos);                                                  \n\
+        \n\
+        float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
+        float waveScale = amplitude;                                                               \n\
+        \n\
+        float heightOffset = sin(innerVal);                                                        \n\
+        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
+        offset += waveScale * heightOffset;                                                        \n\
+    }\n";
     }
     func +=
-        "    return offset;                                                                                 \n\
-        }\n";
+"    return offset;                                                             \n\
+}\n";
     outDecls.insert(outDecls.end(), func);
 
-    func = std::string() +
-        "struct NormalData                                                                      \n\
-        {                                                                                       \n\
-            vec3 normal, tangent, bitangent;                                                    \n\
-            };                                                                                      \n\
-            NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
-            {                                                                                       \n\
-                NormalData dat;                                                                     \n\
-                    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
-                        dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
-                            dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
-                                                                                                                    \n\
-                                                                                                                        vec2 epsilon = vec2(0.1);                                                           \n\
-                                                                                                                                                                                                                \n\
-                                                                                                                                                                                                                    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
-                                                                                                                                                                                                                                                                                                            \n\
-                                                                                                                                                                                                                                                                                                                vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
-                                                                                                                                                                                                                                                                                                                         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
-                                                                                                                                                                                                                                                                                                                                  zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
-                                                                                                                                                                                                                                                                                                                                           zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                   \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                       vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                           vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                             p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                      p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         normalize(p_zero_one - p_zero_zero)),                            \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         normalize(p_zero_nOne - p_zero_zero)),                           \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              dat.normal = normFinal;                                                             \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  return dat;                                                                         \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }                                                                                       \n\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ";
+    func =
+"struct NormalData                                                                      \n\
+{                                                                                       \n\
+    vec3 normal, tangent, bitangent;                                                    \n\
+};                                                                                      \n\
+NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
+{                                                                                       \n\
+    NormalData dat;                                                                     \n\
+    dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
+    dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
+    dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
+                                                                                        \n\
+    vec2 epsilon = vec2(0.1);                                                           \n\
+                                                                                        \n\
+    //Get the height at nearby vertices and compute the normal via cross-product.       \n\
+                                                                                        \n\
+    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
+         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
+         zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
+         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
+                                                                                        \n\
+    vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
+    vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
+         p_nOne_zero = vec3(nOne_zero, getWaveHeight(nOne_zero)),                       \n\
+         p_zero_one = vec3(zero_one, getWaveHeight(zero_one)),                          \n\
+         p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
+                                                                                        \n\
+    vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
+                 normalize(p_zero_one - p_zero_zero)),                                  \n\
+                 norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                    \n\
+                 normalize(p_zero_nOne - p_zero_zero)),                                 \n\
+                 normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));  \n\
+                                                                                        \n\
+    dat.normal = normFinal;                                                             \n\
+    return dat;                                                                         \n\
+}                                                                                       \n\
+";
     outDecls.insert(outDecls.end(), func);
 }
 void WaterNode::WriteMyOutputs(std::string & outCode) const
@@ -256,11 +251,16 @@ bool WaterNode::ReadExtraData(DataReader * reader, std::string & outError)
     return true;
 }
 
-
-void PrepareWaterDataNodesToBeRead()
+void WaterNode::AssertMyInputsValid(void) const
 {
-    WaterNode(DataLine(VectorF(1.0f, 1.0f, 1.0f)), DataLine(VectorF(1.0f, 1.0f, 1.0f)), "a", 0);
+    Assert(GetInputs()[0].GetSize() == 3,
+           "vertex shader object-space position input must have size 3; has size " +
+               ToString(GetInputs()[0].GetSize()));
+    Assert(GetInputs()[1].GetSize() == 3,
+           "fragment shader object-space position input must have size 3; has size " +
+               ToString(GetInputs()[1].GetSize()));
 }
+
 
 
 /*
