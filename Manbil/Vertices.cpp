@@ -84,6 +84,71 @@ ShaderInOutAttributes::ShaderInOutAttributes(const ShaderInOutAttributes & cpy)
 }
 
 
+bool ShaderInOutAttributes::WriteData(DataWriter * writer, std::string & outError) const
+{
+    unsigned int size = GetNumbAttributes();
+
+    if (!writer->WriteUInt(size, "Number of Attributes", outError))
+    {
+        outError = "Error writing the number of attributes (" + std::to_string(size) + "): " + outError;
+        return false;
+    }
+    for (unsigned int i = 0; i < size; ++i)
+    {
+        if (!writer->WriteString(GetAttributeName(i), "Attribute " + std::to_string(i + 1) + " Name", outError))
+        {
+            outError = "Error writing the name of attribute index " + std::to_string(i) + ", '" + GetAttributeName(i) + "': " + outError;
+            return false;
+        }
+        if (!writer->WriteUInt(GetAttributeSize(i), "Attribute " + std::to_string(i + 1) + " Size", outError))
+        {
+            outError = "Error writing the size of attribute index " + std::to_string(i) + ", '" + std::to_string(GetAttributeSize(i)) + "': " + outError;
+            return false;
+        }
+    }
+
+    return true;
+}
+bool ShaderInOutAttributes::ReadData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> tryUInt;
+    MaybeValue<std::string> tryStr;
+
+    //Read in the number of attributes.
+    tryUInt = reader->ReadUInt(outError);
+    if (!tryUInt.HasValue())
+    {
+        outError = "Error reading the number of attributes: " + outError;
+        return false;
+    }
+    if (tryUInt.GetValue() < MAX_ATTRIBUTES)
+        attributeSizes[tryUInt.GetValue()] = -1;
+
+    //Read in each attribute.
+    unsigned int nAttrs = tryUInt.GetValue();
+    for (unsigned int i = 0; i < nAttrs; ++i)
+    {
+        tryStr = reader->ReadString(outError);
+        if (!tryStr.HasValue())
+        {
+            outError = "Error reading attribute index " + std::to_string(i) + "'s name: " + outError;
+            return false;
+        }
+        attributeNames[i] = tryStr.GetValue();
+
+        tryUInt = reader->ReadUInt(outError);
+        if (!tryUInt.HasValue())
+        {
+            outError = "Error reading attribute index " + std::to_string(i) + "'s size: " + outError;
+            return false;
+        }
+        attributeSizes[i] = (int)tryUInt.GetValue();
+    }
+
+    return true;
+}
+
+
 bool ShaderInOutAttributes::operator==(const ShaderInOutAttributes & other) const
 {
     unsigned int numb1 = GetNumbAttributes(),

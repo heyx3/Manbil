@@ -28,7 +28,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
     //All passes don't need any kind of transformation for the vertices.
     std::vector<DataLine> vectorBuilder;
-    vectorBuilder.insert(vectorBuilder.end(), DataLine(VertexInputNode::GetInstance()->GetName(), 0));
+    vectorBuilder.insert(vectorBuilder.end(), DataLine(VertexInputNode::GetInstanceName(), 0));
     vectorBuilder.insert(vectorBuilder.end(), DataLine(1.0f));
     DataNode::Ptr combineToPos4(new CombineVectorNode(vectorBuilder, "ppeVertPosOut"));
 
@@ -37,9 +37,6 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
     DataNode::ClearMaterialData();
     DataNode::VertexIns = DrawingQuad::GetAttributeData();
     DataNode::MaterialOuts.VertexPosOutput = DataLine(combineToPos4->GetName());
-   
-    std::vector<DataNode::Ptr> nodeStorage;
-    PostProcessEffect::NodeStorage = &nodeStorage;
 
 
     //Build each pass group.
@@ -110,7 +107,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
 
                 DataNode::MaterialOuts.VertexOutputs.clear();
                 DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
-                                                            ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+                                                            ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstanceName(), 1)));
                 effct->OverrideVertexOutputs(DataNode::MaterialOuts.VertexOutputs);
 
                 UniformDictionary unfs;
@@ -172,7 +169,7 @@ PostProcessChain::PostProcessChain(std::vector<std::shared_ptr<PostProcessEffect
             DataNode::MaterialOuts.VertexOutputs.clear();
             DataNode::MaterialOuts.FragmentOutputs.clear();
             DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
-                                                        ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+                                                        ShaderOutput("fIn_UV", DataLine(VertexInputNode::GetInstanceName(), 1)));
             DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                           ShaderOutput("out_FinalColor", DataLine(current->GetName(), current->GetColorOutputIndex())));
             current->OverrideVertexOutputs(DataNode::MaterialOuts.VertexOutputs);

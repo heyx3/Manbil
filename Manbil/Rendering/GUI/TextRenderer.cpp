@@ -48,9 +48,9 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
     DataNode::ClearMaterialData();
     DataNode::VertexIns = DrawingQuad::GetAttributeData();
 
-    DataNode::Ptr textSampler(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstance()->GetName()),
+    DataNode::Ptr textSampler(new TextureSample2DNode(DataLine(FragmentInputNode::GetInstanceName()),
                                                       textSamplerName, "textSampler"));
-    DataNode::Ptr objPosToWorld(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance()->GetName()),
+    DataNode::Ptr objPosToWorld(new SpaceConverterNode(DataLine(VertexInputNode::GetInstanceName()),
                                                        SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
                                                        SpaceConverterNode::DT_POSITION, "objPosToWorld"));
     DataNode::Ptr vertexPosOut(new CombineVectorNode(DataLine(objPosToWorld->GetName()), DataLine(1.0f)));
@@ -63,7 +63,7 @@ std::string TextRenderer::InitializeSystem(SFMLOpenGLWorld * world)
 
     std::vector<ShaderOutput> & vertOuts = DataNode::MaterialOuts.VertexOutputs,
                               & fragOuts = DataNode::MaterialOuts.FragmentOutputs;
-    vertOuts.insert(vertOuts.end(), ShaderOutput("out_UV", DataLine(VertexInputNode::GetInstance()->GetName(), 1)));
+    vertOuts.insert(vertOuts.end(), ShaderOutput("out_UV", DataLine(VertexInputNode::GetInstanceName(), 1)));
     fragOuts.insert(fragOuts.end(), ShaderOutput("out_FinalColor", DataLine(textR->GetName())));
 
     ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(textRendererParams, RenderingModes::RM_Opaque);

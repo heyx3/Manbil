@@ -6,16 +6,13 @@
 
 const std::string PostProcessEffect::ColorSampler = "u_colorTex",
                   PostProcessEffect::DepthSampler = "u_depthTex";
-std::vector<DataNode::Ptr> * PostProcessEffect::NodeStorage = 0;
 
 
-void PreparePpeEffectsToBeRead()
-{
-    ColorTintEffect(DataLine(VectorF(1.0f, 1.0f, 1.0f)), "a");
-    ContrastEffect(ContrastEffect::Strengths::S_Light, 1, "a");
-    FogEffect(DataLine(VectorF(1.0f)), DataLine(VectorF(1.0f, 1.0f, 1.0f)), DataLine(1.0f), "a");
-    GaussianBlurEffect("a");
-}
+MAKE_NODE_READABLE_CPP(ColorTintEffect, );
+MAKE_NODE_READABLE_CPP(ContrastEffect, Strengths::S_Light, 1)
+MAKE_NODE_READABLE_CPP(FogEffect, )
+MAKE_NODE_READABLE_CPP(GaussianBlurEffect, )
+
 
 
 void PostProcessEffect::ChangePreviousEffect(PpePtr newPrevEffect)
@@ -188,7 +185,7 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
 {
     if (CurrentPass == 1 || CurrentPass == 4) return;
 
-    DataLine uvs(VertexInputNode::GetInstance()->GetName(), 1);
+    DataLine uvs(VertexInputNode::GetInstanceName(), 1);
 
     vertOuts.clear();
     for (unsigned int i = 0; i < 15; ++i)
@@ -198,7 +195,7 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
                                VectorF(increment * (float)(i - 7), 0.0f) :
                                VectorF(0.0f, increment * (float)(i - 7), 0.0f));
         std::string nodeName = GetName() + "_add" + ToString(i);
-        NodeStorage->insert(NodeStorage->end(), Ptr(new AddNode(uvAdded, uvs, nodeName)));
+        uvAddPtrs[i] = Ptr(new AddNode(uvAdded, uvs, nodeName));
         vertOuts.insert(vertOuts.end(), ShaderOutput("outUV_" + ToString(i), DataLine(nodeName)));
     }
 

@@ -2,6 +2,7 @@
 
 #include "Math/Vectors.h"
 #include "OpenGLIncludes.h"
+#include "IO/DataSerialization.h"
 
 
 
@@ -14,10 +15,10 @@
 //For example, if the vertex only has UV and Normal, it should be the size of (2 + 3) * sizeof(float).
 //It also assumes that the attributes are ordered in the order this class was given.
 //TODO: This is used as input/output data specification for all the different kinds of shaders, so rename this something like "ShaderInOutAttributes".
-class ShaderInOutAttributes
+class ShaderInOutAttributes : public ISerializable
 {
 public:
-
+    
     //The maximum-allowable number of vertex attributes (independent of size).
     //TODO: There is probably an OpenGL constant that can be queried to ensure no instances are ever constructed with too many values.
     static const int MAX_ATTRIBUTES = 5;
@@ -64,6 +65,9 @@ public:
     //Cleans up after using the type of vertices represented by this instance.
     //Returns whether the operation was successful.
     bool DisableAttributes(void) const;
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 
 
 private:

@@ -151,10 +151,10 @@
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
-    <ClCompile Include="Rendering\Materials\Data Nodes\DataNodeIncludes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
