@@ -11,7 +11,9 @@
 
 class HGPComponentManager;
 
-//TODO: Pull stuff out into the .cpp file. You can apparently do this even with templates?
+
+//PRIORITY: Redo this, and just use a special DataNode implementation like post-process effects: "HGPNode". It has its own dictionary system like DataNodes do, so that it can make sure all DataLines point to HGPNodes.
+
 
 
 
@@ -393,8 +395,8 @@ public:
         UpdateComponentOutput();
     }
 
-    ExpressionHGPComponent(HGPComponentManager & manager, DataLine _expression)
-        : HGPOutputComponent(manager), expression(_expression)
+    ExpressionHGPComponent(HGPComponentManager & manager, DataLine _expression, std::string name = "")
+        : HGPOutputComponent(manager, name), expression(_expression)
     {
         Assert("The expression has a size of " + std::to_string(expression.GetDataLineSize()) + " instead of the required size of " + std::to_string(ComponentSize),
                expression.GetDataLineSize() == ComponentSize);
@@ -449,8 +451,9 @@ public:
 
 
     RandomizedHGPComponent(HGPComponentManager & manager,
-                           HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max, const unsigned int _randSeedIndex[ComponentSize])
-        : HGPOutputComponent(manager), min(_min), max(_max)
+                           HGPComponentPtr(ComponentSize) _min, HGPComponentPtr(ComponentSize) _max,
+                           const unsigned int _randSeedIndex[ComponentSize], std::string name = "")
+        : HGPOutputComponent(manager, name), min(_min), max(_max)
     {
         for (unsigned int i = 0; i < ComponentSize; ++i)
             randSeedIndex[i] = _randSeedIndex[i];
@@ -554,6 +557,7 @@ protected:
         for (unsigned int i = 0; i < ComponentSize; ++i)
             randSeeds.insert(randSeeds.end(), HGPGlobalData::GetRandSeed(randSeedIndex[i]));
 
+        finalSeed = DataNode::Ptr(0);
         finalSeed = DataNode::Ptr(new CombineVectorNode(randSeeds, GetName() + "_finalSeed"));
         interpolatedValue = DataNode::Ptr(new InterpolateNode(min->GetComponentOutput(), max->GetComponentOutput(),
                                                               DataLine(GetName() + "_finalSeed"),

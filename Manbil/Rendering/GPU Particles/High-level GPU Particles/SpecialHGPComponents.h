@@ -38,8 +38,9 @@ public:
 
 
     ConstantAccelerationHGPComponent(HGPComponentManager & manager,
-                                     HGPComponentPtr(3) accel, HGPComponentPtr(3) initialVel, HGPComponentPtr(3) initialPos)
-        : acceleration(accel), initialVelocity(initialVel), initialPosition(initialPos), HGPOutputComponent(manager)
+                                     HGPComponentPtr(3) accel, HGPComponentPtr(3) initialVel, HGPComponentPtr(3) initialPos,
+                                     std::string name = "")
+        : acceleration(accel), initialVelocity(initialVel), initialPosition(initialPos), HGPOutputComponent(manager, name)
     {
         acceleration->AddParent(this);
         initialVelocity->AddParent(this);
@@ -128,8 +129,9 @@ public:
     }
 
 
-    ConstantVelocityComponent(HGPComponentManager & manager, HGPComponentPtr(3) initialPosition, HGPComponentPtr(3) _velocity)
-        : HGPOutputComponent(manager), initialPos(initialPosition), velocity(_velocity)
+    ConstantVelocityComponent(HGPComponentManager & manager, HGPComponentPtr(3) initialPosition, HGPComponentPtr(3) _velocity,
+                              std::string name = "")
+        : HGPOutputComponent(manager, name), initialPos(initialPosition), velocity(_velocity)
     {
         initialPos->AddParent(this);
         velocity->AddParent(this);
@@ -208,8 +210,9 @@ public:
     void SetRandSeeds(const unsigned int newSeeds[4]) { for (unsigned int i = 0; i < 4; ++i) randSeeds[i] = newSeeds[i]; UpdateComponentOutput(); }
 
     
-    SpherePositionComponent(HGPComponentManager & manager, Vector3f _sphereCenter, float _sphereRadius, const unsigned int _randSeeds[4])
-        : HGPOutputComponent(manager), sphereCenter(_sphereCenter), sphereRadius(_sphereRadius)
+    SpherePositionComponent(HGPComponentManager & manager, Vector3f _sphereCenter,
+                            float _sphereRadius, const unsigned int _randSeeds[4], std::string name = "")
+        : HGPOutputComponent(manager, name), sphereCenter(_sphereCenter), sphereRadius(_sphereRadius)
     {
         for (unsigned int i = 0; i < 4; ++i)
             randSeeds[i] = _randSeeds[i];
@@ -266,8 +269,9 @@ public:
     void SetRandSeeds(const unsigned int newSeeds[3]) { for (unsigned int i = 0; i < 3; ++i) randSeeds[i] = newSeeds[i]; UpdateComponentOutput(); }
 
     
-    CubePositionComponent(HGPComponentManager & manager, Vector3f _min, Vector3f _max, const unsigned int _randSeeds[3])
-        : HGPOutputComponent(manager), min(_min), max(_max)
+    CubePositionComponent(HGPComponentManager & manager, Vector3f _min, Vector3f _max, const unsigned int _randSeeds[3],
+                          std::string name = "")
+        : HGPOutputComponent(manager, name), min(_min), max(_max)
     {
         for (unsigned int i = 0; i < 3; ++i)
             randSeeds[i] = _randSeeds[i];
