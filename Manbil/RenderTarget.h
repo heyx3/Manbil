@@ -95,7 +95,8 @@ public:
 	void EnableDrawingInto(void) const;
 	//Sets the OpenGL state so that any rendering will go into the default frame buffer (a.k.a. the window).
     //Takes in the size of the default buffer and whether to update mipmaps for any color/depth textures that use them.
-	void DisableDrawingInto(unsigned int width, unsigned int height, bool updateMipmaps) const;
+    //If 0 is passed in for the width and height, the back buffer will not be reset.
+	void DisableDrawingInto(unsigned int width = 0, unsigned int height = 0, bool updateMipmaps = true) const;
 
 
 private:

@@ -71,7 +71,7 @@ public:
 
     //Renders the given string into the given slot.
     //Takes in the width and height to reset the back buffer to after rendering the text into the render target.
-    bool RenderString(FontSlot slot, std::string textToRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
+    bool RenderString(FontSlot slot, std::string textToRender, unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
 
     //Renders the given string using the given font/slot, material, and parameters.
     //TODO: Implement for convenience/efficiency. Don't set any OpenGL state that isn't specified in this function's arguments.
@@ -112,7 +112,8 @@ private:
 
 
     //Renders the given string into the given render target, using the given font.
-    bool RenderString(std::string string, unsigned int fontID, RenderTarget * finalRender, unsigned int backBufferWidth, unsigned int backBufferHeight);
+    bool RenderString(std::string string, unsigned int fontID, RenderTarget * finalRender,
+                      unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
 
 
 

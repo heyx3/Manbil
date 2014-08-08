@@ -314,7 +314,8 @@ void RenderTarget::EnableDrawingInto(void) const
 void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updateMipmaps) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, w, h);
+    
+    if (w == 0 && h == 0) glViewport(0, 0, w, h);
 
     if (updateMipmaps)
     {

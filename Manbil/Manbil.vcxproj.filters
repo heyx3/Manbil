@@ -264,9 +264,6 @@
     <ClCompile Include="Tests\GUITestWorld.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\GUI\GUIElement.cpp">
-      <Filter>Rendering\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
@@ -404,6 +401,12 @@
     </ClCompile>
     <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp">
       <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUIElement.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUILabel.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -609,9 +612,6 @@
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUIScreen.h">
-      <Filter>Rendering\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\GUI\GUIElement.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
     <ClInclude Include="Tests\TwoDOpenGLTest.h">
@@ -898,6 +898,12 @@
     <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h">
       <Filter>Toys\Voxels</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUIElement.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUILabel.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1010,6 +1016,12 @@
     </Filter>
     <Filter Include="Toys\PlanetSim">
       <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toys\Material Editor">
+      <UniqueIdentifier>{af2071b3-2e8c-41dc-bcb1-63e3e1ddea7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\GUI\GUI Elements">
+      <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
