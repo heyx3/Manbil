@@ -47,6 +47,7 @@ public:
     //Ths given Vector2i is the current mouse position relative to this element's center.
     virtual void OnMouseRelease(Vector2i mouse_centerOffset) { }
 
+    //Gets whether the given position is inside this element's bounds.
     bool IsInsideBounds(Vector2i pos) const;
 
 
