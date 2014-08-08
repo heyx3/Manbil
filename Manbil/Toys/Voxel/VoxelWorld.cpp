@@ -1,16 +1,16 @@
 #include "VoxelWorld.h"
 
-#include "../Math/Higher Math/GeometricMath.h"
-#include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
-#include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
-#include "../ScreenClearer.h"
-#include "../Math/Shapes/ThreeDShapes.h"
-#include "../Input/Input.hpp"
-#include "../Math/NoiseGeneration.hpp"
-#include "../Rendering/PrimitiveGenerator.h"
+#include "../../Math/Higher Math/GeometricMath.h"
+#include "../../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../../Rendering/Materials/Data Nodes/ShaderGenerator.h"
+#include "../../ScreenClearer.h"
+#include "../../Math/Shapes/ThreeDShapes.h"
+#include "../../Input/Input.hpp"
+#include "../../Math/NoiseGeneration.hpp"
+#include "../../Rendering/PrimitiveGenerator.h"
 #include "VoxelWorldPPC.h"
-#include "../Rendering/GUI/TextRenderer.h"
-#include "../DebugAssist.h"
+#include "../../Rendering/GUI/TextRenderer.h"
+#include "../../DebugAssist.h"
 
 
 //Debug printing stuff.

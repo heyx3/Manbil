@@ -1,8 +1,8 @@
 #include "VoxelChunkManager.h"
 
-#include "../Math/Higher Math/GeometricMath.h"
-#include "../Math/Shapes/ThreeDShapes.h"
-#include "../DebugAssist.h"
+#include "../../Math/Higher Math/GeometricMath.h"
+#include "../../Math/Shapes/ThreeDShapes.h"
+#include "../../DebugAssist.h"
 #include <iostream>
 
 

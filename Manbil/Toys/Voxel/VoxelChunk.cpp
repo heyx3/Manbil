@@ -1,6 +1,6 @@
 #include "VoxelChunk.h"
 
-#include "../DebugAssist.h"
+#include "../../DebugAssist.h"
 #include <assert.h>
 #include <unordered_map>
 

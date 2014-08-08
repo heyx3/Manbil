@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../MovingCamera.h"
-#include "../Input/LookRotation.h"
-#include "../Oculus/OculusDevice.h"
+#include "../../MovingCamera.h"
+#include "../../Input/LookRotation.h"
+#include "../../Oculus/OculusDevice.h"
 
 
 //A camera for the voxel world.

@@ -1,7 +1,7 @@
 #include "PlanetSimWorldGen.h"
 
-#include "../Math/Quaternion.h"
-#include "../DebugAssist.h"
+#include "../../Math/Quaternion.h"
+#include "../../DebugAssist.h"
 #include <assert.h>
 
 

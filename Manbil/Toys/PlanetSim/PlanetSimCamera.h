@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Math/Higher Math/Camera.h"
-#include "../MovingCamera.h"
+#include "../../Math/Higher Math/Camera.h"
+#include "../../MovingCamera.h"
 
 
 //The camera for the PlanetSim project.

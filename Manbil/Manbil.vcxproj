@@ -125,10 +125,6 @@
     <ClCompile Include="Math\Vectors.cpp" />
     <ClCompile Include="MGameMaterialManager.cpp" />
     <ClCompile Include="Oculus\OculusDevice.cpp" />
-    <ClCompile Include="PlanetSim\PlanetSimCamera.cpp" />
-    <ClCompile Include="PlanetSim\PlanetSimMeshManager.cpp" />
-    <ClCompile Include="PlanetSim\PlanetSimWorld.cpp" />
-    <ClCompile Include="PlanetSim\PlanetSimWorldGen.cpp" />
     <ClCompile Include="RenderDataHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -213,15 +209,19 @@
     <ClCompile Include="TerrainWalkCamera.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp" />
+    <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
+    <ClCompile Include="Toys\PlanetSim\PlanetSimMeshManager.cpp" />
+    <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
+    <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
+    <ClCompile Include="Toys\Voxel\ChunkMesh.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelCamera.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelChunk.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelChunkManager.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelPlayer.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelWorld.cpp" />
+    <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp" />
     <ClCompile Include="TwoTrianglesWorld.cpp" />
     <ClCompile Include="Vertices.cpp" />
-    <ClCompile Include="Voxel\ChunkMesh.cpp" />
-    <ClCompile Include="Voxel\VoxelCamera.cpp" />
-    <ClCompile Include="Voxel\VoxelChunk.cpp" />
-    <ClCompile Include="Voxel\VoxelChunkManager.cpp" />
-    <ClCompile Include="Voxel\VoxelPlayer.cpp" />
-    <ClCompile Include="Voxel\VoxelWorld.cpp" />
-    <ClCompile Include="Voxel\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicMComponentFactories.h" />
@@ -284,10 +284,6 @@
     <ClInclude Include="MGameMaterialManager.h" />
     <ClInclude Include="Oculus\OculusDevice.h" />
     <ClInclude Include="OptionalValue.h" />
-    <ClInclude Include="PlanetSim\PlanetSimCamera.h" />
-    <ClInclude Include="PlanetSim\PlanetSimMeshManager.h" />
-    <ClInclude Include="PlanetSim\PlanetSimWorld.h" />
-    <ClInclude Include="PlanetSim\PlanetSimWorldGen.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -379,16 +375,20 @@
     <ClInclude Include="TerrainWalkCamera.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
+    <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
+    <ClInclude Include="Toys\PlanetSim\PlanetSimMeshManager.h" />
+    <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
+    <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />
+    <ClInclude Include="Toys\Voxel\ChunkMesh.h" />
+    <ClInclude Include="Toys\Voxel\VoxelCamera.h" />
+    <ClInclude Include="Toys\Voxel\VoxelChunk.h" />
+    <ClInclude Include="Toys\Voxel\VoxelChunkManager.h" />
+    <ClInclude Include="Toys\Voxel\VoxelPlayer.h" />
+    <ClInclude Include="Toys\Voxel\VoxelWorld.h" />
+    <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h" />
     <ClInclude Include="TwoTrianglesWorld.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="RenderInfo.h" />
-    <ClInclude Include="Voxel\VoxelCamera.h" />
-    <ClInclude Include="Voxel\VoxelChunk.h" />
-    <ClInclude Include="Voxel\VoxelChunkManager.h" />
-    <ClInclude Include="Voxel\ChunkMesh.h" />
-    <ClInclude Include="Voxel\VoxelPlayer.h" />
-    <ClInclude Include="Voxel\VoxelWorld.h" />
-    <ClInclude Include="Voxel\VoxelWorldPPC.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fbm.txt" />

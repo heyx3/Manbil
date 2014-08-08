@@ -1,12 +1,12 @@
 #include "PlanetSimWorld.h"
 
 #include <iostream>
-#include "../Math/NoiseGeneration.hpp"
-#include "../NoiseToTexture.h"
-#include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
-#include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
-#include "../IO/XmlSerialization.h"
-#include "../ScreenClearer.h"
+#include "../../Math/NoiseGeneration.hpp"
+#include "../../NoiseToTexture.h"
+#include "../../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../../Rendering/Materials/Data Nodes/ShaderGenerator.h"
+#include "../../IO/XmlSerialization.h"
+#include "../../ScreenClearer.h"
 #include "PlanetSimWorldGen.h"
 
 

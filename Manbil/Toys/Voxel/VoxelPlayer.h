@@ -2,7 +2,7 @@
 
 #include "VoxelCamera.h"
 #include "VoxelChunkManager.h"
-#include "../Input/BoolInput.h"
+#include "../../Input/BoolInput.h"
 
 
 

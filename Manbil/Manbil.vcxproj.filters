@@ -221,35 +221,14 @@
     <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
       <Filter>Rendering\Texture Management</Filter>
     </ClCompile>
-    <ClCompile Include="Voxel\VoxelChunk.cpp">
-      <Filter>Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\VoxelWorld.cpp">
-      <Filter>Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\ChunkMesh.cpp">
-      <Filter>Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\VoxelChunkManager.cpp">
-      <Filter>Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\VoxelCamera.cpp">
-      <Filter>Voxels</Filter>
-    </ClCompile>
     <ClCompile Include="Input\LookRotation.cpp">
       <Filter>Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\VoxelPlayer.cpp">
-      <Filter>Voxels</Filter>
     </ClCompile>
     <ClCompile Include="Math\Noise Generation\NoiseFilterVolume.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClCompile>
-    <ClCompile Include="Voxel\VoxelWorldPPC.cpp">
-      <Filter>Voxels</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
       <Filter>Rendering</Filter>
@@ -320,18 +299,6 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetSim\PlanetSimWorld.cpp">
-      <Filter>PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetSim\PlanetSimWorldGen.cpp">
-      <Filter>PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetSim\PlanetSimMeshManager.cpp">
-      <Filter>PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetSim\PlanetSimCamera.cpp">
-      <Filter>PlanetSim</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
@@ -404,6 +371,39 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\PlanetSim\PlanetSimMeshManager.cpp">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\ChunkMesh.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelCamera.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelChunk.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelChunkManager.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelPlayer.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelWorld.cpp">
+      <Filter>Toys\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp">
+      <Filter>Toys\Voxels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -738,26 +738,8 @@
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Voxel\VoxelWorld.h">
-      <Filter>Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\VoxelChunk.h">
-      <Filter>Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\VoxelChunkManager.h">
-      <Filter>Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\ChunkMesh.h">
-      <Filter>Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\VoxelCamera.h">
-      <Filter>Voxels</Filter>
-    </ClInclude>
     <ClInclude Include="Input\LookRotation.h">
       <Filter>Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\VoxelPlayer.h">
-      <Filter>Voxels</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\TwoButtonInput.h">
       <Filter>Input\Input Objects\Float Input</Filter>
@@ -770,9 +752,6 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClInclude>
-    <ClInclude Include="Voxel\VoxelWorldPPC.h">
-      <Filter>Voxels</Filter>
     </ClInclude>
     <ClInclude Include="Math\Array2D.h">
       <Filter>Math\Basic Math</Filter>
@@ -871,18 +850,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetSim\PlanetSimWorld.h">
-      <Filter>PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetSim\PlanetSimWorldGen.h">
-      <Filter>PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetSim\PlanetSimMeshManager.h">
-      <Filter>PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetSim\PlanetSimCamera.h">
-      <Filter>PlanetSim</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
@@ -897,6 +864,39 @@
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\PlanetSim\PlanetSimMeshManager.h">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h">
+      <Filter>Toys\PlanetSim</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\ChunkMesh.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelCamera.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelChunk.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelChunkManager.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelPlayer.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelWorld.h">
+      <Filter>Toys\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h">
+      <Filter>Toys\Voxels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -984,9 +984,6 @@
     <Filter Include="Rendering\Materials\Data Nodes\Miscellaneous">
       <UniqueIdentifier>{cbed0f25-2a3e-49c5-99d3-90316bb497bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Voxels">
-      <UniqueIdentifier>{8ab7af21-70a9-4b01-b23e-8ef373245d7d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Oculus Rift Stuff\Source">
       <UniqueIdentifier>{8a2c0e1a-b834-49f6-be8e-474fb5408f6e}</UniqueIdentifier>
     </Filter>
@@ -1005,7 +1002,13 @@
     <Filter Include="IO\tinyxml Library">
       <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PlanetSim">
+    <Filter Include="Toys">
+      <UniqueIdentifier>{052fb4db-3157-48e3-806e-100b8c831aa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toys\Voxels">
+      <UniqueIdentifier>{8ab7af21-70a9-4b01-b23e-8ef373245d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toys\PlanetSim">
       <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

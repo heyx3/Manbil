@@ -8,10 +8,10 @@
 #include "NoiseTest.h"
 #include "OpenGLTestWorld.h"
 #include "TwoTrianglesWorld.h"
-#include "Voxel/VoxelWorld.h"
+#include "Toys/Voxel/VoxelWorld.h"
 #include "Tests/TwoDOpenGLTest.h"
 #include "Tests/GUITestWorld.h"
-#include "PlanetSim/PlanetSimWorld.h"
+#include "Toys/PlanetSim/PlanetSimWorld.h"
 
 
 #include <iostream>
