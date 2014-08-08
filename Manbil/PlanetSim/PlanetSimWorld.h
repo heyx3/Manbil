@@ -38,6 +38,4 @@ private:
     PlanetSimCamera cam;
 
     Vector2u windowSize;
-
-    static const std::string planetTex3DName, planetTexHeightName;
 };

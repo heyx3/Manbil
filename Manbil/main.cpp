@@ -440,7 +440,7 @@ int main()
     //TestMaterialIOStuff();
 
 
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
     //GUITestWorld().RunWorld();
@@ -450,5 +450,5 @@ int main()
     //TwoTrianglesWorld().RunWorld();
 
     //VoxelWorld().RunWorld();
-    //PlanetSimWorld().RunWorld();
+    PlanetSimWorld().RunWorld();
 }

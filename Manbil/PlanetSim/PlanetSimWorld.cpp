@@ -5,13 +5,14 @@
 #include "../NoiseToTexture.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
+#include "../IO/XmlSerialization.h"
 #include "../ScreenClearer.h"
 #include "PlanetSimWorldGen.h"
 
 
 
-const std::string PlanetSimWorld::planetTex3DName = "u_planetTex3D",
-                  PlanetSimWorld::planetTexHeightName = "u_planetHeightTex";
+const std::string planetTex3DName = "u_planetTex3D",
+                  planetTexHeightName = "u_planetHeightTex";
 
 
 PlanetSimWorld::PlanetSimWorld(void)
@@ -26,6 +27,97 @@ PlanetSimWorld::PlanetSimWorld(void)
 PlanetSimWorld::~PlanetSimWorld(void)
 {
     DeleteAndSetToNull(planetMat);
+}
+
+
+ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary & params)
+{
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = PlanetVertex::GetAttributeData();
+    typedef DataNode::Ptr DNP;
+
+    //Vertex shader.
+    DNP objPosToScreen(new SpaceConverterNode(DataLine(VertexInputNode::GetInstanceName()),
+                                              SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
+                                              SpaceConverterNode::DT_POSITION, "objToScreenPos"));
+    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
+    std::vector<ShaderOutput> * vertOuts = &DataNode::MaterialOuts.VertexOutputs;
+    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Pos", DataLine(VertexInputNode::GetInstanceName())));
+    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Normal", DataLine(VertexInputNode::GetInstanceName(), 1)));
+    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Height", DataLine(VertexInputNode::GetInstanceName(), 2)));
+
+
+    //Fragment shader.
+
+    //3D greyscale texture.
+    DataLine tex3DUVScale(0.02f);
+    DNP tex3DUVs(new MultiplyNode(DataLine(FragmentInputNode::GetInstanceName()), tex3DUVScale, "tex3dUV"));
+    DNP tex3DPtr(new TextureSample3DNode(DataLine(tex3DUVs->GetName()), planetTex3DName, "tex3D"));
+    DataLine tex3D(tex3DPtr->GetName(), TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_Red));
+
+    //2D height-to-color texture.
+    DNP texHeightmapUVs(new CombineVectorNode(DataLine(FragmentInputNode::GetInstanceName(), 2), DataLine(0.5f),
+                                              "texHeightmapUV"));
+    DNP texHeightmapPtr(new TextureSample2DNode(DataLine(texHeightmapUVs->GetName()), planetTexHeightName, "texHeight"));
+    DataLine texHeightmap(texHeightmapPtr->GetName(), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
+
+    //Combine the texture data.
+    DNP finalTexColor(new MultiplyNode(texHeightmap, tex3D, "finalTexColor"));
+
+    //Lighting.
+    DataLine lightDir(VectorF(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()));
+    DNP lightBrightness(new LightingNode(DataLine(FragmentInputNode::GetInstanceName()),
+                                         DataLine(FragmentInputNode::GetInstanceName(), 1),
+                                         lightDir, "lightBrightness",
+                                         DataLine(0.2f), DataLine(0.8f), DataLine(0.0f)));
+
+    //Combine lighting and texturing.
+    DNP litTexColor(new MultiplyNode(DataLine(lightBrightness->GetName()), DataLine(finalTexColor->GetName())));
+
+    //Calculate fog.
+    DNP distFromPlayer(new DistanceNode(CameraDataNode::GetCamPos(), DataLine(FragmentInputNode::GetInstanceName()),
+                                        "distToPlayer"));
+    DNP distFromPlayerLerp(new DivideNode(DataLine(distFromPlayer->GetName()), ProjectionDataNode::GetZFar(), "distToPlayerLerp"));
+    DNP planetFogLerp(new CustomExpressionNode("(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)", 1,
+                                               DataLine(distFromPlayerLerp->GetName()), "planetFogLerp"));
+    DataLine planetFogColor(VectorF(1.0f, 1.0f, 1.0f));
+    DNP finalPlanetFog(new InterpolateNode(planetFogColor, DataLine(litTexColor->GetName()),
+                                           DataLine(planetFogLerp->GetName()),
+                                           InterpolateNode::IT_VerySmooth));
+    DNP finalPlanetColor(new CombineVectorNode(finalPlanetFog, 1.0f, "finalPlanetColor"));
+
+    //Color output.
+    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                  ShaderOutput("fOut_FinalColor", finalPlanetColor));
+
+    return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Opaque);
+}
+ShaderGenerator::GeneratedMaterial LoadMaterial(UniformDictionary & params)
+{
+    ShaderGenerator::GeneratedMaterial genM("Unknown error");
+
+
+    XmlReader reader("Content/Materials/PlanetGen.xml", genM.ErrorMessage);
+    if (!genM.ErrorMessage.empty())
+    {
+        genM.ErrorMessage = "Error loading file 'Content/Materials/PlanetGen.xml': " + genM.ErrorMessage;
+        return genM;
+    }
+    
+
+    SerializedMaterial ser;
+    if (!reader.ReadDataStructure(ser, genM.ErrorMessage))
+    {
+        genM.ErrorMessage = "Error reading serialized material: " + genM.ErrorMessage;
+        return genM;
+    }
+
+
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = ser.VertexInputs;
+    DataNode::MaterialOuts = ser.MaterialOuts;
+
+    return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Opaque);
 }
 
 
@@ -107,67 +199,8 @@ void PlanetSimWorld::InitializeWorld(void)
 
     #pragma region Materials
 
-
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = PlanetVertex::GetAttributeData();
-    typedef DataNode::Ptr DNP;
-
-    //Vertex shader.
-    DNP objPosToScreen(new SpaceConverterNode(DataLine(VertexInputNode::GetInstanceName()),
-                                              SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
-                                              SpaceConverterNode::DT_POSITION, "objToScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
-    std::vector<ShaderOutput> * vertOuts = &DataNode::MaterialOuts.VertexOutputs;
-    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Pos", DataLine(VertexInputNode::GetInstanceName())));
-    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Normal", DataLine(VertexInputNode::GetInstanceName(), 1)));
-    vertOuts->insert(vertOuts->end(), ShaderOutput("vOut_Height", DataLine(VertexInputNode::GetInstanceName(), 2)));
-
-
-    //Fragment shader.
-
-    //3D greyscale texture.
-    DataLine tex3DUVScale(0.02f);
-    DNP tex3DUVs(new MultiplyNode(DataLine(FragmentInputNode::GetInstanceName()), tex3DUVScale, "tex3dUV"));
-    DNP tex3DPtr(new TextureSample3DNode(DataLine(tex3DUVs->GetName()), planetTex3DName, "tex3D"));
-    DataLine tex3D(tex3DPtr->GetName(), TextureSample3DNode::GetOutputIndex(ChannelsOut::CO_Red));
-
-    //2D height-to-color texture.
-    DNP texHeightmapUVs(new CombineVectorNode(DataLine(FragmentInputNode::GetInstanceName(), 2), DataLine(0.5f),
-                                              "texHeightmapUV"));
-    DNP texHeightmapPtr(new TextureSample2DNode(DataLine(texHeightmapUVs->GetName()), planetTexHeightName, "texHeight"));
-    DataLine texHeightmap(texHeightmapPtr->GetName(), TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
-
-    //Combine the texture data.
-    DNP finalTexColor(new MultiplyNode(texHeightmap, tex3D, "finalTexColor"));
-
-    //Lighting.
-    DataLine lightDir(VectorF(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()));
-    DNP lightBrightness(new LightingNode(DataLine(FragmentInputNode::GetInstanceName()),
-                                         DataLine(FragmentInputNode::GetInstanceName(), 1),
-                                         lightDir, "lightBrightness",
-                                         DataLine(0.2f), DataLine(0.8f), DataLine(0.0f)));
-
-    //Combine lighting and texturing.
-    DNP litTexColor(new MultiplyNode(DataLine(lightBrightness->GetName()), DataLine(finalTexColor->GetName())));
-
-    //Calculate fog.
-    DNP distFromPlayer(new DistanceNode(CameraDataNode::GetCamPos(), DataLine(FragmentInputNode::GetInstanceName()),
-                                        "distToPlayer"));
-    DNP distFromPlayerLerp(new DivideNode(DataLine(distFromPlayer->GetName()), ProjectionDataNode::GetZFar(), "distToPlayerLerp"));
-    DNP planetFogLerp(new CustomExpressionNode("(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)", 1,
-                                               DataLine(distFromPlayerLerp->GetName()), "planetFogLerp"));
-    DataLine planetFogColor(VectorF(1.0f, 1.0f, 1.0f));
-    DNP finalPlanetFog(new InterpolateNode(planetFogColor, DataLine(litTexColor->GetName()),
-                                           DataLine(planetFogLerp->GetName()),
-                                           InterpolateNode::IT_VerySmooth));
-    DNP finalPlanetColor(new CombineVectorNode(finalPlanetFog, 1.0f, "finalPlanetColor"));
-
-    //Color output.
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor", finalPlanetColor));
-
-    //Material generation.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(planetParams, RenderingModes::RM_Opaque);
+    //ShaderGenerator::GeneratedMaterial genM = GenerateMaterial(planetParams);
+    ShaderGenerator::GeneratedMaterial genM = LoadMaterial(planetParams);
     if (!genM.ErrorMessage.empty())
     {
         PrintError("Error generating planet terrain material: " + genM.ErrorMessage);
@@ -178,7 +211,6 @@ void PlanetSimWorld::InitializeWorld(void)
     //Material parameters.
     planetParams.Texture3DUniforms[planetTex3DName].Texture = planetTex3D.GetTextureHandle();
     planetParams.Texture2DUniforms[planetTexHeightName].Texture = planetHeightTex.GetTextureHandle();
-
 
     #pragma endregion
     
@@ -262,6 +294,24 @@ void PlanetSimWorld::UpdateWorld(float elapsed)
 {
     if (cam.Update(elapsed))
         EndWorld();
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        ShaderGenerator::GeneratedMaterial genM = LoadMaterial(planetParams);
+        if (!genM.ErrorMessage.empty())
+        {
+            PrintError("Error generating planet terrain material: " + genM.ErrorMessage);
+        }
+        else
+        {
+            delete planetMat;
+            planetMat = genM.Mat;
+
+            //Material parameters.
+            planetParams.Texture3DUniforms[planetTex3DName].Texture = planetTex3D.GetTextureHandle();
+            planetParams.Texture2DUniforms[planetTexHeightName].Texture = planetHeightTex.GetTextureHandle();
+        }
+    }
 }
 void PlanetSimWorld::RenderOpenGL(float elapsed)
 {
