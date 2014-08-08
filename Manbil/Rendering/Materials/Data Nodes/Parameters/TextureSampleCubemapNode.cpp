@@ -97,6 +97,7 @@ bool TextureSampleCubemapNode::ReadExtraData(DataReader * reader, std::string & 
         outError = "Error reading sampler name: " + outError;
         return false;
     }
+    SamplerName = trySName.GetValue();
 
     return true;
 }

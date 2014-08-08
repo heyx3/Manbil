@@ -98,6 +98,7 @@ bool TextureSample2DNode::ReadExtraData(DataReader * reader, std::string & outEr
         outError = "Error reading sampler name: " + outError;
         return false;
     }
+    SamplerName = trySName.GetValue();
 
     return true;
 }
