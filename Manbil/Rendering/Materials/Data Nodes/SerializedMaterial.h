@@ -55,6 +55,8 @@ public:
 
     //Gets the nodes created after calling "ReadData".
     const std::vector<std::shared_ptr<DataNode>> & GetNodesRead(void) const { return nodeStorage; }
+    //Gets the nodes created after calling "ReadData".
+    std::vector<std::shared_ptr<DataNode>> & GetNodesRead(void) { return nodeStorage; }
 
     SerializedMaterial(ShaderInOutAttributes vertexIns = ShaderInOutAttributes(),
                        MaterialOutputs materialOuts = MaterialOutputs())

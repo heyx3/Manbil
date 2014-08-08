@@ -126,30 +126,6 @@ bool MaterialOutputs::WriteData(DataWriter * writer, std::string & outError) con
         }
     }
 
-
-    /*
-    if (!writer->WriteCollection("Vertex Outputs",
-                                 [](const void* coll, unsigned int index, DataWriter * write, std::string & outErr, void* d)
-                                 {
-                                     return write->WriteDataStructure(((ShaderOutput*)coll)[index].Value,
-                                                                      std::to_string(index), outErr);
-                                 }, VertexOutputs.data(), VertexOutputs.size(), outError))
-    {
-        outError = "Error writing out the vertex outputs: " + outError;
-        return false;
-    }
-    if (!writer->WriteCollection("Fragment Outputs",
-                                 [](const void* coll, unsigned int index, DataWriter * write, std::string & outErr, void* d)
-                                 {
-                                     return write->WriteDataStructure(((ShaderOutput*)coll)[index].Value,
-                                                                      std::to_string(index), outErr);
-                                 }, FragmentOutputs.data(), FragmentOutputs.size(), outError))
-    {
-        outError = "Error writing out the fragment outputs: " + outError;
-        return false;
-    }
-    */
-
     return true;
 }
 bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
@@ -192,44 +168,6 @@ bool MaterialOutputs::ReadData(DataReader * reader, std::string & outError)
         }
     }
 
-    /*
-    std::vector<unsigned char> tryCollData;
-    if (!reader->ReadCollection([](void* coll, unsigned int index, DataReader * read, std::string & outErr, void* d)
-                                {
-                                    ShaderOutput* outps = (ShaderOutput*)coll;
-                                    outps[index] = ShaderOutput("vOut" + std::to_string(index));
-                                    ShaderOutput* pOuts = &outps[index];
-                                    unsigned int a = sizeof(std::string),
-                                                 b = sizeof(DataLine),
-                                                 c = sizeof(ShaderOutput);
-                                    ISerializable * dat = &pOuts->Value;
-                                    return read->ReadDataStructure(*dat, outErr);
-                                }, sizeof(ShaderOutput), outError, tryCollData))
-    {
-        outError = "Error reading in the vertex outputs: " + outError;
-        return false;
-    }
-    VertexOutputs.clear();
-    VertexOutputs.resize(tryCollData.size() / sizeof(ShaderOutput));
-    for (unsigned i = 0; i < VertexOutputs.size(); ++i)
-        VertexOutputs[i] = ((ShaderOutput*)tryCollData.data())[i];
-                                
-    tryCollData.clear();
-    if (!reader->ReadCollection([](void* coll, unsigned int index, DataReader * read, std::string & outErr, void* d)
-                                {
-                                    ShaderOutput* outps = (ShaderOutput*)coll;
-                                    outps[index] = ShaderOutput("fOut" + std::to_string(index));
-                                    return read->ReadDataStructure(outps[index].Value, outErr);
-                                }, sizeof(ShaderOutput), outError, tryCollData))
-    {
-        outError = "Error reading in the fragment outputs: " + outError;
-        return false;
-    }
-    FragmentOutputs.clear();
-    FragmentOutputs.resize(tryCollData.size() / sizeof(ShaderOutput));
-    for (unsigned i = 0; i < FragmentOutputs.size(); ++i)
-        FragmentOutputs[i] = ((ShaderOutput*)tryCollData.data())[i];
-        */
     return true;
 }
 #pragma warning(default: 4100)
@@ -285,13 +223,17 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
         searchSpace.push(NodeAndDepth(rootNodes[i], 0));
 
         //Prevent infinite loops by tracking which edges have already been traversed.
+        //Note that two nodes can be connected along more than one line,
+        //    so we have to count how many connections there should be between each pair of nodes.
         struct Traversal
         {
             DataNode *Start, *End;
             Traversal(DataNode* start = 0, DataNode* end = 0) : Start(start), End(end) { }
             bool operator==(const Traversal & other) const { return Start == other.Start && End == other.End; }
+            unsigned int operator()(const Traversal & v) const { return Vector2i((int)Start, (int)End).GetHashCode(); }
         };
-        std::vector<Traversal> traversed;
+        std::unordered_map<Traversal, unsigned int, Traversal> connectionsPerTraversal,
+                                                               connectionsSoFar;
 
         //Iterate through the search space until all nodes have been traversed.
         while (!searchSpace.empty())
@@ -328,14 +270,33 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
                     }
 
                     //Make sure this path hasn't been traversed already.
-                    if (std::find(traversed.begin(), traversed.end(),
-                                  Traversal(toSearch.Node, child)) != traversed.end())
+                    Traversal trvs(toSearch.Node, child);
+                    if (connectionsSoFar.find(trvs) != connectionsSoFar.end())
                     {
-                        outError = "Infinite loop detected: The link between '" + toSearch.Node->GetName() +
-                                        "' and its input '" + child->GetName() + "' has been traversed more than once.";
-                        return false;
+                        //If there are more connections between these nodes than there should be,
+                        //   then this traversal has happened more than once -- i.e., there is an infinite loop.
+                        if (connectionsSoFar[trvs] >= connectionsPerTraversal[trvs])
+                        {
+                            outError = "Infinite loop detected: The link between '" + toSearch.Node->GetName() +
+                                "' and its input '" + child->GetName() + "' has been traversed more than once.";
+                            return false;
+                        }
+                        else connectionsSoFar[trvs] += 1;
                     }
-                    traversed.insert(traversed.end(), Traversal(toSearch.Node, child));
+                    else
+                    {
+                        connectionsSoFar[trvs] = 1;
+
+                        //Count how many connections there should be for this traversal.
+                        unsigned int connPerTrav = 0;
+                        for (unsigned int j = 0; j < toSearch.Node->GetInputs().size(); ++j)
+                        {
+                            DataLine & inp = toSearch.Node->GetInputs()[j];
+                            if (!inp.IsConstant() && inp.GetNode() == trvs.End)
+                                connPerTrav += 1;
+                        }
+                        connectionsPerTraversal[trvs] = connPerTrav;
+                    }
 
                     //Put the child node into the search space.
                     searchSpace.push(NodeAndDepth(child, toSearch.Depth + 1));
