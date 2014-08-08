@@ -143,7 +143,9 @@
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp" />
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUILabel.cpp" />
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUIPanel.cpp" />
     <ClCompile Include="Rendering\GUI\GUIElement.cpp" />
+    <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
@@ -303,8 +305,9 @@
     <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.h" />
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUILabel.h" />
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUIPanel.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
-    <ClInclude Include="Rendering\GUI\GUIScreen.h" />
+    <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />

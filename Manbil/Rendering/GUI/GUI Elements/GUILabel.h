@@ -12,7 +12,7 @@ public:
 
     static const std::string TextColor;
 
-    static ShaderGenerator::GeneratedMaterial GenerateLabelMaterial(UniformDictionary & params);
+    
 
 
     enum HorizontalOffsets
@@ -58,6 +58,9 @@ public:
 
     virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
+
+    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
+
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 

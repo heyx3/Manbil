@@ -4,39 +4,12 @@
 
 
 
-
-const std::string GUILabel::TextColor = "u_textColor",
-                  GUILabel::textSampler = "u_textSampler";
-
-ShaderGenerator::GeneratedMaterial GUILabel::GenerateLabelMaterial(UniformDictionary & params)
-{
-    typedef DataNode::Ptr DNP;
-
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetAttributeData();
-
-    DNP vertexPosOut(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance(), 0),
-                                            SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
-                                            SpaceConverterNode::DT_POSITION, "GUILabel_objToScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(vertexPosOut, 1);
-    DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
-                                                ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
-    DNP textSample(new TextureSample2DNode(FragmentInputNode::GetInstance(), textSampler, "GUILabel_textSamplerNode"));
-    DNP textColor(new ParamNode(4, TextColor, "GUILabel_textColor"));
-    DNP textColored(new MultiplyNode(DataLine(textSample, TextureSample2DNode::GetOutputIndex(CO_Red)),
-                                     textColor));
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_Color4", textColored));
-
-    return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Transluscent);
-}
-
-
 bool GUILabel::SetText(std::string newText)
 {
     if (TextRender->RenderString(TextRenderSlot, newText))
     {
         text = newText;
+        dimensions = TextRender->GetSlotBoundingSize(TextRenderSlot);
         return true;
     }
     else return false;
@@ -48,8 +21,6 @@ Vector2i GUILabel::GetCollisionDimensions(void) const
 }
 std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 {
-    Vector2i textSize = TextRender->GetSlotBoundingSize(TextRenderSlot);
-
     Vector2i textOffset;
     switch (OffsetHorz)
     {
@@ -57,10 +28,10 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
             textOffset.x = 0;
             break;
         case HO_CENTER:
-            textOffset.x = textSize.x / 2;
+            textOffset.x = dimensions.x / 2;
             break;
         case HO_RIGHT:
-            textOffset.x = textSize.x;
+            textOffset.x = dimensions.x;
             break;
         default: assert(false);
     }
@@ -70,10 +41,10 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
             textOffset.y = 0;
             break;
         case VO_CENTER:
-            textOffset.y = textSize.y / 2;
+            textOffset.y = dimensions.y / 2;
             break;
         case VO_BOTTOM:
-            textOffset.y = textSize.y;
+            textOffset.y = dimensions.y;
             break;
         default: assert(false);
     }
@@ -84,7 +55,7 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
     Vector2f pos(invWidth, invHeight);
     pos.MultiplyComponents(Vector2f(center.x, center.y));
     Vector2f scale(invWidth, invHeight);
-    scale.MultiplyComponents(Scale.ComponentProduct(Vector2f(textSize.x, textSize.y)));
+    scale.MultiplyComponents(Scale.ComponentProduct(Vector2f(dimensions.x, dimensions.y)));
 
     GetQuad()->SetPos(pos);
     GetQuad()->SetSize(scale * 0.5f);

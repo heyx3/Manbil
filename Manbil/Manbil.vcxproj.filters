@@ -408,6 +408,12 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUILabel.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUIMaterials.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUIPanel.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -610,9 +616,6 @@
     </ClInclude>
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\GUI\GUIScreen.h">
-      <Filter>Rendering\GUI</Filter>
     </ClInclude>
     <ClInclude Include="Tests\TwoDOpenGLTest.h">
       <Filter>Tests</Filter>
@@ -903,6 +906,12 @@
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUILabel.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUIPanel.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUIMaterials.h">
+      <Filter>Rendering\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

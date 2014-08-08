@@ -9,7 +9,12 @@ class GUIElement
 {
 public:
 
+    typedef std::shared_ptr<GUIElement> Ptr;
+
     UniformDictionary Params;
+
+
+    virtual ~GUIElement(void) { }
 
 
     //The center of this element's collision box.
@@ -21,6 +26,9 @@ public:
     virtual void MoveElement(Vector2i moveAmount) = 0;
     //Sets this element's position.
     virtual void SetPosition(Vector2i newPos) = 0;
+
+    //Scales this element by the given amount (may be approximate).
+    virtual void ScaleBy(Vector2f scaleAmount) = 0;
 
 
     virtual void Update(float elapsedTime) { }
@@ -39,6 +47,7 @@ public:
     //Ths given Vector2i is the current mouse position relative to this element's center.
     virtual void OnMouseRelease(Vector2i mouse_centerOffset) { }
 
+    bool IsInsideBounds(Vector2i pos) const;
 
 
 protected:
