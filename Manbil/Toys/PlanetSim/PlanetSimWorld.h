@@ -4,6 +4,7 @@
 #include "../../Rendering/Rendering.hpp"
 #include "PlanetSimMeshManager.h"
 #include "PlanetSimCamera.h"
+#include "PlanetSimWorldGen.h"
 
 
 //Runs the PlanetSim project.
@@ -34,7 +35,7 @@ private:
     MTexture2D planetHeightTex;
     MTexture3D planetTex3D;
 
-    PlanetSimMeshManager planetMeshes;
+    WorldData * world;
     PlanetSimCamera cam;
 
     Vector2u windowSize;

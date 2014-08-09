@@ -19,7 +19,8 @@ PlanetSimWorld::PlanetSimWorld(void)
     : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1)),
       planetHeightTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false), planetMat(0),
       planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F_GREYSCALE, true),
-      cam(Vector3f(8000.0f, 0.0f, 0.0f), 400.0f, 0.025f, Vector3f(-1.0f, 0.0f, 0.0f))
+      cam(Vector3f(-7000.0f, -7000.0f, -7000.0f), 400.0f, 0.025f, Vector3f(-1.0f, 0.0f, 0.0f)),
+      world(0)
 {
 
 }
@@ -89,6 +90,17 @@ ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary & params)
     //Color output.
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                   ShaderOutput("fOut_FinalColor", finalPlanetColor));
+
+    //Write out the material to the file.
+    SerializedMaterial ser(DataNode::VertexIns, DataNode::MaterialOuts);
+    XmlWriter xWriter("planetMaterial");
+    std::string error;
+    if (!xWriter.WriteDataStructure(ser, "Planet Material", error))
+        return ShaderGenerator::GeneratedMaterial("Error writing planet material data: " + error);
+    error = xWriter.SaveData("Content/Materials/PlanetGen.xml");
+    if (!error.empty())
+        return ShaderGenerator::GeneratedMaterial("Error saving planet material file: " + error);
+
 
     return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Opaque);
 }
@@ -217,7 +229,8 @@ void PlanetSimWorld::InitializeWorld(void)
 
     #pragma region Objects
 
-
+    world = new WorldData(512, 10000.0f, 10200.0f, 128, 32.0f, 2);
+    /*
     Array2D<float> noise(1024, 1024);
 
 
@@ -270,7 +283,7 @@ void PlanetSimWorld::InitializeWorld(void)
     const float minHeight = 0.75f;
     const float heightScale = 0.2f;
     planetMeshes.GeneratePlanet(noise, 6000.0f, minHeight, heightScale, Vector2u(1024, 1024));
-
+    */
 
     #pragma endregion
 
@@ -287,6 +300,7 @@ void PlanetSimWorld::InitializeWorld(void)
 void PlanetSimWorld::OnWorldEnd(void)
 {
     DeleteAndSetToNull(planetMat);
+    DeleteAndSetToNull(world);
 }
 
 
@@ -335,7 +349,8 @@ void PlanetSimWorld::RenderOpenGL(float elapsed)
 void PlanetSimWorld::RenderWorld(float elapsed, RenderInfo & camInfo)
 {
     std::vector<const Mesh*> planetMeshList;
-    planetMeshes.GetVisibleTerrain(cam.GetPosition(), planetMeshList);
+    //planetMeshes.GetVisibleTerrain(cam.GetPosition(), planetMeshList);
+    world->GetMeshes(planetMeshList, cam.GetPosition(), cam.GetForward());
 
     if (!planetMat->Render(camInfo, planetMeshList, planetParams))
     {

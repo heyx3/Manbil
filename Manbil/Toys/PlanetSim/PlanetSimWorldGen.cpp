@@ -2,6 +2,7 @@
 
 #include "../../Math/Quaternion.h"
 #include "../../DebugAssist.h"
+#include "../../Math/NoiseGeneration.hpp"
 #include <assert.h>
 
 
@@ -201,4 +202,180 @@ void WorldGen::GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices,
             outIndices.insert(outIndices.end(), index);
         }
     }
+}
+
+
+WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH,
+                     unsigned int size, float scale, unsigned int levels)
+    : minHeight(minH), maxHeight(maxH),
+      mNegX(TriangleList), mPosX(TriangleList), mNegY(TriangleList),
+      mPosY(TriangleList), mNegZ(TriangleList), mPosZ(TriangleList),
+      pNegX(verticesPerSide, verticesPerSide), pNegY(verticesPerSide, verticesPerSide),
+      pNegZ(verticesPerSide, verticesPerSide), pPosX(verticesPerSide, verticesPerSide),
+      pPosY(verticesPerSide, verticesPerSide), pPosZ(verticesPerSide, verticesPerSide)
+{
+    //Create the perlin noise layers.
+    std::vector<Perlin3D> pers;
+    std::vector<float> weights;
+    for (unsigned int level = 0; level < levels; ++level)
+    {
+        float weight = powf(0.5f, (float)(level + 1));
+        unsigned int repeatInterval = BasicMath::RoundToInt((float)size * scale * weight);
+
+        pers.insert(pers.end(), Perlin3D(scale * powf(0.5f, (float)level),
+                                         Perlin3D::Quintic, Vector3i(),
+                                         Vector3i(162613, level, level + 1362361).GetHashCode(),
+                                         true, Vector3u(repeatInterval, repeatInterval, repeatInterval)));
+        weights.insert(weights.end(), weight);
+    }
+
+    //Combine the perlin noise layers.
+    std::vector<const Generator3D*> pPers;
+    for (unsigned int i = 0; i < pers.size(); ++i)
+        pPers.insert(pPers.end(), &pers[i]);
+    LayeredOctave3D fractalNoise(pers.size(), weights.data(), pPers.data());
+    
+    Array3D<float> surfaceNoise(size, size, size);
+    fractalNoise.Generate(surfaceNoise);
+
+    float midHeight = (minHeight + maxHeight) * 0.5f;
+    unsigned int halfSide = verticesPerSide / 2;
+
+    //Generate the vertices for each face, then the triangles, then the vertex normals.
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        //Collect data that varies by face.
+        Array2D<PlanetVertex> * vs = 0;
+        Mesh * msh = 0;
+        Vector3i(*locToPos)(Vector2u loc, unsigned int halfSide);
+
+        switch (i)
+        {
+            case 0:
+                vs = &pNegX;
+                msh = &mNegX;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(-halfSide, loc.x - halfSide, loc.y - halfSide); };
+                break;
+
+            case 1:
+                vs = &pPosX;
+                msh = &mPosX;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(halfSide, loc.x - halfSide, loc.y - halfSide); };
+                break;
+
+            case 2:
+                vs = &pNegY;
+                msh = &mNegY;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(loc.x - halfSide, -halfSide, loc.y - halfSide); };
+                break;
+
+            case 3:
+                vs = &pPosY;
+                msh = &mPosY;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(loc.x - halfSide, halfSide, loc.y - halfSide); };
+                break;
+
+            case 4:
+                vs = &pNegZ;
+                msh = &mNegZ;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(loc.x - halfSide, loc.y - halfSide, -halfSide); };
+                break;
+
+            case 5:
+                vs = &pPosZ;
+                msh = &mPosZ;
+                locToPos = [](Vector2u loc, unsigned int halfSide)
+                    { return Vector3i(loc.x - halfSide, loc.y - halfSide, halfSide); };
+                break;
+
+            default: assert(false);
+        }
+
+        //Convert noise values to vertices for this face.
+        for (Vector2u loc; loc.y < verticesPerSide; ++loc.y)
+        {
+            for (loc.x = 0; loc.x < verticesPerSide; ++loc.x)
+            {
+                PlanetVertex * vert = &vs->operator[](loc);
+
+                Vector3i posI = locToPos(loc, halfSide);
+                vert->Pos = ToV3f(posI).Normalized() * midHeight;
+
+                posI = vert->Pos.RoundToInt();
+                vert->Heightmap = surfaceNoise[surfaceNoise.Wrap(posI).CastToUInt()];
+                vert->Heightmap = BasicMath::Supersmooth(vert->Heightmap);
+                vert->Heightmap = BasicMath::Supersmooth(vert->Heightmap);
+
+                vert->Pos = (vert->Pos / midHeight) *
+                            BasicMath::Lerp(minHeight, maxHeight, vert->Heightmap);
+            }
+        }
+
+        //Calculate vertices/indices.
+        std::vector<PlanetVertex> vertices;
+        vertices.resize(vs->GetWidth() * vs->GetHeight());
+        std::vector<unsigned int> indices;
+        indices.resize(6 * (vs->GetWidth() - 1) * (vs->GetHeight() - 1));
+        unsigned int currentIndex = 0;
+        for (Vector2u loc; loc.y < verticesPerSide; ++loc.y)
+        {
+            for (loc.x = 0; loc.x < verticesPerSide; ++loc.x)
+            {
+                unsigned int tl = loc.x + (vs->GetWidth() * loc.y),
+                             tr = tl + 1,
+                             bl = tl + vs->GetWidth(),
+                             br = bl + 1;
+                vertices[tl] = vs->operator[](loc);
+
+                if (loc.x < verticesPerSide - 1 && loc.y < verticesPerSide - 1)
+                {
+                    indices[currentIndex++] = tl;
+                    indices[currentIndex++] = bl;
+                    indices[currentIndex++] = br;
+
+                    indices[currentIndex++] = tl;
+                    indices[currentIndex++] = br;
+                    indices[currentIndex++] = tr;
+                }
+            }
+        }
+
+        //Calculate normals.
+        for (unsigned int tri = 0; tri < indices.size(); tri += 3)
+        {
+            Vector3f v_1_2 = vertices[indices[tri]].Pos - vertices[indices[tri + 1]].Pos,
+                     v_1_3 = vertices[indices[tri]].Pos - vertices[indices[tri + 2]].Pos;
+            Vector3f norm = v_1_2.Normalized().Cross(v_1_3.Normalized());
+
+            if (norm.Dot(vertices[indices[tri]].Pos) > 0.0f)
+                norm = -norm;
+
+            vertices[indices[tri]].Normal += norm;
+            vertices[indices[tri + 1]].Normal += norm;
+            vertices[indices[tri + 2]].Normal += norm;
+        }
+        for (unsigned int i = 0; i < vertices.size(); ++i)
+            vertices[i].Normal.Normalize();
+
+        //Generate the mesh.
+        RenderObjHandle vbo, ibo;
+        RenderDataHandler::CreateVertexBuffer(vbo, vertices.data(), vertices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+        RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+        msh->SetVertexIndexData(VertexIndexData(vertices.size(), vbo, indices.size(), ibo));
+    }
+}
+
+void WorldData::GetMeshes(std::vector<const Mesh*> & outMeshes, Vector3f camPos, Vector3f camForward) const
+{
+    outMeshes.insert(outMeshes.end(), &mNegX);
+    outMeshes.insert(outMeshes.end(), &mNegY);
+    outMeshes.insert(outMeshes.end(), &mNegZ);
+    outMeshes.insert(outMeshes.end(), &mPosX);
+    outMeshes.insert(outMeshes.end(), &mPosY);
+    outMeshes.insert(outMeshes.end(), &mPosZ);
 }

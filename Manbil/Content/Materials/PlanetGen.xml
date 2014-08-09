@@ -1,4 +1,4 @@
-<materials>
+<planetMaterial>
     <dataStructure name="Planet Material">
         <dataStructure name="Vertex Inputs">
             <uint name="Number of Attributes" value="3"/>
@@ -10,25 +10,6 @@
             <uint name="Attribute 3 Size" value="1"/>
         </dataStructure>
         <uint name="NumbNodes" value="13"/>
-        <dataStructure name="1 Outputs: 3">
-            <string name="Node Type" value="MultiplyNode"/>
-            <dataStructure name="Node Data">
-                <string name="nodeName" value="tex3dUV"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="0"/>
-                </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.050000"/>
-                    </dataStructure>
-                </dataStructure>
-            </dataStructure>
-        </dataStructure>
         <dataStructure name="1 Outputs: 2">
             <string name="Node Type" value="CombineVectorNode"/>
             <dataStructure name="Node Data">
@@ -44,6 +25,25 @@
                     <dataStructure name="value">
                         <uint name="size" value="1"/>
                         <float name="x" value="0.500000"/>
+                    </dataStructure>
+                </dataStructure>
+            </dataStructure>
+        </dataStructure>
+        <dataStructure name="1 Outputs: 3">
+            <string name="Node Type" value="MultiplyNode"/>
+            <dataStructure name="Node Data">
+                <string name="nodeName" value="tex3dUV"/>
+                <uint name="numberOfInputs" value="2"/>
+                <dataStructure name="in1">
+                    <bool name="isConstant" value="false"/>
+                    <string name="nodeName" value="fragmentInputs"/>
+                    <uint name="nodeOutput" value="0"/>
+                </dataStructure>
+                <dataStructure name="in2">
+                    <bool name="isConstant" value="true"/>
+                    <dataStructure name="value">
+                        <uint name="size" value="1"/>
+                        <float name="x" value="0.10000"/>
                     </dataStructure>
                 </dataStructure>
             </dataStructure>
@@ -91,23 +91,6 @@
                 <string name="samplerUniformName" value="u_planetHeightTex"/>
             </dataStructure>
         </dataStructure>
-        <dataStructure name="1 Outputs: 3">
-            <string name="Node Type" value="MultiplyNode"/>
-            <dataStructure name="Node Data">
-                <string name="nodeName" value="finalTexColor"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="texHeight"/>
-                    <uint name="nodeOutput" value="4"/>
-                </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="tex3D"/>
-                    <uint name="nodeOutput" value="0"/>
-                </dataStructure>
-            </dataStructure>
-        </dataStructure>
         <dataStructure name="1 Outputs: 1">
             <string name="Node Type" value="DivideNode"/>
             <dataStructure name="Node Data">
@@ -122,6 +105,23 @@
                     <bool name="isConstant" value="false"/>
                     <string name="nodeName" value="projectionDataNode"/>
                     <uint name="nodeOutput" value="3"/>
+                </dataStructure>
+            </dataStructure>
+        </dataStructure>
+        <dataStructure name="1 Outputs: 3">
+            <string name="Node Type" value="MultiplyNode"/>
+            <dataStructure name="Node Data">
+                <string name="nodeName" value="finalTexColor"/>
+                <uint name="numberOfInputs" value="2"/>
+                <dataStructure name="in1">
+                    <bool name="isConstant" value="false"/>
+                    <string name="nodeName" value="texHeight"/>
+                    <uint name="nodeOutput" value="4"/>
+                </dataStructure>
+                <dataStructure name="in2">
+                    <bool name="isConstant" value="false"/>
+                    <string name="nodeName" value="tex3D"/>
+                    <uint name="nodeOutput" value="0"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
@@ -184,6 +184,20 @@
                 </dataStructure>
             </dataStructure>
         </dataStructure>
+        <dataStructure name="1 Outputs: 1">
+            <string name="Node Type" value="CustomExpressionNode"/>
+            <dataStructure name="Node Data">
+                <string name="nodeName" value="planetFogLerp"/>
+                <uint name="numberOfInputs" value="1"/>
+                <dataStructure name="in1">
+                    <bool name="isConstant" value="false"/>
+                    <string name="nodeName" value="distToPlayerLerp"/>
+                    <uint name="nodeOutput" value="0"/>
+                </dataStructure>
+                <string name="GLSL Expression" value="(1.0f - &apos;0&apos;) * pow(clamp(1.0f * &apos;1&apos;, 0.0f, 1.0f), 0.1f)"/>
+                <uint name="Output Size" value="1"/>
+            </dataStructure>
+        </dataStructure>
         <dataStructure name="1 Outputs: 3">
             <string name="Node Type" value="MultiplyNode"/>
             <dataStructure name="Node Data">
@@ -199,25 +213,6 @@
                     <string name="nodeName" value="finalTexColor"/>
                     <uint name="nodeOutput" value="0"/>
                 </dataStructure>
-            </dataStructure>
-        </dataStructure>
-        <dataStructure name="1 Outputs: 1">
-            <string name="Node Type" value="CustomExpressionNode"/>
-            <dataStructure name="Node Data">
-                <string name="nodeName" value="planetFogLerp"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="distToPlayerLerp"/>
-                    <uint name="nodeOutput" value="0"/>
-                </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="2"/>
-                </dataStructure>
-                <string name="GLSL Expression" value="clamp(1.5f - '0', 0.0f, 1.0f) * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.5f)"/>
-                <uint name="Output Size" value="1"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 3">
@@ -247,21 +242,6 @@
                 <uint name="Smooth Level (0-2)" value="2"/>
             </dataStructure>
         </dataStructure>
-        <dataStructure name="2 Outputs: 3, 4">
-            <string name="Node Type" value="SpaceConverterNode"/>
-            <dataStructure name="Node Data">
-                <string name="nodeName" value="objToScreenPos"/>
-                <uint name="numberOfInputs" value="1"/>
-                <dataStructure name="Source Position">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="vertexInputs"/>
-                    <uint name="nodeOutput" value="0"/>
-                </dataStructure>
-                <string name="DataType (Normal or Pos)" value="Pos"/>
-                <string name="Source space (Obj, World, or View)" value="Obj"/>
-                <string name="Destination space (World, View, or Screen)" value="Screen"/>
-            </dataStructure>
-        </dataStructure>
         <dataStructure name="1 Outputs: 4">
             <string name="Node Type" value="CombineVectorNode"/>
             <dataStructure name="Node Data">
@@ -279,6 +259,21 @@
                         <float name="x" value="1.000000"/>
                     </dataStructure>
                 </dataStructure>
+            </dataStructure>
+        </dataStructure>
+        <dataStructure name="2 Outputs: 3, 4">
+            <string name="Node Type" value="SpaceConverterNode"/>
+            <dataStructure name="Node Data">
+                <string name="nodeName" value="objToScreenPos"/>
+                <uint name="numberOfInputs" value="1"/>
+                <dataStructure name="Source Position">
+                    <bool name="isConstant" value="false"/>
+                    <string name="nodeName" value="vertexInputs"/>
+                    <uint name="nodeOutput" value="0"/>
+                </dataStructure>
+                <string name="DataType (Normal or Pos)" value="Pos"/>
+                <string name="Source space (Obj, World, or View)" value="Obj"/>
+                <string name="Destination space (World, View, or Screen)" value="Screen"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="Material Outputs">
@@ -323,4 +318,4 @@
             </dataStructure>
         </dataStructure>
     </dataStructure>
-</materials>
+</planetMaterial>

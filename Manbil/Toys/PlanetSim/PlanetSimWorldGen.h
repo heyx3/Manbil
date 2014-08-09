@@ -3,6 +3,7 @@
 #include "../../Math/Array2D.h"
 #include "../../Math/Array3D.h"
 #include "../../Vertices.h"
+#include "../../Mesh.h"
 #include <vector>
 
 
@@ -39,4 +40,26 @@ public:
     static void GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices, Vector2u min, Vector2u max,
                                     float worldScale, float minHeight, float heightScale,
                                     std::vector<PlanetVertex> & outVertices, std::vector<unsigned int> & outIndices);
+};
+
+
+
+//Generates and manages the world vertices.
+class WorldData
+{
+public:
+
+
+    WorldData(unsigned int verticesPerSide, float minHeight, float maxHeight,
+              unsigned int noiseSize, float noiseScale, unsigned int noiseLevels);
+
+    void GetMeshes(std::vector<const Mesh*> & outMeshes, Vector3f camPos, Vector3f camForward) const;
+    float GetHeightAt(Vector3f worldPos) const;
+
+
+private:
+
+    Mesh mNegX, mNegY, mNegZ, mPosX, mPosY, mPosZ;
+    Array2D<PlanetVertex> pNegX, pNegY, pNegZ, pPosX, pPosY, pPosZ;
+    float minHeight, maxHeight;
 };

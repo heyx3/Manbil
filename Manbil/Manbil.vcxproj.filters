@@ -1026,9 +1026,6 @@
     <Filter Include="Toys\PlanetSim">
       <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Toys\Material Editor">
-      <UniqueIdentifier>{af2071b3-2e8c-41dc-bcb1-63e3e1ddea7a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\GUI\GUI Elements">
       <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
     </Filter>
