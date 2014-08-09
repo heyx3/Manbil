@@ -113,7 +113,7 @@ void VoxelWorld::SetUpVoxels(void)
         nf3.Set_Value = 1.0f;
         nf3.Set(&noise);
     }
-    else if (true)
+    else if (false)
     {
         Perlin3D perl(Vector3f(20.0f, 20.0f, 20.0f), Perlin3D::Smoothness::Linear, Vector3i(), 12654);
         perl.Generate(noise);
@@ -148,6 +148,25 @@ void VoxelWorld::SetUpVoxels(void)
         //noise.Fill(1.0f);
         nf3.Set_Value = 1.0f;
         nf3.Set(&noise);
+    }
+    else if (true)
+    {
+        const unsigned int numbPerlins = 5;
+
+        Perlin3D perls[numbPerlins];
+        for (unsigned int i = 0; i < numbPerlins; ++i)
+            perls[i] = Perlin3D(64.0f * powf(0.5f, (float)i), Perlin3D::Quintic, Vector3i(), Vector3i(12512, i, i * 36234).GetHashCode());
+
+        const Generator3D* gens[numbPerlins];
+        for (unsigned int i = 0; i < numbPerlins; ++i)
+            gens[i] = &perls[i];
+
+        float weights[numbPerlins];
+        for (unsigned int i = 0; i < numbPerlins; ++i)
+            weights[i] = powf(0.5f, (float)(i + 1));
+
+        LayeredOctave3D octvs(numbPerlins, weights, gens);
+        octvs.Generate(noise);
     }
     else assert(false);
 #pragma warning(default: 4127)
