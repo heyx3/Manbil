@@ -42,7 +42,7 @@ public:
 
 //3D Perlin noise generator.
 //Generates gradient values for each point on a grid, and interpolates between these gradients for each pixel of noise.
-class Perlin3D
+class Perlin3D : public Generator3D
 {
 public:
 
@@ -74,5 +74,5 @@ public:
              Vector3u gradientWrapInterval = Vector3u(std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max(), std::numeric_limits<unsigned int>().max()))
         : Scale(scale), SmoothAmount(amount), Offset(offset), RandSeed(seed), GradientWrapInterval(gradientWrapInterval), RemapValues(remapValues) { }
 
-    void Generate(Array3D<float> & outValues) const;
+    virtual void Generate(Array3D<float> & outValues) const override;
 };
