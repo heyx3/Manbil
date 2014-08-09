@@ -61,7 +61,7 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
     GetQuad()->SetSize(scale * 0.5f);
     GetQuad()->SetRotation(0.0f);
 
-    Params.Texture2DUniforms[textSampler].Texture = TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
+    Params.Texture2DUniforms[TextSamplerName].Texture = TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
 
     if (GetQuad()->Render(info, Params, *RenderMat)) return "";
     return "Error rendering label with text '" + text + "': " + RenderMat->GetErrorMsg();

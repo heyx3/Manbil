@@ -10,11 +10,7 @@ class GUILabel : public GUIElement
 {
 public:
 
-    static const std::string TextColor;
-
     
-
-
     enum HorizontalOffsets
     {
         HO_LEFT,
@@ -36,13 +32,16 @@ public:
     TextRenderer::FontSlot TextRenderSlot;
 
     Material * RenderMat;
+    std::string TextSamplerName;
 
     Vector2f Scale;
 
 
     GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material,
-             std::string _text = "", HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
+             std::string textSamplerName, std::string _text = "",
+             HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
+          TextSamplerName(textSamplerName),
           RenderMat(material), TextRenderSlot(textSlot), text(_text)
     {
 
@@ -67,7 +66,6 @@ public:
 
 private:
 
-    static const std::string textSampler;
 
     Vector2i center, dimensions;
     std::string text;

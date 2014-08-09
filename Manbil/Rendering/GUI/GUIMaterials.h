@@ -14,5 +14,5 @@ public:
     //Generates a material that draws a texture multiplied by a vec4 color uniform.
     static ShaderGenerator::GeneratedMaterial GenerateQuadDrawMaterial(UniformDictionary & params,
                                                                        ShaderInOutAttributes vertexAttrs = DrawingQuad::GetAttributeData(),
-                                                                       unsigned int vertexUVIndex = 1);
+                                                                       unsigned int vertexPosIndex = 0, unsigned int vertexUVIndex = 1);
 };
