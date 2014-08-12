@@ -43,7 +43,7 @@
                     <bool name="isConstant" value="true"/>
                     <dataStructure name="value">
                         <uint name="size" value="1"/>
-                        <float name="x" value="0.10000"/>
+                        <float name="x" value="0.030000"/>
                     </dataStructure>
                 </dataStructure>
             </dataStructure>
@@ -194,7 +194,7 @@
                     <string name="nodeName" value="distToPlayerLerp"/>
                     <uint name="nodeOutput" value="0"/>
                 </dataStructure>
-                <string name="GLSL Expression" value="(1.0f - &apos;0&apos;) * pow(clamp(1.0f * &apos;1&apos;, 0.0f, 1.0f), 0.1f)"/>
+                <string name="GLSL Expression" value="(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)"/>
                 <uint name="Output Size" value="1"/>
             </dataStructure>
         </dataStructure>
@@ -224,8 +224,8 @@
                     <bool name="isConstant" value="true"/>
                     <dataStructure name="value">
                         <uint name="size" value="3"/>
-                        <float name="x" value="1.000000"/>
-                        <float name="y" value="1.000000"/>
+                        <float name="x" value="0.6500000"/>
+                        <float name="y" value="0.6500000"/>
                         <float name="z" value="1.000000"/>
                     </dataStructure>
                 </dataStructure>
