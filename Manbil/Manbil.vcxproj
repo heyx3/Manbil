@@ -213,7 +213,6 @@
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\TwoDOpenGLTest.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimMeshManager.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
     <ClCompile Include="Toys\Voxel\ChunkMesh.cpp" />
@@ -381,7 +380,6 @@
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimMeshManager.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />
     <ClInclude Include="Toys\Voxel\ChunkMesh.h" />

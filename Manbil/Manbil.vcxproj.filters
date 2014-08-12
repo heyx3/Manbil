@@ -372,9 +372,6 @@
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp">
       <Filter>Toys\PlanetSim</Filter>
     </ClCompile>
-    <ClCompile Include="Toys\PlanetSim\PlanetSimMeshManager.cpp">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClCompile>
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp">
       <Filter>Toys\PlanetSim</Filter>
     </ClCompile>
@@ -869,9 +866,6 @@
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\PlanetSim\PlanetSimMeshManager.h">
       <Filter>Toys\PlanetSim</Filter>
     </ClInclude>
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h">
