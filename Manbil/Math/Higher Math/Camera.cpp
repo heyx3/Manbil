@@ -1,7 +1,7 @@
 #include "Camera.h"
 
-Camera::Camera(Vector3f _pos, Vector3f _forward, Vector3f _up)
-	: pos(_pos), forward(_forward), up(_up), closestDotVariance(0.01f),
+Camera::Camera(Vector3f _pos, Vector3f _forward, Vector3f _up, bool lockUp)
+    : pos(_pos), forward(_forward), up(_up), ClosestDotVariance(0.01f), LockUp(lockUp),
       MinOrthoBounds(-50.0f, -50.0f, 0.0f), MaxOrthoBounds(50.0f, 50.0f, 1000.0f)
 {
 	IncrementPosition(Vector3f());
@@ -14,16 +14,26 @@ void Camera::AddPitch(float radians)
 	Vector3f oldForward = forward;
 
 	Quaternion rotation(GetSideways(), radians);
+
 	rotation.Rotate(forward);
 	forward.Normalize();
 
-	float dot = forward.Dot(up);
-	float variance = abs(abs(dot) - 1);
+    if (!LockUp)
+    {
+        rotation.Rotate(up);
+        up.Normalize();
+    }
 
-	if (variance < closestDotVariance)
-	{
-		forward = oldForward;
-	}
+    else
+    {
+        float dot = forward.Dot(up);
+        float variance = abs(abs(dot) - 1);
+
+        if (variance < ClosestDotVariance)
+        {
+            forward = oldForward;
+        }
+    }
 }
 void Camera::AddYaw(float radians)
 {
