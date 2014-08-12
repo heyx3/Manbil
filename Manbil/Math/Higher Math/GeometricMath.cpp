@@ -1,66 +1,39 @@
 #include "GeometricMath.h"
 
-void GeometricMath::CalculateNormals(const Vector3f * vertices, const unsigned int * indices, int nVertices, int nIndices, Vector3f * outNormals)
+
+void GeometricMath::CalculateNormals(void* verts, unsigned int sizeofVerts, unsigned int nVerts,
+                                     const unsigned int * inds, unsigned int nInds,
+                                     Vector3f(*getNormal)(const void* vertex),
+                                     void(*setNormal)(void * vertex, Vector3f normal),
+                                     Vector3f(*getPos)(const void* vertex),
+                                     bool(*shouldFlipNormal)(Vector3f normal, void* vertex, void* pData),
+                                     void* pData)
 {
-	int * nNormals = new int[nVertices];
-	unsigned int i;
+    unsigned char* vertsB = (unsigned char*)verts;
 
-	//Clear out the "out" array.
-	for (i = 0; i < nVertices; ++i)
-	{
-		outNormals[i] = Vector3f();
-		nNormals[i] = 0;
-	}
+    //Start all normals at 0.
+    for (unsigned int vert = 0; vert < nVerts; ++vert)
+        setNormal(&vertsB[vert * sizeofVerts], Vector3f());
 
-	//Add in normals.
-	Vector3f v1, v2, crossed;
-	int ind1, ind2, ind3;
-	for (i = 0; i < nIndices; i += 3)
-	{
-		ind1 = indices[i];
-		ind2 = indices[i + 1];
-		ind3 = indices[i + 2];
-
-		//Get two vectors to cross.
-		v1 = (vertices[ind1] - vertices[ind2]).Normalized();
-        v2 = (vertices[ind1] - vertices[ind3]).Normalized();
-
-		//Cross them.
-        crossed = v1.Cross(v2).Normalized();
-		
-		//Add the crossed value into the total for the triangle's vertices.
-		outNormals[ind1] += crossed;
-		nNormals[ind1] += 1;
-		outNormals[ind2] += crossed;
-		nNormals[ind2] += 1;
-		outNormals[ind3] += crossed;
-		nNormals[ind3] += 1;
-	}
-
-	//Go through and get the final averaged normal.
-	for (i = 0; i < nVertices; ++i)
-	{
-		outNormals[i] /= (float)nNormals[i];
-		outNormals[i].FastNormalize();
-	}
-
-	delete [] nNormals;
-}
-
-void GeometricMath::CalculateNormals(const Vector3f * vertices, int nVertices, Vector3f * outNormals)
-{
-    //Go through every group of three triangles and compute the normal.
-    Vector3f cross1, cross2, crossed;
-    for (int i = 0; i + 2 < nVertices; i += 3)
+    //Get the normals for each triangle.
+    for (unsigned int tri = 0; tri < nInds; tri += 3)
     {
-        //Get two vectors to cross.
-        cross1 = (vertices[i] - vertices[i + 1]).Normalized();
-        cross2 = (vertices[i] - vertices[i + 2]).Normalized();
-        crossed = cross1.Cross(cross2).Normalized();
+        void *v1 = &vertsB[inds[tri] * sizeofVerts],
+             *v2 = &vertsB[inds[(tri + 1)] * sizeofVerts],
+             *v3 = &vertsB[inds[(tri + 2)] * sizeofVerts];
+        Vector3f v_1_2 = getPos(v1) - getPos(v2),
+                 v_1_3 = getPos(v1) - getPos(v3);
+        Vector3f norm = v_1_2.Normalized().Cross(v_1_3.Normalized());
 
-        //Set the normals to that value.
-        outNormals[i] = crossed;
-        outNormals[i + 1] = crossed;
-        outNormals[i + 2] = crossed;
+        if (shouldFlipNormal(norm, v1, pData)) norm = -norm;
+
+        setNormal(v1, norm + getNormal(v1));
+        setNormal(v2, norm + getNormal(v2));
+        setNormal(v3, norm + getNormal(v3));
     }
+
+    //Get the average of each vertex's normals.
+    for (unsigned int vert = 0; vert < nVerts; ++vert)
+        setNormal(&vertsB[vert * sizeofVerts],
+                  getNormal(&vertsB[vert * sizeofVerts]).Normalized());
 }

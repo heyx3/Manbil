@@ -310,8 +310,30 @@ public:
 		return PointOnLineAtValueResult<Vector>(vOnLine + (vLineDir * t), t);
 	}
 
-	//Gets the surface normals for all the vertices specified in "vertices" and laid out as triangles in "nIndices".
-	static void CalculateNormals(const Vector3f * vertices, const unsigned int * indices, int nVertices, int nIndices, Vector3f * outNormals);
-    //Gets the surface normals for all the triangles (groups of three vertices) specified in "vertices".
-    static void CalculateNormals(const Vector3f * vertices, int nVertices, Vector3f * outNormals);
+    //Calculates normals for a list of triangles.
+    //Takes in four functions: the first gets the given vertex's normal.
+    //The second sets the given vertex's normal to the given value.
+    //The third gets the given vertex's position.
+    //The fourth calculates whether the given normal should be flipped.
+    //Takes in a function that can set the normal of the given vertex to the given value.
+    static void CalculateNormals(void* vertices, unsigned int sizeofVertices, unsigned int nVertices,
+                                 const unsigned int * indices, unsigned int nIndices,
+                                 Vector3f(*getNormal)(const void* vertex),
+                                 void(*setNormal)(void* vertex, Vector3f normal),
+                                 Vector3f(*getPos)(const void* vertex),
+                                 bool(*shouldFlipNormal)(Vector3f normal, void* vertex, void* extraData), void* extraData = 0);
+
+    template<typename VertexType>
+    //Calculates normals for a list of triangles.
+    //The vertex must have Vector3f fields named "Pos" and "Normal".
+    static void CalculateNormals(VertexType * vertices, unsigned int nVertices,
+                                 const unsigned int * indices, unsigned int nIndices,
+                                 bool (*shouldFlipNormal)(Vector3f normal, void* vertex, void* extraData), void* extraData = 0)
+    {
+        CalculateNormals(vertices, sizeof(VertexType), nVertices, indices, nIndices,
+                         [](const void* pV) { return ((VertexType*)pV)->Normal; },
+                         [](void* pV, Vector3f norm) { ((VertexType*)pV)->Normal = norm; },
+                         [](const void* pV) { return ((VertexType*)pV)->Pos; },
+                         shouldFlipNormal, extraData);
+    }
 };

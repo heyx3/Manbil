@@ -2,14 +2,13 @@
 
 namespace NoiseAnalysis2D
 {
-	MinMax GetMinAndMax(Noise2D & nse)
+	MinMax GetMinAndMax(const Noise2D & nse)
 	{
 		MinMax ret(999999.0f, -999999.0f);
 
-
 		float tempVal;
         int size = nse.GetWidth() * nse.GetHeight();
-        for (int i = 0; i < size; ++i)
+        for (unsigned int i = 0; i < size; ++i)
         {
             tempVal = nse.GetArray()[i];
 
@@ -25,12 +24,12 @@ namespace NoiseAnalysis2D
 
 		return ret;
 	}
-	float GetAverage(Noise2D & nse)
+	float GetAverage(const Noise2D & nse)
 	{
 		float av = 0.0f;
 
         int size = nse.GetWidth() * nse.GetHeight();
-        for (int i = 0; i < size; ++i)
+        for (unsigned int i = 0; i < size; ++i)
             av += nse.GetArray()[i];
 
 		return av / (float)(nse.GetWidth() * nse.GetHeight());

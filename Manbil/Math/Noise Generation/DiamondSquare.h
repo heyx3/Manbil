@@ -10,9 +10,7 @@ struct DiamondSquareStep
 	//The number of iterations to use this random value range for.
 	unsigned int Iterations;
 
-	DiamondSquareStep(void) : VarianceValueRange(Interval(0.5f, 0.5f)), Iterations(1) { }
-	DiamondSquareStep(Interval varianceValueRange, unsigned int iterations) : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
-	~DiamondSquareStep(void) { }
+	DiamondSquareStep(Interval varianceValueRange, unsigned int iterations = 1) : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
 };
 
 //Generates random 2D noise using the Diamond-Square algorithm.
@@ -25,7 +23,6 @@ public:
 
 
 	int Seed;
-	void GenerateNewSeed(void) { Seed = fr.GetRandInt(); }
 
 	Interval DefaultVariance;
 	DiamondSquareStep * ForcedVariances;
@@ -51,8 +48,6 @@ public:
 	
 
 private:
-
-	mutable FastRand fr;
 
 	void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval * variances, Array2D<float> & noise) const;
 };

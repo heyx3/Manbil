@@ -59,7 +59,7 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 
 	//Now compute the noise for every point.
 
-	float (*smoothStepper)(float inF);
+	float (*smoothStepper)(float inF) = 0;
 	switch (SmoothAmount)
 	{
 		case Smoothness::Linear:

@@ -11,7 +11,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     bool useGeoShader = !geoShader.empty();
 
 
-    RenderObjHandle vsO, fsO, gsO;
+    RenderObjHandle vsO, fsO, gsO = 0;
     if (!ShaderHandler::CreateShader(shaderProg, vsO, vs.c_str(), ShaderHandler::Shaders::SH_Vertex_Shader))
     {
         errorMsg = std::string() + "Error creating vertex shader: " + ShaderHandler::GetErrorMessage();

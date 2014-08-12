@@ -19,9 +19,9 @@ typedef Array3D<float> Noise3D;
 namespace NoiseAnalysis2D
 {
     struct MinMax { float Min, Max; MinMax(float min, float max) : Min(min), Max(max) { } };
-    MinMax GetMinAndMax(Noise2D & noise);
+    MinMax GetMinAndMax(const Noise2D & noise);
 
-    float GetAverage(Noise2D & noise);
+    float GetAverage(const Noise2D & noise);
 }
 
 
