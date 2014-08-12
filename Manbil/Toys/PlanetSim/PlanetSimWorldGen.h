@@ -25,24 +25,6 @@ struct PlanetVertex
 };
 
 
-//Handles world vertex generation.
-class WorldGen
-{
-public:
-
-    //Generates the vertices/indices for the whole planet.
-    //Automatically resizes the out array to be the right size if it isn't already.
-    static void GenerateVertices(const Array2D<float> & heightmap, Array2D<PlanetVertex> & outVertices,
-                                 float worldScale, float minHeight, float heightScale);
-
-    //Generates the vertices/indices for a single region of space on the surface of the given planet.
-    //The "min" and "max" values are inclusive and wrap horizontally around the vertex map.
-    static void GenerateSubdivision(const Array2D<PlanetVertex> & planetVertices, Vector2u min, Vector2u max,
-                                    float worldScale, float minHeight, float heightScale,
-                                    std::vector<PlanetVertex> & outVertices, std::vector<unsigned int> & outIndices);
-};
-
-
 
 //Generates and manages the world vertices.
 class WorldData
@@ -50,8 +32,11 @@ class WorldData
 public:
 
 
-    WorldData(unsigned int verticesPerSide, float minHeight, float maxHeight,
-              unsigned int noiseSize, float noiseScale, unsigned int noiseLevels);
+    float GetMinHeight(void) const { return minHeight; }
+    float GetMaxHeight(void) const { return maxHeight; }
+
+
+    WorldData(unsigned int verticesPerSide, float minHeight, float maxHeight);
 
     void GetMeshes(std::vector<const Mesh*> & outMeshes, Vector3f camPos, Vector3f camForward) const;
     float GetHeightAt(Vector3f worldPos) const;
