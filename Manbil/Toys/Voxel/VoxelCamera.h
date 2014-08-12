@@ -23,7 +23,7 @@ public:
                 sf::Window * window = 0)
     : Camera(startPos, forward, upward), RotationInput(rotInput), Window(window), Oculus(oculus)
     {
-        SetClosestDotVariance(-10.0001f);
+        ClosestDotVariance = -10.0001f;
     }
 
     void Update(float elapsedTime, float totalElapsedTime);
