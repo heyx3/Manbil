@@ -2,7 +2,6 @@
 
 #include "../../SFMLOpenGLWorld.h"
 #include "../../Rendering/Rendering.hpp"
-#include "PlanetSimMeshManager.h"
 #include "PlanetSimCamera.h"
 #include "PlanetSimWorldGen.h"
 
