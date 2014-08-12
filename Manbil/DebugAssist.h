@@ -73,6 +73,9 @@ public:
     static std::string ToString(Box2D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
     static std::string ToString(Box3D box) { return std::string() + "[ A box from " + ToString(box.GetMinCorner()) + " to " + ToString(box.GetMaxCorner()) + "]"; }
 
+
+#pragma warning(disable: 4100)
+
     static std::string ToString(PixelSizes pixelSize, bool failOnNotFound = true)
     {
         switch (pixelSize)
@@ -102,6 +105,7 @@ public:
             case GPUPOutputs::GPUP_SIZE: return "GPUP_SIZE";
             case GPUPOutputs::GPUP_QUADROTATION: return "GPUP_QUADROTATION";
             case GPUPOutputs::GPUP_COLOR: return "GPUP_COLOR";
+
             default: assert(!failOnNotFound); return std::string() + "GPUP_ERROR_UNKNOWN_VALUE_OF_" + std::to_string(output);
         }
     }
@@ -127,6 +131,8 @@ public:
             default: assert(!failOnNotFound); return "UNKNOWN";
         }
     }
+
+#pragma warning(default: 4100)
 
 
     static void PauseConsole(std::string toPrint = "Enter any character to continue") { std::cout << toPrint; char dummy; std::cin >> dummy; }

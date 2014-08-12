@@ -11,7 +11,7 @@
 
 
 
-const int noiseSize = 512,
+const int noiseSize = 513,
 	pixelArrayWidth = noiseSize * 4,
 	pixelArrayHeight = noiseSize;
 #define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
@@ -198,7 +198,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 		#pragma endregion
 	}
-    else if (true)
+    else if (false)
     {
         #pragma region TwoD Perlin
 
@@ -376,6 +376,34 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
             }
         }
 
+
+        #pragma endregion
+    }
+    else if (true)
+    {
+        #pragma region Diamond-Square
+
+        DiamondSquareStep variances[] =
+        {
+            Interval(0.0f, 320.0f),
+            Interval(0.0f, 260.0f),
+            Interval(0.0f, 137.0f),
+            Interval(0.0f, 80.0f),
+            Interval(0.0f, 50.0f),
+            Interval(0.0f, 35.0f),
+            Interval(0.0f, 25.0f),
+            Interval(0.0f, 12.0f),
+            Interval(0.0f, 5.0f),
+        };
+
+        finalNoise.Fill(BasicMath::NaN);
+        DiamondSquare dsq(fr.Seed, Interval(0.0f, 3.0f), variances, sizeof(variances) / sizeof(DiamondSquareStep), 0.0f);
+        dsq.Generate(finalNoise);
+
+        NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
+        nf.RemapValues_OldVals = Interval(mm.Min, mm.Max, 0.00001f, true, false);
+        nf.RemapValues_NewVals = Interval(0.0f, 1.0f, 0.00001f);
+        nf.RemapValues(&finalNoise);
 
         #pragma endregion
     }
