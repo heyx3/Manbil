@@ -32,17 +32,14 @@ public:
     TextRenderer::FontSlot TextRenderSlot;
 
     Material * RenderMat;
-    std::string TextSamplerName;
 
     Vector2f Scale;
 
 
-    GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material,
-             std::string textSamplerName, std::string _text = "",
-             HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
+    GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material, float timeSpeed = 1.0f,
+             std::string _text = "", HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
-          TextSamplerName(textSamplerName),
-          RenderMat(material), TextRenderSlot(textSlot), text(_text)
+          RenderMat(material), TextRenderSlot(textSlot), text(_text), GUIElement(timeSpeed)
     {
 
     }

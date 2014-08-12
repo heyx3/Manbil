@@ -144,6 +144,7 @@
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUILabel.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIPanel.cpp" />
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUITexture.cpp" />
     <ClCompile Include="Rendering\GUI\GUIElement.cpp" />
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
@@ -305,6 +306,7 @@
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUILabel.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIPanel.h" />
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUITexture.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />

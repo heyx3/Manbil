@@ -12,6 +12,9 @@ public:
     std::vector<Ptr> Elements;
 
 
+    GUIPanel(float timeLerpSpeed) : GUIElement(timeLerpSpeed) { }
+
+
     virtual Vector2i GetCollisionCenter(void) const override { return pos; }
     virtual Vector2i GetCollisionDimensions(void) const override { return extents; }
 
@@ -21,7 +24,7 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) override;
 
 
-    virtual void Update(float elapsedTime) override;
+    virtual void CustomUpdate(float elapsedTime) override;
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 

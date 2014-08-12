@@ -1,5 +1,6 @@
 #include "GUILabel.h"
 
+#include "../GUIMaterials.h"
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 
 
@@ -49,19 +50,13 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
         default: assert(false);
     }
 
-    float invWidth = 1.0f / info.Cam->Info.Width,
-          invHeight = 1.0f / info.Cam->Info.Height;
+    Vector2f textOffsetF = Vector2f((float)textOffset.x * Scale.x,
+                                    (float)textOffset.y * Scale.y);
 
-    Vector2f pos(invWidth, invHeight);
-    pos.MultiplyComponents(Vector2f(center.x, center.y));
-    Vector2f scale(invWidth, invHeight);
-    scale.MultiplyComponents(Scale.ComponentProduct(Vector2f(dimensions.x, dimensions.y)));
-
-    GetQuad()->SetPos(pos);
-    GetQuad()->SetSize(scale * 0.5f);
-    GetQuad()->SetRotation(0.0f);
-
-    Params.Texture2DUniforms[TextSamplerName].Texture = TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
+    SetUpQuad(info, ToV2f(center) + textOffsetF, Scale.ComponentProduct(ToV2f(dimensions)));
+    
+    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
+        TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
 
     if (GetQuad()->Render(info, Params, *RenderMat)) return "";
     return "Error rendering label with text '" + text + "': " + RenderMat->GetErrorMsg();

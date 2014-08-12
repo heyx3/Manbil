@@ -14,7 +14,7 @@ void GUIPanel::ScaleBy(Vector2f scaleAmount)
     }
 }
 
-void GUIPanel::Update(float elapsed)
+void GUIPanel::CustomUpdate(float elapsed)
 {
     Vector2i nPos = -pos;
 
@@ -28,16 +28,28 @@ void GUIPanel::Update(float elapsed)
 std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
 {
     Vector2i nPos = -pos;
-    std::string err;
+
+    //Instead of returning an error as soon as it is found,
+    //    render all sub-elements and collect any errors into one big error string.
+    std::string err = "";
+    unsigned int line = 0;
+
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
         Elements[i]->MoveElement(pos);
-        err = Elements[i]->Render(elapsedTime, info);
+        std::string tempErr = Elements[i]->Render(elapsedTime, info);
         Elements[i]->MoveElement(nPos);
 
-        if (!err.empty()) return err;
+        if (!tempErr.empty())
+        {
+            if (line > 0) err += "\n";
+            line += 1;
+
+            err += std::to_string(line) + ") " + tempErr;
+        }
     }
-    return "";
+
+    return err;
 }
 
 void GUIPanel::OnMouseClick(Vector2i mouseP)
