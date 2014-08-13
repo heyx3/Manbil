@@ -126,7 +126,8 @@ unsigned int TextRenderer::CreateAFont(std::string fontPath, unsigned int pixelW
     return fontID;
 }
 bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
-                                         bool useMipmaps, TextureSampleSettings2D & settings, unsigned int numbSlots)
+                                         bool useMipmaps, const TextureSampleSettings2D & settings,
+                                         unsigned int numbSlots)
 {
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return false;
@@ -181,6 +182,7 @@ bool TextRenderer::DoesSlotExist(FontSlot slot) const
     SlotCollectionLoc collLoc = fonts.find(slot.FontID);
     if (collLoc == fonts.end()) return false;
 
+    //PRIORITY: Shouldn't this be "slot.SlotIndex < collLoc->second.size()"?
     return (collLoc != fonts.end() && collLoc->second.size() < slot.SlotIndex);
 }
 

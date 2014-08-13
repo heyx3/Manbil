@@ -53,7 +53,8 @@ public:
     //Creates the given number of render slots, all with the given width/height space.
     //Returns whether or not this function succeeded.
     bool CreateTextRenderSlots(unsigned int fontID, unsigned int finalRenderWidth, unsigned int finalRenderHeight,
-                               bool useMipmapping, TextureSampleSettings2D & finalRenderSettings, unsigned int numbSlots = 1);
+                               bool useMipmapping, const TextureSampleSettings2D & finalRenderSettings,
+                               unsigned int numbSlots = 1);
 
     //Gets whether the given slot exists.
     bool DoesSlotExist(FontSlot slot) const;
