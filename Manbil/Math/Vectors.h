@@ -1065,6 +1065,10 @@ namespace MyVectors
     static inline Vector2f ToV2f(Vector2i inV) { return Vector2f((float)inV.x, (float)inV.y); }
     static inline Vector3f ToV3f(Vector3i inV) { return Vector3f((float)inV.x, (float)inV.y, (float)inV.z); }
     static inline Vector4f ToV4f(Vector4i inV) { return Vector4f((float)inV.x, (float)inV.y, (float)inV.z, (float)inV.w); }
+
+    static inline Vector2f ToV2f(Vector2u inV) { return Vector2f((float)inV.x, (float)inV.y); }
+    static inline Vector3f ToV3f(Vector3u inV) { return Vector3f((float)inV.x, (float)inV.y, (float)inV.z); }
+    static inline Vector4f ToV4f(Vector4u inV) { return Vector4f((float)inV.x, (float)inV.y, (float)inV.z, (float)inV.w); }
 }
 
 using namespace MyVectors;
