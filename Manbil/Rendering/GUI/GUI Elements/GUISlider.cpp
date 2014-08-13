@@ -24,6 +24,7 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
     Vector2f barPos = ToV2f(center);
     Vector2f barScale = BarScale.ComponentProduct(ToV2f(Vector2i(Bar->GetWidth(), Bar->GetHeight())));
 
+    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Bar->GetTextureHandle();
     SetUpQuad(info, barPos, barScale);
     if (!GetQuad()->Render(info, Params, *BarMat))
         return "Error rendering bar: " + BarMat->GetErrorMsg();
@@ -44,7 +45,7 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
                                      Value);
     Vector2f nubScale = NubScale.ComponentProduct(ToV2f(Vector2i(Nub->GetWidth(), Nub->GetHeight())));
 
-
+    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Nub->GetTextureHandle();
     SetUpQuad(info, nubPos, nubScale);
     if (!GetQuad()->Render(info, Params, *NubMat))
         return "Error rendering nub: " + NubMat->GetErrorMsg();

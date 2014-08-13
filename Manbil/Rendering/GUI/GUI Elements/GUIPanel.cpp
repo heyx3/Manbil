@@ -14,14 +14,14 @@ void GUIPanel::ScaleBy(Vector2f scaleAmount)
     }
 }
 
-void GUIPanel::CustomUpdate(float elapsed)
+void GUIPanel::CustomUpdate(float elapsed, Vector2i relativeMousePos)
 {
     Vector2i nPos = -pos;
 
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
         Elements[i]->MoveElement(pos);
-        Elements[i]->Update(elapsed);
+        Elements[i]->Update(elapsed, relativeMousePos);
         Elements[i]->MoveElement(nPos);
     }
 }

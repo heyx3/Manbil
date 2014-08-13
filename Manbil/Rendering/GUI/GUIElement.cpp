@@ -27,34 +27,40 @@ void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, Vector2f scale
     quad->SetRotation(rot);
 }
 
-void GUIElement::Update(float elapsed)
+void GUIElement::Update(float elapsed, Vector2i relativeMouse)
 {
-    this->CustomUpdate(elapsed);
+    this->CustomUpdate(elapsed, relativeMouse);
 
-    auto found = Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp);
-    if (found == Params.FloatUniforms.end()) return;
+    if (!UsesTimeLerp()) return;
 
-    float val = Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0];
 
-    //Update the time lerp value and stop its movement if it hits 0 or 1.
-    if (CurrentTimeLerpSpeed > 0.0f)
+    //Update the time lerp value.
+
+    float timeLerp = GetTimeLerp();
+    isMousedOver = IsLocalInsideBounds(relativeMouse);
+
+    //If this element isn't animating, check whether it's being moused over.
+    if (CurrentTimeLerpSpeed == 0.0f)
     {
-        val += elapsed * CurrentTimeLerpSpeed;
-        if (val >= 1.0f)
+        timeLerp = (isMousedOver ? 0.5f : 0.0f);
+    }
+    //Otherwise, update its animation.
+    else
+    {
+        timeLerp += elapsed * CurrentTimeLerpSpeed;
+
+        if (timeLerp <= 0.0f)
         {
             CurrentTimeLerpSpeed = 0.0f;
-            val = 1.0f;
+            timeLerp = 0.00001f;
         }
-    }
-    else if (CurrentTimeLerpSpeed < 0.0f)
-    {
-        val += elapsed * CurrentTimeLerpSpeed;
-        if (val <= 0.0f)
+        else if (timeLerp >= 1.0f)
         {
-            CurrentTimeLerpSpeed = 0.0f;
-            val = 0.0f;
+            CurrentTimeLerpSpeed = -CurrentTimeLerpSpeed;
+            timeLerp = 0.999999f;
         }
     }
 
-    Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0] = val;
+    //Update the time lerp parameter with the new value.
+    SetTimeLerp(timeLerp);
 }

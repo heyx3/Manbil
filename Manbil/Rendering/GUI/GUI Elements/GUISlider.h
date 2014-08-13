@@ -4,6 +4,7 @@
 
 
 //A bar with a slibing nub that represents a value between 0 and 1.
+//TODO: Redo this class so that it has two GUITextures -- the bar and the nub.
 class GUISlider : public GUIElement
 {
 public:

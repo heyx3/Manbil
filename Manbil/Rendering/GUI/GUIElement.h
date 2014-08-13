@@ -12,6 +12,7 @@ public:
 
     typedef std::shared_ptr<GUIElement> Ptr;
 
+
     UniformDictionary Params;
     float TimeLerpSpeed;
 
@@ -22,7 +23,10 @@ public:
     void SetTimeLerp(float newVal) { Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0] = newVal; }
 
 
-    GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed) { }
+    bool IsMousedOver(void) const { return isMousedOver; }
+
+
+    GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed), isMousedOver(false) { }
     virtual ~GUIElement(void) { }
 
 
@@ -40,24 +44,26 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
 
 
-    void Update(float elapsedTime);
-
+    //Takes in the mouse position relative to this element's center.
+    void Update(float elapsedTime, Vector2i mouse_centerOffset);
 
     //Returns an error message, or the empty string if everything went fine.
     virtual std::string Render(float elapsedTime, const RenderInfo & info) = 0;
 
+
 #pragma warning(disable: 4100)
     //Raised when the mouse clicks on something.
     //The given Vector2i is the mouse position relative to this element's center.
-    virtual void OnMouseClick(Vector2i mouse_centerOffset) { }
+    virtual void OnMouseClick(Vector2i relativeMousePos) { }
     //Raised when the mouse drags across the screen.
     //The given Vector2i instances are relative to this element's center.
-    virtual void OnMouseDrag(Vector2i originalPos_centerOffset,
-                             Vector2i currentPos_centerOffset) { }
+    virtual void OnMouseDrag(Vector2i originalRelativeMousePos,
+                             Vector2i currentRelativeMousePos) { }
     //Raised when the mouse releases over this element.
     //Ths given Vector2i is the current mouse position relative to this element's center.
     virtual void OnMouseRelease(Vector2i mouse_centerOffset) { }
 #pragma warning(default: 4100)
+
 
     //Gets whether the given local-space position is inside this element's bounds.
     bool IsLocalInsideBounds(Vector2i pos) const;
@@ -67,7 +73,7 @@ protected:
 
     float CurrentTimeLerpSpeed = 0.0f;
    
-    virtual void CustomUpdate(float elapsed) { }
+    virtual void CustomUpdate(float elapsed, Vector2i relativeMousePos) { }
 
 
     static DrawingQuad * GetQuad(void) { if (quad == 0) quad = new DrawingQuad(); return quad; }
@@ -77,4 +83,6 @@ protected:
 private:
 
     static DrawingQuad * quad;
+
+    bool isMousedOver;
 };

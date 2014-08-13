@@ -24,7 +24,6 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) override;
 
 
-    virtual void CustomUpdate(float elapsedTime) override;
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 
@@ -32,6 +31,11 @@ public:
     virtual void OnMouseDrag(Vector2i originalPos_centerOffset,
                              Vector2i mouse_centerOffset) override;
     virtual void OnMouseRelease(Vector2i mouse_centerOffset) override;
+
+
+protected:
+
+    virtual void CustomUpdate(float elapsedTime, Vector2i relativeMousePos) override;
 
     
 private:

@@ -22,6 +22,10 @@ Vector2i GUILabel::GetCollisionDimensions(void) const
 }
 std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 {
+    //Don't bother doing any rendering if there's no text to display.
+    if (text.empty()) return "";
+
+
     Vector2i textOffset;
     switch (OffsetHorz)
     {

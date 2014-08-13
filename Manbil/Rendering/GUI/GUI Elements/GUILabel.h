@@ -44,11 +44,12 @@ public:
 
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
 
-
+    
+    //Starts out with no text (an empty string).
     GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material, float timeSpeed = 1.0f,
-             std::string _text = "", HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
+             HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
-          RenderMat(material), TextRenderSlot(textSlot), text(_text), GUIElement(timeSpeed)
+          RenderMat(material), TextRenderSlot(textSlot), text(""), GUIElement(timeSpeed)
     {
 
     }
