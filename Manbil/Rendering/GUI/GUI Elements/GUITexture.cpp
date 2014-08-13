@@ -25,17 +25,6 @@ std::string GUITexture::Render(float elapsed, const RenderInfo & info)
                 "");
 }
 
-void GUITexture::CustomUpdate(float elapsed)
-{
-    auto found = Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp);
-    if (found == Params.FloatUniforms.end()) return;
-
-    float val = found->second.Value[0];
-    val = BasicMath::Clamp(val + (elapsed * TimeLerpSpeed), 0.0f, 1.0f);
-
-    Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0] = val;
-}
-
 void GUITexture::OnMouseClick(Vector2i mousePos)
 {
     if (IsButton && IsLocalInsideBounds(mousePos))

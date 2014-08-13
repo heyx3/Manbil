@@ -36,6 +36,15 @@ public:
     Vector2f Scale;
 
 
+    virtual Vector2i GetCollisionCenter(void) const override { return center; }
+    virtual Vector2i GetCollisionDimensions(void) const override;
+
+    virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
+    virtual void SetPosition(Vector2i newPos) override { center = newPos; }
+
+    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
+
+
     GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material, float timeSpeed = 1.0f,
              std::string _text = "", HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
@@ -48,21 +57,10 @@ public:
     const std::string & GetText(void) const { return text; }
     bool SetText(std::string newText);
 
-
-    virtual Vector2i GetCollisionCenter(void) const override { return center; }
-    virtual Vector2i GetCollisionDimensions(void) const override;
-
-    virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2i newPos) override { center = newPos; }
-
-    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
-
-
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 
 private:
-
 
     Vector2i center, dimensions;
     std::string text;

@@ -414,6 +414,9 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUITexture.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUISlider.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -911,6 +914,9 @@
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUITexture.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUISlider.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
   </ItemGroup>

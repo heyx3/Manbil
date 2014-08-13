@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Helper Classes/DrawingQuad.h"
+#include "GUIMaterials.h"
 
 
 //Represents a single element in a UI.
@@ -13,6 +14,12 @@ public:
 
     UniformDictionary Params;
     float TimeLerpSpeed;
+
+
+    bool UsesTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.FloatUniforms.end(); }
+
+    float GetTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second.Value[0]; }
+    void SetTimeLerp(float newVal) { Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0] = newVal; }
 
 
     GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed) { }
@@ -33,7 +40,7 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
 
 
-    virtual void Update(float elapsedTime);
+    void Update(float elapsedTime);
 
 
     //Returns an error message, or the empty string if everything went fine.

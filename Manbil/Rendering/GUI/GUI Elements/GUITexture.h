@@ -30,13 +30,14 @@ public:
     virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
 
+    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
+
 
     GUITexture(MTexture2D * tex = 0, Material * mat = 0,
                bool isButton = false, float timeLerpSpeed = 1.0f)
         : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(timeLerpSpeed) { }
 
 
-    virtual void CustomUpdate(float elapsed) override;
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
     virtual void OnMouseClick(Vector2i mouse_centerOffset) override;
