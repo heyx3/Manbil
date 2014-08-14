@@ -7,8 +7,8 @@ GUISelectionBox::GUISelectionBox(TextRenderer* textRender, Material* selectionBo
                                  const TextureSampleSettings2D & fontRenderSettings,
                                  Material * itemTextMat,
                                  const GUITexture & itemListBackground, 
-                                 std::vector<std::string> _items, unsigned int selected = 0,
-                                 bool extendAbove = true, float timeLerpSpeed = 1.0f)
+                                 std::vector<std::string> _items, unsigned int selected,
+                                 bool extendAbove, float timeLerpSpeed)
     : GUIElement(timeLerpSpeed), TextRender(textRender), BoxMat(selectionBoxMat), BoxTex(selectionBoxTex),
       items(_items), ExtendAbove(extendAbove), selectedItem(selected),
       itemBackground(itemListBackground), itemFontID(fontID), IsExtended(false)
