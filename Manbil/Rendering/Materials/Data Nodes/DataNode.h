@@ -97,6 +97,7 @@ public:
     std::string GetName(void) const { return name; }
     void SetName(std::string newName);
 
+    //DO NOT MANUALLY OVERRIDE THIS. It is automatically overridden with the "MAKE_NODE_READABLE_H/_CPP" macros.
     virtual std::string GetTypeName(void) const { return "ERROR_BAD_TYPE_NAME"; }
 
 
