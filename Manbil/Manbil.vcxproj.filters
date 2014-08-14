@@ -420,6 +420,9 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISelectionBox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Helper Classes\SplineGeometry.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -924,6 +927,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISelectionBox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Helper Classes\SplineGeometry.h">
+      <Filter>Rendering\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
