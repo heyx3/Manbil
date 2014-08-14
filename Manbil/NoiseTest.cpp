@@ -39,67 +39,46 @@ void NoiseTest::InitializeWorld(void)
 
 void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
 {
-	//ColorGradient colGrad;
-    std::vector<GradientNode<3>> nodes;
-
 	//Set the color gradient.
-
+    std::vector<GradientNode<3>> nodes;
 	if (true)
 	{
 		#pragma region Black and white
 
         float zeroes[3] = { 0.0f, 0.0f, 0.0f },
-              ones[3] = { 1.0f, 1.0f, 1.0f },
-              slopeStart[3] = { 0.0f, 0.0f, 0.0f },
-              slopeEnd[3] = { 0.0f, 0.0f, 0.0f };
-        nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes, slopeStart));
-        nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones, slopeEnd));
+              ones[3] = { 1.0f, 1.0f, 1.0f };
+        nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes));
+        nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones));
 
 		#pragma endregion
 	}
 	else assert(false);
 
 
-    Gradient<3> colGrad(nodes);
+    //Generate the color gradient.
+    Gradient<3> colGrad(nodes, Gradient<3>::SM_LINEAR);
+    for (Vector2u loc; loc.y < noise.GetHeight(); ++loc.y)
+    {
+        for (loc.x = 0; loc.x < noise.GetWidth(); ++loc.x)
+        {
+            float noiseVal = BasicMath::Clamp(noise[loc], 0.0f, 1.0f);
 
+            float gradientCol[3] = { 0.0f, 0.0f, 0.0f };
+            colGrad.GetValue(noiseVal, gradientCol);
 
-    unsigned int x, y, outX, outY;
-	float readNoise;
-	sf::Uint8 noiseVal;
-	float tempF;
+            Vector3b colorB((sf::Uint8)BasicMath::RoundToInt(gradientCol[0] * 255.0f),
+                            (sf::Uint8)BasicMath::RoundToInt(gradientCol[1] * 255.0f),
+                            (sf::Uint8)BasicMath::RoundToInt(gradientCol[2] * 255.0f));
 
-	//Go through every pixel.
-	for (x = 0; x < noise.GetWidth(); ++x)
-	{
-		for (y = 0; y < noise.GetHeight(); ++y)
-		{
-			tempF = noise[Vector2u(x, y)];
-			readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
+            Vector2u pixelStart(loc.x * 4, loc.y);
+            outPixels[pixelStart] = colorB.x;
+            outPixels[Vector2u(pixelStart.x + 1, pixelStart.y)] = colorB.y;
+            outPixels[Vector2u(pixelStart.x + 2, pixelStart.y)] = colorB.z;
+            outPixels[Vector2u(pixelStart.x + 3, pixelStart.y)] = 255;
+        }
+    }
 
-			//Convert to a byte value.
-			noiseVal = (sf::Uint8)BasicMath::RoundToInt(readNoise * 255.0f);
-
-			//Get the coordinates of the pixel in the return value array.
-			outX = x * 4;
-			outY = y;
-
-			//Set the pixel values.
-            float colFromGrad[3];
-            colGrad.GetValue(readNoise, colFromGrad);
-            Vector4f col(colFromGrad[0] * 255.0f, colFromGrad[1] * 255.0f, colFromGrad[2] * 255.0f, 255.0f);
-			col = Vector4f(BasicMath::Clamp(col.x, 0.0f, 255.0f), BasicMath::Clamp(col.y, 0.0f, 255.0f),
-						   BasicMath::Clamp(col.z, 0.0f, 255.0f), BasicMath::Clamp(col.w, 0.0f, 255.0f));
-			Vector4b colB((unsigned char)BasicMath::RoundToInt(col.x),
-						  (unsigned char)BasicMath::RoundToInt(col.y),
-						  (unsigned char)BasicMath::RoundToInt(col.z),
-						  (unsigned char)BasicMath::RoundToInt(col.w));
-
-			outPixels[Vector2u(outX, outY)] = colB.x;
-			outPixels[Vector2u(outX + 1, outY)] = colB.y;
-			outPixels[Vector2u(outX + 2, outY)] = colB.z;
-			outPixels[Vector2u(outX + 3, outY)] = colB.w;
-		}
-	}
+    nodes = nodes;
 }
 
 namespace RandStuff { FastRand fr(255); }
@@ -416,23 +395,18 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 }
 void NoiseTest::InterpretNoise(const Noise2D & noise)
 {
-	//Output noise to pixel array. The stack can't hold all the pixels, so put it on the heap.
-	Array2D<sf::Uint8> * pixels = new Array2D<sf::Uint8>(pixelArrayWidth, pixelArrayHeight, 0); //The stack can't hold all these pixels.
-	NoiseToPixels(noise, *pixels);
+	Array2D<sf::Uint8> pixels(pixelArrayWidth, pixelArrayHeight, 0);
+	NoiseToPixels(noise, pixels);
 
 
 	//Output pixel array to texture.
 	renderedNoiseTex = new sf::Texture();
 	renderedNoiseTex->create(noiseSize, noiseSize);
-	renderedNoiseTex->update(pixels->GetArray());
+	renderedNoiseTex->update(pixels.GetArray());
 
 
 	//Output texture to Sprite.
 	renderedNoise = new sf::Sprite(*renderedNoiseTex);
-
-
-	//Clean up.
-	delete pixels;
 }
 
 float bumpHeight = 1.0f;

@@ -5,9 +5,11 @@
 #include "../BasicMath.h"
 
 
-//The number of different float values in a single point on the gradient.
+//Should be an int in the range [1, 4].
+//The number of different float values in a single point on the gradient
+//    (float, vec2, vec3, or vec4).
 template<unsigned int Components>
-//Represents a single node in a gradient.
+//A single node in a gradient.
 struct GradientNode
 {
 public:
@@ -18,60 +20,62 @@ public:
     float T;
     //The value at this node.
     float Value[Components];
-    //The derivative of the gradient value at this node's position.
-    float Slope[Components];
 
-    GradientNode(float t, const float value[Components], const float slope[Components])
-        : T(t)
-    {
-        for (unsigned int i = 0; i < Components; ++i)
-        {
-            Value[i] = value[i];
-            Slope[i] = slope[i];
-        }
-    }
-    GradientNode(const GradientNode & cpy) : GradientNode(cpy.T, cpy.Value, cpy.Slope) { }
+    GradientNode(float t, const float value[Components]) : T(t) { memcpy(Value, value, sizeof(float) * Components); }
+    GradientNode(const GradientNode & cpy) : GradientNode(cpy.T, cpy.Value) { } // TODO: Test that using "memcpy(this, &cpy, sizeof(GradientNode<Components>))" would work instead.
 };
 
 
 
+//Should be an int in the range [1, 4].
 //The number of different float values in a single point on the gradient.
+//    (float, vec2, vec3, or vec4).
 template<unsigned int Components>
-//Represents some kind of gradient for a value.
+//Represents some kind of smooth gradient for a value.
+//Can use linear, cubic, or quintic interpolation.
 class Gradient
 {
 public:
 
     typedef GradientNode<Components> GNode;
 
+    enum Smoothness
+    {
+        SM_LINEAR,
+        SM_CUBIC,
+        SM_QUINTIC,
+    };
+
+
+    Smoothness SmoothQuality;
     std::vector<GradientNode<Components>> Nodes;
 
-    Gradient(GNode startVal, GNode endVal) : Nodes(MakeVector(startVal, endVal)) { }
-    Gradient(GNode startVal, GNode endVal, GNode mid1) : Nodes(MakeVector(startVal, mid1, endVal)) { }
-    Gradient(GNode startVal, GNode endVal, GNode mid1, GNode mid2)
-        : Nodes(MakeVector(startVal, mid1, mid2, endVal))
-    {
 
-    }
-    Gradient(const std::vector<GNode> & nodes) : Nodes(nodes) { }
+    Gradient(const std::vector<GNode> & nodes, Smoothness smoothQuality) : SmoothQuality(smoothQuality), Nodes(nodes) { }
+    Gradient(GNode startVal, GNode endVal, Smoothness smoothQuality) : Gradient(MakeVector(startVal, endVal), smoothQuality) { }
+    Gradient(GNode startVal, GNode endVal, GNode mid1, Smoothness smoothQuality) : Gradient(MakeVector(startVal, mid1, endVal, smoothQuality)) { }
+    Gradient(GNode startVal, GNode endVal, GNode mid1, GNode mid2, Smoothness smoothQuality) : Gradient(MakeVector(startVal, mid1, mid2, endVal, smoothQuality)) { }
 
+
+    //Whether this gradient has at least one point, making it valid for use.
     bool IsValidGradient(void) const { return Nodes.size() > 0; }
 
-    //Clamps the given t value to the bounds of this gradient's nodes and gets the gradient value at that t.
+    //Gets the gradient value at the given t.
+    //'t' will be clamped to be inside the range this gradient covers.
     //Assumes that this gradient is valid.
     void GetValue(float t, float outVals[Components]) const
     {
+        assert(IsValidGradient());
+
         //Check edge-cases.
         if (Nodes.size() == 1 || t <= Nodes[0].T)
         {
-            for (unsigned int i = 0; i < Components; ++i)
-                outVals[i] = Nodes[0].Value[i];
+            Set(Nodes[0].Value, outVals);
             return;
         }
         if (t >= Nodes[Nodes.size() - 1].T)
         {
-            for (unsigned int i = 0; i < Components; ++i)
-                outVals[i] = Nodes[Nodes.size() - 1].Value[i];
+            Set(Nodes[Nodes.size() - 1].Value, outVals);
             return;
         }
 
@@ -82,22 +86,26 @@ public:
         const GNode & start = Nodes[topBound - 1];
         const GNode & end = Nodes[topBound];
 
-        //Plug in a formula for splines.
-        for (unsigned int i = 0; i < Components; ++i)
+        //Use a lerp between the start and end, but first smooth the "t" component to create a smooth curve.
+        float remappedT = BasicMath::LerpComponent(start.T, end.T, t);
+        switch (SmoothQuality)
         {
-            float remappedT = BasicMath::LerpComponent(start.T, end.T, t),
-                  oneMinusRT = 1.0f - remappedT;
-            float tRange = end.T - start.T,
-                  valRange = end.Value[i] - start.Value[i];
-            float a = (start.Slope[i] * tRange) - valRange,
-                  b = (-end.Slope[i] * tRange) + valRange;
-
-            outVals[i] = (oneMinusRT * start.Value[i]) + (remappedT * end.Value[i]) + (remappedT * oneMinusRT * ((a * oneMinusRT) + (b * remappedT)));
+            case SM_LINEAR: break;
+            case SM_CUBIC: remappedT = BasicMath::Smooth(remappedT); break;
+            case SM_QUINTIC: remappedT = BasicMath::Supersmooth(remappedT); break;
+            default: assert(false);
         }
+        for (unsigned int i = 0; i < Components; ++i)
+            outVals[i] = BasicMath::Lerp(start.Value[i], end.Value[i], remappedT);
     }
 
 
 private:
+
+    static void Set(const float src[Components], float dest[Components])
+    {
+        memcpy(dest, src, sizeof(float) * Components);
+    }
 
     static std::vector<GNode> MakeVector(GNode n1)
     {
