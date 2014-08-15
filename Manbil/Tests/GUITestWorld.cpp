@@ -185,14 +185,6 @@ void GUITestWorld::InitializeWorld(void)
                                          0.01f, 0, "myCurve"));
     DNP curveOutPos(new CombineVectorNode(curvePositioning, 1.0f, "curveOutPos"));
     DataNode::MaterialOuts.VertexPosOutput = curveOutPos;
-
-    DNP curveLerpPtr(new VectorComponentsNode(DataLine(VertexInputNode::GetInstance(), 0), "splitLineLerp"));
-    DataLine curveXLerp(curveLerpPtr, 0),
-             curveYLerp(curveLerpPtr, 1);
-    DNP remapCurveXLerp(new RemapNode(curveXLerp, 0.0f, 1.0f, -0.25f, 0.25f, "remapXCurve")),
-        remapCurveYLerp(new RemapNode(curveYLerp, -1.0f, 1.0f, -0.025f, 0.025f, "remapYCurve"));
-    DNP curveOutPosDebug(new CombineVectorNode(remapCurveXLerp, remapCurveYLerp, 0.0f, 1.0f, "debugCurvePosOut"));
-    //DataNode::MaterialOuts.VertexPosOutput = curveOutPosDebug;
     
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                   ShaderOutput("fOut_curveCol", Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
