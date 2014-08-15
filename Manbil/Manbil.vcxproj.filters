@@ -420,8 +420,8 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISelectionBox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Helper Classes\SplineGeometry.cpp">
-      <Filter>Rendering\GUI</Filter>
+    <ClCompile Include="Rendering\Helper Classes\BezierCurve.cpp">
+      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -928,8 +928,8 @@
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISelectionBox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Helper Classes\SplineGeometry.h">
-      <Filter>Rendering\GUI</Filter>
+    <ClInclude Include="Rendering\Helper Classes\BezierCurve.h">
+      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

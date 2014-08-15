@@ -151,7 +151,7 @@
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
-    <ClCompile Include="Rendering\Helper Classes\SplineGeometry.cpp" />
+    <ClCompile Include="Rendering\Helper Classes\BezierCurve.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp" />
@@ -316,7 +316,7 @@
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
-    <ClInclude Include="Rendering\Helper Classes\SplineGeometry.h" />
+    <ClInclude Include="Rendering\Helper Classes\BezierCurve.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />

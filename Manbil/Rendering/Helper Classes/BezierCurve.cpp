@@ -1,14 +1,14 @@
-#include "SplineGeometry.h"
+#include "BezierCurve.h"
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 
 
 
-MAKE_NODE_READABLE_CPP(SplineGeometry, Vector3f(), Vector3f(), Vector3f(), Vector3f(), Vector3f(), 1.0f);
+MAKE_NODE_READABLE_CPP(BezierCurve, Vector3f(), Vector3f(), Vector3f(), Vector3f(), Vector3f(), 1.0f);
 
 
 
-void SplineGeometry::GenerateSplineVertices(std::vector<SplineVertex> & outVerts, unsigned int lineSegments)
+void BezierCurve::GenerateSplineVertices(std::vector<BezierVertex> & outVerts, unsigned int lineSegments)
 {
     assert(lineSegments > 1);
 
@@ -16,17 +16,17 @@ void SplineGeometry::GenerateSplineVertices(std::vector<SplineVertex> & outVerts
     for (unsigned int seg = 0; seg < lineSegments; ++seg)
     {
         float x = (float)seg * increment;
-        outVerts.insert(outVerts.end(), SplineVertex(Vector2f(x, -1.0f)));
-        outVerts.insert(outVerts.end(), SplineVertex(Vector2f(x, 1.0f)));
+        outVerts.insert(outVerts.end(), BezierVertex(Vector2f(x, -1.0f)));
+        outVerts.insert(outVerts.end(), BezierVertex(Vector2f(x, 1.0f)));
     }
 }
 
-std::string SplineGeometry::GetOutputName(unsigned int index) const
+std::string BezierCurve::GetOutputName(unsigned int index) const
 {
-    return GetName() + "_" + (index == 0 ? "linePos" : "vertPos");
+    return GetName() + "_" + (index == 0 ? "vertPos" : "linePos");
 }
 
-void SplineGeometry::AssertMyInputsValid(void) const
+void BezierCurve::AssertMyInputsValid(void) const
 {
     Assert(GetInput_StartPos().GetSize() == 3, "'Start Pos' input must be size 3!");
     Assert(GetInput_EndPos().GetSize() == 3, "'End Pos' input must be size 3!");
@@ -35,7 +35,7 @@ void SplineGeometry::AssertMyInputsValid(void) const
     Assert(GetInput_LineSurfaceNormal().GetSize() == 3, "'Line Surface Normal' input must be size 3!");
     Assert(GetInput_LineThickness().GetSize() == 1, "'Line Thickness' input must be size 1!");
 }
-void SplineGeometry::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
+void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
     std::string decl;
     const std::string structDecl = "struct SplinePos { vec3 Point, Perp; };";
@@ -69,10 +69,10 @@ void SplineGeometry::GetMyFunctionDeclarations(std::vector<std::string> & outDec
     return ret;                                                                                   \n\
 }\n\n");
 }
-void SplineGeometry::WriteMyOutputs(std::string & outCode) const
+void BezierCurve::WriteMyOutputs(std::string & outCode) const
 {
     Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
-           "SplineGeometry nodes only work in vertex shaders, not '" +
+           "BezierCurve nodes only work in vertex shaders, not '" +
                ToString(CurrentShader) + "'!");
     std::string temp = GetName() + "_splinePos";
     outCode += "SplinePos " + temp + " = " + GetName() + "_interpSpline(" +
@@ -80,11 +80,11 @@ void SplineGeometry::WriteMyOutputs(std::string & outCode) const
                     GetInput_StartSlope().GetValue() + ", " + GetInput_EndSlope().GetValue() + ", " +
                     GetInput_LineSurfaceNormal().GetValue() + ", " +
                     VertexIns.GetAttributeName(LinePosLerpIndex) + ");\n";
-    outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos;\n";
-    outCode += "\tvec3 " + GetOutputName(1) + " = " + temp + ".Pos + (" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + ");\n";
+    outCode += "\tvec3 " + GetOutputName(1) + " = " + temp + ".Pos;\n";
+    outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos + (" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + ");\n";
 }
 
-bool SplineGeometry::WriteExtraData(DataWriter * writer, std::string & outError) const
+bool BezierCurve::WriteExtraData(DataWriter * writer, std::string & outError) const
 {
     if (!writer->WriteUInt(LinePosLerpIndex, "'Line Pos Lerp' vertex input index", outError))
     {
@@ -94,7 +94,7 @@ bool SplineGeometry::WriteExtraData(DataWriter * writer, std::string & outError)
 
     return true;
 }
-bool SplineGeometry::ReadExtraData(DataReader * reader, std::string & outError)
+bool BezierCurve::ReadExtraData(DataReader * reader, std::string & outError)
 {
     MaybeValue<unsigned int> tryInd = reader->ReadUInt(outError);
     if (!tryInd.HasValue())
@@ -106,7 +106,7 @@ bool SplineGeometry::ReadExtraData(DataReader * reader, std::string & outError)
     return true;
 }
 
-std::string SplineGeometry::GetInputDescription(unsigned int index) const
+std::string BezierCurve::GetInputDescription(unsigned int index) const
 {
     switch (index)
     {
@@ -122,7 +122,7 @@ std::string SplineGeometry::GetInputDescription(unsigned int index) const
     }
 }
 
-std::vector<DataLine> SplineGeometry::MakeVector(DataLine sp, DataLine ep, DataLine ss, DataLine es, DataLine norm, DataLine thick)
+std::vector<DataLine> BezierCurve::MakeVector(DataLine sp, DataLine ep, DataLine ss, DataLine es, DataLine norm, DataLine thick)
 {
     std::vector<DataLine> ret;
     ret.insert(ret.end(), sp);
