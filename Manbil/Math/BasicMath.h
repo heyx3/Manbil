@@ -73,7 +73,7 @@ public:
         return (T(0) < val) - (val < T(0));
     }
 
-    static int Abs(int i) { return (i < 0) ? -i : i; }
+    static unsigned int Abs(int i) { return (unsigned int)((i < 0) ? -i : i); }
     static float Abs(float f) { int f2 = (int&)f & 0x7FFFFFFF; return (float&)f2; }
 
     static float Round(float v, int decimals)

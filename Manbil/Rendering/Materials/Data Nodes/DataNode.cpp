@@ -1,7 +1,20 @@
 #include "DataNode.h"
 
+#include "../../../Math/FastRand.h"
+#include <time.h>
 
-unsigned int DataNode::lastID = 0;
+
+unsigned int GetDataNodeLastID(void)
+{
+    time_t now;
+    time(&now);
+
+    //'now' is type 'long', so just grab the first half of it and interpret that. 
+    unsigned int hash = *(unsigned int*)(&now);
+
+    return BasicMath::Abs(FastRand((int)hash).GetRandInt());
+}
+unsigned int DataNode::lastID = GetDataNodeLastID();
 
 int DataNode::EXCEPTION_ASSERT_FAILED = 1352;
 
@@ -336,29 +349,6 @@ bool DataNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) cons
                " and the output index should be at most " + std::to_string(GetNumbOutputs() - 1));
     return true;
 }
-
-/*
-DataNode& DataNode::operator=(DataNode & cpy)
-{
-    errorMsg = cpy.errorMsg;
-    inputs = cpy.inputs;
-    name = cpy.name;
-    typeName = cpy.typeName;
-
-    cpy.name = "node" + ToString(GenerateUniqueID());
-
-    return *this;
-}
-DataNode::DataNode(DataNode & cpy)
-{
-    errorMsg = cpy.errorMsg;
-    inputs = cpy.inputs;
-    name = cpy.name;
-    typeName = cpy.typeName;
-
-    cpy.name = "node" + ToString(GenerateUniqueID());
-}
-*/
 
 std::vector<DataLine> DataNode::MakeVector(const DataLine & dat)
 {
