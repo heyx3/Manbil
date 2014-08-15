@@ -6,6 +6,7 @@
 #include "../Vertices.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Rendering/Helper Classes/BezierCurve.h"
 
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
@@ -33,7 +34,7 @@ namespace GUITESTWORLD_NAMESPACE
 using namespace GUITESTWORLD_NAMESPACE;
 
 
-Vector2i GUITestWorld::WindowSize = Vector2i(600, 600);
+Vector2i GUITestWorld::WindowSize = Vector2i(1024, 1024);
 std::string textSamplerName = "u_textSampler";
 
 
@@ -129,11 +130,11 @@ void GUITestWorld::InitializeWorld(void)
     //Scale the window size according to the text dimensions.
     if (textSize.x > textSize.y)
     {
-        WindowSize.y = (int)(WindowSize.x * (float)textSize.y / (float)textSize.x);
+        //WindowSize.y = (int)(WindowSize.x * (float)textSize.y / (float)textSize.x);
     }
     else
     {
-        WindowSize.x = (int)(WindowSize.y * (float)textSize.x / (float)textSize.y);
+        //WindowSize.x = (int)(WindowSize.y * (float)textSize.x / (float)textSize.y);
     }
 
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
@@ -165,6 +166,45 @@ void GUITestWorld::InitializeWorld(void)
     quadMat = genMat.Mat;
 
 
+    //Generate the curve.
+    std::vector<BezierCurve::BezierVertex> bezVerts;
+    BezierCurve::GenerateSplineVertices(bezVerts, 100);
+    RenderObjHandle vbo;
+    RenderDataHandler::CreateVertexBuffer(vbo, bezVerts.data(), bezVerts.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+    curveMesh.SetVertexIndexData(VertexIndexData(bezVerts.size(), vbo));
+
+    //Generate the curve material.
+
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = BezierCurve::BezierVertex::GetAttributeData();
+
+    DNP startSlopeParam(new ParamNode(3, "u_startSlope", "startSlopeParam")),
+        endSlopeParam(new ParamNode(3, "u_endSlope", "endSlopeParam"));
+    DNP curvePositioning(new BezierCurve(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, 0.5f, 0.0f),
+                                         startSlopeParam, endSlopeParam, Vector3f(0.0f, 0.0f, 1.0f),
+                                         0.01f, 0, "myCurve"));
+    DNP curveOutPos(new CombineVectorNode(curvePositioning, 1.0f, "curveOutPos"));
+    DataNode::MaterialOuts.VertexPosOutput = curveOutPos;
+
+    DNP curveLerpPtr(new VectorComponentsNode(DataLine(VertexInputNode::GetInstance(), 0), "splitLineLerp"));
+    DataLine curveXLerp(curveLerpPtr, 0),
+             curveYLerp(curveLerpPtr, 1);
+    DNP remapCurveXLerp(new RemapNode(curveXLerp, 0.0f, 1.0f, -0.25f, 0.25f, "remapXCurve")),
+        remapCurveYLerp(new RemapNode(curveYLerp, -1.0f, 1.0f, -0.025f, 0.025f, "remapYCurve"));
+    DNP curveOutPosDebug(new CombineVectorNode(remapCurveXLerp, remapCurveYLerp, 0.0f, 1.0f, "debugCurvePosOut"));
+    //DataNode::MaterialOuts.VertexPosOutput = curveOutPosDebug;
+    
+    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
+                                                  ShaderOutput("fOut_curveCol", Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+
+    genMat = ShaderGenerator::GenerateMaterial(curveParams, RenderingModes::RM_Opaque);
+    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating curve material", genMat.ErrorMessage))
+        return;
+    curveMat = genMat.Mat;
+    curveParams.FloatUniforms["u_startSlope"].SetValue(curveStartSlope);
+    curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
+
+
     //Load the font.
     err = LoadFont(TextRender, "Content/Fonts/Candara.ttf", 25);
     if (!ReactToError(err.empty(), "Error loading 'Content/Fonts/Candara.ttf'", err))
@@ -175,11 +215,19 @@ void GUITestWorld::InitializeWorld(void)
     if (!ReactToError(err.empty(), "Error rendering the text: ", err))
         return;
     quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID)->GetTextureHandle();
+
+    glViewport(0, 0, WindowSize.x, WindowSize.y);
+
+    //Size the quad to be the size of the string.
+    Vector2i tScale = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID, 0));
+    quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y) * 0.0025f);
+    quad->SetPos(Vector2f(500.0f, 500.0f));
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {
     DeleteAndSetToNull(quad);
     DeleteAndSetToNull(quadMat);
+    DeleteAndSetToNull(curveMat);
 
     if (destroyStatics) DestroyStaticSystems(false, true, true);
 }
@@ -189,26 +237,51 @@ void GUITestWorld::UpdateWorld(float elapsed)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         EndWorld();
+
+    sf::Vector2i mPos = sf::Mouse::getPosition();
+    sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
+    mPosFinal.y = WindowSize.y - mPosFinal.y;
+    Vector3f slopePosVal(BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.x / (float)WindowSize.x),
+                         BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.y / (float)WindowSize.y),
+                         0.0f);
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        curveStartSlope = slopePosVal;
+        curveParams.FloatUniforms["u_startSlope"].SetValue(curveStartSlope);
+    }
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    {
+        curveEndSlope = slopePosVal;
+        curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
+    }
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
     ScreenClearer().ClearScreen();
-    RenderingState(false, false, RenderingState::C_NONE).EnableState();
+    RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
+                   false, false).EnableState();
 
     //Set up the "render info" struct.
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-    cam.MinOrthoBounds = Vector3f(-1.0f, -1.0f, -1.0f);
-    cam.MaxOrthoBounds = Vector3f(1.0f, 1.0f, 1.0f);
+    cam.MinOrthoBounds = Vector3f(0.0f, 0.0f, -10.0f);
+    cam.MaxOrthoBounds = Vector3f((float)WindowSize.x, (float)WindowSize.y, 10.0f);
     cam.Info.Width = WindowSize.x;
     cam.Info.Height = WindowSize.y;
     Matrix4f worldM, viewM, projM;
-    quad->GetMesh().Transform.GetWorldTransform(worldM);
+    TransformObject trns;
+    trns.GetWorldTransform(worldM);
     cam.GetViewTransform(viewM);
     cam.GetOrthoProjection(projM);
-    RenderInfo info(this, &cam, &quad->GetMesh().Transform, &worldM, &viewM, &projM);
+    RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
 
     //Render the quad.
     if (!ReactToError(quad->Render(info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
+        return;
+    //Render the curve.
+    std::vector<const Mesh*> toRender;
+    toRender.insert(toRender.end(), &curveMesh);
+    if (!ReactToError(curveMat->Render(info, toRender, curveParams), "Error rendering curve", curveMat->GetErrorMsg()))
         return;
 }

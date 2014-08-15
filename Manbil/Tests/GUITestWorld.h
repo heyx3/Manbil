@@ -12,7 +12,8 @@ public:
 
     GUITestWorld(void)
         : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
-          quad(0), quadMat(0)
+        quad(0), quadMat(0), curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
+        curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f)
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -41,4 +42,9 @@ private:
     DrawingQuad * quad;
     UniformDictionary quadParams;
     Material * quadMat;
+
+    Mesh curveMesh;
+    Material * curveMat;
+    UniformDictionary curveParams;
+    Vector3f curveStartSlope, curveEndSlope;
 };
