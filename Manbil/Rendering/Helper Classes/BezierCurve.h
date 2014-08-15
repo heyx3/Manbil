@@ -3,6 +3,8 @@
 #include "../Materials/Data Nodes/DataNode.h"
 
 
+//TODO: Add similar "SplineCurve" and "SmoothedCurve" (i.e. smoothstep/supersmoothstep) classes.
+
 //Generates and positions a Bezier curve. Vertices are generated with "BezierVertex".
 //This class is a DataNode and uses the "LinePosLerp" vertex input
 //   as well as four vec3 uniforms that describe the spline.
@@ -13,6 +15,16 @@
 class BezierCurve : public DataNode
 {
 public:
+
+    struct BezierPointData { public: Vector3f Pos, Perp; };
+    //Calculates the positions and perpendicular vectors for all the given t values.
+    static void CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
+                                Vector3f norm, const std::vector<float> & tValues,
+                                std::vector<BezierPointData> & outData);
+    //Calculates the positions for all the given t values.
+    static void CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
+                                const std::vector<float> & tValues, std::vector<Vector3f> & outData);
+
 
     //The vertex used for Bezier curves.
     struct BezierVertex

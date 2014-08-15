@@ -7,6 +7,49 @@
 MAKE_NODE_READABLE_CPP(BezierCurve, Vector3f(), Vector3f(), Vector3f(), Vector3f(), Vector3f(), 1.0f);
 
 
+//TODO: Thread these two functions.
+void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
+                                  Vector3f norm, const std::vector<float> & tValues,
+                                  std::vector<BezierPointData> & outData)
+{
+    Vector3f ss_sp = startSlope - startP,
+             es_ss = endSlope - startSlope,
+             ep_es = endP - endSlope;
+
+    outData.resize(tValues.size());
+    for (unsigned int i = 0; i < tValues.size(); ++i)
+    {
+        float t = tValues[i],
+              tSqr = t * t,
+              oneMinusT = 1.0f - t,
+              oneMinusTSqr = oneMinusT * oneMinusT;
+        outData[i].Pos = (startP * (oneMinusTSqr * oneMinusT)) +
+                         (startSlope * (3.0f * oneMinusTSqr * t)) +
+                         (endSlope * (3.0f * oneMinusT * tSqr)) +
+                         (endP * (tSqr * t));
+        Vector3f toNext = (ss_sp * (3.0f * oneMinusTSqr)) +
+                          (es_ss * (6.0f * oneMinusT * t)) +
+                          (ep_es * (3.0f * tSqr));
+        outData[i].Perp = norm.Cross(toNext.Normalized());
+    }
+}
+void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
+                                  const std::vector<float> & tValues, std::vector<Vector3f> & outData)
+{
+    outData.resize(tValues.size());
+    for (unsigned int i = 0; i < tValues.size(); ++i)
+    {
+        float t = tValues[i],
+              tSqr = t * t,
+              oneMinusT = 1.0f - t,
+              oneMinusTSqr = oneMinusT * oneMinusT;
+        outData[i] = (startP * (oneMinusTSqr * oneMinusT)) +
+                     (startSlope * (3.0f * oneMinusTSqr * t)) +
+                     (endSlope * (3.0f * oneMinusT * tSqr)) +
+                     (endP * (tSqr * t));
+    }
+}
+
 
 void BezierCurve::GenerateSplineVertices(std::vector<BezierVertex> & outVerts, unsigned int lineSegments)
 {
@@ -38,7 +81,7 @@ void BezierCurve::AssertMyInputsValid(void) const
 void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
 {
     std::string decl;
-    const std::string structDecl = "struct SplinePos { vec3 Point, Perp; };";
+    const std::string structDecl = "struct SplinePos { vec3 Pos, Perp; };\n";
 
     bool foundDecl = false;
     for (unsigned int i = 0; i < outDecls.size(); ++i)
@@ -53,10 +96,11 @@ void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls)
     {
         decl += structDecl;
     }
-    outDecls.insert(outDecls.end(), std::string() +
+    outDecls.insert(outDecls.end(), decl +
 "SplinePos " + GetName() + "_interpSpline(vec3 sp, vec3 ep, vec3 ss, vec3 es, vec3 norm, float t) \n\
 {                                                                                                 \n\
     SplinePos ret;                                                                                \n\
+                                                                                                  \n\
     float oneMinusT = 1.0f - t;                                                                   \n\
     float oneMinusTSqr = oneMinusT * oneMinusT;                                                   \n\
     float tSqr = t * t;                                                                           \n\
@@ -66,6 +110,7 @@ void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls)
     vec3 toNext = (3.0f * oneMinusTSqr * (ss - sp)) + (6.0f * oneMinusT * t * (es - ss)) +        \n\
                   (3.0f * tSqr * (ep - es));                                                      \n\
     ret.Perp = cross(normalize(toNext), norm);                                                    \n\
+                                                                                                  \n\
     return ret;                                                                                   \n\
 }\n\n");
 }
@@ -76,12 +121,14 @@ void BezierCurve::WriteMyOutputs(std::string & outCode) const
                ToString(CurrentShader) + "'!");
     std::string temp = GetName() + "_splinePos";
     outCode += "SplinePos " + temp + " = " + GetName() + "_interpSpline(" +
-                    GetInput_StartPos().GetValue() + ", " + GetInput_EndPos().GetValue() + ", " +
-                    GetInput_StartSlope().GetValue() + ", " + GetInput_EndSlope().GetValue() + ", " +
+                    GetInput_StartPos().GetValue() + ", " + GetInput_EndPos().GetValue() + ",\n\t\t" +
+                    GetInput_StartSlope().GetValue() + ", " + GetInput_EndSlope().GetValue() + ",\n\t\t" +
                     GetInput_LineSurfaceNormal().GetValue() + ", " +
-                    VertexIns.GetAttributeName(LinePosLerpIndex) + ");\n";
+                    VertexIns.GetAttributeName(LinePosLerpIndex) + ".x);\n";
     outCode += "\tvec3 " + GetOutputName(1) + " = " + temp + ".Pos;\n";
-    outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos + (" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + ");\n";
+    outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos + " +
+                  "(" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + " * " +
+                        VertexIns.GetAttributeName(LinePosLerpIndex) + ".y);\n";
 }
 
 bool BezierCurve::WriteExtraData(DataWriter * writer, std::string & outError) const
