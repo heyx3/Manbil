@@ -420,8 +420,11 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISelectionBox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Helper Classes\BezierCurve.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
+    <ClCompile Include="Rendering\Curves\CurveVertex.cpp">
+      <Filter>Rendering\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Curves\BezierCurve.cpp">
+      <Filter>Rendering\Curves</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -928,8 +931,11 @@
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISelectionBox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Helper Classes\BezierCurve.h">
-      <Filter>Rendering\Helper Classes</Filter>
+    <ClInclude Include="Rendering\Curves\CurveVertex.h">
+      <Filter>Rendering\Curves</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Curves\BezierCurve.h">
+      <Filter>Rendering\Curves</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1046,6 +1052,9 @@
     </Filter>
     <Filter Include="Rendering\GUI\GUI Elements">
       <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Curves">
+      <UniqueIdentifier>{f6d23fde-1015-4a05-b06d-5b44392a923e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

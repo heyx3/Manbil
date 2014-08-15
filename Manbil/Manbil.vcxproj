@@ -136,6 +136,8 @@
     <ClCompile Include="OpenGLIncludes.cpp" />
     <ClCompile Include="OpenGLTestWorld.cpp" />
     <ClCompile Include="RenderingState.cpp" />
+    <ClCompile Include="Rendering\Curves\BezierCurve.cpp" />
+    <ClCompile Include="Rendering\Curves\CurveVertex.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleGenerator.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.cpp" />
@@ -151,7 +153,6 @@
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
-    <ClCompile Include="Rendering\Helper Classes\BezierCurve.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp" />
@@ -301,6 +302,8 @@
     <ClInclude Include="OpenGLIncludes.h" />
     <ClInclude Include="OpenGLTestWorld.h" />
     <ClInclude Include="RenderingState.h" />
+    <ClInclude Include="Rendering\Curves\BezierCurve.h" />
+    <ClInclude Include="Rendering\Curves\CurveVertex.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleDefines.h" />
     <ClInclude Include="Rendering\GPU Particles\GPUParticleGenerator.h" />
     <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.h" />
@@ -316,7 +319,6 @@
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />
-    <ClInclude Include="Rendering\Helper Classes\BezierCurve.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />

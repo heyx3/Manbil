@@ -6,7 +6,7 @@
 #include "../Vertices.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
-#include "../Rendering/Helper Classes/BezierCurve.h"
+#include "../Rendering/Curves/BezierCurve.h"
 
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
@@ -167,8 +167,8 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Generate the curve.
-    std::vector<BezierCurve::BezierVertex> bezVerts;
-    BezierCurve::GenerateSplineVertices(bezVerts, 100);
+    std::vector<CurveVertex> bezVerts;
+    CurveVertex::GenerateVertices(bezVerts, 100);
     RenderObjHandle vbo;
     RenderDataHandler::CreateVertexBuffer(vbo, bezVerts.data(), bezVerts.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     curveMesh.SetVertexIndexData(VertexIndexData(bezVerts.size(), vbo));
@@ -176,7 +176,7 @@ void GUITestWorld::InitializeWorld(void)
     //Generate the curve material.
 
     DataNode::ClearMaterialData();
-    DataNode::VertexIns = BezierCurve::BezierVertex::GetAttributeData();
+    DataNode::VertexIns = CurveVertex::GetAttributeData();
 
     DNP startSlopeParam(new ParamNode(3, "u_startSlope", "startSlopeParam")),
         endSlopeParam(new ParamNode(3, "u_endSlope", "endSlopeParam"));

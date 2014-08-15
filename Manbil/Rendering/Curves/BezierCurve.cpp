@@ -50,20 +50,6 @@ void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f start
     }
 }
 
-
-void BezierCurve::GenerateSplineVertices(std::vector<BezierVertex> & outVerts, unsigned int lineSegments)
-{
-    assert(lineSegments > 1);
-
-    float increment = 1.0f / (float)(lineSegments - 1);
-    for (unsigned int seg = 0; seg < lineSegments; ++seg)
-    {
-        float x = (float)seg * increment;
-        outVerts.insert(outVerts.end(), BezierVertex(Vector2f(x, -1.0f)));
-        outVerts.insert(outVerts.end(), BezierVertex(Vector2f(x, 1.0f)));
-    }
-}
-
 std::string BezierCurve::GetOutputName(unsigned int index) const
 {
     return GetName() + "_" + (index == 0 ? "vertPos" : "linePos");
