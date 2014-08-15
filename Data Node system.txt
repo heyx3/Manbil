@@ -1,7 +1,0 @@
-Each material has many different channels (diffuse, normal, specular, object-space vertex offset, etc.). Depending on the rendering mode and lighting settings, certain channels will not be used.
-
-Define a "Vector" as a collection of anywhere from 1-4 floats.
-
-Each channel takes in a Vector of certain size (e.x. diffuse takes a Vector size 3 for color, specular takes a Vector size 1 for specular value, etc.)
-
-A DataNode is an object that has a certain number of Vector inputs (called "data lines") and a certain number of Vector outputs. Each data line can be either a constant value or an output of another DataNode. Cyclical node connections will not result in an infinite loop, but will obviously result in a shader compile error.
