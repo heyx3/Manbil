@@ -127,18 +127,6 @@ void GUITestWorld::InitializeWorld(void)
     //Create the drawing quad.
     quad = new DrawingQuad();
 
-    //Scale the window size according to the text dimensions.
-    if (textSize.x > textSize.y)
-    {
-        //WindowSize.y = (int)(WindowSize.x * (float)textSize.y / (float)textSize.x);
-    }
-    else
-    {
-        //WindowSize.x = (int)(WindowSize.y * (float)textSize.x / (float)textSize.y);
-    }
-
-    GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
-
 
     //Create the quad rendering material.
 
@@ -146,9 +134,8 @@ void GUITestWorld::InitializeWorld(void)
     DataNode::ClearMaterialData();
     DataNode::VertexIns = DrawingQuad::GetAttributeData();
 
-    DNP objPosToWorld = SpaceConverterNode::ObjPosToWorldPos(VertexInputNode::GetInstance(), "objPosToWorld");
-    DNP objPosToWorldHomg(new CombineVectorNode(objPosToWorld, 1.0f));
-    DataNode::MaterialOuts.VertexPosOutput = objPosToWorldHomg;
+    DNP objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(VertexInputNode::GetInstance(), "objPosToScreen");
+    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
 
     DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
                                                 ShaderOutput("vOut_UV",
@@ -182,7 +169,7 @@ void GUITestWorld::InitializeWorld(void)
         endSlopeParam(new ParamNode(3, "u_endSlope", "endSlopeParam"));
     DNP curvePositioning(new BezierCurve(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, 0.5f, 0.0f),
                                          startSlopeParam, endSlopeParam, Vector3f(0.0f, 0.0f, 1.0f),
-                                         0.01f, 0, "myCurve"));
+                                         0.005f, 0, "myCurve"));
     DNP curveOutPos(new CombineVectorNode(curvePositioning, 1.0f, "curveOutPos"));
     DataNode::MaterialOuts.VertexPosOutput = curveOutPos;
     
@@ -208,12 +195,16 @@ void GUITestWorld::InitializeWorld(void)
         return;
     quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID)->GetTextureHandle();
 
+
+    GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
     glViewport(0, 0, WindowSize.x, WindowSize.y);
+
 
     //Size the quad to be the size of the string.
     Vector2i tScale = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID, 0));
-    quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y) * 0.0025f);
-    quad->SetPos(Vector2f(500.0f, 500.0f));
+    quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y));
+    quad->SetPos(Vector2f(-500.0f, 500.0f));
+    quad->SetOrigin(Vector2f());
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {
@@ -229,6 +220,18 @@ void GUITestWorld::UpdateWorld(float elapsed)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         EndWorld();
+
+    const float speed = 150.0f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        quad->IncrementPos(Vector2f(-speed, 0.0f) * elapsed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        quad->IncrementPos(Vector2f(speed, 0.0f) * elapsed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        quad->IncrementPos(Vector2f(0.0f, speed) * elapsed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        quad->IncrementPos(Vector2f(0.0f, -speed) * elapsed);
+
+    std::cout << "X: " << quad->GetPos().x << "; Y: " << quad->GetPos().y << "\n";
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
@@ -269,8 +272,15 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
 
     //Render the quad.
+    Vector2f oldQuadPos = quad->GetPos();
+    Vector2i textSize = TextRender->GetSlotBoundingSize(TextRenderer::FontSlot(textRendererID)),
+             textRenderSize = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID));
+    Vector2f delta = (ToV2f(textSize) - ToV2f(textRenderSize)) * 1.0f;
+    quad->IncrementPos(delta + (ToV2f(textSize) * 0.5f));
     if (!ReactToError(quad->Render(info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
         return;
+    quad->IncrementPos(-delta - (ToV2f(textSize) * 0.5f));
+
     //Render the curve.
     std::vector<const Mesh*> toRender;
     toRender.insert(toRender.end(), &curveMesh);
