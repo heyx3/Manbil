@@ -150,6 +150,7 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISlider.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUITexture.cpp" />
     <ClCompile Include="Rendering\GUI\GUIElement.cpp" />
+    <ClCompile Include="Rendering\GUI\GUIManager.cpp" />
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp" />
@@ -316,6 +317,7 @@
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISlider.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUITexture.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
+    <ClInclude Include="Rendering\GUI\GUIManager.h" />
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h" />

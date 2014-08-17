@@ -426,6 +426,9 @@
     <ClCompile Include="Rendering\Curves\BezierCurve.cpp">
       <Filter>Rendering\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUIManager.cpp">
+      <Filter>Rendering\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -936,6 +939,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Curves\BezierCurve.h">
       <Filter>Rendering\Curves</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUIManager.h">
+      <Filter>Rendering\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
