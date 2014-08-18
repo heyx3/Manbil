@@ -8,6 +8,11 @@
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/Curves/BezierCurve.h"
 
+#include "../Rendering/GUI/GUI Elements/GUILabel.h"
+#include "../Rendering/GUI/GUI Elements/GUITexture.h"
+#include "../Rendering/GUI/GUI Elements/GUISlider.h"
+#include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
+
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
 
@@ -196,15 +201,53 @@ void GUITestWorld::InitializeWorld(void)
     quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID)->GetTextureHandle();
 
 
-    GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
-    glViewport(0, 0, WindowSize.x, WindowSize.y);
-
-
     //Size the quad to be the size of the string.
     Vector2i tScale = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID, 0));
     quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y));
-    quad->SetPos(Vector2f(-500.0f, 500.0f));
+    quad->SetPos(Vector2f(0.0f, 0.0f));
     quad->SetOrigin(Vector2f());
+
+
+    //Set up the GUI material.
+    UniformDictionary guiElParams;
+    genMat = GUIMaterials::GenerateStaticQuadDrawMaterial(guiElParams);
+    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating gui element material", genMat.ErrorMessage))
+        return;
+    guiMat = genMat.Mat;
+
+
+    //Set up the GUI elements.
+    guiManager.GetRoot().SetPosition(Vector2i());
+    guiManager.GetRoot().SetScale(Vector2f(500.0f, 500.0f));
+
+    unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
+    if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 512, 64, false,
+                                                        TextureSampleSettings2D(FT_LINEAR, FT_LINEAR,
+                                                                                WT_CLAMP, WT_CLAMP)),
+                      "Error creating text render slot for GUI label", TextRender->GetError()))
+    {
+        return;
+    }
+    if (!ReactToError(TextRender->RenderString(TextRenderer::FontSlot(textRendererID, 1), "TestGUI"), "Error rendering gui string", TextRender->GetError()))
+    {
+        return;
+    }
+    guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat));
+    guiLabel->Params = guiElParams;
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
+
+    guiTexData.Create();
+    Array2D<Vector4f> guiTexCols(128, 128);
+    guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
+    guiTexData.SetColorData(guiTexCols);
+    guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
+    guiTex->Params = guiElParams;
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiTex);
+
+
+    //Set up the back buffer.
+    glViewport(0, 0, WindowSize.x, WindowSize.y);
+    GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {
@@ -223,19 +266,22 @@ void GUITestWorld::UpdateWorld(float elapsed)
 
     const float speed = 150.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        quad->IncrementPos(Vector2f(-speed, 0.0f) * elapsed);
+        guiManager.GetRoot().MoveElement(Vector2i(-(int)(speed * elapsed), 0));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        quad->IncrementPos(Vector2f(speed, 0.0f) * elapsed);
+        guiManager.GetRoot().MoveElement(Vector2i((int)(speed * elapsed), 0));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        quad->IncrementPos(Vector2f(0.0f, speed) * elapsed);
+        guiManager.GetRoot().MoveElement(Vector2i(0.0f, (int)(speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        quad->IncrementPos(Vector2f(0.0f, -speed) * elapsed);
+        guiManager.GetRoot().MoveElement(Vector2i(0.0f, -(int)(speed * elapsed)));
 
-    std::cout << "X: " << quad->GetPos().x << "; Y: " << quad->GetPos().y << "\n";
+    std::cout << "X: " << guiManager.GetRoot().GetCollisionCenter().x << "; Y: " << guiManager.GetRoot().GetCollisionCenter().y << "\n";
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
     mPosFinal.y = WindowSize.y - mPosFinal.y;
+
+    guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
+
     Vector3f slopePosVal(BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.x / (float)WindowSize.x),
                          BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.y / (float)WindowSize.y),
                          0.0f);
@@ -275,15 +321,20 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     Vector2f oldQuadPos = quad->GetPos();
     Vector2i textSize = TextRender->GetSlotBoundingSize(TextRenderer::FontSlot(textRendererID)),
              textRenderSize = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID));
-    Vector2f delta = (ToV2f(textSize) - ToV2f(textRenderSize)) * 1.0f;
-    quad->IncrementPos(delta + (ToV2f(textSize) * 0.5f));
+    Vector2f delta = (ToV2f(textSize) - ToV2f(textRenderSize)) * 0.5f;
+    quad->IncrementPos(delta);
     if (!ReactToError(quad->Render(info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
         return;
-    quad->IncrementPos(-delta - (ToV2f(textSize) * 0.5f));
+    quad->IncrementPos(-delta);
 
     //Render the curve.
     std::vector<const Mesh*> toRender;
     toRender.insert(toRender.end(), &curveMesh);
     if (!ReactToError(curveMat->Render(info, toRender, curveParams), "Error rendering curve", curveMat->GetErrorMsg()))
+        return;
+
+    //Render the GUI.
+    std::string err = guiManager.Render(elapsed, info);
+    if (!ReactToError(err.empty(), "Error rendering GUI", err))
         return;
 }

@@ -2,6 +2,7 @@
 
 #include "../SFMLOpenGLWorld.h"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
+#include "../Rendering/GUI/GUIManager.h"
 
 
 class GUITestWorld : public SFMLOpenGLWorld
@@ -13,7 +14,8 @@ public:
     GUITestWorld(void)
         : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
         quad(0), quadMat(0), curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
-        curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f)
+        curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
+        guiMat(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false)
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -42,6 +44,11 @@ private:
     DrawingQuad * quad;
     UniformDictionary quadParams;
     Material * quadMat;
+
+    GUIElement::Ptr guiLabel, guiTex;
+    MTexture2D guiTexData;
+    Material * guiMat;
+    GUIManager guiManager;
 
     Mesh curveMesh;
     Material * curveMat;
