@@ -231,9 +231,10 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigne
     if (!TryFindSlotCollection(slot.FontID, loc)) return false;
     Slot * slotP;
     if (!TryFindSlot(slot.SlotIndex, fonts[slot.FontID], slotP)) return false;
-
+   
     //Render into the slot.
-    if (RenderString(textToRender, slot.FontID, RTManager[slotP->RenderTargetID], backBufferWidth, backBufferHeight))
+    if (RenderString(textToRender, slot.FontID, RTManager[slotP->RenderTargetID],
+                     slotP->TextWidth, slotP->TextHeight, backBufferWidth, backBufferHeight))
     {
         slotP->String = textToRender.c_str();
         return true;
@@ -241,7 +242,9 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigne
 
     return false;
 }
-bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, RenderTarget * targ, unsigned int bbWidth, unsigned int bbHeight)
+bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, RenderTarget * targ,
+                                unsigned int & outTextWidth, unsigned int & outTextHeight,
+                                unsigned int bbWidth, unsigned int bbHeight)
 {
     //Get texture/render target.
     if (targ == 0) { errorMsg = "Associated render target did not exist!"; return false; }
@@ -257,6 +260,8 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
 
 
     //Render each character into the texture, then into the final render target.
+    outTextWidth = 0;
+    outTextHeight = 0;
     Vector2f pos = Vector2f(-1.0f, 1.0f);
     Vector2i size = Vector2i(), offset = Vector2i(), movement = Vector2i();
     Vector2f scaledSize = Vector2f(), scaledOffset = Vector2f(), scaledMovement = Vector2f();
@@ -281,6 +286,9 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         scaledOffset = ToV2f(offset).ComponentProduct(invRendTargSize);
         movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(fontID);
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
+
+        outTextWidth += size.x + movement.x;
+        outTextHeight = BasicMath::Max(size.y, (int)outTextHeight);
 
 
         //If the character is empty (i.e. a space), don't bother rendering it.

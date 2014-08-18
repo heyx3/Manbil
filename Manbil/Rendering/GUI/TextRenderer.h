@@ -114,6 +114,7 @@ private:
 
     //Renders the given string into the given render target, using the given font.
     bool RenderString(std::string string, unsigned int fontID, RenderTarget * finalRender,
+                      unsigned int & outTextWidth, unsigned int & outTextHeight,
                       unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
 
 
