@@ -31,6 +31,7 @@ public:
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { BarScale.MultiplyComponents(scaleAmount); NubScale.MultiplyComponents(scaleAmount); }
+    virtual void SetScale(Vector2f newScale) override { Vector2f delta(newScale.x / BarScale.x, newScale.y / BarScale.y); BarScale = newScale; NubScale.MultiplyComponents(delta); }
 
 
     GUISlider(MTexture2D* bar, MTexture2D* nub,

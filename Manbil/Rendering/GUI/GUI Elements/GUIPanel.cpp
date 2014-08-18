@@ -13,6 +13,12 @@ void GUIPanel::ScaleBy(Vector2f scaleAmount)
         Elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount).CastToInt());
     }
 }
+void GUIPanel::SetScale(Vector2f newScale)
+{
+    Vector2f dims = ToV2f(GetCollisionDimensions());
+    Vector2f delta(newScale.x / dims.x, newScale.y / dims.y);
+    ScaleBy(delta);
+}
 
 void GUIPanel::CustomUpdate(float elapsed, Vector2i relativeMousePos)
 {

@@ -62,6 +62,7 @@ public:
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
+    virtual void SetScale(Vector2f newScale) override;
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 

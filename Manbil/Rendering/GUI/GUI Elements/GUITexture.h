@@ -31,6 +31,7 @@ public:
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
+    virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
 
 
     GUITexture(MTexture2D * tex = 0, Material * mat = 0,

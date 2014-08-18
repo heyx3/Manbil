@@ -4,6 +4,7 @@
 
 
 //Contains a collection of GUI panels.
+//TODO: Should probably use Vector2f instead of Vector2i for more precision in positioning.
 class GUIPanel : public GUIElement
 {
 public:
@@ -22,6 +23,7 @@ public:
     virtual void SetPosition(Vector2i newPos) override { pos = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
+    virtual void SetScale(Vector2f newScale) override;
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;

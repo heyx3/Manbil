@@ -43,6 +43,7 @@ public:
     virtual void SetPosition(Vector2i newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
+    virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
 
     
     //Starts out with no text (an empty string).

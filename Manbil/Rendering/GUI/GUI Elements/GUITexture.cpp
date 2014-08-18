@@ -21,8 +21,8 @@ std::string GUITexture::Render(float elapsed, const RenderInfo & info)
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Tex->GetTextureHandle();
 
     return (GetQuad()->Render(info, Params, *Mat) ?
-                "Error rendering GUITexture: " + Mat->GetErrorMsg() :
-                "");
+                "" :
+                "Error rendering GUITexture: " + Mat->GetErrorMsg());
 }
 
 void GUITexture::OnMouseClick(Vector2i mousePos)

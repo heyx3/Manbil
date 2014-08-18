@@ -22,9 +22,9 @@ void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, Vector2f scale
     pos.MultiplyComponents(Vector2f(invWidth, invHeight));
     scale.MultiplyComponents(Vector2f(invWidth, invHeight));
 
-    quad->SetPos(pos);
-    quad->SetSize(scale * 0.5f);
-    quad->SetRotation(rot);
+    GetQuad()->SetPos(pos);
+    GetQuad()->SetSize(scale * 0.5f);
+    GetQuad()->SetRotation(rot);
 }
 
 void GUIElement::Update(float elapsed, Vector2i relativeMouse)

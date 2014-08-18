@@ -69,6 +69,11 @@ void GUISelectionBox::ScaleBy(Vector2f scaleAmount)
         itemElements[i].ScaleBy(scaleAmount);
     }
 }
+void GUISelectionBox::SetScale(Vector2f newScale)
+{
+    Vector2f delta(newScale.x / scale.x, newScale.y / scale.y);
+    ScaleBy(delta);
+}
 
 std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 {

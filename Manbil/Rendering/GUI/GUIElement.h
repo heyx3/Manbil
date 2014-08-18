@@ -42,6 +42,8 @@ public:
 
     //Scales this element by the given amount (may be approximate).
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
+    //Sets this element's scale to the given amount (may be approximate).
+    virtual void SetScale(Vector2f newScale) = 0;
 
 
     //Takes in the mouse position relative to this element's center.
