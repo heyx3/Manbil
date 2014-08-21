@@ -204,7 +204,7 @@ void GUITestWorld::InitializeWorld(void)
     //Size the quad to be the size of the string.
     Vector2i tScale = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID, 0));
     quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y));
-    quad->SetPos(Vector2f(0.0f, 0.0f));
+    quad->SetPos(Vector2f(50.0f, 50.0f));
     quad->SetOrigin(Vector2f());
 
 
@@ -220,7 +220,6 @@ void GUITestWorld::InitializeWorld(void)
     guiManager.GetRoot().SetPosition(Vector2i());
     guiManager.GetRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
 
-    /*
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 512, 64, false,
                                                         TextureSampleSettings2D(FT_LINEAR, FT_LINEAR,
@@ -233,19 +232,25 @@ void GUITestWorld::InitializeWorld(void)
     {
         return;
     }
-    guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat));
+    guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
+                                            GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM));
     guiLabel->Params = guiElParams;
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
-    */
+    guiLabel->SetPosition(Vector2i(WindowSize.x / 2, (WindowSize.y / 2) + 00));
+    guiLabel->SetScale(Vector2f(2.0f, 2.0f));
+    if (!ReactToError(((GUILabel*)guiLabel.get())->SetText("Test"), "Error setting GUI label's text", TextRender->GetError()))
+        return;
 
     guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
     Array2D<Vector4f> guiTexCols(128, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
     guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
-    guiTex->MoveElement(Vector2i(WindowSize.x / 2, WindowSize.y / 2));
+    guiTex->SetPosition(Vector2i(WindowSize.x / 2, WindowSize.y / 2));
+    guiTex->SetScale(Vector2f(0.3f, 0.3f));
     guiTex->Params = guiElParams;
+
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiTex);
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
 
 
     //Set up the back buffer.
