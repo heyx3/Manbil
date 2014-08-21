@@ -31,12 +31,14 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateStaticQuadDrawMaterial(
     DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
                                           QuadDraw_Texture2D, "GUIMat_texSamplerNode"));
     DNP texColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
-    DNP texColored(new MultiplyNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_Red)),
+    DNP texColored(new MultiplyNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
                                     texColor, "GUIMat_finalColor"));
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                   ShaderOutput("fOut_Color4", texColored));
 
-    return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Transluscent);
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Transluscent);
+    params.FloatUniforms[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    return genM;
 }
 
 ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary & params,
@@ -71,5 +73,7 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateDynamicQuadDrawMaterial
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                   ShaderOutput("fOut_Color4", texColored));
 
-    return ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Transluscent);
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(params, RenderingModes::RM_Transluscent);
+    params.FloatUniforms[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    return genM;
 }
