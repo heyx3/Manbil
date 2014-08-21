@@ -218,8 +218,9 @@ void GUITestWorld::InitializeWorld(void)
 
     //Set up the GUI elements.
     guiManager.GetRoot().SetPosition(Vector2i());
-    guiManager.GetRoot().SetScale(Vector2f(500.0f, 500.0f));
+    guiManager.GetRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
 
+    /*
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 512, 64, false,
                                                         TextureSampleSettings2D(FT_LINEAR, FT_LINEAR,
@@ -235,12 +236,14 @@ void GUITestWorld::InitializeWorld(void)
     guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat));
     guiLabel->Params = guiElParams;
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
+    */
 
-    guiTexData.Create();
+    guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
     Array2D<Vector4f> guiTexCols(128, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
     guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
+    guiTex->MoveElement(Vector2i(WindowSize.x / 2, WindowSize.y / 2));
     guiTex->Params = guiElParams;
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiTex);
 
@@ -305,7 +308,7 @@ void GUITestWorld::RenderOpenGL(float elapsed)
                    false, false).EnableState();
 
     //Set up the "render info" struct.
-    Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+    Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
     cam.MinOrthoBounds = Vector3f(0.0f, 0.0f, -10.0f);
     cam.MaxOrthoBounds = Vector3f((float)WindowSize.x, (float)WindowSize.y, 10.0f);
     cam.Info.Width = WindowSize.x;
@@ -332,6 +335,7 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     toRender.insert(toRender.end(), &curveMesh);
     if (!ReactToError(curveMat->Render(info, toRender, curveParams), "Error rendering curve", curveMat->GetErrorMsg()))
         return;
+    
 
     //Render the GUI.
     std::string err = guiManager.Render(elapsed, info);

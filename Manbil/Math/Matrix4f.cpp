@@ -261,7 +261,7 @@ void Matrix4f::SetAsPerspProj(const ProjectionInfo& p)
 }
 void Matrix4f::SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds)
 {
-	float width = -(maxBounds.x - minBounds.x),
+	float width = (maxBounds.x - minBounds.x),
 		  height = (maxBounds.y - minBounds.y),
 		  depth = (maxBounds.z - minBounds.z);
 	
