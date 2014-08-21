@@ -36,7 +36,7 @@ public:
 
     GUITexture(MTexture2D * tex = 0, Material * mat = 0,
                bool isButton = false, float timeLerpSpeed = 1.0f)
-        : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(timeLerpSpeed) { }
+        : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(timeLerpSpeed), Scale(1.0f, 1.0f) { }
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;

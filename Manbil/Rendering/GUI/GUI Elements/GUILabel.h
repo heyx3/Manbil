@@ -50,7 +50,8 @@ public:
     GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material, float timeSpeed = 1.0f,
              HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
-          RenderMat(material), TextRenderSlot(textSlot), text(""), GUIElement(timeSpeed)
+          RenderMat(material), TextRenderSlot(textSlot), text(""), GUIElement(timeSpeed),
+          Scale(1.0f, 1.0f)
     {
 
     }

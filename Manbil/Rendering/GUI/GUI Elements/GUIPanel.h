@@ -13,7 +13,7 @@ public:
     std::vector<Ptr> Elements;
 
 
-    GUIPanel(float timeLerpSpeed) : GUIElement(timeLerpSpeed) { }
+    GUIPanel(Vector2i _extents, float timeLerpSpeed = 1.0f) : extents(_extents), GUIElement(timeLerpSpeed) { }
 
 
     virtual Vector2i GetCollisionCenter(void) const override { return pos; }

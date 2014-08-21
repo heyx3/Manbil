@@ -16,11 +16,11 @@ bool GUIElement::IsLocalInsideBounds(Vector2i pos) const
 
 void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, Vector2f scale, float rot)
 {
-    float invWidth = 1.0f / info.Cam->Info.Width,
-          invHeight = 1.0f / info.Cam->Info.Height;
+    //float invWidth = 1.0f / info.Cam->Info.Width,
+      //    invHeight = 1.0f / info.Cam->Info.Height;
 
-    pos.MultiplyComponents(Vector2f(invWidth, invHeight));
-    scale.MultiplyComponents(Vector2f(invWidth, invHeight));
+//    pos.MultiplyComponents(Vector2f(invWidth, invHeight));
+  //  scale.MultiplyComponents(Vector2f(invWidth, invHeight));
 
     GetQuad()->SetPos(pos);
     GetQuad()->SetSize(scale * 0.5f);
