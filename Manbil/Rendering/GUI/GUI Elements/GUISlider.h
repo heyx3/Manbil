@@ -20,15 +20,15 @@ public:
     //If false, this slider is horizontal.
     bool IsVertical;
 
-    void(*OnValueChanged)(GUISlider * changed, Vector2i localMouse, void* pData) = 0;
+    void(*OnValueChanged)(GUISlider * changed, Vector2f localMouse, void* pData) = 0;
     void *OnValueChanged_pData = 0;
 
 
-    virtual Vector2i GetCollisionCenter(void) const override { return center; }
-    virtual Vector2i GetCollisionDimensions(void) const override;
+    virtual Vector2f GetCollisionCenter(void) const override { return center; }
+    virtual Vector2f GetCollisionDimensions(void) const override;
 
-    virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2i newPos) override { center = newPos; }
+    virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
+    virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { BarScale.MultiplyComponents(scaleAmount); NubScale.MultiplyComponents(scaleAmount); }
     virtual void SetScale(Vector2f newScale) override { Vector2f delta(newScale.x / BarScale.x, newScale.y / BarScale.y); BarScale = newScale; NubScale.MultiplyComponents(delta); }
@@ -47,12 +47,12 @@ public:
     
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
-    virtual void OnMouseClick(Vector2i mouse_centerOffset) override;
-    virtual void OnMouseDrag(Vector2i originalPos_centerOffset,
-                             Vector2i mouse_centerOffset) override;
+    virtual void OnMouseClick(Vector2f mouse_centerOffset) override;
+    virtual void OnMouseDrag(Vector2f originalPos_centerOffset,
+                             Vector2f mouse_centerOffset) override;
 
 
 private:
 
-    Vector2i center;
+    Vector2f center;
 };

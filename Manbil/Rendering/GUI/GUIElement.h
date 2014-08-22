@@ -31,14 +31,14 @@ public:
 
 
     //The center of this element's collision box.
-    virtual Vector2i GetCollisionCenter(void) const = 0;
+    virtual Vector2f GetCollisionCenter(void) const = 0;
     //The size of this element's collision box.
-    virtual Vector2i GetCollisionDimensions(void) const = 0;
+    virtual Vector2f GetCollisionDimensions(void) const = 0;
 
     //Moves this element by the given amount.
-    virtual void MoveElement(Vector2i moveAmount) = 0;
+    virtual void MoveElement(Vector2f moveAmount) = 0;
     //Sets this element's position.
-    virtual void SetPosition(Vector2i newPos) = 0;
+    virtual void SetPosition(Vector2f newPos) = 0;
 
     //Scales this element by the given amount (may be approximate).
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
@@ -47,7 +47,7 @@ public:
 
 
     //Takes in the mouse position relative to this element's center.
-    void Update(float elapsedTime, Vector2i mouse_centerOffset);
+    void Update(float elapsedTime, Vector2f mouse_centerOffset);
 
     //Returns an error message, or the empty string if everything went fine.
     virtual std::string Render(float elapsedTime, const RenderInfo & info) = 0;
@@ -56,26 +56,26 @@ public:
 #pragma warning(disable: 4100)
     //Raised when the mouse clicks on something.
     //The given Vector2i is the mouse position relative to this element's center.
-    virtual void OnMouseClick(Vector2i relativeMousePos) { }
+    virtual void OnMouseClick(Vector2f relativeMousePos) { }
     //Raised when the mouse drags across the screen.
     //The given Vector2i instances are relative to this element's center.
-    virtual void OnMouseDrag(Vector2i originalRelativeMousePos,
-                             Vector2i currentRelativeMousePos) { }
+    virtual void OnMouseDrag(Vector2f originalRelativeMousePos,
+                             Vector2f currentRelativeMousePos) { }
     //Raised when the mouse releases over this element.
     //Ths given Vector2i is the current mouse position relative to this element's center.
-    virtual void OnMouseRelease(Vector2i mouse_centerOffset) { }
+    virtual void OnMouseRelease(Vector2f mouse_centerOffset) { }
 #pragma warning(default: 4100)
 
 
     //Gets whether the given local-space position is inside this element's bounds.
-    bool IsLocalInsideBounds(Vector2i pos) const;
+    bool IsLocalInsideBounds(Vector2f pos) const;
 
 
 protected:
 
     float CurrentTimeLerpSpeed = 0.0f;
    
-    virtual void CustomUpdate(float elapsed, Vector2i relativeMousePos) { }
+    virtual void CustomUpdate(float elapsed, Vector2f relativeMousePos) { }
 
 
     static DrawingQuad * GetQuad(void) { if (quad == 0) quad = new DrawingQuad(); return quad; }

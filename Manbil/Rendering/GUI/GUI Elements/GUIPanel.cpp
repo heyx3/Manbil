@@ -9,20 +9,20 @@ void GUIPanel::ScaleBy(Vector2f scaleAmount)
     //Scale each element's position to move it relative to this panel's center.
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
-        Vector2i elPos = Elements[i]->GetCollisionCenter();
+        Vector2f elPos = Elements[i]->GetCollisionCenter();
         Elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount).CastToInt());
     }
 }
 void GUIPanel::SetScale(Vector2f newScale)
 {
-    Vector2f dims = ToV2f(GetCollisionDimensions());
+    Vector2f dims = GetCollisionDimensions();
     Vector2f delta(newScale.x / dims.x, newScale.y / dims.y);
     ScaleBy(delta);
 }
 
-void GUIPanel::CustomUpdate(float elapsed, Vector2i relativeMousePos)
+void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    Vector2i nPos = -pos;
+    Vector2f nPos = -pos;
 
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
@@ -33,7 +33,7 @@ void GUIPanel::CustomUpdate(float elapsed, Vector2i relativeMousePos)
 }
 std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
 {
-    Vector2i nPos = -pos;
+    Vector2f nPos = -pos;
 
     //Instead of returning an error as soon as it is found,
     //    render all sub-elements and collect any errors into one big error string.
@@ -58,20 +58,20 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
     return err;
 }
 
-void GUIPanel::OnMouseClick(Vector2i mouseP)
+void GUIPanel::OnMouseClick(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < Elements.size(); ++i)
         Elements[i]->OnMouseClick(mouseP - Elements[i]->GetCollisionCenter());
 }
-void GUIPanel::OnMouseDrag(Vector2i oldP, Vector2i currentP)
+void GUIPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
-        Vector2i center = Elements[i]->GetCollisionCenter();
+        Vector2f center = Elements[i]->GetCollisionCenter();
         Elements[i]->OnMouseDrag(oldP - center, currentP - center);
     }
 }
-void GUIPanel::OnMouseRelease(Vector2i mouseP)
+void GUIPanel::OnMouseRelease(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < Elements.size(); ++i)
         Elements[i]->OnMouseRelease(mouseP - Elements[i]->GetCollisionCenter());

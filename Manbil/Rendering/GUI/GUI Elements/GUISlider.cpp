@@ -1,7 +1,7 @@
 #include "GUISlider.h"
 
 
-Vector2i GUISlider::GetCollisionDimensions(void) const
+Vector2f GUISlider::GetCollisionDimensions(void) const
 {
     Vector2f sizeF((float)Bar->GetWidth(), (float)Bar->GetHeight());
     sizeF.MultiplyComponents(BarScale);
@@ -21,8 +21,8 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
         Params.FloatUniforms.erase(Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp));
     }
 
-    Vector2f barPos = ToV2f(center);
-    Vector2f barScale = BarScale.ComponentProduct(ToV2f(Vector2i(Bar->GetWidth(), Bar->GetHeight())));
+    Vector2f barPos = center;
+    Vector2f barScale = BarScale.ComponentProduct(ToV2f(Vector2u(Bar->GetWidth(), Bar->GetHeight())));
 
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Bar->GetTextureHandle();
     SetUpQuad(info, barPos, barScale);
@@ -31,7 +31,6 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
 
     if (usesTimeLerp)
         Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp] = timeLerpV;
-
 
 
     //Render the nub.
@@ -53,14 +52,14 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
     return "";
 }
 
-void GUISlider::OnMouseClick(Vector2i mousePos)
+void GUISlider::OnMouseClick(Vector2f mousePos)
 {
     if (IsClickable && IsLocalInsideBounds(mousePos))
     {
-        Vector2i dims = GetCollisionDimensions();
-        if (IsVertical) Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.y / 2, dims.y / 2, mousePos.y),
+        Vector2f dims = GetCollisionDimensions();
+        if (IsVertical) Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.y * 0.5f, dims.y * 0.5f, mousePos.y),
                                                  0.0f, 1.0f);
-        else Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.x / 2, dims.x / 2, mousePos.x),
+        else Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.x * 0.5f, dims.x * 0.5f, mousePos.x),
                                       0.0f, 1.0f);
         
         if (UsesTimeLerp())
@@ -70,12 +69,12 @@ void GUISlider::OnMouseClick(Vector2i mousePos)
         }
     }
 }
-void GUISlider::OnMouseDrag(Vector2i originalPos, Vector2i currentPos)
+void GUISlider::OnMouseDrag(Vector2f originalPos, Vector2f currentPos)
 {
     if (IsClickable && IsLocalInsideBounds(originalPos) || IsLocalInsideBounds(currentPos))
     {
-        Vector2i dims = GetCollisionDimensions();
-        if (IsVertical) Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.y / 2, dims.y / 2, currentPos.y),
+        Vector2f dims = GetCollisionDimensions();
+        if (IsVertical) Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.y * 0.5f, dims.y * 0.5f, currentPos.y),
                                                  0.0f, 1.0f);
         else Value = BasicMath::Clamp(BasicMath::LerpComponent(-dims.x / 2, dims.x / 2, currentPos.x),
                                       0.0f, 1.0f);

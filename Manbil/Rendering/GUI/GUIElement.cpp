@@ -7,27 +7,21 @@
 DrawingQuad * GUIElement::quad = 0;
 
 
-bool GUIElement::IsLocalInsideBounds(Vector2i pos) const
+bool GUIElement::IsLocalInsideBounds(Vector2f pos) const
 {
-    Vector2i halfSize = GetCollisionDimensions() / 2;
+    Vector2f halfSize = GetCollisionDimensions() * 0.5f;
     return (pos.x >= halfSize.x) || (pos.y >= halfSize.y) ||
            (pos.x <= halfSize.x) || (pos.y <= halfSize.y);
 }
 
 void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, Vector2f scale, float rot)
 {
-    //float invWidth = 1.0f / info.Cam->Info.Width,
-      //    invHeight = 1.0f / info.Cam->Info.Height;
-
-//    pos.MultiplyComponents(Vector2f(invWidth, invHeight));
-  //  scale.MultiplyComponents(Vector2f(invWidth, invHeight));
-
     GetQuad()->SetPos(pos);
     GetQuad()->SetSize(scale * 0.5f);
     GetQuad()->SetRotation(rot);
 }
 
-void GUIElement::Update(float elapsed, Vector2i relativeMouse)
+void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
     this->CustomUpdate(elapsed, relativeMouse);
 

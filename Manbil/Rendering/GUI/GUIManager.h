@@ -25,5 +25,5 @@ private:
     GUIPanel panel;
 
     bool wasMouseClicked;
-    Vector2i originalClickPos;
+    Vector2f originalClickPos;
 };

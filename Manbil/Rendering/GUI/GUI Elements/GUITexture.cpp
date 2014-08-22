@@ -3,12 +3,11 @@
 #include "../GUIMaterials.h"
 
 
-Vector2i GUITexture::GetCollisionDimensions(void) const
+Vector2f GUITexture::GetCollisionDimensions(void) const
 {
-    if (Tex == 0) return Vector2i();
+    if (Tex == 0) return Vector2f();
 
-    Vector2f scaled = Scale.ComponentProduct(Vector2f((float)Tex->GetWidth(), (float)Tex->GetHeight()));
-    return scaled.RoundToInt();
+    return Scale.ComponentProduct(Vector2f((float)Tex->GetWidth(), (float)Tex->GetHeight()));
 }
 
 std::string GUITexture::Render(float elapsed, const RenderInfo & info)
@@ -25,7 +24,7 @@ std::string GUITexture::Render(float elapsed, const RenderInfo & info)
                 "Error rendering GUITexture: " + Mat->GetErrorMsg());
 }
 
-void GUITexture::OnMouseClick(Vector2i mousePos)
+void GUITexture::OnMouseClick(Vector2f mousePos)
 {
     if (IsButton && IsLocalInsideBounds(mousePos))
     {
@@ -34,7 +33,7 @@ void GUITexture::OnMouseClick(Vector2i mousePos)
         if (OnClicked != 0) OnClicked(this, mousePos, OnClicked_pData);
     }
 }
-void GUITexture::OnMouseRelease(Vector2i mousePos)
+void GUITexture::OnMouseRelease(Vector2f mousePos)
 {
     if (IsButton && isBeingClicked)
     {

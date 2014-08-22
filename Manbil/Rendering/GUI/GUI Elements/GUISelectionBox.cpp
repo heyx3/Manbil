@@ -52,7 +52,7 @@ bool GUISelectionBox::SetItem(unsigned int index, const std::string & newVal)
     return itemElements[index].SetText(newVal);
 }
 
-Vector2i GUISelectionBox::GetCollisionDimensions(void) const
+Vector2f GUISelectionBox::GetCollisionDimensions(void) const
 {
     return ToV2f(Vector2u(BoxTex->GetWidth(), BoxTex->GetHeight())).ComponentProduct(scale).RoundToInt();
 }
@@ -64,7 +64,7 @@ void GUISelectionBox::ScaleBy(Vector2f scaleAmount)
 
     for (unsigned int i = 0; i < items.size(); ++i)
     {
-        Vector2f itemCenter = ToV2f(itemElements[i].GetCollisionCenter());
+        Vector2f itemCenter = itemElements[i].GetCollisionCenter();
         itemElements[i].SetPosition(itemCenter.ComponentProduct(scaleAmount).RoundToInt());
         itemElements[i].ScaleBy(scaleAmount);
     }
@@ -78,8 +78,8 @@ void GUISelectionBox::SetScale(Vector2f newScale)
 std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 {
     //Render the box.
-    Vector2i dimensions = GetCollisionDimensions();
-    SetUpQuad(info, ToV2f(center), scale.ComponentProduct(ToV2f(dimensions)));
+    Vector2f dimensions = GetCollisionDimensions();
+    SetUpQuad(info, center, scale.ComponentProduct(dimensions));
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(itemElements[selectedItem].TextRenderSlot)->GetTextureHandle();
     if (!GetQuad()->Render(info, Params, *BoxMat))
@@ -90,10 +90,11 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 
     Vector2u boxSize(itemBackground.Tex->GetWidth(), BoxTex->GetHeight());
 
-    itemElements[selectedItem].SetPosition(Vector2i(-(int)boxSize.x, 0));
+    itemElements[selectedItem].SetPosition(Vector2f((float)boxSize.x, 0.0f));
 
-    Vector2i delta(center.x + BasicMath::RoundToInt(
-                                (float)itemElements[selectedItem].GetCollisionCenter().x * scale.x),
+    Vector2f delta(center.x +
+                    BasicMath::RoundToInt((float)itemElements[selectedItem].GetCollisionCenter().x *
+                                           scale.x),
                    0);
     itemElements[selectedItem].MoveElement(delta);
     std::string err = itemElements[selectedItem].Render(elapsedTime, info);
@@ -111,10 +112,10 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
         //TODO: Scale the item backdrop's height based on the number of items to render (keep in mind that the selected item is displayed in the selection box).
         Vector2i backPos((int)itemBackground.Tex->GetWidth() - (int)BoxTex->GetWidth(),
                          dir * ((int)BoxTex->GetHeight() + (itemBackground.Tex->GetHeight() / 2)));
-        itemBackground.SetPosition(ToV2f(backPos).ComponentProduct(scale).RoundToInt());
+        itemBackground.SetPosition(ToV2f(backPos).ComponentProduct(scale));
 
-        Vector2i childPos = itemBackground.GetCollisionCenter();
-        Vector2i childElementDelta = center + ToV2f(childPos).ComponentProduct(scale).RoundToInt();
+        Vector2f childPos = itemBackground.GetCollisionCenter();
+        Vector2f childElementDelta = center + childPos.ComponentProduct(scale);
                    
         itemBackground.MoveElement(childElementDelta);
         err = itemBackground.Render(elapsedTime, info);
@@ -128,9 +129,10 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
             if (i == selectedItem || (!DrawEmptyItems && items[i].size() == 0))
                 continue;
 
-            itemElements[i].SetPosition(Vector2i(-(int)boxSize.x, (int)boxSize.y * dir * (int)numbItems));
+            itemElements[i].SetPosition(Vector2f(-(float)boxSize.x, (float)boxSize.y * (float)dir * (float)numbItems));
 
-            delta = center = ToV2f(itemElements[i].GetCollisionCenter()).ComponentProduct(scale).RoundToInt();
+            //TODO; This was supposed to be either a "+" or a "-", but it was "=" as a typo. I went with plus sign; figure out what it really is.
+            delta = center + itemElements[i].GetCollisionCenter().ComponentProduct(scale);
             itemElements[i].MoveElement(delta);
 
             err = itemElements[i].Render(elapsedTime, info);
@@ -145,7 +147,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
     return "";
 }
 
-void GUISelectionBox::OnMouseClick(Vector2i relativeMousePos)
+void GUISelectionBox::OnMouseClick(Vector2f relativeMousePos)
 {
     bool inside = IsLocalInsideBounds(relativeMousePos);
 
@@ -164,7 +166,7 @@ void GUISelectionBox::OnMouseClick(Vector2i relativeMousePos)
                 if (i == selectedItem || (!DrawEmptyItems && items[i].size() == 0))
                     continue;
 
-                Vector2i pos(-(int)boxSize.x, (int)boxSize.y * dir * (int)numbItems);
+                Vector2f pos(-(float)boxSize.x, (float)boxSize.y * dir * (float)numbItems);
                 itemElements[i].SetPosition(pos);
 
                 ++numbItems;
@@ -182,10 +184,9 @@ void GUISelectionBox::OnMouseClick(Vector2i relativeMousePos)
         IsExtended = true;
     }
 }
-void GUISelectionBox::OnMouseDrag(Vector2i oldRelativeMousePos,
-                                  Vector2i currentRelativeMousePos)
+void GUISelectionBox::OnMouseDrag(Vector2f oldRelativeMousePos, Vector2f currentRelativeMousePos)
 {
-    Vector2i cent = itemBackground.GetCollisionCenter();
+    Vector2f cent = itemBackground.GetCollisionCenter();
     itemBackground.OnMouseDrag(oldRelativeMousePos - cent, currentRelativeMousePos - cent);
 
     for (unsigned int i = 0; i < items.size(); ++i)
@@ -194,14 +195,14 @@ void GUISelectionBox::OnMouseDrag(Vector2i oldRelativeMousePos,
         itemElements[i].OnMouseDrag(oldRelativeMousePos - cent, currentRelativeMousePos - cent);
     }
 }
-void GUISelectionBox::OnMouseRelease(Vector2i relativeMousePos)
+void GUISelectionBox::OnMouseRelease(Vector2f relativeMousePos)
 {
     itemBackground.OnMouseRelease(relativeMousePos - itemBackground.GetCollisionCenter());
     for (unsigned int i = 0; i < items.size(); ++i)
         itemElements[i].OnMouseRelease(relativeMousePos - itemElements[i].GetCollisionCenter());
 }
 
-void GUISelectionBox::CustomUpdate(float elapsed, Vector2i relativeMousePos)
+void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     //TODO: Once highlight is set up for this class, calculate any mouse-overs.
 

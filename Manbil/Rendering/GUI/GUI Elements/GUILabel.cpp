@@ -16,9 +16,9 @@ bool GUILabel::SetText(std::string newText)
     else return false;
 }
 
-Vector2i GUILabel::GetCollisionDimensions(void) const
+Vector2f GUILabel::GetCollisionDimensions(void) const
 {
-    return Vector2f((float)dimensions.x, (float)dimensions.y).ComponentProduct(Scale).CastToInt() + Vector2i(1, 1);
+    return Vector2f((float)dimensions.x, (float)dimensions.y).ComponentProduct(Scale) + Vector2f(1, 1);
 }
 std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 {
@@ -28,30 +28,30 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 
     Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
 
-    Vector2i textOffset;
+    Vector2f textOffset;
     switch (OffsetHorz)
     {
         case HO_LEFT:
-            textOffset.x = rendSize.x / 2;
+            textOffset.x = rendSize.x * 0.5f;
             break;
         case HO_CENTER:
-            textOffset.x = (rendSize.x / 2) - (dimensions.x / 4);
+            textOffset.x = (rendSize.x * 0.5f) - (dimensions.x * 0.25f);
             break;
         case HO_RIGHT:
-            textOffset.x = (rendSize.x / 2) - (dimensions.x / 2);
+            textOffset.x = (rendSize.x * 0.5f) - (dimensions.x * 0.5f);
             break;
         default: assert(false);
     }
     switch (OffsetVert)
     {
         case VO_TOP:
-            textOffset.y = rendSize.y / 2;
+            textOffset.y = rendSize.y * 0.5f;
             break;
         case VO_CENTER:
-            textOffset.y = (rendSize.y / 2) - (dimensions.y / 4);
+            textOffset.y = (rendSize.y * 0.5f) - (dimensions.y * 0.25f);
             break;
         case VO_BOTTOM:
-            textOffset.y = (rendSize.y / 2) - (dimensions.y / 2);
+            textOffset.y = (rendSize.y * 0.5f) - (dimensions.y * 0.5f);
             break;
         default: assert(false);
     }
@@ -61,7 +61,7 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 
     Vector2f textOffsetF = Vector2f((float)textOffset.x * Scale.x, (float)textOffset.y * Scale.y);
 
-    SetUpQuad(info, ToV2f(center) + textOffsetF, Scale.ComponentProduct(ToV2f(rendSize)));
+    SetUpQuad(info, center + textOffsetF, Scale.ComponentProduct(ToV2f(rendSize)));
     
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();

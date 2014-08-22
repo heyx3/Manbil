@@ -36,11 +36,11 @@ public:
     Vector2f Scale;
 
 
-    virtual Vector2i GetCollisionCenter(void) const override { return center; }
-    virtual Vector2i GetCollisionDimensions(void) const override;
+    virtual Vector2f GetCollisionCenter(void) const override { return center; }
+    virtual Vector2f GetCollisionDimensions(void) const override;
 
-    virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2i newPos) override { center = newPos; }
+    virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
+    virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
     virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
@@ -65,6 +65,6 @@ public:
 
 private:
 
-    Vector2i center, dimensions;
+    Vector2f center, dimensions;
     std::string text;
 };

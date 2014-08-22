@@ -45,7 +45,7 @@ private:
     UniformDictionary quadParams;
     Material * quadMat;
 
-    GUIElement::Ptr guiLabel, guiTex;
+    GUIElement::Ptr guiLabel, guiTex, guiBar;
     MTexture2D guiTexData;
     Material * guiMat;
     GUIManager guiManager;

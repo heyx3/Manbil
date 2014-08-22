@@ -55,11 +55,11 @@ public:
     const std::string & GetItem(unsigned int index) const { return items[index]; }
     bool SetItem(unsigned int index, const std::string & newValue);
 
-    virtual Vector2i GetCollisionCenter(void) const override { return center; }
-    virtual Vector2i GetCollisionDimensions(void) const override;
+    virtual Vector2f GetCollisionCenter(void) const override { return center; }
+    virtual Vector2f GetCollisionDimensions(void) const override;
 
-    virtual void MoveElement(Vector2i moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2i newPos) override { center = newPos; }
+    virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
+    virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
@@ -67,16 +67,16 @@ public:
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 
-    virtual void OnMouseClick(Vector2i relativeMousePos) override;
-    virtual void OnMouseDrag(Vector2i oldRelativeMousePos,
-                             Vector2i currentRelativeMousePos) override;
-    virtual void OnMouseRelease(Vector2i relativeMousePos) override;
+    virtual void OnMouseClick(Vector2f relativeMousePos) override;
+    virtual void OnMouseDrag(Vector2f oldRelativeMousePos,
+                             Vector2f currentRelativeMousePos) override;
+    virtual void OnMouseRelease(Vector2f relativeMousePos) override;
 
 
 protected:
 
 
-    virtual void CustomUpdate(float elapsed, Vector2i relativeMousePos) override;
+    virtual void CustomUpdate(float elapsed, Vector2f relativeMousePos) override;
 
 
     
@@ -90,7 +90,7 @@ private:
     unsigned int selectedItem;
     unsigned int itemFontID;
 
-    Vector2i center;
+    Vector2f center;
     Vector2f scale = Vector2f(1, 1);
     Vector4f textColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 };

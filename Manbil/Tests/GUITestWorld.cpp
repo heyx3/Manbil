@@ -217,11 +217,11 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Set up the GUI elements.
-    guiManager.GetRoot().SetPosition(Vector2i());
+    guiManager.GetRoot().SetPosition(Vector2f());
     guiManager.GetRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
 
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
-    if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 512, 64, false,
+    if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,
                                                         TextureSampleSettings2D(FT_LINEAR, FT_LINEAR,
                                                                                 WT_CLAMP, WT_CLAMP)),
                       "Error creating text render slot for GUI label", TextRender->GetError()))
@@ -233,11 +233,12 @@ void GUITestWorld::InitializeWorld(void)
         return;
     }
     guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
-                                            GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM));
+                                            GUILabel::HO_LEFT, GUILabel::VO_TOP));
     guiLabel->Params = guiElParams;
-    guiLabel->SetPosition(Vector2i(WindowSize.x / 2, (WindowSize.y / 2) + 00));
+    guiLabel->SetPosition(ToV2f(WindowSize) * 0.5f);
+    guiLabel->MoveElement(Vector2f(10.0f, 0.0f));
     guiLabel->SetScale(Vector2f(2.0f, 2.0f));
-    if (!ReactToError(((GUILabel*)guiLabel.get())->SetText("Test"), "Error setting GUI label's text", TextRender->GetError()))
+    if (!ReactToError(((GUILabel*)guiLabel.get())->SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
         return;
 
     guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
@@ -245,7 +246,7 @@ void GUITestWorld::InitializeWorld(void)
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
     guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
-    guiTex->SetPosition(Vector2i(WindowSize.x / 2, WindowSize.y / 2));
+    guiTex->SetPosition(ToV2f(WindowSize) * 0.5f);
     guiTex->SetScale(Vector2f(0.3f, 0.3f));
     guiTex->Params = guiElParams;
 
@@ -272,17 +273,16 @@ void GUITestWorld::UpdateWorld(float elapsed)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         EndWorld();
 
+    //Move the gui window.
     const float speed = 150.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        guiManager.GetRoot().MoveElement(Vector2i(-(int)(speed * elapsed), 0));
+        guiManager.GetRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        guiManager.GetRoot().MoveElement(Vector2i((int)(speed * elapsed), 0));
+        guiManager.GetRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        guiManager.GetRoot().MoveElement(Vector2i(0.0f, (int)(speed * elapsed)));
+        guiManager.GetRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        guiManager.GetRoot().MoveElement(Vector2i(0.0f, -(int)(speed * elapsed)));
-
-    std::cout << "X: " << guiManager.GetRoot().GetCollisionCenter().x << "; Y: " << guiManager.GetRoot().GetCollisionCenter().y << "\n";
+        guiManager.GetRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
