@@ -210,10 +210,11 @@ void GUITestWorld::InitializeWorld(void)
 
     //Set up the GUI material.
     UniformDictionary guiElParams;
-    genMat = GUIMaterials::GenerateStaticQuadDrawMaterial(guiElParams);
+    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParams, false, Vector2f(1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating gui element material", genMat.ErrorMessage))
         return;
     guiMat = genMat.Mat;
+
 
 
     //Set up the GUI elements.
@@ -235,9 +236,10 @@ void GUITestWorld::InitializeWorld(void)
     guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
                                             GUILabel::HO_LEFT, GUILabel::VO_TOP));
     guiLabel->Params = guiElParams;
+    guiLabel->Params.FloatUniforms["u_elRot"].SetValue(1.0f);
     guiLabel->SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiLabel->MoveElement(Vector2f(10.0f, 0.0f));
-    guiLabel->SetScale(Vector2f(2.0f, 2.0f));
+    guiLabel->MoveElement(Vector2f(20.0f, 0.0f));
+    guiLabel->SetScale(Vector2f(1.0f, 1.0f));
     if (!ReactToError(((GUILabel*)guiLabel.get())->SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
         return;
 
@@ -247,8 +249,9 @@ void GUITestWorld::InitializeWorld(void)
     guiTexData.SetColorData(guiTexCols);
     guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
     guiTex->SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiTex->SetScale(Vector2f(0.3f, 0.3f));
+    guiTex->SetScale(Vector2f(0.6f, 0.6f));
     guiTex->Params = guiElParams;
+    guiLabel->Params.FloatUniforms["u_elRot"].SetValue(1.0f);
 
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiTex);
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
@@ -272,7 +275,7 @@ void GUITestWorld::UpdateWorld(float elapsed)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         EndWorld();
-
+    
     //Move the gui window.
     const float speed = 150.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
