@@ -14,9 +14,10 @@ bool GUIElement::IsLocalInsideBounds(Vector2f pos) const
            (pos.x <= halfSize.x) || (pos.y <= halfSize.y);
 }
 
-void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, Vector2f scale, float rot)
+void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, float depth, Vector2f scale, float rot)
 {
     GetQuad()->SetPos(pos);
+    GetQuad()->SetDepth(depth);
     GetQuad()->SetSize(scale * 0.5f);
     GetQuad()->SetRotation(rot);
 }

@@ -79,7 +79,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 {
     //Render the box.
     Vector2f dimensions = GetCollisionDimensions();
-    SetUpQuad(info, center, scale.ComponentProduct(dimensions));
+    SetUpQuad(info, center, Depth, scale.ComponentProduct(dimensions));
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(itemElements[selectedItem].TextRenderSlot)->GetTextureHandle();
     if (!GetQuad()->Render(info, Params, *BoxMat))
@@ -118,6 +118,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
         Vector2f childElementDelta = center + childPos.ComponentProduct(scale);
                    
         itemBackground.MoveElement(childElementDelta);
+        itemBackground.Depth = Depth + 0.001f;
         err = itemBackground.Render(elapsedTime, info);
         if (!err.empty()) return "Error rendering selection box item backdrop: " + err;
 
@@ -135,6 +136,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
             delta = center + itemElements[i].GetCollisionCenter().ComponentProduct(scale);
             itemElements[i].MoveElement(delta);
 
+            itemElements[i].Depth = Depth + 0.0015f;
             err = itemElements[i].Render(elapsedTime, info);
             if (!err.empty()) return "Error rendering item '" + items[i] + "': " + err;
 

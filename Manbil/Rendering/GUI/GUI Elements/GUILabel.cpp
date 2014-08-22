@@ -16,10 +16,6 @@ bool GUILabel::SetText(std::string newText)
     else return false;
 }
 
-Vector2f GUILabel::GetCollisionDimensions(void) const
-{
-    return Vector2f((float)dimensions.x, (float)dimensions.y).ComponentProduct(Scale) + Vector2f(1, 1);
-}
 std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 {
     //Don't bother doing any rendering if there's no text to display.
@@ -61,7 +57,7 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 
     Vector2f textOffsetF = Vector2f((float)textOffset.x * Scale.x, (float)textOffset.y * Scale.y);
 
-    SetUpQuad(info, center + textOffsetF, Scale.ComponentProduct(ToV2f(rendSize)));
+    SetUpQuad(info, center + textOffsetF, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
     
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();

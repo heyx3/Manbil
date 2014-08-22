@@ -15,6 +15,8 @@ public:
 
     UniformDictionary Params;
     float TimeLerpSpeed;
+    
+    float Depth;
 
 
     bool UsesTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.FloatUniforms.end(); }
@@ -26,7 +28,7 @@ public:
     bool IsMousedOver(void) const { return isMousedOver; }
 
 
-    GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed), isMousedOver(false) { }
+    GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed), Depth(0.0f), isMousedOver(false) { }
     virtual ~GUIElement(void) { }
 
 
@@ -79,7 +81,7 @@ protected:
 
 
     static DrawingQuad * GetQuad(void) { if (quad == 0) quad = new DrawingQuad(); return quad; }
-    static void SetUpQuad(const RenderInfo & info, Vector2f pos,
+    static void SetUpQuad(const RenderInfo & info, Vector2f pos, float depth,
                           Vector2f scale = Vector2f(1.0f, 1.0f), float rot = 0.0f);
 
 private:

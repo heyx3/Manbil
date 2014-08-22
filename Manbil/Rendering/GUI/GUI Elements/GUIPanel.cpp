@@ -43,8 +43,10 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
         Elements[i]->MoveElement(pos);
+        Elements[i]->Depth += Depth;
         std::string tempErr = Elements[i]->Render(elapsedTime, info);
         Elements[i]->MoveElement(nPos);
+        Elements[i]->Depth -= Depth;
 
         if (!tempErr.empty())
         {
