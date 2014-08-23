@@ -2,6 +2,10 @@
 
 #include "../DataNode.h"
 
+
+//Interpolates between a min input and a max output.
+//Has different levels of smoothness; "Very Smooth" has worse performance than "Linear" and "Smooth".
+//If using "Smooth", the interpolation must always be from a smaller value to a larger value.
 class InterpolateNode : public DataNode
 {
 public:

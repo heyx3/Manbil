@@ -44,29 +44,42 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
     std::string minMaxType = VectorF(GetMinInput().GetSize()).GetGLSLType(),
                 interpType = VectorF(GetInterpInput().GetSize()).GetGLSLType(),
                 returnType = VectorF(BasicMath::Max(GetMinInput().GetSize(), GetInterpInput().GetSize())).GetGLSLType();
+    std::string interpValue = GetInterpInput().GetValue();
 
     switch (intType)
     {
-    case IT_Linear:
-        outCode += "\t" + returnType + " " + GetOutputName(0) + " = mix(" + GetMinInput().GetValue() + ", " +
-                                                                            GetMaxInput().GetValue() + ", " +
-                                                                            GetInterpInput().GetValue() + ");\n";
-        break;
+        case IT_Linear:
+            outCode += "\t" + returnType + " " + GetOutputName(0) + " = mix(" + GetMinInput().GetValue() + ", " +
+                                                                                GetMaxInput().GetValue() + ", " +
+                                                                                interpValue + ");\n";
+            break;
 
-    case IT_Smooth:
-        outCode += "\t" + returnType + " " + GetOutputName(0) + " = smoothstep(" + GetMinInput().GetValue() + ", " +
-                                                                                   GetMaxInput().GetValue() + ", " +
-                                                                                   GetInterpInput().GetValue() + ");\n";
-        break;
+        case IT_Smooth:
+            //A problem with smoothstep is that you can't interpolate vectors with a float --
+            //   the interpolant must be the same size.
+            if (GetMinInput().GetSize() != GetInterpInput().GetSize())
+            {
+                assert(GetInterpInput().GetSize() == 1);
 
-    case IT_VerySmooth:
-        outCode += "\t" + returnType + " " + GetOutputName(0) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
-                                                                                                         GetMaxInput().GetValue() + ", " +
-                                                                                                         GetInterpInput().GetValue() + ");\n";
-        break;
+                std::string oldVal = interpValue;
+                interpValue = minMaxType + "(";
+                for (unsigned int i = 0; i < GetMinInput().GetSize(); ++i)
+                    interpValue += (i > 0 ? (", " + oldVal) : oldVal);
+                interpValue += ')';
+            }
+            outCode += "\t" + returnType + " " + GetOutputName(0) + " = smoothstep(" + GetMinInput().GetValue() + ", " +
+                                                                                       GetMaxInput().GetValue() + ", " +
+                                                                                       interpValue + ");\n";
+            break;
 
-    default:
-        Assert(false, "Unknown interpolant type: " + std::to_string(intType));
+        case IT_VerySmooth:
+            outCode += "\t" + returnType + " " + GetOutputName(0) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
+                                                                                                             GetMaxInput().GetValue() + ", " +
+                                                                                                             interpValue + ");\n";
+            break;
+
+        default:
+            Assert(false, "Unknown interpolant type: " + std::to_string(intType));
     }
 }
 
