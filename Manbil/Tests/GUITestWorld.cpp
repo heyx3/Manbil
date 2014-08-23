@@ -207,9 +207,13 @@ void GUITestWorld::InitializeWorld(void)
 
     //Set up the GUI material.
     UniformDictionary guiElParams;
+    DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
+    DNP lerpColor(new InterpolateNode(Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.5f, 0.5f, 0.5f, 1.0f),
+                                      lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
+
     genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParams, false,
                                                            Vector2f(1.0f, 1.0f),
-                                                           Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+                                                           lerpColor);
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating gui element material", genMat.ErrorMessage))
         return;
     guiMat = genMat.Mat;
@@ -234,7 +238,7 @@ void GUITestWorld::InitializeWorld(void)
         return;
     }
     guiLabel = GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
-                        GUILabel::HO_LEFT, GUILabel::VO_TOP);
+                        GUILabel::HO_CENTER, GUILabel::VO_TOP);
     guiLabel.Params = guiElParams;
     guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiLabel.MoveElement(Vector2f(20.0f, 0.0f));
@@ -246,7 +250,7 @@ void GUITestWorld::InitializeWorld(void)
     Array2D<Vector4f> guiTexCols(128, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
-    guiTex = GUITexture(&guiTexData, guiMat, true, 1.0f);
+    guiTex = GUITexture(&guiTexData, guiMat, true, 9.0f);
     guiTex.IsButton = true;
     guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
     {
@@ -336,7 +340,7 @@ void GUITestWorld::UpdateWorld(float elapsed)
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
-    ScreenClearer().ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.1f, 0.1f, 0.1f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
                    false, false).EnableState();
 
