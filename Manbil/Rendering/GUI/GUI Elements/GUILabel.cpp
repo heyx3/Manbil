@@ -4,27 +4,46 @@
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 
 
-
-bool GUILabel::SetText(std::string newText)
+Vector2f GUILabel::GetCollisionCenter(void) const
 {
-    if (TextRender->RenderString(TextRenderSlot, newText))
+    Vector2f outCenter;
+    Vector2f halfDims = dimensions.ComponentProduct(Scale) * 0.5f;
+
+    switch (OffsetHorz)
     {
-        text = newText;
-        dimensions = TextRender->GetSlotBoundingSize(TextRenderSlot);
-        return true;
+        case HO_LEFT:
+            outCenter.x = center.x + halfDims.x;
+            break;
+        case HO_CENTER:
+            outCenter.x = center.x;
+            break;
+        case HO_RIGHT:
+            outCenter.x = center.x - halfDims.x;
+            break;
+        default: assert(false);
     }
-    else return false;
+    switch (OffsetVert)
+    {
+        case VO_TOP:
+            outCenter.y = center.y - halfDims.y;
+            break;
+        case VO_CENTER:
+            outCenter.y = center.y;
+            break;
+        case VO_BOTTOM:
+            outCenter.y = center.y + halfDims.y;
+            break;
+        default: assert(false);
+    }
+
+    return outCenter;
 }
-
-std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
+Vector2f GUILabel::GetTextOffset(void) const
 {
-    //Don't bother doing any rendering if there's no text to display.
-    if (text.empty()) return "";
-
-
     Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
-
     Vector2f textOffset;
+
+    //PRIORITY: Fix this.
     switch (OffsetHorz)
     {
         case HO_LEFT:
@@ -51,13 +70,34 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
             break;
         default: assert(false);
     }
-    
+
     //Flip the Y.
     textOffset.y = -textOffset.y;
 
-    Vector2f textOffsetF = Vector2f((float)textOffset.x * Scale.x, (float)textOffset.y * Scale.y);
+    return textOffset;
+}
 
-    SetUpQuad(info, center + textOffsetF, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
+bool GUILabel::SetText(std::string newText)
+{
+    if (TextRender->RenderString(TextRenderSlot, newText))
+    {
+        text = newText;
+        dimensions = TextRender->GetSlotBoundingSize(TextRenderSlot);
+        return true;
+    }
+    else return false;
+}
+
+std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
+{
+    //Don't bother doing any rendering if there's no text to display.
+    if (text.empty()) return "";
+
+
+    Vector2f textOffset = GetTextOffset();
+    Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
+
+    SetUpQuad(info, center + textOffset, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
     
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();

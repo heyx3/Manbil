@@ -36,7 +36,7 @@ public:
     Vector2f Scale;
 
 
-    virtual Vector2f GetCollisionCenter(void) const override { return center; }
+    virtual Vector2f GetCollisionCenter(void) const override;
     virtual Vector2f GetCollisionDimensions(void) const override { return dimensions.ComponentProduct(Scale); }
 
     virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
@@ -67,6 +67,8 @@ public:
 
 
 private:
+
+    Vector2f GetTextOffset(void) const;
 
     Vector2f center, dimensions;
     std::string text;
