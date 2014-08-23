@@ -44,7 +44,8 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
     {
         timeLerp += elapsed * CurrentTimeLerpSpeed;
 
-        if (timeLerp <= 0.0f)
+        if (timeLerp <= 0.0f ||
+            (CurrentTimeLerpSpeed < 0.0f && isMousedOver && timeLerp <= 0.5f))
         {
             CurrentTimeLerpSpeed = 0.0f;
             timeLerp = 0.00001f;
