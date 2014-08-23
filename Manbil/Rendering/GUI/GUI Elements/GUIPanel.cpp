@@ -26,8 +26,9 @@ void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
+        Vector2f relPos = relativeMousePos - Elements[i]->GetCollisionCenter();
         Elements[i]->MoveElement(pos);
-        Elements[i]->Update(elapsed, relativeMousePos);
+        Elements[i]->Update(elapsed, relPos);
         Elements[i]->MoveElement(nPos);
     }
 }
