@@ -6,6 +6,7 @@
 
 //Represents a single element in a UI.
 //Note that mouse events should be raised for all GUI elements, not just ones that are touching the mouse.
+//TODO: Keep a static reference to the currently-moused-over object, and if another object is being moused over, compare their depths to see which one stays moused over.
 class GUIElement
 {
 public:

@@ -43,17 +43,16 @@ Vector2f GUILabel::GetTextOffset(void) const
     Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
     Vector2f textOffset;
 
-    //PRIORITY: Fix this.
     switch (OffsetHorz)
     {
         case HO_LEFT:
             textOffset.x = rendSize.x * 0.5f;
             break;
         case HO_CENTER:
-            textOffset.x = (rendSize.x * 0.5f) - (dimensions.x * 0.25f);
+            textOffset.x = (rendSize.x * 0.5f) - (dimensions.x * 0.5f);
             break;
         case HO_RIGHT:
-            textOffset.x = (rendSize.x * 0.5f) - (dimensions.x * 0.5f);
+            textOffset.x = (rendSize.x * 0.5f) - dimensions.x;
             break;
         default: assert(false);
     }
@@ -63,10 +62,10 @@ Vector2f GUILabel::GetTextOffset(void) const
             textOffset.y = rendSize.y * 0.5f;
             break;
         case VO_CENTER:
-            textOffset.y = (rendSize.y * 0.5f) - (dimensions.y * 0.25f);
+            textOffset.y = (rendSize.y * 0.5f) - (dimensions.y * 0.5f);
             break;
         case VO_BOTTOM:
-            textOffset.y = (rendSize.y * 0.5f) - (dimensions.y * 0.5f);
+            textOffset.y = (rendSize.y * 0.5f) - dimensions.y;
             break;
         default: assert(false);
     }

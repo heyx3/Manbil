@@ -238,10 +238,9 @@ void GUITestWorld::InitializeWorld(void)
         return;
     }
     guiLabel = GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
-                        GUILabel::HO_CENTER, GUILabel::VO_TOP);
+                        GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM);
     guiLabel.Params = guiElParams;
     guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiLabel.MoveElement(Vector2f(20.0f, 0.0f));
     guiLabel.SetScale(Vector2f(1.0f, 1.0f));
     if (!ReactToError(guiLabel.SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
         return;
