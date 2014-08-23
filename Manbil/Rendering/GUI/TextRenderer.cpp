@@ -287,7 +287,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         movement = FreeTypeHandler::Instance.GetMoveToNextGlyph(fontID);
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
 
-        outTextWidth += size.x + movement.x;
+        outTextWidth += movement.x;
         outTextHeight = BasicMath::Max(size.y, (int)outTextHeight);
 
 
@@ -314,6 +314,9 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         //Move the quad to the next position for the letter.
         pos += scaledMovement;
     }
+
+    outTextWidth -= movement.x;
+    outTextWidth += size.x;
 
     targ->DisableDrawingInto(bbWidth, bbHeight, true);
     return true;
