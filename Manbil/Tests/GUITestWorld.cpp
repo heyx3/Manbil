@@ -8,13 +8,10 @@
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/Curves/BezierCurve.h"
 
-#include "../Rendering/GUI/GUI Elements/GUILabel.h"
-#include "../Rendering/GUI/GUI Elements/GUITexture.h"
-#include "../Rendering/GUI/GUI Elements/GUISlider.h"
-#include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
-
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
+
+#include "../DebugAssist.h"
 
 
 //Debugging/error-printing.
@@ -210,7 +207,9 @@ void GUITestWorld::InitializeWorld(void)
 
     //Set up the GUI material.
     UniformDictionary guiElParams;
-    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParams, false, Vector2f(1.0f, 1.0f), Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParams, false,
+                                                           Vector2f(1.0f, 1.0f),
+                                                           Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating gui element material", genMat.ErrorMessage))
         return;
     guiMat = genMat.Mat;
@@ -229,32 +228,54 @@ void GUITestWorld::InitializeWorld(void)
     {
         return;
     }
-    if (!ReactToError(TextRender->RenderString(TextRenderer::FontSlot(textRendererID, 1), "TestGUI"), "Error rendering gui string", TextRender->GetError()))
+    if (!ReactToError(TextRender->RenderString(TextRenderer::FontSlot(textRendererID, 1), "TestGUI"),
+                                               "Error rendering gui string", TextRender->GetError()))
     {
         return;
     }
-    guiLabel = GUIElement::Ptr(new GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
-                                            GUILabel::HO_LEFT, GUILabel::VO_TOP));
-    guiLabel->Params = guiElParams;
-    guiLabel->Params.FloatUniforms["u_elRot"].SetValue(1.0f);
-    guiLabel->SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiLabel->MoveElement(Vector2f(20.0f, 0.0f));
-    guiLabel->SetScale(Vector2f(1.0f, 1.0f));
-    if (!ReactToError(((GUILabel*)guiLabel.get())->SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
+    guiLabel = GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
+                        GUILabel::HO_LEFT, GUILabel::VO_TOP);
+    guiLabel.Params = guiElParams;
+    guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
+    guiLabel.MoveElement(Vector2f(20.0f, 0.0f));
+    guiLabel.SetScale(Vector2f(1.0f, 1.0f));
+    if (!ReactToError(guiLabel.SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
         return;
 
     guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
     Array2D<Vector4f> guiTexCols(128, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
-    guiTex = GUIElement::Ptr(new GUITexture(&guiTexData, guiMat, true, 1.0f));
-    guiTex->SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiTex->SetScale(Vector2f(0.6f, 0.6f));
-    guiTex->Params = guiElParams;
-    guiLabel->Params.FloatUniforms["u_elRot"].SetValue(1.0f);
+    guiTex = GUITexture(&guiTexData, guiMat, true, 1.0f);
+    guiTex.IsButton = true;
+    guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
+    {
+        std::cout << "Clicked texture button. Screen pos: " <<
+                     DebugAssist::ToString(mouse + clicked->GetCollisionCenter()) << "\n";
+    };
+    guiTex.Params = guiElParams;
+    guiTex.SetPosition(ToV2f(WindowSize) * 0.5f);
+    guiTex.SetScale(Vector2f(0.6f, 0.6f));
 
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiTex);
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), guiLabel);
+    Array2D<Vector4b> whiteCol(1, 1, Vector4b(1.0f, 1.0f, 1.0f, 1.0f));
+    guiBarTex.Create();
+    guiBarTex.SetColorData(whiteCol);
+    guiNubTex.Create();
+    guiNubTex.SetColorData(whiteCol);
+    guiBar = GUISlider(&guiBarTex, &guiNubTex, guiMat, guiMat, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
+    guiBar.SetPosition(Vector2f(200.0f, 200.0f));
+    guiBar.IsClickable = true;
+    guiBar.Value = 0.5f;
+    guiBar.Params = guiElParams;
+    guiBar.Bar.Params = guiElParams;
+    guiBar.Nub.Params = guiElParams;
+    guiBar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
+    guiBar.Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+    guiBar.Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiTex);
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiLabel);
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiBar);
 
 
     //Set up the back buffer.
@@ -266,6 +287,10 @@ void GUITestWorld::DestroyMyStuff(bool destroyStatics)
     DeleteAndSetToNull(quad);
     DeleteAndSetToNull(quadMat);
     DeleteAndSetToNull(curveMat);
+
+    guiBarTex.DeleteIfValid();
+    guiNubTex.DeleteIfValid();
+    guiTexData.DeleteIfValid();
 
     if (destroyStatics) DestroyStaticSystems(false, true, true);
 }

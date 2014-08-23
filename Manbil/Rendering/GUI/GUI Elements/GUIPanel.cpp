@@ -4,13 +4,13 @@
 void GUIPanel::ScaleBy(Vector2f scaleAmount)
 {
     //Scale the 'extents' vector.
-    extents = Vector2f(extents.x, extents.y).ComponentProduct(scaleAmount).CastToInt();
+    extents = Vector2f(extents.x, extents.y).ComponentProduct(scaleAmount);
 
     //Scale each element's position to move it relative to this panel's center.
     for (unsigned int i = 0; i < Elements.size(); ++i)
     {
         Vector2f elPos = Elements[i]->GetCollisionCenter();
-        Elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount).CastToInt());
+        Elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
     }
 }
 void GUIPanel::SetScale(Vector2f newScale)

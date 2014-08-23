@@ -9,7 +9,7 @@ class GUIPanel : public GUIElement
 public:
 
     //The GUI elements inside this panel.
-    std::vector<Ptr> Elements;
+    std::vector<GUIElement*> Elements;
 
 
     GUIPanel(Vector2f _extents, float timeLerpSpeed = 1.0f) : extents(_extents), GUIElement(timeLerpSpeed) { }
@@ -20,6 +20,8 @@ public:
 
     virtual void MoveElement(Vector2f moveAmount) override { pos += moveAmount; }
     virtual void SetPosition(Vector2f newPos) override { pos = newPos; }
+
+    virtual Vector2f GetScale(void) const override { return extents; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;

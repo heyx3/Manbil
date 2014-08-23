@@ -30,6 +30,8 @@ public:
     virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
+    virtual Vector2f GetScale(void) const override { return Scale; }
+
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
     virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
 

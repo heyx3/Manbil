@@ -10,8 +10,8 @@ DrawingQuad * GUIElement::quad = 0;
 bool GUIElement::IsLocalInsideBounds(Vector2f pos) const
 {
     Vector2f halfSize = GetCollisionDimensions() * 0.5f;
-    return (pos.x >= halfSize.x) || (pos.y >= halfSize.y) ||
-           (pos.x <= halfSize.x) || (pos.y <= halfSize.y);
+    return (pos.x >= -halfSize.x && pos.x <= halfSize.x &&
+            pos.y >= -halfSize.y && pos.y <= halfSize.y);
 }
 
 void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, float depth, Vector2f scale, float rot)

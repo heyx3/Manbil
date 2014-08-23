@@ -42,12 +42,15 @@ public:
     virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
+    virtual Vector2f GetScale(void) const override { return Scale; }
+
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
     virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
 
     
     //Starts out with no text (an empty string).
-    GUILabel(TextRenderer * textRenderer, TextRenderer::FontSlot textSlot, Material * material, float timeSpeed = 1.0f,
+    GUILabel(TextRenderer * textRenderer = 0, TextRenderer::FontSlot textSlot = TextRenderer::FontSlot(),
+             Material * material = 0, float timeSpeed = 1.0f,
              HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
         : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
           RenderMat(material), TextRenderSlot(textSlot), text(""), GUIElement(timeSpeed),

@@ -8,7 +8,7 @@
 //A box the player can click on to bring up selection options.
 //TODO: Add a highlight that sits on the item currently moused over.
 //TODO: Make a more robust TextRenderer that can delete font slots (using a dictionary of slots instead of an array), then add the ability to insert/erase items from this element.
-//TODO: Take in the constructor the horizontal (but not vertical) alighment of the text items.
+//TODO: Take in the constructor the horizontal (but not vertical) alignment of the text items.
 class GUISelectionBox : public GUIElement
 {
 public:

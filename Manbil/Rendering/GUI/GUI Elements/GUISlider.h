@@ -1,18 +1,15 @@
 #pragma once
 
 #include "../GUIElement.h"
+#include "GUITexture.h"
 
 
 //A bar with a slibing nub that represents a value between 0 and 1.
-//TODO: Redo this class so that it has two GUITextures -- the bar and the nub.
 class GUISlider : public GUIElement
 {
 public:
 
-    MTexture2D *Bar, *Nub;
-    Material *BarMat, *NubMat;
-
-    Vector2f BarScale, NubScale;
+    GUITexture Bar, Nub;
 
     float Value;
     bool IsClickable;
@@ -30,18 +27,21 @@ public:
     virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2f newPos) override { center = newPos; }
 
-    virtual void ScaleBy(Vector2f scaleAmount) override { BarScale.MultiplyComponents(scaleAmount); NubScale.MultiplyComponents(scaleAmount); }
-    virtual void SetScale(Vector2f newScale) override { Vector2f delta(newScale.x / BarScale.x, newScale.y / BarScale.y); BarScale = newScale; NubScale.MultiplyComponents(delta); }
+    virtual Vector2f GetScale(void) const override { return Bar.GetScale(); }
+
+    virtual void ScaleBy(Vector2f scaleAmount) override { Bar.ScaleBy(scaleAmount); Nub.ScaleBy(scaleAmount); }
+    virtual void SetScale(Vector2f newScale) override;
 
 
-    GUISlider(MTexture2D* bar, MTexture2D* nub,
-              Material* barMat, Material* nubMat,
+    GUISlider(MTexture2D* bar = 0, MTexture2D* nub = 0,
+              Material* barMat = 0, Material* nubMat = 0,
               Vector2f barScale = Vector2f(1.0f, 1.0f), Vector2f nubScale = Vector2f(1.0f, 1.0f),
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
-              : GUIElement(timeLerpSpeed), Bar(bar), Nub(nub), IsClickable(isClickable), IsVertical(isVertical),
-                NubMat(nubMat), BarMat(barMat), BarScale(barScale), NubScale(nubScale)
+              : GUIElement(timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
+                Bar(bar, barMat, false, timeLerpSpeed), Nub(nub, nubMat, false, timeLerpSpeed)
     {
-
+        Bar.Scale = barScale;
+        Nub.Scale = nubScale;
     }
 
     
@@ -53,6 +53,8 @@ public:
 
 
 private:
+
+    float GetNewValue(Vector2f mousePos) const;
 
     Vector2f center;
 };

@@ -3,6 +3,7 @@
 
 GUIManager::GUIManager(void) : wasMouseClicked(false), panel(1.0f) { }
 
+
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 {
     Vector2f center = panel.GetCollisionCenter();

@@ -3,6 +3,10 @@
 #include "../SFMLOpenGLWorld.h"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
 #include "../Rendering/GUI/GUIManager.h"
+#include "../Rendering/GUI/GUI Elements/GUILabel.h"
+#include "../Rendering/GUI/GUI Elements/GUITexture.h"
+#include "../Rendering/GUI/GUI Elements/GUISlider.h"
+#include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
 
 
 class GUITestWorld : public SFMLOpenGLWorld
@@ -15,7 +19,9 @@ public:
         : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
         quad(0), quadMat(0), curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
         curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
-        guiMat(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false)
+        guiMat(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
+        guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
+        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -45,10 +51,14 @@ private:
     UniformDictionary quadParams;
     Material * quadMat;
 
-    GUIElement::Ptr guiLabel, guiTex, guiBar;
-    MTexture2D guiTexData;
-    Material * guiMat;
     GUIManager guiManager;
+    Material * guiMat;
+
+    GUILabel guiLabel;
+    GUITexture guiTex;
+    MTexture2D guiTexData;
+    GUISlider guiBar;
+    MTexture2D guiBarTex, guiNubTex;
 
     Mesh curveMesh;
     Material * curveMat;

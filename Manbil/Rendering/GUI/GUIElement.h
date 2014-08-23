@@ -10,9 +10,6 @@ class GUIElement
 {
 public:
 
-    typedef std::shared_ptr<GUIElement> Ptr;
-
-
     UniformDictionary Params;
     float TimeLerpSpeed;
     
@@ -42,6 +39,8 @@ public:
     //Sets this element's position.
     virtual void SetPosition(Vector2f newPos) = 0;
 
+    //Gets this element's scale.
+    virtual Vector2f GetScale(void) const = 0;
     //Scales this element by the given amount (may be approximate).
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
     //Sets this element's scale to the given amount (may be approximate).
