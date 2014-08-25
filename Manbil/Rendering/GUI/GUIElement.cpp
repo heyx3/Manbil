@@ -7,6 +7,16 @@
 DrawingQuad * GUIElement::quad = 0;
 
 
+void GUIElement::SetBounds(Vector2f min, Vector2f max)
+{
+    SetPosition((min + max) * 0.5f);
+
+    Vector2f dims = GetCollisionDimensions();
+    Vector2f newSize = max - min;
+    Vector2f delta(newSize.x / dims.x, newSize.y / dims.y);
+    ScaleBy(delta);
+}
+
 bool GUIElement::IsLocalInsideBounds(Vector2f pos) const
 {
     Vector2f halfSize = GetCollisionDimensions() * 0.5f;

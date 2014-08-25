@@ -7,6 +7,7 @@
 //Represents a single element in a UI.
 //Note that mouse events should be raised for all GUI elements, not just ones that are touching the mouse.
 //TODO: Keep a static reference to the currently-moused-over object, and if another object is being moused over, compare their depths to see which one stays moused over.
+//TODO: Take the uniform dictionary as a constructor parameter instead of manually setting it after creating each element.
 class GUIElement
 {
 public:
@@ -46,6 +47,9 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) = 0;
     //Sets this element's scale to the given amount (may be approximate).
     virtual void SetScale(Vector2f newScale) = 0;
+
+    //Sets this elements' center and scale to fit the given bounds.
+    void SetBounds(Vector2f min, Vector2f max);
 
 
     //Takes in the mouse position relative to this element's center.
