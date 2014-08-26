@@ -206,18 +206,23 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Set up the GUI material.
-    UniformDictionary guiElParams;
+    UniformDictionary guiElParamsCol;
     DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
     DNP lerpColor(new InterpolateNode(Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.5f, 0.5f, 0.5f, 1.0f),
                                       lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
 
-    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParams, false,
+    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParamsCol, false,
                                                            Vector2f(1.0f, 1.0f),
                                                            lerpColor);
-    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating gui element material", genMat.ErrorMessage))
+    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating color gui element material", genMat.ErrorMessage))
         return;
-    guiMat = genMat.Mat;
+    guiMatColor = genMat.Mat;
 
+    UniformDictionary guiElParamsGrey;
+    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParamsGrey, true, Vector2f(1.0f, 1.0f), lerpColor);
+    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating greyscale gui element material", genMat.ErrorMessage))
+        return;
+    guiMatGrey = genMat.Mat;
 
 
     //Set up the GUI elements.
@@ -237,7 +242,7 @@ void GUITestWorld::InitializeWorld(void)
     {
         return;
     }
-    guiLabel = GUILabel(guiElParams, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
+    guiLabel = GUILabel(guiElParamsGrey, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMatGrey, 1.0f,
                         GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM);
     guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiLabel.SetScale(Vector2f(1.0f, 1.0f));
@@ -248,7 +253,7 @@ void GUITestWorld::InitializeWorld(void)
     Array2D<Vector4f> guiTexCols(256, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
-    guiTex = GUITexture(guiElParams, &guiTexData, guiMat, true, 9.0f);
+    guiTex = GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
     guiTex.IsButton = true;
     guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
     {
@@ -263,7 +268,7 @@ void GUITestWorld::InitializeWorld(void)
     guiBarTex.SetColorData(whiteCol);
     guiNubTex.Create();
     guiNubTex.SetColorData(whiteCol);
-    guiBar = GUISlider(guiElParams, &guiBarTex, &guiNubTex, guiMat, guiMat, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
+    guiBar = GUISlider(guiElParamsCol, &guiBarTex, &guiNubTex, guiMatColor, guiMatColor, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
     guiBar.SetPosition(Vector2f(200.0f, 200.0f));
     guiBar.IsClickable = true;
     guiBar.Value = 0.5f;
@@ -276,9 +281,9 @@ void GUITestWorld::InitializeWorld(void)
     guiSelectorItems[0] = "Index 0";
     guiSelectorItems[1] = "Index 1";
     guiSelectorItems[2] = "Index 2";
-    guiSelector = GUISelectionBox(guiElParams, TextRender, guiMat, &guiTexData, textRendererID,
+    guiSelector = GUISelectionBox(guiElParamsCol, TextRender, guiMatColor, &guiTexData, textRendererID,
                                   Vector2u(guiTexData.GetWidth(), 100), TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
-                                  guiMat, GUILabel::HO_LEFT,
+                                  guiMatGrey, GUILabel::HO_LEFT,
                                   guiTex, guiSelectorItems);
     guiSelector.ExtendAbove = true;
     if (!ReactToError(guiSelector.BoxMat != 0, "Error generating GUI selection box", TextRender->GetError()))
@@ -300,6 +305,9 @@ void GUITestWorld::DestroyMyStuff(bool destroyStatics)
     DeleteAndSetToNull(quad);
     DeleteAndSetToNull(quadMat);
     DeleteAndSetToNull(curveMat);
+
+    DeleteAndSetToNull(guiMatColor);
+    DeleteAndSetToNull(guiMatGrey);
 
     guiBarTex.DeleteIfValid();
     guiNubTex.DeleteIfValid();

@@ -87,7 +87,7 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateDynamicQuadDrawMaterial
     if (greyscale)
     {
         extraNode = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
-                                        SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_W,
+                                        SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
                                         "GUIMat_swizzleTex"));
         finalTexCol = extraNode;
     }

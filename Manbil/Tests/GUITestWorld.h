@@ -19,7 +19,7 @@ public:
         : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
         quad(0), quadMat(0), curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
         curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
-        guiMat(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
+        guiMatColor(0), guiMatGrey(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
         guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
         guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
         guiLabel(UniformDictionary()), guiTex(UniformDictionary()), guiBar(UniformDictionary())
@@ -53,7 +53,7 @@ private:
     Material * quadMat;
 
     GUIManager guiManager;
-    Material * guiMat;
+    Material *guiMatColor, *guiMatGrey;
 
     GUILabel guiLabel;
     GUITexture guiTex;
