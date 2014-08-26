@@ -21,7 +21,8 @@ public:
         curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
         guiMat(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
         guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
+        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
+        guiLabel(UniformDictionary()), guiTex(UniformDictionary()), guiBar(UniformDictionary())
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -59,6 +60,7 @@ private:
     MTexture2D guiTexData;
     GUISlider guiBar;
     MTexture2D guiBarTex, guiNubTex;
+    GUISelectionBox guiSelector;
 
     Mesh curveMesh;
     Material * curveMat;

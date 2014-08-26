@@ -8,7 +8,6 @@
 //A box the player can click on to bring up selection options.
 //TODO: Add a highlight that sits on the item currently moused over.
 //TODO: Make a more robust TextRenderer that can delete font slots (using a dictionary of slots instead of an array), then add the ability to insert/erase items from this element.
-//TODO: Take in the constructor the horizontal (but not vertical) alignment of the text items.
 class GUISelectionBox : public GUIElement
 {
 public:
@@ -36,14 +35,16 @@ public:
 
     //If this element is unable to create render slots for the items, "BoxMat" will be set to 0.
     //The number of items in the given vector is an upper bound on the number of items that can exist in this box.
-    GUISelectionBox(TextRenderer* textRender, Material* selectionBoxMat,
+    GUISelectionBox(const UniformDictionary & params,
+                    TextRenderer* textRender, Material* selectionBoxMat,
                     MTexture2D * selectionBoxTex,
                     unsigned int fontID, Vector2u fontRenderTexSize,
                     const TextureSampleSettings2D & fontRenderSettings,
-                    Material * itemTextMat,
+                    Material * itemTextMat, GUILabel::HorizontalOffsets textOffset,
                     const GUITexture & itemListBackground, 
-                    std::vector<std::string> _items, unsigned int selected = 0,
+                    const std::vector<std::string> & _items, unsigned int selected = 0,
                     bool extendAbove = true, float timeLerpSpeed = 1.0f);
+    GUISelectionBox(void) : GUIElement(UniformDictionary()), itemBackground(UniformDictionary()) { }
 
 
     Vector2f GetScale(void) const { return scale; }

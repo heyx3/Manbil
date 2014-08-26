@@ -12,7 +12,8 @@ public:
     std::vector<GUIElement*> Elements;
 
 
-    GUIPanel(Vector2f _extents, float timeLerpSpeed = 1.0f) : extents(_extents), GUIElement(timeLerpSpeed) { }
+    GUIPanel(const UniformDictionary & params, Vector2f _extents, float timeLerpSpeed = 1.0f)
+        : extents(_extents), GUIElement(params, timeLerpSpeed) { }
 
 
     virtual Vector2f GetCollisionCenter(void) const override { return pos; }

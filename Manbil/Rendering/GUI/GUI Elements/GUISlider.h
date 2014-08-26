@@ -33,12 +33,13 @@ public:
     virtual void SetScale(Vector2f newScale) override;
 
 
-    GUISlider(MTexture2D* bar = 0, MTexture2D* nub = 0,
+    GUISlider(const UniformDictionary & params,
+              MTexture2D* bar = 0, MTexture2D* nub = 0,
               Material* barMat = 0, Material* nubMat = 0,
               Vector2f barScale = Vector2f(1.0f, 1.0f), Vector2f nubScale = Vector2f(1.0f, 1.0f),
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
-              : GUIElement(timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
-                Bar(bar, barMat, false, timeLerpSpeed), Nub(nub, nubMat, false, timeLerpSpeed)
+              : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
+                Bar(params, bar, barMat, false, timeLerpSpeed), Nub(params, nub, nubMat, false, timeLerpSpeed)
     {
         Bar.Scale = barScale;
         Nub.Scale = nubScale;

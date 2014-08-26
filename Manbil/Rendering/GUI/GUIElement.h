@@ -7,7 +7,6 @@
 //Represents a single element in a UI.
 //Note that mouse events should be raised for all GUI elements, not just ones that are touching the mouse.
 //TODO: Keep a static reference to the currently-moused-over object, and if another object is being moused over, compare their depths to see which one stays moused over.
-//TODO: Take the uniform dictionary as a constructor parameter instead of manually setting it after creating each element.
 class GUIElement
 {
 public:
@@ -27,7 +26,7 @@ public:
     bool IsMousedOver(void) const { return isMousedOver; }
 
 
-    GUIElement(float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed), Depth(0.0f), isMousedOver(false) { }
+    GUIElement(const UniformDictionary & params, float timeLerpSpeed = 1.0f) : TimeLerpSpeed(timeLerpSpeed), Depth(0.0f), isMousedOver(false) { Params = params; }
     virtual ~GUIElement(void) { }
 
 

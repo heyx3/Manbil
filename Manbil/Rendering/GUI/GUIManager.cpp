@@ -1,7 +1,7 @@
 #include "GUIManager.h"
 
 
-GUIManager::GUIManager(void) : wasMouseClicked(false), panel(1.0f) { }
+GUIManager::GUIManager(void) : wasMouseClicked(false), panel(UniformDictionary(), 1.0f) { }
 
 
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)

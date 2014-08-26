@@ -237,26 +237,24 @@ void GUITestWorld::InitializeWorld(void)
     {
         return;
     }
-    guiLabel = GUILabel(TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
+    guiLabel = GUILabel(guiElParams, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMat, 1.0f,
                         GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM);
-    guiLabel.Params = guiElParams;
     guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiLabel.SetScale(Vector2f(1.0f, 1.0f));
     if (!ReactToError(guiLabel.SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
         return;
 
     guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
-    Array2D<Vector4f> guiTexCols(128, 128);
+    Array2D<Vector4f> guiTexCols(256, 128);
     guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
     guiTexData.SetColorData(guiTexCols);
-    guiTex = GUITexture(&guiTexData, guiMat, true, 9.0f);
+    guiTex = GUITexture(guiElParams, &guiTexData, guiMat, true, 9.0f);
     guiTex.IsButton = true;
     guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
     {
         std::cout << "Clicked texture button. Screen pos: " <<
                      DebugAssist::ToString(mouse + clicked->GetCollisionCenter()) << "\n";
     };
-    guiTex.Params = guiElParams;
     guiTex.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiTex.SetScale(Vector2f(0.6f, 0.6f));
 
@@ -265,20 +263,32 @@ void GUITestWorld::InitializeWorld(void)
     guiBarTex.SetColorData(whiteCol);
     guiNubTex.Create();
     guiNubTex.SetColorData(whiteCol);
-    guiBar = GUISlider(&guiBarTex, &guiNubTex, guiMat, guiMat, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
+    guiBar = GUISlider(guiElParams, &guiBarTex, &guiNubTex, guiMat, guiMat, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
     guiBar.SetPosition(Vector2f(200.0f, 200.0f));
     guiBar.IsClickable = true;
     guiBar.Value = 0.5f;
-    guiBar.Params = guiElParams;
-    guiBar.Bar.Params = guiElParams;
-    guiBar.Nub.Params = guiElParams;
     guiBar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
     guiBar.Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
     guiBar.Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 
+    std::vector<std::string> guiSelectorItems;
+    guiSelectorItems.resize(3);
+    guiSelectorItems[0] = "Index 0";
+    guiSelectorItems[1] = "Index 1";
+    guiSelectorItems[2] = "Index 2";
+    guiSelector = GUISelectionBox(guiElParams, TextRender, guiMat, &guiTexData, textRendererID,
+                                  Vector2u(guiTexData.GetWidth(), 100), TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
+                                  guiMat, GUILabel::HO_LEFT,
+                                  guiTex, guiSelectorItems);
+    guiSelector.ExtendAbove = true;
+    if (!ReactToError(guiSelector.BoxMat != 0, "Error generating GUI selection box", TextRender->GetError()))
+        return;
+    guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
+
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiTex);
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiLabel);
     guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiBar);
+    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiSelector);
 
 
     //Set up the back buffer.
