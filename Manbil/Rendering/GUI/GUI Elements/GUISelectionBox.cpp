@@ -150,7 +150,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
         float dir = (ExtendAbove ? 1.0f : -1.0f);
         for (unsigned int i = 0; i < items.size(); ++i)
         {
-            if (i == selectedItem || (!DrawEmptyItems && items[i].size() == 0))
+            if (i == selectedItem || (!DrawEmptyItems && items[i].empty()))
                 continue;
 
             Vector2f itemPos(0.0f, (float)boxSize.y * dir * (float)numbItems);
@@ -195,24 +195,15 @@ void GUISelectionBox::OnMouseClick(Vector2f relativeMousePos)
         IsExtended = false;
         if (!inside)
         {
-            int dir = (ExtendAbove ? -1 : 1);
-
-            Vector2u boxSize(itemBackground.Tex->GetWidth(), BoxTex->GetHeight());
-            unsigned int numbItems = 1;
             for (unsigned int i = 0; i < items.size(); ++i)
             {
-                if (i == selectedItem || (!DrawEmptyItems && items[i].size() == 0))
+                if (i == selectedItem || (!DrawEmptyItems && items[i].empty()))
                     continue;
 
-                Vector2f pos(-(float)boxSize.x, (float)boxSize.y * dir * (float)numbItems);
-                itemElements[i].SetPosition(pos);
-
-                ++numbItems;
-
-                if (itemElements[i].IsLocalInsideBounds(relativeMousePos - pos))
+                if (itemElements[i].IsLocalInsideBounds(relativeMousePos - itemElements[i].GetCollisionCenter()))
                 {
                     selectedItem = i;
-                    break;
+                    return;
                 }
             }
         }
