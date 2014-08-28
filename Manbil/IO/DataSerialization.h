@@ -13,7 +13,9 @@ class MaybeValue
 public:
 
 	bool HasValue(void) const { return hasVal; }
-	Type GetValue(void) const { assert(HasValue());  return val; }
+
+    const Type & GetValue(void) const { assert(HasValue()); return val; }
+    Type & GetValue(void) { assert(HasValue()); return val; }
 
 	MaybeValue(void) : hasVal(false) { }
 	MaybeValue(Type value) : hasVal(true), val(value) { }

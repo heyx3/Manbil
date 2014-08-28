@@ -82,6 +82,277 @@ void MTexture2D::SetWrappingType(WrappingTypes wrapping)
 }
 
 
+bool MTexture2D::WriteData(DataWriter * writer, std::string & outError) const
+{
+    if (!writer->WriteUInt(width, "Width", outError))
+    {
+        outError = "Error writing width (" + std::to_string(width) + "): " + outError;
+        return false;
+    }
+    if (!writer->WriteUInt(height, "Height", outError))
+    {
+        outError = "Error writing height (" + std::to_string(height) + "): " + outError;
+        return false;
+    }
+
+    std::string pixelSizeStr;
+    switch (pixelSize)
+    {
+        case PS_8U: pixelSizeStr = "8U Color"; break;
+        case PS_16U: pixelSizeStr = "16U Color"; break;
+        case PS_16F: pixelSizeStr = "16F Color"; break;
+        case PS_32F: pixelSizeStr = "32F Color"; break;
+
+        case PS_8U_GREYSCALE: pixelSizeStr = "8U Greyscale"; break;
+        case PS_16U_GREYSCALE: pixelSizeStr = "16U Greyscale"; break;
+        case PS_32F_GREYSCALE: pixelSizeStr = "32F Greyscale"; break;
+
+        case PS_16U_DEPTH: pixelSizeStr = "16U Depth"; break;
+        case PS_24U_DEPTH: pixelSizeStr = "24U Depth"; break;
+        case PS_32F_DEPTH: pixelSizeStr = "32F Depth"; break;
+
+        default:
+            assert(false);
+            outError = "Unknown pixel size: " + std::to_string(pixelSize);
+            return false;
+    }
+    if (!writer->WriteString(pixelSizeStr, "Pixel Size (8U-32F)/Type (Color/Greyscale/Depth)", outError))
+    {
+        outError = "Error writing out pixel size/type '" + pixelSizeStr + "': " + outError;
+        return false;
+    }
+
+    if (!writer->WriteBool(usesMipmaps, "Uses Mipmaps", outError))
+    {
+        outError = "Error writing out whether this texture uses mipmaps (" +
+                       std::to_string(usesMipmaps) + "): " + outError;
+        return false;
+    }
+
+    if (!writer->WriteDataStructure(settings, "Sampling Settings", outError))
+    {
+        outError = "Error writing out the sampler settings: " + outError;
+        return false;
+    }
+
+    //Write out the texture data.
+    std::vector<char> texData;
+    Array2D<Vector4b> rgbaBytes(1, 1);
+    Array2D<Vector4f> rgbaFloats(1, 1);
+    Array2D<unsigned char> greyBytes(1, 1);
+    Array2D<float> greyFloats(1, 1);
+    switch (pixelSize)
+    {
+        case PS_8U:
+            rgbaBytes.Reset(width, height);
+            GetColorData(rgbaBytes);
+            texData.resize(rgbaBytes.GetArea() * sizeof(Vector4b));
+            memcpy(texData.data(), rgbaBytes.GetArray(), texData.size());
+            rgbaBytes.Reset(1, 1);
+            break;
+
+        case PS_16U:
+        case PS_16F:
+        case PS_32F:
+            rgbaFloats.Reset(width, height);
+            GetColorData(rgbaFloats);
+            texData.resize(rgbaBytes.GetArea() * sizeof(Vector4f));
+            memcpy(texData.data(), rgbaFloats.GetArray(), texData.size());
+            rgbaFloats.Reset(1, 1);
+            break;
+
+        case PS_8U_GREYSCALE:
+            greyBytes.Reset(width, height);
+            GetGreyscaleData(greyBytes);
+            texData.resize(greyBytes.GetArea() * sizeof(unsigned char));
+            memcpy(texData.data(), greyBytes.GetArray(), texData.size());
+            greyBytes.Reset(1, 1);
+            break;
+
+        case PS_16U_GREYSCALE:
+        case PS_32F_GREYSCALE:
+            greyFloats.Reset(width, height);
+            GetGreyscaleData(greyFloats);
+            texData.resize(greyFloats.GetArea() * sizeof(float));
+            memcpy(texData.data(), greyFloats.GetArray(), texData.size());
+            greyFloats.Reset(1, 1);
+            break;
+
+        case PS_16U_DEPTH:
+        case PS_24U_DEPTH:
+        case PS_32F_DEPTH:
+            break;
+
+        default:
+            outError = "Unknown pixel size value " + std::to_string(pixelSize);
+            return false;
+    }
+
+    std::string texDataString(texData.begin(), texData.end());
+    texData.clear();
+
+    if (!writer->WriteString(texDataString, "Texture Binary Data", outError))
+    {
+        outError = "Error writing texture binary data as a 'string': " + outError;
+        return false;
+    }
+
+
+    return true;
+}
+bool MTexture2D::ReadData(DataReader * reader, std::string & outError)
+{
+    MaybeValue<unsigned int> tryUInt = reader->ReadUInt(outError);
+    if (!tryUInt.HasValue())
+    {
+        outError = "Error reading texture width: " + outError;
+        return false;
+    }
+    width = tryUInt.GetValue();
+    tryUInt = reader->ReadUInt(outError);
+    if (!tryUInt.HasValue())
+    {
+        outError = "Error reading texture height: " + outError;
+        return false;
+    }
+    height = tryUInt.GetValue();
+
+
+    MaybeValue<std::string> tryStr = reader->ReadString(outError);
+    if (!tryStr.HasValue())
+    {
+        outError = "Error reading pixel size: " + outError;
+        return false;
+    }
+    std::string pxSize = tryStr.GetValue();
+    if (pxSize.compare("8U Color") == 0)
+        pixelSize = PS_8U;
+    else if (pxSize.compare("16U Color") == 0)
+        pixelSize = PS_16U;
+    else if (pxSize.compare("16F Color") == 0)
+        pixelSize = PS_16F;
+    else if (pxSize.compare("32F Color") == 0)
+        pixelSize = PS_32F;
+    else if (pxSize.compare("8U Greyscale") == 0)
+        pixelSize = PS_8U_GREYSCALE;
+    else if (pxSize.compare("16U Greyscale") == 0)
+        pixelSize = PS_16U_GREYSCALE;
+    else if (pxSize.compare("32F Greyscale") == 0)
+        pixelSize = PS_32F_GREYSCALE;
+    else if (pxSize.compare("16U Depth") == 0)
+        pixelSize = PS_16U_DEPTH;
+    else if (pxSize.compare("24U Depth") == 0)
+        pixelSize = PS_24U_DEPTH;
+    else if (pxSize.compare("32F Depth") == 0)
+        pixelSize = PS_32F_DEPTH;
+    else
+    {
+        outError = "Unknown pixel size input '" + pxSize + "'";
+        return false;
+    }
+
+
+    MaybeValue<bool> tryBool = reader->ReadBool(outError);
+    if (!tryBool.HasValue())
+    {
+        outError = "Error reading in whether this texture uses mipmaps: " + outError;
+        return false;
+    }
+    usesMipmaps = tryBool.GetValue();
+
+    if (!reader->ReadDataStructure(settings, outError))
+    {
+        outError = "Error reading the sampling settings: " + outError;
+        return false;
+    }
+
+
+    Create();
+
+    tryStr = reader->ReadString(outError);
+    if (!tryStr.HasValue())
+    {
+        outError = "Error reading in texture binary data as a string: " + outError;
+        return false;
+    }
+    std::vector<char> binaryData(tryStr.GetValue().begin(), tryStr.GetValue().end());
+    tryStr.GetValue().clear();
+
+    std::vector<char> texData;
+    Array2D<Vector4b> rgbaBytes(1, 1);
+    Array2D<Vector4f> rgbaFloats(1, 1);
+    Array2D<unsigned char> greyBytes(1, 1);
+    Array2D<float> greyFloats(1, 1);
+
+    unsigned int area = width * height;
+
+    switch (pixelSize)
+    {
+        case PS_8U:
+            if ((area * sizeof(Vector4b)) != binaryData.size())
+            {
+                outError = "Texture data should be " + std::to_string(area * sizeof(Vector4b)) +
+                               " bytes, but it was " + std::to_string(binaryData.size());
+                return false;
+            }
+            rgbaBytes.Reset(width, height);
+            memcpy(rgbaBytes.GetArray(), binaryData.data(), binaryData.size());
+            binaryData.clear();
+            SetColorData(rgbaBytes);
+            break;
+
+        case PS_16U:
+        case PS_16F:
+        case PS_32F:
+            if ((area * sizeof(Vector4f)) != binaryData.size())
+            {
+                outError = "Texture data should be " + std::to_string(area * sizeof(Vector4f)) +
+                               " bytes, but it was " + std::to_string(binaryData.size());
+                return false;
+            }
+            rgbaFloats.Reset(width, height);
+            memcpy(rgbaFloats.GetArray(), binaryData.data(), binaryData.size());
+            binaryData.clear();
+            SetColorData(rgbaFloats);
+            break;
+
+        case PS_8U_GREYSCALE:
+            if ((area * sizeof(unsigned char)) != binaryData.size())
+            {
+                outError = "Texture data should be " + std::to_string(area * sizeof(unsigned char)) +
+                               " bytes, but it was " + std::to_string(binaryData.size());
+                return false;
+            }
+            greyBytes.Reset(width, height);
+            memcpy(greyBytes.GetArray(), binaryData.data(), binaryData.size());
+            binaryData.clear();
+            SetGreyscaleData(greyBytes);
+            break;
+
+        case PS_16U_GREYSCALE:
+        case PS_32F_GREYSCALE:
+            if ((area * sizeof(float)) != binaryData.size())
+            {
+                outError = "Texture data should be " + std::to_string(area * sizeof(float)) +
+                               " bytes, but it was " + std::to_string(binaryData.size());
+                return false;
+            }
+            greyFloats.Reset(width, height);
+            memcpy(greyFloats.GetArray(), binaryData.data(), binaryData.size());
+            binaryData.clear();
+            SetGreyscaleData(greyFloats);
+            break;
+
+        case PS_16U_DEPTH:
+        case PS_24U_DEPTH:
+        case PS_32F_DEPTH:
+            break;
+    }
+
+    return true;
+}
+
+
 void MTexture2D::Create(const TextureSampleSettings2D & texSettings, bool useMipmaps, PixelSizes _pixelSize)
 {
     DeleteIfValid();
@@ -370,7 +641,7 @@ bool MTexture2D::UpdateDepthData(const Array2D<float> & pixelData, unsigned int 
 }
 
 
-bool MTexture2D::GetColorData(Array2D<Vector4b> & outData)
+bool MTexture2D::GetColorData(Array2D<Vector4b> & outData) const
 {
     if (!IsValidTexture() || !IsColorTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;
@@ -380,7 +651,7 @@ bool MTexture2D::GetColorData(Array2D<Vector4b> & outData)
 
     return true;
 }
-bool MTexture2D::GetColorData(Array2D<Vector4f> & outData)
+bool MTexture2D::GetColorData(Array2D<Vector4f> & outData) const
 {
     if (!IsValidTexture() || !IsColorTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;
@@ -391,7 +662,7 @@ bool MTexture2D::GetColorData(Array2D<Vector4f> & outData)
     return true;
 }
 
-bool MTexture2D::GetGreyscaleData(Array2D<unsigned char> & outData)
+bool MTexture2D::GetGreyscaleData(Array2D<unsigned char> & outData) const
 {
     if (!IsValidTexture() || !IsColorTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;
@@ -401,7 +672,7 @@ bool MTexture2D::GetGreyscaleData(Array2D<unsigned char> & outData)
 
     return true;
 }
-bool MTexture2D::GetGreyscaleData(Array2D<float> & outData)
+bool MTexture2D::GetGreyscaleData(Array2D<float> & outData) const
 {
     if (!IsValidTexture() || !IsColorTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;
@@ -412,7 +683,7 @@ bool MTexture2D::GetGreyscaleData(Array2D<float> & outData)
     return true;
 }
 
-bool MTexture2D::GetDepthData(Array2D<unsigned char> & outData)
+bool MTexture2D::GetDepthData(Array2D<unsigned char> & outData) const
 {
     if (!IsValidTexture() || !IsDepthTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;
@@ -422,7 +693,7 @@ bool MTexture2D::GetDepthData(Array2D<unsigned char> & outData)
 
     return true;
 }
-bool MTexture2D::GetDepthData(Array2D<float> & outData)
+bool MTexture2D::GetDepthData(Array2D<float> & outData) const
 {
     if (!IsValidTexture() || !IsDepthTexture() || outData.GetWidth() != width || outData.GetHeight() != height)
         return false;

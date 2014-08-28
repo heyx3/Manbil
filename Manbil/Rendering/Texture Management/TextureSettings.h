@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../OpenGLIncludes.h"
+#include "../../IO/DataSerialization.h"
 #include <assert.h>
 
 
@@ -24,7 +25,7 @@ GLint ToGLInt(WrappingTypes twa);
 
 
 //Information about how a 2D texture is sampled.
-struct TextureSampleSettings2D
+struct TextureSampleSettings2D : public ISerializable
 {
 public:
 
@@ -78,10 +79,14 @@ public:
         ApplyFilter(usesMipmaps);
         ApplyWrapping();
     }
+
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 };
 
 //Information about how a 3D/cubemap texture is sampled.
-struct TextureSampleSettings3D
+struct TextureSampleSettings3D : public ISerializable
 {
 public:
 
@@ -148,6 +153,10 @@ public:
         ApplyFilter(type, usesMipmaps);
         ApplyWrapping(type);
     }
+
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 };
 
 

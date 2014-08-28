@@ -6,7 +6,7 @@
 
 //Represents a texture.
 //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-class MTexture2D
+class MTexture2D : public ISerializable
 {
 public:
 
@@ -27,7 +27,11 @@ public:
     }
     ~MTexture2D(void) { DeleteIfValid(); }
 
-    MTexture2D(MTexture2D & cpy); //Intentionally not implemented.
+    MTexture2D(MTexture2D & cpy) = delete;
+
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 
 
     //Getters.
@@ -156,34 +160,34 @@ public:
     //This operation fails if this is not a color texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetColorData(Array2D<Vector4b> & outData);
+    bool GetColorData(Array2D<Vector4b> & outData) const;
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a color texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetColorData(Array2D<Vector4f> & outData);
+    bool GetColorData(Array2D<Vector4f> & outData) const;
 
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetGreyscaleData(Array2D<unsigned char> & outData);
+    bool GetGreyscaleData(Array2D<unsigned char> & outData) const;
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetGreyscaleData(Array2D<float> & outData);
+    bool GetGreyscaleData(Array2D<float> & outData) const;
 
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetDepthData(Array2D<unsigned char> & outData);
+    bool GetDepthData(Array2D<unsigned char> & outData) const;
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetDepthData(Array2D<float> & outData);
+    bool GetDepthData(Array2D<float> & outData) const;
 
 
 private:
