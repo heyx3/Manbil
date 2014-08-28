@@ -3,7 +3,20 @@
 
 Vector2f GUISlider::GetCollisionDimensions(void) const
 {
-    return Bar.GetScale().ComponentProduct(Vector2f((float)Bar.Tex->GetWidth(), (float)Bar.Tex->GetHeight()));
+    // The length along the slider axis is the length of the slider plus the length of half the nub on each side.
+    // The length perpendicular to the slider axis is the maximum length between the bar and the nub.
+
+    Vector2f barBounds = Bar.GetCollisionDimensions(),
+             nubBounds = Nub.GetCollisionDimensions();
+    if (IsVertical)
+    {
+        return Vector2f(BasicMath::Max(barBounds.x, nubBounds.x),
+                        barBounds.y + nubBounds.y);
+    }
+    else
+    {
+        return Vector2f(barBounds.x + nubBounds.x, BasicMath::Max(barBounds.y, nubBounds.y));
+    }
 }
 
 

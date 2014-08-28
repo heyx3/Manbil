@@ -120,6 +120,14 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 
     if (IsExtended)
     {
+        // Get the number of items to be rendered.
+        unsigned int numbRenderedItems = 0;
+        if (DrawEmptyItems)
+            numbRenderedItems = items.size();
+        else for (unsigned int i = 0; i < items.size(); ++i)
+            if (!items[i].empty())
+                ++numbRenderedItems;
+
         //Render the item backdrop.
         
         //First calculate the bounds of the backdrop.
@@ -127,13 +135,13 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
                  maxBack(halfDims.x, 0.0f);
         if (ExtendAbove)
         {
-            minBack.y = (float)((items.size() - 1) * (int)boxSize.y) - halfDims.y;
+            minBack.y = (float)(numbRenderedItems * boxSize.y) - halfDims.y;
             maxBack.y = halfDims.y;
         }
         else
         {
             minBack.y = -halfDims.y;
-            maxBack.y = (float)((items.size() - 1) * (int)boxSize.y) + halfDims.y;
+            maxBack.y = (float)(numbRenderedItems * boxSize.y) + halfDims.y;
         }
         itemBackground.SetBounds(minBack, maxBack);
 
@@ -146,14 +154,14 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 
 
         //Render each text item (the currently-selected item was already displayed in the selection box).
-        unsigned int numbItems = 1;
+        unsigned int itemIndex = 1;
         float dir = (ExtendAbove ? 1.0f : -1.0f);
         for (unsigned int i = 0; i < items.size(); ++i)
         {
             if (i == selectedItem || (!DrawEmptyItems && items[i].empty()))
                 continue;
 
-            Vector2f itemPos(0.0f, (float)boxSize.y * dir * (float)numbItems);
+            Vector2f itemPos(0.0f, (float)boxSize.y * dir * (float)itemIndex);
             switch (itemElements[i].OffsetHorz)
             {
                 case GUILabel::HO_LEFT:
@@ -178,7 +186,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
             itemElements[i].MoveElement(-center);
             if (!err.empty()) return "Error rendering item '" + items[i] + "': " + err;
 
-            ++numbItems;
+            ++itemIndex;
         }
     }
 
@@ -233,7 +241,7 @@ void GUISelectionBox::OnMouseRelease(Vector2f relativeMousePos)
 
 void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    //TODO: Once highlight is set up for this class, calculate any mouse-overs.
+    //TODO: Once highlight is set up for this class, calculate any mouse-overs. Don't just check whether each item is moused over; manually check the mouse position, because the selection hitbox shouldn't be limited to the text bounds.
 
     itemBackground.Update(elapsed, relativeMousePos - itemBackground.GetCollisionCenter());
     for (unsigned int i = 0; i < items.size(); ++i)
