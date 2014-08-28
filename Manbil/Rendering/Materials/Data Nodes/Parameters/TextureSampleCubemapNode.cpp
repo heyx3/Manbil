@@ -54,6 +54,12 @@ unsigned int TextureSampleCubemapNode::GetOutputIndex(ChannelsOut channel)
     }
 }
 
+void TextureSampleCubemapNode::AssertMyInputsValid(void) const
+{
+    //Make sure the param name is valid.
+    Assert(MaterialConstants::IsValidGLSLName(SamplerName),
+           "Parameter name '" + SamplerName + "' isn't a valid GLSL variable name!");
+}
 
 TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, std::string _samplerName, std::string name)
     : DataNode(MakeVector(texCoords), name),

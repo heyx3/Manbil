@@ -71,6 +71,13 @@ void TextureSample3DNode::WriteMyOutputs(std::string & outCode) const
     outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + SamplerName + ", " + GetInputs()[0].GetValue() + ");\n";
 }
 
+void TextureSample3DNode::AssertMyInputsValid(void) const
+{
+    //Make sure the param name is valid.
+    Assert(MaterialConstants::IsValidGLSLName(SamplerName),
+           "Parameter name '" + SamplerName + "' isn't a valid GLSL variable name!");
+}
+
 
 std::string TextureSample3DNode::GetInputDescription(unsigned int index) const
 {

@@ -20,6 +20,13 @@ std::string ParamNode::GetOutputName(unsigned int index) const
     return pName;
 }
 
+void ParamNode::AssertMyInputsValid(void) const
+{
+    //Make sure the param name is valid.
+     Assert(MaterialConstants::IsValidGLSLName(pName),
+            "Parameter name '" + pName + "' isn't a valid GLSL variable name!");
+}
+
 bool ParamNode::WriteExtraData(DataWriter * writer, std::string & outError) const
 {
     if (!writer->WriteString(pName, "paramName", outError))

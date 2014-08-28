@@ -32,6 +32,8 @@ protected:
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
     virtual std::string GetInputDescription(unsigned int index) const override;
     virtual void AssertMyInputsValid(void) const override;
 

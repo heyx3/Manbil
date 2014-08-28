@@ -19,6 +19,20 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
                   MaterialConstants::CameraFovName = "u_cam_fov";
 
+bool MaterialConstants::IsValidGLSLName(const std::string & name)
+{
+    for (unsigned int i = 0; i < name.length(); ++i)
+    {
+        if ((name[i] < 'a' || name[i] > 'z') &&
+            (name[i] < 'A' || name[i] > 'Z') &&
+            name[i] != '_')
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::string MaterialConstants::GetVertexInputDeclarations(const ShaderInOutAttributes & attribs)
 {
     std::string output;

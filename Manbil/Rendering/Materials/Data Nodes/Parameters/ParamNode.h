@@ -24,6 +24,8 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
+    virtual void AssertMyInputsValid(void) const override;
+
     virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 

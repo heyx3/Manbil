@@ -21,6 +21,10 @@ public:
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
                              CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName;
 
+    //Gets whether the given string is a valid GLSL variable name.
+    //Fails if there is any whitespace on either side of the name.
+    static bool IsValidGLSLName(const std::string & name);
+
     //Gets the vertex shader input declarations for vertices with the given attributes.
     static std::string GetVertexInputDeclarations(const ShaderInOutAttributes & attribs);
     //Gets the uniform declarations for a material with the given usage flags.
