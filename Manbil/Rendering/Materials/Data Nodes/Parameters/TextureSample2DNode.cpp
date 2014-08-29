@@ -78,6 +78,8 @@ void TextureSample2DNode::AssertMyInputsValid(void) const
     //Make sure the param name is valid.
     Assert(MaterialConstants::IsValidGLSLName(SamplerName),
            "Parameter name '" + SamplerName + "' isn't a valid GLSL variable name!");
+
+    Assert(GetInputs()[0].GetSize() == 2, "UV input isn't size 2; it's size " + ToString(GetInputs()[0].GetSize()));
 }
 
 
@@ -108,10 +110,4 @@ bool TextureSample2DNode::ReadExtraData(DataReader * reader, std::string & outEr
     SamplerName = trySName.GetValue();
 
     return true;
-}
-
-
-void TextureSample2DNode::AssertMyInputsValid(void) const
-{
-    Assert(GetInputs()[0].GetSize() == 2, "UV input isn't size 2; it's size " + ToString(GetInputs()[0].GetSize()));
 }

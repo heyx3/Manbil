@@ -632,6 +632,7 @@ IMPL_UPDATE_FACE(unsigned int, Depth, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT)
         return true; \
     }
 
+IMPL_GET_FACE(Vector4b, Color, GL_RGBA, GL_UNSIGNED_BYTE)
 IMPL_GET_FACE(Vector4f, Color, GL_RGBA, GL_FLOAT)
 IMPL_GET_FACE(Vector4u, Color, GL_RGBA, GL_UNSIGNED_INT)
 IMPL_GET_FACE(unsigned char, Greyscale, GL_RED, GL_UNSIGNED_BYTE)

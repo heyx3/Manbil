@@ -59,6 +59,8 @@ void TextureSampleCubemapNode::AssertMyInputsValid(void) const
     //Make sure the param name is valid.
     Assert(MaterialConstants::IsValidGLSLName(SamplerName),
            "Parameter name '" + SamplerName + "' isn't a valid GLSL variable name!");
+    Assert(GetInputs()[0].GetSize() == 3,
+           "Texture coord input isn't size 3; it's size " + ToString(GetInputs()[0].GetSize()));
 }
 
 TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, std::string _samplerName, std::string name)
@@ -106,9 +108,4 @@ bool TextureSampleCubemapNode::ReadExtraData(DataReader * reader, std::string & 
     SamplerName = trySName.GetValue();
 
     return true;
-}
-
-void TextureSampleCubemapNode::AssertMyInputsValid(void) const
-{
-    Assert(GetInputs()[0].GetSize() == 3, "Texture coord input isn't size 3; it's size " + ToString(GetInputs()[0].GetSize()));
 }

@@ -36,8 +36,6 @@ protected:
 
     virtual std::string GetInputDescription(unsigned int index) const override;
 
-    virtual void AssertMyInputsValid(void) const override;
-
 
 private:
 
