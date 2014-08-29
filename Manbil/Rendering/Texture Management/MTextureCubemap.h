@@ -6,7 +6,7 @@
 
 //Represents a cubemap texture.
 //TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-class MTextureCubemap
+class MTextureCubemap : public ISerializable
 {
 public:
 
@@ -44,7 +44,11 @@ public:
     }
     ~MTextureCubemap(void) { DeleteIfValid(); }
 
-    MTextureCubemap(MTextureCubemap & cpy); //Intentionally not implemented.
+    MTextureCubemap(MTextureCubemap & cpy) = delete;
+
+
+    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
+    virtual bool ReadData(DataReader * reader, std::string & outError) override;
 
 
     //Getters.
@@ -191,7 +195,7 @@ public:
     //Returns whether the operation succeeded.
 
 #define DEF_GET_FACE(pixelType, colorType) \
-    bool GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType> & outData)
+    bool GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType> & outData) const
 
     DEF_GET_FACE(Vector4b, Color);
     DEF_GET_FACE(Vector4f, Color);
