@@ -429,6 +429,9 @@
     <ClCompile Include="Rendering\GUI\GUIManager.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Asset Packaging\AssetPackage.cpp">
+      <Filter>Asset Packaging</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -943,6 +946,9 @@
     <ClInclude Include="Rendering\GUI\GUIManager.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="Asset Packaging\AssetPackage.h">
+      <Filter>Asset Packaging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1061,6 +1067,9 @@
     </Filter>
     <Filter Include="Rendering\Curves">
       <UniqueIdentifier>{f6d23fde-1015-4a05-b06d-5b44392a923e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset Packaging">
+      <UniqueIdentifier>{6ac83a61-b2e1-4f2a-bf8f-d1eb1e9ae1cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
