@@ -21,15 +21,22 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
 
 bool MaterialConstants::IsValidGLSLName(const std::string & name)
 {
+    //Not a valid name if the first symbol is a number digit.
+    if (name[0] >= '0' && name[0] <= '9')
+        return false;
+
+    //Not a valid name if any of the symbols are not a letter, number, or underscore.
     for (unsigned int i = 0; i < name.length(); ++i)
     {
         if ((name[i] < 'a' || name[i] > 'z') &&
             (name[i] < 'A' || name[i] > 'Z') &&
+            (name[i] < '0' || name[i] > '9') &&
             name[i] != '_')
         {
             return false;
         }
     }
+
     return true;
 }
 
