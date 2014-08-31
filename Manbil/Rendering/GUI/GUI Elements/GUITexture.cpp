@@ -12,7 +12,7 @@ Vector2f GUITexture::GetCollisionDimensions(void) const
 
 std::string GUITexture::Render(float elapsed, const RenderInfo & info)
 {
-    if (Mat == 0) return "No material!";
+    if (Tex == 0 || Mat == 0) return "Texture or material is not set!";
 
     SetUpQuad(info, Vector2f((float)center.x, (float)center.y), Depth,
               Scale.ComponentProduct(Vector2f((float)Tex->GetWidth(), (float)Tex->GetHeight())));

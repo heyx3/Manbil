@@ -24,6 +24,16 @@ public:
          *OnReleased_pData = 0;
 
 
+    GUITexture(const UniformDictionary & params,
+               MTexture2D * tex = 0, Material * mat = 0,
+               bool isButton = false, float timeLerpSpeed = 1.0f)
+        : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed), Scale(1.0f, 1.0f) { }
+
+
+    //Gets whether this GUITexture is renderable (i.e. it has a material and texture).
+    bool IsValid(void) const { return Mat != 0 && Tex != 0; }
+
+
     virtual Vector2f GetCollisionCenter(void) const override { return center; }
     virtual Vector2f GetCollisionDimensions(void) const override;
 
@@ -34,12 +44,6 @@ public:
 
     virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
     virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
-
-
-    GUITexture(const UniformDictionary & params,
-               MTexture2D * tex = 0, Material * mat = 0,
-               bool isButton = false, float timeLerpSpeed = 1.0f)
-        : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed), Scale(1.0f, 1.0f) { }
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
