@@ -80,45 +80,7 @@ public:
 
 
     //Positions this object based on the current auto pos counter and updates the given struct.
-    virtual void MoveObject(MovementData & data)
-    {
-        GUIElement* el;
-        float spaceAfter, xOffset;
-        Vector2f dims, min;
-
-        switch (Type)
-        {
-            case OT_GUIELEMENT:
-
-                el = GUIElementTypeData.Element;
-                spaceAfter = GUIElementTypeData.SpaceAfter;
-                xOffset = GUIElementTypeData.XOffset;
-
-                dims = el->GetCollisionDimensions();
-                min = Vector2f(data.AutoPosCounter.x + xOffset, data.AutoPosCounter.y);
-                el->SetBounds(min, Vector2f(min.x + dims.x, min.y + dims.y));
-
-                data.AutoPosCounter.y += dims.y + spaceAfter;
-                data.Width = BasicMath::Max(data.Width, xOffset + dims.x);
-
-                break;
-
-            case OT_VERTBREAK:
-                data.AutoPosCounter = Vector2f(data.AutoPosCounter.x,
-                                               data.AutoPosCounter.y + VertBreakTypeData.SpaceAfter);
-                break;
-            case OT_HORZBREAK:
-                data.AutoPosCounter.x += data.Width + HorzBreakTypeData.XOffset;
-                data.AutoPosCounter.y = HorzBreakTypeData.VerticalBorder;
-                data.Width = 0.0f;
-                break;
-
-
-            default:
-                assert(false);
-                break;
-        }
-    }
+    void MoveObject(MovementData & data);
 };
 
 
