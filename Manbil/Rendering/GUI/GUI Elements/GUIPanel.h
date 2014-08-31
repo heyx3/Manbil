@@ -31,6 +31,9 @@ public:
     //Gets whether this panel contains the given GUI element.
     bool ContainsElement(GUIElement* element) const;
 
+    const std::vector<GUIElement*> & GetElements(void) const { return elements; }
+    std::vector<GUIElement*> & GetElements(void) { return elements; }
+
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 

@@ -432,6 +432,9 @@
     <ClCompile Include="Asset Packaging\AssetPackage.cpp">
       <Filter>Asset Packaging</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -949,6 +952,12 @@
     <ClInclude Include="Asset Packaging\AssetPackage.h">
       <Filter>Asset Packaging</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\SerializationTestWorld.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1070,6 +1079,9 @@
     </Filter>
     <Filter Include="Asset Packaging">
       <UniqueIdentifier>{6ac83a61-b2e1-4f2a-bf8f-d1eb1e9ae1cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{e2dce602-daaf-4ec7-95de-2ef979573e7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
