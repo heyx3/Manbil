@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GUIElement.h"
+#include "GUITexture.h"
 
 
 //This file defines a special GUIElement like GUIPanel but with auto-formatting of elements.
@@ -43,43 +43,43 @@ public:
     struct GUIElementType
     {
     public:
-        float SpaceAfter, XOffset;
+        float XOffset;
         GUIElement* Element;
-        GUIElementType(GUIElement* element = 0, float spaceAfter = 0.0f, float xOffset = 0.0f)
-            : Element(element), SpaceAfter(spaceAfter), XOffset(xOffset) { }
-    };
-    struct VertBreakType
-    {
-    public:
-        float SpaceAfter;
-        VertBreakType(float spaceAfter = 0.0f) : SpaceAfter(spaceAfter) { }
+        GUIElementType(GUIElement* element = 0, float xOffset = 0.0f)
+            : Element(element), XOffset(xOffset) { }
     };
     struct HorzBreakType
     {
     public:
-        //The space between the top of the panel and the beginning of the next vertical strip.
-        float VerticalBorder;
         //The extra X offset before the next vertical strip.
         float XOffset;
-        HorzBreakType(float vertBorder = 0.0f, float xOffset = 0.0f)
-            : VerticalBorder(vertBorder), XOffset(xOffset) { }
+        HorzBreakType(float xOffset = 0.0f)
+            : XOffset(xOffset) { }
     };
 
 
     ObjectTypes Type;
 
+    //The vertical space after this object is put into the formatted panel.
+    float SpaceAfter;
+
     GUIElementType GUIElementTypeData;
-    VertBreakType VertBreakTypeData;
     HorzBreakType HorzBreakTypeData;
 
 
-    GUIFormatObject(void) : Type(OT_VERTBREAK) { }
-    GUIFormatObject(GUIElementType elementData) : Type(OT_GUIELEMENT), GUIElementTypeData(elementData) { }
-    GUIFormatObject(VertBreakType vertData) : Type(OT_VERTBREAK), VertBreakTypeData(vertData) { }
-    GUIFormatObject(HorzBreakType horzData) : Type(OT_HORZBREAK), HorzBreakTypeData(horzData) { }
+    //Creates a formatted GUIElement.
+    GUIFormatObject(GUIElementType elementData, float spaceAfter = 0.0f)
+        : Type(OT_GUIELEMENT), GUIElementTypeData(elementData), SpaceAfter(spaceAfter) { }
+
+    //Creates a vertical break of the given size.
+    GUIFormatObject(float spaceAfter = 0.0f) : Type(OT_VERTBREAK) { }
+
+    //Creates a horizontal break of the given dimensions.
+    GUIFormatObject(HorzBreakType horzData, float spaceAfter = 0.0f)
+        : Type(OT_HORZBREAK), HorzBreakTypeData(horzData), SpaceAfter(spaceAfter) { }
 
 
-    //Positions this object based on the current auto pos counter and updates the given struct.
+    //Positions this object based on the given struct and then updates the struct.
     void MoveObject(MovementData & data);
 };
 
@@ -90,13 +90,25 @@ class GUIFormattedPanel : public GUIElement
 {
 public:
 
-    //The objects to be arranged onto the panel.
-    std::vector<GUIFormatObject> Objects;
+    //Optional background texture (set the texture or material to 0 to disable it).
+    GUITexture BackgroundTex;
+
+    //The border around the items.
+    float HorizontalBorder, VerticalBorder;
 
 
-    GUIFormattedPanel(const UniformDictionary & params, Vector2f _extents, float timeLerpSpeed = 1.0f)
-        : extents(_extents), GUIElement(params, timeLerpSpeed)
-    { }
+    GUIFormattedPanel(const UniformDictionary & params,
+                      float horizontalBorder = 0.0f, float verticalBorder = 0.0f,
+                      GUITexture background = GUITexture(UniformDictionary()),
+                      float timeLerpSpeed = 1.0f)
+        : HorizontalBorder(horizontalBorder), VerticalBorder(verticalBorder),
+          extents(), BackgroundTex(background), GUIElement(params, timeLerpSpeed) { }
+
+
+    void AddObject(const GUIFormatObject & toAdd);
+    void RemoveObject(const GUIFormatObject & toRemove);
+    bool ContainsElement(GUIElement* toFind);
+    const std::vector<GUIFormatObject> & GetObjects(void) const { return objects; }
 
 
     virtual Vector2f GetCollisionCenter(void) const override { return pos; }
@@ -128,4 +140,7 @@ protected:
 private:
 
     Vector2f pos, extents;
+
+    //The objects to be arranged onto the panel.
+    std::vector<GUIFormatObject> objects;
 };
