@@ -226,8 +226,8 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Set up the GUI elements.
-    guiManager.GetRoot().SetPosition(Vector2f());
-    guiManager.GetRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
+    guiManager.GetNormalRoot().SetPosition(Vector2f());
+    guiManager.GetNormalRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
 
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,
@@ -290,10 +290,10 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetRoot().AddElement(&guiTex);
-    guiManager.GetRoot().AddElement(&guiLabel);
-    guiManager.GetRoot().AddElement(&guiBar);
-    guiManager.GetRoot().AddElement(&guiSelector);
+    guiManager.GetNormalRoot().AddElement(&guiTex);
+    guiManager.GetNormalRoot().AddElement(&guiLabel);
+    guiManager.GetNormalRoot().AddElement(&guiBar);
+    guiManager.GetNormalRoot().AddElement(&guiSelector);
 
 
     //Set up the back buffer.
@@ -325,13 +325,13 @@ void GUITestWorld::UpdateWorld(float elapsed)
     //Move the gui window.
     const float speed = 150.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        guiManager.GetRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
+        guiManager.GetNormalRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        guiManager.GetRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
+        guiManager.GetNormalRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        guiManager.GetRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
+        guiManager.GetNormalRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        guiManager.GetRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
+        guiManager.GetNormalRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
