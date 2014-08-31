@@ -42,6 +42,31 @@ void GUIFormatObject::MoveObject(MovementData & data)
 }
 
 
+void GUIFormattedPanel::AddObject(const GUIFormatObject & toAdd)
+{
+    objects.insert(objects.end(), toAdd);
+    RePositionElements();
+}
+void GUIFormattedPanel::RemoveObject(unsigned int index)
+{
+    objects.erase(objects.begin() + index);
+    RePositionElements();
+}
+bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
+{
+    for (unsigned int i = 0; i < objects.size(); ++i)
+    {
+        if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT &&
+            objects[i].GUIElementTypeData.Element == toFind)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
 {
     //Scale the 'extents' vector.
@@ -70,35 +95,17 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     Vector2f nPos = -pos;
 
-    //We don't know yet how wide/tall the elements will be, so just start at { 0, 0 }.
-    MovementData moveDat;
-    Vector2f maxPos(0.0f, 0.0f);
-
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
-        objects[i].MoveObject(moveDat);
-
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
 
-            maxPos.x = BasicMath::Max(maxPos.x, moveDat.AutoPosCounter.x + moveDat.Width);
-            maxPos.y = BasicMath::Max(maxPos.y, moveDat.AutoPosCounter.y);
-
-            Vector2f relPos = relativeMousePos - el->GetCollisionCenter();
             el->MoveElement(pos);
-            el->Update(elapsed, relPos);
+            el->Update(elapsed, relativeMousePos - el->GetCollisionCenter());
             el->MoveElement(nPos);
         }
     }
-
-    extents = Vector2f(maxPos.x + (HorizontalBorder * 0.5f), maxPos.y);
-
-    //Now that we have the extents, move the elements to be centered around { 0, 0 }.
-    Vector2f delta = extents * -0.5f;
-    for (unsigned int i = 0; i < objects.size(); ++i)
-        if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
-            objects[i].GUIElementTypeData.Element->MoveElement(delta);
 }
 std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info)
 {
@@ -109,11 +116,10 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
     //First, render the background.
     if (BackgroundTex.IsValid())
     {
-
-        BackgroundTex.MoveElement(pos);
+        BackgroundTex.SetPosition(pos);
+        BackgroundTex.SetScale(GetCollisionDimensions());
         BackgroundTex.Depth = Depth;
         err = BackgroundTex.Render(elapsedTime, info);
-        BackgroundTex.MoveElement(nPos);
 
         if (!err.empty()) return "Error rendering background texture: " + err;
     }
@@ -179,4 +185,26 @@ void GUIFormattedPanel::OnMouseRelease(Vector2f mouseP)
             el->OnMouseRelease(mouseP - el->GetCollisionCenter());
         }
     }
+}
+
+void GUIFormattedPanel::RePositionElements()
+{
+    //We don't know yet how wide/tall the elements will be, so just start at { 0, 0 }.
+    MovementData moveDat;
+    Vector2f maxPos(0.0f, 0.0f);
+
+    for (unsigned int i = 0; i < objects.size(); ++i)
+    {
+        objects[i].MoveObject(moveDat);
+
+        maxPos.x = BasicMath::Max(maxPos.x, moveDat.AutoPosCounter.x + moveDat.Width);
+        maxPos.y = BasicMath::Max(maxPos.y, moveDat.AutoPosCounter.y);
+    }
+
+    //Calculate the extents and re-center the elements around the origin.
+    extents = maxPos + Vector2f(HorizontalBorder, VerticalBorder);
+    Vector2f delta = extents * -0.5f;//TODO: Might have to modify this delta based on the horizontal/vertical border.
+    for (unsigned int i = 0; i < objects.size(); ++i)
+        if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
+            objects[i].GUIElementTypeData.Element->MoveElement(delta);
 }

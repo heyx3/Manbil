@@ -106,9 +106,15 @@ public:
 
 
     void AddObject(const GUIFormatObject & toAdd);
-    void RemoveObject(const GUIFormatObject & toRemove);
+    void RemoveObject(unsigned int index);
     bool ContainsElement(GUIElement* toFind);
+
     const std::vector<GUIFormatObject> & GetObjects(void) const { return objects; }
+    const GUIFormatObject & GetFormatObject(unsigned int index) const { assert(index < objects.size()); return objects[index]; }
+    GUIFormatObject & GetFormatObject(unsigned int index) { assert(index < objects.size()); return objects[index]; }
+
+    //Re-calculates the position of the elements in this panel. Only needs to be called if a GUIFormatObject was manually modified.
+    void RePositionElements(void);
 
 
     virtual Vector2f GetCollisionCenter(void) const override { return pos; }

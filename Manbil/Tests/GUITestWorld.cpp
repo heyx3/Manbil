@@ -226,8 +226,8 @@ void GUITestWorld::InitializeWorld(void)
 
 
     //Set up the GUI elements.
-    guiManager.GetNormalRoot().SetPosition(Vector2f());
-    guiManager.GetNormalRoot().SetScale(Vector2f((float)WindowSize.x, (float)WindowSize.y));
+
+    guiManager = GUIManager(ToV2f(WindowSize));
 
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,

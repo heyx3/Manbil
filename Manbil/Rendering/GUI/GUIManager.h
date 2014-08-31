@@ -23,9 +23,9 @@ public:
 
 
     //Creates an auto-formatted panel.
-    GUIManager(void) : isFormatted(true), formatPanel(UniformDictionary()) { }
+    GUIManager(void) : isFormatted(true), panel(UniformDictionary(), Vector2f()), formatPanel(UniformDictionary()) { }
     //Creates a normal panel.
-    GUIManager(Vector2f extents) : isFormatted(false), panel(UniformDictionary(), extents) { }
+    GUIManager(Vector2f extents) : isFormatted(false), formatPanel(UniformDictionary()), panel(UniformDictionary(), extents) { }
 
 
     void Update(float elapsed, Vector2i mousePos, bool clicked);
