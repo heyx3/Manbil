@@ -3,14 +3,10 @@
 #include "../GUIElement.h"
 
 
-//Contains a collection of GUI panels.
+//Contains a collection of GUI elements.
 class GUIPanel : public GUIElement
 {
 public:
-
-    //The GUI elements inside this panel.
-    std::vector<GUIElement*> Elements;
-
 
     GUIPanel(const UniformDictionary & params, Vector2f _extents, float timeLerpSpeed = 1.0f)
         : extents(_extents), GUIElement(params, timeLerpSpeed) { }
@@ -26,6 +22,14 @@ public:
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
+
+
+    //Adds the given element to this panel IF this panel doesn't have it already.
+    void AddElement(GUIElement* element);
+    //Returns whether or not the given element was a part of this panel before removing it.
+    bool RemoveElement(GUIElement* element);
+    //Gets whether this panel contains the given GUI element.
+    bool ContainsElement(GUIElement* element) const;
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
@@ -44,5 +48,7 @@ protected:
     
 private:
 
+    //The GUI elements inside this panel.
+    std::vector<GUIElement*> elements;
     Vector2f pos, extents;
 };

@@ -1,16 +1,36 @@
 #include "GUIPanel.h"
 
 
+
+void GUIPanel::AddElement(GUIElement* element)
+{
+    if (std::find(elements.begin(), elements.end(), element) == elements.end())
+        elements.insert(elements.end(), element);
+}
+bool GUIPanel::RemoveElement(GUIElement* element)
+{
+    auto loc = std::find(elements.begin(), elements.end(), element);
+    if (loc == elements.end())
+        return false;
+
+    elements.erase(loc);
+    return true;
+}
+bool GUIPanel::ContainsElement(GUIElement* element) const
+{
+    return (std::find(elements.begin(), elements.end(), element) != elements.end());
+}
+
 void GUIPanel::ScaleBy(Vector2f scaleAmount)
 {
     //Scale the 'extents' vector.
     extents = Vector2f(extents.x, extents.y).ComponentProduct(scaleAmount);
 
     //Scale each element's position to move it relative to this panel's center.
-    for (unsigned int i = 0; i < Elements.size(); ++i)
+    for (unsigned int i = 0; i < elements.size(); ++i)
     {
-        Vector2f elPos = Elements[i]->GetCollisionCenter();
-        Elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
+        Vector2f elPos = elements[i]->GetCollisionCenter();
+        elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
     }
 }
 void GUIPanel::SetScale(Vector2f newScale)
@@ -24,12 +44,12 @@ void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     Vector2f nPos = -pos;
 
-    for (unsigned int i = 0; i < Elements.size(); ++i)
+    for (unsigned int i = 0; i < elements.size(); ++i)
     {
-        Vector2f relPos = relativeMousePos - Elements[i]->GetCollisionCenter();
-        Elements[i]->MoveElement(pos);
-        Elements[i]->Update(elapsed, relPos);
-        Elements[i]->MoveElement(nPos);
+        Vector2f relPos = relativeMousePos - elements[i]->GetCollisionCenter();
+        elements[i]->MoveElement(pos);
+        elements[i]->Update(elapsed, relPos);
+        elements[i]->MoveElement(nPos);
     }
 }
 std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
@@ -41,13 +61,13 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
     std::string err = "";
     unsigned int line = 0;
 
-    for (unsigned int i = 0; i < Elements.size(); ++i)
+    for (unsigned int i = 0; i < elements.size(); ++i)
     {
-        Elements[i]->MoveElement(pos);
-        Elements[i]->Depth += Depth;
-        std::string tempErr = Elements[i]->Render(elapsedTime, info);
-        Elements[i]->MoveElement(nPos);
-        Elements[i]->Depth -= Depth;
+        elements[i]->MoveElement(pos);
+        elements[i]->Depth += Depth;
+        std::string tempErr = elements[i]->Render(elapsedTime, info);
+        elements[i]->MoveElement(nPos);
+        elements[i]->Depth -= Depth;
 
         if (!tempErr.empty())
         {
@@ -63,19 +83,19 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
 
 void GUIPanel::OnMouseClick(Vector2f mouseP)
 {
-    for (unsigned int i = 0; i < Elements.size(); ++i)
-        Elements[i]->OnMouseClick(mouseP - Elements[i]->GetCollisionCenter());
+    for (unsigned int i = 0; i < elements.size(); ++i)
+        elements[i]->OnMouseClick(mouseP - elements[i]->GetCollisionCenter());
 }
 void GUIPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
-    for (unsigned int i = 0; i < Elements.size(); ++i)
+    for (unsigned int i = 0; i < elements.size(); ++i)
     {
-        Vector2f center = Elements[i]->GetCollisionCenter();
-        Elements[i]->OnMouseDrag(oldP - center, currentP - center);
+        Vector2f center = elements[i]->GetCollisionCenter();
+        elements[i]->OnMouseDrag(oldP - center, currentP - center);
     }
 }
 void GUIPanel::OnMouseRelease(Vector2f mouseP)
 {
-    for (unsigned int i = 0; i < Elements.size(); ++i)
-        Elements[i]->OnMouseRelease(mouseP - Elements[i]->GetCollisionCenter());
+    for (unsigned int i = 0; i < elements.size(); ++i)
+        elements[i]->OnMouseRelease(mouseP - elements[i]->GetCollisionCenter());
 }

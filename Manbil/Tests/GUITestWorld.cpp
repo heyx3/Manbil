@@ -290,10 +290,10 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiTex);
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiLabel);
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiBar);
-    guiManager.GetRoot().Elements.insert(guiManager.GetRoot().Elements.end(), &guiSelector);
+    guiManager.GetRoot().AddElement(&guiTex);
+    guiManager.GetRoot().AddElement(&guiLabel);
+    guiManager.GetRoot().AddElement(&guiBar);
+    guiManager.GetRoot().AddElement(&guiSelector);
 
 
     //Set up the back buffer.
