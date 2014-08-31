@@ -22,7 +22,7 @@ public:
         guiMatColor(0), guiMatGrey(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
         guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
         guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-        guiLabel(UniformDictionary()), guiTex(UniformDictionary()), guiBar(UniformDictionary())
+        guiLabel(), guiTex(UniformDictionary()), guiBar(UniformDictionary())
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
