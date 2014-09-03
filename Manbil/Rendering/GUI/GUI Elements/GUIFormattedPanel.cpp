@@ -17,7 +17,7 @@ void GUIFormatObject::MoveObject(MovementData & data)
 
             dims = el->GetCollisionDimensions();
             min = Vector2f(data.AutoPosCounter.x + xOffset, data.AutoPosCounter.y);
-            el->SetBounds(min, Vector2f(min.x + dims.x, min.y + dims.y));
+            el->SetBounds(min, min + dims);
 
             data.AutoPosCounter.y += dims.y + SpaceAfter;
             data.Width = BasicMath::Max(data.Width, xOffset + dims.x);
@@ -154,35 +154,47 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
 
 void GUIFormattedPanel::OnMouseClick(Vector2f mouseP)
 {
+    Vector2f nPos = -pos;
+
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
+            el->MoveElement(pos);
             el->OnMouseClick(mouseP - el->GetCollisionCenter());
+            el->MoveElement(nPos);
         }
     }
 }
 void GUIFormattedPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
+    Vector2f nPos = -pos;
+
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
+            el->MoveElement(pos);
             Vector2f center = el->GetCollisionCenter();
             el->OnMouseDrag(oldP - center, currentP - center);
+            el->MoveElement(nPos);
         }
     }
 }
 void GUIFormattedPanel::OnMouseRelease(Vector2f mouseP)
 {
+    Vector2f nPos = -pos;
+
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
+            el->MoveElement(pos);
             el->OnMouseRelease(mouseP - el->GetCollisionCenter());
+            el->MoveElement(nPos);
         }
     }
 }

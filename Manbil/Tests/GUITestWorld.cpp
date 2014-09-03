@@ -227,7 +227,8 @@ void GUITestWorld::InitializeWorld(void)
 
     //Set up the GUI elements.
 
-    guiManager = GUIManager(ToV2f(WindowSize));
+    guiManager = GUIManager();
+    guiManager.GetRoot()->SetBounds(Vector2f(), ToV2f(WindowSize));
 
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,
@@ -243,7 +244,7 @@ void GUITestWorld::InitializeWorld(void)
         return;
     }
     guiLabel = GUILabel(guiElParamsGrey, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMatGrey, 1.0f,
-                        GUILabel::HO_RIGHT, GUILabel::VO_BOTTOM);
+                        GUILabel::HO_CENTER, GUILabel::VO_CENTER);
     guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiLabel.SetScale(Vector2f(1.0f, 1.0f));
     if (!ReactToError(guiLabel.SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
@@ -290,10 +291,10 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetNormalRoot().AddElement(&guiTex);
-    guiManager.GetNormalRoot().AddElement(&guiLabel);
-    guiManager.GetNormalRoot().AddElement(&guiBar);
-    guiManager.GetNormalRoot().AddElement(&guiSelector);
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiLabel)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiSelector)));
 
 
     //Set up the back buffer.
@@ -325,13 +326,13 @@ void GUITestWorld::UpdateWorld(float elapsed)
     //Move the gui window.
     const float speed = 150.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        guiManager.GetNormalRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
+        guiManager.GetFormattedRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        guiManager.GetNormalRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
+        guiManager.GetFormattedRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        guiManager.GetNormalRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
+        guiManager.GetFormattedRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        guiManager.GetNormalRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
+        guiManager.GetFormattedRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
