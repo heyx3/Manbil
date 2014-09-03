@@ -72,7 +72,7 @@ public:
         : Type(OT_GUIELEMENT), GUIElementTypeData(elementData), SpaceAfter(spaceAfter) { }
 
     //Creates a vertical break of the given size.
-    GUIFormatObject(float spaceAfter = 0.0f) : Type(OT_VERTBREAK) { }
+    GUIFormatObject(float spaceAfter = 0.0f) : Type(OT_VERTBREAK), SpaceAfter(spaceAfter) { }
 
     //Creates a horizontal break of the given dimensions.
     GUIFormatObject(HorzBreakType horzData, float spaceAfter = 0.0f)

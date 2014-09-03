@@ -291,9 +291,11 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex, 40.0f), 40.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiLabel)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(100.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(100.0f)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiSelector)));
 
 
