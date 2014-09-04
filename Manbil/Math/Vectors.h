@@ -3,8 +3,6 @@
 #include "BasicMath.h"
 
 
-//TODO: Redo interfaces to use Vector2/3/4u instead of individual unsigned ints.
-
 namespace MyVectors
 {
 	#pragma region Byte vectors
@@ -468,6 +466,9 @@ namespace MyVectors
 		Vector2i LessXMoreY(void) const { return Vector2i(x - 1, y + 1); }
 		Vector2i MoreXY(void) const { return Vector2i(x + 1, y + 1); }
 
+        Vector2i FlipX(void) const { return Vector2i(-x, y); }
+        Vector2i FlipY(void) const { return Vector2i(x, -y); }
+
         Vector2i& operator+=(const Vector2i& other) { x += other.x; y += other.y; return *this; }
         Vector2i& operator-=(const Vector2i& other) { x -= other.x; y -= other.y; return *this; }
 		Vector2i& operator*=(int i) { x *= i; y *= i; return *this; }
@@ -562,6 +563,10 @@ namespace MyVectors
         Vector3i MoreX(void) const { return Vector3i(x + 1, y, z); }
         Vector3i MoreY(void) const { return Vector3i(x, y + 1, z); }
         Vector3i MoreZ(void) const { return Vector3i(x, y, z + 1); }
+
+        Vector3i FlipX(void) const { return Vector3i(-x, y, z); }
+        Vector3i FlipY(void) const { return Vector3i(x, -y, z); }
+        Vector3i FlipZ(void) const { return Vector3i(x, y, -z); }
 
 
         Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
@@ -772,7 +777,10 @@ namespace MyVectors
 
         bool operator==(const Vector2f & other) const { return Equals(other); }
         bool operator!=(const Vector2f& other) const { return x != other.x || y != other.y; }
-		bool Equals(Vector2f v) const { return x == v.x && y == v.y; }
+        bool Equals(Vector2f v) const { return x == v.x && y == v.y; }
+
+        Vector2f FlipX(void) const { return Vector2f(-x, y); }
+        Vector2f FlipY(void) const { return Vector2f(x, -y); }
 
         Vector2f Clamp(float min, float max) const
         {
@@ -886,7 +894,11 @@ namespace MyVectors
 	
         bool operator==(const Vector3f& other) const { return Equals(other); }
         bool operator!=(const Vector3f& other) const { return x != other.x || y != other.y || z != other.z; }
-		bool Equals(Vector3f v) const { return x == v.x && y == v.y && z == v.z; }
+        bool Equals(Vector3f v) const { return x == v.x && y == v.y && z == v.z; }
+
+        Vector3f FlipX(void) const { return Vector3f(-x, y, z); }
+        Vector3f FlipY(void) const { return Vector3f(x, -y, z); }
+        Vector3f FlipZ(void) const { return Vector3f(x, y, -z); }
 
         Vector3f Clamp(float min, float max)
         {
@@ -1016,6 +1028,11 @@ namespace MyVectors
                             BasicMath::Max(min, BasicMath::Min(max, z)), 
                             BasicMath::Max(min, BasicMath::Min(max, w)));
         }
+
+        Vector4f FlipX(void) const { return Vector4f(-x, y, z, w); }
+        Vector4f FlipY(void) const { return Vector4f(x, -y, z, w); }
+        Vector4f FlipZ(void) const { return Vector4f(x, y, -z, w); }
+        Vector4f FlipW(void) const { return Vector4f(x, y, z, -w); }
 
         //Casts this vector's components to integers, dropping any fractional values.
         Vector4i CastToInt(void) const { return Vector4i((int)x, (int)y, (int)z, (int)w); }
