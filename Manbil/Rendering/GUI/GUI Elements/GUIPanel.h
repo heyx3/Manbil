@@ -4,6 +4,7 @@
 
 
 //Contains a collection of GUI elements.
+//TODO: If this panel is marked as "scrollable", render its elements to a texture and then render that texture, so that the elements never extend outside this panel's bounds. Also have a private GUISlider that acts as the scroll bar.
 class GUIPanel : public GUIElement
 {
 public:
