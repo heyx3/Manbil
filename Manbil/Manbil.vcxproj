@@ -93,6 +93,7 @@
     <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
+    <ClCompile Include="Input\KeyboardTextInput.cpp" />
     <ClCompile Include="Input\LookRotation.cpp" />
     <ClCompile Include="IO\BinarySerialization.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIPanel.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISelectionBox.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISlider.cpp" />
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUITextBox.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUITexture.cpp" />
     <ClCompile Include="Rendering\GUI\GUIElement.cpp" />
     <ClCompile Include="Rendering\GUI\GUIManager.cpp" />
@@ -238,6 +240,7 @@
     <ClInclude Include="BasicMComponentFactories.h" />
     <ClInclude Include="BasicMComponents.h" />
     <ClInclude Include="DebugAssist.h" />
+    <ClInclude Include="Editor\EditorPanel.h" />
     <ClInclude Include="Events\EventManager.h" />
     <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Input\BoolInput.h" />
@@ -250,6 +253,7 @@
     <ClInclude Include="Input\Input Objects\TwoButtonInput.h" />
     <ClInclude Include="Input\Input.hpp" />
     <ClInclude Include="Input\InputManager.h" />
+    <ClInclude Include="Input\KeyboardTextInput.h" />
     <ClInclude Include="Input\LookRotation.h" />
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\BinarySerialization.h" />
@@ -319,6 +323,7 @@
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIPanel.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISelectionBox.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISlider.h" />
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUITextBox.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUITexture.h" />
     <ClInclude Include="Rendering\GUI\GUIElement.h" />
     <ClInclude Include="Rendering\GUI\GUIManager.h" />

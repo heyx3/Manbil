@@ -115,6 +115,17 @@ void GUITestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 
 void GUITestWorld::InitializeWorld(void)
 {
+    keyboardInput.OnTextChanged = [](KeyboardTextInput * thisInput, void* pData)
+    {
+        std::cout << thisInput->GetText() << "\n";
+    };
+    keyboardInput.OnEnterKey = [](KeyboardTextInput * thisInput, void* pData)
+    {
+        std::cout << "Hit enter. Final text: '" << thisInput->GetText() << "'\n\n\n";
+        thisInput->ClearText(false);
+    };
+
+
     std::string err;
 
 
@@ -291,11 +302,11 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex, 40.0f), 40.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex, 40.0f), 00.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiLabel)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(100.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(000.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(100.0f)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(10.0f)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiSelector)));
 
 
@@ -356,6 +367,9 @@ void GUITestWorld::UpdateWorld(float elapsed)
         curveEndSlope = slopePosVal;
         curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
     }
+
+
+    keyboardInput.Update(elapsed);
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {

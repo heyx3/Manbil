@@ -7,6 +7,7 @@
 #include "../Rendering/GUI/GUI Elements/GUITexture.h"
 #include "../Rendering/GUI/GUI Elements/GUISlider.h"
 #include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
+#include "../Input/KeyboardTextInput.h"
 
 
 class GUITestWorld : public SFMLOpenGLWorld
@@ -54,6 +55,8 @@ private:
 
     GUIManager guiManager;
     Material *guiMatColor, *guiMatGrey;
+
+    KeyboardTextInput keyboardInput;
 
     GUILabel guiLabel;
     GUITexture guiTex;
