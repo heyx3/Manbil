@@ -117,7 +117,19 @@ void GUITestWorld::InitializeWorld(void)
 {
     keyboardInput.OnTextChanged = [](KeyboardTextInput * thisInput, void* pData)
     {
-        std::cout << thisInput->GetText() << "\n";
+        for (unsigned int i = 0; i < thisInput->GetText().size(); ++i)
+        {
+            if (thisInput->CursorPos == i) std::cout << '|';
+            std::cout << thisInput->GetText()[i];
+        }
+        if (thisInput->CursorPos == thisInput->GetText().size())
+            std::cout << "|";
+        std::cout << "\n";
+    };
+    keyboardInput.OnCursorMoved = [](KeyboardTextInput * thisIn, int amnt, void* pData)
+    {
+        if (amnt != 0)
+            thisIn->OnTextChanged(thisIn, thisIn->OnTextChanged_Data);
     };
     keyboardInput.OnEnterKey = [](KeyboardTextInput * thisInput, void* pData)
     {

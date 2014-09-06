@@ -20,19 +20,50 @@ KeyboardTextInput::KeyboardTextInput(std::string _text)
 
 void KeyboardTextInput::InsertChar(unsigned int pos, char value)
 {
+    if (CursorPos >= pos) CursorPos += 1;
+
     text.insert(text.begin() + pos, value);
     RaiseOnTextChanged();
 }
 char KeyboardTextInput::RemoveChar(unsigned int pos)
 {
+    if (pos >= text.size()) return 0;
+
+    if (CursorPos > pos) CursorPos -= 1;
+
     char c = text[pos];
     text.erase(text.begin() + pos);
     RaiseOnTextChanged();
     return c;
 }
+void KeyboardTextInput::InsertText(unsigned int pos, const std::string & value)
+{
+    if (CursorPos >= pos) CursorPos += value.size();
+
+    text.insert(text.begin() + pos, value.begin(), value.end());
+    RaiseOnTextChanged();
+}
+std::string KeyboardTextInput::RemoveText(unsigned int pos, unsigned int length)
+{
+    if (pos >= text.size()) return "";
+
+    //Trim the length to not extend beyond the length of the string.
+    if (pos + length > text.size())
+        length = text.size() - pos;
+
+    if (CursorPos > pos) CursorPos -= length;
+
+    std::string s = text.substr(pos, length);
+    text.erase(pos, length);
+    RaiseOnTextChanged();
+    return s;
+}
 
 void KeyboardTextInput::Update(float elapsedTime)
 {
+    if (CursorPos > text.size()) CursorPos = text.size();
+
+
     //Update all key counters.
 
     #define GetOffsetKey(key, i) sf::Keyboard::isKeyPressed((sf::Keyboard::Key)((int)key + i))
@@ -178,7 +209,7 @@ void KeyboardTextInput::Update(float elapsedTime)
             if (GetKeyUsable(timeHeldDownSpecials))
                 InsertChar(GetClampedCursor(), c);
         }
-        else timeHeldDownLetters[i] = -1.0f;
+        else timeHeldDownSpecials[i] = -1.0f;
     }
     for (unsigned int i = 0; i < NUMB_CONTROLS; ++i)
     {
@@ -202,7 +233,8 @@ void KeyboardTextInput::Update(float elapsedTime)
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
                     if (GetKeyUsable(timeHeldDownControls) && CursorPos > 0)
-                        RemoveChar(CursorPos - 1);
+                        if (ctrl) RemoveText(0, CursorPos);
+                        else RemoveChar(CursorPos - 1);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -211,7 +243,8 @@ void KeyboardTextInput::Update(float elapsedTime)
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
                     if (GetKeyUsable(timeHeldDownControls) && CursorPos < text.size())
-                        RemoveChar(CursorPos);
+                        if (ctrl) RemoveText(CursorPos, text.size());
+                        else RemoveChar(CursorPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -219,8 +252,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::PageUp))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = 0;
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -228,8 +263,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::PageDown))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = text.size();
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -237,8 +274,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::End))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = text.size();
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -246,8 +285,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Home))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = 0;
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -255,8 +296,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls) && CursorPos > 0)
                         CursorPos -= 1;
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -264,8 +307,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls) && CursorPos < text.size())
                         CursorPos += 1;
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -273,8 +318,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = 0;
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;
@@ -282,8 +329,10 @@ void KeyboardTextInput::Update(float elapsedTime)
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
                 {
                     UpdateKeyTime(timeHeldDownControls[i]);
+                    int oldPos = (int)CursorPos;
                     if (GetKeyUsable(timeHeldDownControls))
                         CursorPos = text.size();
+                    RaiseOnCursorMoved((int)CursorPos - oldPos);
                 }
                 else timeHeldDownControls[i] = -1.0f;
                 break;

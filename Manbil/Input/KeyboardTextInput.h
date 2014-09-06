@@ -20,8 +20,14 @@ public:
     void(*OnEnterKey)(KeyboardTextInput * thisText, void* pData) = 0;
     void* OnEnterKey_Data = 0;
 
+    //Raised when the user moves the cursor with a keyboard key (e.x. the arrow keys).
+    //Does not include events that modified the text (e.x. adding text behind the cursor).
+    //The value of "pData" is the value of this instance's "OnCursorMoved_Data" field.
+    void(*OnCursorMoved)(KeyboardTextInput * thisText, int moveAmount, void* pData) = 0;
+    void* OnCursorMoved_Data = 0;
 
-    //The current position of the cursor. Automatically clamped to make sure it stays within bounds.
+
+    //The current position of the cursor. Must stay within text bounds.
     unsigned int CursorPos = 0;
     //The length of time a key must be held down before it starts repeating.
     float KeyRepeatWait = 0.5f;
@@ -39,7 +45,14 @@ public:
     //Inserts the given char at the given position in the text.
     void InsertChar(unsigned int pos, char value);
     //Removes the char at the given position in the text and returns its value.
+    //Returns 0 if the given pos is beyond the size of the text.
     char RemoveChar(unsigned int pos);
+    //Inserts the given text at the given position in the text.
+    void InsertText(unsigned int pos, const std::string & value);
+    //Removes the given substring and returns its value.
+    //If the given pos is beyond the size of the text, returns an empty string.
+    //If the end of the given substring is beyond the size of the text, it will be trimmed.
+    std::string RemoveText(unsigned int pos, unsigned int length);
     //Clears the text from this input. Optionally raises the "OnTextChanged" event.
     void ClearText(bool raiseEvent) { text.clear(); if (raiseEvent) RaiseOnTextChanged(); }
 
@@ -66,6 +79,7 @@ private:
 
     void RaiseOnTextChanged(void) { if (OnTextChanged != 0) OnTextChanged(this, OnTextChanged_Data); }
     void RaiseOnEnterKey(void) { if (OnEnterKey != 0) OnEnterKey(this, OnEnterKey_Data); }
+    void RaiseOnCursorMoved(int moveAmount) { if (OnCursorMoved != 0) OnCursorMoved(this, moveAmount, OnCursorMoved_Data); }
 
     unsigned int GetClampedCursor(void) const { return BasicMath::Min(text.size(), CursorPos); }
 };
