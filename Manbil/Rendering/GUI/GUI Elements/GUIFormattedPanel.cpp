@@ -215,11 +215,11 @@ void GUIFormattedPanel::RePositionElements()
         objects[i].MoveObject(moveDat);
 
         maxPos.x = BasicMath::Max(maxPos.x, moveDat.AutoPosCounter.x + moveDat.Width);
-        maxPos.y = BasicMath::Max(maxPos.y, moveDat.AutoPosCounter.y);
+        maxPos.y = BasicMath::Max(maxPos.y, BasicMath::Abs(moveDat.AutoPosCounter.y));
     }
 
     //Calculate the extents and re-center the elements around the origin.
-    extents = maxPos + Vector2f(HorizontalBorder, VerticalBorder);
+    extents = maxPos + Vector2f(HorizontalBorder, -VerticalBorder);
     Vector2f delta = extents * -0.5f;//TODO: Might have to modify this delta based on the horizontal/vertical border.
     for (unsigned int i = 0; i < objects.size(); ++i)
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
