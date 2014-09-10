@@ -28,6 +28,7 @@ public:
                MTexture2D * tex = 0, Material * mat = 0,
                bool isButton = false, float timeLerpSpeed = 1.0f)
         : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed), Scale(1.0f, 1.0f) { }
+    GUITexture(void) : GUITexture(UniformDictionary()) { }
 
 
     //Gets whether this GUITexture is renderable (i.e. it has a material and texture).

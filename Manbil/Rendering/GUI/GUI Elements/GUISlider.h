@@ -44,6 +44,7 @@ public:
         Bar.Scale = barScale;
         Nub.Scale = nubScale;
     }
+    GUISlider(void) : GUISlider(UniformDictionary()) { }
 
     
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
