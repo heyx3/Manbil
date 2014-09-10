@@ -20,8 +20,10 @@ public:
     bool UsesTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.FloatUniforms.end(); }
 
     float GetTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second.Value[0]; }
-    void SetTimeLerp(float newVal) { Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].Value[0] = newVal; }
+    void SetTimeLerp(float newVal) { Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].SetValue(newVal); }
 
+    Vector4f GetColor(void) const { return *(Vector4f*)&Params.FloatUniforms.find(GUIMaterials::QuadDraw_Color)->second.Value; }
+    void SetColor(Vector4f newCol) { Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(newCol); }
 
     bool IsMousedOver(void) const { return isMousedOver; }
 
