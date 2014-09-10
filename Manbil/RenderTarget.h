@@ -32,6 +32,10 @@ public:
     static unsigned int GetMaxNumbColorAttachments(void);
 
 
+    //Gets the currently-bound render target, or 0 if the back buffer is currently bound.
+    static const RenderTarget * GetCurrentTarget(void) { return currentTarget; }
+
+
     //Takes in the size of the default depth renderbuffer used if no depth texture is attached.
     RenderTarget(PixelSizes defaultDepthPixelSize);
 	~RenderTarget(void);
@@ -112,6 +116,6 @@ private:
 
 	mutable std::string errorMsg;
 
-
+    static const RenderTarget * currentTarget;
     static unsigned int maxColorAttachments, maxWidth, maxHeight;
 };

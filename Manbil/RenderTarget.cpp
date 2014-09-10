@@ -13,6 +13,7 @@
 unsigned int RenderTarget::maxColorAttachments = 0,
              RenderTarget::maxWidth = 0,
              RenderTarget::maxHeight = 0;
+const RenderTarget * RenderTarget::currentTarget = 0;
 
 
 unsigned int RenderTarget::GetMaxAttachmentWidth(void)
@@ -310,9 +311,11 @@ void RenderTarget::EnableDrawingInto(void) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glViewport(0, 0, width, height);
+    currentTarget = this;
 }
 void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updateMipmaps) const
 {
+    currentTarget = 0;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     if (w == 0 && h == 0) glViewport(0, 0, w, h);
