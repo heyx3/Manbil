@@ -37,7 +37,7 @@ public:
 
 
     virtual Vector2f GetCollisionCenter(void) const override;
-    virtual Vector2f GetCollisionDimensions(void) const override { return dimensions.ComponentProduct(Scale); }
+    virtual Vector2f GetCollisionDimensions(void) const override;
 
     virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
     virtual void SetPosition(Vector2f newPos) override { center = newPos; }

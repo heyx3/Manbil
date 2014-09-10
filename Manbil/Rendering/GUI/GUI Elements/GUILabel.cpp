@@ -4,6 +4,7 @@
 #include "../../Materials/Data Nodes/DataNodeIncludes.h"
 
 
+
 Vector2f GUILabel::GetCollisionCenter(void) const
 {
     Vector2f outCenter;
@@ -38,6 +39,14 @@ Vector2f GUILabel::GetCollisionCenter(void) const
 
     return outCenter;
 }
+Vector2f GUILabel::GetCollisionDimensions(void) const
+{
+    Vector2f dims = dimensions.ComponentProduct(Scale);
+    if (dims.x == 0.0f) dims.x = 1.0f;
+    if (dims.y == 0.0f) dims.y = Scale.y * (float)TextRender->GetSlotRenderSize(TextRenderSlot).y;
+    return dims;
+}
+
 Vector2f GUILabel::GetTextOffset(void) const
 {
     Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
