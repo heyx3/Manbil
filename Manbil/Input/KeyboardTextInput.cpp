@@ -59,6 +59,28 @@ std::string KeyboardTextInput::RemoveText(unsigned int pos, unsigned int length)
     return s;
 }
 
+
+void KeyboardTextInput::CopyTo(KeyboardTextInput & outCpy) const
+{
+    outCpy.OnTextChanged = OnTextChanged;
+    outCpy.OnTextChanged_Data = OnTextChanged_Data;
+    outCpy.OnEnterKey = OnEnterKey;
+    outCpy.OnEnterKey_Data = OnEnterKey_Data;
+    outCpy.OnCursorMoved = OnCursorMoved;
+    outCpy.OnCursorMoved_Data = OnCursorMoved_Data;
+
+    outCpy.CursorPos = CursorPos;
+    outCpy.KeyRepeatWait = KeyRepeatWait;
+    outCpy.EnterKeyAddsText = false;
+
+    memcpy(outCpy.timeHeldDownLetters, timeHeldDownLetters, sizeof(float) * NUMB_LETTERS);
+    memcpy(outCpy.timeHeldDownDigits, timeHeldDownDigits, sizeof(float) * NUMB_DIGITS);
+    memcpy(outCpy.timeHeldDownSpecials, timeHeldDownSpecials, sizeof(float) * NUMB_SPECIALS);
+    memcpy(outCpy.timeHeldDownControls, timeHeldDownControls, sizeof(float) * NUMB_CONTROLS);
+
+    outCpy.text = text;
+}
+
 void KeyboardTextInput::Update(float elapsedTime)
 {
     if (CursorPos > text.size()) CursorPos = text.size();

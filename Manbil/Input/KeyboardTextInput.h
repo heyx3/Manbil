@@ -39,6 +39,8 @@ public:
     //This class takes up a nontrivial amount of space, so it shouldn't be wantonly copied around.
     KeyboardTextInput(const KeyboardTextInput & cpy) = delete;
 
+    void CopyTo(KeyboardTextInput & outCpy) const;
+
 
     void Update(float elapsedTime);
     
@@ -77,7 +79,11 @@ private:
     std::string text;
 
 
-    void RaiseOnTextChanged(void) { if (OnTextChanged != 0) OnTextChanged(this, OnTextChanged_Data); }
+    void RaiseOnTextChanged(void)
+    {
+        if (OnTextChanged != 0) 
+           OnTextChanged(this, OnTextChanged_Data);
+    }
     void RaiseOnEnterKey(void) { if (OnEnterKey != 0) OnEnterKey(this, OnEnterKey_Data); }
     void RaiseOnCursorMoved(int moveAmount) { if (OnCursorMoved != 0) OnCursorMoved(this, moveAmount, OnCursorMoved_Data); }
 
