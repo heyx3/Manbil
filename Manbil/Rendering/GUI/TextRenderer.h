@@ -66,7 +66,7 @@ public:
     //Gets the bounding box size of the currently-rendered text in the given font/slot. Returns { 0, 0 } if the given font/slot doesn't exist.
     Vector2i GetSlotBoundingSize(FontSlot slot) const;
     //Gets the string currently being rendered at the given font/slot. Returns 0 if the given font/slot doesn't exist.
-    const char * GetString(FontSlot slot) const;
+    std::string GetString(FontSlot slot) const;
     //Gets the texture holding the rendered text from the given font/slot. Returns 0 if the given font/slot doesn't exist.
     MTexture2D * GetRenderedString(FontSlot slot) const;
 
@@ -85,7 +85,7 @@ private:
     {
         unsigned int RenderTargetID;
         MTexture2D * ColorTex;
-        const char * String;
+        std::string String;
         unsigned int TextWidth, TextHeight;
     };
     typedef std::unordered_map<unsigned int, std::vector<Slot>>::const_iterator SlotCollectionLoc;

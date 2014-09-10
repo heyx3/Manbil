@@ -207,7 +207,7 @@ Vector2i TextRenderer::GetSlotBoundingSize(FontSlot slot) const
 
     return Vector2i((int)slotP->TextWidth, (int)slotP->TextHeight);
 }
-const char * TextRenderer::GetString(FontSlot slot) const
+std::string TextRenderer::GetString(FontSlot slot) const
 {
     const Slot * slotP;
     if (!TryFindFontSlot(slot, slotP)) return 0;
@@ -236,12 +236,13 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender, unsigne
     if (RenderString(textToRender, slot.FontID, RTManager[slotP->RenderTargetID],
                      slotP->TextWidth, slotP->TextHeight, backBufferWidth, backBufferHeight))
     {
-        slotP->String = textToRender.c_str();
+        slotP->String = textToRender;
         return true;
     }
 
     return false;
 }
+
 bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, RenderTarget * targ,
                                 unsigned int & outTextWidth, unsigned int & outTextHeight,
                                 unsigned int bbWidth, unsigned int bbHeight)
@@ -249,7 +250,6 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
     //Get texture/render target.
     if (targ == 0) { errorMsg = "Associated render target did not exist!"; return false; }
     textRendererParams.Texture2DUniforms[textSamplerName].Texture = tempTex.GetTextureHandle();
-
 
     //Set up rendering.
     targ->EnableDrawingInto();
