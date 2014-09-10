@@ -262,16 +262,26 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID,
     }
 }
 
-void FreeTypeHandler::GetChar(MTexture2D & outTex) const
+bool FreeTypeHandler::GetChar(MTexture2D & outTex) const
 {
     if (isGreyscale)
     {
-        outTex.SetGreyscaleData(renderedTextGreyscale, PixelSizes::PS_8U_GREYSCALE);
+        if (!outTex.SetGreyscaleData(renderedTextGreyscale, PixelSizes::PS_8U_GREYSCALE))
+        {
+            errorMsg = "Error setting greyscale texture data.";
+            return false;
+        }
     }
     else
     {
-        outTex.SetColorData(renderedTextColor, PixelSizes::PS_8U);
+        if (!outTex.SetColorData(renderedTextColor, PixelSizes::PS_8U))
+        {
+            errorMsg = "Error setting color texture data.";
+            return false;
+        }
     }
+
+    return true;
 }
 
 bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const

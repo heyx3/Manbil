@@ -118,7 +118,8 @@ public:
     const Array2D<unsigned char> * GetGreyscaleChar(void) const { if (!isGreyscale) return 0; return &renderedTextGreyscale; }
 
     //Gets the most recently-rendered char and stores it into the given texture.
-    void GetChar(MTexture2D & outTex) const;
+    //Returns whether the given out texture's data was successfully set.
+    bool GetChar(MTexture2D & outTex) const;
 
 
 private:
