@@ -10,9 +10,6 @@ class MTexture2D : public ISerializable
 {
 public:
 
-    //Gets the currently-bound texture. Returns 0 if no texture is currently-bound.
-    static const MTexture2D * CurrentlyBound(void) { return currentBound; }
-
     //Loads the file at the given path into the given array.
     //Automatically resizes the array to fit the image size.
     static bool LoadImageFromFile(std::string filePath, Array2D<Vector4b> & outData);
@@ -84,11 +81,7 @@ public:
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
     void Bind(void) const
     {
-        if (currentBound != this)
-        {
-            currentBound = (texHandle == 0) ? 0 : this;
-            glBindTexture(GL_TEXTURE_2D, texHandle);
-        }
+        glBindTexture(GL_TEXTURE_2D, texHandle);
     }
 
 
@@ -206,7 +199,4 @@ private:
     GLenum GetCPUFormat(void) const;
     //Gets the input type (float, byte, etc.) based on this texture's pixel size.
     GLenum GetComponentType(void) const;
-
-
-    static const MTexture2D * currentBound;
 };

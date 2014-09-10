@@ -10,9 +10,6 @@ class MTexture3D : public ISerializable
 {
 public:
 
-    //Gets the currently-bound 3D texture. Returns 0 if no texture is currently-bound.
-    static const MTexture3D * CurrentlyBound(void) { return currentBound; }
-
 
     //Constructors/destructors.
 
@@ -82,11 +79,7 @@ public:
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
     void Bind(void) const
     {
-        if (currentBound != this)
-        {
-            currentBound = (texHandle == 0) ? 0 : this;
-            glBindTexture(GL_TEXTURE_3D, texHandle);
-        }
+        glBindTexture(GL_TEXTURE_3D, texHandle);
     }
 
 
@@ -195,7 +188,4 @@ private:
     GLenum GetCPUFormat(void) const;
     //Gets the input type (float, byte, etc.) based on this texture's pixel size.
     GLenum GetComponentType(void) const;
-
-
-    static const MTexture3D * currentBound;
 };

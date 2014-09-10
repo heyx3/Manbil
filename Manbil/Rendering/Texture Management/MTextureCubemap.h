@@ -10,9 +10,6 @@ class MTextureCubemap : public ISerializable
 {
 public:
 
-    //Gets the currently-bound cubemap texture. Returns 0 if no texture is currently-bound.
-    static const MTextureCubemap * CurrentlyBound(void) { return currentlyBound; }
-
     template<typename ArrayType>
     //Rotates/reflects the cubemap faces that need rotating for the X to correspond to horizontal and Y to vertical as expected.
     //Assumes that all three faces have the same square dimensions.
@@ -102,11 +99,7 @@ public:
     //If this isn't a valid texture, then the currently-active cubemap texture is just deactivated.
     void Bind(void) const
     {
-        if (currentlyBound != this)
-        {
-            currentlyBound = (texHandle == 0) ? 0 : this;
-            glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle);
-        }
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle);
     }
 
 
@@ -241,7 +234,4 @@ private:
             four.GetWidth() == six.GetWidth() && four.GetHeight() == six.GetHeight() &&
             five.GetWidth() == six.GetWidth() && five.GetHeight() == six.GetHeight();
     }
-
-
-    static const MTextureCubemap * currentlyBound;
 };

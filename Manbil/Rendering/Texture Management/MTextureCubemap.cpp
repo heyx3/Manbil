@@ -1,8 +1,6 @@
 #include "MTextureCubemap.h"
 
 
-const MTextureCubemap * MTextureCubemap::currentlyBound = 0;
-
 void MTextureCubemap::SetSettings(const TextureSampleSettings3D & newSettings)
 {
     settings = newSettings;

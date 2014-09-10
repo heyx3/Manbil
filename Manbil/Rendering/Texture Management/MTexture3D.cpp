@@ -4,8 +4,6 @@
 #include "../../DebugAssist.h"
 
 
-const MTexture3D * MTexture3D::currentBound = 0;
-
 void MTexture3D::SetSettings(const TextureSampleSettings3D & newSettings)
 {
     settings = newSettings;

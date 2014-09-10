@@ -4,8 +4,6 @@
 #include "../../DebugAssist.h"
 
 
-const MTexture2D * MTexture2D::currentBound = 0;
-
 void MTexture2D::SetSettings(const TextureSampleSettings2D & newSettings)
 {
     settings = newSettings;
