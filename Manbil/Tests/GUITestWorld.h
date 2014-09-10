@@ -3,8 +3,7 @@
 #include "../SFMLOpenGLWorld.h"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
 #include "../Rendering/GUI/GUIManager.h"
-#include "../Rendering/GUI/GUI Elements/GUILabel.h"
-#include "../Rendering/GUI/GUI Elements/GUITexture.h"
+#include "../Rendering/GUI/GUI Elements/GUITextBox.h"
 #include "../Rendering/GUI/GUI Elements/GUISlider.h"
 #include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
 #include "../Input/KeyboardTextInput.h"
@@ -22,8 +21,7 @@ public:
         curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
         guiMatColor(0), guiMatGrey(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
         guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-        guiLabel(), guiTex(UniformDictionary()), guiBar(UniformDictionary())
+        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -58,7 +56,7 @@ private:
 
     KeyboardTextInput keyboardInput;
 
-    GUILabel guiLabel;
+    GUITextBox guiTextBox;
     GUITexture guiTex;
     MTexture2D guiTexData;
     GUISlider guiBar;

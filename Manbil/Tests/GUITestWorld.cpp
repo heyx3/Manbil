@@ -117,6 +117,7 @@ void GUITestWorld::InitializeWorld(void)
 {
     keyboardInput.OnTextChanged = [](KeyboardTextInput * thisInput, void* pData)
     {
+        std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         for (unsigned int i = 0; i < thisInput->GetText().size(); ++i)
         {
             if (thisInput->CursorPos == i) std::cout << '|';
@@ -248,6 +249,20 @@ void GUITestWorld::InitializeWorld(void)
     guiMatGrey = genMat.Mat;
 
 
+    //Set up the GUI textures.
+
+    guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
+    Array2D<Vector4f> guiTexCols(256, 128);
+    guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
+    guiTexData.SetColorData(guiTexCols);
+
+    Array2D<Vector4b> whiteCol(1, 1, Vector4b(1.0f, 1.0f, 1.0f, 1.0f));
+    guiBarTex.Create();
+    guiBarTex.SetColorData(whiteCol);
+    guiNubTex.Create();
+    guiNubTex.SetColorData(whiteCol);
+
+
     //Set up the GUI elements.
 
     guiManager = GUIManager();
@@ -261,22 +276,21 @@ void GUITestWorld::InitializeWorld(void)
     {
         return;
     }
-    if (!ReactToError(TextRender->RenderString(TextRenderer::FontSlot(textRendererID, 1), "TestGUI"),
-                                               "Error rendering gui string", TextRender->GetError()))
-    {
+    GUILabel textBoxText(guiElParamsGrey, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMatGrey, 1.0f,
+                         GUILabel::HO_LEFT, GUILabel::VO_CENTER);
+    if (!ReactToError(textBoxText.SetText("change me"), "Error setting text box starting string", TextRender->GetError()))
         return;
-    }
-    guiLabel = GUILabel(guiElParamsGrey, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMatGrey, 1.0f,
-                        GUILabel::HO_CENTER, GUILabel::VO_CENTER);
-    guiLabel.SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiLabel.SetScale(Vector2f(1.0f, 1.0f));
-    if (!ReactToError(guiLabel.SetText("Test GUI Text"), "Error setting GUI label's text", TextRender->GetError()))
-        return;
+    textBoxText.SetPosition(ToV2f(WindowSize) * 0.5f);
+    textBoxText.SetScale(Vector2f(1.0f, 1.0f));
+    GUITexture textBoxTex(guiElParamsCol, &guiBarTex, guiMatColor, false, 1.0f),
+               cursorTex(guiElParamsCol, &guiBarTex, guiMatColor, false, 1.0f);
+    cursorTex.Scale.x = 10.0f;
+    textBoxTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    cursorTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 0.15f, 1.0f));
+    guiTextBox = GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 100.0f, true, guiElParamsCol, 1.0f);
+    guiTextBox.SetColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    guiTextBox.Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
 
-    guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
-    Array2D<Vector4f> guiTexCols(256, 128);
-    guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
-    guiTexData.SetColorData(guiTexCols);
     guiTex = GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
     guiTex.IsButton = true;
     guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
@@ -287,11 +301,6 @@ void GUITestWorld::InitializeWorld(void)
     guiTex.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiTex.SetScale(Vector2f(0.6f, 0.6f));
 
-    Array2D<Vector4b> whiteCol(1, 1, Vector4b(1.0f, 1.0f, 1.0f, 1.0f));
-    guiBarTex.Create();
-    guiBarTex.SetColorData(whiteCol);
-    guiNubTex.Create();
-    guiNubTex.SetColorData(whiteCol);
     guiBar = GUISlider(guiElParamsCol, &guiBarTex, &guiNubTex, guiMatColor, guiMatColor, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
     guiBar.SetPosition(Vector2f(200.0f, 200.0f));
     guiBar.IsClickable = true;
@@ -315,7 +324,7 @@ void GUITestWorld::InitializeWorld(void)
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex, 40.0f), 00.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiLabel)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTextBox)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(000.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(10.0f)));
@@ -381,11 +390,13 @@ void GUITestWorld::UpdateWorld(float elapsed)
     }
 
 
-    keyboardInput.Update(elapsed);
+    //keyboardInput.Update(elapsed);
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.1f, 0.1f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
                    false, false).EnableState();
