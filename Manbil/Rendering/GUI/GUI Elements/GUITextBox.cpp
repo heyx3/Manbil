@@ -69,6 +69,10 @@ void GUITextBox::CustomUpdate(float elapsed, Vector2f mousePos)
     keyboardInput.OnTextChanged_Data = this;
     if (isSelected && Editable)
         keyboardInput.Update(elapsed);
+
+    if (Box.IsValid()) Box.Update(elapsed, mousePos);
+    if (Cursor.IsValid()) Cursor.Update(elapsed, mousePos - Cursor.GetCollisionCenter());
+    if (Highlight.IsValid()) Highlight.Update(elapsed, mousePos - Highlight.GetCollisionCenter());
 }
 std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
 {
