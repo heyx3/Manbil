@@ -38,6 +38,9 @@ public:
     const std::string & GetText(void) const { return Contents.GetText(); }
     TextRenderer::FontSlot GetFontSlot(void) const { return Contents.TextRenderSlot; }
 
+    //Returns an error message, or the empty string if everything went fine.
+    std::string SetText(const std::string & newString);
+
 
     virtual Vector2f GetCollisionCenter(void) const override { return Center; }
     virtual Vector2f GetCollisionDimensions(void) const;

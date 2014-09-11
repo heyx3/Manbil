@@ -63,6 +63,16 @@ void GUITextBox::SetScale(Vector2f newScale)
     Contents.ScaleBy(deltaScale);
 }
 
+std::string GUITextBox::SetText(const std::string & newStr)
+{
+    keyboardInput.ClearText(true);
+    keyboardInput.InsertText(0, newStr);
+
+    if (!Contents.SetText(newStr))
+        return "Error changing text box contents to '" + newStr + "': " + Contents.TextRender->GetError();
+    return "";
+}
+
 void GUITextBox::CustomUpdate(float elapsed, Vector2f mousePos)
 {
     keyboardInput.OnEnterKey_Data = this;
