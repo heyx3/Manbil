@@ -85,6 +85,9 @@ public:
         return f3;
     }
     static int RoundToInt(float v) { return (int)(v + (0.4999f * Sign(v))); }
+    static int RoundToInt(double v) { return (int)(v + (0.499999 * Sign(v))); }
+    static unsigned int RoundToUInt(float v) { return (unsigned int)(v + (0.4999f * Sign(v))); }
+    static unsigned int RoundToUInt(double v) { return (unsigned int)(v + (0.499999 * Sign(v))); }
 
     static float RadToDeg(float radians) { return radians * 57.2957f; }
     static float DegToRad(float degrees) { return degrees * 0.0174532f; }
