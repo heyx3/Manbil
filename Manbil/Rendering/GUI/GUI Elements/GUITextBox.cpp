@@ -3,10 +3,10 @@
 
 
 GUITextBox::GUITextBox(const GUITexture & box, const GUITexture & cursor, const GUITexture & highlight,
-                       const GUILabel & boxContents, float width,
+                       const GUILabel & boxContents, float width, float height,
                        bool editable, const UniformDictionary & params, float lerpSpeed)
     : Editable(editable), Box(box), Cursor(cursor), Highlight(highlight),
-      Contents(boxContents), Center(0.0f, 0.0f), Width(width), scale(1.0f, 1.0f),
+      Contents(boxContents), Center(0.0f, 0.0f), Width(width), Height(height), scale(1.0f, 1.0f),
       isSelected(false), GUIElement(params, lerpSpeed)
 {
     Contents.OffsetHorz = GUILabel::HO_LEFT;
@@ -46,7 +46,7 @@ GUITextBox::GUITextBox(const GUITextBox & cpy)
 
 Vector2f GUITextBox::GetCollisionDimensions(void) const
 {
-    return scale.ComponentProduct(Vector2f(Width, Contents.GetCollisionDimensions().y));
+    return scale.ComponentProduct(Vector2f(Width, Height));
 }
 
 void GUITextBox::ScaleBy(Vector2f scaleAmount)
@@ -91,12 +91,12 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
 
     //Some positioning data.
     Vector2f textBounds = Contents.GetCollisionDimensions();
-    float halfWidth = Width * scale.x * 0.5f;
+    Vector2f halfSize = Vector2f(Width, Height).ComponentProduct(scale) * 0.5f;
     Vector2f nCenter = -Center;
 
     //Render the box.
-    Box.SetBounds(Vector2f(-halfWidth, textBounds.y * -0.5f),
-                  Vector2f(halfWidth, textBounds.y * 0.5f));
+    Box.SetPosition(Vector2f());
+    Box.SetBounds(-halfSize, halfSize);
     Box.Depth = Depth;
     Vector4f oldCol = Box.GetColor();
     Box.SetColor(oldCol.ComponentProduct(myCol));
@@ -108,7 +108,7 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
     if (!err.empty()) return "Error rendering box: " + err;
 
     //Render the text.
-    Contents.SetPosition(Vector2f(-halfWidth, 0.0f));
+    Contents.SetPosition(Vector2f(-halfSize.x, 0.0f));
     Contents.Depth = Depth + 0.00001f;
     Contents.MoveElement(Center);
     oldCol = Contents.GetColor();
@@ -121,7 +121,7 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
     //If the cursor is on, render it.
     if (isSelected)
     {
-        float cursorX = BasicMath::Lerp(-halfWidth, -halfWidth + textBounds.x,
+        float cursorX = BasicMath::Lerp(-halfSize.x, -halfSize.x + textBounds.x,
                                         (float)keyboardInput.CursorPos / (float)GetText().size());
         float cWidth = Cursor.GetCollisionDimensions().x;
         Cursor.SetBounds(Vector2f(cursorX - (cWidth * 0.5f), textBounds.y * -0.5f),

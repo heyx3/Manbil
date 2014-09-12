@@ -13,7 +13,7 @@ public:
     bool Editable;
     GUITexture Box, Cursor, Highlight;
     GUILabel Contents;
-    float Width;
+    float Width, Height;
 
     Vector2f Center;
 
@@ -30,7 +30,7 @@ public:
 
 
     GUITextBox(const GUITexture & box, const GUITexture & cursor, const GUITexture & highlight,
-               const GUILabel & boxContents, float width,
+               const GUILabel & boxContents, float width, float height,
                bool editable, const UniformDictionary & params, float lerpSpeed = 1.0f);
     GUITextBox(void) : GUIElement(UniformDictionary()), Center(), Width(0.0f) { }
     GUITextBox(const GUITextBox & cpy);
