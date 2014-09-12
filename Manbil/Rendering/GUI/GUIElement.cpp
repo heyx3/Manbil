@@ -34,6 +34,8 @@ void GUIElement::SetUpQuad(const RenderInfo & info, Vector2f pos, float depth, V
 
 void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
+    if (OnUpdate != 0) OnUpdate(this, OnUpdate_Data);
+
     this->CustomUpdate(elapsed, relativeMouse);
 
     if (!UsesTimeLerp()) return;

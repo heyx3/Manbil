@@ -17,6 +17,11 @@ public:
     
     float Depth = 0.0f;
 
+    //Raised every update step, before anything is updated.
+    //"pData" is the value of this instance's "OnUpdate_Data" field.
+    void(*OnUpdate)(GUIElement * thisEl, void* pData) = 0;
+    void* OnUpdate_Data = 0;
+
 
     bool UsesTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.FloatUniforms.end(); }
 
