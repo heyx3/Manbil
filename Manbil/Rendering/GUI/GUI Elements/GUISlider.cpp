@@ -59,11 +59,11 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
     Bar.SetPosition(center);
     Bar.Depth = Depth;
 
-    Vector4f oldCol = *(Vector4f*)&Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].Value;
-    Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(oldCol.ComponentProduct(myCol));
+    Vector4f oldCol = Bar.GetColor();
+    Bar.SetColor(Bar.GetColor().ComponentProduct(myCol));
 
     std::string err = Bar.Render(elapsedTime, info);
-    Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(oldCol);
+    Bar.SetColor(oldCol);
 
     if (!err.empty()) return "Error rendering slider bar: " + err;
 
@@ -77,11 +77,11 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
                         Vector2f(BasicMath::Lerp(-dims.x * 0.5f, dims.x * 0.5f, Value))));
     Nub.Depth = Depth + 0.00001f;
 
-    oldCol = *(Vector4f*)&Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].Value;
-    Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(oldCol.ComponentProduct(myCol));
+    oldCol = Nub.GetColor();
+    Nub.SetColor(oldCol.ComponentProduct(myCol));
 
     err = Nub.Render(elapsedTime, info);
-    Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(oldCol);
+    Nub.SetColor(oldCol);
 
     if (!err.empty()) return "Error rendering slider nub: " + err;
 
