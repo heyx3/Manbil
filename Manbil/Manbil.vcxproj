@@ -90,6 +90,7 @@
     <ClCompile Include="BasicMComponentFactories.cpp" />
     <ClCompile Include="BasicMComponents.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
+    <ClCompile Include="Editor\EditorPanel.cpp" />
     <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp" />
     <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp" />
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp" />
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUICheckbox.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUILabel.cpp" />
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIPanel.cpp" />
@@ -318,6 +320,7 @@
     <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.h" />
     <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.h" />
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h" />
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUICheckbox.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUILabel.h" />
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIPanel.h" />

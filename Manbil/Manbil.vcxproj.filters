@@ -441,6 +441,12 @@
     <ClCompile Include="Input\KeyboardTextInput.cpp">
       <Filter>Input</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\EditorPanel.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GUI\GUI Elements\GUICheckbox.cpp">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -972,6 +978,9 @@
     </ClInclude>
     <ClInclude Include="Input\KeyboardTextInput.h">
       <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GUI\GUI Elements\GUICheckbox.h">
+      <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
