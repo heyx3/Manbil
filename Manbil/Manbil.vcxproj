@@ -90,6 +90,7 @@
     <ClCompile Include="BasicMComponentFactories.cpp" />
     <ClCompile Include="BasicMComponents.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
+    <ClCompile Include="Editor\EditorMaterialSet.cpp" />
     <ClCompile Include="Editor\EditorPanel.cpp" />
     <ClCompile Include="Events\Timing.cpp" />
     <ClCompile Include="Input\Input Objects\CompositeVector2Inputs.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="BasicMComponentFactories.h" />
     <ClInclude Include="BasicMComponents.h" />
     <ClInclude Include="DebugAssist.h" />
+    <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorPanel.h" />
     <ClInclude Include="Events\EventManager.h" />
     <ClInclude Include="Events\Timing.h" />

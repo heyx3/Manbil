@@ -447,6 +447,9 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUICheckbox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\EditorMaterialSet.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -981,6 +984,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUICheckbox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorMaterialSet.h">
+      <Filter>Editors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
