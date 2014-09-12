@@ -4,7 +4,7 @@
 
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 {
-    Vector2f center = panel.GetCollisionCenter();
+    Vector2f center = GetRoot()->GetCollisionCenter();
     Vector2f relMouse = ToV2f(mousePos) - center,
              oldRelMouse = originalClickPos - center;
 
