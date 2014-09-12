@@ -17,25 +17,21 @@ void GUIFormatObject::MoveObject(MovementData & data)
 
             dims = el->GetCollisionDimensions();
             min = Vector2f(data.AutoPosCounter.x + xOffset, data.AutoPosCounter.y);
-            //el->SetBounds(min, min + dims);
-            el->SetBounds(Vector2f(min.x, -(min.y + dims.y)),
-                          Vector2f(min.x + dims.x, -min.y));//
+            el->SetBounds(Vector2f(min.x, (min.y - dims.y)),
+                          Vector2f(min.x + dims.x, min.y));
 
-            //data.AutoPosCounter.y += dims.y + SpaceAfter;
-            data.AutoPosCounter.y -= dims.y + SpaceAfter;//
+            data.AutoPosCounter.y -= dims.y + SpaceAfter;
             data.Width = BasicMath::Max(data.Width, xOffset + dims.x);
 
             break;
 
         case OT_VERTBREAK:
             data.AutoPosCounter = Vector2f(data.AutoPosCounter.x,
-                                           //data.AutoPosCounter.y + SpaceAfter);
-                                           data.AutoPosCounter.y - SpaceAfter);//
+                                           data.AutoPosCounter.y - SpaceAfter);
             break;
         case OT_HORZBREAK:
             data.AutoPosCounter.x += data.Width + HorzBreakTypeData.XOffset;
-            //data.AutoPosCounter.y = SpaceAfter;
-            data.AutoPosCounter.y = -SpaceAfter;//
+            data.AutoPosCounter.y = -SpaceAfter;
             data.Width = 0.0f;
             break;
 
