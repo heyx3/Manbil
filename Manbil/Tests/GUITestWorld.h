@@ -18,11 +18,11 @@ public:
 
     GUITestWorld(void)
         : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)),
-        quad(0), quadMat(0), curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
-        curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
-        guiMatColor(0), guiMatGrey(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
-        guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-        guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
+          curveMesh(PrimitiveTypes::TriangleStrip), curveMat(0),
+          curveStartSlope(-0.99f, -0.99f, 0.0f), curveEndSlope(0.99f, 0.99f, 0.0f),
+          guiMatColor(0), guiMatGrey(0), guiTexData(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false),
+          guiBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
+          guiNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
     {
     }
     virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
@@ -48,14 +48,8 @@ private:
     void DestroyMyStuff(bool destroyStatics);
 
 
-    DrawingQuad * quad;
-    UniformDictionary quadParams;
-    Material * quadMat;
-
     GUIManager guiManager;
     Material *guiMatColor, *guiMatGrey;
-
-    KeyboardTextInput keyboardInput;
 
     GUITextBox guiTextBox;
     GUICheckbox guiCheckbox;

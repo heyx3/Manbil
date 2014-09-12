@@ -37,18 +37,7 @@ using namespace GUITESTWORLD_NAMESPACE;
 
 
 Vector2i GUITestWorld::WindowSize = Vector2i(1024, 1024);
-std::string textSamplerName = "u_textSampler";
-
-
-
-#pragma region My TextRenderer code
-
-#include "../Rendering/GUI/TextRenderer.h"
-
-
 unsigned int textRendererID = FreeTypeHandler::ERROR_ID;
-const Vector2i textSize(512, 64);
-
 
 //Returns an error message, or an empty string if everything went fine.
 std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int size)
@@ -61,28 +50,9 @@ std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int si
     {
         return "Error creating font '" + fontPath + "': " + rendr->GetError();
     }
-    if (!rendr->CreateTextRenderSlots(textRendererID, textSize.x, textSize.y, false,
-                                      TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
-    {
-        return "Error creating render slot for '" + fontPath + "': " + rendr->GetError();
-    }
 
     return "";
 }
-//Returns an error message, or an empty string if everything went fine.
-std::string RenderText(TextRenderer * rendr, std::string text)
-{
-    if (textRendererID == FreeTypeHandler::ERROR_ID)
-        return "'textRendererID' wasn't set to anything";
-
-    if (!rendr->RenderString(TextRenderer::FontSlot(textRendererID, 0), text, GUITestWorld::WindowSize.x, GUITestWorld::WindowSize.y))
-        return "Error rendering string '" + text + "': " + rendr->GetError();
-
-    return "";
-}
-
-
-#pragma endregion
 
 
 
@@ -115,30 +85,6 @@ void GUITestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 
 void GUITestWorld::InitializeWorld(void)
 {
-    keyboardInput.OnTextChanged = [](KeyboardTextInput * thisInput, void* pData)
-    {
-        std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-        for (unsigned int i = 0; i < thisInput->GetText().size(); ++i)
-        {
-            if (thisInput->CursorPos == i) std::cout << '|';
-            std::cout << thisInput->GetText()[i];
-        }
-        if (thisInput->CursorPos == thisInput->GetText().size())
-            std::cout << "|";
-        std::cout << "\n";
-    };
-    keyboardInput.OnCursorMoved = [](KeyboardTextInput * thisIn, int amnt, void* pData)
-    {
-        if (amnt != 0)
-            thisIn->OnTextChanged(thisIn, thisIn->OnTextChanged_Data);
-    };
-    keyboardInput.OnEnterKey = [](KeyboardTextInput * thisInput, void* pData)
-    {
-        std::cout << "Hit enter. Final text: '" << thisInput->GetText() << "'\n\n\n";
-        thisInput->ClearText(false);
-    };
-
-
     std::string err;
 
 
@@ -150,35 +96,6 @@ void GUITestWorld::InitializeWorld(void)
         return;
 
 
-    //Create the drawing quad.
-    quad = new DrawingQuad();
-
-
-    //Create the quad rendering material.
-
-    typedef std::shared_ptr<DataNode> DNP;
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetAttributeData();
-
-    DNP objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(VertexInputNode::GetInstance(), "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
-
-    DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
-                                                ShaderOutput("vOut_UV",
-                                                             DataLine(VertexInputNode::GetInstance(), 1)));
-    
-    DNP textSamplePtr(new TextureSample2DNode(FragmentInputNode::GetInstance(), textSamplerName, "textSample"));
-    DataLine textSampleRed(textSamplePtr, TextureSample2DNode::GetOutputIndex(CO_Red));
-    DNP textSampleRGB1(new CombineVectorNode(textSampleRed, textSampleRed, textSampleRed, 1.0f, "textSampleRGB"));
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor", textSampleRGB1));
-
-    ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(quadParams, RenderingModes::RM_Opaque);
-    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating quad material", genMat.ErrorMessage))
-        return;
-    quadMat = genMat.Mat;
-
-
     //Generate the curve.
     std::vector<CurveVertex> bezVerts;
     CurveVertex::GenerateVertices(bezVerts, 100);
@@ -186,7 +103,10 @@ void GUITestWorld::InitializeWorld(void)
     RenderDataHandler::CreateVertexBuffer(vbo, bezVerts.data(), bezVerts.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     curveMesh.SetVertexIndexData(VertexIndexData(bezVerts.size(), vbo));
 
+
     //Generate the curve material.
+
+    typedef std::shared_ptr<DataNode> DNP;
 
     DataNode::ClearMaterialData();
     DataNode::VertexIns = CurveVertex::GetAttributeData();
@@ -202,7 +122,7 @@ void GUITestWorld::InitializeWorld(void)
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
                                                   ShaderOutput("fOut_curveCol", Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
 
-    genMat = ShaderGenerator::GenerateMaterial(curveParams, RenderingModes::RM_Opaque);
+    ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(curveParams, RenderingModes::RM_Opaque);
     if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating curve material", genMat.ErrorMessage))
         return;
     curveMat = genMat.Mat;
@@ -214,19 +134,6 @@ void GUITestWorld::InitializeWorld(void)
     err = LoadFont(TextRender, "Content/Fonts/Candara.ttf", 25);
     if (!ReactToError(err.empty(), "Error loading 'Content/Fonts/Candara.ttf'", err))
         return;
-
-    //Render a string.
-    err = RenderText(TextRender, "Hello, World!!");
-    if (!ReactToError(err.empty(), "Error rendering the text: ", err))
-        return;
-    quadParams.Texture2DUniforms[textSamplerName].Texture = TextRender->GetRenderedString(textRendererID)->GetTextureHandle();
-
-
-    //Size the quad to be the size of the string.
-    Vector2i tScale = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID, 0));
-    quad->SetSize(Vector2f((float)tScale.x, (float)tScale.y));
-    quad->SetPos(Vector2f(50.0f, 50.0f));
-    quad->SetOrigin(Vector2f());
 
 
     //Set up the GUI material.
@@ -348,8 +255,6 @@ void GUITestWorld::InitializeWorld(void)
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {
-    DeleteAndSetToNull(quad);
-    DeleteAndSetToNull(quadMat);
     DeleteAndSetToNull(curveMat);
 
     DeleteAndSetToNull(guiMatColor);
@@ -399,14 +304,10 @@ void GUITestWorld::UpdateWorld(float elapsed)
         curveEndSlope = slopePosVal;
         curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
     }
-
-
-    //keyboardInput.Update(elapsed);
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.1f, 0.1f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
@@ -425,22 +326,12 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     cam.GetOrthoProjection(projM);
     RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
 
-    //Render the quad.
-    Vector2f oldQuadPos = quad->GetPos();
-    Vector2i textSize = TextRender->GetSlotBoundingSize(TextRenderer::FontSlot(textRendererID)),
-             textRenderSize = TextRender->GetSlotRenderSize(TextRenderer::FontSlot(textRendererID));
-    Vector2f delta = (ToV2f(textSize) - ToV2f(textRenderSize)) * 0.5f;
-    quad->IncrementPos(delta);
-    if (!ReactToError(quad->Render(info, quadParams, *quadMat), "Error rendering quad", quadMat->GetErrorMsg()))
-        return;
-    quad->IncrementPos(-delta);
 
     //Render the curve.
     std::vector<const Mesh*> toRender;
     toRender.insert(toRender.end(), &curveMesh);
     if (!ReactToError(curveMat->Render(info, toRender, curveParams), "Error rendering curve", curveMat->GetErrorMsg()))
         return;
-    
 
     //Render the GUI.
     std::string err = guiManager.Render(elapsed, info);
