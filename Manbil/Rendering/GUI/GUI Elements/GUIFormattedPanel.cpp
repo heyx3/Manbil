@@ -94,17 +94,13 @@ void GUIFormattedPanel::SetScale(Vector2f newScale)
 
 void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    Vector2f nPos = -pos;
-
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
 
-            el->MoveElement(pos);
             el->Update(elapsed, relativeMousePos - el->GetCollisionCenter());
-            el->MoveElement(nPos);
         }
     }
 }
@@ -155,47 +151,35 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
 
 void GUIFormattedPanel::OnMouseClick(Vector2f mouseP)
 {
-    Vector2f nPos = -pos;
-
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
-            el->MoveElement(pos);
             el->OnMouseClick(mouseP - el->GetCollisionCenter());
-            el->MoveElement(nPos);
         }
     }
 }
 void GUIFormattedPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
-    Vector2f nPos = -pos;
-
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
-            el->MoveElement(pos);
             Vector2f center = el->GetCollisionCenter();
             el->OnMouseDrag(oldP - center, currentP - center);
-            el->MoveElement(nPos);
         }
     }
 }
 void GUIFormattedPanel::OnMouseRelease(Vector2f mouseP)
 {
-    Vector2f nPos = -pos;
-
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElement* el = objects[i].GUIElementTypeData.Element;
-            el->MoveElement(pos);
             el->OnMouseRelease(mouseP - el->GetCollisionCenter());
-            el->MoveElement(nPos);
         }
     }
 }
@@ -216,7 +200,7 @@ void GUIFormattedPanel::RePositionElements()
 
     //Calculate the extents and re-center the elements around the origin.
     extents = maxPos + Vector2f(HorizontalBorder, -VerticalBorder);
-    Vector2f delta = extents * -0.5f;//TODO: Might have to modify this delta based on the horizontal/vertical border.
+    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f));//TODO: Might have to modify this delta based on the horizontal/vertical border.
     for (unsigned int i = 0; i < objects.size(); ++i)
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
             objects[i].GUIElementTypeData.Element->MoveElement(delta);

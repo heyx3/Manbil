@@ -42,14 +42,10 @@ void GUIPanel::SetScale(Vector2f newScale)
 
 void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    Vector2f nPos = -pos;
-
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
         Vector2f relPos = relativeMousePos - elements[i]->GetCollisionCenter();
-        elements[i]->MoveElement(pos);
         elements[i]->Update(elapsed, relPos);
-        elements[i]->MoveElement(nPos);
     }
 }
 std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
