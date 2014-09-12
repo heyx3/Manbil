@@ -6,6 +6,7 @@
 #include "../Rendering/GUI/GUI Elements/GUITextBox.h"
 #include "../Rendering/GUI/GUI Elements/GUISlider.h"
 #include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
+#include "../Rendering/GUI/GUI Elements/GUICheckbox.h"
 #include "../Input/KeyboardTextInput.h"
 
 
@@ -57,6 +58,7 @@ private:
     KeyboardTextInput keyboardInput;
 
     GUITextBox guiTextBox;
+    GUICheckbox guiCheckbox;
     GUITexture guiTex;
     MTexture2D guiTexData;
     GUISlider guiBar;

@@ -266,7 +266,6 @@ void GUITestWorld::InitializeWorld(void)
     //Set up the GUI elements.
 
     guiManager = GUIManager();
-    guiManager.GetRoot()->SetBounds(Vector2f(), ToV2f(WindowSize));
 
     unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
     if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,
@@ -287,9 +286,9 @@ void GUITestWorld::InitializeWorld(void)
     cursorTex.Scale.x = 10.0f;
     textBoxTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     cursorTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 0.15f, 1.0f));
-    guiTextBox = GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 100.0f, true, guiElParamsCol, 1.0f);
+    guiTextBox = GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 300.0f, 50.0f, true, guiElParamsCol, 1.0f);
     guiTextBox.SetColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    guiTextBox.Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+    guiTextBox.Box.SetColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 
     guiTex = GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
     guiTex.IsButton = true;
@@ -309,6 +308,15 @@ void GUITestWorld::InitializeWorld(void)
     guiBar.Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
     guiBar.Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 
+    guiCheckbox = GUICheckbox(guiElParamsCol,
+                              GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
+                              GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
+                              false, 1.0f);
+    guiCheckbox.Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+    guiCheckbox.Check.SetColor(Vector4f(0.2f, 0.2f, 0.58f, 1.0f));
+    guiCheckbox.Check.ScaleBy(Vector2f(0.5f, 0.5f));
+    guiCheckbox.SetScale(Vector2f(20.0f, 20.0f));
+
     std::vector<std::string> guiSelectorItems;
     guiSelectorItems.resize(3);
     guiSelectorItems[0] = "Index 0";
@@ -323,12 +331,15 @@ void GUITestWorld::InitializeWorld(void)
         return;
     guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
 
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex, 40.0f), 00.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTextBox)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(000.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex), 5.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiCheckbox)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(20.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTextBox), 5.0f));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(10.0f)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiSelector)));
+
+    guiManager.GetFormattedRoot().SetPosition(ToV2f(WindowSize) * 0.5f);
 
 
     //Set up the back buffer.
@@ -399,7 +410,7 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer(true, true, false, Vector4f(0.1f, 0.1f, 0.1f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
-                   false, false).EnableState();
+                   false, false, RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Set up the "render info" struct.
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
