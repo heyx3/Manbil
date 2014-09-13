@@ -8,10 +8,14 @@
 EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
     : TextRender(renderer), FontID(0),
       ButtonTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SliderBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-      SliderNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-      TextBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false),
-      PanelBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U, false)
+      SliderBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SliderNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      TextBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      PanelBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      CheckBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      CheckBoxCheckTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SelectionBoxBoxTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false)
 {
 
 }
@@ -68,26 +72,118 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     if (!outSet.PanelBackgroundTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for panel background texture.";
 
+    //SelectionBox background texture.
+    greyData.Fill(0.8f);
+    outSet.SelectionBoxBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    if (!outSet.SelectionBoxBackgroundTex.SetGreyscaleData(greyData))
+        return "Error occurred while setting texture data for SelectionBox background texture.";
+
+    //SelectionBox box texture.
+    greyData.Reset(256, 64, 0.8f);
+    for (unsigned int x = 0; x < greyData.GetWidth(); ++x)
+    {
+        greyData[Vector2u(x, 0)] = 0.1f;
+        greyData[Vector2u(x, greyData.GetHeight() - 1)] = 0.1f;
+    }
+    outSet.SelectionBoxBoxTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    if (!outSet.SelectionBoxBoxTex.SetGreyscaleData(greyData))
+        return "Error occurred while setting texture data for SelectionBox box texture.";
+
+    //Checkbox background texture.
+    outSet.CheckBoxBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    std::string err;
+    if (!outSet.CheckBoxBackgroundTex.SetDataFromFile("Content/Textures/CheckboxBackground.png", err))
+    {
+        return "Error loading 'CheckboxBackground.png' from 'Content/Textures': " + err;
+    }
+
+    //Checkbox check texture.
+    outSet.CheckBoxCheckTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    std::string err;
+    if (!outSet.CheckBoxCheckTex.SetDataFromFile("Content/Textures/CheckboxCheck.png", err))
+    {
+        return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
+    }
+
 
     //Materials.
 
-    outSet.AnimatedMatParams.ClearUniforms();
-    outSet.StaticMatParams.ClearUniforms();
+    outSet.AnimatedMatGreyParams.ClearUniforms();
+    outSet.StaticMatGreyParams.ClearUniforms();
+    outSet.AnimatedMatColParams.ClearUniforms();
+    outSet.StaticMatColParams.ClearUniforms();
 
     ShaderGenerator::GeneratedMaterial genM =
-        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatParams, true);
+        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatGreyParams, true);
     if (!genM.ErrorMessage.empty())
         return "Error creating static greyscale material: " + genM.ErrorMessage;
+    outSet.StaticMatGrey = genM.Mat;
+
+    ShaderGenerator::GeneratedMaterial genM =
+        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatColParams, false);
+    if (!genM.ErrorMessage.empty())
+        return "Error creating static color material: " + genM.ErrorMessage;
+    outSet.StaticMatColor = genM.Mat;
 
     typedef DataNode::Ptr DNP;
     DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
     DNP lerpColor(new InterpolateNode(outSet.MaxAnimateColor, outSet.MinAnimateColor,
                                       lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatParams, true,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatGreyParams, true,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
-        return "Error creating dynamic greyscale material: " + genM.ErrorMessage;
+        return "Error creating animated greyscale material: " + genM.ErrorMessage;
+    outSet.AnimatedMatGrey = genM.Mat;
+
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatColParams, false,
+                                                         Vector2f(1.0f, 1.0f), lerpColor);
+    if (!genM.ErrorMessage.empty())
+        return "Error creating animated color material: " + genM.ErrorMessage;
+    outSet.AnimatedMatColor = genM.Mat;
 
 
     return "";
+}
+
+
+Material* EditorMaterialSet::GetAnimatedMaterial(const MTexture2D * tex) const
+{
+    if (tex->IsColorTexture())
+        return AnimatedMatColor;
+    else if (tex->IsGreyscaleTexture())
+        return AnimatedMatGrey;
+    
+    assert(false);
+    return 0;
+}
+Material* EditorMaterialSet::GetStaticMaterial(const MTexture2D * tex) const
+{
+    if (tex->IsColorTexture())
+        return StaticMatColor;
+    else if (tex->IsGreyscaleTexture())
+        return StaticMatGrey;
+    
+    assert(false);
+    return 0;
+}
+
+const UniformDictionary & EditorMaterialSet::GetAnimatedMatParams(const MTexture2D * tex) const
+{
+    if (tex->IsColorTexture())
+        return AnimatedMatColParams;
+    else if (tex->IsGreyscaleTexture())
+        return AnimatedMatGreyParams;
+
+    assert(false);
+    return UniformDictionary();
+}
+const UniformDictionary & EditorMaterialSet::GetStaticMatParams(const MTexture2D * tex) const
+{
+    if (tex->IsColorTexture())
+        return StaticMatColParams;
+    else if (tex->IsGreyscaleTexture())
+        return StaticMatGreyParams;
+
+    assert(false);
+    return UniformDictionary();
 }

@@ -23,17 +23,36 @@ public:
     unsigned int FontID;
 
     MTexture2D ButtonTex, SliderBarTex, SliderNubTex,
-               TextBoxBackgroundTex, PanelBackgroundTex;
+               TextBoxBackgroundTex, PanelBackgroundTex,
+               CheckBoxBackgroundTex, CheckBoxCheckTex,
+               SelectionBoxBoxTex, SelectionBoxBackgroundTex;
 
     Vector2f SliderBarScale = Vector2f(100.0f, 18.5f),
              SliderNubScale = Vector2f(10.0f, 30.0f);
+    float TextBoxCursorWidth = 5.0f;
+    Vector4f TextColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-    Material *AnimatedMat = 0,
-             *StaticMat = 0;
-    UniformDictionary AnimatedMatParams = UniformDictionary(),
-                      StaticMatParams = UniformDictionary();
+    Material *AnimatedMatGrey = 0,
+             *StaticMatGrey = 0,
+             *AnimatedMatColor = 0,
+             *StaticMatColor = 0;
+    UniformDictionary AnimatedMatGreyParams = UniformDictionary(),
+                      StaticMatGreyParams = UniformDictionary(),
+                      AnimatedMatColParams = UniformDictionary(),
+                      StaticMatColParams = UniformDictionary();
 
 
     EditorMaterialSet(const EditorMaterialSet & cpy) = delete;
     EditorMaterialSet(TextRenderer & renderer);
+
+
+    //Gets the animated material in this material set that would be used for the given texture.
+    Material* GetAnimatedMaterial(const MTexture2D * tex) const;
+    //Gets the static material in this material set that would be used for the given texture.
+    Material* GetStaticMaterial(const MTexture2D * tex) const;
+
+    //Gets the animated material parameters in this material set that would be used for the given texture.
+    const UniformDictionary & GetAnimatedMatParams(const MTexture2D * tex) const;
+    //Gets the static material parameters in this material set that would be used for the given texture.
+    const UniformDictionary & GetStaticMatParams(const MTexture2D * tex) const;
 };
