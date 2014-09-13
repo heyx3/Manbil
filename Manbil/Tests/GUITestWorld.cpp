@@ -207,7 +207,10 @@ void GUITestWorld::InitializeWorld(void)
     guiTex.SetPosition(ToV2f(WindowSize) * 0.5f);
     guiTex.SetScale(Vector2f(0.6f, 0.6f));
 
-    guiBar = GUISlider(guiElParamsCol, &guiBarTex, &guiNubTex, guiMatColor, guiMatColor, Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f), false, false, 1.0f);
+    guiBar = GUISlider(guiElParamsCol, guiElParamsCol, guiElParamsCol,
+                       &guiBarTex, &guiNubTex, guiMatColor, guiMatColor,
+                       Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f),
+                       false, false, 1.0f);
     guiBar.SetPosition(Vector2f(200.0f, 200.0f));
     guiBar.IsClickable = true;
     guiBar.Value = 0.5f;

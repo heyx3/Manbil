@@ -34,17 +34,18 @@ public:
 
 
     GUISlider(const UniformDictionary & params,
+              const UniformDictionary & barParams, const UniformDictionary & nubParams,
               MTexture2D* bar = 0, MTexture2D* nub = 0,
               Material* barMat = 0, Material* nubMat = 0,
               Vector2f barScale = Vector2f(1.0f, 1.0f), Vector2f nubScale = Vector2f(1.0f, 1.0f),
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
               : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
-                Bar(params, bar, barMat, false, timeLerpSpeed), Nub(params, nub, nubMat, false, timeLerpSpeed)
+                Bar(barParams, bar, barMat, false, timeLerpSpeed), Nub(nubParams, nub, nubMat, false, timeLerpSpeed)
     {
         Bar.Scale = barScale;
         Nub.Scale = nubScale;
     }
-    GUISlider(void) : GUISlider(UniformDictionary()) { }
+    GUISlider(void) : GUISlider(UniformDictionary(), UniformDictionary(), UniformDictionary()) { }
 
     
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
