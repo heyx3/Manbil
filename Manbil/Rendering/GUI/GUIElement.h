@@ -92,8 +92,7 @@ protected:
 
 
     static DrawingQuad * GetQuad(void) { if (quad == 0) quad = new DrawingQuad(); return quad; }
-    static void SetUpQuad(const RenderInfo & info, Vector2f pos, float depth,
-                          Vector2f scale = Vector2f(1.0f, 1.0f), float rot = 0.0f);
+    static void SetUpQuad(Vector2f pos, float depth, Vector2f scale = Vector2f(1.0f, 1.0f), float rot = 0.0f);
 
 private:
 

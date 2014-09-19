@@ -14,8 +14,8 @@ std::string GUITexture::Render(float elapsed, const RenderInfo & info)
 {
     if (Tex == 0 || Mat == 0) return "Texture or material is not set!";
 
-    SetUpQuad(info, Vector2f((float)center.x, (float)center.y), Depth,
-              Scale.ComponentProduct(Vector2f((float)Tex->GetWidth(), (float)Tex->GetHeight())));
+    SetUpQuad(Vector2f((float)center.x, (float)center.y), Depth,
+              Scale.ComponentProduct(ToV2f(Vector2u(Tex->GetWidth(), Tex->GetHeight()))));
 
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Tex->GetTextureHandle();
 

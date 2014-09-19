@@ -105,7 +105,7 @@ std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
     Vector2f textOffset = GetTextOffset();
     Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
 
-    SetUpQuad(info, center + textOffset, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
+    SetUpQuad(center + textOffset, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
     
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
         TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
