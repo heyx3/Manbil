@@ -2,8 +2,7 @@
 
 
 GUISelectionBox::GUISelectionBox(const UniformDictionary & params,
-                                 TextRenderer* textRender, Material* selectionBoxMat,
-                                 MTexture2D * selectionBoxTex,
+                                 TextRenderer* textRender, const GUITexture & boxElement,
                                  unsigned int fontID, Vector2u fontRenderTexSize,
                                  const TextureSampleSettings2D & fontRenderSettings,
                                  Material * itemTextMat, GUILabel::HorizontalOffsets textOffset,
@@ -11,18 +10,15 @@ GUISelectionBox::GUISelectionBox(const UniformDictionary & params,
                                  const std::vector<std::string> & _items, unsigned int selected,
                                  bool extendAbove, float timeLerpSpeed)
     : GUIElement(params, timeLerpSpeed), TextRender(textRender),
-      BoxMat(selectionBoxMat), BoxTex(selectionBoxTex),
-      ExtendAbove(extendAbove), selectedItem(selected),
-      scale(1.0f, 1.0f),
-      itemBackground(itemListBackground), itemFontID(fontID), IsExtended(false)
+      BoxElement(boxElement), ExtendAbove(extendAbove), selectedItem(selected),
+      scale(1.0f, 1.0f), itemBackground(itemListBackground), itemFontID(fontID), IsExtended(false)
 {
     unsigned int firstSlotIndex = TextRender->GetNumbSlots(fontID);
     bool tryCre = TextRender->CreateTextRenderSlots(fontID, fontRenderTexSize.x, fontRenderTexSize.y, false,
                                                     fontRenderSettings, _items.size());
     if (!tryCre)
     {
-        assert(BoxMat != 0);
-        BoxMat = 0;
+        BoxElement.Mat = 0;
         return;
     }
 
@@ -35,8 +31,7 @@ GUISelectionBox::GUISelectionBox(const UniformDictionary & params,
                                      itemTextMat, timeLerpSpeed, textOffset, GUILabel::VO_CENTER));
         if (!(itemElements.end() - 1)->SetText(items[i]))
         {
-            assert(BoxMat != 0);
-            BoxMat = 0;
+            BoxElement.Mat = 0;
             return;
         }
     }
@@ -58,7 +53,7 @@ bool GUISelectionBox::SetItem(unsigned int index, const std::string & newVal)
 
 Vector2f GUISelectionBox::GetCollisionDimensions(void) const
 {
-    return ToV2f(Vector2u(BoxTex->GetWidth(), BoxTex->GetHeight())).ComponentProduct(scale);
+    return scale.ComponentProduct(ToV2f(Vector2u(BoxElement.Tex->GetWidth(), BoxElement.Tex->GetHeight())));
 }
 
 void GUISelectionBox::ScaleBy(Vector2f scaleAmount)
@@ -75,24 +70,29 @@ void GUISelectionBox::ScaleBy(Vector2f scaleAmount)
 }
 void GUISelectionBox::SetScale(Vector2f newScale)
 {
-    Vector2f delta(newScale.x / scale.x, newScale.y / scale.y);
-    ScaleBy(delta);
+    ScaleBy(Vector2f(newScale.x / scale.x, newScale.y / scale.y));
 }
 
 std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
 {
+    Vector4f myCol = GetColor();
+    Vector4f oldCol;
+    Vector2f boxSize = scale.ComponentProduct(Vector2f((float)BoxElement.Tex->GetWidth(),
+                                                       (float)BoxElement.Tex->GetHeight())),
+             halfBoxSize = boxSize * 0.5f;
+
     //Render the box.
-    Vector2f dimensions = GetCollisionDimensions(),
-             halfDims = dimensions * 0.5f;
-    SetUpQuad(info, center, Depth, dimensions);
-    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = BoxTex->GetTextureHandle();
-    if (!GetQuad()->Render(info, Params, *BoxMat))
-        return "Error rendering selection box texture: " + BoxMat->GetErrorMsg();
+    BoxElement.SetPosition(center);
+    BoxElement.Depth = Depth;
+    oldCol = BoxElement.GetColor();
+    BoxElement.SetColor(myCol.ComponentProduct(oldCol));
+    std::string err = BoxElement.Render(elapsedTime, info);
+    BoxElement.SetPosition(Vector2f());
+    BoxElement.SetColor(oldCol);
+    if (!err.empty()) return "Error rendering main box: " + err;
 
 
     //Render the selected item.
-
-    Vector2u boxSize(itemBackground.Tex->GetWidth(), BoxTex->GetHeight());
 
     switch (itemElements[selectedItem].OffsetHorz)
     {
@@ -108,49 +108,62 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
         default:
             assert(false);
             return "Unknown horizontal offset enum value '" +
-                        std::to_string(itemElements[selectedItem].OffsetHorz);
+                        std::to_string(itemElements[selectedItem].OffsetHorz) + "'";
     }
 
     itemElements[selectedItem].MoveElement(center);
     itemElements[selectedItem].Depth = Depth + 0.0001f;
-    std::string err = itemElements[selectedItem].Render(elapsedTime, info);
+    oldCol = itemElements[selectedItem].GetColor();
+    itemElements[selectedItem].SetColor(myCol.ComponentProduct(oldCol));
+    err = itemElements[selectedItem].Render(elapsedTime, info);
     itemElements[selectedItem].MoveElement(-center);
-    if (!err.empty()) return "Error rendering selectd item '" + items[selectedItem] + "': " + err;
+    itemElements[selectedItem].SetColor(oldCol);
+    if (!err.empty())
+        return std::string() + "Error rendering selectd item '" + items[selectedItem] + "': " + err;
 
-
+    //Render the other items and their background tex if this element is currently selected.
     if (IsExtended)
     {
-        // Get the number of items to be rendered.
+        //Get the number of items to be rendered.
         unsigned int numbRenderedItems = 0;
         if (DrawEmptyItems)
+        {
             numbRenderedItems = items.size();
-        else for (unsigned int i = 0; i < items.size(); ++i)
-            if (!items[i].empty())
-                ++numbRenderedItems;
+        }
+        else
+        {
+            for (unsigned int i = 0; i < items.size(); ++i)
+                if (!items[i].empty())
+                    ++numbRenderedItems;
+        }
 
         //Render the item backdrop.
         
         //First calculate the bounds of the backdrop.
-        Vector2f minBack(-halfDims.x, 0.0f),
-                 maxBack(halfDims.x, 0.0f);
+        Vector2f minBack(-halfBoxSize.x, 0.0f),
+                 maxBack(halfBoxSize.x, 0.0f);
         if (ExtendAbove)
         {
-            minBack.y = (float)(numbRenderedItems * boxSize.y) - halfDims.y;
-            maxBack.y = halfDims.y;
+            minBack.y = (float)(numbRenderedItems * boxSize.y) - halfBoxSize.y;
+            maxBack.y = halfBoxSize.y;
         }
         else
         {
-            minBack.y = -halfDims.y;
-            maxBack.y = (float)(numbRenderedItems * boxSize.y) + halfDims.y;
+            minBack.y = -halfBoxSize.y;
+            maxBack.y = (float)(numbRenderedItems * boxSize.y) + halfBoxSize.y;
         }
         itemBackground.SetBounds(minBack, maxBack);
 
         //Now render it.
         itemBackground.MoveElement(center);
         itemBackground.Depth = Depth + 0.00005f;
+        oldCol = itemBackground.GetColor();
+        itemBackground.SetColor(oldCol.ComponentProduct(myCol));
         err = itemBackground.Render(elapsedTime, info);
         itemBackground.MoveElement(-center);
-        if (!err.empty()) return "Error rendering item background: '" + err;
+        itemBackground.SetColor(oldCol);
+        if (!err.empty())
+            return std::string() + "Error rendering item list background: '" + err;
 
 
         //Render each text item (the currently-selected item was already displayed in the selection box).
@@ -176,15 +189,19 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo & info)
                 default:
                     assert(false);
                     return "Unknown horizontal offset enum value '" +
-                        std::to_string(itemElements[i].OffsetHorz);
+                        std::to_string(itemElements[i].OffsetHorz) + "'";
             }
             itemElements[i].SetPosition(itemPos);
 
             itemElements[i].MoveElement(center);
-            itemElements[i].Depth = Depth + 0.0015f;
+            itemElements[i].Depth = Depth + 0.00010f;
+            oldCol = itemElements[i].GetColor();
+            itemElements[i].SetColor(oldCol.ComponentProduct(myCol));
             err = itemElements[i].Render(elapsedTime, info);
             itemElements[i].MoveElement(-center);
-            if (!err.empty()) return "Error rendering item '" + items[i] + "': " + err;
+            itemElements[i].SetColor(oldCol);
+            if (!err.empty())
+                return std::string() + "Error rendering item '" + items[i] + "': " + err;
 
             ++itemIndex;
         }

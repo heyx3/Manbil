@@ -7,15 +7,15 @@
 
 //A box the player can click on to bring up selection options.
 //TODO: Add a highlight that sits on the item currently moused over.
-//TODO: Make a more robust TextRenderer that can delete font slots (using a dictionary of slots instead of an array), then add the ability to insert/erase items from this element.
+//TODO: Make a more robust TextRenderer that can delete font slots (keep track of which slots were released and use those next), then add the ability to insert/erase items from this element.
 class GUISelectionBox : public GUIElement
 {
 public:
 
 
     TextRenderer * TextRender;
-    Material * BoxMat;
-    MTexture2D * BoxTex;
+
+    GUITexture BoxElement;
 
     //Whether to display the options above or below this box.
     bool ExtendAbove;
@@ -33,11 +33,10 @@ public:
     void* OnOptionSelected_pData = 0;
 
 
-    //If this element is unable to create render slots for the items, "BoxMat" will be set to 0.
+    //If this element is unable to create render slots for the items, "BoxElement.Mat" will be set to 0.
     //The number of items in the given vector is an upper bound on the number of items that can exist in this box.
     GUISelectionBox(const UniformDictionary & params,
-                    TextRenderer* textRender, Material* selectionBoxMat,
-                    MTexture2D * selectionBoxTex,
+                    TextRenderer* textRender, const GUITexture & selectionBoxCopy,
                     unsigned int fontID, Vector2u fontRenderTexSize,
                     const TextureSampleSettings2D & fontRenderSettings,
                     Material * itemTextMat, GUILabel::HorizontalOffsets textOffset,
@@ -45,6 +44,10 @@ public:
                     const std::vector<std::string> & _items, unsigned int selected = 0,
                     bool extendAbove = true, float timeLerpSpeed = 1.0f);
     GUISelectionBox(void) : GUIElement(UniformDictionary()), itemBackground(UniformDictionary()) { }
+
+    //Don't allow copying of this class since it creates TextRenderer slots in the constructor.
+    //TODO: Figure out a way around this; these classes should be copyable. Maybe make a static method that does those allocations, while the constructor takes in the slots to use.
+    GUISelectionBox(const GUISelectionBox & cpy) = delete;
 
 
     Vector2f GetScale(void) const { return scale; }
