@@ -55,7 +55,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -73,7 +73,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
     </ClCompile>
     <Link>
