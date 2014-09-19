@@ -2,12 +2,12 @@
 
 
 
-void GUIPanel::AddElement(GUIElement* element)
+void GUIPanel::AddElement(GUIElementPtr element)
 {
     if (std::find(elements.begin(), elements.end(), element) == elements.end())
         elements.insert(elements.end(), element);
 }
-bool GUIPanel::RemoveElement(GUIElement* element)
+bool GUIPanel::RemoveElement(GUIElementPtr element)
 {
     auto loc = std::find(elements.begin(), elements.end(), element);
     if (loc == elements.end())
@@ -16,7 +16,7 @@ bool GUIPanel::RemoveElement(GUIElement* element)
     elements.erase(loc);
     return true;
 }
-bool GUIPanel::ContainsElement(GUIElement* element) const
+bool GUIPanel::ContainsElement(GUIElementPtr element) const
 {
     return (std::find(elements.begin(), elements.end(), element) != elements.end());
 }

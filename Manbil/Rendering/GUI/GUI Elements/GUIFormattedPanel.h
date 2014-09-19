@@ -44,8 +44,8 @@ public:
     {
     public:
         float XOffset;
-        GUIElement* Element;
-        GUIElementType(GUIElement* element = 0, float xOffset = 0.0f)
+        GUIElementPtr Element;
+        GUIElementType(GUIElementPtr element = 0, float xOffset = 0.0f)
             : Element(element), XOffset(xOffset) { }
     };
     struct HorzBreakType

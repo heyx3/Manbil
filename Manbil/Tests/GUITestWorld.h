@@ -51,13 +51,8 @@ private:
     GUIManager guiManager;
     Material *guiMatColor, *guiMatGrey;
 
-    GUITextBox guiTextBox;
-    GUICheckbox guiCheckbox;
-    GUITexture guiTex;
     MTexture2D guiTexData;
-    GUISlider guiBar;
     MTexture2D guiBarTex, guiNubTex;
-    GUISelectionBox guiSelector;
 
     Mesh curveMesh;
     Material * curveMat;

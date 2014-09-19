@@ -101,3 +101,6 @@ private:
 
     bool isMousedOver = false;
 };
+
+
+typedef std::shared_ptr<GUIElement> GUIElementPtr;

@@ -193,61 +193,69 @@ void GUITestWorld::InitializeWorld(void)
     cursorTex.Scale.x = 10.0f;
     textBoxTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     cursorTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 0.15f, 1.0f));
-    guiTextBox = GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 300.0f, 50.0f, true, guiElParamsCol, 1.0f);
-    guiTextBox.SetColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    guiTextBox.Box.SetColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+    GUITextBox* guiTextBox = new GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 300.0f, 50.0f, true, guiElParamsCol, 1.0f);
+    guiTextBox->SetColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    guiTextBox->Box.SetColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+    GUIElementPtr guiTextBoxPtr(guiTextBox);
 
-    guiTex = GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
-    guiTex.IsButton = true;
-    guiTex.OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
+    GUITexture* guiTex = new GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
+    guiTex->IsButton = true;
+    guiTex->OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
     {
         std::cout << "Clicked texture button. Screen pos: " <<
                      DebugAssist::ToString(mouse + clicked->GetCollisionCenter()) << "\n";
     };
-    guiTex.SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiTex.SetScale(Vector2f(0.6f, 0.6f));
+    guiTex->SetPosition(ToV2f(WindowSize) * 0.5f);
+    guiTex->SetScale(Vector2f(0.6f, 0.6f));
+    GUIElementPtr guiTexPtr(guiTex);
 
-    guiBar = GUISlider(guiElParamsCol, guiElParamsCol, guiElParamsCol,
-                       &guiBarTex, &guiNubTex, guiMatColor, guiMatColor,
-                       Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f),
-                       false, false, 1.0f);
-    guiBar.SetPosition(Vector2f(200.0f, 200.0f));
-    guiBar.IsClickable = true;
-    guiBar.Value = 0.5f;
-    guiBar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
-    guiBar.Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-    guiBar.Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+    GUISlider * guiBar = new GUISlider(guiElParamsCol, guiElParamsCol, guiElParamsCol,
+                                       &guiBarTex, &guiNubTex, guiMatColor, guiMatColor,
+                                       Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f),
+                                       false, false, 1.0f);
+    guiBar->SetPosition(Vector2f(200.0f, 200.0f));
+    guiBar->IsClickable = true;
+    guiBar->Value = 0.5f;
+    guiBar->Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
+    guiBar->Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+    guiBar->Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+    GUIElementPtr guiBarPtr(guiBar);
 
-    guiCheckbox = GUICheckbox(guiElParamsCol,
-                              GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
-                              GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
-                              false, 1.0f);
-    guiCheckbox.Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
-    guiCheckbox.Check.SetColor(Vector4f(0.2f, 0.2f, 0.58f, 1.0f));
-    guiCheckbox.Check.ScaleBy(Vector2f(0.5f, 0.5f));
-    guiCheckbox.SetScale(Vector2f(20.0f, 20.0f));
+    GUICheckbox* guiCheckbox = new GUICheckbox(guiElParamsCol,
+                                               GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
+                                               GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
+                                               false, 1.0f);
+    guiCheckbox->Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+    guiCheckbox->Check.SetColor(Vector4f(0.2f, 0.2f, 0.58f, 1.0f));
+    guiCheckbox->Check.ScaleBy(Vector2f(0.5f, 0.5f));
+    guiCheckbox->SetScale(Vector2f(20.0f, 20.0f));
+    GUIElementPtr guiCheckboxPtr(guiCheckbox);
 
+    GUITexture guiSelectorBox(guiElParamsCol, &guiTexData, guiMatColor);
     std::vector<std::string> guiSelectorItems;
     guiSelectorItems.resize(3);
     guiSelectorItems[0] = "Index 0";
     guiSelectorItems[1] = "Index 1";
     guiSelectorItems[2] = "Index 2";
-    guiSelector = GUISelectionBox(guiElParamsCol, TextRender, guiMatColor, &guiTexData, textRendererID,
-                                  Vector2u(guiTexData.GetWidth(), 100), TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
-                                  guiMatGrey, GUILabel::HO_LEFT,
-                                  guiTex, guiSelectorItems);
-    guiSelector.ExtendAbove = true;
-    if (!ReactToError(guiSelector.BoxMat != 0, "Error generating GUI selection box", TextRender->GetError()))
+    GUISelectionBox* guiSelector = new GUISelectionBox(guiElParamsCol, TextRender, guiSelectorBox, textRendererID,
+                                                       Vector2u(guiTexData.GetWidth(), 100), TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
+                                                       guiMatGrey, GUILabel::HO_LEFT,
+                                                       *guiTex, guiSelectorItems);
+    guiSelector->ExtendAbove = true;
+    if (!ReactToError(guiSelector->BoxElement.Mat != 0,
+                      "Error generating GUI selection box",
+                      TextRender->GetError()))
         return;
-    guiSelector.SetPosition(Vector2f(80.0f, 80.0f));
+    guiSelector->SetPosition(Vector2f(80.0f, 80.0f));
+    GUIElementPtr guiSelectorPtr(guiSelector);
 
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTex), 5.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiCheckbox)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiTexPtr), 5.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiCheckboxPtr)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(20.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiTextBox), 5.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiBar)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiTextBoxPtr), 5.0f));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiBarPtr)));
     guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(10.0f)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(&guiSelector)));
+    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiSelectorPtr)));
 
     guiManager.GetFormattedRoot().SetPosition(ToV2f(WindowSize) * 0.5f);
 

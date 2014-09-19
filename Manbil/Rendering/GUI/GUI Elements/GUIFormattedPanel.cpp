@@ -4,7 +4,7 @@
 
 void GUIFormatObject::MoveObject(MovementData & data)
 {
-    GUIElement* el;
+    GUIElementPtr el;
     float xOffset;
     Vector2f dims, min;
 
@@ -58,7 +58,7 @@ bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT &&
-            objects[i].GUIElementTypeData.Element == toFind)
+            objects[i].GUIElementTypeData.Element.get() == toFind)
         {
             return true;
         }
@@ -78,7 +78,7 @@ void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             Vector2f elPos = el->GetCollisionCenter();
             el->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
             el->ScaleBy(scaleAmount);
@@ -98,7 +98,7 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
 
             el->Update(elapsed, relativeMousePos - el->GetCollisionCenter());
         }
@@ -128,7 +128,7 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             el->MoveElement(pos);
             el->Depth += Depth;
             std::string tempErr = el->Render(elapsedTime, info);
@@ -155,7 +155,7 @@ void GUIFormattedPanel::OnMouseClick(Vector2f mouseP)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             el->OnMouseClick(mouseP - el->GetCollisionCenter());
         }
     }
@@ -166,7 +166,7 @@ void GUIFormattedPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             Vector2f center = el->GetCollisionCenter();
             el->OnMouseDrag(oldP - center, currentP - center);
         }
@@ -178,7 +178,7 @@ void GUIFormattedPanel::OnMouseRelease(Vector2f mouseP)
     {
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
-            GUIElement* el = objects[i].GUIElementTypeData.Element;
+            GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             el->OnMouseRelease(mouseP - el->GetCollisionCenter());
         }
     }
@@ -200,7 +200,7 @@ void GUIFormattedPanel::RePositionElements()
 
     //Calculate the extents and re-center the elements around the origin.
     extents = maxPos + Vector2f(HorizontalBorder, -VerticalBorder);
-    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f));//TODO: Might have to modify this delta based on the horizontal/vertical border.
+    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f));
     for (unsigned int i = 0; i < objects.size(); ++i)
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
             objects[i].GUIElementTypeData.Element->MoveElement(delta);

@@ -26,14 +26,14 @@ public:
 
 
     //Adds the given element to this panel IF this panel doesn't have it already.
-    void AddElement(GUIElement* element);
+    void AddElement(GUIElementPtr element);
     //Returns whether or not the given element was a part of this panel before removing it.
-    bool RemoveElement(GUIElement* element);
+    bool RemoveElement(GUIElementPtr element);
     //Gets whether this panel contains the given GUI element.
-    bool ContainsElement(GUIElement* element) const;
+    bool ContainsElement(GUIElementPtr element) const;
 
-    const std::vector<GUIElement*> & GetElements(void) const { return elements; }
-    std::vector<GUIElement*> & GetElements(void) { return elements; }
+    const std::vector<GUIElementPtr> & GetElements(void) const { return elements; }
+    std::vector<GUIElementPtr> & GetElements(void) { return elements; }
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
@@ -53,6 +53,6 @@ protected:
 private:
 
     //The GUI elements inside this panel.
-    std::vector<GUIElement*> elements;
+    std::vector<GUIElementPtr> elements;
     Vector2f pos, extents;
 };
