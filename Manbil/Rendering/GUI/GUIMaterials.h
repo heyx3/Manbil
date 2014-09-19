@@ -5,7 +5,7 @@
 
 
 //A static class that can generate commonly-used materials for the GUI system.
-static class GUIMaterials : public ShaderGenerator
+class GUIMaterials : public ShaderGenerator
 {
 public:
 
