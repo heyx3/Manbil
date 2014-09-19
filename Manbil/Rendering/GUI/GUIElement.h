@@ -76,7 +76,7 @@ public:
                              Vector2f currentRelativeMousePos) { }
     //Raised when the mouse releases over this element.
     //Ths given Vector2i is the current mouse position relative to this element's center.
-    virtual void OnMouseRelease(Vector2f mouse_centerOffset) { }
+    virtual void OnMouseRelease(Vector2f relativeMousePos) { }
 #pragma warning(default: 4100)
 
 
