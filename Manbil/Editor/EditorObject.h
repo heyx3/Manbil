@@ -22,10 +22,11 @@ public:
 
     //Initializes the GUIElement for representing/editing this data.
     //If there was a problem, returns false and sets the static "ErrorMsg" field. Otherwise returns true.
-    //Takes in the content to use for rendering and a list to hold any allocations this method needs to make.
+    //Takes in the content to use for rendering.
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) = 0;
-    //Updates this object and its element. Default behavior: do nothing.
-    virtual void Update(float elapsed) { }
+    //Updates this object and its element. Should NOT update this object's active GUI element.
+    //Default behavior: do nothing.
+    virtual void Update(float elapsed, Vector2f panelRelativeMousePos) { }
 
 protected:
 
