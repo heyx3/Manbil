@@ -173,7 +173,7 @@ const UniformDictionary & EditorMaterialSet::GetAnimatedMatParams(const MTexture
         return AnimatedMatGreyParams;
 
     assert(false);
-    return UniformDictionary();
+    return AnimatedMatColParams;
 }
 const UniformDictionary & EditorMaterialSet::GetStaticMatParams(const MTexture2D * tex) const
 {
@@ -183,5 +183,5 @@ const UniformDictionary & EditorMaterialSet::GetStaticMatParams(const MTexture2D
         return StaticMatGreyParams;
 
     assert(false);
-    return UniformDictionary();
+    return StaticMatColParams;
 }
