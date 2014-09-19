@@ -450,6 +450,9 @@
     <ClCompile Include="Editor\EditorMaterialSet.cpp">
       <Filter>Editors</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\EditorObjects.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -986,6 +989,12 @@
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorMaterialSet.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorObject.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorObjects.h">
       <Filter>Editors</Filter>
     </ClInclude>
   </ItemGroup>
