@@ -18,7 +18,7 @@ public:
     const GUIPanel & GetNormalRoot(void) const { return panel; }
     GUIPanel & GetNormalRoot(void) { return panel; }
 
-    const GUIFormattedPanel GetFormattedRoot(void) const { return formatPanel; }
+    const GUIFormattedPanel & GetFormattedRoot(void) const { return formatPanel; }
     GUIFormattedPanel & GetFormattedRoot(void) { return formatPanel; }
 
 
