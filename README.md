@@ -61,9 +61,12 @@ An overview of the different systems by folder. NOTE: this layout uses the filte
   * "Water": my first attempt at implementing dynamic rippling water on the GPU.
     * Water.h/.cpp: manages parameters for the water physics.
     * WaterRendering.h/.cpp: exposes special DataNodes for rendering water.
-  * "GUI": the GUI system for my engine. The only functional part of this folder is the text rendering.
+  * "GUI": the GUI system for my engine.
     * FreeTypeHandler.h/.cpp: Wraps the FreeType library, which loads fonts from a file.
     * TextRenderer.h/.cpp: Handles actual rendering of text into a texture. Reserve "slots" in a TextRenderer with "CreateTextRenderSlots()", render text into that slot with "RenderString()", then get the text out with "GetRenderedString()".
+    * GUIElement.h/.cpp: Defines the base type of GUI element.
+    * "GUI Elements": Various GUIElement implementations -- text, images, slider bars, dropdown menus, checkboxes, etc. GUIPanel is a collection of other GUIElements. GUIFormattedPanel is like GUIPanel, but it auto-formats the GUIElements as they are added/removed from the panel.
+    * GUIManager.h/.cpp: Defines the handler for a GUI system. Can be formatted or un-formatted ("normal").
   * "GPU Particles": My system for particle effects done on the GPU.
     * Particles are kinematic; they don't react to collisions or anything. This makes them faster but less dynamic.
     * The low-level particle system ("GPUP" for "GPU Particles") just provides an output system similar to the DataNode system.
@@ -74,3 +77,9 @@ An overview of the different systems by folder. NOTE: this layout uses the filte
         * "ConstantAcceleration": outputs world position given "acceleration", "initial velocity", and "initial position" components.
         * "SpherePosition": outputs a random position inside a given sphere.
       * Helpful global information is provided in the "HGPGlobalData" namespace.
+
+* "Editors": System for building GUI panels for editing data. Builds off of the GUI system in the "Rendering/GUI" folder.
+  * EditorMaterialSet.h/.cpp: Defines the set of content (textures, fonts, materials, etc.) to be used when generating an editor panel. Provides a static function to load "default" editor content so that you don't have to create/load it all yourself.
+  * EditorObject.h: Defines the basic type of object that can be added to a GUIPanel. Wraps a GUIElement instance that represents the object.
+  * EditorObjects.h/.cpp: Defines specific implementations of EditorObject (e.x. checkbox, slider bar, text box, etc).
+  * EditorPanel.h/.cpp: Essentially a GUIFormattedPanel that takes EditorObject instances and assembles them together nicely.
