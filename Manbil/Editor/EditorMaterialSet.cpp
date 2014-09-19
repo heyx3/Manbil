@@ -23,9 +23,9 @@ EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
 std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSet)
 {
     //Load the font.
-    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Candara.ttf", 30);
+    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 30);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
-        return "Error loading font 'Content/Fonts/Candara.ttf': " + outSet.TextRender.GetError();
+        return "Error loading font 'Content/Fonts/Inconsolata.otf': " + outSet.TextRender.GetError();
 
 
     //Set up the textures.
@@ -99,7 +99,6 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
 
     //Checkbox check texture.
     outSet.CheckBoxCheckTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
-    std::string err;
     if (!outSet.CheckBoxCheckTex.SetDataFromFile("Content/Textures/CheckboxCheck.png", err))
     {
         return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
@@ -119,8 +118,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
         return "Error creating static greyscale material: " + genM.ErrorMessage;
     outSet.StaticMatGrey = genM.Mat;
 
-    ShaderGenerator::GeneratedMaterial genM =
-        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatColParams, false);
+    genM = GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatColParams, false);
     if (!genM.ErrorMessage.empty())
         return "Error creating static color material: " + genM.ErrorMessage;
     outSet.StaticMatColor = genM.Mat;
