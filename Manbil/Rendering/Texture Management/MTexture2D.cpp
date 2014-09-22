@@ -403,8 +403,13 @@ bool MTexture2D::LoadImageFromFile(std::string filePath, Array2D<Vector4b> & out
     sf::Image img;
     if (!img.loadFromFile(filePath)) return false;
 
+    //Flip the Y.
     outData.Reset(img.getSize().x, img.getSize().y);
-    outData.Fill((Vector4b*)img.getPixelsPtr(), true);
+    outData.FillFunc([&img](Vector2u loc, Vector4b* outCol)
+    {
+        sf::Color col = img.getPixel(loc.x, img.getSize().y - 1 - loc.y);
+        *outCol = Vector4b(col.r, col.g, col.b, col.a);
+    });
 
     return true;
 }
@@ -427,22 +432,22 @@ bool MTexture2D::SetDataFromFile(std::string filePath, PixelSizes newSize, std::
 
 
     //Load the image.
-    sf::Image img;
-    if (!img.loadFromFile(filePath))
+    Array2D<Vector4b> outData(1, 1);
+    if (!LoadImageFromFile(filePath, outData))
     {
-        outError = "Failed to load image from file.";
+        outError = "Failed to load the image from file.";
         return false;
     }
 
 
     //Update this texture's data.
 
-    width = img.getSize().x;
-    height = img.getSize().y;
+    width = outData.GetWidth();
+    height = outData.GetHeight();
     pixelSize = newSize;
 
     Bind();
-    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+    glTexImage2D(GL_TEXTURE_2D, 0, ToGLenum(pixelSize), width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
     if (usesMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
     
 
