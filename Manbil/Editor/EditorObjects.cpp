@@ -10,8 +10,8 @@ bool CheckboxValue::InitGUIElement(EditorMaterialSet & materialSet)
 {
    MTexture2D *boxTex = &materialSet.CheckBoxBackgroundTex,
               *checkTex = &materialSet.CheckBoxCheckTex;
-   GUITexture boxGUITex(materialSet.GetStaticMatParams(boxTex), boxTex,
-                        materialSet.GetStaticMaterial(boxTex), false, materialSet.AnimateSpeed),
+   GUITexture boxGUITex(materialSet.GetAnimatedMatParams(boxTex), boxTex,
+                        materialSet.GetAnimatedMaterial(boxTex), true, materialSet.AnimateSpeed),
               checkGUITex(materialSet.GetAnimatedMatParams(checkTex), checkTex,
                           materialSet.GetAnimatedMaterial(checkTex), false, materialSet.AnimateSpeed);
     GUICheckbox * box = new GUICheckbox(materialSet.StaticMatGreyParams, boxGUITex, checkGUITex);
@@ -56,8 +56,10 @@ bool DropdownValues::InitGUIElement(EditorMaterialSet & materialSet)
 
 bool TextBoxString::InitGUIElement(EditorMaterialSet & materialSet)
 {
-    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, BoxDimensions.x, BoxDimensions.y,
-                                                      false, TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
+    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
+                                                      (unsigned int)((float)BoxDimensions.x / materialSet.TextScale.x),
+                                                      materialSet.TextRenderSpaceHeight, false,
+                                                      TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
     {
         ErrorMsg = "Error creating text render slot: " + materialSet.TextRender.GetError();
         activeGUIElement = GUIElementPtr(0);
@@ -70,12 +72,15 @@ bool TextBoxString::InitGUIElement(EditorMaterialSet & materialSet)
                              &materialSet.TextBoxBackgroundTex,
                              materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
                              false, materialSet.AnimateSpeed);
-    GUILabel boxContents(materialSet.StaticMatColParams, &materialSet.TextRender,
-                         slot, materialSet.StaticMatColor, materialSet.AnimateSpeed,
+    GUILabel boxContents(materialSet.StaticMatGreyParams, &materialSet.TextRender,
+                         slot, materialSet.StaticMatGrey, materialSet.AnimateSpeed,
                          GUILabel::HO_LEFT, GUILabel::VO_CENTER);
+    boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+    boxContents.ScaleBy(materialSet.TextScale);
     GUITextBox * box = new GUITextBox(boxBackground, boxBackground, GUITexture(), boxContents,
                                       (float)BoxDimensions.x, (float)BoxDimensions.y, true,
                                       materialSet.StaticMatGreyParams, materialSet.AnimateSpeed);
+    box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
     //Try setting the initial value of the box.
     ErrorMsg.clear();
     ErrorMsg = box->SetText(StartingValue);
@@ -106,8 +111,8 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
 {
     //First try to create the font slot to render the label.
     if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
-                                                      (unsigned int)(ButtonSize.x + 1.0f),
-                                                      (unsigned int)(ButtonSize.y + 1.0f),
+                                                      (unsigned int)(ButtonSize.x / materialSet.TextScale.x),
+                                                      materialSet.TextRenderSpaceHeight,
                                                       false, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
     {
         ErrorMsg = "Error creating text render slot for button '" + Text +
@@ -124,17 +129,22 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
         return false;
     }
 
+    //Create the button.
     buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(&materialSet.ButtonTex),
                                              &materialSet.ButtonTex,
                                              materialSet.GetAnimatedMaterial(&materialSet.ButtonTex),
                                              true, materialSet.AnimateSpeed));
+    buttonTex->SetBounds(ButtonSize * -0.5f, ButtonSize * 0.5f);
     GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
     buttonTexPtr->OnClicked = OnClick;
     buttonTexPtr->OnClicked_pData = OnClick_Data;
 
-    buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatColParams, &materialSet.TextRender,
-                                             labelSlot, materialSet.StaticMatColor,
-                                             materialSet.AnimateSpeed, GUILabel::HO_LEFT, GUILabel::VO_CENTER));
+    //Create the label.
+    buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatGreyParams, &materialSet.TextRender,
+                                             labelSlot, materialSet.StaticMatGrey,
+                                             materialSet.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+    buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+    buttonLabel->ScaleBy(materialSet.TextScale);
 
     GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams, ButtonSize, materialSet.AnimateSpeed);
     panel->AddElement(buttonTex);

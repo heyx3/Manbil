@@ -39,11 +39,16 @@ public:
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
     {
-        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, BoxDimensions.x, BoxDimensions.y,
-                                                          false, TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
+        activeGUIElement = GUIElementPtr(0);
+
+        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
+                                                          (unsigned int)((float)BoxDimensions.x /
+                                                                         materialSet.TextScale.x),
+                                                          materialSet.TextRenderSpaceHeight, false,
+                                                          TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
         {
             ErrorMsg = "Error creating text render slot: " + materialSet.TextRender.GetError();
-            return GUIElementPtr(0);
+            return false;
         }
 
         TextRenderer::FontSlot slot(materialSet.FontID,
@@ -52,19 +57,22 @@ public:
                                  &materialSet.TextBoxBackgroundTex,
                                  materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
                                  false, materialSet.AnimateSpeed);
-        GUILabel boxContents(materialSet.StaticMatColParams, &materialSet.TextRender,
-                             slot, materialSet.StaticMatColor, materialSet.AnimateSpeed,
+        GUILabel boxContents(materialSet.StaticMatGreyParams, &materialSet.TextRender,
+                             slot, materialSet.StaticMatGrey, materialSet.AnimateSpeed,
                              GUILabel::HO_LEFT, GUILabel::VO_CENTER);
+        boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+        boxContents.ScaleBy(materialSet.TextScale);
         GUITextBox * box = new GUITextBox(boxBackground, boxBackground, GUITexture(), boxContents,
                                           (float)BoxDimensions.x, (float)BoxDimensions.y, true,
                                           materialSet.StaticMatGreyParams, materialSet.AnimateSpeed);
+        box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         //Try setting the initial value of the box.
         ErrorMsg.clear();
-        ErrorMsg = box->SetText(DataTypeToString(StartingValue));
+        ErrorMsg = box->SetText(DataTypeToString()(StartingValue));
         if (!ErrorMsg.empty())
         {
             delete box;
-            return GUIElementPtr(0);
+            return false;
         }
 
         //When new text is entered, try to parse it.
@@ -76,7 +84,7 @@ public:
             //Try parsing the value.
             try
             {
-                DataType val = std_StringToDataType(tBox->GetText());
+                DataType val = std_StringToDataType()(tBox->GetText());
 
                 //Raise the correct event.
                 if (tbv->OnValueChanged != 0)
