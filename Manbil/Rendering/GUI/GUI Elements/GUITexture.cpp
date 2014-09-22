@@ -30,7 +30,7 @@ void GUITexture::OnMouseClick(Vector2f mousePos)
     {
         isBeingClicked = true;
         CurrentTimeLerpSpeed = TimeLerpSpeed;
-        SetTimeLerp(0.0f);
+        //SetTimeLerp(0.0f);
         if (OnClicked != 0) OnClicked(this, mousePos, OnClicked_pData);
     }
 }
