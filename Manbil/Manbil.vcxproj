@@ -87,8 +87,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Asset Packaging\AssetPackage.cpp" />
-    <ClCompile Include="BasicMComponentFactories.cpp" />
-    <ClCompile Include="BasicMComponents.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Editor\EditorMaterialSet.cpp" />
     <ClCompile Include="Editor\EditorObjects.cpp" />
@@ -128,13 +126,11 @@
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Math\Vectors.cpp" />
-    <ClCompile Include="MGameMaterialManager.cpp" />
     <ClCompile Include="Oculus\OculusDevice.cpp" />
     <ClCompile Include="RenderDataHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MGame.cpp" />
     <ClCompile Include="MovingCamera.cpp" />
     <ClCompile Include="NoiseTest.cpp" />
     <ClCompile Include="NoiseToTexture.cpp" />
@@ -241,8 +237,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asset Packaging\AssetPackage.h" />
-    <ClInclude Include="BasicMComponentFactories.h" />
-    <ClInclude Include="BasicMComponents.h" />
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorObject.h" />
@@ -303,14 +297,11 @@
     <ClInclude Include="Math\Shapes\Boxes.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Math\Vectors.h" />
-    <ClInclude Include="MGameMaterialManager.h" />
     <ClInclude Include="Oculus\OculusDevice.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MGame.h" />
-    <ClInclude Include="MGameForwardDeclarations.h" />
     <ClInclude Include="MovingCamera.h" />
     <ClInclude Include="NoiseTest.h" />
     <ClInclude Include="NoiseToTexture.h" />
