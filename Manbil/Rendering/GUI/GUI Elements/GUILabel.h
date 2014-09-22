@@ -5,6 +5,8 @@
 #include "../../Materials/Data Nodes/ShaderGenerator.h"
 
 
+//TODO: Take this idea of "alignment" and pull it into GUIElement so that all elements can be aligned vertically/horizontally.
+
 //Represents a simple piece of text.
 class GUILabel : public GUIElement
 {
@@ -57,6 +59,8 @@ public:
           RenderMat(material), TextRenderSlot(textSlot), text(textRenderer->GetString(textSlot)),
           GUIElement(params, timeSpeed), Scale(1.0f, 1.0f)
     {
+        if (!text.empty() && textRenderer != 0)
+            dimensions = ToV2f(TextRender->GetSlotBoundingSize(textSlot));
     }
     GUILabel(void) : GUIElement(UniformDictionary()) { }
 

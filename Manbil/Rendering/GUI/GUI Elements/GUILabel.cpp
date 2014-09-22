@@ -82,7 +82,7 @@ Vector2f GUILabel::GetTextOffset(void) const
     //Flip the Y.
     textOffset.y = -textOffset.y;
 
-    return textOffset;
+    return textOffset.ComponentProduct(Scale);
 }
 
 bool GUILabel::SetText(std::string newText)
