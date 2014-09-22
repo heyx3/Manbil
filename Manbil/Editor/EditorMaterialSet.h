@@ -14,10 +14,10 @@ public:
 
 
     //The min/max colors used for animating GUI elements.
-    Vector4f MinAnimateColor = Vector4f(0.3f, 0.3f, 0.3f, 1.0f),
+    Vector4f MinAnimateColor = Vector4f(0.7f, 0.7f, 0.7f, 1.0f),
              MaxAnimateColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     //The speed of animated GUI elements.
-    float AnimateSpeed = 1.0f;
+    float AnimateSpeed = 10.0f;
 
     TextRenderer & TextRender;
     unsigned int FontID;
@@ -29,8 +29,10 @@ public:
 
     Vector2f SliderBarScale = Vector2f(100.0f, 18.5f),
              SliderNubScale = Vector2f(10.0f, 30.0f);
-    float TextBoxCursorWidth = 5.0f;
+    float TextBoxCursorWidth = 8.0f;
     Vector4f TextColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+    Vector2f TextScale = Vector2f(0.35f, 0.35f);
+    unsigned int TextRenderSpaceHeight = 128;
 
     Material *AnimatedMatGrey = 0,
              *StaticMatGrey = 0,
@@ -44,6 +46,8 @@ public:
 
     EditorMaterialSet(const EditorMaterialSet & cpy) = delete;
     EditorMaterialSet(TextRenderer & renderer);
+
+    ~EditorMaterialSet(void);
 
 
     //Gets the animated material in this material set that would be used for the given texture.

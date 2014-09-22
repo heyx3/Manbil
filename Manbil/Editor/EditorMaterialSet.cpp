@@ -19,11 +19,18 @@ EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
 {
 
 }
+EditorMaterialSet::~EditorMaterialSet(void)
+{
+    if (AnimatedMatGrey != 0) delete AnimatedMatGrey;
+    if (StaticMatGrey != 0) delete StaticMatGrey;
+    if (AnimatedMatColor != 0) delete AnimatedMatColor;
+    if (StaticMatColor != 0) delete StaticMatColor;
+}
 
 std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSet)
 {
     //Load the font.
-    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 30);
+    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 100);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
         return "Error loading font 'Content/Fonts/Inconsolata.otf': " + outSet.TextRender.GetError();
 
@@ -68,6 +75,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
         return "Error occurred while setting texture data for text box background texture.";
 
     //Panel background texture.
+    greyData.Fill(0.95f);
     outSet.PanelBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.PanelBackgroundTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for panel background texture.";
