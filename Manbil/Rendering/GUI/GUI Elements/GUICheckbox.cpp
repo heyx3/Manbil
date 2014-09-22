@@ -90,7 +90,6 @@ void GUICheckbox::OnMouseClick(Vector2f relativeMouse)
     if (IsLocalInsideBounds(relativeMouse))
     {
         ToggleCheck(true);
-
     }
 
     if (isChecked)
