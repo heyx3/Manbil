@@ -27,10 +27,13 @@ public:
 
     //Initializes the given object and then adds it to this editor panel.
     //Returns an error message when initializing this object, or the empty string if everything is fine.
-    std::string AddObject(std::shared_ptr<EditorObject> toAdd);
+    std::string AddObject(EditorObjectPtr toAdd);
+    //Initializes the given objects and then adds them to this editor panel.
+    //Returns an error message when initializing these objects, or the empty string if everything is fine.
+    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd);
     //Removes the given object from this editor panel if it exists.
     //Returns whether or not it existed in this panel.
-    bool RemoveObject(std::shared_ptr<EditorObject> toRemove);
+    bool RemoveObject(EditorObjectPtr toRemove);
 
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
@@ -57,5 +60,5 @@ protected:
 private:
 
     GUIFormattedPanel panel;
-    std::vector<std::shared_ptr<EditorObject>> editorObjects;
+    std::vector<EditorObjectPtr> editorObjects;
 };
