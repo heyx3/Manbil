@@ -48,9 +48,30 @@ void GUIFormattedPanel::AddObject(const GUIFormatObject & toAdd)
     objects.insert(objects.end(), toAdd);
     RePositionElements();
 }
+void GUIFormattedPanel::AddRange(const std::vector<GUIFormatObject> & toAdd)
+{
+    objects.insert(objects.end(), toAdd.begin(), toAdd.end());
+    RePositionElements();
+}
+void GUIFormattedPanel::InsertObject(unsigned int index, const GUIFormatObject & toInsert)
+{
+    objects.insert(objects.begin() + index, toInsert);
+    RePositionElements();
+}
+void GUIFormattedPanel::InsertRange(unsigned int index, const std::vector<GUIFormatObject> & toInsert)
+{
+    objects.insert(objects.begin() + index, toInsert.begin(), toInsert.end());
+    RePositionElements();
+}
 void GUIFormattedPanel::RemoveObject(unsigned int index)
 {
     objects.erase(objects.begin() + index);
+    RePositionElements();
+}
+void GUIFormattedPanel::ReplaceObject(unsigned int index, const GUIFormatObject & toAdd)
+{
+    objects.erase(objects.begin() + index);
+    objects.insert(objects.begin() + index, toAdd);
     RePositionElements();
 }
 bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
@@ -71,7 +92,7 @@ bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
 void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
 {
     //Scale the 'extents' vector.
-    extents = Vector2f(extents.x, extents.y).ComponentProduct(scaleAmount);
+    extents.MultiplyComponents(scaleAmount);
 
     //Scale each element and move its position to keep it at the same position in the panel.
     for (unsigned int i = 0; i < objects.size(); ++i)
@@ -80,7 +101,7 @@ void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
         {
             GUIElementPtr el = objects[i].GUIElementTypeData.Element;
             Vector2f elPos = el->GetCollisionCenter();
-            el->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
+            el->SetPosition(elPos.ComponentProduct(scaleAmount));
             el->ScaleBy(scaleAmount);
         }
     }
@@ -99,7 +120,6 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
         if (objects[i].Type == GUIFormatObject::OT_GUIELEMENT)
         {
             GUIElementPtr el = objects[i].GUIElementTypeData.Element;
-
             el->Update(elapsed, relativeMousePos - el->GetCollisionCenter());
         }
     }

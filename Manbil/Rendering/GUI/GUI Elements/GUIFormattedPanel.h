@@ -106,14 +106,21 @@ public:
 
 
     void AddObject(const GUIFormatObject & toAdd);
+    void AddRange(const std::vector<GUIFormatObject> & toInsert);
+    void InsertObject(unsigned int index, const GUIFormatObject & toInsert);
+    void InsertRange(unsigned int index, const std::vector<GUIFormatObject> & toInsert);
     void RemoveObject(unsigned int index);
+    void ReplaceObject(unsigned int index, const GUIFormatObject & toAdd);
+
     bool ContainsElement(GUIElement* toFind);
 
     const std::vector<GUIFormatObject> & GetObjects(void) const { return objects; }
     const GUIFormatObject & GetFormatObject(unsigned int index) const { assert(index < objects.size()); return objects[index]; }
     GUIFormatObject & GetFormatObject(unsigned int index) { assert(index < objects.size()); return objects[index]; }
 
-    //Re-calculates the position of the elements in this panel. Only needs to be called if a GUIFormatObject was manually modified.
+
+    //Re-calculates the position of the elements in this panel.
+    //This should only be called manually if a GUIFormatObject was manually resized/repositioned.
     void RePositionElements(void);
 
 
