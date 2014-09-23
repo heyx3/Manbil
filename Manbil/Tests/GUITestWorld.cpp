@@ -6,10 +6,11 @@
 #include "../Vertices.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
-#include "../Rendering/Curves/BezierCurve.h"
 
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
+#include "../Editor/EditorPanel.h"
+#include "../Editor/EditorObjects.h"
 
 #include "../DebugAssist.h"
 
@@ -36,25 +37,7 @@ namespace GUITESTWORLD_NAMESPACE
 using namespace GUITESTWORLD_NAMESPACE;
 
 
-Vector2i GUITestWorld::WindowSize = Vector2i(1024, 1024);
-unsigned int textRendererID = FreeTypeHandler::ERROR_ID;
-
-//Returns an error message, or an empty string if everything went fine.
-std::string LoadFont(TextRenderer * rendr, std::string fontPath, unsigned int size)
-{
-    if (textRendererID != FreeTypeHandler::ERROR_ID)
-        return "'textRendererID' was already set to " + std::to_string(textRendererID);
-
-    textRendererID = rendr->CreateAFont(fontPath, 50);
-    if (textRendererID == FreeTypeHandler::ERROR_ID)
-    {
-        return "Error creating font '" + fontPath + "': " + rendr->GetError();
-    }
-
-    return "";
-}
-
-
+Vector2i GUITestWorld::WindowSize = Vector2i();
 
 
 bool GUITestWorld::ReactToError(bool isEverythingOK, std::string errorIntro, std::string errorMsg)
@@ -77,9 +60,9 @@ void GUITestWorld::OnInitializeError(std::string errorMsg)
 
 void GUITestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
-    WindowSize.x = newW;
-    WindowSize.y = newH;
-    glViewport(0, 0, newW, newH);
+    //Window cannot be resized.
+    if (newW != WindowSize.x || newH != WindowSize.y)
+        GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 }
 
 
@@ -96,184 +79,39 @@ void GUITestWorld::InitializeWorld(void)
         return;
 
 
-    //Generate the curve.
-    std::vector<CurveVertex> bezVerts;
-    CurveVertex::GenerateVertices(bezVerts, 100);
-    RenderObjHandle vbo;
-    RenderDataHandler::CreateVertexBuffer(vbo, bezVerts.data(), bezVerts.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    curveMesh.SetVertexIndexData(VertexIndexData(bezVerts.size(), vbo));
-
-
-    //Generate the curve material.
-
-    typedef std::shared_ptr<DataNode> DNP;
-
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = CurveVertex::GetAttributeData();
-
-    DNP startSlopeParam(new ParamNode(3, "u_startSlope", "startSlopeParam")),
-        endSlopeParam(new ParamNode(3, "u_endSlope", "endSlopeParam"));
-    DNP curvePositioning(new BezierCurve(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, 0.5f, 0.0f),
-                                         startSlopeParam, endSlopeParam, Vector3f(0.0f, 0.0f, 1.0f),
-                                         0.005f, 0, "myCurve"));
-    DNP curveOutPos(new CombineVectorNode(curvePositioning, 1.0f, "curveOutPos"));
-    DataNode::MaterialOuts.VertexPosOutput = curveOutPos;
-    
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_curveCol", Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
-
-    ShaderGenerator::GeneratedMaterial genMat = ShaderGenerator::GenerateMaterial(curveParams, RenderingModes::RM_Opaque);
-    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating curve material", genMat.ErrorMessage))
-        return;
-    curveMat = genMat.Mat;
-    curveParams.FloatUniforms["u_startSlope"].SetValue(curveStartSlope);
-    curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
-
-
-    //Load the font.
-    err = LoadFont(TextRender, "Content/Fonts/Candara.ttf", 25);
-    if (!ReactToError(err.empty(), "Error loading 'Content/Fonts/Candara.ttf'", err))
-        return;
-
-
-    //Set up the GUI material.
-    UniformDictionary guiElParamsCol;
-    DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
-    DNP lerpColor(new InterpolateNode(Vector4f(1.0f, 1.0f, 1.0f, 1.0f), Vector4f(0.5f, 0.5f, 0.5f, 1.0f),
-                                      lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
-
-    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParamsCol, false,
-                                                           Vector2f(1.0f, 1.0f),
-                                                           lerpColor);
-    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating color gui element material", genMat.ErrorMessage))
-        return;
-    guiMatColor = genMat.Mat;
-
-    UniformDictionary guiElParamsGrey;
-    genMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(guiElParamsGrey, true, Vector2f(1.0f, 1.0f), lerpColor);
-    if (!ReactToError(genMat.ErrorMessage.empty(), "Error generating greyscale gui element material", genMat.ErrorMessage))
-        return;
-    guiMatGrey = genMat.Mat;
-
-
-    //Set up the GUI textures.
-
-    guiTexData.Create(guiTexData.GetSamplingSettings(), false, PixelSizes::PS_32F);
-    Array2D<Vector4f> guiTexCols(256, 128);
-    guiTexCols.FillFunc([](Vector2u loc, Vector4f * outVal) { *outVal = Vector4f((float)loc.x / 128.0f, (float)loc.y / 128.0f, 1.0f, 1.0f); });
-    guiTexData.SetColorData(guiTexCols);
-
-    Array2D<Vector4b> whiteCol(1, 1, Vector4b(1.0f, 1.0f, 1.0f, 1.0f));
-    guiBarTex.Create();
-    guiBarTex.SetColorData(whiteCol);
-    guiNubTex.Create();
-    guiNubTex.SetColorData(whiteCol);
-
-
-    //Set up the GUI elements.
-
-    guiManager = GUIManager();
-
-    unsigned int guiLabelSlot = TextRender->GetNumbSlots(textRendererID);
-    if (!ReactToError(TextRender->CreateTextRenderSlots(textRendererID, 300, 64, false,
-                                                        TextureSampleSettings2D(FT_LINEAR, FT_LINEAR,
-                                                                                WT_CLAMP, WT_CLAMP)),
-                      "Error creating text render slot for GUI label", TextRender->GetError()))
+    //Set up editor content.
+    editorMaterials = new EditorMaterialSet(*TextRender);
+    err = EditorMaterialSet::GenerateDefaultInstance(*editorMaterials);
+    if (!ReactToError(err.empty(), "Error loading default editor materials", err))
     {
+        delete editorMaterials;
+        editorMaterials = 0;
         return;
     }
-    GUILabel textBoxText(guiElParamsGrey, TextRender, TextRenderer::FontSlot(textRendererID, guiLabelSlot), guiMatGrey, 1.0f,
-                         GUILabel::HO_LEFT, GUILabel::VO_CENTER);
-    if (!ReactToError(textBoxText.SetText("change me"), "Error setting text box starting string", TextRender->GetError()))
-        return;
-    textBoxText.SetPosition(ToV2f(WindowSize) * 0.5f);
-    textBoxText.SetScale(Vector2f(1.0f, 1.0f));
-    GUITexture textBoxTex(guiElParamsCol, &guiBarTex, guiMatColor, false, 1.0f),
-               cursorTex(guiElParamsCol, &guiBarTex, guiMatColor, false, 1.0f);
-    cursorTex.Scale.x = 10.0f;
-    textBoxTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    cursorTex.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 0.15f, 1.0f));
-    GUITextBox* guiTextBox = new GUITextBox(textBoxTex, cursorTex, GUITexture(), textBoxText, 300.0f, 50.0f, true, guiElParamsCol, 1.0f);
-    guiTextBox->SetColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    guiTextBox->Box.SetColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-    GUIElementPtr guiTextBoxPtr(guiTextBox);
 
-    GUITexture* guiTex = new GUITexture(guiElParamsCol, &guiTexData, guiMatColor, true, 9.0f);
-    guiTex->IsButton = true;
-    guiTex->OnClicked = [](GUITexture * clicked, Vector2f mouse, void* pData)
-    {
-        std::cout << "Clicked texture button. Screen pos: " <<
-                     DebugAssist::ToString(mouse + clicked->GetCollisionCenter()) << "\n";
-    };
-    guiTex->SetPosition(ToV2f(WindowSize) * 0.5f);
-    guiTex->SetScale(Vector2f(0.6f, 0.6f));
-    GUIElementPtr guiTexPtr(guiTex);
-
-    GUISlider * guiBar = new GUISlider(guiElParamsCol, guiElParamsCol, guiElParamsCol,
-                                       &guiBarTex, &guiNubTex, guiMatColor, guiMatColor,
-                                       Vector2f(200.0f, 10.0f), Vector2f(12.5f, 25.0f),
-                                       false, false, 1.0f);
-    guiBar->SetPosition(Vector2f(200.0f, 200.0f));
-    guiBar->IsClickable = true;
-    guiBar->Value = 0.5f;
-    guiBar->Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 1.0f, 1.0f));
-    guiBar->Bar.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-    guiBar->Nub.Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
-    GUIElementPtr guiBarPtr(guiBar);
-
-    GUICheckbox* guiCheckbox = new GUICheckbox(guiElParamsCol,
-                                               GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
-                                               GUITexture(guiElParamsCol, &guiBarTex, guiMatColor),
-                                               false, 1.0f);
-    guiCheckbox->Box.SetColor(Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
-    guiCheckbox->Check.SetColor(Vector4f(0.2f, 0.2f, 0.58f, 1.0f));
-    guiCheckbox->Check.ScaleBy(Vector2f(0.5f, 0.5f));
-    guiCheckbox->SetScale(Vector2f(20.0f, 20.0f));
-    GUIElementPtr guiCheckboxPtr(guiCheckbox);
-
-    GUITexture guiSelectorBox(guiElParamsCol, &guiTexData, guiMatColor);
-    std::vector<std::string> guiSelectorItems;
-    guiSelectorItems.resize(3);
-    guiSelectorItems[0] = "Index 0";
-    guiSelectorItems[1] = "Index 1";
-    guiSelectorItems[2] = "Index 2";
-    GUISelectionBox* guiSelector = new GUISelectionBox(guiElParamsCol, TextRender, guiSelectorBox, textRendererID,
-                                                       Vector2u(guiTexData.GetWidth(), 100), TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
-                                                       guiMatGrey, GUILabel::HO_LEFT,
-                                                       *guiTex, guiSelectorItems);
-    guiSelector->ExtendAbove = true;
-    if (!ReactToError(guiSelector->BoxElement.Mat != 0,
-                      "Error generating GUI selection box",
-                      TextRender->GetError()))
-        return;
-    guiSelector->SetPosition(Vector2f(80.0f, 80.0f));
-    GUIElementPtr guiSelectorPtr(guiSelector);
-
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiTexPtr), 5.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiCheckboxPtr)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(20.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiTextBoxPtr), 5.0f));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiBarPtr)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::HorzBreakType(10.0f)));
-    guiManager.GetFormattedRoot().AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(guiSelectorPtr)));
-
-    guiManager.GetFormattedRoot().SetPosition(ToV2f(WindowSize) * 0.5f);
+    //Build the editor.
+    EditorPanel* editor = new EditorPanel(*editorMaterials, 0.0f, 0.0f);
+    editor->AddObject(EditorObjectPtr(new CheckboxValue(false)));
+    editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50),
+                                                      [](GUITextBox* textBox, unsigned int newVal, void* pData)
+                                                        { std::cout << newVal << "\n"; })));
+    editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f),
+                                                       [](GUITexture* clicked, Vector2f mp, void* pDat)
+                                                        { std::cout << "Clicked\n"; })));
+    guiManager = GUIManager(GUIElementPtr(editor));
 
 
-    //Set up the back buffer.
+    //Set up the window.
+    Vector2f dims = editor->GetCollisionDimensions();
+    WindowSize = Vector2i((int)dims.x, (int)dims.y);
+    //WindowSize = Vector2i(500, 500);
+    editor->SetPosition(dims * 0.5f);
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 }
 void GUITestWorld::DestroyMyStuff(bool destroyStatics)
 {
-    DeleteAndSetToNull(curveMat);
-
-    DeleteAndSetToNull(guiMatColor);
-    DeleteAndSetToNull(guiMatGrey);
-
-    guiBarTex.DeleteIfValid();
-    guiNubTex.DeleteIfValid();
-    guiTexData.DeleteIfValid();
+    DeleteAndSetToNull(editorMaterials);
 
     if (destroyStatics) DestroyStaticSystems(false, true, true);
 }
@@ -285,36 +123,21 @@ void GUITestWorld::UpdateWorld(float elapsed)
         EndWorld();
     
     //Move the gui window.
-    const float speed = 150.0f;
+    const float speed = 0.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        guiManager.GetFormattedRoot().MoveElement(Vector2f(-(speed * elapsed), 0.0f));
+        guiManager.RootElement->MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        guiManager.GetFormattedRoot().MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
+        guiManager.RootElement->MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        guiManager.GetFormattedRoot().MoveElement(Vector2f(0.0f, (speed * elapsed)));
+        guiManager.RootElement->MoveElement(Vector2f(0.0f, (speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        guiManager.GetFormattedRoot().MoveElement(Vector2f(0.0f, -(speed * elapsed)));
+        guiManager.RootElement->MoveElement(Vector2f(0.0f, -(speed * elapsed)));
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
     mPosFinal.y = WindowSize.y - mPosFinal.y;
 
     guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
-
-    Vector3f slopePosVal(BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.x / (float)WindowSize.x),
-                         BasicMath::Remap(0.0f, 1.0f, -1.0f, 1.0f, (float)mPosFinal.y / (float)WindowSize.y),
-                         0.0f);
-
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        curveStartSlope = slopePosVal;
-        curveParams.FloatUniforms["u_startSlope"].SetValue(curveStartSlope);
-    }
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-    {
-        curveEndSlope = slopePosVal;
-        curveParams.FloatUniforms["u_endSlope"].SetValue(curveEndSlope);
-    }
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
@@ -336,13 +159,6 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     cam.GetViewTransform(viewM);
     cam.GetOrthoProjection(projM);
     RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
-
-
-    //Render the curve.
-    std::vector<const Mesh*> toRender;
-    toRender.insert(toRender.end(), &curveMesh);
-    if (!ReactToError(curveMat->Render(info, toRender, curveParams), "Error rendering curve", curveMat->GetErrorMsg()))
-        return;
 
     //Render the GUI.
     std::string err = guiManager.Render(elapsed, info);
