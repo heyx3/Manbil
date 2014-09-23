@@ -2,10 +2,42 @@
 
 
 
+void GUIPanel::RecalcPosition(void)
+{
+    Vector2f min, max;
+
+    for (unsigned int i = 0; i < elements.size(); ++i)
+    {
+        Vector2f elPos = elements[i]->GetCollisionCenter();
+
+        Vector2f elDims = elements[i]->GetCollisionDimensions(),
+                 elMin = elPos - (elDims * 0.5f),
+                 elMax = elPos + (elDims * 0.5f);
+        min.x = BasicMath::Min(elMin.x, min.x);
+        min.y = BasicMath::Min(elMin.y, min.y);
+        max.x = BasicMath::Max(elMax.x, max.x);
+        max.y = BasicMath::Max(elMax.y, max.y);
+    }
+
+    Vector2f newCenter = (max + min) * 0.5f,
+             newSize = max - min;
+    
+
+    Vector2f delta = newCenter - pos;
+    pos = newCenter;
+    for (unsigned int i = 0; i < elements.size(); ++i)
+        elements[i]->MoveElement(delta);
+
+    extents = newSize;
+}
+
 void GUIPanel::AddElement(GUIElementPtr element)
 {
     if (std::find(elements.begin(), elements.end(), element) == elements.end())
+    {
         elements.insert(elements.end(), element);
+        RecalcPosition();
+    }
 }
 bool GUIPanel::RemoveElement(GUIElementPtr element)
 {
@@ -14,6 +46,8 @@ bool GUIPanel::RemoveElement(GUIElementPtr element)
         return false;
 
     elements.erase(loc);
+    RecalcPosition();
+
     return true;
 }
 bool GUIPanel::ContainsElement(GUIElementPtr element) const
@@ -24,13 +58,14 @@ bool GUIPanel::ContainsElement(GUIElementPtr element) const
 void GUIPanel::ScaleBy(Vector2f scaleAmount)
 {
     //Scale the 'extents' vector.
-    extents = Vector2f(extents.x, extents.y).ComponentProduct(scaleAmount);
+    extents.MultiplyComponents(scaleAmount);
 
     //Scale each element's position to move it relative to this panel's center.
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
         Vector2f elPos = elements[i]->GetCollisionCenter();
-        elements[i]->SetPosition(Vector2f(elPos.x, elPos.y).ComponentProduct(scaleAmount));
+        elements[i]->SetPosition(elPos.ComponentProduct(scaleAmount));
+        elements[i]->ScaleBy(scaleAmount);
     }
 }
 void GUIPanel::SetScale(Vector2f newScale)

@@ -32,6 +32,10 @@ public:
     //Gets whether this panel contains the given GUI element.
     bool ContainsElement(GUIElementPtr element) const;
 
+    //Recalculates the position/extents of this panel.
+    //Only needs to be called externally if a child GUIElement was modified.
+    void RecalcPosition(void);
+
     const std::vector<GUIElementPtr> & GetElements(void) const { return elements; }
     std::vector<GUIElementPtr> & GetElements(void) { return elements; }
 
