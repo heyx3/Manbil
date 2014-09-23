@@ -121,8 +121,17 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
     //If the cursor is on, render it.
     if (isSelected)
     {
-        float cursorX = BasicMath::Lerp(-halfSize.x, -halfSize.x + textBounds.x,
-                                        (float)keyboardInput.CursorPos / (float)GetText().size());
+        float cursorX;
+        if (GetText().empty())
+        {
+            cursorX = -halfSize.x;
+        }
+        else
+        {
+            cursorX = BasicMath::Lerp(-halfSize.x, -halfSize.x + textBounds.x,
+                                      (float)keyboardInput.CursorPos / (float)GetText().size());
+        }
+
         float cWidth = Cursor.GetCollisionDimensions().x;
         Cursor.SetBounds(Vector2f(cursorX - (cWidth * 0.5f), textBounds.y * -0.5f),
                          Vector2f(cursorX + (cWidth * 0.5f), textBounds.y * 0.5f));
