@@ -4,30 +4,30 @@
 
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 {
-    Vector2f center = GetRoot()->GetCollisionCenter();
+    Vector2f center = RootElement->GetCollisionCenter();
     Vector2f relMouse = ToV2f(mousePos) - center,
              oldRelMouse = originalClickPos - center;
 
-    GetRoot()->Update(elapsed, relMouse);
+    RootElement->Update(elapsed, relMouse);
 
     //Handle mouse input.
     if (clicked)
     {
         if (wasMouseClicked)
         {
-            GetRoot()->OnMouseDrag(oldRelMouse, relMouse);
+            RootElement->OnMouseDrag(oldRelMouse, relMouse);
         }
         else
         {
             originalClickPos = ToV2f(mousePos);
-            GetRoot()->OnMouseClick(relMouse);
+            RootElement->OnMouseClick(relMouse);
         }
     }
     else
     {
         if (wasMouseClicked)
         {
-            GetRoot()->OnMouseRelease(relMouse);
+            RootElement->OnMouseRelease(relMouse);
         }
     }
 
@@ -36,5 +36,5 @@ void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 
 std::string GUIManager::Render(float elapsed, const RenderInfo & info)
 {
-    return GetRoot()->Render(elapsed, info);
+    return RootElement->Render(elapsed, info);
 }
