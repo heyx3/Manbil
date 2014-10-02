@@ -238,10 +238,12 @@
   <ItemGroup>
     <ClInclude Include="Asset Packaging\AssetPackage.h" />
     <ClInclude Include="DebugAssist.h" />
+    <ClInclude Include="Editor\Editor Panels\ColorEditor.h" />
     <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorObject.h" />
     <ClInclude Include="Editor\EditorObjects.h" />
     <ClInclude Include="Editor\EditorPanel.h" />
+    <ClInclude Include="Editor\IEditable.h" />
     <ClInclude Include="Events\EventManager.h" />
     <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Input\BoolInput.h" />
@@ -398,7 +400,6 @@
     <ClInclude Include="ShaderHandler.h" />
     <ClInclude Include="TerrainWalkCamera.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
-    <ClInclude Include="Tests\SerializationTestWorld.h" />
     <ClInclude Include="Tests\TwoDOpenGLTest.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />

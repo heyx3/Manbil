@@ -17,18 +17,6 @@
     <ClCompile Include="TerrainWalkCamera.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="MGame.cpp">
-      <Filter>MGame</Filter>
-    </ClCompile>
-    <ClCompile Include="BasicMComponents.cpp">
-      <Filter>MGame</Filter>
-    </ClCompile>
-    <ClCompile Include="BasicMComponentFactories.cpp">
-      <Filter>MGame</Filter>
-    </ClCompile>
-    <ClCompile Include="MGameMaterialManager.cpp">
-      <Filter>MGame</Filter>
-    </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Two Triangles</Filter>
     </ClCompile>
@@ -470,23 +458,8 @@
     <ClInclude Include="TerrainWalkCamera.h">
       <Filter>Tests</Filter>
     </ClInclude>
-    <ClInclude Include="MGame.h">
-      <Filter>MGame</Filter>
-    </ClInclude>
-    <ClInclude Include="MGameForwardDeclarations.h">
-      <Filter>MGame</Filter>
-    </ClInclude>
     <ClInclude Include="RenderInfo.h">
       <Filter>Worlds</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicMComponents.h">
-      <Filter>MGame</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicMComponentFactories.h">
-      <Filter>MGame</Filter>
-    </ClInclude>
-    <ClInclude Include="MGameMaterialManager.h">
-      <Filter>MGame</Filter>
     </ClInclude>
     <ClInclude Include="TwoTrianglesWorld.h">
       <Filter>Two Triangles</Filter>
@@ -970,9 +943,6 @@
     <ClInclude Include="Asset Packaging\AssetPackage.h">
       <Filter>Asset Packaging</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\SerializationTestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
@@ -996,6 +966,12 @@
     </ClInclude>
     <ClInclude Include="Editor\EditorObjects.h">
       <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\IEditable.h">
+      <Filter>Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Editor Panels\ColorEditor.h">
+      <Filter>Editors\Editor Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1121,6 +1097,9 @@
     </Filter>
     <Filter Include="Editors">
       <UniqueIdentifier>{e2dce602-daaf-4ec7-95de-2ef979573e7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editors\Editor Panels">
+      <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
