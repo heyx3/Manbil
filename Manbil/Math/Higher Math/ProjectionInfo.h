@@ -4,7 +4,7 @@ class ProjectionInfo
 {
 public:
 
-    //FOV is measured in radians. A good default value is "ToRadians(60.0f)".
+    //FOV is measured in radians, but "SetFOVDegrees" can be used to specify it in degrees.
     float FOV;
     float Width; 
     float Height;
