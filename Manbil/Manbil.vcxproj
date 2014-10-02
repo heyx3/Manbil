@@ -89,6 +89,7 @@
     <ClCompile Include="Asset Packaging\AssetPackage.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Editor\EditorMaterialSet.cpp" />
+    <ClCompile Include="Editor\EditorObject.cpp" />
     <ClCompile Include="Editor\EditorObjects.cpp" />
     <ClCompile Include="Editor\EditorPanel.cpp" />
     <ClCompile Include="Events\Timing.cpp" />

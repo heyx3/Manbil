@@ -32,11 +32,12 @@ public:
 
 
     _TextBoxValue(DataType startingValue, Vector2u boxDimensions, Vector2f offset = Vector2f(0.0f, 0.0f),
+                  EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                   void(*onValueChanged)(GUITextBox * textBox, DataType newVal, void* pData) = 0,
                   void* onValueChanged_pData = 0)
         : StartingValue(startingValue), OnValueChanged(onValueChanged),
           BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData),
-          EditorObject(offset) { }
+          EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
     {
@@ -106,7 +107,17 @@ public:
         };
         box->OnTextChanged_Data = this;
         
-        activeGUIElement = GUIElementPtr(box);
+        if (DescriptionLabel.Text.empty())
+        {
+            activeGUIElement = GUIElementPtr(box);
+        }
+        else
+        {
+            activeGUIElement = AddDescription(materialSet, GUIElementPtr(box));
+            if (activeGUIElement.get() == 0)
+                return false;
+        }
+
         return true;
     }
 };
@@ -129,6 +140,10 @@ class PrimitiveToStr
 {
 public: std::string operator()(DataType t) { return std::to_string(t); }
 };
+class StrToStr
+{
+public: std::string operator()(const std::string & str) { return str; }
+};
 
 #pragma endregion
 
@@ -138,6 +153,7 @@ typedef _TextBoxValue<float, std_StrToFl, PrimitiveToStr<float>> TextBoxFloat;
 typedef _TextBoxValue<int, std_StrToInt, PrimitiveToStr<int>> TextBoxInt;
 //A text box for entering unsigned ints.
 typedef _TextBoxValue<unsigned int, std_StrToUInt, PrimitiveToStr<unsigned int>> TextBoxUInt;
+typedef _TextBoxValue<std::string, StrToStr, StrToStr> TextBoxString;
 
 
 
@@ -164,6 +180,7 @@ public:
 
 
     _SlidingBarValue(DataType min, DataType max, Vector2f offset = Vector2f(0.0f, 0.0f),
+                     EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                      void(*onValChanged)(GUISlider * slider, DataType newVal, void* pData) = 0,
                      float defaultValue = 0.5f, float lerpPow = 1.0f, void* onValChanged_Data = 0)
         : MinValue(min), MaxValue(max), DefaultLerpValue(defaultValue), LerpPow(lerpPow),
@@ -196,8 +213,18 @@ public:
         };
         slider->OnValueChanged_pData = this;
 
-        activeGUIElement = GUIElement(slider);
-        return true;
+        if (DescriptionLabel.Text.empty())
+        {
+            activeGUIElement = GUIElement(slider);
+            return true;
+        }
+        else
+        {
+            activeGUIElement = AddDescription(materialSet, GUIElementPtr(slider));
+            if (activeGUIElement.get() == 0)
+                return false;
+            return true;
+        }
     }
 };
 
@@ -257,8 +284,9 @@ public:
     void(*OnBoxClicked)(GUICheckbox * checkbox, void* pData) = 0;
     void* OnBoxClicked_Data = 0;
 
-    CheckboxValue(Vector2f offset = Vector2f(), bool defaultVal = false)
-        : DefaultValue(defaultVal), EditorObject(offset) { }
+    CheckboxValue(EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                  Vector2f offset = Vector2f(), bool defaultVal = false)
+        : DefaultValue(defaultVal), EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
@@ -284,6 +312,7 @@ public:
 
 
     DropdownValues(const std::vector<std::string> items, Vector2f offset = Vector2f(0.0f, 0.0f),
+                   EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                    void(*onSelected)(GUISelectionBox* dropdownBox, const std::string & item,
                                      unsigned int index, void* pData) = 0,
                    void* onSelected_Data = 0,
@@ -291,33 +320,7 @@ public:
                    void* onUpdate_Data = 0)
         : Items(items), OnUpdate(onUpdate), OnUpdate_Data(onUpdate_Data),
           OnSelected(onSelected), OnSelected_Data(onSelected_Data),
-          EditorObject(offset) { }
-
-    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
-};
-
-
-
-//A string value entered into a text box by the user.
-struct TextBoxString : public EditorObject
-{
-public:
-
-    //The starting value of this text box.
-    std::string StartingValue;
-
-    Vector2u BoxDimensions;
-
-    void(*OnValueChanged)(GUITextBox * textBox, void* pData) = 0;
-    void* OnValueChanged_Data = 0;
-
-
-    TextBoxString(std::string startingValue, Vector2u boxDimensions, Vector2f offset = Vector2f(),
-                  void(*onValueChanged)(GUITextBox * textBox, void* pData) = 0,
-                  void* onValueChanged_pData = 0)
-        : StartingValue(startingValue), OnValueChanged(onValueChanged),
-          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData),
-          EditorObject(offset) { }
+          EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
@@ -339,10 +342,11 @@ public:
 
 
     EditorButton(std::string text, Vector2f size, Vector2f offset = Vector2f(),
+                 EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                  void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0,
                  void* onClick_Data = 0)
         : Text(text), ButtonSize(size), OnClick(onClick), OnClick_Data(onClick_Data),
-          buttonTex(0), buttonLabel(0), EditorObject(offset) { }
+          buttonTex(0), buttonLabel(0), EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 
@@ -355,6 +359,7 @@ private:
 
 
 //A label in an editor panel.
+//NOTE: This object ignores the description label.
 struct EditorLabel : public EditorObject
 {
 public:
@@ -362,8 +367,10 @@ public:
     std::string Text;
     unsigned int TextRenderSpaceWidth;
 
-    EditorLabel(const std::string & text, unsigned int textRenderSpaceWidth, Vector2f offset = Vector2f())
-        : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(offset) { }
+    EditorLabel(const std::string & text, unsigned int textRenderSpaceWidth,
+                EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                Vector2f offset = Vector2f())
+        : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };

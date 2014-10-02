@@ -20,7 +20,16 @@ bool CheckboxValue::InitGUIElement(EditorMaterialSet & materialSet)
     box->OnClicked = OnBoxClicked;
     box->OnClicked_Data = OnBoxClicked_Data;
 
-    activeGUIElement = GUIElementPtr(box);
+    if (DescriptionLabel.Text.empty())
+    {
+        activeGUIElement = GUIElementPtr(box);
+    }
+    else
+    {
+        activeGUIElement = AddDescription(materialSet, GUIElementPtr(box));
+        if (activeGUIElement.get() == 0)
+            return false;
+    }
     return true;
 }
 
@@ -50,60 +59,16 @@ bool DropdownValues::InitGUIElement(EditorMaterialSet & materialSet)
         return false;
     }
 
-    activeGUIElement = GUIElementPtr(box);
-    return true;
-}
-
-bool TextBoxString::InitGUIElement(EditorMaterialSet & materialSet)
-{
-    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
-                                                      (unsigned int)((float)BoxDimensions.x / materialSet.TextScale.x),
-                                                      materialSet.TextRenderSpaceHeight, false,
-                                                      TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
+    if (DescriptionLabel.Text.empty())
     {
-        ErrorMsg = "Error creating text render slot: " + materialSet.TextRender.GetError();
-        activeGUIElement = GUIElementPtr(0);
-        return false;
+        activeGUIElement = GUIElementPtr(box);
     }
-
-    TextRenderer::FontSlot slot(materialSet.FontID,
-                                materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
-    GUITexture boxBackground(materialSet.GetStaticMatParams(&materialSet.TextBoxBackgroundTex),
-                             &materialSet.TextBoxBackgroundTex,
-                             materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
-                             false, materialSet.AnimateSpeed);
-    GUILabel boxContents(materialSet.StaticMatGreyParams, &materialSet.TextRender,
-                         slot, materialSet.StaticMatGrey, materialSet.AnimateSpeed,
-                         GUILabel::HO_LEFT, GUILabel::VO_CENTER);
-    boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-    boxContents.ScaleBy(materialSet.TextScale);
-    GUITextBox * box = new GUITextBox(boxBackground, boxBackground, GUITexture(), boxContents,
-                                      (float)BoxDimensions.x, (float)BoxDimensions.y, true,
-                                      materialSet.StaticMatGreyParams, materialSet.AnimateSpeed);
-    box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-    //Try setting the initial value of the box.
-    ErrorMsg.clear();
-    ErrorMsg = box->SetText(StartingValue);
-    if (!ErrorMsg.empty())
+    else
     {
-        delete box;
-        ErrorMsg = "Error setting initial text box value to '" + StartingValue + "': " + ErrorMsg;
-        activeGUIElement = GUIElementPtr(0);
-        return false;
+        activeGUIElement = AddDescription(materialSet, GUIElementPtr(box));
+        if (activeGUIElement.get() == 0)
+            return false;
     }
-
-    //When new text is entered, try to parse it.
-    box->OnTextChanged = [](GUITextBox* tBox, void* pData)
-    {
-        TextBoxString * tbo = (TextBoxString*)pData;
-
-        //Raise the correct event.
-        if (tbo->OnValueChanged != 0)
-            tbo->OnValueChanged(tBox, tbo->OnValueChanged_Data);
-    };
-    box->OnTextChanged_Data = this;
-    
-    activeGUIElement = GUIElementPtr(box);
     return true;
 }
 
@@ -149,7 +114,18 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams, ButtonSize, materialSet.AnimateSpeed);
     panel->AddElement(buttonTex);
     panel->AddElement(buttonLabel);
-    activeGUIElement = GUIElementPtr(panel);
+
+
+    if (DescriptionLabel.Text.empty())
+    {
+        activeGUIElement = GUIElementPtr(panel);
+    }
+    else
+    {
+        activeGUIElement = AddDescription(materialSet, GUIElementPtr(panel));
+        if (activeGUIElement.get() == 0)
+            return false;
+    }
     return true;
 }
 

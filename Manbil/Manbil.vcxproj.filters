@@ -441,6 +441,9 @@
     <ClCompile Include="Editor\EditorObjects.cpp">
       <Filter>Editors</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\EditorObject.cpp">
+      <Filter>Editors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

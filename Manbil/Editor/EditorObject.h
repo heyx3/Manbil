@@ -13,10 +13,29 @@ public:
     static std::string ErrorMsg;
 
 
+    //Data for the description label next to the editable object.
+    struct DescriptionData
+    {
+    public:
+        std::string Text;
+        bool IsOnLeft;
+        float Spacing;
+        unsigned int TextRenderWidth;
+        DescriptionData(std::string description = "", bool isDescOnLeft = true,
+                        float descSpacing = 10.0f, unsigned int descRenderWidth = 1024)
+            : Text(description), IsOnLeft(isDescOnLeft), Spacing(descSpacing),
+              TextRenderWidth(descRenderWidth) { }
+    };
+    DescriptionData DescriptionLabel;
+
+    //The amount of space after this object.
     Vector2f Offset;
 
 
-    EditorObject(Vector2f offset) : activeGUIElement(0), Offset(offset) { }
+    //If an empty description is passed, this editor object should not even create a label.
+    EditorObject(const DescriptionData & descriptionLabel, Vector2f spaceAfter = Vector2f())
+        : activeGUIElement(0), Offset(spaceAfter), DescriptionLabel(descriptionLabel) { }
+
     virtual ~EditorObject(void) { }
 
 
@@ -42,6 +61,10 @@ public:
 protected:
 
     GUIElementPtr activeGUIElement;
+
+    //Puts the description next to the given GUIElement in a GUIFormattedPanel and returns the panel.
+    //If there was an error, sets ErrorMsg and returns a pointer to 0.
+    GUIElementPtr AddDescription(EditorMaterialSet & materialSet, GUIElementPtr element) const;
 };
 
 
