@@ -38,8 +38,11 @@ Vector2i vWindowSize(800, 600);
 const unsigned int INPUT_AddVoxel = 753321,
                    INPUT_RemoveVoxel = 123357,
                    INPUT_Quit = 6666666,
-                   INPUT_MouseCap = 1337;
+                   INPUT_MouseCap = 1337,
+                   INPUT_UpFov = 112255,
+                   INPUT_DownFov = 61;
 bool capMouse = true;
+float fov = 60.0f;
 
 
 VoxelWorld::VoxelWorld(void)
@@ -197,6 +200,8 @@ void VoxelWorld::InitializeWorld(void)
     Input.AddBoolInput(INPUT_AddVoxel, BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Right, BoolInput::ValueStates::JustPressed)));
     Input.AddBoolInput(INPUT_Quit, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::ValueStates::JustPressed)));
     Input.AddBoolInput(INPUT_MouseCap, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Space, BoolInput::ValueStates::JustPressed)));
+    Input.AddBoolInput(INPUT_UpFov, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Up)));
+    Input.AddBoolInput(INPUT_DownFov, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Down)));
 
 
     //Initialize the chunk mesh.
@@ -450,7 +455,7 @@ void main()                                                                     
                              oculusDev,
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
-    player.Cam.Info.SetFOVDegrees(60.0f);
+    player.Cam.Info.SetFOVDegrees(fov);
     player.Cam.Info.Width = (float)vWindowSize.x;
     player.Cam.Info.Height = (float)vWindowSize.y;
     player.Cam.Info.zNear = 0.1f;
@@ -530,6 +535,20 @@ void VoxelWorld::UpdateWorld(float elapsed)
     if (oculusDev->IsValid())
         oculusDev->Update();
 
+
+    //FOV input.
+    const float fovChangeSpeed = 10.0f;
+    if (Input.GetBoolInputValue(INPUT_UpFov))
+    {
+        fov += fovChangeSpeed * elapsed;
+        std::cout << fov << '\n';
+    }
+    if (Input.GetBoolInputValue(INPUT_DownFov))
+    {
+        fov -= fovChangeSpeed * elapsed;
+        std::cout << fov << '\n';
+    }
+    player.Cam.Info.SetFOVDegrees(fov);
 
     //Input handling.
 
