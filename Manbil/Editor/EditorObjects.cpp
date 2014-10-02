@@ -152,3 +152,28 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     activeGUIElement = GUIElementPtr(panel);
     return true;
 }
+
+bool EditorLabel::InitGUIElement(EditorMaterialSet & materialSet)
+{
+    //First try to create the font slot to render the label.
+    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
+                                                      TextRenderSpaceWidth,
+                                                      materialSet.TextRenderSpaceHeight,
+                                                      false, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+    {
+        ErrorMsg = "Error creating text render slot for label '" + Text +
+                       "': " + materialSet.TextRender.GetError();
+        activeGUIElement = GUIElementPtr(0);
+        return false;
+    }
+    TextRenderer::FontSlot labelSlot(materialSet.FontID,
+                                     materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+
+    activeGUIElement = GUIElementPtr(new GUILabel(materialSet.StaticMatGreyParams, &materialSet.TextRender,
+                                                  labelSlot, materialSet.StaticMatGrey,
+                                                  materialSet.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+    activeGUIElement->SetColor(materialSet.TextColor);
+    activeGUIElement->ScaleBy(materialSet.TextScale);
+
+    return true;
+}

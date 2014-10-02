@@ -7,7 +7,7 @@
 #include "../Rendering/GUI/GUI Elements/GUISelectionBox.h"
 #include "../Rendering/GUI/GUI Elements/GUICheckbox.h"
 
-#include "EditorObject.h"
+#include "EditorPanel.h"
 
 
 
@@ -31,11 +31,12 @@ public:
     void* OnValueChanged_Data = 0;
 
 
-    _TextBoxValue(DataType startingValue, Vector2u boxDimensions,
+    _TextBoxValue(DataType startingValue, Vector2u boxDimensions, Vector2f offset = Vector2f(0.0f, 0.0f),
                   void(*onValueChanged)(GUITextBox * textBox, DataType newVal, void* pData) = 0,
                   void* onValueChanged_pData = 0)
         : StartingValue(startingValue), OnValueChanged(onValueChanged),
-          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData) { }
+          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData),
+          EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
     {
@@ -162,11 +163,11 @@ public:
     void* OnValueChanged_Data = 0;
 
 
-    _SlidingBarValue(DataType min, DataType max,
+    _SlidingBarValue(DataType min, DataType max, Vector2f offset = Vector2f(0.0f, 0.0f),
                      void(*onValChanged)(GUISlider * slider, DataType newVal, void* pData) = 0,
                      float defaultValue = 0.5f, float lerpPow = 1.0f, void* onValChanged_Data = 0)
         : MinValue(min), MaxValue(max), DefaultLerpValue(defaultValue), LerpPow(lerpPow),
-          OnValueChanged(onValChanged), OnValueChanged_Data(onValChanged_Data) { }
+          OnValueChanged(onValChanged), OnValueChanged_Data(onValChanged_Data), EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
     {
@@ -256,8 +257,8 @@ public:
     void(*OnBoxClicked)(GUICheckbox * checkbox, void* pData) = 0;
     void* OnBoxClicked_Data = 0;
 
-    CheckboxValue(bool defaultVal = false)
-        : DefaultValue(defaultVal) { }
+    CheckboxValue(Vector2f offset = Vector2f(), bool defaultVal = false)
+        : DefaultValue(defaultVal), EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
@@ -282,14 +283,15 @@ public:
     void* OnSelected_Data = 0;
 
 
-    DropdownValues(const std::vector<std::string> items,
+    DropdownValues(const std::vector<std::string> items, Vector2f offset = Vector2f(0.0f, 0.0f),
                    void(*onSelected)(GUISelectionBox* dropdownBox, const std::string & item,
                                      unsigned int index, void* pData) = 0,
                    void* onSelected_Data = 0,
                    void(*onUpdate)(GUISelectionBox* dropdownBox, void* pData) = 0,
                    void* onUpdate_Data = 0)
         : Items(items), OnUpdate(onUpdate), OnUpdate_Data(onUpdate_Data),
-          OnSelected(onSelected), OnSelected_Data(onSelected_Data) { }
+          OnSelected(onSelected), OnSelected_Data(onSelected_Data),
+          EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
@@ -310,11 +312,12 @@ public:
     void* OnValueChanged_Data = 0;
 
 
-    TextBoxString(std::string startingValue, Vector2u boxDimensions,
+    TextBoxString(std::string startingValue, Vector2u boxDimensions, Vector2f offset = Vector2f(),
                   void(*onValueChanged)(GUITextBox * textBox, void* pData) = 0,
                   void* onValueChanged_pData = 0)
         : StartingValue(startingValue), OnValueChanged(onValueChanged),
-          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData) { }
+          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData),
+          EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
@@ -335,11 +338,11 @@ public:
     void* OnClick_Data = 0;
 
 
-    EditorButton(std::string text, Vector2f size,
+    EditorButton(std::string text, Vector2f size, Vector2f offset = Vector2f(),
                  void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0,
                  void* onClick_Data = 0)
         : Text(text), ButtonSize(size), OnClick(onClick), OnClick_Data(onClick_Data),
-          buttonTex(0), buttonLabel(0) { }
+          buttonTex(0), buttonLabel(0), EditorObject(offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 
@@ -347,4 +350,20 @@ public:
 private:
 
     GUIElementPtr buttonTex, buttonLabel;
+};
+
+
+
+//A label in an editor panel.
+struct EditorLabel : public EditorObject
+{
+public:
+
+    std::string Text;
+    unsigned int TextRenderSpaceWidth;
+
+    EditorLabel(const std::string & text, unsigned int textRenderSpaceWidth, Vector2f offset = Vector2f())
+        : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(offset) { }
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };

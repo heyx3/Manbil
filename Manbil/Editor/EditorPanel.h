@@ -35,6 +35,8 @@ public:
     //Returns whether or not it existed in this panel.
     bool RemoveObject(EditorObjectPtr toRemove);
 
+    const std::vector<EditorObjectPtr> & GetObjects(void) const { return editorObjects; }
+
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 

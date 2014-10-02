@@ -13,12 +13,21 @@ public:
     static std::string ErrorMsg;
 
 
-    EditorObject(void) : activeGUIElement(0) { }
+    Vector2f Offset;
+
+
+    EditorObject(Vector2f offset) : activeGUIElement(0), Offset(offset) { }
     virtual ~EditorObject(void) { }
 
 
     //Gets the currently-active GUIElement.
     GUIElementPtr GetActiveGUIElement(void) const { return activeGUIElement; }
+    //Gets whether to move horizontally in the editor past this object.
+    //Default behavior: returns false.
+    virtual bool GetMoveHorizontally(void) const { return false; }
+    //Gets whether to move vertically in the editor past this object.
+    //Default behavior: returns true.
+    virtual bool GetMoveVertically(void) const { return true; }
 
     //Initializes the GUIElement for representing/editing this data.
     //If there was a problem, returns false and sets the static "ErrorMsg" field. Otherwise returns true.

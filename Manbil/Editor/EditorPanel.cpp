@@ -10,8 +10,10 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
 
         //If the active element changed, replace it in the formatted panel.
         GUIElementPtr activeElement = editorObjects[i]->GetActiveGUIElement();
-        if (panel.GetObjects()[i].GUIElementTypeData.Element.get() != activeElement.get())
-            panel.ReplaceObject(i, GUIFormatObject(GUIFormatObject::GUIElementType(activeElement)));
+        if (panel.GetObjects()[i].Element.get() != activeElement.get())
+            panel.ReplaceObject(i, GUIFormatObject(activeElement, editorObjects[i]->GetMoveHorizontally(),
+                                                   editorObjects[i]->GetMoveVertically(),
+                                                   editorObjects[i]->Offset));
     }
 
     //Now update the GUI objects.
@@ -20,17 +22,6 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
 std::string EditorPanel::Render(float elapsedTime, const RenderInfo & info)
 {
     return panel.Render(elapsedTime, info);
-    /*
-    std::string err = "";
-    for (unsigned int i = 0; i < editorObjects.size(); ++i)
-    {
-        std::string tempErr = editorObjects[i]->GetActiveGUIElement()->Render(elapsedTime, info);
-        if (!tempErr.empty())
-            err += "Error rendering object #" + std::to_string(i + 1) +
-                    ": " + tempErr + "\n";
-    }
-    return err;
-    */
 }
 
 std::string EditorPanel::AddObject(EditorObjectPtr toAdd)
@@ -38,7 +29,8 @@ std::string EditorPanel::AddObject(EditorObjectPtr toAdd)
     if (toAdd->InitGUIElement(MaterialSet))
     {
         editorObjects.insert(editorObjects.end(), toAdd);
-        panel.AddObject(GUIFormatObject(GUIFormatObject::GUIElementType(toAdd->GetActiveGUIElement())));
+        panel.AddObject(GUIFormatObject(toAdd->GetActiveGUIElement(), toAdd->GetMoveHorizontally(),
+                                        toAdd->GetMoveVertically(), toAdd->Offset));
         return "";
     }
     else
@@ -55,7 +47,10 @@ std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds)
         if (toAdds[i]->InitGUIElement(MaterialSet))
         {
             newObjs.insert(newObjs.end(),
-                           GUIFormatObject(GUIFormatObject::GUIElementType(toAdds[i]->GetActiveGUIElement())));
+                           GUIFormatObject(toAdds[i]->GetActiveGUIElement(),
+                                           toAdds[i]->GetMoveHorizontally(),
+                                           toAdds[i]->GetMoveVertically(),
+                                           toAdds[i]->Offset));
             editorObjects.insert(editorObjects.end(), toAdds[i]);
         }
         else

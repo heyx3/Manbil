@@ -91,14 +91,18 @@ void GUITestWorld::InitializeWorld(void)
 
     //Build the editor.
     EditorPanel* editor = new EditorPanel(*editorMaterials, 0.0f, 0.0f);
-    editor->AddObject(EditorObjectPtr(new CheckboxValue(false)));
-    editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50),
+    editor->AddObject(EditorObjectPtr(new CheckboxValue(Vector2f(), false)));
+    editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
                                                       [](GUITextBox* textBox, unsigned int newVal, void* pData)
                                                         { std::cout << newVal << "\n"; })));
-    editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f),
+    editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), Vector2f(),
                                                        [](GUITexture* clicked, Vector2f mp, void* pDat)
                                                         { std::cout << "Clicked\n"; })));
     guiManager = GUIManager(GUIElementPtr(editor));
+
+    std::cout << "Checkbox: " << DebugAssist::ToString(editor->GetObjects()[0]->GetActiveGUIElement()->GetCollisionCenter()) << "\n" <<
+                 "Textbox: " << DebugAssist::ToString(editor->GetObjects()[1]->GetActiveGUIElement()->GetCollisionCenter()) << "\n" <<
+                 "Button: " << DebugAssist::ToString(editor->GetObjects()[2]->GetActiveGUIElement()->GetCollisionCenter()) << "\n";
 
 
     //Set up the window.
