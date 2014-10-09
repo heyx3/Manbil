@@ -444,6 +444,12 @@
     <ClCompile Include="Editor\EditorObject.cpp">
       <Filter>Editors</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp">
+      <Filter>Editors\Editor Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\DAG Editor\DAGNode.cpp">
+      <Filter>Editors\DAG Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -976,6 +982,12 @@
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h">
       <Filter>Editors\Editor Panels</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\DAG Editor\DAGNode.h">
+      <Filter>Editors\DAG Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\DAG Editor\DAGInput.h">
+      <Filter>Editors\DAG Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1103,6 +1115,9 @@
     </Filter>
     <Filter Include="Editors\Editor Panels">
       <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editors\DAG Editor">
+      <UniqueIdentifier>{908308aa-a217-4bf7-882d-36ad3250bd20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
