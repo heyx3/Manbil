@@ -77,7 +77,6 @@ public:
     //Raised when the mouse releases over this element.
     //Ths given Vector2i is the current mouse position relative to this element's center.
     virtual void OnMouseRelease(Vector2f relativeMousePos) { }
-#pragma warning(default: 4100)
 
 
     //Gets whether the given local-space position is inside this element's bounds.
@@ -89,6 +88,7 @@ protected:
     float CurrentTimeLerpSpeed = 0.0f;
    
     virtual void CustomUpdate(float elapsed, Vector2f relativeMousePos) { }
+#pragma warning(default: 4100)
 
 
     static DrawingQuad * GetQuad(void) { if (quad == 0) quad = new DrawingQuad(); return quad; }
