@@ -49,7 +49,7 @@ bool DropdownValues::InitGUIElement(EditorMaterialSet & materialSet)
                                                Vector2u(selectedItemBox.Tex->GetWidth(),
                                                selectedItemBox.Tex->GetHeight()),
                                                TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
-                                               materialSet.StaticMatColor, GUILabel::HO_LEFT,
+                                               materialSet.StaticMatText, GUILabel::HO_LEFT,
                                                itemListBackground, Items, 0, true, materialSet.AnimateSpeed);
     if (box->BoxElement.Mat == 0)
     {
@@ -105,8 +105,8 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     buttonTexPtr->OnClicked_pData = OnClick_Data;
 
     //Create the label.
-    buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatGreyParams, &materialSet.TextRender,
-                                             labelSlot, materialSet.StaticMatGrey,
+    buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams, &materialSet.TextRender,
+                                             labelSlot, materialSet.StaticMatText,
                                              materialSet.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
     buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
     buttonLabel->ScaleBy(materialSet.TextScale);
@@ -145,11 +145,31 @@ bool EditorLabel::InitGUIElement(EditorMaterialSet & materialSet)
     TextRenderer::FontSlot labelSlot(materialSet.FontID,
                                      materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
 
-    activeGUIElement = GUIElementPtr(new GUILabel(materialSet.StaticMatGreyParams, &materialSet.TextRender,
-                                                  labelSlot, materialSet.StaticMatGrey,
+    activeGUIElement = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams, &materialSet.TextRender,
+                                                  labelSlot, materialSet.StaticMatText,
                                                   materialSet.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
     activeGUIElement->SetColor(materialSet.TextColor);
     activeGUIElement->ScaleBy(materialSet.TextScale);
 
+    return true;
+}
+
+bool EditorImage::InitGUIElement(EditorMaterialSet & set)
+{
+    GUITexture* texElement = new GUITexture(set.GetStaticMatParams(Tex), Tex,
+                                            set.GetStaticMaterial(Tex), false,
+                                            set.AnimateSpeed);
+    texElement->ScaleBy(Scale);
+
+    if (DescriptionLabel.Text.empty())
+    {
+        activeGUIElement = GUIElementPtr(texElement);
+    }
+    else
+    {
+        activeGUIElement = AddDescription(set, GUIElementPtr(texElement));
+        if (activeGUIElement.get() == 0)
+            return false;
+    }
     return true;
 }

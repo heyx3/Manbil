@@ -88,6 +88,8 @@
   <ItemGroup>
     <ClCompile Include="Asset Packaging\AssetPackage.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
+    <ClCompile Include="Editor\DAG Editor\DAGNode.cpp" />
+    <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp" />
     <ClCompile Include="Editor\EditorMaterialSet.cpp" />
     <ClCompile Include="Editor\EditorObject.cpp" />
     <ClCompile Include="Editor\EditorObjects.cpp" />
@@ -239,6 +241,8 @@
   <ItemGroup>
     <ClInclude Include="Asset Packaging\AssetPackage.h" />
     <ClInclude Include="DebugAssist.h" />
+    <ClInclude Include="Editor\DAG Editor\DAGInput.h" />
+    <ClInclude Include="Editor\DAG Editor\DAGNode.h" />
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h" />
     <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorObject.h" />

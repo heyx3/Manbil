@@ -12,10 +12,10 @@ typedef DataNode::Ptr DNP;
 
 
 ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary & params,
-                                                                          bool greyscale,
-                                                                          ShaderInOutAttributes vertexAttrs,
-                                                                          unsigned int posIndex,
-                                                                          unsigned int uvIndex)
+                                                                                TextureTypes texType,
+                                                                                ShaderInOutAttributes vertexAttrs,
+                                                                                unsigned int posIndex,
+                                                                                unsigned int uvIndex)
 {
     DataNode::ClearMaterialData();
     DataNode::VertexIns = DrawingQuad::GetAttributeData();
@@ -32,17 +32,27 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateStaticQuadDrawMaterial(
     DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
                                           QuadDraw_Texture2D, "GUIMat_texSampler"));
     DataLine finalTexCol;
-    DNP extraNode;
-    if (greyscale)
+    DNP extraNode1, extraNode2;
+    switch (texType)
     {
-        extraNode = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
-                                        SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                        "GUIMat_swizzleTex"));
-        finalTexCol = extraNode;
-    }
-    else
-    {
-        finalTexCol = DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+        case TT_COLOR:
+            finalTexCol = DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+            break;
+        case TT_GREYSCALE:
+            extraNode1 = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
+                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                             "GUIMat_swizzleTex"));
+            extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
+            finalTexCol = extraNode2;
+            break;
+        case TT_TEXT:
+            extraNode1 = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
+                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                             "GUIMat_swizzleTex"));
+            finalTexCol = extraNode1;
+            break;
+
+        default: assert(false); return ShaderGenerator::GeneratedMaterial("Unknown texture type");
     }
     DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
     DNP finalColor(new MultiplyNode(finalTexCol, paramColor, "GUIMat_finalColor"));
@@ -55,7 +65,7 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateStaticQuadDrawMaterial(
 }
 
 ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary & params,
-                                                                                 bool greyscale,
+                                                                                 TextureTypes texType,
                                                                                  DataLine endScale,
                                                                                  DataLine endColor,
                                                                                  ShaderInOutAttributes vertIns,
@@ -83,17 +93,27 @@ ShaderGenerator::GeneratedMaterial GUIMaterials::GenerateDynamicQuadDrawMaterial
     DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
     DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
                                          QuadDraw_Texture2D, "GUIMat_texSamplerNode"));DataLine finalTexCol;
-    DNP extraNode;
-    if (greyscale)
+    DNP extraNode1, extraNode2;
+    switch (texType)
     {
-        extraNode = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
-                                        SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                        "GUIMat_swizzleTex"));
-        finalTexCol = extraNode;
-    }
-    else
-    {
-        finalTexCol = DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+        case TT_COLOR:
+            finalTexCol = DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+            break;
+        case TT_GREYSCALE:
+            extraNode1 = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
+                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                             "GUIMat_swizzleTex"));
+            extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
+            finalTexCol = extraNode2;
+            break;
+        case TT_TEXT:
+            extraNode1 = DNP(new SwizzleNode(DataLine(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
+                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                             "GUIMat_swizzleTex"));
+            finalTexCol = extraNode1;
+            break;
+
+        default: assert(false); return ShaderGenerator::GeneratedMaterial("Unknown texture type");
     }
     DNP finalColor(new MultiplyNode(finalTexCol, paramColor, endColor, "GUIMat_finalColor"));
     DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),

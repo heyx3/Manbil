@@ -26,8 +26,8 @@ GUIElementPtr EditorObject::AddDescription(EditorMaterialSet & set, GUIElementPt
     }
 
     //Make the label.
-    GUIElementPtr label(new GUILabel(set.StaticMatGreyParams, &set.TextRender,
-                                     labelSlot, set.StaticMatGrey,
+    GUIElementPtr label(new GUILabel(set.StaticMatTextParams, &set.TextRender,
+                                     labelSlot, set.StaticMatText,
                                      set.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
     label->SetColor(set.TextColor);
     label->ScaleBy(set.TextScale);

@@ -33,10 +33,10 @@ void WriteToConsole(const std::string & outStr)
 
 int main()
 {
-    //OpenGLTestWorld().RunWorld();
+    OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    GUITestWorld().RunWorld();
+    //GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
 

@@ -91,15 +91,31 @@ void GUITestWorld::InitializeWorld(void)
 
     //Build the editor.
     EditorPanel* editor = new EditorPanel(*editorMaterials, 0.0f, 0.0f);
-    editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
-    editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
-                                                      EditorObject::DescriptionData("Type a uint!"),
-                                                      [](GUITextBox* textBox, unsigned int newVal, void* pData)
-                                                        { std::cout << newVal << "\n"; })));
-    editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), Vector2f(),
-                                                       EditorObject::DescriptionData("<-- Push this shit", false, 30.0f),
-                                                       [](GUITexture* clicked, Vector2f mp, void* pDat)
-                                                        { std::cout << "Clicked\n"; })));
+    if (false)
+    {
+        editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
+        editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
+                                                          EditorObject::DescriptionData("Type a uint!"),
+                                                          [](GUITextBox* textBox, unsigned int newVal, void* pData)
+                                                            { std::cout << newVal << "\n"; })));
+        editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), Vector2f(),
+                                                           EditorObject::DescriptionData("<-- Push this shit", false, 30.0f),
+                                                           [](GUITexture* clicked, Vector2f mp, void* pDat)
+                                                            { std::cout << "Clicked\n"; })));
+    }
+    else
+    {
+        std::vector<EditorObjectPtr> ptrs;
+        colEd.Color = Vector4f(0.5f, 0.25f, 1.0f, 0.5f);
+
+        colEd.BuildEditorElements(ptrs);
+        for (unsigned int i = 0; i < ptrs.size(); ++i)
+        {
+            err = editor->AddObject(ptrs[i]);
+            if (!ReactToError(err.empty(), "Error adding ptr element #" + std::to_string(i + 1), err))
+                return;
+        }
+    }
     guiManager = GUIManager(GUIElementPtr(editor));
 
     std::cout << "Checkbox: " << DebugAssist::ToString(editor->GetObjects()[0]->GetActiveGUIElement()->GetCollisionCenter()) << "\n" <<

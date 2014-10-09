@@ -30,7 +30,7 @@ EditorMaterialSet::~EditorMaterialSet(void)
 std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSet)
 {
     //Load the font.
-    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 100);
+    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 80);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
         return "Error loading font 'Content/Fonts/Inconsolata.otf': " + outSet.TextRender.GetError();
 
@@ -54,16 +54,13 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
         return "Error occurred while setting texture data for button texture.";
 
     //Slider bar texture.
-    greyData.FillFunc([](Vector2u loc, float * outVal)
-    {
-        *outVal *= 0.6f;
-    });
+    greyData.Reset(1, 1, 0.6f);
     outSet.SliderBarTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SliderBarTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for slider bar texture.";
 
     //Slider nub texture.
-    greyData.Reset(1, 1, 0.1f);
+    greyData.Fill(0.1f);
     outSet.SliderNubTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SliderNubTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for slider nub texture.";
@@ -119,33 +116,46 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     outSet.StaticMatGreyParams.ClearUniforms();
     outSet.AnimatedMatColParams.ClearUniforms();
     outSet.StaticMatColParams.ClearUniforms();
+    outSet.AnimatedMatTextParams.ClearUniforms();
+    outSet.StaticMatTextParams.ClearUniforms();
 
     ShaderGenerator::GeneratedMaterial genM =
-        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatGreyParams, true);
+        GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatGreyParams, GUIMaterials::TT_GREYSCALE);
     if (!genM.ErrorMessage.empty())
         return "Error creating static greyscale material: " + genM.ErrorMessage;
     outSet.StaticMatGrey = genM.Mat;
 
-    genM = GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatColParams, false);
+    genM = GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatColParams, GUIMaterials::TT_COLOR);
     if (!genM.ErrorMessage.empty())
         return "Error creating static color material: " + genM.ErrorMessage;
     outSet.StaticMatColor = genM.Mat;
+
+    genM = GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatTextParams, GUIMaterials::TT_TEXT);
+    if (!genM.ErrorMessage.empty())
+        return "Error creating static text material: " + genM.ErrorMessage;
+    outSet.StaticMatText = genM.Mat;
 
     typedef DataNode::Ptr DNP;
     DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
     DNP lerpColor(new InterpolateNode(outSet.MaxAnimateColor, outSet.MinAnimateColor,
                                       lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatGreyParams, true,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatGreyParams, GUIMaterials::TT_GREYSCALE,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
         return "Error creating animated greyscale material: " + genM.ErrorMessage;
     outSet.AnimatedMatGrey = genM.Mat;
 
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatColParams, false,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatColParams, GUIMaterials::TT_COLOR,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
         return "Error creating animated color material: " + genM.ErrorMessage;
     outSet.AnimatedMatColor = genM.Mat;
+
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatTextParams, GUIMaterials::TT_TEXT,
+                                                         Vector2f(1.0f, 1.0f), lerpColor);
+    if (!genM.ErrorMessage.empty())
+        return "Error creating animated text material: " + genM.ErrorMessage;
+    outSet.AnimatedMatText = genM.Mat;
 
 
     return "";

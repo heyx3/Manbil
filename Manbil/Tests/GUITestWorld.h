@@ -3,6 +3,7 @@
 #include "../SFMLOpenGLWorld.h"
 #include "../Rendering/GUI/GUIManager.h"
 #include "../Editor/EditorMaterialSet.h"
+#include "../Editor/Editor Panels/ColorEditor.h"
 
 
 class GUITestWorld : public SFMLOpenGLWorld
@@ -37,5 +38,6 @@ private:
 
 
     GUIManager guiManager;
+    ColorEditor colEd;
     EditorMaterialSet* editorMaterials = 0;
 };

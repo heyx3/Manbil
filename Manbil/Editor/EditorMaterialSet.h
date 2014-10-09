@@ -31,17 +31,21 @@ public:
              SliderNubScale = Vector2f(10.0f, 30.0f);
     float TextBoxCursorWidth = 8.0f;
     Vector4f TextColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
-    Vector2f TextScale = Vector2f(0.35f, 0.35f);
+    Vector2f TextScale = Vector2f(0.3f, 0.3f);
     unsigned int TextRenderSpaceHeight = 128;
 
     Material *AnimatedMatGrey = 0,
              *StaticMatGrey = 0,
              *AnimatedMatColor = 0,
-             *StaticMatColor = 0;
+             *StaticMatColor = 0,
+             *AnimatedMatText = 0,
+             *StaticMatText = 0;
     UniformDictionary AnimatedMatGreyParams = UniformDictionary(),
                       StaticMatGreyParams = UniformDictionary(),
                       AnimatedMatColParams = UniformDictionary(),
-                      StaticMatColParams = UniformDictionary();
+                      StaticMatColParams = UniformDictionary(),
+                      AnimatedMatTextParams = UniformDictionary(),
+                      StaticMatTextParams = UniformDictionary();
 
 
     EditorMaterialSet(const EditorMaterialSet & cpy) = delete;

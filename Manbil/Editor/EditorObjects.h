@@ -59,8 +59,8 @@ public:
                                  &materialSet.TextBoxBackgroundTex,
                                  materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
                                  false, materialSet.AnimateSpeed);
-        GUILabel boxContents(materialSet.StaticMatGreyParams, &materialSet.TextRender,
-                             slot, materialSet.StaticMatGrey, materialSet.AnimateSpeed,
+        GUILabel boxContents(materialSet.StaticMatTextParams, &materialSet.TextRender,
+                             slot, materialSet.StaticMatText, materialSet.AnimateSpeed,
                              GUILabel::HO_LEFT, GUILabel::VO_CENTER);
         boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         boxContents.ScaleBy(materialSet.TextScale);
@@ -184,7 +184,8 @@ public:
                      void(*onValChanged)(GUISlider * slider, DataType newVal, void* pData) = 0,
                      float defaultValue = 0.5f, float lerpPow = 1.0f, void* onValChanged_Data = 0)
         : MinValue(min), MaxValue(max), DefaultLerpValue(defaultValue), LerpPow(lerpPow),
-          OnValueChanged(onValChanged), OnValueChanged_Data(onValChanged_Data), EditorObject(offset) { }
+          OnValueChanged(onValChanged), OnValueChanged_Data(onValChanged_Data),
+          EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
     {
@@ -206,16 +207,16 @@ public:
             if (thisP->OnValueChanged != 0)
             {
                 thisP->OnValueChanged(slid,
-                                      InterpretValue(thisP->MinValue, thisP->MaxValue,
-                                                     powf(slid->Value, thisP->LerpPow)),
-                                      slid->OnValueChanged_pData);
+                                      InterpretValue()(thisP->MinValue, thisP->MaxValue,
+                                                       powf(slid->Value, thisP->LerpPow)),
+                                      thisP->OnValueChanged_Data);
             }
         };
         slider->OnValueChanged_pData = this;
 
         if (DescriptionLabel.Text.empty())
         {
-            activeGUIElement = GUIElement(slider);
+            activeGUIElement = GUIElementPtr(slider);
             return true;
         }
         else
@@ -371,6 +372,23 @@ public:
                 EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                 Vector2f offset = Vector2f())
         : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(description, offset) { }
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
+};
+
+
+
+//Displays a texture.
+struct EditorImage : public EditorObject
+{
+public:
+
+    MTexture2D* Tex;
+    Vector2f Scale;
+    
+    EditorImage(MTexture2D* tex, EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                Vector2f scale = Vector2f(1.0f, 1.0f), Vector2f offset = Vector2f())
+        : Tex(tex), Scale(scale), EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
