@@ -57,6 +57,8 @@ const unsigned int maxRipples = 3,
 
 void OpenGLTestWorld::InitializeTextures(void)
 {
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     //World render target.
 
     worldColorTex1.Create();
@@ -125,8 +127,8 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
     else
     {
-        error = cubemapTex.SetDataFromFiles("Content/Cubemaps/Sky_Neg_X.png", "Content/Cubemaps/Sky_Neg_Y.png", "Content/Cubemaps/Sky_Neg_Z.png",
-                                            "Content/Cubemaps/Sky_Pos_X.png", "Content/Cubemaps/Sky_Pos_Y.png", "Content/Cubemaps/Sky_Pos_Z.png");
+        error = cubemapTex.SetDataFromFiles("Content/Cubemaps/sky_neg_x.png", "Content/Cubemaps/sky_neg_y.png", "Content/Cubemaps/sky_pos_z.png",
+                                            "Content/Cubemaps/sky_pos_x.png", "Content/Cubemaps/sky_pos_y.png", "Content/Cubemaps/sky_neg_z.png");
         if (!error.empty())
         {
             std::cout << "Error loading cubemap textures: " << error << "\n";
