@@ -104,16 +104,11 @@ void GUISlider::OnMouseClick(Vector2f mousePos)
 
         Nub.OnMouseClick(mousePos - Nub.GetCollisionCenter());
         Bar.OnMouseClick(mousePos - Bar.GetCollisionCenter());
+        RaiseValueChangedEvent(mousePos);
     }
 }
 void GUISlider::OnMouseDrag(Vector2f originalPos, Vector2f currentPos)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-    {
-        currentPos = currentPos;
-    }
-
-
     if (IsClickable && (IsLocalInsideBounds(originalPos) || IsLocalInsideBounds(currentPos)))
     {
         Vector2f dims = GetCollisionDimensions();
@@ -124,5 +119,7 @@ void GUISlider::OnMouseDrag(Vector2f originalPos, Vector2f currentPos)
             CurrentTimeLerpSpeed = TimeLerpSpeed;
             SetTimeLerp(0.0f);
         }
+
+        RaiseValueChangedEvent(currentPos);
     }
 }

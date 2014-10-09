@@ -58,6 +58,7 @@ public:
 private:
 
     float GetNewValue(Vector2f mousePos) const;
+    void RaiseValueChangedEvent(Vector2f localMouse) { if (OnValueChanged != 0) OnValueChanged(this, localMouse, OnValueChanged_pData); }
 
     Vector2f center;
 };
