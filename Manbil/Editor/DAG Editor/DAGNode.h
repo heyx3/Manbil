@@ -3,6 +3,7 @@
 #include "../../IO/DataSerialization.h"
 #include "../IEditable.h"
 #include "DAGInput.h"
+#include "../EditorObjects.h"
 
 
 
@@ -66,6 +67,7 @@ private:
 //It should be trivially copyable/assignable.
 template<typename DAGInputType>
 //A node in a DAG. Can generate a GUI to edit it and be serialized to a file.
+//Each node has a name; if an empty string is passed for a node's name, then a unique name will be generated.
 class DAGNode : public ISerializable, public IEditable
 {
 public:
@@ -114,7 +116,6 @@ public:
     std::vector<DAGInputTypes> & GetInputs(void) const { return inputs; }
 
 
-    //Writes this node's name, type, and inputs.
     virtual bool WriteData(DataWriter * writer, std::string & outError) const override
     {
         if (!writer->WriteString(name, "Name", outError))
@@ -168,6 +169,11 @@ public:
         return true;
     }
 
+    virtual void BuildEditorElements(std::vector<EditorObjectPtr> & outElements) override
+    {
+        //TODO: Make DAGInput editable and use that. Also, make EditorObjects for collapsible panels and collections.
+    }
+
 
 protected:
     
@@ -198,9 +204,11 @@ private:
 
 //Should be used inside the base class's .h file (at the end of its declaration)
 //    that itself inherits from a DAGNode template.
+//Adds a constructor that takes in an std::vector<> of inputs and an optional name.
 //Adds the ability to track and dynamically instantiate sub-classes of
 //    the class that uses this macro.
-#define FINALIZE_BASE_DAG_NODE_H(className) \
+#define FINALIZE_BASE_DAG_NODE_H(className, dagInputType) \
+private: \
     typedef className * (*DAGNodeFactory)(void); \
     typedef std::shared_ptr<className> Ptr; \
     static std::unordered_map<std::string, className *> * global_NameToNode; \
@@ -210,6 +218,18 @@ private:
         auto found = global_NameToFactory->find(typeName); \
         if (found == global_NameToFactory->end()) return 0; \
         return found->second(); \
+    } \
+public: \
+    className(const std::vector<dagInputType> & _inputs, std::string _name = "") \
+        : DAGNode(_inputs, _name) \
+    { \
+        if (global_NameToNode == 0) \
+        { \
+            global_NameToNode = new std::unordered_map<std::string, std::string>(); \
+        } \
+        Assert(global_NameToNode->find(name) == global_NameToNode->end(), \
+               "A node with the name '" + name + "' already exists!"); \
+        global_NameToNode->operator[](name) = this; \
     }
 
 //Should be used inside the base class's .cpp file that itself inherits from a DAGNode template.
