@@ -172,10 +172,6 @@ protected:
     }
 
 
-    //Replaces all inputs and outputs.
-    void ReplaceAll(std::vector<DataLine> & newInputs, std::vector<unsigned int> & newOutputs);
-
-
     //Gets whether the given input is used at all, given the current state (i.e. shader type and geometry shader data).
     //By default, returns true.
     virtual bool UsesInput(unsigned int inputIndex) const;
