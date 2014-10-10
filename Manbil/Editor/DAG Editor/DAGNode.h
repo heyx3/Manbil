@@ -17,8 +17,10 @@ public:
     
     //Clears this visitor's node history so that it forgets any nodes it's already visited.
     void ClearNodeHistory(void) { visitedAlready.clear(); }
+
     //Calls this instance's "ActOnNode" method on every node starting at the given root hierarchy.
-    void Visit(DAGNodeType * node)
+    //At each node, this function acts on the node itself before acting on its inputs.
+    void VisitNodeFirst(DAGNodeType * node)
     {
         if (std::find(visitedAlready.begin(), visitedAlready.end(), node.GetName()) == visitedAlready.end())
         {
@@ -29,6 +31,22 @@ public:
             for (unsigned int i = 0; i < children.size(); ++i)
                 if (!children[i].IsConstant())
                     this->Visit((DAGNodeType*)children[i].GetDAGNode());
+        }
+    }
+    //Calls this instance's "ActOnNode" method on every node starting at the given root hierarchy.
+    //At each node, this function acts on that node's inputs before acting on the node itself.
+    void VisitChildrenFirst(DAGNodeType * node)
+    {
+        if (std::find(visitedAlready.begin(), visitedAlready.end(), node.GetName()) == visitedAlready.end())
+        {
+            visitedAlready.insert(visitedAlready.end(), node.GetName());
+
+            const std::vector<DAGInputType> & children = node.GetChildren();
+            for (unsigned int i = 0; i < children.size(); ++i)
+                if (!children[i].IsConstant())
+                    this->Visit((DAGNodeType*)children[i].GetDAGNode());
+
+            ActOnNode(node);
         }
     }
 
