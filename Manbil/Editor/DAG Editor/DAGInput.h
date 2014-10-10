@@ -26,7 +26,7 @@ public:
     //Gets whether this input is a constant value (as opposed to a DAG node output).
     bool IsConstant(void) const { return nonConstantName.empty(); }
     //Gets whether this input is constant, and equal to the given value.
-    bool IsConstant(const DefaultValueType & toCompare)) const { return IsConstant() && constantValue == toCompare; }
+    bool IsConstant(const DefaultValueType & toCompare) const { return IsConstant() && constantValue == toCompare; }
 
 
     //Gets the value of this input, assuming it's constant.
@@ -57,18 +57,45 @@ public:
         }
         else
         {
-            data->ReadString()
+            MaybeValue<std::string> tryStr = data->ReadString(outError);
+            if (!tryStr.HasValue())
+            {
+                outError = "Error reading the DAG node name: " + outError;
+                return false;
+            }
+            nonConstantNode = tryStr.GetValue();
+
+            MaybeValue<unsigned int> tryUInt = data->ReadUInt(outError);
+            if (!tryUInt.HasValue())
+            {
+                outError = "Error reading the DAG node out index: " + outError;
+                return false;
+            }
+            nonConstantOutIndex = tryUInt.GetValue();
+
+            return true;
         }
     }
     bool WriteData(DataWriter * data, std::string & outError) const override
     {
         if (IsConstant())
         {
-
+            return WriteConstantValue(data, outError);
         }
         else
         {
-
+            if (!data->WriteString(nonConstantNode, "Node Name", outError))
+            {
+                outError = "Error writing out the node's name, '" + nonConstantNode + "': " + outError;
+                return false;
+            }
+            if (!data->WriteUInt(nonConstantOutIndex, "Node output index", outError))
+            {
+                outError = "Error writing out the node's output index " +
+                               std::to_string(nonConstantOutIndex) + ": " + outError;
+                return false;
+            }
+            return true;
         }
     }
 
@@ -92,13 +119,13 @@ private:
 //Template specialization for inputs with no default value type.
 
 template<>
-class DAGInput<void>
+class DAGInput<void> : public ISerializable
 {
 public:
 
 
-    DAGInput(void* nodePtr = 0, unsigned int _nodeOutIndex = 0)
-        : nodeP(nodePtr), nodeOutIndex(_nodeOutIndex) { }
+    DAGInput(std::string _nodeName = "", unsigned int _nodeOutIndex = 0)
+        : nodeName(_nodeName), nodeOutIndex(_nodeOutIndex) { }
 
     virtual ~DAGInput(void) { }
 
@@ -108,24 +135,62 @@ public:
 
 
     //Gets the DAG node this input points to.
-    void* GetDAGNode(void) const { return nodeP; }
+    const std::string & GetDAGNode(void) const { return nodeName; }
     //Gets the DAG node's output index.
     unsigned int GetDAGNodeOutIndex(void) const { return nodeOutIndex; }
 
     //Sets the value of this input to the given DAG node.
-    void SetDAGNodeInput(void* nodePtr, unsigned int nodeOutputIndex)
+    void SetDAGNodeInput(const std::string & _nodeName, unsigned int nodeOutputIndex)
     {
-        nodeP = nodePtr;
+        nodeName = _nodeName;
         nodeOutIndex = nodeOutputIndex;
+    }
+
+
+    bool ReadData(DataReader * data, std::string & outError) override
+    {
+        MaybeValue<std::string> tryStr = data->ReadString(outError);
+        if (!tryStr.HasValue())
+        {
+            outError = "Error reading the DAG node name: " + outError;
+            return false;
+        }
+        nodeName = tryStr.GetValue();
+
+        MaybeValue<unsigned int> tryUInt = data->ReadUInt(outError);
+        if (!tryUInt.HasValue())
+        {
+            outError = "Error reading the DAG node out index: " + outError;
+            return false;
+        }
+        nodeOutIndex = tryUInt.GetValue();
+
+        return true;
+    }
+    bool WriteData(DataWriter * data, std::string & outError) const override
+    {
+        if (!data->WriteString(nodeName, "Node Name", outError))
+        {
+            outError = "Error writing out the node's name, '" + nodeName + "': " + outError;
+            return false;
+        }
+        if (!data->WriteUInt(nodeOutIndex, "Node output index", outError))
+        {
+            outError = "Error writing out the node's output index " +
+                std::to_string(nodeOutIndex) + ": " + outError;
+            return false;
+        }
+        return true;
     }
 
 
 private:
 
-    void* nodeP;
+    std::string nodeName;
     unsigned int nodeOutIndex;
 };
 
 
 
-DAGInput<float> dIn = DAGInput<float>(10.0f);
+DAGInput<float> * dIn = 0;
+DAGInput<void> * dIn2 = 0;
