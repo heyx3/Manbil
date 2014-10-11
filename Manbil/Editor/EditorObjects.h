@@ -403,7 +403,9 @@ public:
     GUIElementPtr InnerElement;
     std::string CollapsibleBarTitle;
 
-    CollapsibleEditorBranch(GUIElementPtr innerElement = GUIElementPtr(0),
-                            std::string collapsibleBarTitle = "")
-        : InnerElement(innerElement), CollapsibleBarTitle(collapsibleBarTitle) { }
+    CollapsibleEditorBranch(EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                            GUIElementPtr innerElement = GUIElementPtr(0),
+                            std::string collapsibleBarTitle = "", Vector2f spaceAfter = Vector2f())
+        : InnerElement(innerElement), CollapsibleBarTitle(collapsibleBarTitle),
+          EditorObject(description, spaceAfter) { }
 };
