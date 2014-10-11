@@ -392,3 +392,18 @@ public:
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 };
+
+
+
+//A "collapsible" panel.
+struct CollapsibleEditorBranch : public EditorObject
+{
+public:
+
+    GUIElementPtr InnerElement;
+    std::string CollapsibleBarTitle;
+
+    CollapsibleEditorBranch(GUIElementPtr innerElement = GUIElementPtr(0),
+                            std::string collapsibleBarTitle = "")
+        : InnerElement(innerElement), CollapsibleBarTitle(collapsibleBarTitle) { }
+};
