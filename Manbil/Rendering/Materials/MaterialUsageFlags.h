@@ -54,7 +54,6 @@ public:
     void EnableFlag(Flags flag)
     {
         value |= (unsigned int)flag;
-        value = value;
     }
     void DisableFlag(Flags flag) { value &= ~((unsigned int)flag); }
 
@@ -66,5 +65,5 @@ private:
 
     //TODO: Track the outputs taken from every input data node (an unordered_map indexed by pointer?), then use that information to remove any unnecessary lines of shader code in the data node shader code generation functions.
 
-    unsigned short value = 0;
+    unsigned int value = 0;
 };
