@@ -17,7 +17,9 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraHeightName = "u_cam_height",
                   MaterialConstants::CameraZNearName = "u_cam_zNear",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
-                  MaterialConstants::CameraFovName = "u_cam_fov";
+                  MaterialConstants::CameraFovName = "u_cam_fov",
+                  MaterialConstants::CameraOrthoMinName = "u_cam_orthMin",
+                  MaterialConstants::CameraOrthoMaxName = "u_cam_orthMax";
 
 bool MaterialConstants::IsValidGLSLName(const std::string & name)
 {
@@ -81,6 +83,8 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
                                (flags.GetFlag(FL::DNF_USES_ZNEAR) ? "uniform float " + CameraZNearName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_ZFAR) ? "uniform float " + CameraZFarName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_FOV) ? "uniform float " + CameraFovName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_ORTHO_MIN) ? "uniform vec3 " + CameraOrthoMinName + ";\n" : "") +
+                               (flags.GetFlag(FL::DNF_USES_ORTHO_MAX) ? "uniform vec3 " + CameraOrthoMaxName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_WORLD_MAT) ? "uniform mat4 " + WorldMatName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_VIEW_MAT) ? "uniform mat4 " + ViewMatName + ";\n" : "") +
                                (flags.GetFlag(FL::DNF_USES_PROJ_MAT) ? "uniform mat4 " + ProjMatName + ";\n" : "") +

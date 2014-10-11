@@ -142,6 +142,8 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraZNearName.c_str(), camZNearL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraZFarName.c_str(), camZFarL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraFovName.c_str(), camFovL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraOrthoMinName.c_str(), camOrthoMinL);
+    RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::CameraOrthoMaxName.c_str(), camOrthoMaxL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::WorldMatName.c_str(), worldMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ViewMatName.c_str(), viewMatL);
     RenderDataHandler::GetUniformLocation(shaderProg, MaterialConstants::ProjMatName.c_str(), projMatL);
@@ -182,6 +184,16 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
         RenderDataHandler::SetUniformValue(camZFarL, 1, &info.Cam->Info.zFar);
     if (RenderDataHandler::UniformLocIsValid(camFovL))
         RenderDataHandler::SetUniformValue(camFovL, 1, &info.Cam->Info.FOV);
+    if (RenderDataHandler::UniformLocIsValid(camOrthoMinL))
+    {
+        Vector3f min = info.Cam->MinOrthoBounds + info.Cam->GetPosition();
+        RenderDataHandler::SetUniformValue(camOrthoMinL, 3, &min.x);
+    }
+    if (RenderDataHandler::UniformLocIsValid(camOrthoMaxL))
+    {
+        Vector3f max = info.Cam->MaxOrthoBounds + info.Cam->GetPosition();
+        RenderDataHandler::SetUniformValue(camOrthoMaxL, 3, &max.x);
+    }
     if (RenderDataHandler::UniformLocIsValid(viewMatL))
         RenderDataHandler::SetMatrixValue(viewMatL, *(info.mView));
     if (RenderDataHandler::UniformLocIsValid(projMatL))

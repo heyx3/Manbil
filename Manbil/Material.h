@@ -68,6 +68,7 @@ private:
 
     UniformLocation camPosL, camForwardL, camUpL, camSideL,
                     camZNearL, camZFarL, camWidthL, camHeightL, camFovL,
+                    camOrthoMinL, camOrthoMaxL,
                     wvpMatL, worldMatL, viewMatL, projMatL, viewProjMatL,
                     timeL;
 };
