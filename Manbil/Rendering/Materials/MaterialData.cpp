@@ -18,8 +18,8 @@ const std::string MaterialConstants::ElapsedTimeName = "u_elapsed_seconds",
                   MaterialConstants::CameraZNearName = "u_cam_zNear",
                   MaterialConstants::CameraZFarName = "u_cam_zFar",
                   MaterialConstants::CameraFovName = "u_cam_fov",
-                  MaterialConstants::CameraOrthoMinName = "u_cam_orthMin",
-                  MaterialConstants::CameraOrthoMaxName = "u_cam_orthMax";
+                  MaterialConstants::CameraOrthoMinName = "u_cam_orthoMin",
+                  MaterialConstants::CameraOrthoMaxName = "u_cam_orthoMax";
 
 bool MaterialConstants::IsValidGLSLName(const std::string & name)
 {
