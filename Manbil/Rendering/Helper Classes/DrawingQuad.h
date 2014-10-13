@@ -33,7 +33,7 @@ public:
     Vector2f GetOrigin(void) const { return origin; }
 
     void SetBounds(Vector2f min, Vector2f max) { SetPos((min + max) * 0.5f); SetSize((max - min) * 0.5f); }
-    void SetPos(Vector2f pos) { quad.Transform.SetPosition(Vector3f(pos.x, pos.y, 0.0f)); }
+    void SetPos(Vector2f pos) { quad.Transform.SetPosition(Vector3f(pos.x, pos.y, GetDepth())); }
     void IncrementPos(Vector2f increment) { quad.Transform.IncrementPosition(Vector3f(increment.x, increment.y, 0.0f)); }
     void SetSize(Vector2f size) { quad.Transform.SetScale(Vector3f(size.x, size.y, 1.0f)); }
     void MakeSizePositive(void) { quad.Transform.SetScale(Vector3f(BasicMath::Abs(quad.Transform.GetScale().x), BasicMath::Abs(quad.Transform.GetScale().y), 1.0f)); }
