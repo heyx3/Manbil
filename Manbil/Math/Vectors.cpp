@@ -8,8 +8,9 @@ void Vector2f::Rotate(float radians)
 	float cosTheta = cosf(radians),
 		  sinTheta = sinf(radians);
 
-	x = (x * cosTheta) - (y * sinTheta);
-	y = (y * cosTheta) + (x * sinTheta);
+    float oldX = x;
+	x = (oldX * cosTheta) - (y * sinTheta);
+	y = (y * cosTheta) + (oldX * sinTheta);
 }
 Vector2f Vector2f::Rotated(float radians)
 {

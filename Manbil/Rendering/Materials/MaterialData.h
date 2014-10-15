@@ -19,7 +19,8 @@ public:
     static const std::string ElapsedTimeName,
                              WorldMatName, ViewMatName, ProjMatName, ViewProjMatName, WVPMatName,
                              CameraPosName, CameraForwardName, CameraUpName, CameraSideName,
-                             CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName;
+                             CameraZNearName, CameraZFarName, CameraWidthName, CameraHeightName, CameraFovName,
+                             CameraOrthoMinName, CameraOrthoMaxName;
 
     //Gets whether the given string is a valid GLSL variable name.
     //Fails if there is any whitespace on either side of the name.

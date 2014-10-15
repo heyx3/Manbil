@@ -17,6 +17,8 @@ std::string ProjectionDataNode::GetOutputName(unsigned int index) const
         case 2: return MaterialConstants::CameraZNearName;
         case 3: return MaterialConstants::CameraZFarName;
         case 4: return MaterialConstants::CameraFovName;
+        case 5: return MaterialConstants::CameraOrthoMinName;
+        case 6: return MaterialConstants::CameraOrthoMaxName;
 
         default:
             Assert(false, std::string() + "Invalid output index " + ToString(index));
@@ -33,6 +35,10 @@ unsigned int ProjectionDataNode::GetOutputSize(unsigned int index) const
         case 3:
         case 4:
             return 1;
+
+        case 5:
+        case 6:
+            return 3;
 
         default:
             Assert(false, std::string() + "Invalid output index " + ToString(index));
@@ -58,6 +64,12 @@ void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
             break;
         case 4:
             flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_FOV);
+            break;
+        case 5:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_ORTHO_MIN);
+            break;
+        case 6:
+            flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_ORTHO_MAX);
             break;
 
         default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));

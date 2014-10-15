@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh(PrimitiveTypes pType, int numbVIData, VertexIndexData * viDataArray)
+Mesh::Mesh(PrimitiveTypes pType, int numbVIData, const VertexIndexData * viDataArray)
     : primType(pType), nVIData(numbVIData)
 {
     if (viDataArray == 0)
