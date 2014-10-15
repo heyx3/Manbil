@@ -173,3 +173,44 @@ bool EditorImage::InitGUIElement(EditorMaterialSet & set)
     }
     return true;
 }
+
+bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
+{
+    MTexture2D* titleTex = &set.CollapsibleEditorTitleBarTex;
+    GUITexture* titleBar = new GUITexture(set.GetAnimatedMatParams(titleTex), titleTex,
+                                          set.GetAnimatedMaterial(titleTex), true, set.AnimateSpeed);
+    titleBar->OnClicked_pData = this;
+    titleBar->OnClicked = [](GUITexture* titleButton, Vector2f mousePos, void* pData)
+    {
+        CollapsibleEditorBranch* thisB = (CollapsibleEditorBranch*)pData;
+        thisB->Toggle();
+    };
+    GUIElementPtr titleBarPtr(titleBar);
+
+    //PRIORITY: Add the description into the title.
+
+    //PRIORITY: Build the fullPanel instance.
+
+
+    return true;
+}
+bool CollapsibleEditorBranch::Update(float elapsed, Vector2f panelRelMouse)
+{
+    bool b = didActiveElementChange;
+    didActiveElementChange = false;
+    return b;
+}
+void CollapsibleEditorBranch::Toggle(void)
+{
+    didActiveElementChange = true;
+
+    if (activeGUIElement.get() == innerElement.get())
+    {
+        activeGUIElement = fullPanel;
+    }
+    else
+    {
+        assert(activeGUIElement.get() == fullPanel.get());
+        activeGUIElement = innerElement;
+    }
+}

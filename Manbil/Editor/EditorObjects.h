@@ -400,12 +400,22 @@ struct CollapsibleEditorBranch : public EditorObject
 {
 public:
 
-    GUIElementPtr InnerElement;
-    std::string CollapsibleBarTitle;
+    CollapsibleEditorBranch(GUIElementPtr innerElement = GUIElementPtr(0),
+                            EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                            Vector2f spaceAfter = Vector2f())
+        : innerElement(innerElement), fullPanel(0), EditorObject(description, spaceAfter) { }
 
-    CollapsibleEditorBranch(EditorObject::DescriptionData description = EditorObject::DescriptionData(),
-                            GUIElementPtr innerElement = GUIElementPtr(0),
-                            std::string collapsibleBarTitle = "", Vector2f spaceAfter = Vector2f())
-        : InnerElement(innerElement), CollapsibleBarTitle(collapsibleBarTitle),
-          EditorObject(description, spaceAfter) { }
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
+    virtual bool Update(float elapsed, Vector2f panelRelativeMousePos) override;
+
+    GUIElementPtr GetInnerElement(void) const { return innerElement; }
+    GUIElementPtr GetFullPanel(void) const { return fullPanel; }
+    void Toggle(void);
+
+
+private:
+
+    GUIElementPtr innerElement, fullPanel;
+    bool didActiveElementChange = false;
 };
