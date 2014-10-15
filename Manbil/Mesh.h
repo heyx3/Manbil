@@ -17,7 +17,8 @@ public:
 	TransformObject Transform;
     
 
-	Mesh(PrimitiveTypes pType = PrimitiveTypes::TriangleList, int numbVIData = 0, VertexIndexData * viDataArray = 0);
+	Mesh(PrimitiveTypes pType = PrimitiveTypes::TriangleList,
+         int numbVIData = 0, const VertexIndexData * viDataArray = 0);
 	Mesh(const Mesh & cpy);
 
 	~Mesh(void) { if (viData != 0) delete[] viData; }
