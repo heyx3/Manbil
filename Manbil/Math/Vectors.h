@@ -568,6 +568,10 @@ namespace MyVectors
         Vector3i FlipY(void) const { return Vector3i(x, -y, z); }
         Vector3i FlipZ(void) const { return Vector3i(x, y, -z); }
 
+        Vector2i XY(void) const { return Vector2i(x, y); }
+        Vector2i XZ(void) const { return Vector2i(x, z); }
+        Vector2i YZ(void) const { return Vector2i(y, z); }
+
 
         Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
 		Vector3i& operator-=(const Vector3i& r) { x -= r.x; y -= r.y; z -= r.z; return *this; }
@@ -899,6 +903,10 @@ namespace MyVectors
         Vector3f FlipX(void) const { return Vector3f(-x, y, z); }
         Vector3f FlipY(void) const { return Vector3f(x, -y, z); }
         Vector3f FlipZ(void) const { return Vector3f(x, y, -z); }
+
+        Vector2f XY(void) const { return Vector2f(x, y); }
+        Vector2f XZ(void) const { return Vector2f(x, z); }
+        Vector2f YZ(void) const { return Vector2f(y, z); }
 
         Vector3f Clamp(float min, float max)
         {
