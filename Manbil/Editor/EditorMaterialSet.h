@@ -25,6 +25,7 @@ public:
     MTexture2D ButtonTex, SliderBarTex, SliderNubTex,
                TextBoxBackgroundTex, PanelBackgroundTex,
                CheckBoxBackgroundTex, CheckBoxCheckTex,
+               CollapsibleEditorTitleBarTex,
                SelectionBoxBoxTex, SelectionBoxBackgroundTex;
 
     Vector2f SliderBarScale = Vector2f(100.0f, 18.5f),

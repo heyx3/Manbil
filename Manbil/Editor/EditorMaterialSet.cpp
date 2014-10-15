@@ -15,7 +15,8 @@ EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
       CheckBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       CheckBoxCheckTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       SelectionBoxBoxTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false)
+      SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      CollapsibleEditorTitleBarTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false)
 {
 
 }
@@ -108,6 +109,19 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     {
         return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
     }
+
+    //Collapsible title bar texture. It's a grey texture, so convert to greyscale after loading.
+    outSet.CollapsibleEditorTitleBarTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false,
+                                               PixelSizes::PS_8U_GREYSCALE);
+    Array2D<Vector4b> texCols(1, 1);
+    if (!MTexture2D::LoadImageFromFile("Content/Textures/CollapsibleTitleBar.png", texCols))
+    {
+        return "Error loading 'CollapsibleTitleBar.png' from 'Content/Textures'";
+    }
+    Array2D<unsigned char> texGrays(texCols.GetWidth(), texCols.GetHeight());
+    texGrays.FillFunc([&texCols](Vector2u loc, unsigned char* outGray) { *outGray = texCols[loc].x; });
+    if (!outSet.CollapsibleEditorTitleBarTex.SetGreyscaleData(texGrays))
+        return "Error occurred while setting texture data for CollapsibleEditorTitleBar texture.";
 
 
     //Materials.
