@@ -187,11 +187,50 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
     };
     GUIElementPtr titleBarPtr(titleBar);
 
-    //PRIORITY: Add the description into the title.
 
-    //PRIORITY: Build the fullPanel instance.
+    //First try to create the font slot to render the label.
+    if (!set.TextRender.CreateTextRenderSlots(set.FontID, titleTex->GetWidth(),
+                                              set.TextRenderSpaceHeight, false,
+                                              TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+    {
+        ErrorMsg = "Error creating text render slot for description '" +
+                       DescriptionLabel.Text + "': " + set.TextRender.GetError();
+        return false;
+    }
+    TextRenderer::FontSlot labelSlot(set.FontID, set.TextRender.GetNumbSlots(set.FontID) - 1);
+    //Next try to render the text.
+    if (!set.TextRender.RenderString(labelSlot, DescriptionLabel.Text))
+    {
+        ErrorMsg = "Error rendering '" + DescriptionLabel.Text + "' into the description label: " +
+                       set.TextRender.GetError();
+        return false;
+    }
+    //Make the label.
+    GUIElementPtr label(new GUILabel(set.StaticMatTextParams, &set.TextRender,
+                                     labelSlot, set.StaticMatText, set.AnimateSpeed,
+                                     GUILabel::HO_RIGHT, GUILabel::VO_CENTER));
+    label->SetColor(set.CollapsibleEditorTitleTextCol);
+    label->ScaleBy(set.TextScale);
+    label->Depth += 0.001f;
 
 
+    //Combine the title bar and label together into a panel.
+    GUIPanel* titleBarPanel = new GUIPanel(UniformDictionary(), titleBar->GetCollisionDimensions().x);
+    titleBarPanel->AddElement(titleBarPtr);
+    titleBarPanel->AddElement(label);
+    label->SetPosition(Vector2f(titleBarPanel->GetCollisionDimensions().x * 0.5f, 0.0f));
+    barOnly = GUIElementPtr(titleBarPanel);
+
+
+    //Now make an outer panel that includes the inner element.
+    GUIFormattedPanel* fullPanelPtr = new GUIFormattedPanel(UniformDictionary());
+    fullPanelPtr->AddObject(GUIFormatObject(barOnly, false, true, Vector2f(panelIndent, 0.0f)));
+    fullPanelPtr->AddObject(GUIFormatObject(innerElement));
+    fullPanel = GUIElementPtr(fullPanelPtr);
+
+
+    //Start with just the title bar.
+    activeGUIElement = barOnly;
     return true;
 }
 bool CollapsibleEditorBranch::Update(float elapsed, Vector2f panelRelMouse)
@@ -204,13 +243,13 @@ void CollapsibleEditorBranch::Toggle(void)
 {
     didActiveElementChange = true;
 
-    if (activeGUIElement.get() == innerElement.get())
+    if (activeGUIElement.get() == barOnly.get())
     {
         activeGUIElement = fullPanel;
     }
     else
     {
         assert(activeGUIElement.get() == fullPanel.get());
-        activeGUIElement = innerElement;
+        activeGUIElement = barOnly;
     }
 }

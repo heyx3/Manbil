@@ -400,22 +400,28 @@ struct CollapsibleEditorBranch : public EditorObject
 {
 public:
 
-    CollapsibleEditorBranch(GUIElementPtr innerElement = GUIElementPtr(0),
+    CollapsibleEditorBranch(GUIElementPtr _innerElement = GUIElementPtr(0),
+                            float _panelIndent = 20.0f,
                             EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                             Vector2f spaceAfter = Vector2f())
-        : innerElement(innerElement), fullPanel(0), EditorObject(description, spaceAfter) { }
+        : innerElement(_innerElement), barOnly(0), fullPanel(0), panelIndent(_panelIndent),
+          EditorObject(description, spaceAfter) { }
 
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
     virtual bool Update(float elapsed, Vector2f panelRelativeMousePos) override;
 
     GUIElementPtr GetInnerElement(void) const { return innerElement; }
+    GUIElementPtr GetTitleBar(void) const { return barOnly; }
     GUIElementPtr GetFullPanel(void) const { return fullPanel; }
+
     void Toggle(void);
 
 
 private:
 
-    GUIElementPtr innerElement, fullPanel;
+    GUIElementPtr innerElement;
+    GUIElementPtr barOnly, fullPanel;
+    float panelIndent;
     bool didActiveElementChange = false;
 };
