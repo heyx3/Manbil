@@ -6,14 +6,14 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
     //Update the editor objects.
     for (unsigned int i = 0; i < editorObjects.size(); ++i)
     {
-        editorObjects[i]->Update(elapsedTime, relMousePos);
-
         //If the active element changed, replace it in the formatted panel.
-        GUIElementPtr activeElement = editorObjects[i]->GetActiveGUIElement();
-        if (panel.GetObjects()[i].Element.get() != activeElement.get())
-            panel.ReplaceObject(i, GUIFormatObject(activeElement, editorObjects[i]->GetMoveHorizontally(),
+        if (editorObjects[i]->Update(elapsedTime, relMousePos))
+        {
+            panel.ReplaceObject(i, GUIFormatObject(editorObjects[i]->GetActiveGUIElement(),
+                                                   editorObjects[i]->GetMoveHorizontally(),
                                                    editorObjects[i]->GetMoveVertically(),
                                                    editorObjects[i]->Offset));
+        }
     }
 
     //Now update the GUI objects.
