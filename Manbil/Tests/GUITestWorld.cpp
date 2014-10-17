@@ -60,9 +60,8 @@ void GUITestWorld::OnInitializeError(std::string errorMsg)
 
 void GUITestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
-    //Window cannot be resized.
-    if (newW != WindowSize.x || newH != WindowSize.y)
-        GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
+    WindowSize.x = newW;
+    WindowSize.y = newH;
 }
 
 
@@ -108,7 +107,10 @@ void GUITestWorld::InitializeWorld(void)
         std::vector<EditorObjectPtr> ptrs;
         colEd.Color = Vector4f(0.5f, 0.25f, 1.0f, 0.5f);
 
-        colEd.BuildEditorElements(ptrs);
+        std::string err = colEd.BuildEditorElements(ptrs, *editorMaterials);
+        if (!ReactToError(err.empty(), "Error building color editor elements", err))
+            return;
+
         for (unsigned int i = 0; i < ptrs.size(); ++i)
         {
             err = editor->AddObject(ptrs[i]);
@@ -117,11 +119,6 @@ void GUITestWorld::InitializeWorld(void)
         }
     }
     guiManager = GUIManager(GUIElementPtr(editor));
-
-    std::cout << "Checkbox: " << DebugAssist::ToString(editor->GetObjects()[0]->GetActiveGUIElement()->GetCollisionCenter()) << "\n" <<
-                 "Textbox: " << DebugAssist::ToString(editor->GetObjects()[1]->GetActiveGUIElement()->GetCollisionCenter()) << "\n" <<
-                 "Button: " << DebugAssist::ToString(editor->GetObjects()[2]->GetActiveGUIElement()->GetCollisionCenter()) << "\n";
-
 
     //Set up the window.
     Vector2f dims = editor->GetCollisionDimensions();
@@ -160,6 +157,7 @@ void GUITestWorld::UpdateWorld(float elapsed)
     mPosFinal.y = WindowSize.y - mPosFinal.y;
 
     guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
+    guiManager.RootElement->SetPosition(Vector2f(WindowSize.x * 0.5f, WindowSize.y * 0.5f));
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
