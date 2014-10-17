@@ -168,12 +168,12 @@ void GUIFormattedPanel::RePositionElements()
         if (objects[i].MoveHorizontal)
             max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x);
         else
-            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x + dims.x);
+            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x - objects[i].SpaceAfter.x + dims.x);
 
         if (objects[i].MoveVertical)
             max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y);
         else
-            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y + dims.y);
+            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y - objects[i].SpaceAfter.y + dims.y);
     }
 
     //Calculate the extents and re-center the elements around the origin.
