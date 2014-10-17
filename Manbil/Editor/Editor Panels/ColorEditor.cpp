@@ -3,7 +3,8 @@
 #include "../EditorObjects.h"
 
 
-void ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr> & outElements)
+std::string ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr> & outElements,
+                                             EditorMaterialSet & materialSet)
 {
     if (!colorDisplayTex.IsValidTexture())
         colorDisplayTex.Create();
@@ -38,8 +39,10 @@ void ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr> & outElements
                                                        ce->UpdateTextureColor();
                                                    },
                                                    Color.z, 1.0f, this);
+
     EditorImage* img = new EditorImage(&colorDisplayTex, EditorObject::DescriptionData(),
                                        Vector2f(100.0f, 20.0f), Vector2f(0.0f, 5.0f));
+
     SlidingBarFloat* aSlider = new SlidingBarFloat(0.0f, 1.0f, Vector2f(),
                                                    EditorObject::DescriptionData("Alpha", true, 10.0f, 400),
                                                    [](GUISlider* slider, float newVal, void* pData)
@@ -54,6 +57,9 @@ void ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr> & outElements
     outElements.insert(outElements.end(), EditorObjectPtr(bSlider));
     outElements.insert(outElements.end(), EditorObjectPtr(img));
     outElements.insert(outElements.end(), EditorObjectPtr(aSlider));
+
+
+    return "";
 }
 
 void ColorEditor::UpdateTextureColor(void)

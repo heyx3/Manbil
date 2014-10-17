@@ -15,7 +15,8 @@ public:
         : colorDisplayTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F, false) { }
 
 
-    virtual void BuildEditorElements(std::vector<EditorObjectPtr> & outElements) override;
+    virtual std::string BuildEditorElements(std::vector<EditorObjectPtr> & outElements,
+                                            EditorMaterialSet& materialSet) override;
     void UpdateTextureColor(void);
 
 

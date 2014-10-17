@@ -8,5 +8,7 @@ class IEditable
 {
 public:
 
-    virtual void BuildEditorElements(std::vector<EditorObjectPtr> & outElements) = 0;
+    //Returns an error message, or the empty string if everything went fine.
+    virtual std::string BuildEditorElements(std::vector<EditorObjectPtr> & outElements,
+                                            EditorMaterialSet & materialSet) = 0;
 };
