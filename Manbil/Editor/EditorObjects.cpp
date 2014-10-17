@@ -213,7 +213,7 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
         //Make the label.
         GUIElementPtr label(new GUILabel(set.StaticMatTextParams, &set.TextRender,
                                          labelSlot, set.StaticMatText, set.AnimateSpeed,
-                                         GUILabel::HO_RIGHT, GUILabel::VO_CENTER));
+                                         GUILabel::HO_CENTER, GUILabel::VO_CENTER));
         label->SetColor(set.CollapsibleEditorTitleTextCol);
         label->ScaleBy(set.TextScale);
         label->Depth += 0.001f;
@@ -223,11 +223,10 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
         GUIPanel* titleBarPanel = new GUIPanel(UniformDictionary(), titleBar->GetCollisionDimensions().x);
         titleBarPanel->AddElement(GUIElementPtr(titleBar));
         titleBarPanel->AddElement(label);
-        label->SetPosition(Vector2f(titleBarPanel->GetCollisionDimensions().x * 0.5f, 0.0f));
+        label->SetPosition(Vector2f(0.0f, 0.0f));
         barOnly = GUIElementPtr(titleBarPanel);
     }
     
-
 
     //Now make an outer panel that includes the inner element.
     GUIFormattedPanel* fullPanelPtr = new GUIFormattedPanel(UniformDictionary());
@@ -253,6 +252,7 @@ void CollapsibleEditorBranch::Toggle(void)
     if (activeGUIElement.get() == barOnly.get())
     {
         activeGUIElement = fullPanel;
+        ((GUIFormattedPanel*)fullPanel.get())->RePositionElements();
     }
     else
     {
