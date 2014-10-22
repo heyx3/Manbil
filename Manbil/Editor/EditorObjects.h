@@ -425,3 +425,32 @@ private:
     float panelIndent;
     bool didActiveElementChange = false;
 };
+
+
+
+//The first template param is the type of element being edited in this collection;
+//    it must inherit from IEditable.
+//The second template param is a function that returns a new std::shared_ptr of the element type.
+template<typename ElementType, typename ElementFactory>
+//A collection of identical editor panels that can be added to/removed from.
+struct EditorCollection : public EditorObject
+{
+public:
+
+
+    EditorCollection(float _panelIndent = 20.0f) : panelIndent(_panelIndent) { }
+
+
+    const std::vector<std::shared_ptr<ElementType>> & GetElements(void) const { return elements; }
+    std::vector<std::shared_ptr<ElementType>> & GetElements(void) { return elements; }
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
+    virtual bool Update(float elapsed, Vector2f panelRelativeMousePos) override;
+
+private:
+
+    std::vector<std::shared_ptr<ElementType>> elements;
+
+    bool didActiveElementChange = false;
+    float panelIndent;
+};
