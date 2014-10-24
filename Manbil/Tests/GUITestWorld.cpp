@@ -102,6 +102,11 @@ void GUITestWorld::InitializeWorld(void)
                                                            [](GUITexture* clicked, Vector2f mp, void* pDat)
                                                             { std::cout << "Clicked\n"; })));
         editor->AddObject(EditorObjectPtr(new EditorLabel("I'm just a label.", 800)));
+
+        MTexture2D* testTex = &editorMaterials->DeleteFromCollectionTex;
+        GUIElementPtr innerEl(new GUITexture(editorMaterials->GetStaticMatParams(testTex), testTex,
+                                             editorMaterials->GetStaticMaterial(testTex)));
+        editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
     }
     else
     {

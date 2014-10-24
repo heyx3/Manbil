@@ -440,11 +440,11 @@ public:
 
 
 //A "collapsible" panel.
-struct CollapsibleEditorBranch : public EditorObject
+struct EditorCollapsibleBranch : public EditorObject
 {
 public:
 
-    CollapsibleEditorBranch(GUIElementPtr _innerElement = GUIElementPtr(0),
+    EditorCollapsibleBranch(GUIElementPtr _innerElement = GUIElementPtr(0),
                             float _panelIndent = 20.0f, std::string titleBarName = "",
                             Vector2f spaceAfter = Vector2f())
         : innerElement(_innerElement), barOnly(0), fullPanel(0), panelIndent(_panelIndent),
@@ -519,7 +519,7 @@ public:
         //Add this new editor, wrapped in a collapsible title bar, to this object's collection editor panel.
         //Add it to the end of the panel's object list but just behind the add/remove buttons.
 
-        EditorObjectPtr elementTitleBar(new CollapsibleEditorBranch(GUIElementPtr(elementPanel),
+        EditorObjectPtr elementTitleBar(new EditorCollapsibleBranch(GUIElementPtr(elementPanel),
                                                                     panelIndent, "", Vector2f()));
         err = collectionPanel->AddObject(elementTitleBar, collectionPanelPtr->GetObjects().size() - 2);
 
@@ -574,7 +574,7 @@ public:
 
         //Build a small outer editor panel that just has a collapsible title bar wrapping the collection editor panel.
         EditorPanel* outerPanel = new EditorPanel(materialSet, 0.0f, 0.0f);
-        outerPanel->AddObject(EditorObjectPtr(new CollapsibleEditorBranch(GUIElementPtr(collectionPanel),
+        outerPanel->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(GUIElementPtr(collectionPanel),
                                                                           panelIndent,
                                                                           DescriptionLabel.Text)));
         activeGUIElement = GUIElementPtr(outerPanel);

@@ -301,7 +301,7 @@ bool EditorImage::InitGUIElement(EditorMaterialSet & set)
     return true;
 }
 
-bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
+bool EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet & set)
 {
     MTexture2D* titleTex = &set.CollapsibleEditorTitleBarTex;
     GUITexture* titleBar = new GUITexture(set.GetAnimatedMatParams(titleTex), titleTex,
@@ -309,7 +309,7 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
     titleBar->OnClicked_pData = this;
     titleBar->OnClicked = [](GUITexture* titleButton, Vector2f mousePos, void* pData)
     {
-        CollapsibleEditorBranch* thisB = (CollapsibleEditorBranch*)pData;
+        EditorCollapsibleBranch* thisB = (EditorCollapsibleBranch*)pData;
         thisB->Toggle();
     };
 
@@ -321,7 +321,7 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
     else
     {
         //First try to create the font slot to render the label.
-        if (!set.TextRender.CreateTextRenderSlots(set.FontID, titleTex->GetWidth(),
+        if (!set.TextRender.CreateTextRenderSlots(set.FontID, titleTex->GetWidth() / set.TextScale.x,
                                                   set.TextRenderSpaceHeight, false,
                                                   TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
         {
@@ -366,13 +366,13 @@ bool CollapsibleEditorBranch::InitGUIElement(EditorMaterialSet & set)
     activeGUIElement = barOnly;
     return true;
 }
-bool CollapsibleEditorBranch::Update(float elapsed, Vector2f panelRelMouse)
+bool EditorCollapsibleBranch::Update(float elapsed, Vector2f panelRelMouse)
 {
     bool b = didActiveElementChange;
     didActiveElementChange = false;
     return b;
 }
-void CollapsibleEditorBranch::Toggle(void)
+void EditorCollapsibleBranch::Toggle(void)
 {
     didActiveElementChange = true;
 
