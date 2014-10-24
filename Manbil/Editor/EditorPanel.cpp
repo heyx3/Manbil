@@ -24,11 +24,11 @@ std::string EditorPanel::Render(float elapsedTime, const RenderInfo & info)
     return panel.Render(elapsedTime, info);
 }
 
-std::string EditorPanel::AddObject(EditorObjectPtr toAdd)
+std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
 {
     if (toAdd->InitGUIElement(MaterialSet))
     {
-        editorObjects.insert(editorObjects.end(), toAdd);
+        editorObjects.insert(editorObjects.begin() + index, toAdd);
         panel.AddObject(GUIFormatObject(toAdd->GetActiveGUIElement(), toAdd->GetMoveHorizontally(),
                                         toAdd->GetMoveVertically(), toAdd->Offset));
         return "";
@@ -38,7 +38,7 @@ std::string EditorPanel::AddObject(EditorObjectPtr toAdd)
         return EditorObject::ErrorMsg;
     }
 }
-std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds)
+std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds, unsigned int startIndex)
 {
     std::vector<GUIFormatObject> newObjs;
     newObjs.reserve(toAdds.size());
@@ -46,7 +46,7 @@ std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds)
     {
         if (toAdds[i]->InitGUIElement(MaterialSet))
         {
-            newObjs.insert(newObjs.end(),
+            newObjs.insert(newObjs.begin() + startIndex + i,
                            GUIFormatObject(toAdds[i]->GetActiveGUIElement(),
                                            toAdds[i]->GetMoveHorizontally(),
                                            toAdds[i]->GetMoveVertically(),

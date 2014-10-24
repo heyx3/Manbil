@@ -16,6 +16,7 @@ public:
 
     EditorMaterialSet & MaterialSet;
 
+
     EditorPanel(EditorMaterialSet & set, float horizontalBorder, float verticalBorder)
         : MaterialSet(set), panel(set.StaticMatGreyParams, horizontalBorder, verticalBorder,
                                   GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
@@ -23,17 +24,28 @@ public:
                                              set.GetStaticMaterial(&set.PanelBackgroundTex))),
           GUIElement(UniformDictionary()) { }
     
+
     const GUIFormattedPanel & GetPanel(void) const { return panel; }
+
 
     //Initializes the given object and then adds it to this editor panel.
     //Returns an error message when initializing this object, or the empty string if everything is fine.
-    std::string AddObject(EditorObjectPtr toAdd);
+    std::string AddObject(EditorObjectPtr toAdd) { return AddObject(toAdd, editorObjects.size()); }
+    //Initializes the given object and then adds it to this editor panel at the given location.
+    //Returns an error message when initializing this object, or the empty string if everything is fine.
+    std::string AddObject(EditorObjectPtr toAdd, unsigned int index);
+
     //Initializes the given objects and then adds them to this editor panel.
     //Returns an error message when initializing these objects, or the empty string if everything is fine.
-    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd);
+    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd) { AddObjects(toAdd, editorObjects.size()); }
+    //Initializes the given objects and then adds them to this editor panel.
+    //Returns an error message when initializing these objects, or the empty string if everything is fine.
+    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd, unsigned int startIndex);
+
     //Removes the given object from this editor panel if it exists.
     //Returns whether or not it existed in this panel.
     bool RemoveObject(EditorObjectPtr toRemove);
+
 
     const std::vector<EditorObjectPtr> & GetObjects(void) const { return editorObjects; }
 
