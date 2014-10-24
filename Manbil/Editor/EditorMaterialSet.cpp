@@ -16,7 +16,9 @@ EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
       CheckBoxCheckTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       SelectionBoxBoxTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      CollapsibleEditorTitleBarTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false)
+      CollapsibleEditorTitleBarTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      AddToCollectionTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
+      DeleteFromCollectionTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false)
 {
 
 }
@@ -108,6 +110,20 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     if (!outSet.CheckBoxCheckTex.SetDataFromFile("Content/Textures/CheckboxCheck.png", err))
     {
         return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
+    }
+
+    //"Add element" texture.
+    outSet.AddToCollectionTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    if (!outSet.AddToCollectionTex.SetDataFromFile("Content/Textures/AddElement.png", err))
+    {
+        return "Error loading 'AddElement.png' from 'Content/Textures': " + err;
+    }
+
+    //"Remove element" texture.
+    outSet.DeleteFromCollectionTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    if (!outSet.DeleteFromCollectionTex.SetDataFromFile("Content/Textures/RemoveElement.png", err))
+    {
+        return "Error loading 'RemoveElement.png' from 'Content/Textures': " + err;
     }
 
     //Collapsible title bar texture. It's a grey texture, so convert to greyscale after loading.

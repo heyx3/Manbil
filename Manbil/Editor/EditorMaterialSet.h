@@ -4,6 +4,8 @@
 
 
 //A set of materials for use in creating editor panels.
+//TODO: Rename to EditorContentData.
+//TODO: Add text render texture filter quality to this class.
 struct EditorMaterialSet
 {
 public:
@@ -26,6 +28,7 @@ public:
                TextBoxBackgroundTex, PanelBackgroundTex,
                CheckBoxBackgroundTex, CheckBoxCheckTex,
                CollapsibleEditorTitleBarTex,
+               AddToCollectionTex, DeleteFromCollectionTex,
                SelectionBoxBoxTex, SelectionBoxBackgroundTex;
 
     Vector2f SliderBarScale = Vector2f(100.0f, 18.5f),
