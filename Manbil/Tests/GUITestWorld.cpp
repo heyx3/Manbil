@@ -65,6 +65,34 @@ void GUITestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 }
 
 
+//Used for testing EditorCollection.
+struct CollectionElement : public IEditable
+{
+public:
+    unsigned int Int = 4;
+    std::string String = "Test";
+    virtual std::string BuildEditorElements(std::vector<EditorObjectPtr> & outElements,
+                                            EditorMaterialSet & materialSet) override
+    {
+        outElements.insert(outElements.end(),
+                           EditorObjectPtr(new SlidingBarUInt(0, 100, Vector2f(), EditorObject::DescriptionData(),
+                           [](GUISlider* slider, unsigned int newVal, void* pData)
+        {
+            std::cout << newVal << "\n";
+        },
+            BasicMath::LerpComponent(0.0f, 100.0f, Int))));
+        outElements.insert(outElements.end(),
+                           EditorObjectPtr(new TextBoxString(String, Vector2u(600, 32),
+                           Vector2f(), EditorObject::DescriptionData(),
+                           [](GUITextBox* textBox, std::string newVal, void* pData)
+        {
+            std::cout << newVal << "\n";
+        })));
+
+        return "";
+    }
+};
+
 void GUITestWorld::InitializeWorld(void)
 {
     std::string err;
@@ -107,6 +135,8 @@ void GUITestWorld::InitializeWorld(void)
         GUIElementPtr innerEl(new GUITexture(editorMaterials->GetStaticMatParams(testTex), testTex,
                                              editorMaterials->GetStaticMaterial(testTex)));
         editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
+
+        editor->AddObject(EditorObjectPtr(new EditorCollection<CollectionElement>()));
     }
     else
     {

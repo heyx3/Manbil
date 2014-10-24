@@ -470,10 +470,23 @@ private:
 };
 
 
+
+//The type of collection element that needs a factory.
+//Must have a default constructor.
+template<typename ElementType>
+//Default factory for elements of an EditorCollection.
+//Calls the element type's default constructor.
+class DefaultElementFactory
+{
+public:
+    std::shared_ptr<ElementType> operator()(void) { return std::shared_ptr<ElementType>(new ElementType()); }
+};
+
+
 //"ElementType" is the type of element being edited in this collection;
 //    it must inherit from IEditable.
 //"ElementFactory" is a function of type "std::shared_ptr<ElementType> MakeElement(void)".
-template<typename ElementType, typename ElementFactory>
+template<typename ElementType, typename ElementFactory = DefaultElementFactory<ElementType>>
 //A collection of identical editor panels that can be added to/removed from.
 struct EditorCollection : public EditorObject
 {
@@ -481,7 +494,7 @@ public:
 
 
     EditorCollection(std::string _name = "", float _panelIndent = 20.0f)
-        : EditorObject(DescriptionLabel(_name)), panelIndent(_panelIndent) { }
+        : EditorObject(DescriptionData(_name)), panelIndent(_panelIndent) { }
 
 
     const std::vector<std::shared_ptr<ElementType>> & GetElements(void) const { return elements; }
@@ -502,7 +515,7 @@ public:
     std::string AddElement(void)
     {
         //Add the element to the collection.
-        std::shared_ptr<ElementType> newElement = ElementFactory();
+        std::shared_ptr<ElementType> newElement = ElementFactory()();
         elements.insert(elements.end(), newElement);
 
 
@@ -521,7 +534,7 @@ public:
 
         EditorObjectPtr elementTitleBar(new EditorCollapsibleBranch(GUIElementPtr(elementPanel),
                                                                     panelIndent, "", Vector2f()));
-        err = collectionPanel->AddObject(elementTitleBar, collectionPanelPtr->GetObjects().size() - 2);
+        err = collectionPanel->AddObject(elementTitleBar, collectionPanel->GetObjects().size() - 1);
 
         if (!err.empty()) return "Error creating collapsible editor panel for the new element: " + err;
 
@@ -532,12 +545,14 @@ public:
     //Removes the given element from this collection.
     void RemoveElement(void)
     {
+        if (elements.size() == 0) return;
+
         //Remove the element from the collection.
         elements.erase(elements.end() - 1);
 
         //Remove the element from the editor panel.
         //There is one editor object in the panel after the last element in the collection.
-        collectionPanelPtr->RemoveObject(collectionPanelPtr->GetObjects().size() - 2);
+        collectionPanel->RemoveObject(*(collectionPanel->GetObjects().end() - 1));
 
         didActiveElementChange = true;
     }
@@ -569,7 +584,7 @@ public:
                                                   ((EditorCollection*)pData)->RemoveElement();
                                               },
                                            this));
-        collectionPanel->AddObject(new EditorButtonList(buttonDats));
+        collectionPanel->AddObject(EditorObjectPtr(new EditorButtonList(buttonDats)));
 
 
         //Build a small outer editor panel that just has a collapsible title bar wrapping the collection editor panel.

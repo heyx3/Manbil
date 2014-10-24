@@ -321,7 +321,8 @@ bool EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet & set)
     else
     {
         //First try to create the font slot to render the label.
-        if (!set.TextRender.CreateTextRenderSlots(set.FontID, titleTex->GetWidth() / set.TextScale.x,
+        unsigned int renderSpaceWidth = (unsigned int)((float)titleTex->GetWidth() / set.TextScale.x);
+        if (!set.TextRender.CreateTextRenderSlots(set.FontID, renderSpaceWidth,
                                                   set.TextRenderSpaceHeight, false,
                                                   TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
         {
