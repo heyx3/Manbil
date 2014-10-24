@@ -177,8 +177,9 @@ void GUIFormattedPanel::RePositionElements()
     }
 
     //Calculate the extents and re-center the elements around the origin.
-    extents = max + Vector2f(HorizontalBorder, -VerticalBorder);
-    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f));
+    extents = max + Vector2f(HorizontalBorder, VerticalBorder);
+    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f)) +
+                     (Vector2f(HorizontalBorder, -VerticalBorder) * 0.5f);
     for (unsigned int i = 0; i < objects.size(); ++i)
         objects[i].Element->MoveElement(delta);
 }
