@@ -89,18 +89,19 @@ void GUITestWorld::InitializeWorld(void)
     }
 
     //Build the editor.
-    EditorPanel* editor = new EditorPanel(*editorMaterials, 0.0f, 0.0f);
-    if (false)
+    EditorPanel* editor = new EditorPanel(*editorMaterials, 60.0f, 60.0f);
+    if (true)
     {
         editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
         editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
                                                           EditorObject::DescriptionData("Type a uint!"),
                                                           [](GUITextBox* textBox, unsigned int newVal, void* pData)
                                                             { std::cout << newVal << "\n"; })));
-        editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), Vector2f(),
+        editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), 0, Vector2f(),
                                                            EditorObject::DescriptionData("<-- Push this shit", false, 30.0f),
                                                            [](GUITexture* clicked, Vector2f mp, void* pDat)
                                                             { std::cout << "Clicked\n"; })));
+        editor->AddObject(EditorObjectPtr(new EditorLabel("I'm just a label.", 800)));
     }
     else
     {

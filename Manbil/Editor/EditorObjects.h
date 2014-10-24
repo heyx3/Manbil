@@ -8,14 +8,16 @@
 #include "../Rendering/GUI/GUI Elements/GUICheckbox.h"
 
 #include "EditorPanel.h"
+#include "IEditable.h"
 
 
 
 #pragma region Definitions for parsed text boxes
 
-//The type of (simple) data being parsed from the text box,
-//    the std function to parse it (like std::stof),
-//    and the function to convert the data to a string.
+//The three template arguments are:
+//1) The type of (simple) data being parsed from the text box,
+//2) The std function to parse it (like std::stof), and
+//3) The function to convert the data to a string.
 template<typename DataType, typename std_StringToDataType, typename DataTypeToString>
 //A value entered into a text box and parsed as a data type.
 struct _TextBoxValue : public EditorObject
@@ -328,12 +330,35 @@ public:
 
 
 
-//A clickable button with text.
+//Represents data for a single button in an editor.
+//If no text is used, no text label object will even be generated.
+//If the texture is set to 0, the default button texture in the EditorMaterialSet will be used.
+struct EditorButtonData
+{
+public:
+
+    std::string Text = "";
+    MTexture2D* Tex = 0;
+    Vector2f ButtonScale = Vector2f(1.0f, 1.0f);
+
+    void(*OnClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0;
+    void* OnClick_pData = 0;
+
+    EditorButtonData(std::string text = "", MTexture2D* tex = 0, Vector2f buttonScale = Vector2f(1.0f, 1.0f),
+                     void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0,
+                     void* onClick_pData = 0)
+        : Text(text), Tex(tex), ButtonScale(buttonScale), OnClick(onClick), OnClick_pData(onClick_pData) { }
+};
+
+//A clickable button with optional text.
+//If the button texture is set to 0,
+//   the default button texture in the EditorMaterialSet will be used.
 struct EditorButton : public EditorObject
 {
 public:
 
     std::string Text;
+    MTexture2D * TexToUse;
 
     Vector2f ButtonSize;
 
@@ -342,19 +367,38 @@ public:
     void* OnClick_Data = 0;
 
 
-    EditorButton(std::string text, Vector2f size, Vector2f offset = Vector2f(),
+    EditorButton(std::string text, Vector2f size, MTexture2D* buttonTex = 0, Vector2f offset = Vector2f(),
                  EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                  void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0,
                  void* onClick_Data = 0)
-        : Text(text), ButtonSize(size), OnClick(onClick), OnClick_Data(onClick_Data),
-          buttonTex(0), buttonLabel(0), EditorObject(description, offset) { }
+        : Text(text), ButtonSize(size), TexToUse(buttonTex), OnClick(onClick), OnClick_Data(onClick_Data),
+          EditorObject(description, offset) { }
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
+};
+
+
+//A horizontal row of clickable buttons with optional text.
+//If a button's texture is set to 0,
+//   the default button texture in the EditorMaterialSet will be used.
+struct EditorButtonList : public EditorObject
+{
+public:
+
+
+    EditorButtonList(const std::vector<EditorButtonData> & buttons,
+                     DescriptionData description = DescriptionData(),
+                     float spaceBetweenButtons = 0.0f, Vector2f spaceAfter = Vector2f())
+        : buttonData(buttons), buttonSpacing(spaceBetweenButtons),
+          EditorObject(description, spaceAfter) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
 
 
 private:
 
-    GUIElementPtr buttonTex, buttonLabel;
+    std::vector<EditorButtonData> buttonData;
+    float buttonSpacing;
 };
 
 
@@ -401,11 +445,10 @@ struct CollapsibleEditorBranch : public EditorObject
 public:
 
     CollapsibleEditorBranch(GUIElementPtr _innerElement = GUIElementPtr(0),
-                            float _panelIndent = 20.0f,
-                            EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                            float _panelIndent = 20.0f, std::string titleBarName = "",
                             Vector2f spaceAfter = Vector2f())
         : innerElement(_innerElement), barOnly(0), fullPanel(0), panelIndent(_panelIndent),
-          EditorObject(description, spaceAfter) { }
+          EditorObject(DescriptionData(titleBarName), spaceAfter) { }
 
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
@@ -427,10 +470,9 @@ private:
 };
 
 
-
-//The first template param is the type of element being edited in this collection;
+//"ElementType" is the type of element being edited in this collection;
 //    it must inherit from IEditable.
-//The second template param is a function that returns a new std::shared_ptr of the element type.
+//"ElementFactory" is a function of type "std::shared_ptr<ElementType> MakeElement(void)".
 template<typename ElementType, typename ElementFactory>
 //A collection of identical editor panels that can be added to/removed from.
 struct EditorCollection : public EditorObject
@@ -438,14 +480,114 @@ struct EditorCollection : public EditorObject
 public:
 
 
-    EditorCollection(float _panelIndent = 20.0f) : panelIndent(_panelIndent) { }
+    EditorCollection(std::string _name = "", float _panelIndent = 20.0f)
+        : EditorObject(DescriptionLabel(_name)), panelIndent(_panelIndent) { }
 
 
     const std::vector<std::shared_ptr<ElementType>> & GetElements(void) const { return elements; }
-    std::vector<std::shared_ptr<ElementType>> & GetElements(void) { return elements; }
 
-    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override;
-    virtual bool Update(float elapsed, Vector2f panelRelativeMousePos) override;
+    //Gets the index of the given element in this collection.
+    //Returns the size of this collection if it isn't found.
+    unsigned int GetIndex(ElementType* toFind) const
+    {
+        unsigned int i;
+        for (i = 0; i < elements.size(); ++i)
+            if (elements[i].get() == toFind)
+                break;
+        return i;
+    }
+
+    //Adds an element from the end of this collection.
+    //Returns an error message if this failed, or the empty string if everything went fine.
+    std::string AddElement(void)
+    {
+        //Add the element to the collection.
+        std::shared_ptr<ElementType> newElement = ElementFactory();
+        elements.insert(elements.end(), newElement);
+
+
+        //Build the element's editor panel.
+
+        std::vector<EditorObjectPtr> elementEditorObjs;
+        newElement->BuildEditorElements(elementEditorObjs, *pMaterialSet);
+        EditorPanel* elementPanel = new EditorPanel(*pMaterialSet, 0.0f, 0.0f);
+        std::string err = elementPanel->AddObjects(elementEditorObjs);
+
+        if (!err.empty()) return "Error creating editor panel for the new element: " + err;
+
+
+        //Add this new editor, wrapped in a collapsible title bar, to this object's collection editor panel.
+        //Add it to the end of the panel's object list but just behind the add/remove buttons.
+
+        EditorObjectPtr elementTitleBar(new CollapsibleEditorBranch(GUIElementPtr(elementPanel),
+                                                                    panelIndent, "", Vector2f()));
+        err = collectionPanel->AddObject(elementTitleBar, collectionPanelPtr->GetObjects().size() - 2);
+
+        if (!err.empty()) return "Error creating collapsible editor panel for the new element: " + err;
+
+
+        didActiveElementChange = true;
+        return "";
+    }
+    //Removes the given element from this collection.
+    void RemoveElement(void)
+    {
+        //Remove the element from the collection.
+        elements.erase(elements.end() - 1);
+
+        //Remove the element from the editor panel.
+        //There is one editor object in the panel after the last element in the collection.
+        collectionPanelPtr->RemoveObject(collectionPanelPtr->GetObjects().size() - 2);
+
+        didActiveElementChange = true;
+    }
+
+
+    virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
+    {
+        pMaterialSet = &materialSet;
+
+
+        //Build an editor panel for this collection.
+
+        collectionPanel = new EditorPanel(materialSet, 0.0f, 0.0f);
+
+        //Create two buttons: one that adds an element to the end of the collection,
+        //    and one that removes an element from the end of the collection.
+        std::vector<EditorButtonData> buttonDats;
+        buttonDats.insert(buttonDats.end(),
+                          EditorButtonData("", &materialSet.AddToCollectionTex, Vector2f(1.0f, 1.0f),
+                                           [](GUITexture* clicked, Vector2f localMouse, void* pData)
+                                              {
+                                                  ((EditorCollection*)pData)->AddElement();
+                                              },
+                                           this));
+        buttonDats.insert(buttonDats.end(),
+                          EditorButtonData("", &materialSet.DeleteFromCollectionTex, Vector2f(1.0f, 1.0f),
+                                           [](GUITexture* clicked, Vector2f localMouse, void* pData)
+                                              {
+                                                  ((EditorCollection*)pData)->RemoveElement();
+                                              },
+                                           this));
+        collectionPanel->AddObject(new EditorButtonList(buttonDats));
+
+
+        //Build a small outer editor panel that just has a collapsible title bar wrapping the collection editor panel.
+        EditorPanel* outerPanel = new EditorPanel(materialSet, 0.0f, 0.0f);
+        outerPanel->AddObject(EditorObjectPtr(new CollapsibleEditorBranch(GUIElementPtr(collectionPanel),
+                                                                          panelIndent,
+                                                                          DescriptionLabel.Text)));
+        activeGUIElement = GUIElementPtr(outerPanel);
+
+        return true;
+    }
+    virtual bool Update(float elapsed, Vector2f panelRelativeMousePos) override
+    {
+        bool b = didActiveElementChange;
+        didActiveElementChange = false;
+        return b;
+    }
+
 
 private:
 
@@ -453,4 +595,10 @@ private:
 
     bool didActiveElementChange = false;
     float panelIndent;
+
+
+    //After initialization, hold on to the material set so that the editor panels for new elements can be created.
+    EditorMaterialSet* pMaterialSet;
+    //Also hold on to the editor panel holding the collection so that it can be added to/removed from.
+    EditorPanel* collectionPanel;
 };

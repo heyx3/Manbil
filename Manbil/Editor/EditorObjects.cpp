@@ -74,58 +74,176 @@ bool DropdownValues::InitGUIElement(EditorMaterialSet & materialSet)
 
 bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
 {
-    //First try to create the font slot to render the label.
-    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
-                                                      (unsigned int)(ButtonSize.x / materialSet.TextScale.x),
-                                                      materialSet.TextRenderSpaceHeight,
-                                                      false, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+    GUIElementPtr buttonTex(0),
+                  buttonLabel(0);
+
+    if (!Text.empty())
     {
-        ErrorMsg = "Error creating text render slot for button '" + Text +
-                       "'s label: " + materialSet.TextRender.GetError();
-        activeGUIElement = GUIElementPtr(0);
-        return false;
+        //First try to create the font slot to render the label.
+        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
+                                                          (unsigned int)(ButtonSize.x /
+                                                                            materialSet.TextScale.x),
+                                                          materialSet.TextRenderSpaceHeight,
+                                                          false,
+                                                          TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        {
+            ErrorMsg = "Error creating text render slot for button '" + Text +
+                           "'s label: " + materialSet.TextRender.GetError();
+            activeGUIElement = GUIElementPtr(0);
+            return false;
+        }
+        TextRenderer::FontSlot labelSlot(materialSet.FontID,
+                                         materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+        //Next try to render the text.
+        if (!materialSet.TextRender.RenderString(labelSlot, Text))
+        {
+            ErrorMsg = "Error render '" + Text + "' into the button's GUILabel: " +
+                           materialSet.TextRender.GetError();
+            return false;
+        }
+
+        //Create the label.
+        buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams,
+                                                 &materialSet.TextRender,
+                                                 labelSlot, materialSet.StaticMatText,
+                                                 materialSet.AnimateSpeed,
+                                                 GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+        buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+        buttonLabel->ScaleBy(materialSet.TextScale);
     }
-    TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                     materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
-    //Next try to render the text.
-    if (!materialSet.TextRender.RenderString(labelSlot, Text))
-    {
-        ErrorMsg = "Error render '" + Text + "' into the button's GUILabel: " + materialSet.TextRender.GetError();
-        return false;
-    }
+    
 
     //Create the button.
-    buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(&materialSet.ButtonTex),
-                                             &materialSet.ButtonTex,
-                                             materialSet.GetAnimatedMaterial(&materialSet.ButtonTex),
+    MTexture2D* tex = (TexToUse == 0 ? &materialSet.ButtonTex : TexToUse);
+    buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
+                                             materialSet.GetAnimatedMaterial(tex),
                                              true, materialSet.AnimateSpeed));
     buttonTex->SetBounds(ButtonSize * -0.5f, ButtonSize * 0.5f);
     GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
     buttonTexPtr->OnClicked = OnClick;
     buttonTexPtr->OnClicked_pData = OnClick_Data;
 
-    //Create the label.
-    buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams, &materialSet.TextRender,
-                                             labelSlot, materialSet.StaticMatText,
-                                             materialSet.AnimateSpeed, GUILabel::HO_CENTER, GUILabel::VO_CENTER));
-    buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-    buttonLabel->ScaleBy(materialSet.TextScale);
 
-    GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams, ButtonSize, materialSet.AnimateSpeed);
-    panel->AddElement(buttonTex);
-    panel->AddElement(buttonLabel);
-
-
-    if (DescriptionLabel.Text.empty())
+    //If the button has a label, create a panel to combine the label and button.
+    GUIElementPtr finalButton;
+    if (buttonLabel.get() == 0)
     {
-        activeGUIElement = GUIElementPtr(panel);
+        finalButton = buttonTex;
     }
     else
     {
-        activeGUIElement = AddDescription(materialSet, GUIElementPtr(panel));
+        GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams,
+                                       ButtonSize, materialSet.AnimateSpeed);
+        panel->AddElement(buttonTex);
+        panel->AddElement(buttonLabel);
+
+        finalButton = GUIElementPtr(panel);
+    }
+
+    //If the button has a description next to it, create a panel to combine the final button and description.
+    if (DescriptionLabel.Text.empty())
+    {
+        activeGUIElement = finalButton;
+    }
+    else
+    {
+        activeGUIElement = AddDescription(materialSet, finalButton);
         if (activeGUIElement.get() == 0)
             return false;
     }
+    return true;
+}
+
+bool EditorButtonList::InitGUIElement(EditorMaterialSet & materialSet)
+{
+    GUIFormattedPanel* buttonPanel = new GUIFormattedPanel(UniformDictionary());
+
+    for (unsigned int i = 0; i < buttonData.size(); ++i)
+    {
+        EditorButtonData& dat = buttonData[i];
+        MTexture2D* tex = (dat.Tex == 0 ? &materialSet.ButtonTex : dat.Tex);
+        Vector2f buttonSize((float)tex->GetWidth() * dat.ButtonScale.x,
+                            (float)tex->GetHeight() * dat.ButtonScale.y);
+
+        GUIElementPtr buttonLabel(0),
+                      buttonTex(0);
+
+        if (!dat.Text.empty())
+        {
+            //First try to create the font slot to render the label.
+            unsigned int textRenderWidth = (unsigned int)(buttonSize.x / materialSet.TextScale.x);
+            if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, textRenderWidth,
+                                                              materialSet.TextRenderSpaceHeight,
+                                                              false,
+                                                              TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+            {
+                ErrorMsg = "Error creating text render slot for button '" + dat.Text +
+                               "'s label: " + materialSet.TextRender.GetError();
+                activeGUIElement = GUIElementPtr(0);
+                return false;
+            }
+            TextRenderer::FontSlot labelSlot(materialSet.FontID,
+                                             materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+            //Next try to render the text.
+            if (!materialSet.TextRender.RenderString(labelSlot, dat.Text))
+            {
+                ErrorMsg = "Error render '" + dat.Text + "' into the button's GUILabel: " +
+                               materialSet.TextRender.GetError();
+                return false;
+            }
+
+            //Create the label.
+            buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams,
+                                                     &materialSet.TextRender,
+                                                     labelSlot, materialSet.StaticMatText,
+                                                     materialSet.AnimateSpeed,
+                                                     GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+            buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+            buttonLabel->ScaleBy(materialSet.TextScale);
+        }
+    
+
+        //Create the button.
+        buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
+                                                 materialSet.GetAnimatedMaterial(tex),
+                                                 true, materialSet.AnimateSpeed));
+        buttonTex->SetBounds(buttonSize * -0.5f, buttonSize * 0.5f);
+        GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
+        buttonTexPtr->OnClicked = dat.OnClick;
+        buttonTexPtr->OnClicked_pData = dat.OnClick_pData;
+
+
+        //If the button has a label, create a panel to combine the label and button.
+        GUIElementPtr finalButton;
+        if (buttonLabel.get() == 0)
+        {
+            finalButton = buttonTex;
+        }
+        else
+        {
+            GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams,
+                                           buttonSize, materialSet.AnimateSpeed);
+            panel->AddElement(buttonTex);
+            panel->AddElement(buttonLabel);
+
+            finalButton = GUIElementPtr(panel);
+        }
+
+        buttonPanel->AddObject(GUIFormatObject(finalButton, true, false, Vector2f(buttonSpacing, 0.0f)));
+    }
+
+    //If the button has a description next to it, create a panel to combine the final button and description.
+    if (DescriptionLabel.Text.empty())
+    {
+        activeGUIElement = GUIElementPtr(buttonPanel);
+    }
+    else
+    {
+        activeGUIElement = AddDescription(materialSet, GUIElementPtr(buttonPanel));
+        if (activeGUIElement.get() == 0)
+            return false;
+    }
+
     return true;
 }
 
@@ -144,6 +262,15 @@ bool EditorLabel::InitGUIElement(EditorMaterialSet & materialSet)
     }
     TextRenderer::FontSlot labelSlot(materialSet.FontID,
                                      materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+
+    //Next try to render the text into the slot.
+    if (!materialSet.TextRender.RenderString(labelSlot, Text))
+    {
+        ErrorMsg = "Error rendering text '" + Text + "' into label slot: " +
+                       materialSet.TextRender.GetError();
+        activeGUIElement = GUIElementPtr(0);
+        return false;
+    }
 
     activeGUIElement = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams, &materialSet.TextRender,
                                                   labelSlot, materialSet.StaticMatText,
