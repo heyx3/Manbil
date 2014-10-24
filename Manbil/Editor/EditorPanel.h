@@ -37,7 +37,7 @@ public:
 
     //Initializes the given objects and then adds them to this editor panel.
     //Returns an error message when initializing these objects, or the empty string if everything is fine.
-    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd) { AddObjects(toAdd, editorObjects.size()); }
+    std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd) { return AddObjects(toAdd, editorObjects.size()); }
     //Initializes the given objects and then adds them to this editor panel.
     //Returns an error message when initializing these objects, or the empty string if everything is fine.
     std::string AddObjects(const std::vector<EditorObjectPtr> & toAdd, unsigned int startIndex);
