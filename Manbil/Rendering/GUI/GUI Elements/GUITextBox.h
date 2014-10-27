@@ -5,17 +5,14 @@
 #include "../../../Input/KeyboardTextInput.h"
 
 
-//A text box.
+//A text box that can optionally be edited by the user.
 class GUITextBox : public GUIElement
 {
 public:
 
     bool Editable;
-    GUITexture Box, Cursor, Highlight;
+    GUITexture Box, Cursor;
     GUILabel Contents;
-    float Width, Height;
-
-    Vector2f Center;
 
 
     //Called when the user presses the Enter key while this text box is selected.
@@ -29,29 +26,22 @@ public:
     void* OnTextChanged_Data = 0;
 
 
-    GUITextBox(const GUITexture & box, const GUITexture & cursor, const GUITexture & highlight,
-               const GUILabel & boxContents, float width, float height,
-               bool editable, const UniformDictionary & params, float lerpSpeed = 1.0f);
-    GUITextBox(void) : GUIElement(UniformDictionary()), Center(), Width(0.0f) { }
+    GUITextBox(const GUITexture & box, const GUITexture & cursor,
+               const GUILabel & boxContents, bool editable, float lerpSpeed = 1.0f);
+    GUITextBox(void) : GUIElement(UniformDictionary()) { }
     GUITextBox(const GUITextBox & cpy);
 
     const std::string & GetText(void) const { return Contents.GetText(); }
-    TextRenderer::FontSlot GetFontSlot(void) const { return Contents.TextRenderSlot; }
+    TextRenderer::FontSlot GetFontSlot(void) const { return Contents.GetTextRenderSlot(); }
 
     //Returns an error message, or the empty string if everything went fine.
     std::string SetText(const std::string & newString);
 
 
-    virtual Vector2f GetCollisionCenter(void) const override { return Center; }
-    virtual Vector2f GetCollisionDimensions(void) const;
+    virtual Box2D GetBounds(void) const override;
 
-    virtual void MoveElement(Vector2f moveAmount) override { Center += moveAmount; }
-    virtual void SetPosition(Vector2f newPos) override { Center = newPos; }
-
-    virtual Vector2f GetScale(void) const override { return scale; }
-    virtual void ScaleBy(Vector2f scaleAmount) override;
+    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
     virtual void SetScale(Vector2f newScale) override;
-
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
@@ -66,6 +56,5 @@ protected:
 private:
 
     bool isSelected;
-    Vector2f scale;
     KeyboardTextInput keyboardInput;
 };

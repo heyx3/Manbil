@@ -12,7 +12,6 @@ class GUILabel : public GUIElement
 {
 public:
 
-    
     enum HorizontalOffsets
     {
         HO_LEFT,
@@ -27,54 +26,57 @@ public:
     };
 
 
-    HorizontalOffsets OffsetHorz;
-    VerticalOffsets OffsetVert;
-
-    TextRenderer * TextRender;
-    TextRenderer::FontSlot TextRenderSlot;
-
     Material * RenderMat;
-
-    Vector2f Scale;
-
-
-    virtual Vector2f GetCollisionCenter(void) const override;
-    virtual Vector2f GetCollisionDimensions(void) const override;
-
-    virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2f newPos) override { center = newPos; }
-
-    virtual Vector2f GetScale(void) const override { return Scale; }
-
-    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
-    virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
 
     
     //Starts out with no text (an empty string).
     GUILabel(const UniformDictionary & params,
-             TextRenderer * textRenderer = 0, TextRenderer::FontSlot textSlot = TextRenderer::FontSlot(),
+             TextRenderer* _textRenderer = 0, TextRenderer::FontSlot textSlot = TextRenderer::FontSlot(),
              Material * material = 0, float timeSpeed = 1.0f,
-             HorizontalOffsets offsetH = HO_LEFT, VerticalOffsets offsetV = VO_TOP)
-        : OffsetHorz(offsetH), OffsetVert(offsetV), TextRender(textRenderer),
-          RenderMat(material), TextRenderSlot(textSlot), text(textRenderer->GetString(textSlot)),
-          GUIElement(params, timeSpeed), Scale(1.0f, 1.0f)
+             HorizontalOffsets _offsetH = HO_LEFT, VerticalOffsets _offsetV = VO_TOP)
+        : offsetH(_offsetH), offsetV(_offsetV), textRenderer(_textRenderer),
+          RenderMat(material), textRenderSlot(textSlot), text(textRenderer->GetString(textSlot)),
+          GUIElement(params, timeSpeed)
     {
         if (!text.empty() && textRenderer != 0)
-            dimensions = ToV2f(TextRender->GetSlotBoundingSize(textSlot));
+            dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textSlot));
     }
     GUILabel(void) : GUIElement(UniformDictionary()) { }
 
 
+    HorizontalOffsets GetOffsetHorz(void) const { return offsetH; }
+    void SetOffsetHorz(HorizontalOffsets newOffsetH) { SetBoundsChanged(); offsetH = newOffsetH; }
+
+    VerticalOffsets GetOffsetVert(void) const { return offsetV; }
+    void SetOffsetVert(VerticalOffsets newOffsetV) { SetBoundsChanged(); offsetV = newOffsetV; }
+
+    TextRenderer::FontSlot GetTextRenderSlot(void) const { return textRenderSlot; }
+    void SetTextRenderSlot(TextRenderer::FontSlot newSlot);
+
+    const TextRenderer* GetTextRenderer(void) const { return textRenderer; }
+    TextRenderer* GetTextRenderer(void) { SetBoundsChanged(); return textRenderer; }
+
     const std::string & GetText(void) const { return text; }
     bool SetText(std::string newText);
+
+
+    virtual Vector2f GetPos(void) const override;
+    virtual Box2D GetBounds(void) const override;
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 
 private:
 
+    //Gets the delta from this label's anchor point to the center of the text.
     Vector2f GetTextOffset(void) const;
 
-    Vector2f center, dimensions;
+    Vector2f dimensions;
     std::string text;
+
+    TextRenderer::FontSlot textRenderSlot;
+    TextRenderer* textRenderer;
+
+    HorizontalOffsets offsetH;
+    VerticalOffsets offsetV;
 };

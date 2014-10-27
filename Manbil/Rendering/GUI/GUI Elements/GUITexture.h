@@ -10,9 +10,6 @@ public:
 
     Material * Mat;
 
-    MTexture2D * Tex;
-    Vector2f Scale;
-
     bool IsButton;
 
     //Only applicable if "IsButton" is true. Raised when this element is clicked.
@@ -27,25 +24,24 @@ public:
     GUITexture(const UniformDictionary & params,
                MTexture2D * tex = 0, Material * mat = 0,
                bool isButton = false, float timeLerpSpeed = 1.0f)
-        : Tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed), Scale(1.0f, 1.0f) { }
+        : tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed) { }
     GUITexture(void) : GUITexture(UniformDictionary()) { }
 
 
     //Gets whether this GUITexture is renderable (i.e. it has a material and texture).
-    bool IsValid(void) const { return Mat != 0 && Tex != 0; }
+    bool IsValid(void) const { return Mat != 0 && tex != 0; }
+
+    //Gets this element's texture. Returns 0 if it doesn't have a texture.
+    const MTexture2D* GetTex(void) const { return tex; }
+    //Gets this element's texture. Returns 0 if it doesn't have a texture.
+    //Assumes the texture bounds have changed because the returned texture isn't const.
+    MTexture2D* GetTex(void) { DidBoundsChange = true; return tex; }
+
+    //Sets this element's texture.
+    void SetTex(MTexture2D* newTex) { DidBoundsChange = true; tex = newTex; }
 
 
-    virtual Vector2f GetCollisionCenter(void) const override { return center; }
-    virtual Vector2f GetCollisionDimensions(void) const override;
-
-    virtual void MoveElement(Vector2f moveAmount) override { center += moveAmount; }
-    virtual void SetPosition(Vector2f newPos) override { center = newPos; }
-
-    virtual Vector2f GetScale(void) const override { return Scale; }
-
-    virtual void ScaleBy(Vector2f scaleAmount) override { Scale.MultiplyComponents(scaleAmount); }
-    virtual void SetScale(Vector2f newScale) override { Scale = newScale; }
-
+    virtual Box2D GetBounds(void) const override;
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
@@ -55,6 +51,6 @@ public:
     
 private:
 
-    Vector2f center;
     bool isBeingClicked;
+    MTexture2D* tex;
 };

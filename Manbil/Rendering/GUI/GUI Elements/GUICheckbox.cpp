@@ -1,93 +1,50 @@
 #include "GUICheckbox.h"
 
 
-Vector2f GUICheckbox::GetCollisionDimensions(void) const
+Box2D GUICheckbox::GetBounds(void) const
 {
-    if (isChecked)
-    {
-        if (HideBoxIfChecked)
-        {
-            return Check.GetCollisionDimensions();
-        }
-        else
-        {
-            Vector2f box = Box.GetCollisionDimensions(),
-                     check = Check.GetCollisionDimensions();
-            return Vector2f(BasicMath::Max(box.x, check.x),
-                            BasicMath::Max(box.y, check.y));
-        }
-    }
-    else
-    {
-        return Box.GetCollisionDimensions();
-    }
+    return Box.GetBounds();
 }
 void GUICheckbox::SetScale(Vector2f newScale)
 {
-    Vector2f delta(newScale.x / scale.x, newScale.y / scale.y);
-    scale = newScale;
+    Vector2f oldScale = GetScale();
+    GUIElement::SetScale(newScale);
+
+    Vector2f delta(newScale.x / oldScale.x, newScale.y / oldScale.y);
     Box.ScaleBy(delta);
     Check.ScaleBy(delta);
 }
 
 std::string GUICheckbox::Render(float elapsedTime, const RenderInfo & info)
 {
-    Vector4f myCol = GetColor();
-
     if (isChecked)
     {
         if (HideBoxIfChecked)
         {
-            std::string err = RenderCheck(elapsedTime, Depth, myCol, info);
+            std::string err = RenderChild(&Check, elapsedTime, info);
             if (!err.empty()) return "Error rendering check: " + err;
         }
         else
         {
-            std::string err = RenderBox(elapsedTime, myCol, info);
+            std::string err = RenderChild(&Box, elapsedTime, info);
             if (!err.empty()) return "Error rendering box: " + err;
 
-            err = RenderCheck(elapsedTime, Depth + 0.00001f, myCol, info);
+            std::string err = RenderChild(&Check, elapsedTime, info);
             if (!err.empty()) return "Error rendering check: " + err;
         }
     }
     else
     {
-        std::string err = RenderBox(elapsedTime, myCol, info);
+        std::string err = RenderChild(&Box, elapsedTime, info);
         if (!err.empty()) return "Error rendering box: " + err;
     }
 
     return "";
 }
-std::string GUICheckbox::RenderBox(float elapsed, Vector4f myCol, const RenderInfo & info)
-{
-    Box.SetPosition(Center);
-    Box.Depth = Depth;
-    Vector4f oldCol = Box.GetColor();
-    Box.SetColor(oldCol.ComponentProduct(myCol));
-
-    std::string err = Box.Render(elapsed, info);
-
-    Box.SetColor(oldCol);
-
-    return err;
-}
-std::string GUICheckbox::RenderCheck(float elapsed, float depth, Vector4f myCol, const RenderInfo & info)
-{
-    Check.SetPosition(Center);
-    Check.Depth = depth;
-    Vector4f oldCol = Check.GetColor();
-    Check.SetColor(oldCol.ComponentProduct(myCol));
-
-    std::string err = Check.Render(elapsed, info);
-
-    Check.SetColor(oldCol);
-
-    return err;
-}
 
 void GUICheckbox::OnMouseClick(Vector2f relativeMouse)
 {
-    if (IsLocalInsideBounds(relativeMouse))
+    if (GetBounds().IsPointInside(relativeMouse))
     {
         ToggleCheck(true);
     }
@@ -154,16 +111,25 @@ void GUICheckbox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     {
         if (HideBoxIfChecked)
         {
+            if (Check.GetDidBoundsChange())
+                DidBoundsChange = true;
+
             Check.Update(elapsed, relativeMousePos);
         }
         else
         {
+            if (Check.GetDidBoundsChange() || Box.GetDidBoundsChange())
+                DidBoundsChange = true;
+
             Box.Update(elapsed, relativeMousePos);
             Check.Update(elapsed, relativeMousePos);
         }
     }
     else
     {
+        if (Box.GetDidBoundsChange())
+            DidBoundsChange = true;
+
         Box.Update(elapsed, relativeMousePos);
     }
 }

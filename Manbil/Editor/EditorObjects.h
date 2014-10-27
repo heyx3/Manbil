@@ -539,6 +539,7 @@ public:
         if (!err.empty()) return "Error creating collapsible editor panel for the new element: " + err;
 
 
+        ((EditorPanel*)activeGUIElement.get())->RePositionElements();
         didActiveElementChange = true;
         return "";
     }
@@ -554,6 +555,7 @@ public:
         //There is one editor object in the panel after the last element in the collection.
         collectionPanel->RemoveObject(*(collectionPanel->GetObjects().end() - 1));
 
+        ((EditorPanel*)activeGUIElement.get())->RePositionElements();
         didActiveElementChange = true;
     }
 

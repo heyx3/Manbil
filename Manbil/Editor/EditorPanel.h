@@ -26,6 +26,7 @@ public:
     
 
     const GUIFormattedPanel & GetPanel(void) const { return panel; }
+    void RePositionElements(void) { panel.RePositionElements(); }
 
 
     //Initializes the given object and then adds it to this editor panel.

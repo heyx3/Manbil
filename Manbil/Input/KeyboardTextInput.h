@@ -34,11 +34,14 @@ public:
     //If true the Enter key, along with raising the "OnEnterKey" event, will add '\n' to the text.
     bool EnterKeyAddsText = false;
 
-
+    
+    //Creates a new instance with the given starting text value.
     KeyboardTextInput(std::string startingText = "");
-    //This class takes up a nontrivial amount of space, so it shouldn't be wantonly copied around.
+    //This class takes up a nontrivial amount of space, so it shouldn't be wantonly/accidentally copied.
+    //Use "CopyTo" to copy another instance into this one.
     KeyboardTextInput(const KeyboardTextInput & cpy) = delete;
 
+    //Use this function to explicitly copy the given instance into this one.
     void CopyTo(KeyboardTextInput & outCpy) const;
 
 

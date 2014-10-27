@@ -7,33 +7,33 @@
 DrawingQuad * GUIElement::quad = 0;
 
 
-void GUIElement::SetBounds(Vector2f min, Vector2f max)
+void GUIElement::SetBounds(Box2D newBounds)
 {
-    SetPosition((min + max) * 0.5f);
+    Box2D currentBounds = GetBounds();
 
-    Vector2f dims = GetCollisionDimensions();
-    Vector2f newSize = max - min;
-    Vector2f delta(newSize.x / dims.x, newSize.y / dims.y);
-    ScaleBy(delta);
+    ScaleBy(Vector2f(newBounds.GetXSize() / currentBounds.GetXSize(),
+                     newBounds.GetYSize() / currentBounds.GetYSize()));
+    MoveElement(newBounds.GetCenter() - currentBounds.GetCenter());
 }
 
-bool GUIElement::IsLocalInsideBounds(Vector2f pos) const
+void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
 {
-    Vector2f halfSize = GetCollisionDimensions() * 0.5f;
-    return (pos.x >= -halfSize.x && pos.x <= halfSize.x &&
-            pos.y >= -halfSize.y && pos.y <= halfSize.y);
-}
-
-void GUIElement::SetUpQuad(Vector2f pos, float depth, Vector2f scale, float rot)
-{
-    GetQuad()->SetPos(pos);
+    GetQuad()->SetPos(bounds.GetCenter());
     GetQuad()->SetDepth(depth);
-    GetQuad()->SetSize(scale * 0.5f);
-    GetQuad()->SetRotation(rot);
+    GetQuad()->SetSize(bounds.GetDimensions() * 0.5f);
+}
+
+Vector4f GUIElement::GetColor(void) const
+{
+    auto loc = Params.FloatUniforms.find(GUIMaterials::QuadDraw_Color);
+    if (loc == Params.FloatUniforms.end()) return Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    else return *(Vector4f*)&loc->second.Value;
 }
 
 void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
+    DidBoundsChange = false;
+
     if (OnUpdate != 0) OnUpdate(this, OnUpdate_Data);
 
     this->CustomUpdate(elapsed, relativeMouse);
@@ -44,7 +44,7 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
     //Update the time lerp value.
 
     float timeLerp = GetTimeLerp();
-    isMousedOver = IsLocalInsideBounds(relativeMouse);
+    isMousedOver = GetBounds().IsPointInside(relativeMouse);
 
     //If this element isn't animating, check whether it's being moused over.
     if (CurrentTimeLerpSpeed == 0.0f)
@@ -71,4 +71,30 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 
     //Update the time lerp parameter with the new value.
     SetTimeLerp(timeLerp);
+}
+
+std::string GUIElement::RenderChild(GUIElement* child, float elapsedTime, const RenderInfo& info) const
+{
+    Vector2f myPos = GetPos();
+    Vector4f myCol = GetColor();
+
+    Vector2f oldPos = child->GetPos();
+    float oldDepth = child->Depth;
+    Vector4f oldCol = child->GetColor();
+    bool oldDidChange = child->DidBoundsChange;
+
+    child->MoveElement(myPos);
+    child->Depth += Depth;
+    child->SetColor(oldCol.ComponentProduct(myCol));
+    
+    child->DidBoundsChange = oldDidChange;
+    std::string err = child->Render(elapsedTime, info);
+    oldDidChange = child->DidBoundsChange;
+
+    child->SetPosition(oldPos);
+    child->Depth = oldDepth;
+    child->SetColor(oldCol);
+    child->DidBoundsChange = oldDidChange;
+
+    return err;
 }

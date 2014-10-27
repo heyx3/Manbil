@@ -2,15 +2,18 @@
 
 
 
-GUITextBox::GUITextBox(const GUITexture & box, const GUITexture & cursor, const GUITexture & highlight,
-                       const GUILabel & boxContents, float width, float height,
-                       bool editable, const UniformDictionary & params, float lerpSpeed)
-    : Editable(editable), Box(box), Cursor(cursor), Highlight(highlight),
-      Contents(boxContents), Center(0.0f, 0.0f), Width(width), Height(height), scale(1.0f, 1.0f),
-      isSelected(false), GUIElement(params, lerpSpeed)
+GUITextBox::GUITextBox(const GUITexture & box, const GUITexture & cursor,
+                       const GUILabel & boxContents, bool editable, float lerpSpeed)
+    : Editable(editable), Box(box), Cursor(cursor),
+      Contents(boxContents), isSelected(false), GUIElement(UniformDictionary(), lerpSpeed)
 {
-    Contents.OffsetHorz = GUILabel::HO_LEFT;
-    Contents.OffsetVert = GUILabel::VO_CENTER;
+    Contents.SetOffsetHorz(GUILabel::HO_LEFT);
+    Contents.SetOffsetVert(GUILabel::VO_CENTER);
+
+    
+    Box.Depth = 0.0f;
+    Contents.Depth = 0.00001f;
+    Cursor.Depth = 0.00002f;
 
 
     keyboardInput.ClearText(false);
@@ -28,14 +31,14 @@ GUITextBox::GUITextBox(const GUITexture & box, const GUITexture & cursor, const 
     {
         GUITextBox * box = ((GUITextBox*)pData);
         box->Contents.SetText(thisInput->GetText());
+        box->DidBoundsChange = true;
         if (box->OnTextChanged != 0)
             box->OnTextChanged(box, box->OnTextChanged_Data);
     };
 }
 GUITextBox::GUITextBox(const GUITextBox & cpy)
-    : Editable(cpy.Editable), Box(cpy.Box), Cursor(cpy.Cursor), Highlight(cpy.Highlight),
-      Contents(cpy.Contents), Center(cpy.Center), Width(cpy.Width), scale(cpy.scale),
-      isSelected(false), GUIElement(cpy.Params, cpy.GetTimeLerp())
+    : Editable(cpy.Editable), Box(cpy.Box), Cursor(cpy.Cursor),
+      Contents(cpy.Contents), isSelected(false), GUIElement(cpy.Params, cpy.GetTimeLerp())
 {
     cpy.keyboardInput.CopyTo(keyboardInput);
 
@@ -44,21 +47,17 @@ GUITextBox::GUITextBox(const GUITextBox & cpy)
 }
 
 
-Vector2f GUITextBox::GetCollisionDimensions(void) const
+Box2D GUITextBox::GetBounds(void) const
 {
-    return scale.ComponentProduct(Vector2f(Width, Height));
+    return Box.GetBounds();
 }
 
-void GUITextBox::ScaleBy(Vector2f scaleAmount)
-{
-    scale.MultiplyComponents(scaleAmount);
-    Box.ScaleBy(scaleAmount);
-    Contents.ScaleBy(scaleAmount);
-}
 void GUITextBox::SetScale(Vector2f newScale)
 {
-    Vector2f deltaScale(newScale.x / scale.x, newScale.y / scale.y);
-    scale = newScale;
+    Vector2f deltaScale(newScale.x / GetScale().x, newScale.y / GetScale().y);
+
+    GUIElement::SetScale(newScale);
+
     Box.SetScale(newScale);
     Contents.ScaleBy(deltaScale);
 }
@@ -69,7 +68,8 @@ std::string GUITextBox::SetText(const std::string & newStr)
     keyboardInput.InsertText(0, newStr);
 
     if (!Contents.SetText(newStr))
-        return "Error changing text box contents to '" + newStr + "': " + Contents.TextRender->GetError();
+        return "Error changing text box contents to '" + newStr + "': " +
+                   Contents.GetTextRenderer()->GetError();
     return "";
 }
 
@@ -80,9 +80,10 @@ void GUITextBox::CustomUpdate(float elapsed, Vector2f mousePos)
     if (isSelected && Editable)
         keyboardInput.Update(elapsed);
 
+    DidBoundsChange = (Box.IsValid() && Box.DidBoundsChange) || DidBoundsChange;
+
     if (Box.IsValid()) Box.Update(elapsed, mousePos);
-    if (Cursor.IsValid()) Cursor.Update(elapsed, mousePos - Cursor.GetCollisionCenter());
-    if (Highlight.IsValid()) Highlight.Update(elapsed, mousePos - Highlight.GetCollisionCenter());
+    if (Cursor.IsValid()) Cursor.Update(elapsed, mousePos - Cursor.GetPos());
 }
 std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
 {
@@ -90,32 +91,15 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
     Vector4f myCol = GetColor();
 
     //Some positioning data.
-    Vector2f textBounds = Contents.GetCollisionDimensions();
-    Vector2f halfSize = Vector2f(Width, Height).ComponentProduct(scale) * 0.5f;
-    Vector2f nCenter = -Center;
+    Box2D textBounds = Contents.GetBounds(),
+          boxBounds = Box.GetBounds();
 
     //Render the box.
-    Box.SetPosition(Vector2f());
-    Box.SetBounds(-halfSize, halfSize);
-    Box.Depth = Depth;
-    Vector4f oldCol = Box.GetColor();
-    Box.SetColor(oldCol.ComponentProduct(myCol));
-    Box.MoveElement(Center);
-    err = Box.Render(elapsedTime, info);
-
-    Box.MoveElement(nCenter);
-    Box.SetColor(oldCol);
+    err = RenderChild(&Box, elapsedTime, info);
     if (!err.empty()) return "Error rendering box: " + err;
 
     //Render the text.
-    Contents.SetPosition(Vector2f(-halfSize.x, 0.0f));
-    Contents.Depth = Depth + 0.00001f;
-    Contents.MoveElement(Center);
-    oldCol = Contents.GetColor();
-    Contents.SetColor(oldCol.ComponentProduct(myCol));
-    err = Contents.Render(elapsedTime, info);
-    Contents.SetColor(oldCol);
-    Contents.MoveElement(nCenter);
+    err = RenderChild(&Contents, elapsedTime, info);
     if (!err.empty()) return "Error rendering text: " + err;
 
     //If the cursor is on, render it.
@@ -124,24 +108,16 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
         float cursorX;
         if (GetText().empty())
         {
-            cursorX = -halfSize.x;
+            cursorX = boxBounds.GetXMin();
         }
         else
         {
-            cursorX = BasicMath::Lerp(-halfSize.x, -halfSize.x + textBounds.x,
+            cursorX = BasicMath::Lerp(boxBounds.GetXMin(), boxBounds.GetXMin() + textBounds.GetXSize(),
                                       (float)keyboardInput.CursorPos / (float)GetText().size());
         }
+        Cursor.SetPosition(Vector2f(cursorX, Cursor.GetPos().y));
 
-        float cWidth = Cursor.GetCollisionDimensions().x;
-        Cursor.SetBounds(Vector2f(cursorX - (cWidth * 0.5f), textBounds.y * -0.5f),
-                         Vector2f(cursorX + (cWidth * 0.5f), textBounds.y * 0.5f));
-        Cursor.Depth = Depth + 0.00002f;
-        Cursor.MoveElement(Center);
-        oldCol = Cursor.GetColor();
-        Cursor.SetColor(oldCol.ComponentProduct(myCol));
-        err = Cursor.Render(elapsedTime, info);
-        Cursor.MoveElement(nCenter);
-        Cursor.SetColor(oldCol);
+        err = RenderChild(&Cursor, elapsedTime, info);
         if (!err.empty()) return "Error rendering cursor: " + err;
     }
 
@@ -152,14 +128,15 @@ void GUITextBox::OnMouseClick(Vector2f relativeMousePos)
 {
     if (!Editable) return;
 
-    bool isInside = IsLocalInsideBounds(relativeMousePos);
+    Box2D bounds = Box.GetBounds();
+
+    bool isInside = bounds.IsPointInside(relativeMousePos);
     if (isInside)
     {
         isSelected = true;
 
-        float halfWidth = Width * scale.x * 0.5f;
-        float inverseLerp = BasicMath::LerpComponent(-halfWidth,
-                                                     -halfWidth + Contents.GetCollisionDimensions().x,
+        float inverseLerp = BasicMath::LerpComponent(bounds.GetXMin(),
+                                                     bounds.GetXMin() + Contents.GetBounds().GetXSize(),
                                                      relativeMousePos.x);
         if (inverseLerp < 0.5f)
             keyboardInput.CursorPos = 0;

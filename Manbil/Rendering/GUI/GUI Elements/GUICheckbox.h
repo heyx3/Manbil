@@ -10,8 +10,6 @@ public:
 
     GUITexture Box, Check;
 
-    Vector2f Center, scale;
-
     //If true, then the "Check" texture will be drawn IN PLACE OF the "Box" texture,
     //    instead of being drawn on top of it.
     bool HideBoxIfChecked;
@@ -25,7 +23,7 @@ public:
     GUICheckbox(const UniformDictionary & params, const GUITexture & box, const GUITexture & check,
                 bool hideBoxIfChecked = false, float timeLerpSpeed = 1.0f)
         : Box(box), Check(check), HideBoxIfChecked(hideBoxIfChecked),
-          scale(1.0f, 1.0f), GUIElement(params, timeLerpSpeed)
+          GUIElement(params, timeLerpSpeed)
     {
 
     }
@@ -37,14 +35,8 @@ public:
     void SetChecked(bool newVal, bool raiseEvent) { isChecked = newVal; if (raiseEvent) RaiseOnClickedEvent(); }
 
 
-    virtual Vector2f GetCollisionCenter(void) const override { return Center; }
-    virtual Vector2f GetCollisionDimensions(void) const override;
-
-    virtual void MoveElement(Vector2f moveAmount) override { Center += moveAmount; }
-    virtual void SetPosition(Vector2f newPos) override { Center = newPos; }
-
-    virtual Vector2f GetScale(void) const override { return scale; }
-    virtual void ScaleBy(Vector2f scaleAmount) override { scale.MultiplyComponents(scaleAmount); Box.ScaleBy(scaleAmount); Check.ScaleBy(scaleAmount); }
+    virtual Box2D GetBounds(void) const override;
+    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
     virtual void SetScale(Vector2f newScale) override;
 
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
@@ -52,6 +44,7 @@ public:
     virtual void OnMouseClick(Vector2f relativeMousePos) override;
     virtual void OnMouseDrag(Vector2f originalMousePos, Vector2f newMousePos) override;
     virtual void OnMouseRelease(Vector2f newMousePos) override;
+
 
 protected:
 

@@ -5,54 +5,64 @@
 
 
 
-Vector2f GUILabel::GetCollisionCenter(void) const
+Vector2f GUILabel::GetPos(void) const
 {
-    Vector2f outCenter;
-    Vector2f halfDims = dimensions.ComponentProduct(Scale) * 0.5f;
+    Vector2f anchor = GUIElement::GetPos();
 
-    switch (OffsetHorz)
+    Vector2f outCenter;
+    Vector2f halfDims = dimensions.ComponentProduct(GetScale()) * 0.5f;
+
+    switch (offsetH)
     {
         case HO_LEFT:
-            outCenter.x = center.x + halfDims.x;
+            outCenter.x = anchor.x + halfDims.x;
             break;
         case HO_CENTER:
-            outCenter.x = center.x;
+            outCenter.x = anchor.x;
             break;
         case HO_RIGHT:
-            outCenter.x = center.x - halfDims.x;
+            outCenter.x = anchor.x - halfDims.x;
             break;
         default: assert(false);
     }
-    switch (OffsetVert)
+    switch (offsetV)
     {
         case VO_TOP:
-            outCenter.y = center.y - halfDims.y;
+            outCenter.y = anchor.y - halfDims.y;
             break;
         case VO_CENTER:
-            outCenter.y = center.y;
+            outCenter.y = anchor.y;
             break;
         case VO_BOTTOM:
-            outCenter.y = center.y + halfDims.y;
+            outCenter.y = anchor.y + halfDims.y;
             break;
         default: assert(false);
     }
 
     return outCenter;
 }
-Vector2f GUILabel::GetCollisionDimensions(void) const
+Box2D GUILabel::GetBounds(void) const
 {
-    Vector2f dims = dimensions.ComponentProduct(Scale);
-    if (dims.x == 0.0f) dims.x = 1.0f;
-    if (dims.y == 0.0f) dims.y = Scale.y * (float)TextRender->GetSlotRenderSize(TextRenderSlot).y;
-    return dims;
+    Vector2f pos = GUIElement::GetPos() + GetTextOffset();
+
+    //If this label doesn't currently contain text, use the smallest-possible bounding box.
+    if (text.empty())
+    {
+        float maxY = (float)textRenderer->GetMaxCharacterSize(textRenderSlot.FontID).y;
+        return Box2D(pos, Vector2f(0.0001f, GetScale().y * maxY));
+    }
+    else
+    {
+        return Box2D(pos, dimensions.ComponentProduct(GetScale()));
+    }
 }
 
 Vector2f GUILabel::GetTextOffset(void) const
 {
-    Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
+    Vector2i rendSize = textRenderer->GetSlotRenderSize(textRenderSlot);
     Vector2f textOffset;
 
-    switch (OffsetHorz)
+    switch (offsetH)
     {
         case HO_LEFT:
             textOffset.x = rendSize.x * 0.5f;
@@ -65,7 +75,7 @@ Vector2f GUILabel::GetTextOffset(void) const
             break;
         default: assert(false);
     }
-    switch (OffsetVert)
+    switch (offsetV)
     {
         case VO_TOP:
             textOffset.y = rendSize.y * 0.5f;
@@ -82,34 +92,41 @@ Vector2f GUILabel::GetTextOffset(void) const
     //Flip the Y.
     textOffset.y = -textOffset.y;
 
-    return textOffset.ComponentProduct(Scale);
+    return textOffset.ComponentProduct(GetScale());
 }
 
 bool GUILabel::SetText(std::string newText)
 {
-    if (TextRender->RenderString(TextRenderSlot, newText))
+    if (textRenderer->RenderString(textRenderSlot, newText))
     {
         text = newText;
-        dimensions = TextRender->GetSlotBoundingSize(TextRenderSlot);
+        dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textRenderSlot));
+        DidBoundsChange = true;
         return true;
     }
     else return false;
 }
-
+void GUILabel::SetTextRenderSlot(TextRenderer::FontSlot newSlot)
+{
+    SetBoundsChanged();
+    
+    textRenderSlot = newSlot;
+    text = textRenderer->GetString(textRenderSlot);
+    dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textRenderSlot));
+}
 std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
 {
     //Don't bother doing any rendering if there's no text to display.
     if (text.empty()) return "";
 
 
-    Vector2f textOffset = GetTextOffset();
-    Vector2i rendSize = TextRender->GetSlotRenderSize(TextRenderSlot);
-
-    SetUpQuad(center + textOffset, Depth, Scale.ComponentProduct(ToV2f(rendSize)));
+    SetUpQuad(Box2D(GUIElement::GetPos() + GetTextOffset(),
+                    GetScale().ComponentProduct(ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot)))),
+              Depth);
     
     Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
-        TextRender->GetRenderedString(TextRenderSlot)->GetTextureHandle();
+        textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
 
     if (GetQuad()->Render(info, Params, *RenderMat)) return "";
-    return "Error rendering label with text '" + text + "': " + RenderMat->GetErrorMsg();
+    else return "Error rendering label with text '" + text + "': " + RenderMat->GetErrorMsg();
 }

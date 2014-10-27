@@ -24,8 +24,18 @@ public:
     {
 
     }
-    Box2D(float left, float right, float top, float bottom)
-        : Box2D(left, top, Vector2f(right - left, bottom - top))
+    //Makes a rectangle from the given min/max positions.
+    Box2D(float xMin, float xMax, float yMin, float yMax)
+        : Box2D(xMin, yMin, Vector2f(xMax - xMin, yMax - yMin))
+    {
+
+    }
+    //Makes the smallest-possible box that covers the given two boxes.
+    Box2D(const Box2D& first, const Box2D& second)
+        : Box2D(BasicMath::Min(first.GetXMin(), second.GetXMin()),
+                BasicMath::Max(first.GetXMax(), second.GetXMax()),
+                BasicMath::Min(first.GetYMin(), second.GetYMin()),
+                BasicMath::Max(first.GetYMax(), second.GetYMax()))
     {
 
     }
@@ -63,6 +73,7 @@ public:
 
     Vector2f GetPosition(void) const { return Vector2f(x, y); }
     void SetCenterOfBox(Vector2f pos) { x = pos.x - (width * 0.5f); y = pos.y - (height * 0.5f); }
+    void Move(Vector2f delta) { Move(delta.x, delta.y); }
     void Move(float deltaX, float deltaY) { x += deltaX; y += deltaY; }
 
     //Moves the min and max corners of this box out by half the given amount.
@@ -136,6 +147,18 @@ public:
     {
 
     }
+    //Makes the smallest-possible box that contains the two given boxes.
+    Box3D(const Box3D& one, const Box3D& two)
+        : Box3D(BasicMath::Min(one.GetXMin(), two.GetXMin()),
+                BasicMath::Max(one.GetXMax(), two.GetXMax()),
+                BasicMath::Min(one.GetYMin(), two.GetYMin()),
+                BasicMath::Max(one.GetYMax(), two.GetYMax()),
+                BasicMath::Min(one.GetZMin(), two.GetZMin()),
+                BasicMath::Max(one.GetZMax(), two.GetZMax()))
+    {
+
+    }
+    //Makes a box centered at the origin with no width/height/depth.
     Box3D(void) : Box3D(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f) { }
 
 

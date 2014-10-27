@@ -1,21 +1,24 @@
 #include "GUISlider.h"
 
 
-Vector2f GUISlider::GetCollisionDimensions(void) const
+Box2D GUISlider::GetBounds(void) const
 {
-    // The length along the slider axis is the length of the slider plus the length of half the nub on each side.
-    // The length perpendicular to the slider axis is the maximum length between the bar and the nub.
+    //The length along the slider axis is the length of the slider plus the length of half the nub on each side.
+    //The length perpendicular to the slider axis is the length of the bar/nub -- whichever is longest.
 
-    Vector2f barBounds = Bar.GetCollisionDimensions(),
-             nubBounds = Nub.GetCollisionDimensions();
+    Box2D barBounds = Bar.GetBounds(),
+          nubBounds = Nub.GetBounds();
     if (IsVertical)
     {
-        return Vector2f(BasicMath::Max(barBounds.x, nubBounds.x),
-                        barBounds.y + nubBounds.y);
+        return Box2D(barBounds.GetCenter() + GetPos(),
+                     Vector2f(BasicMath::Max(barBounds.GetXSize(), nubBounds.GetXSize()),
+                              barBounds.GetYSize() + nubBounds.GetYSize()));
     }
     else
     {
-        return Vector2f(barBounds.x + nubBounds.x, BasicMath::Max(barBounds.y, nubBounds.y));
+        return Box2D(barBounds.GetCenter() + GetPos(),
+                     Vector2f(barBounds.GetXSize() + nubBounds.GetXSize(),
+                              BasicMath::Max(barBounds.GetYSize(), nubBounds.GetYSize())));
     }
 }
 
@@ -27,63 +30,64 @@ void GUISlider::SetScale(Vector2f newScale)
 
     Bar.SetScale(newScale);
     Nub.ScaleBy(deltaScale);
+
+    GUIElement::SetScale(newScale);
 }
 
 float GUISlider::GetNewValue(Vector2f mousePos) const
 {
-    Vector2f barBounds = Bar.GetCollisionDimensions();
+    Box2D barBounds = Bar.GetBounds();
 
     if (IsVertical)
     {
-        return BasicMath::Clamp(BasicMath::LerpComponent(-barBounds.y * 0.5f,
-                                                         barBounds.y * 0.5f,
+        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax,
                                                          mousePos.y),
                                 0.0f, 1.0f);
     }
     else
     {
-        return BasicMath::Clamp(BasicMath::LerpComponent(-barBounds.x * 0.5f,
-                                                         barBounds.x * 0.5f,
+        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetXMin(), barBounds.GetXMax(),
                                                          mousePos.x),
                                 0.0f, 1.0f);
     }
 }
 
+void GUISlider::CustomUpdate(float elapsed, Vector2f relativeMousePos)
+{
+    DidBoundsChange = Bar.DidBoundsChange || Nub.DidBoundsChange || DidBoundsChange;
+    Bar.Update(elapsed, relativeMousePos);
+    Nub.Update(elapsed, relativeMousePos);
+}
 std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
 {
-    Vector4f myCol = *(Vector4f*)&Params.FloatUniforms[GUIMaterials::QuadDraw_Color].Value;
+    std::string err;
 
 
-    //Render the bar.
-
-    Bar.SetPosition(center);
-    Bar.Depth = Depth;
-
-    Vector4f oldCol = Bar.GetColor();
-    Bar.SetColor(Bar.GetColor().ComponentProduct(myCol));
-
-    std::string err = Bar.Render(elapsedTime, info);
-    Bar.SetColor(oldCol);
-
-    if (!err.empty()) return "Error rendering slider bar: " + err;
+    //Render bar.
+    err = RenderChild(&Bar, elapsedTime, info);
+    if (!err.empty()) return "Error rendering bar: " + err;
 
 
-    //Render the nub.
+    //Render nub. Keep the nub's "DidBoundsChange" boolean from being effected during rendering,
+    //    since repositioning the nub will never have an effect on the slider's bounds.
 
-    Vector2f dims = GetCollisionDimensions();
-    Nub.SetPosition(center +
-                     (IsVertical ?
-                        Vector2f(0.0f, BasicMath::Lerp(-dims.y * 0.5f, dims.y * 0.5f, Value)) :
-                        Vector2f(BasicMath::Lerp(-dims.x * 0.5f, dims.x * 0.5f, Value))));
-    Nub.Depth = Depth + 0.00001f;
+    Box2D barBounds = Bar.GetBounds();
+    bool oldNubChanged = Nub.DidBoundsChange;
 
-    oldCol = Nub.GetColor();
-    Nub.SetColor(oldCol.ComponentProduct(myCol));
+    Vector2f nubPos;
+    if (IsVertical)
+    {
+        nubPos = Vector2f(barBounds.GetCenterX(), barBounds.GetYInterval().RangeLerp(Value));
+    }
+    else
+    {
+        nubPos = Vector2f(barBounds.GetXInterval().RangeLerp(Value), barBounds.GetCenterY());
+    }
+    Nub.SetPosition(nubPos);
 
-    err = Nub.Render(elapsedTime, info);
-    Nub.SetColor(oldCol);
-
-    if (!err.empty()) return "Error rendering slider nub: " + err;
+    err = RenderChild(&Nub, elapsedTime, info);
+    Nub.DidBoundsChange = oldNubChanged;
+    if (!err.empty()) return "Error rendering nub: " + err;
 
 
     return "";
@@ -91,9 +95,8 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
 
 void GUISlider::OnMouseClick(Vector2f mousePos)
 {
-    if (IsClickable && IsLocalInsideBounds(mousePos))
+    if (IsClickable && GetBounds().IsPointInside(mousePos))
     {
-        Vector2f dims = GetCollisionDimensions();
         Value = GetNewValue(mousePos);
         
         if (UsesTimeLerp())
@@ -102,16 +105,16 @@ void GUISlider::OnMouseClick(Vector2f mousePos)
             SetTimeLerp(0.0f);
         }
 
-        Nub.OnMouseClick(mousePos - Nub.GetCollisionCenter());
-        Bar.OnMouseClick(mousePos - Bar.GetCollisionCenter());
+        Nub.OnMouseClick(mousePos - Nub.GetPos());
+        Bar.OnMouseClick(mousePos - Bar.GetPos());
         RaiseValueChangedEvent(mousePos);
     }
 }
 void GUISlider::OnMouseDrag(Vector2f originalPos, Vector2f currentPos)
 {
-    if (IsClickable && (IsLocalInsideBounds(originalPos) || IsLocalInsideBounds(currentPos)))
+    Box2D bounds = GetBounds();
+    if (IsClickable && (bounds.IsPointInside(originalPos) || bounds.IsPointInside(currentPos)))
     {
-        Vector2f dims = GetCollisionDimensions();
         Value = GetNewValue(currentPos);
 
         if (UsesTimeLerp() && CurrentTimeLerpSpeed <= 0.0f)

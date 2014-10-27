@@ -91,16 +91,17 @@ void TextRenderer::DestroySystem(void)
 
 TextRenderer::~TextRenderer(void)
 {
-    //Delete every slot's render target.
+    //Delete every font and every slot's render target.
     for (auto font = fonts.begin(); font != fonts.end(); ++font)
     {
+        FreeTypeHandler::Instance.DeleteFont(font->first);
+
         for (auto slot = font->second.begin(); slot != font->second.end(); ++slot)
         {
             RTManager.DeleteRenderTarget(slot->RenderTargetID);
             delete slot->ColorTex;
         }
     }
-    //TODO: Double-check that there is no way to delete fonts.
 }
 
 
@@ -186,7 +187,7 @@ bool TextRenderer::DoesSlotExist(FontSlot slot) const
     return (collLoc != fonts.end() && collLoc->second.size() < slot.SlotIndex);
 }
 
-int TextRenderer::GetNumbSlots(unsigned int fontID) const
+int TextRenderer::GetNumbSlots(FreeTypeHandler::FontID fontID) const
 {
     SlotCollectionLoc loc;
     if (!TryFindSlotCollection(fontID, loc)) return -1;
@@ -334,7 +335,8 @@ bool TextRenderer::TryFindSlotCollection(unsigned int fontID, SlotCollectionLoc 
 
     return true;
 }
-bool TextRenderer::TryFindSlot(unsigned int slotNumb, const std::vector<Slot> & slots, const Slot *& outSlot) const
+bool TextRenderer::TryFindSlot(unsigned int slotNumb,
+                               const std::vector<Slot> & slots, const Slot *& outSlot) const
 {
     if (slotNumb >= slots.size())
     {

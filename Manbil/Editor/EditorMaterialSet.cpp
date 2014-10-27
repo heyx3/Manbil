@@ -36,6 +36,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 80);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
         return "Error loading font 'Content/Fonts/Inconsolata.otf': " + outSet.TextRender.GetError();
+    outSet.TextRenderSpaceHeight = FreeTypeHandler::Instance.GetGlyphMaxSize(outSet.FontID).y;
 
 
     //Set up the textures.

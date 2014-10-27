@@ -7,7 +7,7 @@
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
 
 
-unsigned int FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signed long faceIndex)
+FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signed long faceIndex)
 {
     FT_Face face;
     FT_Error err;
@@ -38,8 +38,25 @@ unsigned int FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signe
     nextID += 1;
     return nextID - 1;
 }
+bool FreeTypeHandler::DeleteFont(FontID fontID)
+{
+    //Make sure the given font exists.
+    FaceMapLoc location;
+    if (!TryFindID(fontID, location)) return false;
+    const FT_Face& face = location->second;
 
-bool FreeTypeHandler::LoadGlyph(unsigned int id, unsigned int charCode)
+    //Try to delete it.
+    FT_Error err = FT_Done_Face(face);
+    if (err != 0)
+    {
+        errorMsg = "Unknown error code when deleting font: " + std::to_string(err);
+    }
+
+    faces.erase(location);
+    return true;
+}
+
+bool FreeTypeHandler::LoadGlyph(FontID id, unsigned int charCode)
 {
     FT_Error err;
 
@@ -78,7 +95,7 @@ bool FreeTypeHandler::LoadGlyph(unsigned int id, unsigned int charCode)
     return true;
 }
 
-bool FreeTypeHandler::SetFontSize(unsigned int id, FontSizeData dat)
+bool FreeTypeHandler::SetFontSize(FontID id, FontSizeData dat)
 {
     //Try to find the font face with the given ID.
     FaceMapLoc loc;
@@ -94,7 +111,7 @@ bool FreeTypeHandler::SetFontSize(unsigned int id, FontSizeData dat)
 
     return true;
 }
-bool FreeTypeHandler::SetFontSize(unsigned int id, unsigned int pixelWidth, unsigned int pixelHeight)
+bool FreeTypeHandler::SetFontSize(FontID id, unsigned int pixelWidth, unsigned int pixelHeight)
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return false;
@@ -109,21 +126,21 @@ bool FreeTypeHandler::SetFontSize(unsigned int id, unsigned int pixelWidth, unsi
     return true;
 }
 
-unsigned int FreeTypeHandler::GetNumbGlyphs(unsigned int id) const
+unsigned int FreeTypeHandler::GetNumbGlyphs(FontID id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return 0;
 
     return loc->second->num_glyphs;
 }
-bool FreeTypeHandler::GetCanBeScaled(unsigned int id) const
+bool FreeTypeHandler::GetCanBeScaled(FontID id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return false;
 
     return (bool)(loc->second->face_flags | FT_FACE_FLAG_SCALABLE);
 }
-FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(unsigned int id)
+FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(FontID id)
 {
     SupportedSizes ret;
     ret.Sizes = 0;
@@ -137,21 +154,29 @@ FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(unsigned int 
     return ret;
 }
 
-Vector2i FreeTypeHandler::GetGlyphSize(unsigned int id) const
+Vector2i FreeTypeHandler::GetGlyphSize(FontID id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2i();
 
     return Vector2i(loc->second->glyph->bitmap.width, loc->second->glyph->bitmap.rows);
 }
-Vector2i FreeTypeHandler::GetGlyphOffset(unsigned int id) const
+Vector2u FreeTypeHandler::GetGlyphMaxSize(FontID id) const
+{
+    FaceMapLoc loc;
+    if (!TryFindID(id, loc)) return Vector2u();
+
+    return Vector2u(BasicMath::Abs(loc->second->bbox.xMax - loc->second->bbox.xMin),
+                    BasicMath::Abs(loc->second->bbox.yMax - loc->second->bbox.yMin));
+}
+Vector2i FreeTypeHandler::GetGlyphOffset(FontID id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2i();
 
     return Vector2i(loc->second->glyph->bitmap_left, loc->second->glyph->bitmap_top);
 }
-Vector2i FreeTypeHandler::GetMoveToNextGlyph(unsigned int id) const
+Vector2i FreeTypeHandler::GetMoveToNextGlyph(FontID id) const
 {
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2i();
@@ -159,7 +184,7 @@ Vector2i FreeTypeHandler::GetMoveToNextGlyph(unsigned int id) const
     return Vector2i(loc->second->glyph->advance.x >> 6, loc->second->glyph->advance.y >> 6);
 }
 
-FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(unsigned int fontID, unsigned int charToRender)
+FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsigned int charToRender)
 {
     FaceMapLoc loc;
     if (!TryFindID(fontID, loc)) return CharRenderType::CRT_ERROR;
@@ -284,7 +309,7 @@ bool FreeTypeHandler::GetChar(MTexture2D & outTex) const
     return true;
 }
 
-bool FreeTypeHandler::TryFindID(unsigned int id, FaceMapLoc & outLoc) const
+bool FreeTypeHandler::TryFindID(FontID id, FaceMapLoc & outLoc) const
 {
     outLoc = faces.find(id);
     if (outLoc == faces.end())

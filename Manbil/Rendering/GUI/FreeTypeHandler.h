@@ -43,6 +43,8 @@ public:
 
     static const unsigned int ERROR_ID = 0;
 
+    typedef unsigned int FontID;
+
     static FreeTypeHandler Instance;
 
 
@@ -55,13 +57,15 @@ public:
     //   and vice-versa. They cannot both be 0.
     //Same goes for horizontal-/verticalResolution; additionally, if horizontal- AND verticalResolution
     //   are 0, they default to 72.
-    unsigned int LoadFont(std::string path, FontSizeData dat, signed long faceIndex = 0);
+    FontID LoadFont(std::string path, FontSizeData dat, signed long faceIndex = 0);
+    //Deletes the given font from memory.
+    bool DeleteFont(FontID fontID);
 
     //Loads the texture for the given font and character.
-    bool LoadGlyph(unsigned int id, unsigned int charCode);
+    bool LoadGlyph(FontID id, unsigned int charCode);
     //Gets a bitmap image for the most recently-loaded glyph for the given font.
     //Returns 0 if the given font doesn't exist.
-    const FT_Bitmap * GetGlyph(unsigned int id) const
+    const FT_Bitmap * GetGlyph(FontID id) const
     {
         FaceMapLoc loc;
         if (!TryFindID(id, loc)) return 0;
@@ -70,30 +74,33 @@ public:
     }
 
     //Attempts to set the font size for the given font.
-    bool SetFontSize(unsigned int id, FontSizeData dat);
+    bool SetFontSize(FontID id, FontSizeData dat);
     //Attempts to directly set the pixel size for the given font's glyphs.
-    bool SetFontSize(unsigned int id, unsigned int pixelWidth = 0, unsigned int pixelHeight = 0);
+    bool SetFontSize(FontID id, unsigned int pixelWidth = 0, unsigned int pixelHeight = 0);
 
     //Gets the number of available glyphs for the given font face.
     //Returns 0 if the given id doesn't correspond to a font.
-    unsigned int GetNumbGlyphs(unsigned int id) const;
+    unsigned int GetNumbGlyphs(FontID id) const;
     //Gets whether the given font can be scaled.
     //Returns false if the given font doesn't exist.
-    bool GetCanBeScaled(unsigned int id) const;
+    bool GetCanBeScaled(FontID id) const;
 
 
     struct SupportedSizes { public: FT_Bitmap_Size * Sizes; unsigned int NumbSizes; };
-    SupportedSizes GetSupportedSizes(unsigned int id);
+    SupportedSizes GetSupportedSizes(FontID id);
 
     //Gets the width/height for the currently-loaded glyph for the given font.
     //Returns a width/height of 0 if the given font doesn't exist.
-    Vector2i GetGlyphSize(unsigned int id) const;
+    Vector2i GetGlyphSize(FontID id) const;
+    //Gets the maximum width/height of a glyph for the given font.
+    //Returns a width/height of 0 if the given font doesn't exist.
+    Vector2u GetGlyphMaxSize(FontID id) const;
     //Gets the offset for drawing the currently-loaded glyph for the given font.
     //Returns an offset of 0 if the given font doesn't exist.
-    Vector2i GetGlyphOffset(unsigned int id) const;
+    Vector2i GetGlyphOffset(FontID id) const;
     //Gets the amount to move to draw the next character.
     //Returns { 0, 0 } if the given font doesn't exist.
-    Vector2i GetMoveToNextGlyph(unsigned int id) const;
+    Vector2i GetMoveToNextGlyph(FontID id) const;
     
 
     //The different outputs of "RenderChar()".
@@ -105,7 +112,7 @@ public:
     };
     //Renders the given character into a private color array that can be accessed through "GetChar()".
     //Returns the type of color the rendered character uses, or "CRT_ERROR" if there was an error loading the char.
-    CharRenderType RenderChar(unsigned int fontID, unsigned int charToRender);
+    CharRenderType RenderChar(FontID fontID, unsigned int charToRender);
 
     //Gets whether the most recently-rendered char is greyscale or full RGB color.
     bool GetIsGreyscale(void) const { return isGreyscale; }
@@ -124,11 +131,11 @@ public:
 
 private:
 
-    typedef std::unordered_map<unsigned int, FT_Face>::const_iterator FaceMapLoc;
-    std::unordered_map<unsigned int, FT_Face> faces;
+    typedef std::unordered_map<FontID, FT_Face>::const_iterator FaceMapLoc;
+    std::unordered_map<FontID, FT_Face> faces;
 
-    unsigned int nextID;
-    bool TryFindID(unsigned int id, FaceMapLoc & outLoc) const;
+    FontID nextID;
+    bool TryFindID(FontID id, FaceMapLoc & outLoc) const;
 
     FT_Library ftLib;
 
@@ -139,7 +146,7 @@ private:
     mutable std::string errorMsg;
 
 
-    //Singleton.
+    //Singleton constructor/destructor.
     FreeTypeHandler(void);
     ~FreeTypeHandler(void);
 };

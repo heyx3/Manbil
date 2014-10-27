@@ -76,18 +76,14 @@ public:
     {
         outElements.insert(outElements.end(),
                            EditorObjectPtr(new SlidingBarUInt(0, 100, Vector2f(), EditorObject::DescriptionData(),
-                           [](GUISlider* slider, unsigned int newVal, void* pData)
-        {
-            std::cout << newVal << "\n";
-        },
-            BasicMath::LerpComponent(0.0f, 100.0f, Int))));
+                                                              [](GUISlider* slider, unsigned int newVal, void* pData)
+                                                                 { std::cout << newVal << "\n"; },
+                                                              BasicMath::LerpComponent(0.0f, 100.0f, Int))));
         outElements.insert(outElements.end(),
                            EditorObjectPtr(new TextBoxString(String, Vector2u(600, 32),
-                           Vector2f(), EditorObject::DescriptionData(),
-                           [](GUITextBox* textBox, std::string newVal, void* pData)
-        {
-            std::cout << newVal << "\n";
-        })));
+                                                             Vector2f(), EditorObject::DescriptionData(),
+                                                             [](GUITextBox* textBox, std::string newVal, void* pData)
+                                                             { std::cout << newVal << "\n"; })));
 
         return "";
     }
@@ -117,9 +113,10 @@ void GUITestWorld::InitializeWorld(void)
     }
 
     //Build the editor.
-    EditorPanel* editor = new EditorPanel(*editorMaterials, 60.0f, 60.0f);
+    EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
     if (true)
     {
+        /*
         editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
         editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
                                                           EditorObject::DescriptionData("Type a uint!"),
@@ -135,7 +132,7 @@ void GUITestWorld::InitializeWorld(void)
         GUIElementPtr innerEl(new GUITexture(editorMaterials->GetStaticMatParams(testTex), testTex,
                                              editorMaterials->GetStaticMaterial(testTex)));
         editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
-
+        */
         editor->AddObject(EditorObjectPtr(new EditorCollection<CollectionElement>()));
     }
     else
