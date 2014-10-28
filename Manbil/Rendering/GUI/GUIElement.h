@@ -42,6 +42,14 @@ public:
     virtual ~GUIElement(void) { }
 
 
+    //Calculates whether this element's bounds have changed since the last Update() call,
+    //    including any child elements changing.
+    //This function is more immediately accurate than "DidBoundsChange" because
+    //    "DidBoundsChange" doesn't take into account any child elements being changed
+    //    until an Update() happens and it checks whether they did.
+    //Default behavior: just returns "DidBoundsChange".
+    virtual bool GetDidBoundsChangeDeep(void) const { return true; }
+
     //Gets the location of the "anchor" of this element -- generally the center of its collision box.
     //Default behavior: just returns the position.
     virtual Vector2f GetPos(void) const { return pos; }

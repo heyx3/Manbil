@@ -11,14 +11,18 @@ class GUISelectionBox : public GUIElement
 public:
 
     TextRenderer* TextRender;
-    
     GUITexture MainBox, SelectionBackground, Highlight;
 
+
+
+
+private:
+
     //Whether to display the options above or below this box.
-    bool ExtendAbove;
+    bool extendAbove;
 
     //Whether this box is currently open.
-
+    bool isExtended;
 };
 
 

@@ -6,9 +6,9 @@
 Box2D GUITexture::GetBounds(void) const
 {
     Vector2f dims;
-    if (Tex != 0)
+    if (tex != 0)
     {
-        dims = ToV2f(Vector2u(Tex->GetWidth(), Tex->GetHeight()));
+        dims = ToV2f(Vector2u(tex->GetWidth(), tex->GetHeight()));
         dims.MultiplyComponents(GetScale());
     }
 
@@ -17,10 +17,10 @@ Box2D GUITexture::GetBounds(void) const
 
 std::string GUITexture::Render(float elapsed, const RenderInfo & info)
 {
-    if (Tex == 0 || Mat == 0) return "Texture or material is not set!";
+    if (tex == 0 || Mat == 0) return "Texture or material is not set!";
 
     SetUpQuad();
-    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = Tex->GetTextureHandle();
+    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
     return (GetQuad()->Render(info, Params, *Mat) ?
                 "" :
                 "Error rendering GUITexture: " + Mat->GetErrorMsg());

@@ -25,20 +25,19 @@ public:
     void *OnValueChanged_pData = 0;
 
 
-    virtual Box2D GetBounds(void) const override;
-
-    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(scaleAmount.ComponentProduct(GetScale())); }
-    virtual void SetScale(Vector2f newScale) override;
-
-
     GUISlider(const UniformDictionary & params,
               const GUITexture& barTex, const GUITexture& nubTex,
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
               : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
                 Bar(barTex), Nub(nubTex) { }
     GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture()) { }
-
     
+
+    virtual Box2D GetBounds(void) const override;
+
+    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(scaleAmount.ComponentProduct(GetScale())); }
+    virtual void SetScale(Vector2f newScale) override;
+
     virtual void CustomUpdate(float elapsed, Vector2f relativeMousePos) override;
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 

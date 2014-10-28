@@ -5,8 +5,6 @@
 #include "../../Materials/Data Nodes/ShaderGenerator.h"
 
 
-//TODO: Take this idea of "alignment" and pull it into GUIElement so that all elements can be aligned vertically/horizontally.
-
 //Represents a simple piece of text.
 class GUILabel : public GUIElement
 {
@@ -45,16 +43,16 @@ public:
 
 
     HorizontalOffsets GetOffsetHorz(void) const { return offsetH; }
-    void SetOffsetHorz(HorizontalOffsets newOffsetH) { SetBoundsChanged(); offsetH = newOffsetH; }
+    void SetOffsetHorz(HorizontalOffsets newOffsetH) { DidBoundsChange = true; offsetH = newOffsetH; }
 
     VerticalOffsets GetOffsetVert(void) const { return offsetV; }
-    void SetOffsetVert(VerticalOffsets newOffsetV) { SetBoundsChanged(); offsetV = newOffsetV; }
+    void SetOffsetVert(VerticalOffsets newOffsetV) { DidBoundsChange = true; offsetV = newOffsetV; }
 
     TextRenderer::FontSlot GetTextRenderSlot(void) const { return textRenderSlot; }
     void SetTextRenderSlot(TextRenderer::FontSlot newSlot);
 
     const TextRenderer* GetTextRenderer(void) const { return textRenderer; }
-    TextRenderer* GetTextRenderer(void) { SetBoundsChanged(); return textRenderer; }
+    TextRenderer* GetTextRenderer(void) { DidBoundsChange = true; return textRenderer; }
 
     const std::string & GetText(void) const { return text; }
     bool SetText(std::string newText);
