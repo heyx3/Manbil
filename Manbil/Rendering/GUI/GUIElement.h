@@ -6,8 +6,8 @@
 
 
 //Represents a single element in a UI. Keeps track of whether its size/position has changed each frame.
+//Provides support for the concept of "child" elements that this element contains.
 //Note that mouse events should be raised for all GUI elements, not just ones that are touching the mouse.
-//TODO: Keep a static reference to the currently-moused-over object, and if another object is being moused over, compare their depths to see which one stays moused over.
 class GUIElement
 {
 public:
@@ -18,13 +18,20 @@ public:
     float Depth = 0.0f;
 
     //Whether this element's position, size, scale, etc. changed since the last Update() call.
-    //Reset to "false" at the very beginning of every Update() call.
+    //Note that this only reflects this element and NOT any of its children;
+    //    call "GetDidBoundsChangeDeep()" to get whether this element or its children changed.
+    //Resets to "false" at the very beginning of every Update() call.
     bool DidBoundsChange = false;
 
     //Raised every update step, before anything is updated.
     //"pData" is the value of this instance's "OnUpdate_Data" field.
     void(*OnUpdate)(GUIElement * thisEl, void* pData) = 0;
     void* OnUpdate_Data = 0;
+
+
+    GUIElement(const UniformDictionary & params, float timeLerpSpeed = 1.0f)
+        : TimeLerpSpeed(timeLerpSpeed), scale(1.0f, 1.0f) { Params = params; }
+    virtual ~GUIElement(void) { }
 
 
     bool UsesTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.FloatUniforms.end(); }
@@ -37,16 +44,9 @@ public:
 
     bool IsMousedOver(void) const { return isMousedOver; }
 
-    GUIElement(const UniformDictionary & params, float timeLerpSpeed = 1.0f)
-        : TimeLerpSpeed(timeLerpSpeed), scale(1.0f, 1.0f) { Params = params; }
-    virtual ~GUIElement(void) { }
-
 
     //Calculates whether this element's bounds have changed since the last Update() call,
     //    including any child elements changing.
-    //This function is more immediately accurate than "DidBoundsChange" because
-    //    "DidBoundsChange" doesn't take into account any child elements being changed
-    //    until an Update() happens and it checks whether they did.
     //Default behavior: just returns "DidBoundsChange".
     virtual bool GetDidBoundsChangeDeep(void) const { return true; }
 
@@ -78,7 +78,7 @@ public:
 
 
     //Takes in the mouse position relative to this element's center.
-    void Update(float elapsedTime, Vector2f mouse_centerOffset);
+    void Update(float elapsedTime, Vector2f relativeMousePos);
 
     //Returns an error message, or the empty string if everything went fine.
     virtual std::string Render(float elapsedTime, const RenderInfo & info) = 0;

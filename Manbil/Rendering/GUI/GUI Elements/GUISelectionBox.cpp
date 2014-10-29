@@ -2,271 +2,317 @@
 
 
 
-
-
-
-
-
-GUISelectionBox2::GUISelectionBox2(const UniformDictionary & params,
-                                 TextRenderer* textRender, const GUITexture & boxElement,
-                                 unsigned int fontID, Vector2u fontRenderTexSize,
-                                 const TextureSampleSettings2D & fontRenderSettings,
-                                 Material * itemTextMat, GUILabel::HorizontalOffsets textOffset,
-                                 const GUITexture & itemListBackground, 
-                                 const std::vector<std::string> & _items, unsigned int selected,
-                                 bool extendAbove, float timeLerpSpeed)
-    : GUIElement(params, timeLerpSpeed), TextRender(textRender),
-      BoxElement(boxElement), ExtendAbove(extendAbove), selectedItem(selected),
-      scale(1.0f, 1.0f), itemBackground(itemListBackground), itemFontID(fontID), IsExtended(false)
+GUISelectionBox::GUISelectionBox(std::string& outError, TextRenderer* textRenderer,
+                                 const GUITexture& mainBox, const GUITexture& highlight,
+                                 const GUITexture& selectionBackground, bool _extendAbove,
+                                 Vector4f textColor, FreeTypeHandler::FontID font,
+                                 Material* textRenderMat, const UniformDictionary& textRenderParams,
+                                 bool mipmappedText, FilteringTypes textFilterQuality,
+                                 const std::vector<std::string>& _items, Vector2f tScale, float tSpacing,
+                                 void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
+                                                         unsigned int itemIndex, void* pData),
+                                 void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                                 void* onOptionSelected_pData, void* onDropdownToggled_pData,
+                                 float textAnimSpeed)
+    : TextRender(textRenderer), MainBox(mainBox), SelectionBackground(selectionBackground),
+      Highlight(highlight), extendAbove(_extendAbove), isExtended(false), TextColor(textColor),
+      FontID(font), items(_items), itemFontID(font), textScale(tScale), textSpacing(tSpacing),
+      OnOptionSelected(onOptionSelected), OnOptionSelected_pData(onOptionSelected_pData),
+      OnDropdownToggled(onDropdownToggled), OnDropdownToggled_pData(onDropdownToggled_pData),
+      GUIElement(UniformDictionary())
 {
-    unsigned int firstSlotIndex = TextRender->GetNumbSlots(fontID);
-    bool tryCre = TextRender->CreateTextRenderSlots(fontID, fontRenderTexSize.x, fontRenderTexSize.y, false,
-                                                    fontRenderSettings, _items.size());
-    if (!tryCre)
+    //Create one render slot for each item.
+    unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
+    bool tryCreate = TextRender->CreateTextRenderSlots(FontID, (unsigned int)mainBox.GetBounds().GetXSize(),
+                                                       TextRender->GetMaxCharacterSize(FontID).y,
+                                                       mipmappedText,
+                                                       TextureSampleSettings2D(textFilterQuality, WT_CLAMP),
+                                                       items.size());
+    if (!tryCreate)
     {
-        BoxElement.Mat = 0;
+        outError = "Error creating " + std::to_string(items.size()) +
+                       " text render slots: " + TextRender->GetError();
         return;
     }
 
+
     //Set up the items.
-    for (unsigned int i = 0; i < _items.size(); ++i)
+    for (unsigned int i = 0; i < items.size(); ++i)
     {
-        items.insert(items.end(), _items[i]);
         itemElements.insert(itemElements.end(),
-                            GUILabel(params, textRender, TextRenderer::FontSlot(fontID, firstSlotIndex + i),
-                                     itemTextMat, timeLerpSpeed, textOffset, GUILabel::VO_CENTER));
-        if (!(itemElements.end() - 1)->SetText(items[i]))
+                            GUILabel(textRenderParams, TextRender,
+                                     TextRenderer::FontSlot(FontID, firstSlotIndex + i),
+                                     textRenderMat, textAnimSpeed,
+                                     GUILabel::HO_LEFT, GUILabel::VO_CENTER));
+        itemElements[items.size() - 1].Depth = Depth + 0.0001f;
+        itemElements[items.size() - 1].ScaleBy(textScale);
+
+        if (!itemElements[itemElements.size() - 1].SetText(items[i]))
         {
-            BoxElement.Mat = 0;
+            outError = "Error rendering '" + items[i] + "' into a label: " + TextRender->GetError();
             return;
         }
     }
 }
 
-void GUISelectionBox2::SetTextColor(Vector4f newCol)
+Box2D GUISelectionBox::GetBounds(void) const
 {
-    textColor = newCol;
-    for (unsigned int i = 0; i < items.size(); ++i)
-        itemElements[i].Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(newCol);
-}
-
-bool GUISelectionBox2::SetItem(unsigned int index, const std::string & newVal)
-{
-    if (index >= items.size()) return false;
-
-    return itemElements[index].SetText(newVal);
-}
-
-Vector2f GUISelectionBox2::GetCollisionDimensions(void) const
-{
-    return scale.ComponentProduct(ToV2f(Vector2u(BoxElement.Tex->GetWidth(), BoxElement.Tex->GetHeight())));
-}
-
-void GUISelectionBox2::ScaleBy(Vector2f scaleAmount)
-{
-    scale.MultiplyComponents(scaleAmount);
-    itemBackground.ScaleBy(scaleAmount);
-
-    for (unsigned int i = 0; i < items.size(); ++i)
+    if (isExtended)
     {
-        Vector2f itemCenter = itemElements[i].GetCenter();
-        itemElements[i].SetPosition(itemCenter.ComponentProduct(scaleAmount));
-        itemElements[i].ScaleBy(scaleAmount);
+        return SelectionBackground.GetBounds();
+    }
+    else
+    {
+        return MainBox.GetBounds();
     }
 }
-void GUISelectionBox2::SetScale(Vector2f newScale)
+bool GUISelectionBox::GetDidBoundsChangeDeep(void) const
 {
-    ScaleBy(Vector2f(newScale.x / scale.x, newScale.y / scale.y));
+    return DidBoundsChange ||
+           (isExtended && MainBox.DidBoundsChange) ||
+           (!isExtended && SelectionBackground.DidBoundsChange);
 }
 
-std::string GUISelectionBox2::Render(float elapsedTime, const RenderInfo & info)
+void GUISelectionBox::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
 {
-    Vector4f myCol = GetColor();
-    Vector4f oldCol;
-    Vector2f boxSize = scale.ComponentProduct(Vector2f((float)BoxElement.Tex->GetWidth(),
-                                                       (float)BoxElement.Tex->GetHeight())),
-             halfBoxSize = boxSize * 0.5f;
+    currentItem = newIndex;
+    if (raiseEvent && OnOptionSelected != 0)
+        OnOptionSelected(this, items[currentItem], currentItem, OnOptionSelected_pData);
+}
+void GUISelectionBox::SetScale(Vector2f newScale)
+{
+    Vector2f oldScale = GetScale();
+    GUIElement::SetScale(newScale);
 
-    //Render the box.
-    BoxElement.SetPosition(center);
-    BoxElement.Depth = Depth;
-    oldCol = BoxElement.GetColor();
-    BoxElement.SetColor(myCol.ComponentProduct(oldCol));
-    std::string err = BoxElement.Render(elapsedTime, info);
-    BoxElement.SetPosition(Vector2f());
-    BoxElement.SetColor(oldCol);
-    if (!err.empty()) return "Error rendering main box: " + err;
+    Vector2f delta(newScale.x / oldScale.x, newScale.y / oldScale.y);
+    MainBox.ScaleBy(delta);
+    MainBox.SetPosition(MainBox.GetPos().ComponentProduct(delta));
+    SelectionBackground.ScaleBy(delta);
+    SelectionBackground.SetPosition(SelectionBackground.GetPos().ComponentProduct(delta));
+    Highlight.ScaleBy(delta);
+    Highlight.SetPosition(Highlight.GetPos().ComponentProduct(delta));
+}
 
+std::string GUISelectionBox::SetItem(unsigned int index, std::string newVal)
+{
+    std::string oldVal = items[index];
+    items[index] = newVal;
 
-    //Render the selected item.
-
-    switch (itemElements[selectedItem].OffsetHorz)
+    //If one value is empty and the other not empty, and empty items aren't drawn,
+    //    then the dropdown background just changed.
+    if (isExtended && !drawEmptyItems && (oldVal.empty() != newVal.empty()))
     {
-        case GUILabel::HO_LEFT:
-            itemElements[selectedItem].SetPosition(Vector2f(-(boxSize.x * 0.5f), 0.0f));
-            break;
-        case GUILabel::HO_CENTER:
-            itemElements[selectedItem].SetPosition(Vector2f());
-            break;
-        case GUILabel::HO_RIGHT:
-            itemElements[selectedItem].SetPosition(Vector2f(boxSize.x * 0.5f, 0.0f));
-            break;
-        default:
-            assert(false);
-            return "Unknown horizontal offset enum value '" +
-                        std::to_string(itemElements[selectedItem].OffsetHorz) + "'";
+        PositionSelectionBackground();
     }
 
-    itemElements[selectedItem].MoveElement(center);
-    itemElements[selectedItem].Depth = Depth + 0.0001f;
-    oldCol = itemElements[selectedItem].GetColor();
-    itemElements[selectedItem].SetColor(myCol.ComponentProduct(oldCol));
-    err = itemElements[selectedItem].Render(elapsedTime, info);
-    itemElements[selectedItem].MoveElement(-center);
-    itemElements[selectedItem].SetColor(oldCol);
-    if (!err.empty())
-        return std::string() + "Error rendering selectd item '" + items[selectedItem] + "': " + err;
+    return oldVal;
+}
 
-    //Render the other items and their background tex if this element is currently selected.
-    if (IsExtended)
+void GUISelectionBox::SetIsExtended(bool _isExtended, bool raiseEvent)
+{
+    DidBoundsChange = true;
+    isExtended = _isExtended;
+
+    if (isExtended) PositionSelectionBackground();
+
+    if (raiseEvent && OnDropdownToggled != 0)
     {
-        //Get the number of items to be rendered.
-        unsigned int numbRenderedItems = 0;
-        if (DrawEmptyItems)
-        {
-            numbRenderedItems = items.size();
-        }
-        else
-        {
-            for (unsigned int i = 0; i < items.size(); ++i)
-                if (!items[i].empty())
-                    ++numbRenderedItems;
-        }
+        OnDropdownToggled(this, OnDropdownToggled_pData);
+    }
+}
+void GUISelectionBox::PositionSelectionBackground(void)
+{
+    if (isExtended) DidBoundsChange = true;
 
-        //Render the item backdrop.
-        
-        //First calculate the bounds of the backdrop.
-        Vector2f minBack(-halfBoxSize.x, 0.0f),
-                 maxBack(halfBoxSize.x, 0.0f);
-        if (ExtendAbove)
-        {
-            minBack.y = (float)(numbRenderedItems * boxSize.y) - halfBoxSize.y;
-            maxBack.y = halfBoxSize.y;
-        }
-        else
-        {
-            minBack.y = -halfBoxSize.y;
-            maxBack.y = (float)(numbRenderedItems * boxSize.y) + halfBoxSize.y;
-        }
-        itemBackground.SetBounds(minBack, maxBack);
-
-        //Now render it.
-        itemBackground.MoveElement(center);
-        itemBackground.Depth = Depth + 0.00005f;
-        oldCol = itemBackground.GetColor();
-        itemBackground.SetColor(oldCol.ComponentProduct(myCol));
-        err = itemBackground.Render(elapsedTime, info);
-        itemBackground.MoveElement(-center);
-        itemBackground.SetColor(oldCol);
-        if (!err.empty())
-            return std::string() + "Error rendering item list background: '" + err;
-
-
-        //Render each text item (the currently-selected item was already displayed in the selection box).
-        unsigned int itemIndex = 1;
-        float dir = (ExtendAbove ? 1.0f : -1.0f);
+    //Count the number of visible items.
+    unsigned int nVisibleItems;
+    if (drawEmptyItems)
+    {
+        nVisibleItems = items.size();
+    }
+    else
+    {
+        nVisibleItems = 0;
         for (unsigned int i = 0; i < items.size(); ++i)
         {
-            if (i == selectedItem || (!DrawEmptyItems && items[i].empty()))
+            if (!items[i].empty())
+                nVisibleItems += 1;
+        }
+    }
+
+
+    //Compute the minimum Y value and height of the background.
+
+    Box2D mainBoxBounds = MainBox.GetBounds();
+
+    float minY = mainBoxBounds.GetCenterY() - (0.5f * mainBoxBounds.GetYSize());
+    if (extendAbove)
+    {
+        minY -= (nVisibleItems - 1) * (mainBoxBounds.GetYSize() * textSpacing);
+    }
+
+    float nVisibleItemsF = (float)nVisibleItems;
+    float height = (nVisibleItemsF * mainBoxBounds.GetYSize()) +
+                   ((nVisibleItemsF - 1) * textSpacing);
+    Box2D backBounds(mainBoxBounds.GetXMin(), minY,
+                     Vector2f(mainBoxBounds.GetXSize(), height));
+
+
+    //Finally, set the background bounds. This GUISelectionBox is already marked as changed,
+    //    so don't change the background's "changed" flag.
+    bool oldVal = SelectionBackground.DidBoundsChange;
+    SelectionBackground.SetBounds(backBounds);
+    SelectionBackground.DidBoundsChange = oldVal;
+}
+
+void GUISelectionBox::OnMouseClick(Vector2f relativeMousePos)
+{
+    if (!IsClickable) return;
+
+    if (isExtended)
+    {
+        Box2D bounds = SelectionBackground.GetBounds();
+
+        SetIsExtended(false);
+
+        if (bounds.IsPointInside(relativeMousePos))
+        {
+            assert(mousedOverItem >= 0);
+            currentItem = (unsigned int)mousedOverItem;
+
+            SetIsExtended(false, false);
+
+            if (OnOptionSelected != 0)
+            {
+                OnOptionSelected(this, items[currentItem], currentItem, OnOptionSelected_pData);
+            }
+        }
+        else
+        {
+            SetIsExtended(false);
+        }
+    }
+    else
+    {
+        Box2D bounds = MainBox.GetBounds();
+
+        if (bounds.IsPointInside(relativeMousePos))
+        {
+            SetIsExtended(true);
+        }
+    }
+}
+
+void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
+{
+    MainBox.Update(elapsed, relativeMousePos);
+    SelectionBackground.Update(elapsed, relativeMousePos);
+    Highlight.Update(elapsed, relativeMousePos);
+    for (unsigned int i = 0; i < itemElements.size(); ++i)
+        itemElements[i].Update(elapsed, relativeMousePos);
+
+    //TODO: See if user is mousing over any items.
+}
+std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
+{
+    std::string err;
+
+
+    if (!isExtended)
+    {
+        if (MainBox.IsValid())
+        {
+            err = RenderChild(&MainBox, elapsedTime, info);
+            if (!err.empty())
+            {
+                return "Error rendering main box: " + err;
+            }
+        }
+
+        err = itemElements[currentItem].Render(elapsedTime, info);
+        if (!err.empty())
+        {
+            return "Error rendering selected text: " + err;
+        }
+    }
+    else
+    {
+        float ySpace = (extendAbove ? -textSpacing : textSpacing);
+        Box2D mainBoxBounds = MainBox.GetBounds(),
+              backgroundBounds = SelectionBackground.GetBounds();
+
+        float backgroundBaseHeight = (extendAbove ?
+                                        (backgroundBounds.GetYMax() - (mainBoxBounds.GetYSize() * 0.5f)) :
+                                        (backgroundBounds.GetYMin() + (mainBoxBounds.GetYSize() * 0.5f)));
+
+
+        //Draw all the items.
+        unsigned int nVisibleItems = 0;
+        for (unsigned int i = 0; i < itemElements.size(); ++i)
+        {
+            if (!drawEmptyItems && items[i].empty())
                 continue;
 
-            Vector2f itemPos(0.0f, (float)boxSize.y * dir * (float)itemIndex);
-            switch (itemElements[i].OffsetHorz)
-            {
-                case GUILabel::HO_LEFT:
-                    itemPos.x = boxSize.x * -0.5f;
-                    break;
-                case GUILabel::HO_CENTER:
-                    itemPos.x = 0.0f;
-                    break;
-                case GUILabel::HO_RIGHT:
-                    itemPos.x = boxSize.x * 0.5f;
-                    break;
-                default:
-                    assert(false);
-                    return "Unknown horizontal offset enum value '" +
-                        std::to_string(itemElements[i].OffsetHorz) + "'";
-            }
-            itemElements[i].SetPosition(itemPos);
+            Box2D bounds = itemElements[i].GetBounds();
 
-            itemElements[i].MoveElement(center);
-            itemElements[i].Depth = Depth + 0.00010f;
-            oldCol = itemElements[i].GetColor();
-            itemElements[i].SetColor(oldCol.ComponentProduct(myCol));
-            err = itemElements[i].Render(elapsedTime, info);
-            itemElements[i].MoveElement(-center);
-            itemElements[i].SetColor(oldCol);
+            float yOffset = (mainBoxBounds.GetYSize() + ySpace) * (float)nVisibleItems;
+            itemElements[i].SetPosition(Vector2f(backgroundBounds.GetXMin(),
+                                                 backgroundBaseHeight + yOffset));
+
+            nVisibleItems += 1;
+
+            err = RenderChild(&itemElements[i], elapsedTime, info);
             if (!err.empty())
-                return std::string() + "Error rendering item '" + items[i] + "': " + err;
-
-            ++itemIndex;
-        }
-    }
-
-    return "";
-}
-
-void GUISelectionBox2::OnMouseClick(Vector2f relativeMousePos)
-{
-    bool inside = IsLocalInsideBounds(relativeMousePos);
-
-    if (IsExtended)
-    {
-        //Check to see if any text box options were clicked.
-        IsExtended = false;
-        if (!inside)
-        {
-            for (unsigned int i = 0; i < items.size(); ++i)
             {
-                if (i == selectedItem || (!DrawEmptyItems && items[i].empty()))
-                    continue;
+                return "Error rendering text item '" + items[i] + "': " + err;
+            }
+        }
 
-                if (itemElements[i].IsLocalInsideBounds(relativeMousePos - itemElements[i].GetCenter()))
+        //Calculate the position/size of the background and draw it.
+        if (SelectionBackground.IsValid())
+        {
+            err = RenderChild(&SelectionBackground, elapsedTime, info);
+            if (!err.empty())
+            {
+                return "Error rendering selection background: " + err;
+            }
+        }
+
+        //Draw the highlight over the moused-over object.
+        if (mousedOverItem >= 0 && Highlight.IsValid() &&
+            (drawEmptyItems || !items[mousedOverItem].empty()))
+        {
+            //Get which item in the menu it is.
+            unsigned int menuIndex = (int)mousedOverItem;
+            if (!drawEmptyItems)
+            {
+                unsigned int nVisible = 0;
+                for (unsigned int i = 0; i < items.size(); ++i)
                 {
-                    selectedItem = i;
-                    return;
+                    if (!items[i].empty())
+                    {
+                        nVisible += 1;
+                        if (nVisible == mousedOverItem + 1)
+                        {
+                            menuIndex = i;
+                            break;
+                        }
+                    }
                 }
             }
+
+            //Get the Y value of the highlighted item.
+            Highlight.SetBounds(Box2D(Vector2f(mainBoxBounds.GetCenterX(),
+                                               backgroundBaseHeight +
+                                                   ((mainBoxBounds.GetYSize() + ySpace) *
+                                                       (float)menuIndex)),
+                                      Highlight.GetBounds().GetDimensions()));
+
+            err = RenderChild(&Highlight, elapsedTime, info);
+            if (!err.empty())
+            {
+                return "Error rendering highlight: " + err;
+            }
         }
     }
-    else if (inside)
-    {
-        IsExtended = true;
-    }
-}
-void GUISelectionBox2::OnMouseDrag(Vector2f oldRelativeMousePos, Vector2f currentRelativeMousePos)
-{
-    Vector2f cent = itemBackground.GetCenter();
-    itemBackground.OnMouseDrag(oldRelativeMousePos - cent, currentRelativeMousePos - cent);
-
-    for (unsigned int i = 0; i < items.size(); ++i)
-    {
-        cent = itemElements[i].GetCenter();
-        itemElements[i].OnMouseDrag(oldRelativeMousePos - cent, currentRelativeMousePos - cent);
-    }
-}
-void GUISelectionBox2::OnMouseRelease(Vector2f relativeMousePos)
-{
-    itemBackground.OnMouseRelease(relativeMousePos - itemBackground.GetCenter());
-    for (unsigned int i = 0; i < items.size(); ++i)
-        itemElements[i].OnMouseRelease(relativeMousePos - itemElements[i].GetCenter());
-}
-
-void GUISelectionBox2::CustomUpdate(float elapsed, Vector2f relativeMousePos)
-{
-    //TODO: Once highlight is set up for this class, calculate any mouse-overs. Don't just check whether each item is moused over; manually check the mouse position, because the selection hitbox shouldn't be limited to the text bounds.
-
-    itemBackground.Update(elapsed, relativeMousePos - itemBackground.GetCenter());
-    for (unsigned int i = 0; i < items.size(); ++i)
-        itemElements[i].Update(elapsed, relativeMousePos - itemElements[i].GetCenter());
 }

@@ -57,6 +57,9 @@ public:
     const std::string & GetText(void) const { return text; }
     bool SetText(std::string newText);
 
+    //Gets the size of the rendered text (without scaling).
+    Vector2f GetTextSize(void) const { return dimensions; }
+
 
     virtual Vector2f GetPos(void) const override;
     virtual Box2D GetBounds(void) const override;

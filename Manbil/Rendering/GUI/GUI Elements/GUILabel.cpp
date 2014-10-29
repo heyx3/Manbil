@@ -43,17 +43,15 @@ Vector2f GUILabel::GetPos(void) const
 }
 Box2D GUILabel::GetBounds(void) const
 {
-    Vector2f pos = GUIElement::GetPos() + GetTextOffset();
-
     //If this label doesn't currently contain text, use the smallest-possible bounding box.
     if (text.empty())
     {
         float maxY = (float)textRenderer->GetMaxCharacterSize(textRenderSlot.FontID).y;
-        return Box2D(pos, Vector2f(0.0001f, GetScale().y * maxY));
+        return Box2D(GetTextOffset(), Vector2f(0.0001f, GetScale().y * maxY));
     }
     else
     {
-        return Box2D(pos, dimensions.ComponentProduct(GetScale()));
+        return Box2D(GetTextOffset(), dimensions.ComponentProduct(GetScale()));
     }
 }
 
@@ -108,7 +106,7 @@ bool GUILabel::SetText(std::string newText)
 }
 void GUILabel::SetTextRenderSlot(TextRenderer::FontSlot newSlot)
 {
-    SetBoundsChanged();
+    DidBoundsChange = true;
     
     textRenderSlot = newSlot;
     text = textRenderer->GetString(textRenderSlot);

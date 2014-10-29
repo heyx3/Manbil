@@ -84,9 +84,9 @@ public:
     float GetXSize(void) const { return width; }
     float GetYSize(void) const { return height; }
     Vector2f GetDimensions(void) const { return Vector2f(width, height); }
-    void SetWidth(float newWidth) { width = newWidth; }
-    void SetHeight(float newHeight) { height = newHeight; }
-    void SetDimensions(Vector2f newWidthAndHeight) { width = newWidthAndHeight.x; height = newWidthAndHeight.y; }
+    void SetXSize(float newWidth) { width = newWidth; }
+    void SetYSize(float newHeight) { height = newHeight; }
+    void SetDimensions(Vector2f newXAndYSize) { width = newXAndYSize.x; height = newXAndYSize.y; }
 
     float GetXMin(void) const { return x; }
     float GetXMax(void) const { return x + width; }

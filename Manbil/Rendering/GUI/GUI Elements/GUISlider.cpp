@@ -10,13 +10,13 @@ Box2D GUISlider::GetBounds(void) const
           nubBounds = Nub.GetBounds();
     if (IsVertical)
     {
-        return Box2D(barBounds.GetCenter() + GetPos(),
+        return Box2D(barBounds.GetCenter(),
                      Vector2f(BasicMath::Max(barBounds.GetXSize(), nubBounds.GetXSize()),
                               barBounds.GetYSize() + nubBounds.GetYSize()));
     }
     else
     {
-        return Box2D(barBounds.GetCenter() + GetPos(),
+        return Box2D(barBounds.GetCenter(),
                      Vector2f(barBounds.GetXSize() + nubBounds.GetXSize(),
                               BasicMath::Max(barBounds.GetYSize(), nubBounds.GetYSize())));
     }
@@ -54,7 +54,6 @@ float GUISlider::GetNewValue(Vector2f mousePos) const
 
 void GUISlider::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    DidBoundsChange = Bar.DidBoundsChange || Nub.DidBoundsChange || DidBoundsChange;
     Bar.Update(elapsed, relativeMousePos);
     Nub.Update(elapsed, relativeMousePos);
 }

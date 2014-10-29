@@ -33,6 +33,7 @@ public:
     GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture()) { }
     
 
+    virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Bar.DidBoundsChange; }
     virtual Box2D GetBounds(void) const override;
 
     virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(scaleAmount.ComponentProduct(GetScale())); }

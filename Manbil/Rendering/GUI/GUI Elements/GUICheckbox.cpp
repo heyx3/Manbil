@@ -111,25 +111,16 @@ void GUICheckbox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     {
         if (HideBoxIfChecked)
         {
-            if (Check.GetDidBoundsChange())
-                DidBoundsChange = true;
-
             Check.Update(elapsed, relativeMousePos);
         }
         else
         {
-            if (Check.GetDidBoundsChange() || Box.GetDidBoundsChange())
-                DidBoundsChange = true;
-
             Box.Update(elapsed, relativeMousePos);
             Check.Update(elapsed, relativeMousePos);
         }
     }
     else
     {
-        if (Box.GetDidBoundsChange())
-            DidBoundsChange = true;
-
         Box.Update(elapsed, relativeMousePos);
     }
 }

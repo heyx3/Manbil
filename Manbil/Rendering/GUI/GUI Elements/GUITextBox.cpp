@@ -80,8 +80,6 @@ void GUITextBox::CustomUpdate(float elapsed, Vector2f mousePos)
     if (isSelected && Editable)
         keyboardInput.Update(elapsed);
 
-    DidBoundsChange = (Box.IsValid() && Box.DidBoundsChange) || DidBoundsChange;
-
     if (Box.IsValid()) Box.Update(elapsed, mousePos);
     if (Cursor.IsValid()) Cursor.Update(elapsed, mousePos - Cursor.GetPos());
 }
