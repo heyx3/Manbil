@@ -25,7 +25,7 @@ public:
 
     }
     //Makes a rectangle from the given min/max positions.
-    Box2D(float xMin, float xMax, float yMin, float yMax)
+    Box2D(float xMin = 0.0f, float xMax = 0.0f, float yMin = 0.0f, float yMax = 0.0f)
         : Box2D(xMin, yMin, Vector2f(xMax - xMin, yMax - yMin))
     {
 
