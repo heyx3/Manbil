@@ -4,19 +4,24 @@
 
 void GUIFormatObject::MoveObject(MovementData & data)
 {
-    Vector2f dims = Element->GetCollisionDimensions();
+    Box2D bnds = Element->GetBounds();
     Vector2f min = data.AutoPosCounter;
 
-    Element->SetBounds(Vector2f(min.x, -(min.y + dims.y)),
-                       Vector2f(min.x + dims.x, -min.y));
+    Element->SetBounds(Box2D(min.x, min.x + bnds.GetXSize(),
+                             -(min.y + bnds.GetYSize()), -min.y));
 
     if (MoveHorizontal)
-        data.AutoPosCounter.x += dims.x;
+        data.AutoPosCounter.x += bnds.GetXSize();
     if (MoveVertical)
-        data.AutoPosCounter.y += dims.y;
+        data.AutoPosCounter.y += bnds.GetYSize();
     data.AutoPosCounter += SpaceAfter;
 }
 
+
+Box2D GUIFormattedPanel::GetBounds(void) const
+{
+    return Box2D(Vector2f(), dimensions);
+}
 
 void GUIFormattedPanel::AddObject(const GUIFormatObject & toAdd)
 {
@@ -62,46 +67,67 @@ bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
     return false;
 }
 
+bool GUIFormattedPanel::GetDidBoundsChangeDeep(void) const
+{
+    if (DidBoundsChange) return true;
+
+    for (unsigned int i = 0; i < objects.size(); ++i)
+        if (objects[i].Element->GetDidBoundsChangeDeep())
+            return true;
+
+    return false;
+}
+void GUIFormattedPanel::ClearDidBoundsChangeDeep(void)
+{
+    for (unsigned int i = 0; i < objects.size(); ++i)
+        objects[i].Element->ClearDidBoundsChangeDeep();
+}
 
 void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
 {
-    //Scale the 'extents' vector.
-    extents.MultiplyComponents(scaleAmount);
+    GUIElement::ScaleBy(scaleAmount);
+    dimensions.MultiplyComponents(scaleAmount);
 
     //Scale each element and move its position to keep it at the same position in the panel.
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
-        Vector2f elPos = objects[i].Element->GetCollisionCenter();
+        Vector2f elPos = objects[i].Element->GetPos();
         objects[i].Element->SetPosition(elPos.ComponentProduct(scaleAmount));
         objects[i].Element->ScaleBy(scaleAmount);
     }
 }
 void GUIFormattedPanel::SetScale(Vector2f newScale)
 {
-    Vector2f dims = GetCollisionDimensions();
-    Vector2f delta(newScale.x / dims.x, newScale.y / dims.y);
+    Vector2f oldScale = GetScale();
+    Vector2f delta(newScale.x / oldScale.x, newScale.y / oldScale.y);
     ScaleBy(delta);
 }
 
 void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
+    bool changed = false;
     for (unsigned int i = 0; i < objects.size(); ++i)
-        objects[i].Element->Update(elapsed, relativeMousePos - objects[i].Element->GetCollisionCenter());
+    {
+        changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
+        objects[i].Element->Update(elapsed, relativeMousePos - objects[i].Element->GetPos());
+        changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
+
+        objects[i].Element->ClearDidBoundsChangeDeep();
+    }
+
+    if (changed) RePositionElements();
 }
 std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info)
 {
-    Vector2f nPos = -pos;
     std::string err = "";
 
 
     //First, render the background.
     if (BackgroundTex.IsValid())
     {
-        BackgroundTex.SetPosition(pos);
-        BackgroundTex.SetScale(GetCollisionDimensions());
-        BackgroundTex.Depth = Depth;
-        err = BackgroundTex.Render(elapsedTime, info);
-
+        BackgroundTex.SetBounds(GetBounds());
+        BackgroundTex.Depth = 0.0f;
+        err = RenderChild(&BackgroundTex, elapsedTime, info);
         if (!err.empty()) return "Error rendering background texture: " + err;
     }
 
@@ -111,12 +137,7 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         GUIElementPtr el = objects[i].Element;
-        el->MoveElement(pos);
-        el->Depth += Depth;
-        std::string tempErr = el->Render(elapsedTime, info);
-        el->MoveElement(nPos);
-        el->Depth -= Depth;
-
+        std::string tempErr = RenderChild(el.get(), elapsedTime, info);
         if (!tempErr.empty())
         {
             if (line > 0) err += "\n";
@@ -134,14 +155,14 @@ void GUIFormattedPanel::OnMouseClick(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
-        objects[i].Element->OnMouseClick(mouseP - objects[i].Element->GetCollisionCenter());
+        objects[i].Element->OnMouseClick(mouseP - objects[i].Element->GetPos());
     }
 }
 void GUIFormattedPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
-        Vector2f center = objects[i].Element->GetCollisionCenter();
+        Vector2f center = objects[i].Element->GetPos();
         objects[i].Element->OnMouseDrag(oldP - center, currentP - center);
     }
 }
@@ -149,7 +170,7 @@ void GUIFormattedPanel::OnMouseRelease(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
-        objects[i].Element->OnMouseRelease(mouseP - objects[i].Element->GetCollisionCenter());
+        objects[i].Element->OnMouseRelease(mouseP - objects[i].Element->GetPos());
     }
 }
 
@@ -162,24 +183,31 @@ void GUIFormattedPanel::RePositionElements()
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].MoveObject(moveDat);
-        Vector2f dims = objects[i].Element->GetCollisionDimensions(),
-                 center = objects[i].Element->GetCollisionCenter();
+        Box2D bnds = objects[i].Element->GetBounds();
 
         if (objects[i].MoveHorizontal)
             max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x);
         else
-            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x - objects[i].SpaceAfter.x + dims.x);
+            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x -
+                                            objects[i].SpaceAfter.x +
+                                            bnds.GetXSize());
 
         if (objects[i].MoveVertical)
             max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y);
         else
-            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y - objects[i].SpaceAfter.y + dims.y);
+            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y -
+                                            objects[i].SpaceAfter.y +
+                                            bnds.GetYSize());
+
+        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     //Calculate the extents and re-center the elements around the origin.
-    extents = max + Vector2f(HorizontalBorder, VerticalBorder);
-    Vector2f delta = extents.ComponentProduct(Vector2f(-0.5f, 0.5f)) +
+    dimensions = max + Vector2f(HorizontalBorder, VerticalBorder);
+    Vector2f delta = dimensions.ComponentProduct(Vector2f(-0.5f, 0.5f)) +
                      (Vector2f(HorizontalBorder, -VerticalBorder) * 0.5f);
     for (unsigned int i = 0; i < objects.size(); ++i)
         objects[i].Element->MoveElement(delta);
+
+    DidBoundsChange = true;
 }

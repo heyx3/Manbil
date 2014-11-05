@@ -53,12 +53,11 @@ public:
     float HorizontalBorder, VerticalBorder;
 
 
-    GUIFormattedPanel(const UniformDictionary & params,
-                      float horizontalBorder = 0.0f, float verticalBorder = 0.0f,
+    GUIFormattedPanel(float horizontalBorder = 0.0f, float verticalBorder = 0.0f,
                       GUITexture background = GUITexture(UniformDictionary()),
                       float timeLerpSpeed = 1.0f)
         : HorizontalBorder(horizontalBorder), VerticalBorder(verticalBorder),
-          extents(), BackgroundTex(background), GUIElement(params, timeLerpSpeed) { }
+          BackgroundTex(background), GUIElement(UniformDictionary(), timeLerpSpeed) { }
 
 
     void AddObject(const GUIFormatObject & toAdd);
@@ -75,25 +74,14 @@ public:
     GUIFormatObject & GetFormatObject(unsigned int index) { assert(index < objects.size()); return objects[index]; }
 
 
-    //Re-calculates the position of the elements in this panel.
-    //This should only be called manually if a GUIFormatObject was manually resized/repositioned.
-    void RePositionElements(void);
-
-
-    virtual Vector2f GetCollisionCenter(void) const override { return pos; }
-    virtual Vector2f GetCollisionDimensions(void) const override { return extents; }
-
-    virtual void MoveElement(Vector2f moveAmount) override { pos += moveAmount; }
-    virtual void SetPosition(Vector2f newPos) override { pos = newPos; }
-
-    virtual Vector2f GetScale(void) const override { return extents; }
+    virtual Box2D GetBounds(void) const override;
+    virtual bool GetDidBoundsChangeDeep(void) const override;
+    virtual void ClearDidBoundsChangeDeep(void) override;
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
 
-
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
-
 
     virtual void OnMouseClick(Vector2f mouse_centerOffset) override;
     virtual void OnMouseDrag(Vector2f originalPos_centerOffset,
@@ -108,8 +96,11 @@ protected:
 
 private:
 
-    Vector2f pos, extents;
+    Vector2f dimensions;
 
     //The objects to be arranged onto the panel.
     std::vector<GUIFormatObject> objects;
+
+    //Re-calculates the position of the elements in this panel.
+    void RePositionElements(void);
 };
