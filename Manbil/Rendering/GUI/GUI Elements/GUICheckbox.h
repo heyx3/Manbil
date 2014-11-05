@@ -37,6 +37,7 @@ public:
 
     virtual Box2D GetBounds(void) const override;
     virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Box.DidBoundsChange; }
+    virtual void ClearDidBoundsChangeDeep(void) override { DidBoundsChange = false; Box.DidBoundsChange = false; }
     virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
     virtual void SetScale(Vector2f newScale) override;
 

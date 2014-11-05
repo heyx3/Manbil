@@ -39,6 +39,7 @@ public:
     float GetTimeLerp(void) const { return Params.FloatUniforms.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second.Value[0]; }
     void SetTimeLerp(float newVal) { Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp].SetValue(newVal); }
 
+    //Returns { 1.0f, 1.0f, 1.0f, 1.0f } if this element doesn't have a color entry in its params.
     Vector4f GetColor(void) const;
     void SetColor(Vector4f newCol) { Params.FloatUniforms[GUIMaterials::QuadDraw_Color].SetValue(newCol); }
 
@@ -49,6 +50,9 @@ public:
     //    including any child elements changing.
     //Default behavior: just returns "DidBoundsChange".
     virtual bool GetDidBoundsChangeDeep(void) const { return true; }
+    //Resets this element's "DidBoundsChange" and any childrens' "DidBoundsChange".
+    //Default behavior: just sets "DidBoundsChange" to false.
+    virtual void ClearDidBoundsChangeDeep(void) { DidBoundsChange = false; }
 
     //Gets the location of the "anchor" of this element -- generally the center of its collision box.
     //Default behavior: just returns the position.

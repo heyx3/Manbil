@@ -24,6 +24,12 @@ bool GUIPanel::GetDidBoundsChangeDeep(void) const
 
     return false;
 }
+void GUIPanel::ClearDidBoundsChangeDeep(void)
+{
+    DidBoundsChange = false;
+    for (unsigned int i = 0; i < elements.size(); ++i)
+        elements[i]->DidBoundsChange = false;
+}
 
 void GUIPanel::ScaleBy(Vector2f scaleAmount)
 {

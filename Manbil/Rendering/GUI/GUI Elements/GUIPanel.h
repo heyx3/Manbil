@@ -9,8 +9,7 @@ class GUIPanel : public GUIElement
 {
 public:
 
-    GUIPanel(const UniformDictionary & params, float timeLerpSpeed = 1.0f)
-        : GUIElement(params, timeLerpSpeed) { }
+    GUIPanel(float timeLerpSpeed = 1.0f) : GUIElement(UniformDictionary(), timeLerpSpeed) { }
 
 
     //Adds the given element to this panel IF this panel doesn't have it already.
@@ -25,6 +24,7 @@ public:
 
     virtual Box2D GetBounds(void) const override;
     virtual bool GetDidBoundsChangeDeep(void) const override;
+    virtual void ClearDidBoundsChangeDeep(void) override;
 
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;

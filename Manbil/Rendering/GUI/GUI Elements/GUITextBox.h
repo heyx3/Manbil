@@ -44,6 +44,7 @@ public:
     {
         return DidBoundsChange || (Box.IsValid() && Box.DidBoundsChange);
     }
+    virtual void ClearDidBoundsChangeDeep(void) override { DidBoundsChange = false; Box.DidBoundsChange = false; }
 
     virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
     virtual void SetScale(Vector2f newScale) override;

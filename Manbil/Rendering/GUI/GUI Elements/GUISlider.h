@@ -34,6 +34,7 @@ public:
     
 
     virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Bar.DidBoundsChange; }
+    virtual void ClearDidBoundsChangeDeep(void) override { DidBoundsChange = false; Bar.DidBoundsChange = false; }
     virtual Box2D GetBounds(void) const override;
 
     virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(scaleAmount.ComponentProduct(GetScale())); }

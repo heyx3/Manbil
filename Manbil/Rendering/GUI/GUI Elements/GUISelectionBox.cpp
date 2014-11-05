@@ -72,6 +72,12 @@ bool GUISelectionBox::GetDidBoundsChangeDeep(void) const
            (isExtended && MainBox.DidBoundsChange) ||
            (!isExtended && SelectionBackground.DidBoundsChange);
 }
+void GUISelectionBox::ClearDidBoundsChangeDeep(void)
+{
+    DidBoundsChange = false;
+    MainBox.DidBoundsChange = false;
+    SelectionBackground.DidBoundsChange = false;
+}
 
 void GUISelectionBox::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
 {
