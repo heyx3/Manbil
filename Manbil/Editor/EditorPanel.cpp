@@ -1,29 +1,6 @@
 #include "EditorPanel.h"
 
 
-void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
-{
-    //Update the editor objects.
-    for (unsigned int i = 0; i < editorObjects.size(); ++i)
-    {
-        //If the active element changed, replace it in the formatted panel.
-        if (editorObjects[i]->Update(elapsedTime, relMousePos))
-        {
-            panel.ReplaceObject(i, GUIFormatObject(editorObjects[i]->GetActiveGUIElement(),
-                                                   editorObjects[i]->GetMoveHorizontally(),
-                                                   editorObjects[i]->GetMoveVertically(),
-                                                   editorObjects[i]->Offset));
-        }
-    }
-
-    //Now update the GUI objects.
-    panel.Update(elapsedTime, relMousePos);
-}
-std::string EditorPanel::Render(float elapsedTime, const RenderInfo & info)
-{
-    return panel.Render(elapsedTime, info);
-}
-
 std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
 {
     if (toAdd->InitGUIElement(MaterialSet))
@@ -79,4 +56,38 @@ bool EditorPanel::RemoveObject(EditorObjectPtr toRemove)
     }
 
     return found;
+}
+
+bool EditorPanel::GetDidBoundsChangeDeep(void) const
+{
+    return DidBoundsChange || panel.GetDidBoundsChangeDeep();
+}
+void EditorPanel::ClearDidBoundsChangeDeep(void)
+{
+    DidBoundsChange = false;
+    panel.ClearDidBoundsChangeDeep();
+}
+
+void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
+{
+    //Update the editor objects.
+    for (unsigned int i = 0; i < editorObjects.size(); ++i)
+    {
+        //If the active element changed, replace it in the formatted panel.
+        if (editorObjects[i]->Update(elapsedTime, relMousePos))
+        {
+            panel.ReplaceObject(i, GUIFormatObject(editorObjects[i]->GetActiveGUIElement(),
+                                                   editorObjects[i]->GetMoveHorizontally(),
+                                                   editorObjects[i]->GetMoveVertically(),
+                                                   editorObjects[i]->Offset));
+            DidBoundsChange = true;
+        }
+    }
+
+    //Now update the GUI objects.
+    panel.Update(elapsedTime, relMousePos);
+}
+std::string EditorPanel::Render(float elapsedTime, const RenderInfo & info)
+{
+    return panel.Render(elapsedTime, info);
 }

@@ -18,7 +18,7 @@ public:
 
 
     EditorPanel(EditorMaterialSet & set, float horizontalBorder, float verticalBorder)
-        : MaterialSet(set), panel(set.StaticMatGreyParams, horizontalBorder, verticalBorder,
+        : MaterialSet(set), panel(horizontalBorder, verticalBorder,
                                   GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
                                              &set.PanelBackgroundTex,
                                              set.GetStaticMaterial(&set.PanelBackgroundTex))),
@@ -26,7 +26,6 @@ public:
     
 
     const GUIFormattedPanel & GetPanel(void) const { return panel; }
-    void RePositionElements(void) { panel.RePositionElements(); }
 
 
     //Initializes the given object and then adds it to this editor panel.
@@ -51,17 +50,19 @@ public:
     const std::vector<EditorObjectPtr> & GetObjects(void) const { return editorObjects; }
 
 
+    virtual bool GetDidBoundsChangeDeep(void) const override;
+    virtual void ClearDidBoundsChangeDeep(void) override;
+
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 
     //Most of the overridden GUIElement functions just pass through to the GUIFormattedPanel.
-    virtual Vector2f GetCollisionCenter(void) const override { return panel.GetCollisionCenter(); }
-    virtual Vector2f GetCollisionDimensions(void) const override { return panel.GetCollisionDimensions(); }
-    virtual void MoveElement(Vector2f moveAmount) override { panel.MoveElement(moveAmount); }
-    virtual void SetPosition(Vector2f newPos) override { panel.SetPosition(newPos); }
-    virtual Vector2f GetScale(void) const override { return panel.GetScale(); }
-    virtual void ScaleBy(Vector2f scaleAmount) override { panel.ScaleBy(scaleAmount); }
-    virtual void SetScale(Vector2f newScale) override { panel.SetScale(newScale); }
+    virtual Vector2f GetPos(void) const override { return panel.GetPos(); }
+    virtual Box2D GetBounds(void) const override { return panel.GetBounds(); }
+    virtual void MoveElement(Vector2f moveAmount) override { GUIElement::MoveElement(moveAmount); panel.MoveElement(moveAmount); }
+    virtual void SetPosition(Vector2f newPos) override { GUIElement::SetPosition(newPos); panel.SetPosition(newPos); }
+    virtual void ScaleBy(Vector2f scaleAmount) override { GUIElement::ScaleBy(scaleAmount); panel.ScaleBy(scaleAmount); }
+    virtual void SetScale(Vector2f newScale) override { GUIElement::SetScale(newScale); panel.SetScale(newScale); }
     virtual void OnMouseClick(Vector2f relativeMousePos) { panel.OnMouseClick(relativeMousePos); }
     virtual void OnMouseDrag(Vector2f originalMPos, Vector2f currentMPos) { panel.OnMouseDrag(originalMPos, currentMPos); }
     virtual void OnMouseRelease(Vector2f relativeMousePos) override { panel.OnMouseRelease(relativeMousePos); }
