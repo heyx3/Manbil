@@ -321,4 +321,6 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
             }
         }
     }
+
+    return "";
 }

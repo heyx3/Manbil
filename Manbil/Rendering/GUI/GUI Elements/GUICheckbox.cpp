@@ -29,8 +29,8 @@ std::string GUICheckbox::Render(float elapsedTime, const RenderInfo & info)
             std::string err = RenderChild(&Box, elapsedTime, info);
             if (!err.empty()) return "Error rendering box: " + err;
 
-            std::string err = RenderChild(&Check, elapsedTime, info);
-            if (!err.empty()) return "Error rendering check: " + err;
+            err = RenderChild(&Check, elapsedTime, info);
+            if (!err.empty()) return std::string("Error rendering check: ") + err;
         }
     }
     else

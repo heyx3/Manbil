@@ -40,7 +40,7 @@ float GUISlider::GetNewValue(Vector2f mousePos) const
 
     if (IsVertical)
     {
-        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax,
+        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax(),
                                                          mousePos.y),
                                 0.0f, 1.0f);
     }
