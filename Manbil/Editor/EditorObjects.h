@@ -66,9 +66,8 @@ public:
                              GUILabel::HO_LEFT, GUILabel::VO_CENTER);
         boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         boxContents.ScaleBy(materialSet.TextScale);
-        GUITextBox * box = new GUITextBox(boxBackground, boxBackground, GUITexture(), boxContents,
-                                          (float)BoxDimensions.x, (float)BoxDimensions.y, true,
-                                          materialSet.StaticMatGreyParams, materialSet.AnimateSpeed);
+        GUITextBox * box = new GUITextBox(boxBackground, boxBackground, boxContents,
+                                          true, materialSet.AnimateSpeed);
         box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         //Try setting the initial value of the box.
         ErrorMsg.clear();
@@ -193,13 +192,14 @@ public:
     {
         MTexture2D *barTex = &materialSet.SliderBarTex,
                    *nubTex = &materialSet.SliderNubTex;
-        GUISlider * slider = new GUISlider(materialSet.StaticMatGreyParams,
-                                           materialSet.GetStaticMatParams(barTex),
-                                           materialSet.GetAnimatedMatParams(nubTex),
-                                           barTex, nubTex, materialSet.GetStaticMaterial(barTex),
-                                           materialSet.GetAnimatedMaterial(nubTex),
-                                           materialSet.SliderBarScale, materialSet.SliderNubScale, true, false,
-                                           materialSet.AnimateSpeed);
+        GUITexture guiBar(materialSet.GetStaticMatParams(barTex), barTex,
+                          materialSet.GetStaticMaterial(barTex), false),
+                   guiNub(materialSet.GetAnimatedMatParams(nubTex), nubTex,
+                          materialSet.GetAnimatedMaterial(nubTex), true);
+        guiBar.ScaleBy(materialSet.SliderBarScale);
+        guiNub.ScaleBy(materialSet.SliderNubScale);
+        GUISlider * slider = new GUISlider(materialSet.StaticMatGreyParams, guiBar, guiNub,
+                                           true, false, materialSet.AnimateSpeed);
         slider->Value = DefaultLerpValue;
         slider->OnValueChanged = [](GUISlider * slid, Vector2f mouse, void* pData)
         {
@@ -539,7 +539,6 @@ public:
         if (!err.empty()) return "Error creating collapsible editor panel for the new element: " + err;
 
 
-        ((EditorPanel*)activeGUIElement.get())->RePositionElements();
         didActiveElementChange = true;
         return "";
     }
@@ -555,7 +554,6 @@ public:
         //There is one editor object in the panel after the last element in the collection.
         collectionPanel->RemoveObject(*(collectionPanel->GetObjects().end() - 1));
 
-        ((EditorPanel*)activeGUIElement.get())->RePositionElements();
         didActiveElementChange = true;
     }
 
