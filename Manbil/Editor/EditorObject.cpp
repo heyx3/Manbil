@@ -34,7 +34,7 @@ GUIElementPtr EditorObject::AddDescription(EditorMaterialSet & set, GUIElementPt
 
 
     //Make the panel.
-    GUIFormattedPanel* panel = new GUIFormattedPanel(UniformDictionary());
+    GUIFormattedPanel* panel = new GUIFormattedPanel();
     panel->AddObject(GUIFormatObject(DescriptionLabel.IsOnLeft ? label : element,
                                      true, false, Vector2f(DescriptionLabel.Spacing, 0.0f)));
     panel->AddObject(GUIFormatObject(DescriptionLabel.IsOnLeft ? element : label));
