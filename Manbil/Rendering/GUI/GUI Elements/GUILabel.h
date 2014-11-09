@@ -63,9 +63,6 @@ public:
 
     virtual Box2D GetBounds(void) const override;
 
-    //virtual void SetScale(Vector2f newScale) override;
-    //virtual void ScaleBy(Vector2f scaleAmount) override;
-
     virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
 
 

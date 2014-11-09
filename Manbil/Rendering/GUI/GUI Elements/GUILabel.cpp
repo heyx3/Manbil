@@ -19,18 +19,6 @@ Box2D GUILabel::GetBounds(void) const
     }
 }
 
-/*
-void GUILabel::SetScale(Vector2f newScale)
-{
-    Vector2f oldScale = GetScale();
-    ScaleBy(Vector2f(newScale.x / oldScale.x, newScale.y / oldScale.y));
-}
-void GUILabel::ScaleBy(Vector2f scaleAmount)
-{
-
-}
-*/
-
 Vector2f GUILabel::GetAnchorToTextCenter(void) const
 {
     Vector2f rendSize = ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot));
