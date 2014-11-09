@@ -64,7 +64,9 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
         return "Error occurred while setting texture data for slider bar texture.";
 
     //Slider nub texture.
-    greyData.Fill(0.1f);
+    greyData.Reset(5, 4, 0.2f);
+    greyData[Vector2u(2, 1)] = 1.0f;
+    greyData[Vector2u(2, 2)] = 1.0f;
     outSet.SliderNubTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SliderNubTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for slider nub texture.";

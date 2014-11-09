@@ -158,34 +158,20 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
-        //GUIPanel* panel = new GUIPanel();
-
-        TextRenderer::FontSlot slot(editorMaterials->FontID,
-                                    TextRender->GetNumbSlots(editorMaterials->FontID));
-        if (!TextRender->CreateTextRenderSlots(editorMaterials->FontID, 512,
-                                               editorMaterials->TextRenderSpaceHeight, true,
-                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
-        {
-            std::cout << "Error creating text render slot: " << TextRender->GetError() << "\n";
-            Pause();
-            EndWorld();
-            return;
-        }
-        if (!TextRender->RenderString(slot, "Test"))
-        {
-            std::cout << "Error rendering string: " << TextRender->GetError() << "\n";
-            Pause();
-            EndWorld();
-            return;
-        }
-        GUIElementPtr guiPtr(new GUILabel(editorMaterials->AnimatedMatTextParams,
-                                          &editorMaterials->TextRender, slot,
-                                          editorMaterials->AnimatedMatText,
-                                          editorMaterials->AnimateSpeed,
-                                          GUILabel::HO_LEFT, GUILabel::VO_BOTTOM));
+        MTexture2D *sliderBar = &editorMaterials->SliderBarTex,
+                   *sliderNub = &editorMaterials->SliderNubTex;
+        GUITexture guiBar(editorMaterials->GetStaticMatParams(sliderBar), sliderBar,
+                          editorMaterials->GetStaticMaterial(sliderBar), false,
+                          editorMaterials->AnimateSpeed),
+                   guiNub(editorMaterials->GetAnimatedMatParams(sliderNub), sliderNub,
+                          editorMaterials->GetAnimatedMaterial(sliderNub), true,
+                          editorMaterials->AnimateSpeed);
+        guiBar.ScaleBy(editorMaterials->SliderBarScale);
+        guiNub.ScaleBy(editorMaterials->SliderNubScale);
+        GUIElementPtr guiPtr(new GUISlider(UniformDictionary(), guiBar, guiNub, 0.5f, true, false, 1.0f));
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
-            thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.003f);
+            thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.001f);
         };
 
         guiManager = GUIManager(guiPtr);
@@ -241,7 +227,7 @@ void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
     glViewport(0, 0, WindowSize.x, WindowSize.y);
-    ScreenClearer(true, true, false, Vector4f(0.5f, 0.5f, 0.5f, 0.0f)).ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.5f, 0.2f, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
                    false, false, RenderingState::AT_GREATER, 0.0f).EnableState();
 

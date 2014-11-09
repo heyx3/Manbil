@@ -25,10 +25,10 @@ Box2D GUISlider::GetBounds(void) const
 
 void GUISlider::SetScale(Vector2f newScale)
 {
-    Vector2f oldBarScale = Bar.GetScale();
-    Vector2f deltaScale(newScale.x / oldBarScale.x, newScale.y / oldBarScale.y);
+    Vector2f oldScale = GetScale();
+    Vector2f deltaScale(newScale.x / oldScale.x, newScale.y / oldScale.y);
 
-    Bar.SetScale(newScale);
+    Bar.ScaleBy(deltaScale);
     Nub.ScaleBy(deltaScale);
 
     GUIElement::SetScale(newScale);

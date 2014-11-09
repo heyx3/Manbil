@@ -26,11 +26,11 @@ public:
 
 
     GUISlider(const UniformDictionary & params,
-              const GUITexture& barTex, const GUITexture& nubTex,
+              const GUITexture& barTex, const GUITexture& nubTex, float startingValLerp,
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
               : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
-                Bar(barTex), Nub(nubTex) { }
-    GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture()) { }
+                Bar(barTex), Nub(nubTex), Value(startingValLerp) { }
+    GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture(), 0.5f) { }
     
 
     virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Bar.DidBoundsChange; }
