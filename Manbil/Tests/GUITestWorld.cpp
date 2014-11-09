@@ -187,9 +187,6 @@ void GUITestWorld::InitializeWorld(void)
         {
             thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.003f);
         };
-        //panel->AddElement(GUIElementPtr(new GUITexture(editorMaterials->GetAnimatedMatParams(tex), tex,
-        //                                               editorMaterials->GetAnimatedMaterial(tex), true,
-        //                                               editorMaterials->AnimateSpeed)));
 
         guiManager = GUIManager(guiPtr);
     }
