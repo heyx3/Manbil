@@ -39,19 +39,27 @@ bool DropdownValues::InitGUIElement(EditorMaterialSet & materialSet)
                                   &materialSet.SelectionBoxBackgroundTex,
                                   materialSet.GetStaticMaterial(&materialSet.SelectionBoxBackgroundTex),
                                   false, materialSet.AnimateSpeed);
+    GUITexture highlight;
     GUITexture selectedItemBox(materialSet.GetAnimatedMatParams(&materialSet.SelectionBoxBoxTex),
                                &materialSet.SelectionBoxBoxTex,
                                materialSet.GetAnimatedMaterial(&materialSet.SelectionBoxBoxTex),
                                false, materialSet.AnimateSpeed);
-    GUISelectionBox* box = new GUISelectionBox(materialSet.StaticMatGreyParams,
-                                               &materialSet.TextRender,
-                                               selectedItemBox, materialSet.FontID,
-                                               Vector2u(selectedItemBox.Tex->GetWidth(),
-                                               selectedItemBox.Tex->GetHeight()),
-                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
-                                               materialSet.StaticMatText, GUILabel::HO_LEFT,
-                                               itemListBackground, Items, 0, true, materialSet.AnimateSpeed);
-    if (box->BoxElement.Mat == 0)
+    //GUISelectionBox* box = new GUISelectionBox(err, &materialSet.TextRender,
+    //                                           selectedItemBox, materialSet.FontID,
+    //                                           Vector2u(selectedItemBox.Tex->GetWidth(),
+    //                                           selectedItemBox.Tex->GetHeight()),
+    //                                           TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
+    //                                           materialSet.StaticMatText, GUILabel::HO_LEFT,
+    //                                           itemListBackground, Items, 0, true, materialSet.AnimateSpeed);
+    std::string err;
+    GUISelectionBox* box = new GUISelectionBox(err, &materialSet.TextRender, selectedItemBox, highlight,
+                                               itemListBackground, true, materialSet.TextColor,
+                                               materialSet.FontID, materialSet.StaticMatText,
+                                               materialSet.StaticMatTextParams, true,
+                                               FilteringTypes::FT_LINEAR,Items, materialSet.TextScale,
+                                               materialSet.DropdownBoxItemSpacing, OnSelected, 0,
+                                               OnSelected_Data, 0, materialSet.AnimateSpeed);
+    if (!err.empty())
     {
         ErrorMsg = "Error generating text slots for dropdown box: " + box->TextRender->GetError();
         delete box;
@@ -118,7 +126,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
                                              materialSet.GetAnimatedMaterial(tex),
                                              true, materialSet.AnimateSpeed));
-    buttonTex->SetBounds(ButtonSize * -0.5f, ButtonSize * 0.5f);
+    buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, -ButtonSize.y)));
     GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
     buttonTexPtr->OnClicked = OnClick;
     buttonTexPtr->OnClicked_pData = OnClick_Data;
@@ -132,8 +140,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     }
     else
     {
-        GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams,
-                                       ButtonSize, materialSet.AnimateSpeed);
+        GUIPanel* panel = new GUIPanel(materialSet.AnimateSpeed);
         panel->AddElement(buttonTex);
         panel->AddElement(buttonLabel);
 
@@ -156,7 +163,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
 
 bool EditorButtonList::InitGUIElement(EditorMaterialSet & materialSet)
 {
-    GUIFormattedPanel* buttonPanel = new GUIFormattedPanel(UniformDictionary());
+    GUIFormattedPanel* buttonPanel = new GUIFormattedPanel();
 
     for (unsigned int i = 0; i < buttonData.size(); ++i)
     {
@@ -207,7 +214,7 @@ bool EditorButtonList::InitGUIElement(EditorMaterialSet & materialSet)
         buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
                                                  materialSet.GetAnimatedMaterial(tex),
                                                  true, materialSet.AnimateSpeed));
-        buttonTex->SetBounds(buttonSize * -0.5f, buttonSize * 0.5f);
+        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(-buttonSize.x, buttonSize.y)));
         GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
         buttonTexPtr->OnClicked = dat.OnClick;
         buttonTexPtr->OnClicked_pData = dat.OnClick_pData;
@@ -221,8 +228,7 @@ bool EditorButtonList::InitGUIElement(EditorMaterialSet & materialSet)
         }
         else
         {
-            GUIPanel* panel = new GUIPanel(materialSet.StaticMatGreyParams,
-                                           buttonSize, materialSet.AnimateSpeed);
+            GUIPanel* panel = new GUIPanel(materialSet.AnimateSpeed);
             panel->AddElement(buttonTex);
             panel->AddElement(buttonLabel);
 
@@ -348,7 +354,7 @@ bool EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet & set)
 
 
         //Combine the title bar and label together into a panel.
-        GUIPanel* titleBarPanel = new GUIPanel(UniformDictionary(), titleBar->GetCollisionDimensions().x);
+        GUIPanel* titleBarPanel = new GUIPanel();
         titleBarPanel->AddElement(GUIElementPtr(titleBar));
         titleBarPanel->AddElement(label);
         label->SetPosition(Vector2f(0.0f, 0.0f));
@@ -357,7 +363,7 @@ bool EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet & set)
     
 
     //Now make an outer panel that includes the inner element.
-    GUIFormattedPanel* fullPanelPtr = new GUIFormattedPanel(UniformDictionary());
+    GUIFormattedPanel* fullPanelPtr = new GUIFormattedPanel();
     fullPanelPtr->AddObject(GUIFormatObject(barOnly, false, true, Vector2f(10.0f, 0.0f)));
     fullPanelPtr->AddObject(GUIFormatObject(innerElement));
     fullPanel = GUIElementPtr(fullPanelPtr);
@@ -380,7 +386,8 @@ void EditorCollapsibleBranch::Toggle(void)
     if (activeGUIElement.get() == barOnly.get())
     {
         activeGUIElement = fullPanel;
-        ((GUIFormattedPanel*)fullPanel.get())->RePositionElements();
+        //TODO: See whether the following line is actually necessary.
+        ((GUIFormattedPanel*)fullPanel.get())->DidBoundsChange = true;
     }
     else
     {

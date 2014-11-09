@@ -37,6 +37,7 @@ public:
     Vector4f TextColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
              CollapsibleEditorTitleTextCol = Vector4f(0.875f, 0.875f, 0.875f, 1.0f);
     Vector2f TextScale = Vector2f(0.3f, 0.3f);
+    float DropdownBoxItemSpacing = 10.0f;
     unsigned int TextRenderSpaceHeight = 128;
 
     Material *AnimatedMatGrey = 0,
