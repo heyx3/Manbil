@@ -25,7 +25,7 @@ public:
 
     //Raised every update step, before anything is updated.
     //"pData" is the value of this instance's "OnUpdate_Data" field.
-    void(*OnUpdate)(GUIElement * thisEl, void* pData) = 0;
+    void(*OnUpdate)(GUIElement * thisEl, Vector2f localMouse, void* pData) = 0;
     void* OnUpdate_Data = 0;
 
 
@@ -123,7 +123,7 @@ protected:
     //Sets up the drawing quad with the given bounds and depth.
     static void SetUpQuad(const Box2D& bounds, float depth);
     //Sets up the drawing quad with this element's bounds and depth.
-    void SetUpQuad(void) const { SetUpQuad(GetBounds(), Depth); }
+    void SetUpQuad(void) const;
 
 
 private:

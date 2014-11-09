@@ -112,10 +112,10 @@ void GUITestWorld::InitializeWorld(void)
         return;
     }
 
-    //Build the editor.
-    EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
-    if (true)
+    //Build the GUI elements.
+    if (false)
     {
+        EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
         /*
         editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
         editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
@@ -134,9 +134,12 @@ void GUITestWorld::InitializeWorld(void)
         editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
         */
         editor->AddObject(EditorObjectPtr(new EditorCollection<CollectionElement>()));
+
+        guiManager = GUIManager(GUIElementPtr(editor));
     }
-    else
+    else if (false)
     {
+        EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
         std::vector<EditorObjectPtr> ptrs;
         colEd.Color = Vector4f(0.5f, 0.25f, 1.0f, 0.5f);
 
@@ -150,14 +153,54 @@ void GUITestWorld::InitializeWorld(void)
             if (!ReactToError(err.empty(), "Error adding ptr element #" + std::to_string(i + 1), err))
                 return;
         }
+
+        guiManager = GUIManager(GUIElementPtr(editor));
     }
-    guiManager = GUIManager(GUIElementPtr(editor));
+    else if (true)
+    {
+        //GUIPanel* panel = new GUIPanel();
+
+        TextRenderer::FontSlot slot(editorMaterials->FontID,
+                                    TextRender->GetNumbSlots(editorMaterials->FontID));
+        if (!TextRender->CreateTextRenderSlots(editorMaterials->FontID, 512,
+                                               editorMaterials->TextRenderSpaceHeight, true,
+                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        {
+            std::cout << "Error creating text render slot: " << TextRender->GetError() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        if (!TextRender->RenderString(slot, "Test"))
+        {
+            std::cout << "Error rendering string: " << TextRender->GetError() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        GUIElementPtr guiPtr(new GUILabel(editorMaterials->AnimatedMatTextParams,
+                                          &editorMaterials->TextRender, slot,
+                                          editorMaterials->AnimatedMatText,
+                                          editorMaterials->AnimateSpeed,
+                                          GUILabel::HO_LEFT, GUILabel::VO_BOTTOM));
+        guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
+        {
+            thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.003f);
+        };
+        //panel->AddElement(GUIElementPtr(new GUITexture(editorMaterials->GetAnimatedMatParams(tex), tex,
+        //                                               editorMaterials->GetAnimatedMaterial(tex), true,
+        //                                               editorMaterials->AnimateSpeed)));
+
+        guiManager = GUIManager(guiPtr);
+    }
+    else assert(false);
 
     //Set up the window.
-    Vector2f dims = editor->GetCollisionDimensions();
-    WindowSize = Vector2i((int)dims.x, (int)dims.y);
-    //WindowSize = Vector2i(500, 500);
-    editor->SetPosition(dims * 0.5f);
+    Vector2f dims = guiManager.RootElement->GetBounds().GetDimensions();
+    //WindowSize = Vector2i((int)dims.x, (int)dims.y);
+    WindowSize = Vector2i(500, 500);
+    //guiManager.RootElement->SetPosition(dims * 0.5f);
+    guiManager.RootElement->SetBounds(Box2D(dims * 0.5f, dims));
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 }
@@ -175,11 +218,11 @@ void GUITestWorld::UpdateWorld(float elapsed)
         EndWorld();
     
     //Move the gui window.
-    const float speed = 0.0f;
+    const float speed = 50.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         guiManager.RootElement->MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        guiManager.RootElement->MoveElement(Vector2f((int)(speed * elapsed), 0.0f));
+        guiManager.RootElement->MoveElement(Vector2f((speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         guiManager.RootElement->MoveElement(Vector2f(0.0f, (speed * elapsed)));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
@@ -189,14 +232,19 @@ void GUITestWorld::UpdateWorld(float elapsed)
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
     mPosFinal.y = WindowSize.y - mPosFinal.y;
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+    {
+        mPosFinal = mPosFinal;
+    }
+
     guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    guiManager.RootElement->SetPosition(Vector2f(WindowSize.x * 0.5f, WindowSize.y * 0.5f));
+    //guiManager.RootElement->SetPosition(Vector2f(WindowSize.x * 0.5f, WindowSize.y * 0.5f));
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
     //Prepare the back-buffer to be rendered into.
     glViewport(0, 0, WindowSize.x, WindowSize.y);
-    ScreenClearer(true, true, false, Vector4f(0.1f, 0.1f, 0.1f, 0.0f)).ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(0.5f, 0.5f, 0.5f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
                    false, false, RenderingState::AT_GREATER, 0.0f).EnableState();
 

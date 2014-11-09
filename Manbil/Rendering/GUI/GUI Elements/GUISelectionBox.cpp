@@ -59,11 +59,15 @@ Box2D GUISelectionBox::GetBounds(void) const
 {
     if (isExtended)
     {
-        return SelectionBackground.GetBounds();
+        Box2D bnds = SelectionBackground.GetBounds();
+        bnds.Move(SelectionBackground.GetPos());
+        return bnds;
     }
     else
     {
-        return MainBox.GetBounds();
+        Box2D bnds = MainBox.GetBounds();
+        bnds.Move(MainBox.GetPos());
+        return bnds;
     }
 }
 bool GUISelectionBox::GetDidBoundsChangeDeep(void) const

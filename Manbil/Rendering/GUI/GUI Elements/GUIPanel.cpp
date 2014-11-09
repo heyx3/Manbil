@@ -8,9 +8,17 @@ Box2D GUIPanel::GetBounds(void) const
 
     if (elements.empty())
         bounds = Box2D();
-    bounds = elements[0]->GetBounds();
-    for (unsigned int i = 1; i < elements.size(); ++i)
-        bounds = Box2D(bounds, elements[i]->GetBounds());
+    else
+    {
+        bounds = elements[0]->GetBounds();
+        bounds.Move(elements[0]->GetPos());
+        for (unsigned int i = 1; i < elements.size(); ++i)
+        {
+            Box2D tempBnds = elements[i]->GetBounds();
+            tempBnds.Move(elements[i]->GetPos());
+            bounds = Box2D(bounds, tempBnds);
+        }
+    }
 
     return bounds;
 }

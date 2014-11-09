@@ -16,6 +16,13 @@ void GUIElement::SetBounds(Box2D newBounds)
     MoveElement(newBounds.GetCenter() - currentBounds.GetCenter());
 }
 
+
+void GUIElement::SetUpQuad(void) const
+{
+    Box2D bnds = GetBounds();
+    bnds.Move(GetPos());
+    SetUpQuad(bnds, Depth);
+}
 void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
 {
     GetQuad()->SetPos(bounds.GetCenter());
@@ -34,7 +41,7 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
     DidBoundsChange = false;
 
-    if (OnUpdate != 0) OnUpdate(this, OnUpdate_Data);
+    if (OnUpdate != 0) OnUpdate(this, relativeMouse, OnUpdate_Data);
 
     this->CustomUpdate(elapsed, relativeMouse);
 

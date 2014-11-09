@@ -3,7 +3,9 @@
 
 Box2D GUICheckbox::GetBounds(void) const
 {
-    return Box.GetBounds();
+    Box2D bx = Box.GetBounds();
+    bx.Move(Box.GetPos());
+    return bx;
 }
 void GUICheckbox::SetScale(Vector2f newScale)
 {

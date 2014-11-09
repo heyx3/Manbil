@@ -49,7 +49,9 @@ GUITextBox::GUITextBox(const GUITextBox & cpy)
 
 Box2D GUITextBox::GetBounds(void) const
 {
-    return Box.GetBounds();
+    Box2D bnds = Box.GetBounds();
+    bnds.Move(Box.GetPos());
+    return bnds;
 }
 
 void GUITextBox::SetScale(Vector2f newScale)

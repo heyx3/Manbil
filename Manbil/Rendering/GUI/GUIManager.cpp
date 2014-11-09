@@ -4,10 +4,8 @@
 
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 {
-    Box2D bounds = RootElement->GetBounds();
-    bounds.Move(RootElement->GetPos());
-    Vector2f relMouse = ToV2f(mousePos) - bounds.GetCenter(),
-             oldRelMouse = originalClickPos - bounds.GetCenter();
+    Vector2f relMouse = ToV2f(mousePos) - RootElement->GetPos(),
+             oldRelMouse = originalClickPos - RootElement->GetPos();
 
     RootElement->Update(elapsed, relMouse);
 

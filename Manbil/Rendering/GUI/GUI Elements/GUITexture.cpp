@@ -12,7 +12,7 @@ Box2D GUITexture::GetBounds(void) const
         dims.MultiplyComponents(GetScale());
     }
 
-    return Box2D(GetPos(), dims);
+    return Box2D(Vector2f(), dims);
 }
 
 std::string GUITexture::Render(float elapsed, const RenderInfo & info)

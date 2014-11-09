@@ -10,13 +10,13 @@ Box2D GUISlider::GetBounds(void) const
           nubBounds = Nub.GetBounds();
     if (IsVertical)
     {
-        return Box2D(barBounds.GetCenter(),
+        return Box2D(Bar.GetPos(),
                      Vector2f(BasicMath::Max(barBounds.GetXSize(), nubBounds.GetXSize()),
                               barBounds.GetYSize() + nubBounds.GetYSize()));
     }
     else
     {
-        return Box2D(barBounds.GetCenter(),
+        return Box2D(Bar.GetPos(),
                      Vector2f(barBounds.GetXSize() + nubBounds.GetXSize(),
                               BasicMath::Max(barBounds.GetYSize(), nubBounds.GetYSize())));
     }
