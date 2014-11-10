@@ -33,7 +33,7 @@ public:
 
     Vector2f SliderBarScale = Vector2f(100.0f, 12.0f),
              SliderNubScale = Vector2f(2.0f, 7.5f);
-    float TextBoxCursorWidth = 8.0f;
+    float TextBoxCursorWidth = 2.0f;
     Vector4f TextColor = Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
              CollapsibleEditorTitleTextCol = Vector4f(0.875f, 0.875f, 0.875f, 1.0f);
     Vector2f TextScale = Vector2f(0.3f, 0.3f);

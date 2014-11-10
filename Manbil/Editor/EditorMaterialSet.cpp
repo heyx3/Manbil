@@ -7,15 +7,15 @@
 
 EditorMaterialSet::EditorMaterialSet(TextRenderer & renderer)
     : TextRender(renderer), FontID(0),
-      ButtonTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SliderBarTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SliderNubTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      TextBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      PanelBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      CheckBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      CheckBoxCheckTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SelectionBoxBoxTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
-      SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      ButtonTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SliderBarTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SliderNubTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      TextBoxBackgroundTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      PanelBackgroundTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      CheckBoxBackgroundTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      CheckBoxCheckTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SelectionBoxBoxTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
+      SelectionBoxBackgroundTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       CollapsibleEditorTitleBarTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U_GREYSCALE, false),
       AddToCollectionTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
       DeleteFromCollectionTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false)
@@ -36,7 +36,6 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", 80);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
         return "Error loading font 'Content/Fonts/Inconsolata.otf': " + outSet.TextRender.GetError();
-    outSet.TextRenderSpaceHeight = FreeTypeHandler::Instance.GetGlyphMaxSize(outSet.FontID).y;
 
 
     //Set up the textures.
@@ -53,13 +52,13 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
             *outVal = 0.0f;
         else *outVal = 1.0f;
     });
-    outSet.ButtonTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.ButtonTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.ButtonTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for button texture.";
 
     //Slider bar texture.
     greyData.Reset(1, 1, 0.6f);
-    outSet.SliderBarTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.SliderBarTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SliderBarTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for slider bar texture.";
 
@@ -67,25 +66,25 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     greyData.Reset(5, 4, 0.2f);
     greyData[Vector2u(2, 1)] = 1.0f;
     greyData[Vector2u(2, 2)] = 1.0f;
-    outSet.SliderNubTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.SliderNubTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SliderNubTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for slider nub texture.";
 
     //Text box background texture.
     greyData.Fill(1.0f);
-    outSet.TextBoxBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.TextBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.TextBoxBackgroundTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for text box background texture.";
 
     //Panel background texture.
     greyData.Fill(0.95f);
-    outSet.PanelBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.PanelBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.PanelBackgroundTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for panel background texture.";
 
     //SelectionBox background texture.
     greyData.Fill(0.8f);
-    outSet.SelectionBoxBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.SelectionBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SelectionBoxBackgroundTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for SelectionBox background texture.";
 
@@ -96,12 +95,12 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
         greyData[Vector2u(x, 0)] = 0.1f;
         greyData[Vector2u(x, greyData.GetHeight() - 1)] = 0.1f;
     }
-    outSet.SelectionBoxBoxTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
+    outSet.SelectionBoxBoxTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SelectionBoxBoxTex.SetGreyscaleData(greyData))
         return "Error occurred while setting texture data for SelectionBox box texture.";
 
     //Checkbox background texture.
-    outSet.CheckBoxBackgroundTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    outSet.CheckBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U);
     std::string err;
     if (!outSet.CheckBoxBackgroundTex.SetDataFromFile("Content/Textures/CheckboxBackground.png", err))
     {
@@ -109,21 +108,21 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet & outSe
     }
 
     //Checkbox check texture.
-    outSet.CheckBoxCheckTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    outSet.CheckBoxCheckTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U);
     if (!outSet.CheckBoxCheckTex.SetDataFromFile("Content/Textures/CheckboxCheck.png", err))
     {
         return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
     }
 
     //"Add element" texture.
-    outSet.AddToCollectionTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    outSet.AddToCollectionTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U);
     if (!outSet.AddToCollectionTex.SetDataFromFile("Content/Textures/AddElement.png", err))
     {
         return "Error loading 'AddElement.png' from 'Content/Textures': " + err;
     }
 
     //"Remove element" texture.
-    outSet.DeleteFromCollectionTex.Create(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), false, PixelSizes::PS_8U);
+    outSet.DeleteFromCollectionTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false, PixelSizes::PS_8U);
     if (!outSet.DeleteFromCollectionTex.SetDataFromFile("Content/Textures/RemoveElement.png", err))
     {
         return "Error loading 'RemoveElement.png' from 'Content/Textures': " + err;
