@@ -158,8 +158,6 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
-        //PRIORITY: Switch this test to GUIFormattedPanel.
-
         //Two sample textures that slowly move.
         MTexture2D *tex1 = &editorMaterials->CheckBoxBackgroundTex,
                    *tex2 = &editorMaterials->AddToCollectionTex;
