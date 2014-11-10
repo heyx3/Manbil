@@ -158,6 +158,8 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
+        //PRIORITY: Switch this test to GUIFormattedPanel.
+
         //Two sample textures that slowly move.
         MTexture2D *tex1 = &editorMaterials->CheckBoxBackgroundTex,
                    *tex2 = &editorMaterials->AddToCollectionTex;
@@ -171,12 +173,12 @@ void GUITestWorld::InitializeWorld(void)
         guiTex2->ScaleBy(Vector2f(0.5f, 3.0f));
         guiTex1->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
         {
-            tex->MoveElement(Vector2f(0.2f, 0.2f));
+            //tex->MoveElement(Vector2f(0.2f, 0.2f));
             //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
         };
         guiTex2->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
         {
-            tex->MoveElement(Vector2f(-0.2f, -0.2f));
+            //tex->MoveElement(Vector2f(-0.2f, -0.2f));
             //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
         };
 
@@ -235,12 +237,7 @@ void GUITestWorld::UpdateWorld(float elapsed)
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
-    mPosFinal.y = WindowSize.y - mPosFinal.y;
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-    {
-        mPosFinal = mPosFinal;
-    }
+    mPosFinal.y -= WindowSize.y;
 
     guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
     //guiManager.RootElement->SetPosition(Vector2f(WindowSize.x * 0.5f, WindowSize.y * 0.5f));
