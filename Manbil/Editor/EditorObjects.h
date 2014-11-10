@@ -27,18 +27,18 @@ public:
     //The starting value of this text box.
     DataType StartingValue;
 
-    Vector2u BoxDimensions;
+    float BoxWidth;
 
     void(*OnValueChanged)(GUITextBox * textBox, DataType newVal, void* pData) = 0;
     void* OnValueChanged_Data = 0;
 
 
-    _TextBoxValue(DataType startingValue, Vector2u boxDimensions, Vector2f offset = Vector2f(0.0f, 0.0f),
+    _TextBoxValue(DataType startingValue, float boxWidth, Vector2f offset = Vector2f(0.0f, 0.0f),
                   EditorObject::DescriptionData description = EditorObject::DescriptionData(),
                   void(*onValueChanged)(GUITextBox * textBox, DataType newVal, void* pData) = 0,
                   void* onValueChanged_pData = 0)
         : StartingValue(startingValue), OnValueChanged(onValueChanged),
-          BoxDimensions(boxDimensions), OnValueChanged_Data(onValueChanged_pData),
+          BoxWidth(boxWidth), OnValueChanged_Data(onValueChanged_pData),
           EditorObject(description, offset) { }
 
     virtual bool InitGUIElement(EditorMaterialSet & materialSet) override
@@ -46,8 +46,7 @@ public:
         activeGUIElement = GUIElementPtr(0);
 
         if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID,
-                                                          (unsigned int)((float)BoxDimensions.x /
-                                                                         materialSet.TextScale.x),
+                                                          (unsigned int)(BoxWidth / materialSet.TextScale.x),
                                                           materialSet.TextRenderSpaceHeight, false,
                                                           TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
         {
@@ -61,12 +60,17 @@ public:
                                  &materialSet.TextBoxBackgroundTex,
                                  materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
                                  false, materialSet.AnimateSpeed);
+        boxBackground.SetScale(Vector2f(BoxWidth / (float)materialSet.TextBoxBackgroundTex.GetWidth(),
+                                        materialSet.TextRenderSpaceHeight * materialSet.TextScale.y));
+        
+        GUITexture boxCursor(boxBackground);
+        boxCursor.SetScale(Vector2f(materialSet.TextBoxCursorWidth, boxBackground.GetBounds().GetXSize()));
         GUILabel boxContents(materialSet.StaticMatTextParams, &materialSet.TextRender,
                              slot, materialSet.StaticMatText, materialSet.AnimateSpeed,
                              GUILabel::HO_LEFT, GUILabel::VO_CENTER);
         boxContents.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         boxContents.ScaleBy(materialSet.TextScale);
-        GUITextBox * box = new GUITextBox(boxBackground, boxBackground, boxContents,
+        GUITextBox * box = new GUITextBox(boxBackground, boxCursor, boxContents,
                                           true, materialSet.AnimateSpeed);
         box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
         //Try setting the initial value of the box.

@@ -80,7 +80,7 @@ public:
                                                                  { std::cout << newVal << "\n"; },
                                                               BasicMath::LerpComponent(0.0f, 100.0f, Int))));
         outElements.insert(outElements.end(),
-                           EditorObjectPtr(new TextBoxString(String, Vector2u(600, 32),
+                           EditorObjectPtr(new TextBoxString(String, 600.0f,
                                                              Vector2f(), EditorObject::DescriptionData(),
                                                              [](GUITextBox* textBox, std::string newVal, void* pData)
                                                              { std::cout << newVal << "\n"; })));
@@ -158,17 +158,60 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
-        MTexture2D *sliderBar = &editorMaterials->SliderBarTex,
-                   *sliderNub = &editorMaterials->SliderNubTex;
-        GUITexture guiBar(editorMaterials->GetStaticMatParams(sliderBar), sliderBar,
-                          editorMaterials->GetStaticMaterial(sliderBar), false,
-                          editorMaterials->AnimateSpeed),
-                   guiNub(editorMaterials->GetAnimatedMatParams(sliderNub), sliderNub,
-                          editorMaterials->GetAnimatedMaterial(sliderNub), true,
-                          editorMaterials->AnimateSpeed);
-        guiBar.ScaleBy(editorMaterials->SliderBarScale);
-        guiNub.ScaleBy(editorMaterials->SliderNubScale);
-        GUIElementPtr guiPtr(new GUISlider(UniformDictionary(), guiBar, guiNub, 0.5f, true, false, 1.0f));
+        if (!editorMaterials->TextRender.CreateTextRenderSlots(editorMaterials->FontID,
+                                                               (unsigned int)(275.0f /
+                                                                                editorMaterials->TextScale.x),
+                                                               editorMaterials->TextRenderSpaceHeight, false,
+                                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        {
+            std::cout << "Error creating text render slot: " << editorMaterials->TextRender.GetError() << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+        TextRenderer::FontSlot slot(editorMaterials->FontID,
+                                    editorMaterials->TextRender.GetNumbSlots(editorMaterials->FontID) - 1);
+
+        GUITexture boxBackground(editorMaterials->GetStaticMatParams(&editorMaterials->TextBoxBackgroundTex),
+                                 &editorMaterials->TextBoxBackgroundTex,
+                                 editorMaterials->GetStaticMaterial(&editorMaterials->TextBoxBackgroundTex),
+                                 false, editorMaterials->AnimateSpeed);
+        boxBackground.SetScale(Vector2f(275.0f / (float)editorMaterials->TextBoxBackgroundTex.GetWidth(),
+                                        editorMaterials->TextRenderSpaceHeight * editorMaterials->TextScale.y /
+                                            (float)editorMaterials->TextBoxBackgroundTex.GetHeight()));
+
+        GUITexture boxCursor(boxBackground);
+        boxCursor.SetScale(Vector2f(editorMaterials->TextBoxCursorWidth /
+                                        (float)editorMaterials->TextBoxBackgroundTex.GetWidth(),
+                                    boxBackground.GetBounds().GetYSize() * 0.75f /
+                                        (float)editorMaterials->TextBoxBackgroundTex.GetHeight()));
+        boxCursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
+        GUILabel boxContents(editorMaterials->StaticMatTextParams, &editorMaterials->TextRender,
+                             slot, editorMaterials->StaticMatText, editorMaterials->AnimateSpeed,
+                             GUILabel::HO_LEFT, GUILabel::VO_CENTER);
+        boxContents.SetColor(boxCursor.GetColor());
+        boxContents.ScaleBy(editorMaterials->TextScale);
+
+        GUITextBox * box = new GUITextBox(boxBackground, boxCursor, boxContents,
+                                          true, editorMaterials->AnimateSpeed);
+
+        std::string err = box->SetText("Start");
+        if (!err.empty())
+        {
+            delete box;
+            std::cout << "Error setting textbox starting text: " << err << "\n";
+            Pause();
+            EndWorld();
+            return;
+        }
+
+        box->OnTextChanged = [](GUITextBox* tBox, void* pData)
+        {
+            std::cout << "New text: \"" << tBox->GetText() << "\"\n";
+        };
+
+        GUIElementPtr guiPtr(box);
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
             thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.001f);
