@@ -106,8 +106,7 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
     //Render the background.
     if (Background.IsValid())
     {
-        Box2D myBounds = GetBounds();
-        Background.SetBounds(myBounds);
+        Background.SetBounds(GetBounds());
         Background.Depth = -0.001f;
         err = RenderChild(&Background, elapsedTime, info);
         if (!err.empty())

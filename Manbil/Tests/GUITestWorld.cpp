@@ -189,12 +189,12 @@ void GUITestWorld::InitializeWorld(void)
                               editorMaterials->AnimateSpeed);
         
         //The panel.
-        GUIElementPtr guiPtr(new GUIPanel(guiBackTex, Vector2f(50.0f, 50.0f), editorMaterials->AnimateSpeed));
-        ((GUIPanel*)guiPtr.get())->AddElement(GUIElementPtr(guiTex1));
-        ((GUIPanel*)guiPtr.get())->AddElement(GUIElementPtr(guiTex2));
+        GUIElementPtr guiPtr(new GUIFormattedPanel(50.0f, 50.0f, guiBackTex, editorMaterials->AnimateSpeed));
+        ((GUIFormattedPanel*)guiPtr.get())->AddObject(GUIFormatObject(GUIElementPtr(guiTex1)));
+        ((GUIFormattedPanel*)guiPtr.get())->AddObject(GUIFormatObject(GUIElementPtr(guiTex2)));
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
-            //thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.001f);
+            thisEl->SetScale(thisEl->GetScale() * 1.001f);
         };
 
         //Create the GUIManager.

@@ -8,7 +8,7 @@ void GUIFormatObject::MoveObject(MovementData & data)
     Vector2f min = data.AutoPosCounter;
 
     Element->SetBounds(Box2D(min.x, min.x + bnds.GetXSize(),
-                             -(min.y + bnds.GetYSize()), -min.y));
+                             min.y, (min.y + bnds.GetYSize())));
 
     if (MoveHorizontal)
         data.AutoPosCounter.x += bnds.GetXSize();
@@ -105,14 +105,15 @@ void GUIFormattedPanel::SetScale(Vector2f newScale)
 
 void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
+    if (BackgroundTex.IsValid())
+        BackgroundTex.Update(elapsed, relativeMousePos);
+
     bool changed = false;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
         objects[i].Element->Update(elapsed, relativeMousePos - objects[i].Element->GetPos());
         changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
-
-        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     if (changed) RePositionElements();
@@ -126,7 +127,7 @@ std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info
     if (BackgroundTex.IsValid())
     {
         BackgroundTex.SetBounds(GetBounds());
-        BackgroundTex.Depth = 0.0f;
+        BackgroundTex.Depth = -0.001f;
         err = RenderChild(&BackgroundTex, elapsedTime, info);
         if (!err.empty()) return "Error rendering background texture: " + err;
     }
@@ -204,8 +205,8 @@ void GUIFormattedPanel::RePositionElements()
 
     //Calculate the extents and re-center the elements around the origin.
     dimensions = max + Vector2f(HorizontalBorder, VerticalBorder);
-    Vector2f delta = dimensions.ComponentProduct(Vector2f(-0.5f, 0.5f)) +
-                     (Vector2f(HorizontalBorder, -VerticalBorder) * 0.5f);
+    Vector2f delta = dimensions.ComponentProduct(Vector2f(-0.5f, -0.5f)) +
+                     (Vector2f(HorizontalBorder, VerticalBorder) * 0.5f);
     for (unsigned int i = 0; i < objects.size(); ++i)
         objects[i].Element->MoveElement(delta);
 
