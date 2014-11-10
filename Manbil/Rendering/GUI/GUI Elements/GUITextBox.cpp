@@ -9,7 +9,6 @@ GUITextBox::GUITextBox(const GUITexture & box, const GUITexture & cursor,
 {
     Contents.SetOffsetHorz(GUILabel::HO_LEFT);
     Contents.SetOffsetVert(GUILabel::VO_CENTER);
-
     
     Box.Depth = 0.0f;
     Contents.Depth = 0.00001f;
@@ -60,7 +59,7 @@ void GUITextBox::SetScale(Vector2f newScale)
 
     GUIElement::SetScale(newScale);
 
-    Box.SetScale(newScale);
+    Box.ScaleBy(deltaScale);
     Contents.ScaleBy(deltaScale);
 }
 
@@ -99,6 +98,7 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
     if (!err.empty()) return "Error rendering box: " + err;
 
     //Render the text.
+    Contents.SetPosition(Vector2f(boxBounds.GetXMin(), boxBounds.GetCenterY()));
     err = RenderChild(&Contents, elapsedTime, info);
     if (!err.empty()) return "Error rendering text: " + err;
 
