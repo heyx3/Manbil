@@ -13,7 +13,7 @@ void GUIElement::SetBounds(Box2D newBounds)
 
     ScaleBy(Vector2f(newBounds.GetXSize() / currentBounds.GetXSize(),
                      newBounds.GetYSize() / currentBounds.GetYSize()));
-    MoveElement(newBounds.GetCenter() - currentBounds.GetCenter());
+    SetPosition(newBounds.GetCenter());
 }
 
 

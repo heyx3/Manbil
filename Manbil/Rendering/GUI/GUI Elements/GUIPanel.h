@@ -1,15 +1,26 @@
 #pragma once
 
-#include "../GUIElement.h"
+#include "GUITexture.h"
 
 
 //Contains an arbitrary collection of child GUI elements.
-//TODO: If this panel is marked as "scrollable", render its elements to a texture and then render that texture, so that the elements never extend outside this panel's bounds. Also have a private GUISlider that acts as the scroll bar.
+//TODO: Make a scrollable version of this and GUIFormattedPanel that renders these panels to a texture and has horizontal/vertical scroll bars.
 class GUIPanel : public GUIElement
 {
 public:
 
-    GUIPanel(float timeLerpSpeed = 1.0f) : GUIElement(UniformDictionary(), timeLerpSpeed) { }
+
+    //Bounds and depth are automatically adjusted to fit this panel's bounds.
+    //If it's invalid, it simply isn't drawn.
+    GUITexture Background;
+
+
+
+    GUIPanel(Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f)
+        : borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed) { }
+    GUIPanel(GUITexture& background, Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f)
+        : Background(background), borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed)
+    { }
 
 
     //Adds the given element to this panel IF this panel doesn't have it already.
@@ -20,6 +31,9 @@ public:
     bool ContainsElement(GUIElementPtr element) const;
 
     const std::vector<GUIElementPtr> & GetElements(void) const { return elements; }
+
+    Vector2f GetBorderSize(void) const { return borderSize; }
+    void SetBorderSize(Vector2f newSize) { DidBoundsChange = true; borderSize = newSize; }
 
 
     virtual Box2D GetBounds(void) const override;
@@ -43,6 +57,9 @@ protected:
 
     
 private:
+
+    //The extra horizontal/vertical border around the panel beyond the outermost elements.
+    Vector2f borderSize;
 
     //The GUI elements inside this panel.
     std::vector<GUIElementPtr> elements;

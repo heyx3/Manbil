@@ -20,6 +20,7 @@ Box2D GUIPanel::GetBounds(void) const
         }
     }
 
+    bounds.Inflate(borderSize);
     return bounds;
 }
 bool GUIPanel::GetDidBoundsChangeDeep(void) const
@@ -85,12 +86,16 @@ bool GUIPanel::ContainsElement(GUIElementPtr element) const
 
 void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
+    if (Background.IsValid())
+        Background.Update(elapsed, relativeMousePos - Background.GetPos());
+
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
         Vector2f relPos = relativeMousePos - elements[i]->GetPos();
         elements[i]->Update(elapsed, relPos);
     }
 }
+
 std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
 {
     //Instead of returning an error as soon as it is found,
@@ -98,6 +103,18 @@ std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
     std::string err = "";
     unsigned int line = 0;
 
+    //Render the background.
+    if (Background.IsValid())
+    {
+        Box2D myBounds = GetBounds();
+        Background.SetBounds(myBounds);
+        Background.Depth = -0.001f;
+        err = RenderChild(&Background, elapsedTime, info);
+        if (!err.empty())
+            return "Error rendering background: " + err;
+    }
+
+    //Render the elements.
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
         std::string tempErr = RenderChild(elements[i].get(), elapsedTime, info);

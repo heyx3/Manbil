@@ -158,65 +158,44 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
-        if (!editorMaterials->TextRender.CreateTextRenderSlots(editorMaterials->FontID,
-                                                               (unsigned int)(275.0f /
-                                                                                editorMaterials->TextScale.x),
-                                                               editorMaterials->TextRenderSpaceHeight, false,
-                                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        //Two sample textures that slowly move.
+        MTexture2D *tex1 = &editorMaterials->CheckBoxBackgroundTex,
+                   *tex2 = &editorMaterials->AddToCollectionTex;
+        GUITexture *guiTex1 = new GUITexture(editorMaterials->GetAnimatedMatParams(tex1), tex1,
+                                             editorMaterials->GetAnimatedMaterial(tex1), true,
+                                             editorMaterials->AnimateSpeed),
+                   *guiTex2 = new GUITexture(editorMaterials->GetStaticMatParams(tex2), tex2,
+                                             editorMaterials->GetStaticMaterial(tex2), false,
+                                             editorMaterials->AnimateSpeed);
+        guiTex1->ScaleBy(Vector2f(5.0f, 0.5f));
+        guiTex2->ScaleBy(Vector2f(0.5f, 3.0f));
+        guiTex1->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
         {
-            std::cout << "Error creating text render slot: " << editorMaterials->TextRender.GetError() << "\n";
-            Pause();
-            EndWorld();
-            return;
-        }
-        TextRenderer::FontSlot slot(editorMaterials->FontID,
-                                    editorMaterials->TextRender.GetNumbSlots(editorMaterials->FontID) - 1);
-
-        GUITexture boxBackground(editorMaterials->GetStaticMatParams(&editorMaterials->TextBoxBackgroundTex),
-                                 &editorMaterials->TextBoxBackgroundTex,
-                                 editorMaterials->GetStaticMaterial(&editorMaterials->TextBoxBackgroundTex),
-                                 false, editorMaterials->AnimateSpeed);
-        boxBackground.SetScale(Vector2f(275.0f / (float)editorMaterials->TextBoxBackgroundTex.GetWidth(),
-                                        editorMaterials->TextRenderSpaceHeight * editorMaterials->TextScale.y /
-                                            (float)editorMaterials->TextBoxBackgroundTex.GetHeight()));
-
-        GUITexture boxCursor(boxBackground);
-        boxCursor.SetScale(Vector2f(editorMaterials->TextBoxCursorWidth /
-                                        (float)editorMaterials->TextBoxBackgroundTex.GetWidth(),
-                                    boxBackground.GetBounds().GetYSize() * 0.75f /
-                                        (float)editorMaterials->TextBoxBackgroundTex.GetHeight()));
-        boxCursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-
-        GUILabel boxContents(editorMaterials->StaticMatTextParams, &editorMaterials->TextRender,
-                             slot, editorMaterials->StaticMatText, editorMaterials->AnimateSpeed,
-                             GUILabel::HO_LEFT, GUILabel::VO_CENTER);
-        boxContents.SetColor(boxCursor.GetColor());
-        boxContents.ScaleBy(editorMaterials->TextScale);
-
-        GUITextBox * box = new GUITextBox(boxBackground, boxCursor, boxContents,
-                                          true, editorMaterials->AnimateSpeed);
-
-        std::string err = box->SetText("Start");
-        if (!err.empty())
+            tex->MoveElement(Vector2f(0.2f, 0.2f));
+            //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
+        };
+        guiTex2->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
         {
-            delete box;
-            std::cout << "Error setting textbox starting text: " << err << "\n";
-            Pause();
-            EndWorld();
-            return;
-        }
-
-        box->OnTextChanged = [](GUITextBox* tBox, void* pData)
-        {
-            std::cout << "New text: \"" << tBox->GetText() << "\"\n";
+            tex->MoveElement(Vector2f(-0.2f, -0.2f));
+            //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
         };
 
-        GUIElementPtr guiPtr(box);
+        //The panel background.
+        MTexture2D* backgroundTex = &editorMaterials->PanelBackgroundTex;
+        GUITexture guiBackTex(editorMaterials->GetAnimatedMatParams(backgroundTex), backgroundTex,
+                              editorMaterials->GetAnimatedMaterial(backgroundTex), false,
+                              editorMaterials->AnimateSpeed);
+        
+        //The panel.
+        GUIElementPtr guiPtr(new GUIPanel(guiBackTex, Vector2f(50.0f, 50.0f), editorMaterials->AnimateSpeed));
+        ((GUIPanel*)guiPtr.get())->AddElement(GUIElementPtr(guiTex1));
+        ((GUIPanel*)guiPtr.get())->AddElement(GUIElementPtr(guiTex2));
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
-            thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.001f);
+            //thisEl->ScaleBy(Vector2f(1.0f, 1.0f) * 1.001f);
         };
 
+        //Create the GUIManager.
         guiManager = GUIManager(guiPtr);
     }
     else assert(false);
@@ -226,7 +205,7 @@ void GUITestWorld::InitializeWorld(void)
     //WindowSize = Vector2i((int)dims.x, (int)dims.y);
     WindowSize = Vector2i(500, 500);
     //guiManager.RootElement->SetPosition(dims * 0.5f);
-    guiManager.RootElement->SetBounds(Box2D(dims * 0.5f, dims));
+    guiManager.RootElement->SetBounds(Box2D(dims.ComponentProduct(Vector2f(0.5f, -0.5f)), dims));
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 }
@@ -250,9 +229,9 @@ void GUITestWorld::UpdateWorld(float elapsed)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         guiManager.RootElement->MoveElement(Vector2f((speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        guiManager.RootElement->MoveElement(Vector2f(0.0f, (speed * elapsed)));
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         guiManager.RootElement->MoveElement(Vector2f(0.0f, -(speed * elapsed)));
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        guiManager.RootElement->MoveElement(Vector2f(0.0f, (speed * elapsed)));
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
@@ -272,10 +251,10 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer(true, true, false, Vector4f(0.5f, 0.2f, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
-                   false, false, RenderingState::AT_GREATER, 0.0f).EnableState();
+                   true, true, RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Set up the "render info" struct.
-    Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+    Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));
     cam.MinOrthoBounds = Vector3f(0.0f, 0.0f, -10.0f);
     cam.MaxOrthoBounds = Vector3f((float)WindowSize.x, (float)WindowSize.y, 10.0f);
     cam.Info.Width = WindowSize.x;
