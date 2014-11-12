@@ -56,6 +56,10 @@ public:
                     float textAnimSpeed = 1.0f);
 
 
+    //Gets the number of visible items (items with an empty string are not visible
+    //    if this instance is set to not draw empty strings in the dropdown box).
+    unsigned int GetNVisibleItems(void) const { return nVisibleItems; }
+
     //Gets the index of the current item.
     unsigned int GetSelectedObject(void) const { return currentItem; }
     //Sets the index of the current item. If "raiseEvent" is true, calls "OnOptionSelected".
@@ -88,7 +92,7 @@ public:
     //Gets whether to draw empty text items.
     bool GetDrawEmptyItems(void) const { return drawEmptyItems; }
     //Sets whether to draw empty text items.
-    void SetDrawEmptyItems(bool shouldDraw) { DidBoundsChange = true; drawEmptyItems = shouldDraw; }
+    void SetDrawEmptyItems(bool shouldDraw);
 
 
     virtual bool GetDidBoundsChangeDeep(void) const override;
@@ -126,6 +130,9 @@ private:
     unsigned int currentItem = 0;
     //The index of the item currently moused-over. A value below 0 means nothing is moused over.
     int mousedOverItem = -1;
+
+    //The number of currently-visible items.
+    unsigned int nVisibleItems;
 
     //The text that can be chosen.
     std::vector<std::string> items;

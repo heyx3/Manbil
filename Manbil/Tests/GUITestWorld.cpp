@@ -158,41 +158,65 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (true)
     {
-        //Two sample textures that slowly move.
-        MTexture2D *tex1 = &editorMaterials->CheckBoxBackgroundTex,
-                   *tex2 = &editorMaterials->AddToCollectionTex;
-        GUITexture *guiTex1 = new GUITexture(editorMaterials->GetAnimatedMatParams(tex1), tex1,
-                                             editorMaterials->GetAnimatedMaterial(tex1), true,
-                                             editorMaterials->AnimateSpeed),
-                   *guiTex2 = new GUITexture(editorMaterials->GetStaticMatParams(tex2), tex2,
-                                             editorMaterials->GetStaticMaterial(tex2), false,
-                                             editorMaterials->AnimateSpeed);
-        guiTex1->ScaleBy(Vector2f(5.0f, 0.5f));
-        guiTex2->ScaleBy(Vector2f(0.5f, 3.0f));
-        guiTex1->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
+        //Two sample textures.
+        MTexture2D *tex1 = &editorMaterials->SelectionBoxBackgroundTex,
+                   *tex2 = &editorMaterials->SelectionBoxBoxTex,
+                   *tex3 = &editorMaterials->SliderBarTex;
+        GUITexture guiTex1(editorMaterials->GetAnimatedMatParams(tex1), tex1,
+                           editorMaterials->GetAnimatedMaterial(tex1), true,
+                           editorMaterials->AnimateSpeed),
+                   guiTex2(editorMaterials->GetStaticMatParams(tex2), tex2,
+                           editorMaterials->GetStaticMaterial(tex2), false,
+                           editorMaterials->AnimateSpeed),
+                   guiTex3(editorMaterials->GetStaticMatParams(tex3), tex3,
+                           editorMaterials->GetStaticMaterial(tex3), false,
+                           editorMaterials->AnimateSpeed);
+        
+        guiTex3.SetBounds(guiTex2.GetBounds());
+        guiTex3.ScaleBy(Vector2f(0.95f, 0.95f));
+        guiTex3.SetColor(Vector4f(0.3f, 0.3f, 0.9f, 0.3f));
+
+        std::vector<std::string> items;
+        items.insert(items.end(), "First");
+        items.insert(items.end(), "Second");
+        items.insert(items.end(), "Third");
+        GUISelectionBox* selector = new GUISelectionBox(err, &editorMaterials->TextRender, guiTex2, guiTex3,
+                                                        guiTex1, true, Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
+                                                        editorMaterials->FontID, editorMaterials->StaticMatText,
+                                                        editorMaterials->StaticMatTextParams, true, FT_LINEAR,
+                                                        items, editorMaterials->TextScale, 0.0f, 0, 0, 0, 0,
+                                                        editorMaterials->AnimateSpeed);
+        selector->SetExtendsAbove(true);
+        selector->OnUpdate = [](GUIElement* selectorEl, Vector2f relativeMouse, void* pData)
         {
-            //tex->MoveElement(Vector2f(0.2f, 0.2f));
-            //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
-        };
-        guiTex2->OnUpdate = [](GUIElement* tex, Vector2f relativeMouse, void* pData)
-        {
-            //tex->MoveElement(Vector2f(-0.2f, -0.2f));
-            //tex->ScaleBy(Vector2f(1.0005f, 1.0005f));
+            std::cout << ((GUISelectionBox*)selectorEl)->GetMousedOverObject() << "\n";
         };
 
-        //The panel background.
-        MTexture2D* backgroundTex = &editorMaterials->PanelBackgroundTex;
-        GUITexture guiBackTex(editorMaterials->GetAnimatedMatParams(backgroundTex), backgroundTex,
-                              editorMaterials->GetAnimatedMaterial(backgroundTex), false,
-                              editorMaterials->AnimateSpeed);
-        
-        //The panel.
-        GUIElementPtr guiPtr(new GUIFormattedPanel(50.0f, 50.0f, guiBackTex, editorMaterials->AnimateSpeed));
-        ((GUIFormattedPanel*)guiPtr.get())->AddObject(GUIFormatObject(GUIElementPtr(guiTex1)));
-        ((GUIFormattedPanel*)guiPtr.get())->AddObject(GUIFormatObject(GUIElementPtr(guiTex2)));
+        /*
+        TextRenderer::FontSlot slot(editorMaterials->FontID,
+                                    editorMaterials->TextRender.GetNumbSlots(editorMaterials->FontID));
+        if (!editorMaterials->TextRender.CreateTextRenderSlots(slot.FontID, 512, 512, true, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        {
+            EndWorld();
+            return;
+        }
+        if (!editorMaterials->TextRender.RenderString(slot, "First"))
+        {
+            EndWorld();
+            return;
+        }
+        GUILabel* lbl = new GUILabel(editorMaterials->StaticMatTextParams, &editorMaterials->TextRender,
+                                     slot, editorMaterials->StaticMatText, 1.0f, GUILabel::HO_LEFT, GUILabel::VO_CENTER);
+
+        */
+
+
+        GUIElementPtr guiPtr(selector);
+        //GUIElementPtr guiPtr(lbl);
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
-            thisEl->SetScale(thisEl->GetScale() * 1.001f);
+            //thisEl->SetScale(thisEl->GetScale() * 1.001f);
+            //std::cout << DebugAssist::ToString(relativeMouse) << "\n";
         };
 
         //Create the GUIManager.
