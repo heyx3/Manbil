@@ -57,7 +57,7 @@ Vector2f GUILabel::GetAnchorToRenderCenter(void) const
 {
     Vector2f rendSize = ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot));
     Vector2f textOffset((0.5f * dimensions.x) + ((0.5f * rendSize.x) - dimensions.x),
-                        -0.5f * dimensions.y);
+                        0.5f * dimensions.y);
 
     switch (offsetH)
     {

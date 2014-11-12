@@ -27,7 +27,7 @@ void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
 {
     GetQuad()->SetPos(bounds.GetCenter());
     GetQuad()->SetDepth(depth);
-    GetQuad()->SetSize(bounds.GetDimensions() * 0.5f);
+    GetQuad()->SetSize(bounds.GetDimensions().ComponentProduct(Vector2f(0.5f, -0.5f)));
 }
 
 Vector4f GUIElement::GetColor(void) const
