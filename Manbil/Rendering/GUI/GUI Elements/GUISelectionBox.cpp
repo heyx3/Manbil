@@ -62,7 +62,7 @@ GUISelectionBox::GUISelectionBox(std::string& outError, TextRenderer* textRender
         }
 
         //Calculate whether the element will be rendered in the dropdown box.
-        if (drawEmptyItems || !itemElements[itemElements.size() - 1].GetText().empty())
+        if (drawEmptyItems || !items[itemElements.size() - 1].empty())
         {
             nVisibleItems += 1;
         }
@@ -154,6 +154,13 @@ std::string GUISelectionBox::SetItem(unsigned int index, std::string newVal)
         {
             assert(nVisibleItems > 0);
             nVisibleItems -= 1;
+            if (nVisibleItems > 0)
+            {
+                while (items[currentItem].empty())
+                {
+                    currentItem = (currentItem + 1) % items.size();
+                }
+            }
         }
     }
 
@@ -278,7 +285,7 @@ void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 
             const float moveDir = (extendAbove ? -0.5f : 0.5f);
 
-            unsigned int closestElement = visibleIndices[0];
+            unsigned int closestElement = 0;
             float closestDist = BasicMath::Abs(relativeMousePos.y);
 
             for (unsigned int i = 1; i < visibleIndices.size(); ++i)

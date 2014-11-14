@@ -192,6 +192,9 @@ void GUITestWorld::InitializeWorld(void)
         selector->SetDrawEmptyItems(false);
         selector->SetItem(1, "");
         selector->SetItem(0, "");
+        selector->SetItem(3, "");
+
+        selector->SetItem(1, "Haha");
 
         /*
         TextRenderer::FontSlot slot(editorMaterials->FontID,
