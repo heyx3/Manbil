@@ -165,8 +165,8 @@ void GUITestWorld::InitializeWorld(void)
         GUITexture guiTex1(editorMaterials->GetAnimatedMatParams(tex1), tex1,
                            editorMaterials->GetAnimatedMaterial(tex1), true,
                            editorMaterials->AnimateSpeed),
-                   guiTex2(editorMaterials->GetStaticMatParams(tex2), tex2,
-                           editorMaterials->GetStaticMaterial(tex2), false,
+                   guiTex2(editorMaterials->GetAnimatedMatParams(tex2), tex2,
+                           editorMaterials->GetAnimatedMaterial(tex2), false,
                            editorMaterials->AnimateSpeed),
                    guiTex3(editorMaterials->GetStaticMatParams(tex3), tex3,
                            editorMaterials->GetStaticMaterial(tex3), false,
@@ -180,17 +180,18 @@ void GUITestWorld::InitializeWorld(void)
         items.insert(items.end(), "First");
         items.insert(items.end(), "Second");
         items.insert(items.end(), "Third");
+        items.insert(items.end(), "Fourth");
         GUISelectionBox* selector = new GUISelectionBox(err, &editorMaterials->TextRender, guiTex2, guiTex3,
                                                         guiTex1, true, Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
                                                         editorMaterials->FontID, editorMaterials->StaticMatText,
                                                         editorMaterials->StaticMatTextParams, true, FT_LINEAR,
                                                         items, editorMaterials->TextScale, 0.0f, 0, 0, 0, 0,
                                                         editorMaterials->AnimateSpeed);
-        selector->SetExtendsAbove(true);
-        selector->OnUpdate = [](GUIElement* selectorEl, Vector2f relativeMouse, void* pData)
-        {
-            std::cout << ((GUISelectionBox*)selectorEl)->GetMousedOverObject() << "\n";
-        };
+        selector->SetExtendsAbove(false);
+
+        selector->SetDrawEmptyItems(false);
+        selector->SetItem(1, "");
+        selector->SetItem(0, "");
 
         /*
         TextRenderer::FontSlot slot(editorMaterials->FontID,
@@ -216,7 +217,7 @@ void GUITestWorld::InitializeWorld(void)
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
             //thisEl->SetScale(thisEl->GetScale() * 1.001f);
-            //std::cout << DebugAssist::ToString(relativeMouse) << "\n";
+            std::cout << DebugAssist::ToString(relativeMouse) << "\n";
         };
 
         //Create the GUIManager.
@@ -247,7 +248,7 @@ void GUITestWorld::UpdateWorld(float elapsed)
         EndWorld();
     
     //Move the gui window.
-    const float speed = 50.0f;
+    const float speed = 100.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         guiManager.RootElement->MoveElement(Vector2f(-(speed * elapsed), 0.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))

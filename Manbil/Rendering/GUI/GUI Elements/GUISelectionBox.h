@@ -80,7 +80,7 @@ public:
     //Gets whether the dropdown menu extends above or below this element.
     bool GetExtendsAbove(void) const { return extendAbove; }
     //Sets whether the dropdown menu extends above or below this element.
-    void SetExtendsAbove(bool newVal) { extendAbove = false; if (isExtended) DidBoundsChange = true; }
+    void SetExtendsAbove(bool newVal) { extendAbove = newVal; if (isExtended) DidBoundsChange = true; }
     
     //Gets whether the dropdown menu is currently open.
     bool GetIsExtended(void) const { return isExtended; }
