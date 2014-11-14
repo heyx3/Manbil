@@ -14,6 +14,7 @@ void GUIElement::SetBounds(Box2D newBounds)
     ScaleBy(Vector2f(newBounds.GetXSize() / currentBounds.GetXSize(),
                      newBounds.GetYSize() / currentBounds.GetYSize()));
     SetPosition(newBounds.GetCenter());
+    //TODO: Shouldn't this be used instead? MoveElement(newBounds.GetCenter() - (GetPos() + currentBounds.GetCenter()));
 }
 
 

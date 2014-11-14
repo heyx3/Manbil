@@ -6,6 +6,7 @@
 //A set of materials for use in creating editor panels.
 //TODO: Rename to EditorContentData.
 //TODO: Add text render texture filter quality to this class.
+//TODO: Add code to create text render slots automatically.
 struct EditorMaterialSet
 {
 public:
