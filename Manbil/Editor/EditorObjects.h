@@ -61,10 +61,13 @@ public:
                                  materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
                                  false, materialSet.AnimateSpeed);
         boxBackground.SetScale(Vector2f(BoxWidth / (float)materialSet.TextBoxBackgroundTex.GetWidth(),
-                                        materialSet.TextRenderSpaceHeight * materialSet.TextScale.y));
+                                        materialSet.TextRenderSpaceHeight * materialSet.TextScale.y /
+                                            (float)boxBackground.GetTex()->GetHeight()));
         
         GUITexture boxCursor(boxBackground);
-        boxCursor.SetScale(Vector2f(materialSet.TextBoxCursorWidth, boxBackground.GetBounds().GetXSize()));
+        boxCursor.SetScale(Vector2f(materialSet.TextBoxCursorWidth,
+                                    boxBackground.GetBounds().GetYSize() /
+                                        (float)boxCursor.GetTex()->GetHeight()));
         GUILabel boxContents(materialSet.StaticMatTextParams, &materialSet.TextRender,
                              slot, materialSet.StaticMatText, materialSet.AnimateSpeed,
                              GUILabel::HO_LEFT, GUILabel::VO_CENTER);
@@ -552,11 +555,11 @@ public:
         if (elements.size() == 0) return;
 
         //Remove the element from the collection.
-        elements.erase(elements.end() - 1);
+        elements.erase(elements.end() - 2);
 
         //Remove the element from the editor panel.
         //There is one editor object in the panel after the last element in the collection.
-        collectionPanel->RemoveObject(*(collectionPanel->GetObjects().end() - 1));
+        collectionPanel->RemoveObject(*(collectionPanel->GetObjects().end() - 2));
 
         didActiveElementChange = true;
     }

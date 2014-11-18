@@ -117,6 +117,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
                                                  materialSet.AnimateSpeed,
                                                  GUILabel::HO_CENTER, GUILabel::VO_CENTER));
         buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+        buttonLabel->Depth = 0.01f;
         buttonLabel->ScaleBy(materialSet.TextScale);
     }
     
@@ -126,7 +127,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
                                              materialSet.GetAnimatedMaterial(tex),
                                              true, materialSet.AnimateSpeed));
-    buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, -ButtonSize.y)));
+    buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, ButtonSize.y)));
     GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
     buttonTexPtr->OnClicked = OnClick;
     buttonTexPtr->OnClicked_pData = OnClick_Data;

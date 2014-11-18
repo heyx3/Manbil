@@ -113,12 +113,12 @@ void GUITestWorld::InitializeWorld(void)
     }
 
     //Build the GUI elements.
-    if (false)
+    if (true)
     {
         EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
-        /*
+        
         editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
-        editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, Vector2u(200, 50), Vector2f(),
+        editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, 200.0f, Vector2f(),
                                                           EditorObject::DescriptionData("Type a uint!"),
                                                           [](GUITextBox* textBox, unsigned int newVal, void* pData)
                                                             { std::cout << newVal << "\n"; })));
@@ -132,7 +132,7 @@ void GUITestWorld::InitializeWorld(void)
         GUIElementPtr innerEl(new GUITexture(editorMaterials->GetStaticMatParams(testTex), testTex,
                                              editorMaterials->GetStaticMaterial(testTex)));
         editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
-        */
+        
         editor->AddObject(EditorObjectPtr(new EditorCollection<CollectionElement>()));
 
         guiManager = GUIManager(GUIElementPtr(editor));
@@ -156,66 +156,19 @@ void GUITestWorld::InitializeWorld(void)
 
         guiManager = GUIManager(GUIElementPtr(editor));
     }
-    else if (true)
+    else if (false)
     {
-        //Two sample textures.
-        MTexture2D *tex1 = &editorMaterials->SelectionBoxBackgroundTex,
-                   *tex2 = &editorMaterials->SelectionBoxBoxTex,
-                   *tex3 = &editorMaterials->SliderBarTex;
-        GUITexture guiTex1(editorMaterials->GetAnimatedMatParams(tex1), tex1,
-                           editorMaterials->GetAnimatedMaterial(tex1), true,
-                           editorMaterials->AnimateSpeed),
-                   guiTex2(editorMaterials->GetAnimatedMatParams(tex2), tex2,
-                           editorMaterials->GetAnimatedMaterial(tex2), false,
-                           editorMaterials->AnimateSpeed),
-                   guiTex3(editorMaterials->GetStaticMatParams(tex3), tex3,
-                           editorMaterials->GetStaticMaterial(tex3), false,
-                           editorMaterials->AnimateSpeed);
-        
-        guiTex3.SetBounds(guiTex2.GetBounds());
-        guiTex3.ScaleBy(Vector2f(0.95f, 0.95f));
-        guiTex3.SetColor(Vector4f(0.3f, 0.3f, 0.9f, 0.3f));
-
-        std::vector<std::string> items;
-        items.insert(items.end(), "First");
-        items.insert(items.end(), "Second");
-        items.insert(items.end(), "Third");
-        items.insert(items.end(), "Fourth");
-        GUISelectionBox* selector = new GUISelectionBox(err, &editorMaterials->TextRender, guiTex2, guiTex3,
-                                                        guiTex1, true, Vector4f(0.0f, 0.0f, 0.0f, 1.0f),
-                                                        editorMaterials->FontID, editorMaterials->StaticMatText,
-                                                        editorMaterials->StaticMatTextParams, true, FT_LINEAR,
-                                                        items, editorMaterials->TextScale, 0.0f, 0, 0, 0, 0,
-                                                        editorMaterials->AnimateSpeed);
-        selector->SetExtendsAbove(false);
-
-        selector->SetDrawEmptyItems(false);
-        selector->SetItem(1, "");
-        selector->SetItem(0, "");
-        selector->SetItem(3, "");
-
-        selector->SetItem(1, "Haha");
-
-        /*
-        TextRenderer::FontSlot slot(editorMaterials->FontID,
-                                    editorMaterials->TextRender.GetNumbSlots(editorMaterials->FontID));
-        if (!editorMaterials->TextRender.CreateTextRenderSlots(slot.FontID, 512, 512, true, TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
-        {
-            EndWorld();
-            return;
-        }
-        if (!editorMaterials->TextRender.RenderString(slot, "First"))
-        {
-            EndWorld();
-            return;
-        }
-        GUILabel* lbl = new GUILabel(editorMaterials->StaticMatTextParams, &editorMaterials->TextRender,
-                                     slot, editorMaterials->StaticMatText, 1.0f, GUILabel::HO_LEFT, GUILabel::VO_CENTER);
-
-        */
+        MTexture2D *check = &editorMaterials->CheckBoxCheckTex,
+                   *box = &editorMaterials->CheckBoxBackgroundTex;
+        GUITexture checkTex(editorMaterials->GetStaticMatParams(check), check,
+                            editorMaterials->GetStaticMaterial(check), false, 1.0f),
+                   boxTex(editorMaterials->GetAnimatedMatParams(box), box,
+                          editorMaterials->GetAnimatedMaterial(box), true,
+                          editorMaterials->AnimateSpeed);
+        GUICheckbox* guiCheckbox = new GUICheckbox(UniformDictionary(), boxTex, checkTex, false, 1.0f);
 
 
-        GUIElementPtr guiPtr(selector);
+        GUIElementPtr guiPtr(guiCheckbox);
         //GUIElementPtr guiPtr(lbl);
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
