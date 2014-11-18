@@ -126,6 +126,7 @@
     <ClCompile Include="Math\Noise Generation\Worley.cpp" />
     <ClCompile Include="Math\Quaternion.cpp" />
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
+    <ClCompile Include="Math\Shapes\Circle.cpp" />
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Math\Vectors.cpp" />
     <ClCompile Include="Oculus\OculusDevice.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="Math\Quaternion.h" />
     <ClInclude Include="Math\Shapes.hpp" />
     <ClInclude Include="Math\Shapes\Boxes.h" />
+    <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Math\Vectors.h" />
     <ClInclude Include="Oculus\OculusDevice.h" />

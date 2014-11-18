@@ -447,6 +447,9 @@
     <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp">
       <Filter>Editors\Editor Panels</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Shapes\Circle.cpp">
+      <Filter>Math\Shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -984,6 +987,9 @@
     </ClInclude>
     <ClInclude Include="Editor\DAG Editor\DAGInput.h">
       <Filter>Editors\DAG Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Shapes\Circle.h">
+      <Filter>Math\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
