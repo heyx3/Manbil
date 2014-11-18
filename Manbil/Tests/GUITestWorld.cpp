@@ -219,8 +219,8 @@ void GUITestWorld::InitializeWorld(void)
         //GUIElementPtr guiPtr(lbl);
         guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
         {
-            //thisEl->SetScale(thisEl->GetScale() * 1.001f);
-            std::cout << DebugAssist::ToString(relativeMouse) << "\n";
+            thisEl->SetScale(thisEl->GetScale() * 1.002f);
+            //std::cout << DebugAssist::ToString(relativeMouse) << "\n";
         };
 
         //Create the GUIManager.

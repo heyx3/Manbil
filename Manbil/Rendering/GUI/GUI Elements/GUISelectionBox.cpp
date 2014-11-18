@@ -115,6 +115,9 @@ void GUISelectionBox::SetScale(Vector2f newScale)
     SelectionBackground.SetPosition(SelectionBackground.GetPos().ComponentProduct(delta));
     Highlight.ScaleBy(delta);
     Highlight.SetPosition(Highlight.GetPos().ComponentProduct(delta));
+
+    for (unsigned int i = 0; i < itemElements.size(); ++i)
+        itemElements[i].ScaleBy(delta);
 }
 void GUISelectionBox::SetDrawEmptyItems(bool shouldDraw)
 {
