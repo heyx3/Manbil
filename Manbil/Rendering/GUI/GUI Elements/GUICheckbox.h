@@ -25,7 +25,8 @@ public:
         : Box(box), Check(check), HideBoxIfChecked(hideBoxIfChecked),
           GUIElement(params, timeLerpSpeed)
     {
-
+        Box.Depth = 0.0f;
+        Check.Depth = 0.01f;
     }
     GUICheckbox(void) : GUICheckbox(UniformDictionary(), GUITexture(), GUITexture()) { }
 
