@@ -299,16 +299,16 @@ vec3 rotateVector(vec3 v, vec4 quaternion)
 
 //Uses ambient/diffuse shading, and incorporating a shadow value.
 
-const vec3 baseLightDir = normalize(vec3(1.0, -1.0, 1.0)),
+const vec3 baseLightDir = normalize(vec3(5.0, -1.0, 5.0)),
 		   lightRotDir = normalize(vec3(1.0, 0.0, -1.0));
-const float lightRotSpeed = 0.2;
+const float lightRotSpeed = 0.0;
 const float ambientStrength = 0.3,
 			diffuseStrength = 0.45;
 
 vec3 getLightDir()
 {
 	vec3 dir = rotateVector(baseLightDir,
-							getQuaternion(lightRotDir, lightRotSpeed * u_elapsed_seconds));
+				getQuaternion(lightRotDir, lightRotSpeed * u_elapsed_seconds));
 
 	if (dir.y > 0.0) return -dir;
 	return dir;
@@ -533,7 +533,6 @@ void main(void)
 {
 	//Map the screen coords to the range (-1, -1) : (1, 1).
 	vec2 uv = in_UV;
-	uv = vec2(uv.x, 1.0 - uv.y);
 	uv *= 2.0;
 	uv -= vec2(1.0, 1.0);
 	
