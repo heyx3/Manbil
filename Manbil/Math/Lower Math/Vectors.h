@@ -3,120 +3,62 @@
 #include "BasicMath.h"
 
 
-namespace MyVectors
+//Define these vectors in a namespace because SFML uses some of the same names for its vectors.
+namespace ManbilVectors
 {
 	#pragma region Byte vectors
 
+    //Unsigned bytes. All operators clamp to 0-255 instead of overflowing.
 	class Vector2b
 	{
 	public:
 		unsigned char x, y;
 		Vector2b(unsigned char _x = 0, unsigned char _y = 0) : x(_x), y(_y) { }
-        Vector2b(float _x, float _y = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)) { }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector2b& operator+=(const Vector2b& other)
-        {
-            if (255 - x < other.x)
-                x = 255;
-            else x += other.x;
-            if (255 - y < other.y)
-                y = 255;
-            else y += other.y;
-            return *this;
-        }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector2b& operator-=(const Vector2b& other)
-        {
-            if (x < other.x)
-                x = 0;
-            else x -= other.x;
-            if (y < other.y)
-                y = 0;
-            else y -= other.y;
-            return *this;
-        }
-	};
+        Vector2b(float _x, float _y = 0.0f)
+            : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)) { }
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector2b& operator+=(const Vector2b& other);
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector2b& operator-=(const Vector2b& other);
+    };
+
+    //Unsigned bytes. All operators clamp to 0-255 instead of overflowing.
 	class Vector3b
 	{
 	public:
 		unsigned char x, y, z;
-		Vector3b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0) : x(_x), y(_y), z(_z) { }
-        Vector3b(float _x, float _y = 0.0f, float _z = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)) { }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector3b& operator+=(const Vector3b& other)
-        {
-            if (255 - x < other.x)
-                x = 255;
-            else x += other.x;
-            if (255 - y < other.y)
-                y = 255;
-            else y += other.y;
-            if (255 - z < other.z)
-                z = 255;
-            else z += other.z;
-            return *this;
-        }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector3b& operator-=(const Vector3b& other)
-        {
-            if (x < other.x)
-                x = 0;
-            else x -= other.x;
-            if (y < other.y)
-                y = 0;
-            else y -= other.y;
-            if (z < other.z)
-                z = 0;
-            else z -= other.z;
-            return *this;
-        }
-	};
+		Vector3b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0)
+            : x(_x), y(_y), z(_z) { }
+        Vector3b(float _x, float _y = 0.0f, float _z = 0.0f)
+            : x((unsigned char)(_x * 255.0f)),
+              y((unsigned char)(_y * 255.0f)),
+              z((unsigned char)(_z * 255.0f)) { }
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector3b& operator+=(const Vector3b& other);
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector3b& operator-=(const Vector3b& other);
+    };
+
+    //Unsigned bytes. All operators clamp to 0-255 instead of overflowing.
 	class Vector4b
 	{
 	public:
 		unsigned char x, y, z, w;
-		Vector4b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0, unsigned char _w = 0) : x(_x), y(_y), z(_z), w(_w) { }
-        Vector4b(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f) : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)), z((unsigned char)(_z * 255.0f)), w((unsigned char)(_w * 255.0f)) { }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector4b& operator+=(const Vector4b& other)
-        {
-            if (255 - x < other.x)
-                x = 255;
-            else x += other.x;
-            if (255 - y < other.y)
-                y = 255;
-            else y += other.y;
-            if (255 - z < other.z)
-                z = 255;
-            else z += other.z;
-            if (255 - w < other.w)
-                w = 255;
-            else w += other.w;
-            return *this;
-        }
-        //These unsigned char vectors are generally used to represent colors,
-        //   so these addition/subtration operators do not overflow/wrap around.
-        Vector4b& operator-=(const Vector4b& other)
-        {
-            if (x < other.x)
-                x = 0;
-            else x -= other.x;
-            if (y < other.y)
-                y = 0;
-            else y -= other.y;
-            if (z < other.z)
-                z = 0;
-            else z -= other.z;
-            if (w < other.w)
-                w = 0;
-            else w -= other.w;
-            return *this;
-        }
+		Vector4b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0, unsigned char _w = 0)
+            : x(_x), y(_y), z(_z), w(_w) { }
+        Vector4b(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f)
+            : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)),
+              z((unsigned char)(_z * 255.0f)), w((unsigned char)(_w * 255.0f)) { }
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector4b& operator+=(const Vector4b& other);
+        //These byte vectors are generally used to represent colors,
+        //   so all operators will clamp instead of wrapping around.
+        Vector4b& operator-=(const Vector4b& other);
 	};
 
 	#pragma endregion
@@ -138,28 +80,14 @@ namespace MyVectors
 
         Vector2u(unsigned int X = 0, unsigned int Y = 0) : x(X), y(Y) { }
 
-        Vector2u(Vector2u&& other)
-            : x(0), y(0)
-        {
-            x = other.x;
-            y = other.y;
+        Vector2u(const Vector2u& other) { x = other.x; y = other.y; }
+        Vector2u & operator=(const Vector2u& other) { x = other.x; y = other.y; return *this; }
 
-            other.x = 0;
-            other.y = 0;
-        }
-        Vector2u & operator=(Vector2u&& other)
-        {
-            if (this != &other)
-            {
-                x = other.x;
-                y = other.y;
 
-                other.x = 0;
-                other.y = 0;
-            }
-
-            return *this;
-        }
+        //Access the X or Y component with 0 or 1, respectively.
+        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        //Access the X or Y component with 0 or 1, respectively.
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector2u LessX(void) const { return Vector2u(x - 1, y); }
@@ -172,6 +100,7 @@ namespace MyVectors
         Vector2u LessXMoreY(void) const { return Vector2u(x - 1, y + 1); }
         Vector2u MoreXY(void) const { return Vector2u(x + 1, y + 1); }
 
+
         Vector2u& operator+=(const Vector2u& other) { x += other.x; y += other.y; return *this; }
         Vector2u& operator-=(const Vector2u& other) { x -= other.x; y -= other.y; return *this; }
         Vector2u& operator*=(unsigned int i) { x *= i; y *= i; return *this; }
@@ -182,34 +111,37 @@ namespace MyVectors
         Vector2u operator*(unsigned int i) const { return Vector2u(x * i, y * i); }
         Vector2u operator/(unsigned int i) const { return Vector2u(x / i, y / i); }
 
-        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
-
-        bool operator==(const Vector2u& rhs) const { return Equals(rhs); }
-        bool operator!=(const Vector2u& other) const { return x != other.x || y != other.y; }
-        bool Equals(Vector2u v) const { return x == v.x && y == v.y; }
-
-        Vector2u Clamp(unsigned int min, unsigned int max) const
-        {
-            return Vector2u(BasicMath::Max(min, BasicMath::Min(max, x)),
-                            BasicMath::Max(min, BasicMath::Min(max, y)));
-        }
-
-        float Length(void) const { return sqrtf((float)LengthSquared()); }
-        unsigned int LengthSquared(void) const { return (x * x) + (y * y); }
-
         //Scales this Vector2u's x, and y components by the given Vector2u's x and y components.
         void MultiplyComponents(Vector2u scale) { x *= scale.x; y *= scale.y; }
         //Scales this Vector2u's x, and y components by the given Vector2u's x and y components.
-        Vector2u ComponentProduct(Vector2u scale) const { Vector2u v(x, y); v.MultiplyComponents(scale); return v; }
+        Vector2u ComponentProduct(Vector2u scale) const { return Vector2u(x * scale.x, y * scale.y); }
+
+
+        bool operator==(const Vector2u& v) const { return (x == v.x) && (y == v.y); }
+        bool operator!=(const Vector2u& v) const { return (x != v.x) || (y != v.y); }
+
+
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector2u Clamp(unsigned int min, unsigned int max) const;
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector2u Clamp(Vector2u min, Vector2u max) const;
+
+
+        //Computes the dot product of this vector and another one.
+        unsigned int Dot(Vector2u& other) const { return (x * other.x) + (y * other.y); }
+        //Computes the angle between this vector and another one.
+        float AngleBetween(Vector2u& other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+
+
+        unsigned int LengthSquared(void) const { return (x * x) + (y * y); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
+
 
         float Distance(Vector2u other) const { return sqrtf((float)DistanceSquared(other)); }
-        unsigned int DistanceSquared(Vector2u other) const { unsigned int f1 = x - other.x, f2 = y - other.y; return (f1 * f1) + (f2 * f2); }
-        unsigned int ManhattanDistance(Vector2u other) const
-        {
-            return (unsigned int)BasicMath::Abs((int)x - (int)other.x) +
-                   (unsigned int)BasicMath::Abs((int)y - (int)other.y);
-        }
+        unsigned int DistanceSquared(Vector2u other) const;
+
+        unsigned int ManhattanDistance(Vector2u other) const;
+
 
         unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663); }
     };
@@ -233,31 +165,13 @@ namespace MyVectors
         Vector3u(Vector2u copy, unsigned int zValue) : x(copy.x), y(copy.y), z(zValue) { }
         Vector3u(const Vector3u & copy) : x(copy.x), y(copy.y), z(copy.z) { }
 
-        Vector3u(Vector3u&& other) : x(0), y(0), z(0)
-        {
-            x = other.x;
-            y = other.y;
-            z = other.z;
+        Vector3u& operator=(const Vector3u& other) { x = other.x; y = other.y; z = other.z; return *this; }
 
-            other.x = 0;
-            other.y = 0;
-            other.z = 0;
-        }
-        Vector3u & operator=(Vector3u&& other)
-        {
-            if (this != &other)
-            {
-                x = other.x;
-                y = other.y;
-                z = other.z;
 
-                other.x = 0;
-                other.y = 0;
-                other.z = 0;
-            }
-
-            return *this;
-        }
+        //Access the X or Y component with 0 or 1, respectively.
+        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        //Access the X or Y component with 0 or 1, respectively.
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector3u LessX(void) const { return Vector3u(x - 1, y, z); }
@@ -275,36 +189,40 @@ namespace MyVectors
 
         Vector3u operator+(const Vector3u& other) const { return Vector3u(x + other.x, y + other.y, z + other.z); }
         Vector3u operator-(const Vector3u& other) const { return Vector3u(x - other.x, y - other.y, z - other.z); }
-        Vector3u operator*(unsigned int scale) const { return Vector3u(x * scale, y * scale, z * scale); }
-        Vector3u operator/(unsigned int invScale) const { return Vector3u(x / invScale, y / invScale, z / invScale); }
+        Vector3u operator*(unsigned int scale) const { return Vector3u(x + scale, y + scale, z + scale); }
+        Vector3u operator/(unsigned int val) const { return Vector3u(x / val, y / val, z / val); }
 
-        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
 
-        bool operator==(const Vector3u& other) const { return Equals(other); }
-        bool operator!=(const Vector3u& other) const { return x != other.x || y != other.y || z != other.z; }
-        bool Equals(Vector3u v) const { return x == v.x && y == v.y && z == v.z; }
+        bool operator==(const Vector3u& v) const { return (x == v.x) && (y == v.y) && (z == v.z); }
+        bool operator!=(const Vector3u& v) const { return (x != v.x) || (y != v.y) || (z != v.z); }
 
-        Vector3u Clamp(unsigned int min, unsigned int max) const
-        {
-            return Vector3u(BasicMath::Max(min, BasicMath::Min(max, x)),
-                            BasicMath::Max(min, BasicMath::Min(max, y)),
-                            BasicMath::Max(min, BasicMath::Min(max, z)));
-        }
 
-        unsigned int Dot(Vector3u other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector3u Clamp(unsigned int min, unsigned int max) const;
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector3u Clamp(Vector3u min, Vector3u max) const;
+
+
+        //Computes the dot product of this vector and another one.
+        unsigned int Dot(Vector3u& other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
+        //Computes the angle between this vector and another one.
         float AngleBetween(Vector3u other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+
 
         //Scales this Vector3u's x, y, and z components by the given Vector3u's x, y, and z components.
         void MultiplyComponents(Vector3u scale) { x *= scale.x; y *= scale.y; z *= scale.z; }
         //Scales this Vector3u's x, y, and z components by the given Vector3u's x, y, and z components.
-        Vector3u ComponentProduct(Vector3u scale) const { Vector3u v(x, y, z); v.MultiplyComponents(scale); return v; }
+        Vector3u ComponentProduct(Vector3u scale) const { return Vector3u(x * scale.x, y * scale.y, z * scale.z); }
 
-        float Length(void) const { return sqrtf((float)LengthSquared()); }
+
         unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
 
+
+        unsigned int DistanceSquared(Vector3u other) const;
         float Distance(Vector3u other) const { return sqrtf((float)DistanceSquared(other)); }
-        unsigned int DistanceSquared(Vector3u other) const { unsigned int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z; return (f1 * f2) + (f2 * f2) + (f3 * f3); }
+        unsigned int ManhattanDistance(Vector3u other) const;
+
 
         unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791); }
     };
@@ -327,39 +245,19 @@ namespace MyVectors
         unsigned int z;
         unsigned int w;
 
-        Vector4u(unsigned int _x = 0, unsigned int _y = 0, unsigned int _z = 0, unsigned int _w = 0) : x(_x), y(_y), z(_z), w(_w) { }
+
+        Vector4u(unsigned int _x = 0, unsigned int _y = 0, unsigned int _z = 0, unsigned int _w = 0)
+            : x(_x), y(_y), z(_z), w(_w) { }
         Vector4u(Vector3u v3, unsigned int _w) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
 
-        Vector4u(Vector4u&& other)
-            : x(0), y(0), z(0), w(0)
-        {
-            x = other.x;
-            y = other.y;
-            z = other.z;
-            w = other.w;
+        Vector4u(const Vector4u& cpy) { x = cpy.x; y = cpy.y; z = cpy.z; w = cpy.w; }
+        Vector4u& operator=(Vector4u& cpy) { x = cpy.x; y = cpy.y; z = cpy.z; w = cpy.w; }
 
-            other.x = 0;
-            other.y = 0;
-            other.z = 0;
-            other.w = 0;
-        }
-        Vector4u & operator=(Vector4u&& other)
-        {
-            if (this != &other)
-            {
-                x = other.x;
-                y = other.y;
-                z = other.z;
-                w = other.w;
 
-                other.x = 0;
-                other.y = 0;
-                other.z = 0;
-                other.w = 0;
-            }
-
-            return *this;
-        }
+        //Access the X or Y component with 0 or 1, respectively.
+        const unsigned int& operator[](unsigned int index) const { return (&x)[index]; }
+        //Access the X or Y component with 0 or 1, respectively.
+        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector4u& operator+=(const Vector4u& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
@@ -367,48 +265,42 @@ namespace MyVectors
         Vector4u& operator*=(unsigned int f) { x *= f; y *= f; z *= f; w *= f; return *this; }
         Vector4u& operator/=(unsigned int f) { x /= f; y /= f; z /= f; w /= f; return *this; }
 
-        Vector4u operator+(const Vector4u& other) const { return Vector4u(x + other.x, y + other.y, z + other.z, w + other.w); }
-        Vector4u operator-(const Vector4u& other) const { return Vector4u(x - other.x, y - other.y, z - other.z, w - other.w); }
-        Vector4u operator*(unsigned int scale) const { return Vector4u(x * scale, y * scale, z * scale, w * scale); }
-        Vector4u operator/(unsigned int invScale) const { return Vector4u(x / invScale, y / invScale, z / invScale, w / invScale); }
-
-        bool operator==(const Vector4u& other) const { return Equals(other); }
-        bool operator!=(const Vector4u& other) const { return x != other.x || y != other.y || z != other.z || w != other.w; }
-        bool Equals(Vector4u v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
-
-        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
-
-        Vector4u Clamp(unsigned int min, unsigned int max) const
-        {
-            return Vector4u(BasicMath::Max(min, BasicMath::Min(max, x)),
-                            BasicMath::Max(min, BasicMath::Min(max, y)),
-                            BasicMath::Max(min, BasicMath::Min(max, z)),
-                            BasicMath::Max(min, BasicMath::Min(max, w)));
-        }
-
-        unsigned int Dot(Vector4u other) const { return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w); }
-        float AngleBetween(Vector4u other) const { return acosf(Dot(other) / (Length() * other.Length())); }
-
-        float Length(void) const { return sqrtf((float)LengthSquared()); }
-        unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
-        float FastInvLength(void) const { return BasicMath::FastInvSqrt1((float)LengthSquared()); }
-
-        float Distance(Vector4u other) const { return sqrtf((float)DistanceSquared(other)); }
-        unsigned int DistanceSquared(Vector4u other) const { unsigned int f1 = x - other.x, f2 = y - other.y, f3 = z - other.z, f4 = w - other.w; return (f1 * f1) + (f2 * f2) + (f3 * f3) + (f4 * f4); }
-        unsigned int ManhattanDistance(Vector4u other) const
-        {
-            return (unsigned int)BasicMath::Abs((int)x - (int)other.x) +
-                   (unsigned int)BasicMath::Abs((int)y - (int)other.y) +
-                   (unsigned int)BasicMath::Abs((int)z - (int)other.z) +
-                   (unsigned int)BasicMath::Abs((int)w - (int)other.w);
-        }
-        float FastInvDistance(Vector4u other) const { return BasicMath::FastInvSqrt1((float)DistanceSquared(other)); }
+        Vector4u operator+(const Vector4u& v) const { return Vector4u(x + v.x, y + v.y, z + v.z, w + v.w); }
+        Vector4u operator-(const Vector4u& v) const { return Vector4u(x - v.x, y - v.y, z - v.z, w - v.w); }
+        Vector4u operator*(unsigned int scle) const { return Vector4u(x * scle, y * scle, z * scle, w * scle); }
+        Vector4u operator/(unsigned int denom) const { return Vector4u(x / denom, y / denom, z / denom, w / denom); }
 
         //Scales this Vector4u's x, y, z, and w components by the given Vector4u's x, y, z, and w components.
         void MultiplyComponents(Vector4u scale) { x *= scale.x; y *= scale.y; z *= scale.z; w *= scale.w; }
         //Scales this Vector4u's x, y, z, and w components by the given Vector4u's x, y, z, and w components.
-        Vector4u ComponentProduct(Vector4u scale) const { Vector4u v(x, y, z, w); v.MultiplyComponents(scale); return v; }
+        inline Vector4u ComponentProduct(Vector4u scale) const
+        {
+            return Vector4u(x * scale.x, y * scale.y, z * scale.z, w * scale.w);
+        }
+
+
+        bool operator==(const Vector4u& v) const { return (x == v.x) || (y == v.y) || (z == v.z) || (w == v.w); }
+        bool operator!=(const Vector4u& v) const { return (x != v.x) || (y != v.y) || (z != v.z) || (w != v.w); }
+
+
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector4u Clamp(unsigned int min, unsigned int max) const;
+        //Clamps each component of this vector to be inside the given range of values.
+        Vector4u Clamp(Vector4u min, Vector4u max) const;
+
+
+        unsigned int Dot(Vector4u v) const { return (x * v.x) + (y * v.y) + (z * v.z) + (w * v.w); }
+        float AngleBetween(Vector4u other) const { return acosf(Dot(other) / (Length() * other.Length())); }
+
+
+        unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
+        float Length(void) const { return sqrtf((float)LengthSquared()); }
+
+
+        float Distance(const Vector4u& other) const { return sqrtf((float)DistanceSquared(other)); }
+        unsigned int DistanceSquared(const Vector4u& other) const;
+        unsigned int ManhattanDistance(const Vector4u& other) const;
+
 
         unsigned int GetHashCode(void) const { return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791) ^ (w * 4256233); }
     };
@@ -1096,4 +988,5 @@ namespace MyVectors
     static inline Vector4f ToV4f(Vector4u inV) { return Vector4f((float)inV.x, (float)inV.y, (float)inV.z, (float)inV.w); }
 }
 
-using namespace MyVectors;
+//Hide the namespace so that it only needs to be specified if a file is also using SFML stuff.
+using namespace ManbilVectors;
