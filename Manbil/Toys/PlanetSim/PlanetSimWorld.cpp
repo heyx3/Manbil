@@ -198,7 +198,7 @@ void PlanetSimWorld::InitializeWorld(void)
         nodes.insert(nodes.end(), ColorNode(0.0f, Vector4f(0.35f, 0.1f, 0.0f, 1.0f)));
         nodes.insert(nodes.end(), ColorNode(1.0f, Vector4f(0.8f, 0.2f, 0.2f, 1.0f)));
     }
-    gradient.GetColors(heightTex.GetArray(), heightTexInput.GetArray(), heightTex.GetArea());
+    gradient.GetColors(heightTex.GetArray(), heightTexInput.GetArray(), heightTex.GetNumbElements());
 
     planetHeightTex.Create();
     if (!planetHeightTex.SetColorData(heightTex))

@@ -1,6 +1,6 @@
 #include "SFML/Graphics.hpp"
 
-#include "Math/Array3D.h"
+#include "Math/Lower Math/Array3D.h"
 
 #include "IO/XmlSerialization.h"
 #include "IO/BinarySerialization.h"
@@ -36,12 +36,12 @@ int main()
     //OpenGLTestWorld().RunWorld();
     
     //TwoDOpenGLTest().RunWorld();
-    GUITestWorld().RunWorld();
+    //GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
 
     //TwoTrianglesWorld().RunWorld();
 
     //VoxelWorld().RunWorld();
-    //PlanetSimWorld().RunWorld();
+    PlanetSimWorld().RunWorld();
 }

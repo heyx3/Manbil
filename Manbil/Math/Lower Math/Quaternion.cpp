@@ -3,6 +3,8 @@
 #include <math.h>
 #include "BasicMath.h"
 
+
+
 Quaternion Quaternion::Slerp(Quaternion one, Quaternion two, float zeroToOne, bool areBothNormalized)
 {
 	if (!areBothNormalized)

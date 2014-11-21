@@ -2,6 +2,7 @@
 
 #include "BasicMath.h"
 
+
 void CachedFunc::CalcCache(void)
 {
 	int steps = BasicMath::RoundToInt(answersRange.GetRange() / cacheInterval);

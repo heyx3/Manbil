@@ -2,7 +2,7 @@
 
 #include "../Materials/Data Nodes/DataNodeIncludes.h"
 #include "../../DebugAssist.h"
-#include "../../Math/Array2D.h"
+#include "../../Math/Lower Math/Array2D.h"
 
 
 ShaderGenerator::GeneratedMaterial GPUParticleGenerator::GenerateGPUParticleMaterial(std::unordered_map<GPUPOutputs, DataLine> outputs, UniformDictionary & outUniforms, RenderingModes mode)

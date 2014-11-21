@@ -227,7 +227,7 @@ bool WriteMTexCubeFace(const MTextureCubemap * tex, CubeTextureTypes face, std::
         case PS_8U:
             rgbaBytes.Reset(tex->GetWidth(), tex->GetHeight());
             tex->GetFaceColor(face, rgbaBytes);
-            texData.resize(rgbaBytes.GetArea() * sizeof(Vector4b));
+            texData.resize(rgbaBytes.GetNumbElements() * sizeof(Vector4b));
             memcpy(texData.data(), rgbaBytes.GetArray(), texData.size());
             rgbaBytes.Reset(1, 1);
             break;
@@ -237,7 +237,7 @@ bool WriteMTexCubeFace(const MTextureCubemap * tex, CubeTextureTypes face, std::
         case PS_32F:
             rgbaFloats.Reset(tex->GetWidth(), tex->GetHeight());
             tex->GetFaceColor(face, rgbaFloats);
-            texData.resize(rgbaBytes.GetArea() * sizeof(Vector4f));
+            texData.resize(rgbaBytes.GetNumbElements() * sizeof(Vector4f));
             memcpy(texData.data(), rgbaFloats.GetArray(), texData.size());
             rgbaFloats.Reset(1, 1);
             break;
@@ -245,7 +245,7 @@ bool WriteMTexCubeFace(const MTextureCubemap * tex, CubeTextureTypes face, std::
         case PS_8U_GREYSCALE:
             greyBytes.Reset(tex->GetWidth(), tex->GetHeight());
             tex->GetFaceGreyscale(face, greyBytes);
-            texData.resize(greyBytes.GetArea() * sizeof(unsigned char));
+            texData.resize(greyBytes.GetNumbElements() * sizeof(unsigned char));
             memcpy(texData.data(), greyBytes.GetArray(), texData.size());
             greyBytes.Reset(1, 1);
             break;
@@ -254,7 +254,7 @@ bool WriteMTexCubeFace(const MTextureCubemap * tex, CubeTextureTypes face, std::
         case PS_32F_GREYSCALE:
             greyFloats.Reset(tex->GetWidth(), tex->GetHeight());
             tex->GetFaceGreyscale(face, greyFloats);
-            texData.resize(greyFloats.GetArea() * sizeof(float));
+            texData.resize(greyFloats.GetNumbElements() * sizeof(float));
             memcpy(texData.data(), greyFloats.GetArray(), texData.size());
             greyFloats.Reset(1, 1);
             break;

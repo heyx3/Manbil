@@ -1,6 +1,6 @@
 #include "Timing.h"
 
-#include "../Math/BasicMath.h"
+#include "../Math/Lower Math/BasicMath.h"
 
 
 bool Timer::Update(float timeElapsed)

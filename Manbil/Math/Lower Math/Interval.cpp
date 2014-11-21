@@ -1,5 +1,6 @@
 #include "Interval.h"
 
+
 Interval Interval::Intersection(Interval one, Interval two)
 {
 	if (one.IsInside(two))

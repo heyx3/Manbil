@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasicGenerators.h"
-#include "../Array3D.h"
+#include "../Lower Math/Array3D.h"
 
 
 //2D Perlin noise generator.

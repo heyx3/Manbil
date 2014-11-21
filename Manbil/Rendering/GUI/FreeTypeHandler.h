@@ -7,8 +7,8 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#include "../../Math/Vectors.h"
-#include "../../Math/Array2D.h"
+#include "../../Math/Lower Math/Vectors.h"
+#include "../../Math/Lower Math/Array2D.h"
 
 class MTexture2D;
 

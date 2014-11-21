@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Vector2Input.h"
-#include "../../Math/Interval.h"
+#include "../../Math/Lower Math/Interval.h"
 #include <SFML/Window/Mouse.hpp>
 
 //Gets the delta position of the mouse per second.

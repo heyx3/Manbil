@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <memory>
-#include "../../Math/Vectors.h"
-#include "../../Math/Interval.h"
+#include "../../Math/Lower Math/Vectors.h"
+#include "../../Math/Lower Math/Interval.h"
 
 //Filters a Vector2f value in the range { -1, -1 }, { 1, 1 } so that certain small values are zeroed out.
 class Deadzone

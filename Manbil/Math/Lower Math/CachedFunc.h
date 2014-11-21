@@ -2,6 +2,7 @@
 
 #include "Interval.h"
 
+
 //Caches the results of some float operation and interpolates to get values in between.
 class CachedFunc
 {
@@ -15,7 +16,7 @@ public:
 
 	inline float GetFuncVal(float f) const
 	{
-		BasicMath::ClampIntBoundsResult rt = BasicMath::ClampIntervalBounds(answersRange.GetStart(), cacheInterval, f);
+        BasicMath::ClampIntervalResult rt = BasicMath::ClampToIntervalBounds(answersRange.GetStart(), cacheInterval, f);
 		Interval dest(cachedAnswers[rt.zero], cachedAnswers[rt.one], 0.0001f, true, true),
 				 src(cacheInterval * rt.zero, cacheInterval * rt.one, 0.0001f, true, true);
 		return src.MapValue(dest, f);

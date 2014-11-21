@@ -2,6 +2,7 @@
 
 #include "BasicMath.h"
 
+
 //A fast (but not cryptographically-strong) PRNG.
 class FastRand
 {

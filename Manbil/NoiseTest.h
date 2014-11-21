@@ -2,7 +2,7 @@
 
 #include "sfmlworld.h"
 #include "SFML/Graphics.hpp"
-#include "Math/Array2D.h"
+#include "Math/Lower Math/Array2D.h"
 
 
 //Tests random noise generation.

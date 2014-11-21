@@ -56,27 +56,6 @@
     <ClCompile Include="MovingCamera.cpp">
       <Filter>Input</Filter>
     </ClCompile>
-    <ClCompile Include="Math\BasicMath.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\CachedFunc.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\FastRand.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Interval.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Matrix4f.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Quaternion.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Vectors.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Higher Math\Camera.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
@@ -450,6 +429,24 @@
     <ClCompile Include="Math\Shapes\Circle.cpp">
       <Filter>Math\Shapes</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Lower Math\BasicMath.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\CachedFunc.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\Interval.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\Matrix4f.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\Quaternion.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\Vectors.cpp">
+      <Filter>Math\Basic Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -535,27 +532,6 @@
     </ClInclude>
     <ClInclude Include="Rendering\Rendering.hpp">
       <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\BasicMath.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\CachedFunc.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\FastRand.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Interval.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Matrix4f.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Quaternion.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Vectors.h">
-      <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Camera.h">
       <Filter>Math\Higher Math</Filter>
@@ -777,12 +753,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Array2D.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Array3D.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\PrimitiveGenerator.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -990,6 +960,33 @@
     </ClInclude>
     <ClInclude Include="Math\Shapes\Circle.h">
       <Filter>Math\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Array3D.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\BasicMath.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\CachedFunc.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\FastRand.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Interval.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Matrix4f.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Quaternion.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Vectors.h">
+      <Filter>Math\Basic Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math/Array2D.h">
+      <Filter>Math\Basic Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

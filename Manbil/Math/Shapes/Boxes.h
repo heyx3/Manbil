@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Interval.h"
+#include "../Lower Math/Interval.h"
 
 
 //Represents a rectangle shape useful for 2D collision.

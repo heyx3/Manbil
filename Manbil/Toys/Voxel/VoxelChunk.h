@@ -2,8 +2,8 @@
 
 #include <vector>
 #include "../../Math/Shapes/Boxes.h"
-#include "../../Math/Array2D.h"
-#include "../../Math/Array3D.h"
+#include "../../Math/Lower Math/Array2D.h"
+#include "../../Math/Lower Math/Array3D.h"
 #include "../../Math/Shapes/ThreeDShapes.h"
 #include "../../Vertices.h"
 

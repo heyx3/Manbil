@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Vectors.h"
+#include "../Lower Math/Vectors.h"
 
 //Custom math functions.
 class GeometricMath
@@ -194,7 +194,7 @@ public:
 			  d = u.Dot(w0),
 			  e = v.Dot(w0);
 
-		float denominator = (a * c) - BasicMath::Square(b);
+		float denominator = (a * c) - (b * b);
 		float sc = ((b * e) - (c * d)) / denominator,
 			  tc = ((a * e) - (b * d)) / denominator;
 

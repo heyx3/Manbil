@@ -1,6 +1,6 @@
 #include "PlanetSimWorldGen.h"
 
-#include "../../Math/Quaternion.h"
+#include "../../Math/Lower Math/Quaternion.h"
 #include "../../DebugAssist.h"
 #include "../../Math/NoiseGeneration.hpp"
 #include <assert.h>

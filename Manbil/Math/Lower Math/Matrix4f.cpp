@@ -2,7 +2,10 @@
 
 #include <limits>
 
+
+//Used to greatly simplify access of matrix elements.
 #define El(x, y) ((*this)[Vector2i(x, y)])
+
 
 #pragma region Smaller matrices
 

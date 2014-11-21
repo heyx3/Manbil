@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "OpenGLIncludes.h"
-#include "Math/Vectors.h"
+#include "Math/Lower Math/Vectors.h"
 #include "Rendering/Texture Management/MTexture2D.h"
 #include "Rendering/Texture Management/MTextureCubemap.h"
 

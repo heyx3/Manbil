@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../BasicMath.h"
+#include "../Lower Math/BasicMath.h"
 
 
 //Should be an int in the range [1, 4].

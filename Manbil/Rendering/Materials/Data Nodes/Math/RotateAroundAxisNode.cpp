@@ -1,6 +1,6 @@
 #include "RotateAroundAxisNode.h"
 
-#include "../../../../Math/Quaternion.h"
+#include "../../../../Math/Lower Math/Quaternion.h"
 
 
 MAKE_NODE_READABLE_CPP(RotateAroundAxisNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 0.0f)
