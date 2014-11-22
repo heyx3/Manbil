@@ -11,7 +11,7 @@ void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D
 
 void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D<float> & noise, Vector2u noiseSize, bool calcStrength)
 {
-    Vector2i minCorner = (Center - Vector2f(Radius, Radius)).CastToInt(),
+    Vector2i minCorner = ToV2i(Center - Vector2f(Radius, Radius)),
              maxCorner = (Center + Vector2f(Radius, Radius)).Ceil();
     if (!Wrap)
     {

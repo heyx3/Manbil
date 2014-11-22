@@ -141,7 +141,7 @@ bool EditorButton::InitGUIElement(EditorMaterialSet & materialSet)
     }
     else
     {
-        GUIPanel* panel = new GUIPanel(materialSet.AnimateSpeed);
+        GUIPanel* panel = new GUIPanel();
         panel->AddElement(buttonTex);
         panel->AddElement(buttonLabel);
 
@@ -229,7 +229,7 @@ bool EditorButtonList::InitGUIElement(EditorMaterialSet & materialSet)
         }
         else
         {
-            GUIPanel* panel = new GUIPanel(materialSet.AnimateSpeed);
+            GUIPanel* panel = new GUIPanel();
             panel->AddElement(buttonTex);
             panel->AddElement(buttonLabel);
 

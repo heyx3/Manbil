@@ -178,7 +178,7 @@ VCM::VoxelLocation VCM::GetOffset(VoxelLocation voxel, Vector3i face) const
         chunkIndex = chunkIndex.MoreZ();
         added.z -= chunkSize;
     }
-    voxel.LocalIndex = added.CastToUInt();
+    voxel.LocalIndex = ToV3u(added);
     voxel.Chunk = GetChunk(chunkIndex);
 
     return voxel;

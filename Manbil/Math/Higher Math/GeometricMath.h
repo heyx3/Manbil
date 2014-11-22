@@ -70,8 +70,7 @@ public:
 	template<class Vector>
 	static float TriangleArea(Vector p1, Vector p2, Vector p3)
 	{
-		if (p1.Equals(p2) || p2.Equals(p3) || p3.Equals(p1) ||
-			AreColinear(p1, p2, p3))
+		if (p1 == p2 || p2 == p3 || p3 == p1 || AreColinear(p1, p2, p3))
 		{
 			return 0.0f;
 		}
@@ -85,9 +84,9 @@ public:
 	{
 		if (val1 == val2 && val2 == val3) return val1;
 
-		if (interpPos.Equals(p1)) return val1;
-		if (interpPos.Equals(p2)) return val2;
-		if (interpPos.Equals(p3)) return val3;
+		if (interpPos == p1) return val1;
+		if (interpPos == p2) return val2;
+		if (interpPos == p3) return val3;
 
 		float area1 = TriangleArea(p2, p3, interpPos),
 			  area2 = TriangleArea(p1, p3, interpPos),

@@ -18,7 +18,6 @@ public:
 	typedef float (*DistanceCalculatorFunc)(Vector2f o, Vector2f p);
 	static inline float StraightLineDistance(Vector2f o, Vector2f p) { return o.Distance(p); }
 	static inline float StraightLineDistanceSquared(Vector2f o, Vector2f p) { return o.DistanceSquared(p); }
-	static inline float StraightLineDistanceFast(Vector2f o, Vector2f p) { return 1.0f / o.FastInvDistance(p); }
 	static inline float ManhattanDistance(Vector2f o, Vector2f p) { return o.ManhattanDistance(p); }
 	static inline float LargestManhattanDistance(Vector2f o, Vector2f p) { return BasicMath::Max(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y)); }
 	static inline float SmallestManhattanDistance(Vector2f o, Vector2f p) { return BasicMath::Min(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y)); }
@@ -40,7 +39,7 @@ public:
 
 	Worley2D(int _Seed = 12345, unsigned int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
 		: Seed(_Seed), CellSize(_CellSize), MinPointsPerCell(minPointsPerCell), MaxPointsPerCell(maxPointsPerCell),
-          DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
+          DistFunc(&StraightLineDistance), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
 	~Worley2D(void) { }
 
 	virtual void Generate(Noise2D & noise) const override;
@@ -56,7 +55,6 @@ public:
     typedef float(*DistanceCalculatorFunc)(Vector3f o, Vector3f p);
     static inline float StraightLineDistance(Vector3f o, Vector3f p) { return o.Distance(p); }
     static inline float StraightLineDistanceSquared(Vector3f o, Vector3f p) { return o.DistanceSquared(p); }
-    static inline float StraightLineDistanceFast(Vector3f o, Vector3f p) { return 1.0f / o.FastInvDistance(p); }
     static inline float ManhattanDistance(Vector3f o, Vector3f p) { return o.ManhattanDistance(p); }
     static inline float LargestManhattanDistance(Vector3f o, Vector3f p) { return BasicMath::Max(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y), BasicMath::Abs(o.z - p.z)); }
     static inline float SmallestManhattanDistance(Vector3f o, Vector3f p) { return BasicMath::Min(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y), BasicMath::Abs(o.z - p.z)); }
@@ -77,7 +75,7 @@ public:
 
     Worley3D(int _Seed = 12345, unsigned int _CellSize = 30, unsigned int minPointsPerCell = 5, unsigned int maxPointsPerCell = 8)
         : Seed(_Seed), CellSize(_CellSize), MinPointsPerCell(minPointsPerCell), MaxPointsPerCell(maxPointsPerCell),
-          DistFunc(&StraightLineDistanceFast), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
+          DistFunc(&StraightLineDistance), ValueGenerator([](DistanceValues distVals) { return distVals.Values[0]; }) { }
     ~Worley3D(void) { }
 
     virtual void Generate(Noise3D & noise) const override;

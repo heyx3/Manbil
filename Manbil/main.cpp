@@ -29,7 +29,7 @@ void WriteToConsole(const std::string & outStr)
 
 
 
-//PRIORITY: Replace "intentionally not implemented" functions with the ' = delete' syntax.
+//TODO: Replace "intentionally not implemented" functions with the ' = delete' syntax.
 
 int main()
 {

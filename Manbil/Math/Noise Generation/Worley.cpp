@@ -143,7 +143,7 @@ void Worley2D::Generate(Array2D<float> & noise) const
                          wrappedRightY = (tempLoci.y > newTempLoci.y);
 
                     //Go through every point in the cell.
-                    cellTemp = &cellContents[newTempLoci.CastToUInt()].pointsInCell;
+                    cellTemp = &cellContents[ToV2u(newTempLoci)].pointsInCell;
 
                     for (i = 0; i < (int)cellTemp->size(); ++i)
                     {
@@ -344,7 +344,7 @@ void Worley3D::Generate(Array3D<float> & noise) const
                                  wrappedRightZ = (tempLoci.z > newTempLoci.z);
 
                             //Go through every point in the cell.
-                            cellTemp = &cellContents[newTempLoci.CastToUInt()].pointsInCell;
+                            cellTemp = &cellContents[ToV3u(newTempLoci)].pointsInCell;
 
                             for (i = 0; i < (int)cellTemp->size(); ++i)
                             {

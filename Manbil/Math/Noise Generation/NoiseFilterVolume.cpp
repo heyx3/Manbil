@@ -14,7 +14,7 @@ void MaxFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D
 
 void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3D<float> & noise, Vector3u noiseSize, bool calcStrength)
 {
-    Vector3i minCorner = (Center - Vector3f(Radius, Radius, Radius)).CastToInt(),
+    Vector3i minCorner = ToV3i(Center - Vector3f(Radius, Radius, Radius)),
              maxCorner = (Center + Vector3f(Radius, Radius, Radius)).Ceil();
     if (!Wrap)
     {

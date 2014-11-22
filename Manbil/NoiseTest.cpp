@@ -199,7 +199,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Vector3f offset(currentTime, currentTime, currentTime);
         offset *= 4.0f;
 
-        Perlin3D perl3(Vector3f(64.0f, 32.0f, 5.0f), Perlin3D::Cubic, offset.CastToInt(), 123456);
+        Perlin3D perl3(Vector3f(64.0f, 32.0f, 5.0f), Perlin3D::Cubic, ToV3i(offset), 123456);
         const int depth = 10;
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);

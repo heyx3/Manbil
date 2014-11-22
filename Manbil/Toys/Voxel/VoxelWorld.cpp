@@ -181,8 +181,7 @@ void VoxelWorld::SetUpVoxels(void)
         location->second->DoToEveryVoxel([&noise, &location](Vector3u localIndex)
         {
             Vector3i noiseIndex = (location->first * VoxelChunk::ChunkSize) + Vector3i(localIndex.x, localIndex.y, localIndex.z);
-            assert(noiseIndex.x >= 0 && noiseIndex.y >= 0 && noiseIndex.z >= 0);
-            location->second->SetVoxelLocal(localIndex, noise[noiseIndex.CastToUInt()] > 0.5f);
+            location->second->SetVoxelLocal(localIndex, noise[ToV3u(noiseIndex)] > 0.5f);
         });
     }
 }

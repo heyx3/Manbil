@@ -92,11 +92,11 @@ public:
     //Converts world coordinates to local Chunk coordinates.
     Vector3f ToLocalChunkSpace(Vector3f worldSpace) const { return ToWorldChunkSpace(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)); }
     //Converts world coordinates to the coordinate of the nearest local voxel.
-    Vector3u ToLocalVoxelIndex(Vector3f worldSpace) const { return ToWorldVoxelIndex(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z)).CastToUInt(); }
+    Vector3u ToLocalVoxelIndex(Vector3f worldSpace) const { return ToV3u(ToWorldVoxelIndex(worldSpace - Vector3f((float)MinCorner.x, (float)MinCorner.y, (float)MinCorner.z))); }
 
 
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
-    Vector3u Clamp(Vector3i inV) const { return inV.Clamp(0, ChunkSize).CastToUInt(); }
+    Vector3u Clamp(Vector3i inV) const { return ToV3u(inV.Clamp(0, ChunkSize)); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3u Clamp(Vector3u inV) const { return Vector3u(BasicMath::Min(inV.x, ChunkSize), BasicMath::Min(inV.y, ChunkSize), BasicMath::Min(inV.z, ChunkSize)); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
@@ -200,7 +200,7 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    if (todo(loc.CastToUInt()))
+                    if (todo(ToV3u(loc)))
                         return true;
         return false;
     }
@@ -235,7 +235,7 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    todo(loc.CastToUInt());
+                    todo(ToV3u(loc));
     }
     template<typename Func>
     //"Func" must have the signature "bool Func(Vector3u localIndex)".
@@ -270,7 +270,7 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    if (todo(loc.CastToUInt()))
+                    if (todo(ToV3u(loc)))
                         return true;
         return false;
     }
@@ -305,7 +305,7 @@ public:
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
             for (loc.y = yStart; (sign.y > 0 && loc.y <= yEnd) || (sign.y < 0 && loc.y >= yEnd); loc.y += sign.y)
                 for (loc.x = xStart; (sign.x > 0 && loc.x <= xEnd) || (sign.x < 0 && loc.x >= xEnd); loc.x += sign.x)
-                    todo(loc.CastToUInt());
+                    todo(ToV3u(loc));
     }
 
 
