@@ -21,7 +21,9 @@ public:
     //Raises an integer to a integer power.
     static long IntPow(int base, int exponent);
 
-    //Any type that can be constructed with a given initial value of 0.
+    //Any type that satisfies the following constraints:
+    //   1) Can be constructed with a given initial value of 0.
+    //   2) Defines operators "<" and "-".
     template <typename T>
     //Computes the sign (-1, 0, or 1) of a value without any branching.
     static int Sign(T val) { return (T(0) < val) - (val < T(0)); }
@@ -108,8 +110,18 @@ public:
     //Gets whether "factor" is a factor of "n".
     static bool IsFactor(int n, int factor) { return (n % factor) == 0; }
 
+
+    //Linear interpolation.
+    static float Lerp(float start, float end, float lerp) { return (lerp * (end - start)) + start; }
     //Gets the value that, if plugged into "lerp", would output "value".
     static float LerpComponent(float start, float end, float value) { return (value - start) / (end - start); }
+
+    //Remaps the given value from the given source range to the given destination range.
+    static inline float Remap(float startSource, float endSource,
+                              float startDest, float endDest, float sourceValue)
+    {
+        return Lerp(startDest, endDest, (sourceValue - startSource) / (endSource - startSource));
+    }
 
     //Pushes a value (assumed to be between 0 and 1) towards the endpoints of 0 and 1.
     static float Smooth(float value) { return value * value * ((value * -2.0f) + 3.0f); }
@@ -117,14 +129,5 @@ public:
     static inline float Supersmooth(float value)
     {
         return value * value * value * (10.0f + (value * (-15.0f + (value * 6.0f))));
-    }
-
-    //Linear interpolation.
-    static float Lerp(float start, float end, float lerp) { return (lerp * (end - start)) + start; }
-    //Remaps the given value from the given source range to the given destination range.
-    static inline float Remap(float startSource, float endSource,
-                              float startDest, float endDest, float sourceValue)
-    {
-        return Lerp(startDest, endDest, (sourceValue - startSource) / (endSource - startSource));
     }
 };
