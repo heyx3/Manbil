@@ -160,9 +160,11 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	{
 		#pragma region Worley
 
+        //PRIORITY: Fix Worley noise.
+
 		fr.Seed = fr.GetRandInt();
 		Worley2D wor(fr.GetRandInt(), 64, 5, 10);
-		wor.DistFunc = &Worley2D::StraightLineDistance;
+        wor.DistFunc = [](Vector2f o, Vector2f p) { return o.Distance(p); };
 		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return v.Values[2] - v.Values[0]; };
 		wor.Generate(finalNoise);
 
@@ -358,7 +360,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-    else if (true)
+    else if (false)
     {
         #pragma region Diamond-Square
 
@@ -413,7 +415,7 @@ float bumpHeight = 1.0f;
 bool pressedLast = false;
 void NoiseTest::UpdateWorld(float elapsedTime)
 {
-    const float bumpIncrement = 0.999f;
+    const float bumpIncrement = 0.99f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
         bumpHeight *= bumpIncrement;

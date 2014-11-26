@@ -13,8 +13,9 @@ namespace ManbilVectors
 	{
 	public:
 		unsigned char x, y;
-		Vector2b(unsigned char _x = 0, unsigned char _y = 0) : x(_x), y(_y) { }
-        Vector2b(float _x, float _y = 0.0f)
+        Vector2b(void) : x(0), y(0) { }
+		Vector2b(unsigned char _x, unsigned char _y) : x(_x), y(_y) { }
+        Vector2b(float _x, float _y)
             : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)) { }
         //These byte vectors are generally used to represent colors,
         //   so all operators will clamp instead of wrapping around.
@@ -28,8 +29,9 @@ namespace ManbilVectors
 	class Vector3b
 	{
 	public:
-		unsigned char x, y, z;
-		Vector3b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0)
+        unsigned char x, y, z;
+        Vector3b(void) : x(0), y(0), z(0) { }
+		Vector3b(unsigned char _x, unsigned char _y, unsigned char _z)
             : x(_x), y(_y), z(_z) { }
         Vector3b(float _x, float _y = 0.0f, float _z = 0.0f)
             : x((unsigned char)(_x * 255.0f)),
@@ -47,8 +49,9 @@ namespace ManbilVectors
 	class Vector4b
 	{
 	public:
-		unsigned char x, y, z, w;
-		Vector4b(unsigned char _x = 0, unsigned char _y = 0, unsigned char _z = 0, unsigned char _w = 0)
+        unsigned char x, y, z, w;
+        Vector4b(void) : x(0), y(0), z(0), w(0) { }
+		Vector4b(unsigned char _x, unsigned char _y, unsigned char _z, unsigned char _w)
             : x(_x), y(_y), z(_z), w(_w) { }
         Vector4b(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f)
             : x((unsigned char)(_x * 255.0f)), y((unsigned char)(_y * 255.0f)),
@@ -72,7 +75,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector2u & v) const { return v.GetHashCode(); }
+        unsigned int operator()(const Vector2u& v) const { return v.GetHashCode(); }
 
 
         unsigned int x;
@@ -82,13 +85,13 @@ namespace ManbilVectors
         Vector2u(unsigned int X, unsigned int Y) : x(X), y(Y) { }
         Vector2u(const Vector2u& other) { x = other.x; y = other.y; }
 
-        Vector2u & operator=(const Vector2u& other) { x = other.x; y = other.y; return *this; }
+        Vector2u& operator=(const Vector2u& other) { x = other.x; y = other.y; return *this; }
 
 
         //Access the X or Y component with 0 or 1, respectively.
-        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        const unsigned int& operator[](unsigned int index) const { return (&x)[index]; }
         //Access the X or Y component with 0 or 1, respectively.
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+        unsigned int& operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector2u& operator+=(const Vector2u& other) { x += other.x; y += other.y; return *this; }
@@ -106,15 +109,10 @@ namespace ManbilVectors
         bool operator!=(const Vector2u& v) const { return (x != v.x) || (y != v.y); }
 
 
-        Vector2u LessX(void) const { return Vector2u(x - 1, y); }
+        Vector2u LessX(void) const { assert(x > 0); return Vector2u(x - 1, y); }
         Vector2u MoreX(void) const { return Vector2u(x + 1, y); }
-        Vector2u LessY(void) const { return Vector2u(x, y - 1); }
+        Vector2u LessY(void) const { assert(y > 0); return Vector2u(x, y - 1); }
         Vector2u MoreY(void) const { return Vector2u(x, y + 1); }
-
-        Vector2u LessXY(void) const { return Vector2u(x - 1, y - 1); }
-        Vector2u MoreXLessY(void) const { return Vector2u(x + 1, y - 1); }
-        Vector2u LessXMoreY(void) const { return Vector2u(x - 1, y + 1); }
-        Vector2u MoreXY(void) const { return Vector2u(x + 1, y + 1); }
 
 
         //Scales this Vector2u's x, and y components by the given Vector2u's x and y components.
@@ -130,17 +128,14 @@ namespace ManbilVectors
 
         //Computes the dot product of this vector and another one.
         unsigned int Dot(Vector2u& v) const { return (x * v.x) + (y * v.y); }
-        //Computes the angle between this vector and another one.
-        float AngleBetween(Vector2u& v) const { return acosf(Dot(v) / (Length() * v.Length())); }
 
 
         unsigned int LengthSquared(void) const { return (x * x) + (y * y); }
         float Length(void) const { return sqrtf((float)LengthSquared()); }
 
 
-        float Distance(Vector2u other) const { return sqrtf((float)DistanceSquared(other)); }
         unsigned int DistanceSquared(Vector2u other) const;
-
+        float Distance(Vector2u other) const { return sqrtf((float)DistanceSquared(other)); }
         unsigned int ManhattanDistance(Vector2u other) const;
 
 
@@ -178,9 +173,9 @@ namespace ManbilVectors
 
 
         //Access the X, Y, or Z component with 0, 1, or 2, respectively.
-        const unsigned int & operator[](unsigned int index) const { return (&x)[index]; }
+        const unsigned int& operator[](unsigned int index) const { return (&x)[index]; }
         //Access the X, Y, or Z component with 0, 1, or 2, respectively.
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+        unsigned int& operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector3u& operator+=(const Vector3u& r) { x += r.x; y += r.y; z += r.z; return *this; }
@@ -198,9 +193,9 @@ namespace ManbilVectors
         bool operator!=(Vector3u v) const { return (x != v.x) || (y != v.y) || (z != v.z); }
 
 
-        Vector3u LessX(void) const { return Vector3u(x - 1, y, z); }
-        Vector3u LessY(void) const { return Vector3u(x, y - 1, z); }
-        Vector3u LessZ(void) const { return Vector3u(x, y, z - 1); }
+        Vector3u LessX(void) const { assert(x > 0); return Vector3u(x - 1, y, z); }
+        Vector3u LessY(void) const { assert(y > 0); return Vector3u(x, y - 1, z); }
+        Vector3u LessZ(void) const { assert(z > 0); return Vector3u(x, y, z - 1); }
         Vector3u MoreX(void) const { return Vector3u(x + 1, y, z); }
         Vector3u MoreY(void) const { return Vector3u(x, y + 1, z); }
         Vector3u MoreZ(void) const { return Vector3u(x, y, z + 1); }
@@ -211,11 +206,9 @@ namespace ManbilVectors
         //Clamps each component of this vector to be inside the given range of values.
         Vector3u Clamp(Vector3u min, Vector3u max) const;
 
-
+        
         //Computes the dot product of this vector and another one.
         unsigned int Dot(Vector3u v) const { return (x * v.x) + (y * v.y) + (z * v.z); }
-        //Computes the angle between this vector and another one.
-        float AngleBetween(Vector3u v) const { return acosf(Dot(v) / (Length() * v.Length())); }
 
 
         //Scales this Vector3u's x, y, and z components by the given Vector3u's x, y, and z components.
@@ -246,7 +239,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector4u & v) const { return v.GetHashCode(); }
+        unsigned int operator()(const Vector4u& v) const { return v.GetHashCode(); }
 
 
         unsigned int x;
@@ -267,7 +260,7 @@ namespace ManbilVectors
         //Access the X, Y, Z, or W component with 0, 1, 2, or 3, respectively.
         const unsigned int& operator[](unsigned int index) const { return (&x)[index]; }
         //Access the X, Y, Z, or W component with 0, 1, 2, or 3, respectively.
-        unsigned int & operator[](unsigned int index) { return (&x)[index]; }
+        unsigned int& operator[](unsigned int index) { return (&x)[index]; }
 
 
         Vector4u& operator+=(const Vector4u& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
@@ -301,7 +294,6 @@ namespace ManbilVectors
 
 
         unsigned int Dot(Vector4u v) const { return (x * v.x) + (y * v.y) + (z * v.z) + (w * v.w); }
-        float AngleBetween(Vector4u v) const { return acosf(Dot(v) / (Length() * v.Length())); }
 
 
         unsigned int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
@@ -327,7 +319,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        inline unsigned int operator()(const Vector2i & v) const
+        inline unsigned int operator()(const Vector2i& v) const
         {
             int i = v.GetHashCode();
             return *((unsigned int*)(&i));
@@ -352,9 +344,9 @@ namespace ManbilVectors
 
 
         //Access the X or Y component with 0 or 1, respectively.
-        const int & operator[](int index) const { return (&x)[index]; }
+        const int& operator[](int index) const { return (&x)[index]; }
         //Access the X or Y component with 0 or 1, respectively.
-        int & operator[](int index) { return (&x)[index]; }
+        int& operator[](int index) { return (&x)[index]; }
 
         
         Vector2i& operator+=(const Vector2i& other) { x += other.x; y += other.y; return *this; }
@@ -378,11 +370,6 @@ namespace ManbilVectors
 		Vector2i MoreX(void) const { return Vector2i(x + 1, y); }
 		Vector2i LessY(void) const { return Vector2i(x, y - 1); }
 		Vector2i MoreY(void) const { return Vector2i(x, y + 1); }
-		
-		Vector2i LessXY(void) const { return Vector2i(x - 1, y - 1); }
-		Vector2i MoreXLessY(void) const { return Vector2i(x + 1, y - 1); }
-		Vector2i LessXMoreY(void) const { return Vector2i(x - 1, y + 1); }
-		Vector2i MoreXY(void) const { return Vector2i(x + 1, y + 1); }
 
         Vector2i FlipX(void) const { return Vector2i(-x, y); }
         Vector2i FlipY(void) const { return Vector2i(x, -y); }
@@ -394,10 +381,17 @@ namespace ManbilVectors
         Vector2i ComponentProduct(Vector2i scale) const { return Vector2i(x * scale.x, y * scale.y); }
 
 
+        //Gets the dot product of this vector and another one.
+        int Dot(Vector2i other) const { return (x * other.x) + (y * other.y); }
+
+
         //Clamps each component to be inside the specified range.
         Vector2i Clamp(int min, int max) const;
         //Clamps each component to be inside the specified range.
         Vector2i Clamp(Vector2i min, Vector2i max) const;
+
+        //Gets the absolute value of this vector's components.
+        Vector2u Abs(void) const { return Vector2u(BasicMath::Abs(x), BasicMath::Abs(y)); }
 
 
         int LengthSquared(void) const { return (x * x) + (y * y); }
@@ -421,7 +415,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        inline unsigned int operator()(const Vector3i & v) const
+        inline unsigned int operator()(const Vector3i& v) const
         {
             int i = v.GetHashCode();
             return *((unsigned int*)(&i));
@@ -447,9 +441,9 @@ namespace ManbilVectors
 
 
         //Access the X, Y, or Z component with 0, 1, or 2, respectively.
-        const int & operator[](int index) const { return (&x)[index]; }
+        const int& operator[](int index) const { return (&x)[index]; }
         //Access the X, Y, or Z component with 0, 1, or 2, respectively.
-        int & operator[](int index) { return (&x)[index]; }
+        int& operator[](int index) { return (&x)[index]; }
 
 
         Vector3i& operator+=(const Vector3i& r) { x += r.x; y += r.y; z += r.z; return *this; }
@@ -485,16 +479,6 @@ namespace ManbilVectors
         Vector2i YZ(void) const { return Vector2i(y, z); }
 
 
-        //Clamps each component to be inside the specified range.
-        Vector3i Clamp(int min, int max) const;
-        //Clamps each component to be inside the specified range.
-        Vector3i Clamp(Vector3i min, Vector3i max) const;
-
-
-		int Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
-		float AngleBetween(Vector3i v) const { return acosf(Dot(v) / (Length() * v.Length())); }
-
-
         //Scales this Vector3i's x, y, and z components by the given Vector3i's x, y, and z components.
         void MultiplyComponents(Vector3i scale) { x *= scale.x; y *= scale.y; z *= scale.z; }
         //Scales this Vector3i's x, y, and z components by the given Vector3i's x, y, and z components.
@@ -502,6 +486,20 @@ namespace ManbilVectors
         {
             return Vector3i(x * scale.x, y * scale.y, z * scale.z);
         }
+
+
+        //Clamps each component to be inside the specified range.
+        Vector3i Clamp(int min, int max) const;
+        //Clamps each component to be inside the specified range.
+        Vector3i Clamp(Vector3i min, Vector3i max) const;
+
+
+        //Gets the absolute value of this vector's components.
+        Vector3u Abs(void) const { return Vector3u(BasicMath::Abs(x), BasicMath::Abs(y), BasicMath::Abs(z)); }
+
+
+        //Gets the dot product of this vector and the given one.
+		int Dot(Vector3i other) const { return (x * other.x) + (y * other.y) + (z * other.z); }
 
 
         float Length(void) const { return sqrtf((float)LengthSquared()); }
@@ -525,7 +523,7 @@ namespace ManbilVectors
         
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector4i & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector4i& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         int x;
@@ -551,9 +549,9 @@ namespace ManbilVectors
 
 
         //Access the X, Y, Z, or W component with 0, 1, 2, or 3, respectively.
-        const int & operator[](int index) const { return (&x)[index]; }
+        const int& operator[](int index) const { return (&x)[index]; }
         //Access the X, Y, Z, or W component with 0, 1, 2, or 3, respectively.
-        int & operator[](int index) { return (&x)[index]; }
+        int& operator[](int index) { return (&x)[index]; }
 
 
         Vector4i& operator+=(const Vector4i& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }
@@ -588,8 +586,16 @@ namespace ManbilVectors
         Vector4i Clamp(Vector4i min, Vector4i max) const;
 
 
+        //Gets the absolute value of this vector's components.
+        inline Vector4u Abs(void) const
+        {
+            return Vector4u(BasicMath::Abs(x), BasicMath::Abs(y),
+                            BasicMath::Abs(z), BasicMath::Abs(w));
+        }
+
+
+        //Gets the dot product of this vector and the given one.
         int Dot(Vector4i v) const { return (x * v.x) + (y * v.y) + (z * v.z) + (w * v.w); }
-        float AngleBetween(Vector4i v) const { return acosf(Dot(v) / (Length() * v.Length())); }
 
 
         int LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }
@@ -614,7 +620,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector2f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector2f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;
@@ -623,10 +629,9 @@ namespace ManbilVectors
 
         Vector2f(void) : Vector2f(0.0f, 0.0f) { }
         Vector2f(float _x, float _y) : x(_x), y(_y) { }
-        Vector2f(Vector2i copy) : x((float)copy.x), y((float)copy.y) { }
         Vector2f(const Vector2f& cpy) : x(cpy.x), y(cpy.y) { }
 
-        Vector2f& operator=(Vector2f&& cpy)
+        Vector2f& operator=(const Vector2f& cpy)
         {
             x = cpy.x;
             y = cpy.y;
@@ -636,9 +641,9 @@ namespace ManbilVectors
 
 
         //Access the X and Y components using 0 and 1, respectively.
-        const float & operator[](int index) const { return (&x)[index]; }
+        const float& operator[](int index) const { return (&x)[index]; }
         //Access the X and Y components using 0 and 1, respectively.
-        float & operator[](int index) { return (&x)[index]; }
+        float& operator[](int index) { return (&x)[index]; }
 
 
         Vector2f& operator+=(const Vector2f& other) { x += other.x; y += other.y; return *this; }
@@ -725,7 +730,7 @@ namespace ManbilVectors
 
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector3f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector3f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;
@@ -762,9 +767,9 @@ namespace ManbilVectors
 
 
         //Access the X, Y, and Z components using 0, 1, and 2, respectively.
-        const float & operator[](int index) const { return (&x)[index]; }
+        const float& operator[](int index) const { return (&x)[index]; }
         //Access the X, Y, and Z components using 0, 1, and 2, respectively.
-		float & operator[](int index) { return (&x)[index]; }
+		float& operator[](int index) { return (&x)[index]; }
 	
 
         bool operator==(const Vector3f& v) const { return (x == v.x) && (y == v.y) && (z == v.z); }
@@ -849,7 +854,7 @@ namespace ManbilVectors
 		
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
-        unsigned int operator()(const Vector4f & v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
+        unsigned int operator()(const Vector4f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
 
 
         float x;
@@ -875,9 +880,9 @@ namespace ManbilVectors
 
 
         //Access the X, Y, Z, and W components using 0, 1, 2, and 3, respectively.
-        const float & operator[](int index) const { return (&x)[index]; }
+        const float& operator[](int index) const { return (&x)[index]; }
         //Access the X, Y, Z, and W components using 0, 1, 2, and 3, respectively.
-        float & operator[](int index) { return (&x)[index]; }
+        float& operator[](int index) { return (&x)[index]; }
 
 
         Vector4f& operator+=(const Vector4f& r) { x += r.x; y += r.y; z += r.z; w += r.w; return *this; }

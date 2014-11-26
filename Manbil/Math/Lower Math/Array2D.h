@@ -35,6 +35,8 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
+
+    Array2D(void) = delete;
     Array2D(const Array2D<ArrayType> & cpy) = delete;
     Array2D & operator=(const Array2D<ArrayType> & other) = delete;
 

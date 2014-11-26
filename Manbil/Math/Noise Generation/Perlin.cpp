@@ -110,7 +110,7 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
             Vector2f tl = gradients[gradients.Clamp(tlGrid)],
                      tr = gradients[gradients.Clamp(tlGrid.MoreX())],
                      bl = gradients[gradients.Clamp(tlGrid.MoreY())],
-                     br = gradients[gradients.Clamp(tlGrid.MoreXY())];
+                     br = gradients[gradients.Clamp(tlGrid + Vector2u(1, 1))];
             Vector2f tTL = relGrid,
                      tTR = relGrid - Vector2f(1.0f, 0.0f),
                      tBL = relGrid - Vector2f(0.0f, 1.0f),
