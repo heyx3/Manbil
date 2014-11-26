@@ -432,9 +432,6 @@
     <ClCompile Include="Math\Lower Math\BasicMath.cpp">
       <Filter>Math\Basic Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Lower Math\CachedFunc.cpp">
-      <Filter>Math\Basic Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Lower Math\Interval.cpp">
       <Filter>Math\Basic Math</Filter>
     </ClCompile>
@@ -965,9 +962,6 @@
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\BasicMath.h">
-      <Filter>Math\Basic Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Lower Math\CachedFunc.h">
       <Filter>Math\Basic Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\FastRand.h">

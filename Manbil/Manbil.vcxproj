@@ -108,7 +108,6 @@
     <ClCompile Include="Math\Higher Math\Terrain.cpp" />
     <ClCompile Include="Math\Higher Math\TransformObject.cpp" />
     <ClCompile Include="Math\Lower Math\BasicMath.cpp" />
-    <ClCompile Include="Math\Lower Math\CachedFunc.cpp" />
     <ClCompile Include="Math\Lower Math\Interval.cpp" />
     <ClCompile Include="Math\Lower Math\Matrix4f.cpp" />
     <ClCompile Include="Math\Lower Math\Quaternion.cpp" />
@@ -280,7 +279,6 @@
     <ClInclude Include="Math\HigherMath.hpp" />
     <ClInclude Include="Math\Lower Math\Array3D.h" />
     <ClInclude Include="Math\Lower Math\BasicMath.h" />
-    <ClInclude Include="Math\Lower Math\CachedFunc.h" />
     <ClInclude Include="Math\Lower Math\FastRand.h" />
     <ClInclude Include="Math\Lower Math\Interval.h" />
     <ClInclude Include="Math\Lower Math\Matrix4f.h" />
