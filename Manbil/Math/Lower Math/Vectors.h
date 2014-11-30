@@ -717,7 +717,7 @@ namespace ManbilVectors
 		float ManhattanDistance(Vector2f other) const;
 
 	
-		int GetHashCode(void) const { return Vector2i(*(int*)(&x), *(int*)(&y)).GetHashCode(); }
+        int GetHashCode(void) const;
 	};
 
 	#pragma endregion
@@ -835,13 +835,10 @@ namespace ManbilVectors
 
 
 		Vector3f Cross(Vector3f v) const;
-		Vector3f Reflect(Vector3f normal) const { return (*this) + (normal * 2.0 * (-normal).Dot(*this)); }
+        Vector3f Reflect(Vector3f normal) const { return (*this) + (normal * 2.0 * (-normal).Dot(*this)); }
 
 
-        inline int GetHashCode(void) const
-        {
-            return Vector3i(*(int*)(&x), *(int*)(&y), *(int*)(&z)).GetHashCode();
-        }
+        int GetHashCode(void) const;
 	};
 
 	#pragma endregion
@@ -964,10 +961,7 @@ namespace ManbilVectors
 		float ManhattanDistance(Vector4f other) const;
 
 
-        inline int GetHashCode(void) const
-        {
-            return Vector4i(*(int*)(&x), *(int*)(&y), *(int*)(&z), *(int*)(&w)).GetHashCode();
-        }
+        int GetHashCode(void) const;
 	};
 
 	#pragma endregion

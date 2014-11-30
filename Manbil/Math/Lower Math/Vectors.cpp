@@ -390,6 +390,13 @@ float Vector2f::ManhattanDistance(Vector2f other) const
            BasicMath::Abs(y - other.y);
 }
 
+int Vector2f::GetHashCode(void) const
+{
+    static_assert(sizeof(int) == sizeof(float),
+                  "'int' and 'float' must be the same size for this hash code to work!");
+    return Vector2i(*(int*)(&x), *(int*)(&y)).GetHashCode();
+}
+
 #pragma endregion
 
 #pragma region Vector3f
@@ -458,6 +465,13 @@ float Vector3f::ManhattanDistance(Vector3f other) const
            BasicMath::Abs(z - other.z);
 }
 
+int Vector3f::GetHashCode(void) const
+{
+    static_assert(sizeof(int) == sizeof(float),
+                  "'int' and 'float' must be the same size for this hash code to work!");
+    return Vector3i(*(int*)(&x), *(int*)(&y), *(int*)(&z)).GetHashCode();
+}
+
 #pragma endregion
 
 #pragma region Vector4f
@@ -523,6 +537,13 @@ float Vector4f::ManhattanDistance(Vector4f other) const
            BasicMath::Abs(y - other.y) +
            BasicMath::Abs(z - other.z) +
            BasicMath::Abs(w - other.w);
+}
+
+int Vector4f::GetHashCode(void) const
+{
+    static_assert(sizeof(int) == sizeof(float),
+                  "'int' and 'float' must be the same size for this hash code to work!");
+    return Vector4i(*(int*)(&x), *(int*)(&y), *(int*)(&z), *(int*)(&w)).GetHashCode();
 }
 
 #pragma endregion
