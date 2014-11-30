@@ -17,8 +17,8 @@ public:
 	NoiseFilterer2D(void) { InitData(); }
 	void InitData(void)
     {
-        RemapValues_OldVals = Interval::GetZeroToOneInterval();
-        RemapValues_NewVals = Interval::GetZeroToOneInterval();
+        RemapValues_OldVals = Interval::GetZeroToOne();
+        RemapValues_NewVals = Interval::GetZeroToOne();
 		InvertFunc = false;
 		FillRegion = 0;
 		NoiseToFilter = 0;
@@ -126,8 +126,8 @@ public:
     NoiseFilterer3D(void) { InitData(); }
     void InitData(void)
     {
-        RemapValues_OldVals = Interval::GetZeroToOneInterval();
-        RemapValues_NewVals = Interval::GetZeroToOneInterval();
+        RemapValues_OldVals = Interval::GetZeroToOne();
+        RemapValues_NewVals = Interval::GetZeroToOne();
         InvertFunc = false;
         FillVolume = 0;
 

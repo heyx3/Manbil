@@ -83,7 +83,7 @@ public:
 	HorizontalCrossDeadzone(Interval yRange) : YRange(yRange) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-		float yLimit = YRange.RangeLerp(BasicMath::Abs(inV.x));
+		float yLimit = YRange.Lerp(BasicMath::Abs(inV.x));
         float sign = (float)BasicMath::Sign(inV.y);
 
         Interval goodRange(yLimit, 1.0f, 0.0001f);
@@ -104,7 +104,7 @@ public:
 	VerticalCrossDeadzone(Interval xRange) : XRange(xRange) { }
 	virtual Vector2f Filter(Vector2f inV) override
 	{
-        float xLimit = XRange.RangeLerp(BasicMath::Abs(inV.y));
+        float xLimit = XRange.Lerp(BasicMath::Abs(inV.y));
         float sign = (float)BasicMath::Sign(inV.x);
 
         Interval goodRange(xLimit, 1.0f, 0.0001f);

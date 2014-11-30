@@ -19,7 +19,7 @@ void NF2::ReflectValues(Noise2D * nse) const
 
 	struct RefValuesStruct { Interval i; };
 	RefValuesStruct rvs;
-	rvs.i = Interval::GetZeroToOneInterval();
+	rvs.i = Interval::GetZeroToOne();
 
 	SetAtEveryPoint((void*)&rvs, [](void *pData, Vector2u loc, Noise2D * nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
 }
@@ -273,7 +273,7 @@ void NF3::ReflectValues(Noise3D * nse) const
 {
     struct RefValuesStruct { Interval i; };
     RefValuesStruct rvs;
-    rvs.i = Interval::GetZeroToOneInterval();
+    rvs.i = Interval::GetZeroToOne();
 
     SetAtEveryPoint(nse, (void*)&rvs, [](void *pData, Vector3u loc, Noise3D * nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
 }

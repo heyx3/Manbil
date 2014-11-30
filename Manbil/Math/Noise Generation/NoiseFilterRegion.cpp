@@ -5,7 +5,7 @@ void MaxFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Array2D
 {
     for (Vector2u loc; loc.y < noiseSize.y; ++loc.y)
         for (loc.x = 0; loc.x < noiseSize.x; ++loc.x)
-            if (ActiveIn.Touches(noise[loc]))
+            if (ActiveIn.IsInside(noise[loc]))
                 toDo(pData, loc, StrengthLerp);
 }
 
@@ -46,7 +46,7 @@ void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Ar
                 while (wrapped.x >= noiseSize.x) wrapped.x -= noiseSize.x;
 
                 Vector2u wrappedU(wrapped.x, wrapped.y);
-                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.Touches(noise[wrappedU]))
+                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.IsInside(noise[wrappedU]))
                     toDo(pData, wrappedU, StrengthLerp * strengthCalculator(locF, this));
             }
         }
@@ -63,7 +63,7 @@ void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Ar
             {
                 locF.x = (float)loc.x;
 
-                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.Touches(noise[loc]))
+                if (Center.DistanceSquared(locF) < (Radius * Radius) && ActiveIn.IsInside(noise[loc]))
                     toDo(pData, loc, StrengthLerp * strengthCalculator(locF, this));
             }
         }
@@ -107,7 +107,7 @@ void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const
 
                 Vector2u wrappedU((unsigned int)wrapped.x, (unsigned int)wrapped.y);
 
-                if (ActiveIn.Touches(noise[wrappedU]))
+                if (ActiveIn.IsInside(noise[wrappedU]))
                     toDo(pData, wrappedU, StrengthLerp);
             }
         }
@@ -120,7 +120,7 @@ void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const
                             BasicMath::Min<unsigned int>(BottomRight.y, noiseSize.y));
         for (Vector2u loc(0, topLeftU.y); loc.y <= maxCornerU.y; ++loc.y)
             for (loc.x = topLeftU.x; loc.x <= maxCornerU.x; ++loc.x)
-                if (ActiveIn.Touches(noise[loc]))
+                if (ActiveIn.IsInside(noise[loc]))
                     toDo(pData, loc, StrengthLerp);
     }
     

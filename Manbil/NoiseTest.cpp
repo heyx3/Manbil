@@ -281,7 +281,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Perlin2D rockyGeneratorBase(50.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
         nf.NoiseToFilter = &rockyGeneratorBase;
         nf.FilterFunc = &NoiseFilterer2D::RemapValues;
-        nf.RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        nf.RemapValues_OldVals = Interval::GetZeroToOne();
         nf.RemapValues_NewVals = Interval(0.85f, 1.0f, 0.00001f);
         nf.Generate(rockyNoise);
 
@@ -295,7 +295,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Perlin2D hillGenerator(100.0f, Perlin2D::Quintic, Vector2i(), fr.GetRandInt());
         nf.NoiseToFilter = &hillGenerator;
         nf.FilterFunc = &NoiseFilterer2D::RemapValues;
-        nf.RemapValues_OldVals = Interval::GetZeroToOneInterval();
+        nf.RemapValues_OldVals = Interval::GetZeroToOne();
         nf.RemapValues_NewVals = Interval(0.0f, 0.4f, 0.00001f);
         nf.Generate(hillNoise);
         

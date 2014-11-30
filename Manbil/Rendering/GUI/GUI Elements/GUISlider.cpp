@@ -76,11 +76,11 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
     Vector2f nubPos;
     if (IsVertical)
     {
-        nubPos = Vector2f(barBounds.GetCenterX(), barBounds.GetYInterval().RangeLerp(Value));
+        nubPos = Vector2f(barBounds.GetCenterX(), barBounds.GetYInterval().Lerp(Value));
     }
     else
     {
-        nubPos = Vector2f(barBounds.GetXInterval().RangeLerp(Value), barBounds.GetCenterY());
+        nubPos = Vector2f(barBounds.GetXInterval().Lerp(Value), barBounds.GetCenterY());
     }
     Nub.SetPosition(nubPos);
 

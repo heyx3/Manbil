@@ -644,8 +644,8 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
     for (unsigned int axis = 0; axis < 3; ++axis)
     {
         if (faceIntersectData[axis].t > 0.0f &&
-            dInts[(axis + 1) % 3].Touches(faceIntersectData[axis].Point[(axis + 1) % 3]) &&
-            dInts[(axis + 2) % 3].Touches(faceIntersectData[axis].Point[(axis + 2) % 3]))
+            dInts[(axis + 1) % 3].IsInside(faceIntersectData[axis].Point[(axis + 1) % 3]) &&
+            dInts[(axis + 2) % 3].IsInside(faceIntersectData[axis].Point[(axis + 2) % 3]))
         {
             tempDistSqre = rayStart.DistanceSquared(faceIntersectData[axis].Point);
             if (tempDistSqre < closestDistSqr)
@@ -966,7 +966,7 @@ bool Capsule::TouchingPlane(const Plane & plane) const
     Interval distanceIntvl(distance1, distance2, Plane::MarginOfError, true, true);
     distanceIntvl = distanceIntvl.Widen(Radius + Radius);
 
-    return distanceIntvl.Touches(0.0f);
+    return distanceIntvl.IsInside(0.0f);
 }
 
 #pragma warning(disable: 4100)
@@ -1110,7 +1110,7 @@ bool Plane::TouchingCapsule(const Capsule & capsule) const
     Interval distanceIntvl(distance1, distance2, MarginOfError, true, true);
     distanceIntvl = distanceIntvl.Widen(capsule.Radius + capsule.Radius);
 
-    return distanceIntvl.Touches(0.0f);
+    return distanceIntvl.IsInside(0.0f);
 }
 bool Plane::TouchingPlane(const Plane & plane) const
 {
