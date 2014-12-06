@@ -34,6 +34,16 @@ public:
     Interval(float start, float end, float epsilon, bool startInclusive = true, bool endInclusive = false);
 
 
+    //Gets whether this interval is exactly equal to the given one.
+    bool operator==(const Interval& other) const;
+    //Gets whether this interval is NOT exactly equal to the given one.
+    bool operator!= (const Interval& other) const;
+
+
+    //Gets whether this interval is vaid (i.e. its range is greater than 0.0f).
+    bool IsValid(void) const { return range > 0.0f; }
+
+
     //Gets the beginning (inclusive) of this interval.
 	float GetStart(void) const { return center - halfRange; }
     //Gets the end (inclusive) of this interval.
@@ -65,7 +75,7 @@ public:
 
     //Scales this interval's range by the given amount.
     Interval Inflate(float rangeScale) const { return Interval(center, range * rangeScale); }
-    //Increases this interva's range by the given amount.
+    //Increases this interval's range by the given amount.
     Interval Widen(float deltaRange) const { return Interval(center, range + deltaRange); }
     //Moves this interval's center by the given amount.
     Interval Translate(float deltaCenter) const { return Interval(center + deltaCenter, range); }
@@ -103,15 +113,6 @@ public:
 
     //Gets a hash code for this interval.
 	int GetHashCode(void) const { return Vector2f(center, range).GetHashCode(); }
-
-
-    //Gets whether this interval is vaid (i.e. its range is greater than 0.0f).
-    bool IsValid(void) const { return range > 0.0f; }
-
-    //Gets whether this interval is exactly equal to the given one.
-    bool operator==(const Interval& other) const;
-    //Gets whether this interval is NOT exactly equal to the given one.
-	bool operator!= (const Interval& other) const;
 
 
 private:
