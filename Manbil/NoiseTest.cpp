@@ -122,7 +122,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
 #pragma warning(disable: 4127)
 
-	if (false)
+	if (true)
 	{
 		#pragma region Layered Perlin
 
