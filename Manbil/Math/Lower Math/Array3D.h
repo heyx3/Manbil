@@ -37,8 +37,11 @@ public:
 			arrayVals[i] = defaultValue;
 		}
 	}
-    Array3D(const Array3D<ArrayType> & cpy) = delete;
-    Array3D & operator=(const Array3D<ArrayType> & other) = delete;
+
+
+    Array3D(void) = delete;
+    Array3D(const Array3D<ArrayType>& cpy) = delete;
+    Array3D & operator=(const Array3D<ArrayType>& other) = delete;
 
     ~Array3D(void)
 	{
@@ -50,9 +53,19 @@ public:
     const ArrayType& operator[](Vector3u l) const { return arrayVals[GetIndex(l.x, l.y, l.z)]; }
 
 
-    //Resets this array to the given size, with uninitialized elements.
-    //If the total number of elements doesn't change, then nothing will be allocated or un-allocated
-    //    and the elements will remain unchanged.
+    //Gets the X size of this array.
+    unsigned int GetWidth(void) const { return width; }
+    //Gets the Y size of this array.
+    unsigned int GetHeight(void) const { return height; }
+    //Gets the Z size of this array.
+    unsigned int GetDepth(void) const { return depth; }
+    //Gets the size of this array along each axis.
+    Vector3u GetDimensions(void) const { return Vector3u(width, height, depth); }
+
+
+    //Resets this array to the given size and leaves its elements uninitialized.
+    //If the total number of elements doesn't change, then nothing is allocated or un-allocated
+    //    and the elements keep their values.
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth)
 	{
         if ((width * height * depth) != (_width * _height * _depth))
@@ -67,14 +80,10 @@ public:
 	}
     //Resets this array to the given size, and initializes all elements to the given value.
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth,
-               const ArrayType & defaultValue)
+               const ArrayType& defaultValue)
 	{
 		Reset(_width, _height, _depth);
-
-        for (unsigned int i = 0; i < width * height * depth; ++i)
-		{
-			arrayVals[i] = defaultValue;
-		}
+        Fill(defaultValue)
 	}
     
 
@@ -114,87 +123,95 @@ public:
     //Wraps the given index around the range of allowable indices for this array.
     Vector3i Wrap(Vector3i in) const
     {
+        //First handle negative values.
         while (in.x < 0) in.x += GetWidth();
-        while (in.x >= GetWidth()) in.x -= GetWidth();
         while (in.y < 0) in.y += GetHeight();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
         while (in.z < 0) in.z += GetDepth();
-        while (in.z >= GetDepth()) in.z -= GetDepth();
+
+        in.x %= GetWidth();
+        in.y %= GetHeight();
+        in.z %= GetDepth();
 
         return in;
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector3u Wrap(Vector3u in) const
     {
-        while (in.x >= GetWidth()) in.x -= GetWidth();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
-        while (in.z >= GetDepth()) in.z -= GetDepth();
-
-        return in;
+        return Vector3u(in.x % GetWidth(), in.y % GetHeight(), inZ % GetDepth());
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector3f Wrap(Vector3f in) const
     {
-        while (in.x < 0.0f) in.x += GetWidth();
-        while (in.x >= GetWidth()) in.x -= GetWidth();
-        while (in.y < 0.0f) in.y += GetHeight();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
-        while (in.z < 0.0f) in.z += GetDepth();
-        while (in.z >= GetDepth()) in.z -= GetDepth();
+        Vector3f fDims = ToV3f(GetDimensions());
+
+        //First handle negative values.
+        while (in.x < 0.0f) in.x += fDims.x;
+        while (in.y < 0.0f) in.y += fDims.y;
+        while (in.z < 0.0f) in.z += fDims.z;
+
+        in.x %= GetWidth();
+        in.y %= GetHeight();
+        in.z %= GetDepth();
 
         return in;
     }
 
 
+    //Gets whether this array's width, height, and depth are the same.
+    bool IsCube(void) const { return width == height && width == depth; }
+
     //Gets whether this array and the given array have the same dimensions.
-    bool HasSameDimensions(const Array3D<ArrayType> & other) const
+    bool HasSameDimensions(const Array3D<ArrayType>& other) const
     {
         return (width == other.width) && (height == other.height) && (depth == other.depth);
     }
 
-    //Gets the X size of this array.
-    unsigned int GetWidth(void) const { return width; }
-    //Gets the Y size of this array.
-    unsigned int GetHeight(void) const { return height; }
-    //Gets the Z size of this array.
-    unsigned int GetDepth(void) const { return depth; }
-    //Gets the size of this array along each axis.
-    Vector3u GetDimensions(void) const { return Vector3u(width, height, depth); }
 
     //Gets the total number of elements contained by this array.
     unsigned int GetNumbElements(void) const { return width * height * depth; }
 
 
 	//Fills every element with the given value.
-	void Fill(const ArrayType & value)
+	void Fill(const ArrayType& value)
 	{
         for (int i = (width * height * depth) - 1; i >= 0; --i)
 		{
 			arrayVals[i] = value;
 		}
-	}
-	//Fills this array with the given one.
-    //If the given one is too small, this array's extra elements are set to the given default value.
-    //Optionally specifies an offset for the min position of "toCopy".
-    void Fill(const Array3D<ArrayType> & toCopy, const ArrayType & defaultValue,
-              Vector3i copyOffset = Vector3i(0, 0, 0))
+    }
+    //Copies the given array into this one. The given array may be offset a certain amount.
+    //Any values of the given array that don't correspond to a value in this array are ignored.
+    void Fill(const Array3D<ArrayType>& toCopy, Vector3i copyOffset = Vector3i(0, 0, 0))
     {
         Vector3i offsetLoc;
 
         for (Vector3u loc; loc.z < depth; ++loc.z)
         {
-            offsetLoc.z = loc.z - copyOffset.z;
+            offsetLoc.z = loc.z + copyOffset.z;
+
+            if (offsetLoc.z < 0)
+                continue;
+            if (offsetLoc.z >= depth)
+                break;
 
             for (loc.y = 0; loc.y < height; ++loc.y)
             {
-                offsetLoc.y = loc.y - copyOffset.y;
+                offsetLoc.y = loc.y + copyOffset.y;
+
+                if (offsetLoc.y < 0)
+                    continue;
+                if (offsetLoc.y >= height)
+                    break;
 
                 for (loc.x = 0; loc.x < width; ++loc.x)
                 {
-                    offsetLoc.x = loc.x - copyOffset.x;
+                    offsetLoc.x = loc.x + copyOffset.x;
 
-                    bool inToCopy = (offsetLoc.x >= 0) && (offsetLoc.y >= 0) && (offsetLoc.z >= 0);
-                    operator[](loc) = (inToCopy ? toCopy[Vector3u(offsetLoc.x, offsetLoc.y, offsetLoc.z)] : defaultValue);
+                    if (offsetLoc.x >= width)
+                        break;
+
+                    if (offsetLoc.x >= 0)
+                        operator[](loc) = toCopy(ToV3u(offsetLoc));
                 }
             }
         }
@@ -203,14 +220,12 @@ public:
     //Assumes that the size of this array matches with the given one.
     //If "useMemcpy" is true, this array will have its exact binary data quickly copied using memcpy().
     //Otherwise, each element will be individually set using the assignment operator.
-    void Fill(const ArrayType * values, bool useMemcpy)
+    void Fill(const ArrayType* values, bool useMemcpy)
     {
         if (useMemcpy)
-        {
             memcpy(arrayVals, values, width * height * sizeof(ArrayType));
-        }
 
-        for (unsigned int i = 0; i < (width * height); ++i)
+        else for (unsigned int i = 0; i < (width * height); ++i)
             arrayVals[i] = values[i];
     }
 
@@ -221,22 +236,16 @@ public:
     {
         Vector3u loc;
         for (loc.z = 0; loc.z < depth; ++loc.z)
-        {
             for (loc.y = 0; loc.y < height; ++loc.y)
-            {
                 for (loc.x = 0; loc.x < width; ++loc.x)
-                {
                     getValue(loc, &arrayVals[GetIndex(loc.x, loc.y, loc.z)]);
-                }
-            }
-        }
     }
 
     //Resizes this array to the given size, preserving all data
-    //(although some data will of course be lost if the array gets shortened).
+    //    (although some data will of course be lost if the array gets shortened).
     //If the array is being extended, the new elements will be filled with the given default value.
     void Resize(unsigned int newWidth, unsigned int newHeight, unsigned int newDepth,
-                const ArrayType & defaultVal)
+                const ArrayType& defaultVal)
     {
         if (width != newWi || height != newHeight || depth != newDepth)
         {
@@ -252,24 +261,22 @@ public:
 
 
     //Gets a pointer to the first element in this array.
-    const ArrayType * GetArray(void) const { return arrayVals; }
+    const ArrayType* GetArray(void) const { return arrayVals; }
     //Gets a pointer to the first element in this array.
-    ArrayType * GetArray(void) { return arrayVals; }
+    ArrayType* GetArray(void) { return arrayVals; }
 
     //Copies this array into the given one. Assumes it is the same size as this array.
 	void CopyInto(ArrayType * outValues) const
 	{
         for (unsigned int i = 0; i < width * height * depth; ++i)
-		{
 			outValues[i] = arrayVals[i];
-		}
 	}
 
 
 private:
 
     unsigned int width, height, depth;
-	ArrayType * arrayVals;
+	ArrayType* arrayVals;
 };
 
 #pragma warning(default: 4018)

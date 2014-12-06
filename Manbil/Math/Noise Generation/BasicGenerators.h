@@ -44,17 +44,6 @@ public:
 };
 
 
-//Generates noise using a noise array.
-struct CopyNoise2D : public Generator2D
-{
-public:
-	Noise2D * ToCopy;
-	Vector2i CopyOffset;
-	CopyNoise2D(Noise2D * toCopy = 0, Vector2i copyOffset = Vector2i(0, 0)) : ToCopy(toCopy), CopyOffset(copyOffset) { }
-	virtual void Generate(Noise2D & outNoise) const override { outNoise.Fill(*ToCopy, 0.0f, CopyOffset); }
-};
-
-
 
 //Generates random noise using a fast PRNG.
 struct WhiteNoise2D : public Generator2D
@@ -105,18 +94,6 @@ public:
     float FlatValue;
     FlatNoise3D(float flatValue = 0.0f) : FlatValue(flatValue) { }
     virtual void Generate(Noise3D & outNoise) const override { outNoise.Fill(FlatValue); }
-};
-
-
-//Generates noise using a noise array.
-struct CopyNoise3D : public Generator3D
-{
-public:
-    Noise3D * ToCopy;
-    Vector3i CopyOffset;
-    CopyNoise3D(Noise3D * toCopy = 0, Vector3i copyOffset = Vector3i(0, 0, 0))
-        : ToCopy(toCopy), CopyOffset(copyOffset) { }
-    virtual void Generate(Noise3D & outNoise) const override { outNoise.Fill(*ToCopy, 0.0f, CopyOffset); }
 };
 
 

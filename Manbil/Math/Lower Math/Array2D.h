@@ -37,8 +37,8 @@ public:
 	}
 
     Array2D(void) = delete;
-    Array2D(const Array2D<ArrayType> & cpy) = delete;
-    Array2D & operator=(const Array2D<ArrayType> & other) = delete;
+    Array2D(const Array2D<ArrayType>& cpy) = delete;
+    Array2D & operator=(const Array2D<ArrayType>& other) = delete;
 
 	~Array2D(void)
 	{
@@ -48,6 +48,14 @@ public:
 
 	ArrayType& operator[](Vector2u l) { return arrayVals[GetIndex(l.x, l.y)]; }
 	const ArrayType& operator[](Vector2u l) const { return arrayVals[GetIndex(l.x, l.y)]; }
+
+
+    //Gets the X size of this array.
+    unsigned int GetWidth(void) const { return width; }
+    //Gets the Y size of this array.
+    unsigned int GetHeight(void) const { return height; }
+    //Gets the size of this array along each axis.
+    Vector2u GetDimensions(void) const { return Vector2u(width, height); }
 
 
     //Resets this array to the given size and leaves its elements uninitialized.
@@ -66,11 +74,10 @@ public:
         height = _height;
 	}
     //Resets this array to the given size and initializes all elements to the given value.
-    void Reset(unsigned int _width, unsigned int _height, const ArrayType & defaultValue)
+    void Reset(unsigned int _width, unsigned int _height, const ArrayType& defaultValue)
 	{
 		Reset(_width, _height);
-        for (unsigned int i = 0; i < width * height; ++i)
-			arrayVals[i] = defaultValue;
+        Fill(defaultValue);
 	}
 
 
@@ -107,28 +114,31 @@ public:
     //Wraps the given index around the range of allowable indices for this array.
     Vector2i Wrap(Vector2i in) const
     {
+        //First handle negative values.
         while (in.x < 0) in.x += GetWidth();
-        while (in.x >= GetWidth()) in.x -= GetWidth();
         while (in.y < 0) in.y += GetHeight();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
+        
+        in.x %= GetWidth();
+        in.y %= GetHeight();
 
         return in;
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector2u Wrap(Vector2u in) const
     {
-        while (in.x >= GetWidth()) in.x -= GetWidth();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
-
-        return in;
+        return Vector2u(in.x % GetWidth(), in.y % GetHeight());
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector2f Wrap(Vector2f in) const
     {
-        while (in.x < 0.0f) in.x += GetWidth();
-        while (in.x >= GetWidth()) in.x -= GetWidth();
-        while (in.y < 0.0f) in.y += GetHeight();
-        while (in.y >= GetHeight()) in.y -= GetHeight();
+        Vector2f fDims = ToV2f(GetDimensions());
+
+        //First handle negative values.
+        while (in.x < 0.0f) in.x += fDims.x;
+        while (in.y < 0.0f) in.y += fDims.y;
+
+        in.x = fmodf(in.x, fDims.x);
+        in.y = fmodf(in.y, fDims.y);
 
         return in;
     }
@@ -137,49 +147,47 @@ public:
     //Gets whether this array's width and height are the same.
     bool IsSquare(void) const { return width == height; }
 
-    //Gets the X size of this array.
-    unsigned int GetWidth(void) const { return width; }
-    //Gets the Y size of this array.
-    unsigned int GetHeight(void) const { return height; }
-    //Gets the size of this array along each axis.
-    Vector2u GetDimensions(void) const { return Vector2u(width, height); }
-
-    //Gets the total number of elements contained by this array.
-    unsigned int GetNumbElements(void) const { return width * height; }
-
     //Gets whether this array has the same dimensions as the given one.
-    bool HasSameDimensions(const Array2D<ArrayType> & other) const
+    bool HasSameDimensions(const Array2D<ArrayType>& other) const
     {
         return (width == other.width) && (height == other.height);
     }
 
 
+    //Gets the total number of elements contained by this array.
+    unsigned int GetNumbElements(void) const { return width * height; }
+
+
 	//Fills every element with the given value.
-	void Fill(const ArrayType & value)
+	void Fill(const ArrayType& value)
 	{
-        for (int i = (width * height) - 1; i >= 0; --i)
-		{
+        for (unsigned int i = 0; i < width * height; ++i)
 			arrayVals[i] = value;
-		}
 	}
-	//Fills this array with the given one.
-    //If the given one is too small, this array's extra elements are set to the given default value.
-    //Optionally specifies an offset for the top-left position of "toCopy".
-	void Fill(const Array2D<ArrayType> & toCopy, const ArrayType & defaultValue,
-              Vector2i copyOffset = Vector2i(0, 0))
+    //Copies the given array into this one. The given array may be offset a certain amount.
+    //Any values of the given array that don't correspond to a value in this array are ignored.
+	void Fill(const Array2D<ArrayType>& toCopy, Vector2i copyOffset = Vector2i(0, 0))
 	{
 		Vector2i offsetLoc;
 
-        for (Vector2u loc; loc.y < height; ++loc.y)
+        for (Vector2i loc; loc.y < toCopy.height; ++loc.y)
         {
-            offsetLoc.y = loc.y - copyOffset.y;
+            offsetLoc.y = loc.y + copyOffset.y;
 
-            for (loc.x = 0; loc.x < width; ++loc.x)
+            if (offsetLoc.y < 0)
+                continue;
+            if (offsetLoc.y >= height)
+                break;
+
+            for (loc.x = 0; loc.x < toCopy.width; ++loc.x)
             {
-                offsetLoc.x = loc.x - copyOffset.x;
+                offsetLoc.x = loc.x + copyOffset.x;
 
-                bool inToCopy = (offsetLoc.x >= 0) && (offsetLoc.y >= 0);
-                operator[](loc) = (inToCopy ? toCopy[Vector2u(offsetLoc.x, offsetLoc.y)] : defaultValue);
+                if (offsetLoc.x >= width)
+                    break;
+
+                if (offsetLoc.x >= 0)
+                    operator[](loc) = toCopy(ToV2u(offsetLoc));
             }
         }
 	}
@@ -187,12 +195,10 @@ public:
     //Assumes that the size of this array matches with the given one.
     //If "useMemcpy" is true, this array will have its exact binary data copied quickly using memcpy.
     //Otherwise, each element will be set using its assignment operator.
-    void Fill(const ArrayType * values, bool useMemcpy)
+    void Fill(const ArrayType* values, bool useMemcpy)
     {
         if (useMemcpy)
-        {
             memcpy(arrayVals, values, width * height * sizeof(ArrayType));
-        }
 
         else for (unsigned int i = 0; i < (width * height); ++i)
             arrayVals[i] = values[i];
@@ -203,7 +209,8 @@ public:
     //Fills every element using the given function.
     void FillFunc(Func getValue)
     {
-        for (Vector2u loc; loc.y < height; ++loc.y)
+        Vector2u loc;
+        for (loc.y = 0; loc.y < height; ++loc.y)
             for (loc.x = 0; loc.x < width; ++loc.x)
                 getValue(loc, &arrayVals[GetIndex(loc.x, loc.y)]);
     }
@@ -213,7 +220,7 @@ public:
     //"useFastCopy" determines whether to use memcpy on the whole thing (faster)
     //    or the assignment operator on each element (slower).
     //The given array will be automatically resized to match this one's size if needed.
-    void RotateInto(int clockwiseRots, Array2D<ArrayType> & outArray, bool useFastCopy) const
+    void RotateInto(int clockwiseRots, Array2D<ArrayType>& outArray, bool useFastCopy) const
     {
         //Wrap the value to the range [0, 3].
         //Annoyingly, % operator doesn't work as expected for negative integers.
@@ -263,7 +270,7 @@ public:
     //Resizes this array to the given size, preserving all data
     //    (although some data will of course be lost if the array gets shortened).
     //If the array is being extended, the new elements will be filled with the given default value.
-    void Resize(unsigned int newWidth, unsigned int newHeight, const ArrayType & defaultVal)
+    void Resize(unsigned int newWidth, unsigned int newHeight, const ArrayType& defaultVal)
     {
         if (with != newWidth || height != newHeight)
         {
@@ -279,24 +286,22 @@ public:
 
 
     //Gets a pointer to the first element in this array.
-    const ArrayType * GetArray(void) const { return arrayVals; }
+    const ArrayType* GetArray(void) const { return arrayVals; }
     //Gets a pointer to the first element in this array.
-    ArrayType * GetArray(void) { return arrayVals; }
+    ArrayType* GetArray(void) { return arrayVals; }
 
     //Copies this array into the given one. Assumes it is the same size as this array.
-	void CopyInto(ArrayType * outValues) const
+	void CopyInto(ArrayType* outValues) const
 	{
         for (unsigned int i = 0; i < width * height; ++i)
-		{
 			outValues[i] = arrayVals[i];
-		}
 	}
 
 
 private:
 
     unsigned int width, height;
-	ArrayType * arrayVals;
+	ArrayType* arrayVals;
 };
 
 #pragma warning(default: 4018)
