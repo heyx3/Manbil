@@ -183,6 +183,13 @@ Vector4f Matrix4f::Multiply(Matrix4f const& lhs, Vector4f const& rhs)
 	return ret;
 }
 
+Vector3f Matrix4f::Apply(Vector3f v) const
+{
+    Vector4f val = Matrix4f::Multiply(*this, Vector4f(v, 1.0f));
+    float iW = 1.0f / val.w;
+    return Vector3f(val.x * iW, val.y * iW, val.z * iW);
+}
+
 void Matrix4f::SetAsIdentity(void)
 {
     SetFunc([](Vector2u l, float* fOut)

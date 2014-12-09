@@ -48,7 +48,6 @@ public:
                 evaluator(loc, &values[loc.y][loc.x]);
 	}
 
-	
 
 	float GetDeterminant(void) const;
 	Matrix4f GetTranspose(void) const;
@@ -58,7 +57,7 @@ public:
 
 
 	//Transforms the given vector using this matrix.
-	Vector3f Apply(Vector3f v) const { Vector4f val = Matrix4f::Multiply(*this, Vector4f(v, 1.0f)); float iW = 1.0f / val.w; return Vector3f(val.x * iW, val.y * iW, val.z * iW); }
+	Vector3f Apply(Vector3f v) const;
 
 
     void SetAsIdentity(void);
