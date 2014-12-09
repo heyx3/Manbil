@@ -32,10 +32,7 @@ public:
     bool operator==(const Matrix4f& other) const;
     
 
-	void Set(const Matrix4f& copy)
-    {
-        memcpy(values, copy.values, sizeof(float) * 16);
-    }
+	void Set(const Matrix4f& copy) { memcpy(values, copy.values, sizeof(float) * 16); }
 	void Set(float fillValue) { SetFunc([fillValue](Vector2u l, float* f) { *f = fillValue; }); }
 
     //A function with the signature "void GetElement(Vector2u gridLoc, float* outVal)".
