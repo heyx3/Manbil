@@ -11,7 +11,7 @@ class BasicMath
 public:
 
     static const float NaN;
-    static bool IsNaN(float testF) { return testF == NaN; }
+    static bool IsNaN(float testF) { return testF != testF; }
 
     //Quickly computes 1.0f/sqrt(f), with lower precision.
     static float FastInvSqrt1(float f);

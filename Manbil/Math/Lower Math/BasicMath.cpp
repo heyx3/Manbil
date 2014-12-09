@@ -1,7 +1,10 @@
 #include "BasicMath.h"
 
+#include <limits>
 
-const float BasicMath::NaN = 0x7fffffff;
+
+const float BasicMath::NaN = std::numeric_limits<float>::quiet_NaN();
+
 
 float BasicMath::FastInvSqrt1(float f)
 {
