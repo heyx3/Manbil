@@ -638,7 +638,7 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetPosition(pos);
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
-    cam.Info.FOV = ToRadian(55.0f);
+    cam.Info.SetFOVDegrees(55.0f);
     cam.Info.zFar = 5000.0f;
     cam.Info.zNear = 1.0f;
     cam.Info.Width = windowSize.x;
@@ -756,7 +756,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 
 	worldM.SetAsIdentity();
 	cam.GetViewTransform(viewM);
-	projM.SetAsPerspProj(cam.Info);
+	cam.GetPerspectiveTransform(projM);
     //cam.GetOrthoProjection(projM);
 
     //Render the world into a render target.

@@ -42,6 +42,6 @@ int main()
 
     //TwoTrianglesWorld().RunWorld();
 
-    //VoxelWorld().RunWorld();
-    PlanetSimWorld().RunWorld();
+    VoxelWorld().RunWorld();
+    //PlanetSimWorld().RunWorld();
 }

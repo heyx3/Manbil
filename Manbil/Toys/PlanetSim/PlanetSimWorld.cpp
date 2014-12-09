@@ -19,7 +19,7 @@ PlanetSimWorld::PlanetSimWorld(void)
     : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1)),
       planetHeightTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false), planetMat(0),
       planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F_GREYSCALE, true),
-      cam(Vector3f(-6000.0f, -6000.0f, -6000.0f), 400.0f, 0.025f, 1.65f, Vector3f(1.0f, 1.0f, 0.0f).Normalized()),
+      cam(Vector3f(6000.0f, 6000.0f, 6000.0f), 400.0f, 0.025f, 1.65f, Vector3f(-1.0f, -1.0f, 0.0f).Normalized()),
       world(0)
 {
 
@@ -239,7 +239,7 @@ void PlanetSimWorld::InitializeWorld(void)
     cam.Info.Height = windowSize.y;
     cam.Info.zNear = 0.1f;
     cam.Info.zFar = startingZFar;
-    cam.Info.FOV = ToRadian(60.0f);
+    cam.Info.SetFOVDegrees(60.0f);
     
 }
 void PlanetSimWorld::OnWorldEnd(void)
@@ -286,7 +286,7 @@ void PlanetSimWorld::RenderOpenGL(float elapsed)
     Matrix4f worldM, viewM, projM;
     trns.GetWorldTransform(worldM);
     cam.GetViewTransform(viewM);
-    projM.SetAsPerspProj(cam.Info);
+    cam.GetPerspectiveTransform(projM);
     RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
 
     //Set up rendering state.

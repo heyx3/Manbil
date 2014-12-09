@@ -68,7 +68,7 @@ Quaternion::Quaternion(Vector3f from, Vector3f to)
         x = axis.x;
         y = axis.y;
         z = axis.z;
-        w = ToRadian(180.0f);
+        w = BasicMath::DegToRad(180.0f);
     }
 
     Vector3f axis = from.Cross(to);
@@ -119,18 +119,18 @@ void Quaternion::ToMatrix(Matrix4f & out, bool amINormalized) const
 {
 	Quaternion q = (amINormalized ? *this : Normalized());
 	float xSqr = q.x * q.x,
-		ySqr = q.y * q.y,
-		zSqr = q.z * q.z,
-		xy2 = 2 * q.x * q.y,
-		xz2 = 2 * q.x * q.z,
-		xw2 = 2 * q.x * q.w,
-		yz2 = 2 * q.y * q.z,
-		yw2 = 2 * q.y * q.w,
-		zw2 = 2 * q.z * q.w;
+		  ySqr = q.y * q.y,
+		  zSqr = q.z * q.z,
+		  xy2 = 2 * q.x * q.y,
+		  xz2 = 2 * q.x * q.z,
+		  xw2 = 2 * q.x * q.w,
+		  yz2 = 2 * q.y * q.z,
+		  yw2 = 2 * q.y * q.w,
+		  zw2 = 2 * q.z * q.w;
 
-	out.SetValues(0.0f);
+	out.Set(0.0f);
 
-	Vector2i l;
+	Vector2u l(0, 0);
 
 	out[l] = 1 - (2 * ySqr) - (2 * zSqr);
 	l.x = 1;

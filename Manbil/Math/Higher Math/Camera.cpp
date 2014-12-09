@@ -74,13 +74,16 @@ void Camera::Rotate(Quaternion rotation)
 
 void Camera::GetViewTransform(Matrix4f & outM) const
 {
-	Matrix4f mPos, mRot, mVP;
+	Matrix4f mPos, mRot;
 	
 	mPos.SetAsTranslation(-pos);
 	mRot.SetAsRotation(forward, up, true);
-	mVP = Matrix4f::Multiply(mRot, mPos);
 
-	outM.SetValues(&mVP);
+	outM.Set(Matrix4f::Multiply(mRot, mPos));
+}
+void Camera::GetPerspectiveTransform(Matrix4f& outM) const
+{
+    outM.SetAsPerspProj(Info.FOV, Info.Width, Info.Height, Info.zNear, Info.zFar);
 }
 void Camera::GetOrthoProjection(Matrix4f & outM) const
 {

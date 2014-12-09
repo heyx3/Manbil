@@ -722,7 +722,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     Matrix4f worldM, viewM, projM;
     worldM.SetAsIdentity();
     player.Cam.GetViewTransform(viewM);
-    projM.SetAsPerspProj(player.Cam.Info);
+    player.Cam.GetPerspectiveTransform(projM);
     RenderInfo info(this, &player.Cam, &dummy, &worldM, &viewM, &projM);
 
     //Render the world.

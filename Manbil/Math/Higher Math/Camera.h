@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../LowerMath.hpp"
+#include "ProjectionInfo.h"
+
 
 //Basic camera functionality: UVN rotation, transform calculation, etc.
 //Can specify a "closest dot variance", which means the closest the "forward" vector can get
@@ -48,6 +50,7 @@ public:
 
 
 	void GetViewTransform(Matrix4f & outM) const;
+    void GetPerspectiveTransform(Matrix4f& outM) const;
     void GetOrthoProjection(Matrix4f & outM) const;
 	
 

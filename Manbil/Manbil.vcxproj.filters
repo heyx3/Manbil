@@ -430,19 +430,19 @@
       <Filter>Math\Shapes</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\BasicMath.cpp">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Interval.cpp">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Matrix4f.cpp">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Quaternion.cpp">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Vectors.cpp">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -959,28 +959,28 @@
       <Filter>Math\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Array3D.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\BasicMath.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\FastRand.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Interval.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Matrix4f.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Quaternion.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Vectors.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math/Array2D.h">
-      <Filter>Math\Basic Math</Filter>
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -989,9 +989,6 @@
     </Filter>
     <Filter Include="Math\Noise Generation">
       <UniqueIdentifier>{dcf3a9f4-2e45-419b-9322-3a4fa7686864}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Math\Basic Math">
-      <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\Noise Generation\Noise Coloring">
       <UniqueIdentifier>{db2ff582-7d50-4f1e-bc51-74e4605fec2d}</UniqueIdentifier>
@@ -1112,6 +1109,9 @@
     </Filter>
     <Filter Include="Editors\DAG Editor">
       <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Lower Math">
+      <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

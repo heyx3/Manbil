@@ -75,7 +75,7 @@ void TwoDOpenGLTest::InitializeWorld(void)
     cam = new Camera(Vector3f(0, 0, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
     cam->MinOrthoBounds = Vector3f(-5.0f, -5.0f, -5.0f);
     cam->MaxOrthoBounds = Vector3f(5.0f, 5.0f, 5.0f);
-    cam->Info = ProjectionInfo(ToRadian(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
+    cam->Info = ProjectionInfo(BasicMath::DegToRad(55.0f), windowSize.x, windowSize.y, 1.0f, 10000.0f);
 
 
     //Input.

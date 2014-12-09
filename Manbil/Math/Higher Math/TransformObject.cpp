@@ -22,7 +22,7 @@ void TransformObject::GetRotationMatrix(Matrix4f & outM) const
 	zRot.SetAsRotateZ(eulerRotation.z);
 
 	Matrix4f temp = Matrix4f::Multiply(xRot, yRot, zRot);
-	outM.SetValues(&temp);
+	outM.Set(temp);
 }
 void TransformObject::GetWorldTransform(Matrix4f & outM) const
 {
@@ -33,7 +33,7 @@ void TransformObject::GetWorldTransform(Matrix4f & outM) const
 
 	Matrix4f ret = Matrix4f::Multiply(posM, rotM, scaleM);
 
-	outM.SetValues(&ret);
+	outM.Set(ret);
 }
 
 void TransformObject::CalculateNewDirVectors(void)
