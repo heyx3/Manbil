@@ -12,19 +12,23 @@ class Matrix4f
 public:
 
    
+    //Gets a new matrix whose transform is equivalent to "rhs" transform followed by "lhs" transform.
+    static Matrix4f Multiply(const Matrix4f& lhs, const Matrix4f& rhs);
+    //Pre-multiplies the given matrix by a Vector4f (essentially a 1x4 matrix).
+    static Vector4f Multiply(const Matrix4f& lhs, const Vector4f& rhs);
+    //Gets a new matrix whose transform is equivalent to "three" transform
+    //    followed by "two" transform followed by "one" transform.
     static inline Matrix4f Multiply(const Matrix4f& one, const Matrix4f& two, const Matrix4f& three)
     {
         return Multiply(one, Multiply(two, three));
     }
-    static Matrix4f Multiply(const Matrix4f& lhs, const Matrix4f& rhs);
-    static Vector4f Multiply(const Matrix4f& lhs, const Vector4f& rhs);
 
 	
 	Matrix4f(void) { SetAsIdentity(); }
 	Matrix4f(const Matrix4f& cpy) { Set(cpy); }
 	
 
-    Matrix4f & operator=(const Matrix4f& cpy) { Set(cpy); return *this; }
+    Matrix4f& operator=(const Matrix4f& cpy) { Set(cpy); return *this; }
 
 	float& operator[](Vector2u l) { return values[l.y][l.x]; }
 	const float& operator[](Vector2u l) const { return values[l.y][l.x]; }
@@ -60,11 +64,11 @@ public:
     void SetAsIdentity(void);
     void SetAsScale(Vector3f scaleDimensions);
 	void SetAsScale(float scale) { SetAsScale(Vector3f(scale, scale, scale)); }
-	void SetAsRotateX(float degrees);
-	void SetAsRotateY(float degrees);
-	void SetAsRotateZ(float degrees);
+	void SetAsRotateX(float radians);
+    void SetAsRotateY(float radians);
+    void SetAsRotateZ(float radians);
     void SetAsTranslation(Vector3f pos);
-	void SetAsRotation(Vector3f Target, Vector3f Up, bool alreadyNormalized = false);
+	void SetAsRotation(Vector3f target, Vector3f up, bool alreadyNormalized = false);
 	void SetAsPerspProj(float fovRadians, float screenW, float screenH, float zNear, float zFar);
     void SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds);
 	void SetAsWVP(const Matrix4f& projM, const Matrix4f& camM, const Matrix4f& worldM);
