@@ -30,7 +30,7 @@ void WriteToConsole(const std::string & outStr)
 
 
 //TODO: Replace "intentionally not implemented" functions with the ' = delete' syntax.
-
+#include "DebugAssist.h"
 int main()
 {
     //OpenGLTestWorld().RunWorld();
