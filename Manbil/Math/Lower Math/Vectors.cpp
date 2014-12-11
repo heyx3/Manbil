@@ -324,6 +324,16 @@ int Vector4i::ManhattanDistance(Vector4i other) const
 
 #pragma region Vector2f
 
+Vector2f Vector2f::Lerp(Vector2f start, Vector2f end, float t)
+{
+    return Vector2f(BasicMath::Lerp(start.x, end.x, t),
+                    BasicMath::Lerp(start.y, end.y, t));
+}Vector2f Vector2f::Lerp(Vector2f start, Vector2f end, Vector2f t)
+{
+    return Vector2f(BasicMath::Lerp(start.x, end.x, t.x),
+                    BasicMath::Lerp(start.y, end.y, t.y));
+}
+
 void Vector2f::Rotate(float radians)
 {
 	float cosTheta = cosf(radians),
@@ -401,6 +411,18 @@ int Vector2f::GetHashCode(void) const
 
 #pragma region Vector3f
 
+Vector3f Vector3f::Lerp(Vector3f start, Vector3f end, float t)
+{
+    return Vector3f(BasicMath::Lerp(start.x, end.x, t),
+                    BasicMath::Lerp(start.y, end.y, t),
+                    BasicMath::Lerp(start.z, end.z, t));
+}Vector3f Vector3f::Lerp(Vector3f start, Vector3f end, Vector3f t)
+{
+    return Vector3f(BasicMath::Lerp(start.x, end.x, t.x),
+                    BasicMath::Lerp(start.y, end.y, t.y),
+                    BasicMath::Lerp(start.z, end.z, t.z));
+}
+
 void Vector3f::Normalize(void)
 {
 	const float lenInv = 1.0f / Length();
@@ -476,6 +498,19 @@ int Vector3f::GetHashCode(void) const
 
 #pragma region Vector4f
 
+Vector4f Vector4f::Lerp(Vector4f start, Vector4f end, float t)
+{
+    return Vector4f(BasicMath::Lerp(start.x, end.x, t),
+                    BasicMath::Lerp(start.y, end.y, t),
+                    BasicMath::Lerp(start.z, end.z, t),
+                    BasicMath::Lerp(start.w, end.w, t));
+}Vector4f Vector4f::Lerp(Vector4f start, Vector4f end, Vector4f t)
+{
+    return Vector4f(BasicMath::Lerp(start.x, end.x, t.x),
+                    BasicMath::Lerp(start.y, end.y, t.y),
+                    BasicMath::Lerp(start.z, end.z, t.z),
+                    BasicMath::Lerp(start.w, end.w, t.w));
+}
 void Vector4f::Normalize(void)
 {
 	const float lenInv = 1.0f / Length();

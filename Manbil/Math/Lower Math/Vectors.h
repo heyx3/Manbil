@@ -618,6 +618,12 @@ namespace ManbilVectors
 	{
 	public:
 
+        //Performs a "lerp" on each component of the vector.
+        static Vector2f Lerp(Vector2f min, Vector2f max, float t);
+        //Performs a "lerp" on each component of the vector.
+        static Vector2f Lerp(Vector2f min, Vector2f max, Vector2f t);
+
+
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
         unsigned int operator()(const Vector2f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
@@ -728,6 +734,14 @@ namespace ManbilVectors
 	{
 	public:
 
+        //Performs a "lerp" on each component of the vector.
+        static Vector3f Lerp(Vector3f min, Vector3f max, float t);
+        //Performs a "lerp" on each component of the vector.
+        static Vector3f Lerp(Vector3f min, Vector3f max, Vector3f t);
+
+
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
         unsigned int operator()(const Vector3f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
@@ -849,6 +863,14 @@ namespace ManbilVectors
 	{
 	public:
 		
+        //Performs a "lerp" on each component of the vector.
+        static Vector4f Lerp(Vector4f min, Vector4f max, float t);
+        //Performs a "lerp" on each component of the vector.
+        static Vector4f Lerp(Vector4f min, Vector4f max, Vector4f t);
+
+
+        //Gets the hash value for a vector instance.
+        //Enables this class to be used for std collections that use hashes.
         //Gets the hash value for a vector instance.
         //Enables this class to be used for std collections that use hashes.
         unsigned int operator()(const Vector4f& v) const { int i = v.GetHashCode(); return *((unsigned int*)(&i)); }
