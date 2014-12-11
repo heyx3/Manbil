@@ -62,14 +62,33 @@ Quaternion::Quaternion(Vector3f axisOfRotation, float rotInRadians)
 }
 Quaternion::Quaternion(Vector3f from, Vector3f to)
 {
-    //The value of xyz is the cross product of the given vectors.
-    Vector3f norm = from.Cross(to);
-    memcpy(&x, &norm, sizeof(float) * 3);
+    float dotted = from.Dot(to);
 
-    //The value of w is based on the angle between the two vectors.
-    w = (1.0f + from.Dot(to));
+    if (1.0f - dotted < 0.0001f)
+    {
+        *this = Quaternion();
+    }
+    else if (1.0f + dotted < 0.0001f)
+    {
+        //Get an arbitrary perpendicular axis to rotate around.
+        Vector3f axis = (BasicMath::Abs(from.Dot(Vector3f(1.0f, 0.0f, 0.0f))) < 1.0f) ?
+                            Vector3f(1.0f, 0.0f, 0.0f) :
+                            Vector3f(0.0f, 1.0f, 0.0f);
+        axis = axis.Cross(from).Normalized();
 
-    Normalize();
+        *this = Quaternion(axis, 3.1415926536f);
+    }
+    else
+    {
+        //The value of xyz is the cross product of the given vectors.
+        Vector3f norm = from.Cross(to);
+        memcpy(&x, &norm, sizeof(float) * 3);
+
+        //The value of w is based on the angle between the two vectors.
+        w = (1.0f + dotted);
+
+        Normalize();
+    }
 }
 
 

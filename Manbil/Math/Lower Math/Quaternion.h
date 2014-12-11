@@ -26,8 +26,9 @@ public:
     static Quaternion NlerpFast(Quaternion one, Quaternion two, float zeroToOne);
 
 
-    static Quaternion Multiply(const Quaternion& lhs, const Vector3f& rhs);
+    //Yields a new quaternion whose rotation is equal to "rhs"'s rotation followed by "lhs"'s rotation.
     static Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
+    static Quaternion Multiply(const Quaternion& lhs, const Vector3f& rhs);
 
 
     //As quaternions are basically Vector4f's with special operations,
@@ -41,7 +42,7 @@ public:
 	float x, y, z, w;
 
 
-    //Creates a quaternion that represents a rotation of 0 rad along the Z axis.
+    //Creates a quaternion that represents no rotation.
 	Quaternion(void): x(0.0f), y(0.0f), z(0.0f), w(1.0f) { }
     //Creates a quaternion with the given components.
 	Quaternion(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) { }
@@ -60,8 +61,8 @@ public:
     //Gets the inverse of this quaternion.
     Quaternion operator-(void) const { return Quaternion(-x, -y, -z, w); }
 
-    Quaternion operator+(const Quaternion & q) const { return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w); }
-    Quaternion operator-(const Quaternion & q) const { return Quaternion(x - q.x, y - q.y, z - q.z, w - q.w); }
+    Quaternion operator+(const Quaternion& q) const { return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w); }
+    Quaternion operator-(const Quaternion& q) const { return Quaternion(x - q.x, y - q.y, z - q.z, w - q.w); }
     Quaternion operator*(float scale) const { return Quaternion(x * scale, y * scale, z * scale, w * scale); }
     Quaternion operator/(float invScale) const { return Quaternion(x / invScale, y / invScale, z / invScale, w / invScale); }
 
@@ -84,10 +85,6 @@ public:
     void FastNormalize(void) { ((Vector4f*)this)->FastNormalize(); }
     //Normalizes this quaternion's values using a fast approximation
     Quaternion FastNormalized(void) const;
-
-
-	float Length(void) const { return sqrtf(LengthSquared()); }
-	float LengthSquared(void) const { return ((Vector4f*)this)->LengthSquared(); }
 
     
     //Sets the given matrix to represent the same rotation as this quaternion.
