@@ -5,48 +5,55 @@
 
 
 
+
 Quaternion Quaternion::Slerp(Quaternion one, Quaternion two, float zeroToOne, bool areBothNormalized)
 {
 	if (!areBothNormalized)
 	{
-		return Slerp(one.Normalized(), two.Normalized(), zeroToOne, true);
+        one.Normalize();
+        two.Normalize();
 	}
 
 	float dot = one.Dot(two);
-
-	//If the quaternions are very close to each other, use a simple lerp.
-	const float DOT_THRESHOLD = 0.9995f;
-	if (dot > DOT_THRESHOLD)
-	{
-		Quaternion result = one + ((two - one) * zeroToOne);
-		return result.Normalized();
-	}
 
 	dot = BasicMath::Clamp(dot, -1.0f, 1.0f);
 	float theta = acosf(dot) * zeroToOne;
 
-	Quaternion finalQ = one - (two * dot);
+	Quaternion finalQ = two - (one * dot);
 	finalQ.Normalize();
 
-	return one * cosf(theta) + (finalQ * sinf(theta));
+	return (one * cosf(theta)) + (finalQ * sinf(theta));
 }
-Quaternion Quaternion::Nlerp(Quaternion one, Quaternion two, float zeroToOne)
+Quaternion Quaternion::Nlerp(Quaternion one, Quaternion two, float t)
 {
-	float dot = one.Dot(two);
-	float zeroToOneInv = 1.0f - zeroToOne;
+    float t_1 = 1.0f - t;
 
-	two = (dot >= 0.0f ? two : -two);
-	
-	return Quaternion((zeroToOneInv * one.x) + (zeroToOne * two.x),
-					  (zeroToOneInv * one.y) + (zeroToOne * two.y),
-					  (zeroToOneInv * one.z) + (zeroToOne * two.z),
-					  (zeroToOneInv * one.w) + (zeroToOne * two.w)).Normalized();
+    Vector4f result;
+    if (one.Dot(two) < 0.0f)
+        result = (*(Vector4f*)(&one) * t_1) + (*(Vector4f*)(&two) * -t);
+    else result = (*(Vector4f*)(&one) * t_1) + (*(Vector4f*)(&two) * t);
+
+    result.Normalize();
+    return *(Quaternion*)(&result);
 }
+Quaternion Quaternion::NlerpFast(Quaternion one, Quaternion two, float t)
+{
+    float t_1 = 1.0f - t;
+
+    Vector4f result;
+    if (one.Dot(two) < 0.0f)
+        result = (*(Vector4f*)(&one) * t_1) + (*(Vector4f*)(&two) * -t);
+    else result = (*(Vector4f*)(&one) * t_1) + (*(Vector4f*)(&two) * t);
+
+    result.FastNormalize();
+    return *(Quaternion*)(&result);
+}
+
 
 Quaternion::Quaternion(Vector3f axisOfRotation, float rotInRadians)
 {
 	const float sinHalfAngle = sin(rotInRadians * 0.5f),
-		cosHalfAngle = cos(rotInRadians * 0.5f);
+		        cosHalfAngle = cos(rotInRadians * 0.5f);
 
 	x = axisOfRotation.x * sinHalfAngle;
 	y = axisOfRotation.y * sinHalfAngle;
@@ -55,47 +62,30 @@ Quaternion::Quaternion(Vector3f axisOfRotation, float rotInRadians)
 }
 Quaternion::Quaternion(Vector3f from, Vector3f to)
 {
-    float k_cos_theta = from.Dot(to),
-          k = sqrtf(from.LengthSquared() * to.LengthSquared());
+    //The value of xyz is the cross product of the given vectors.
+    Vector3f norm = from.Cross(to);
+    memcpy(&x, &norm, sizeof(float) * 3);
 
-    if (BasicMath::Abs(k_cos_theta + k) < 0.0005f)
-    {
-        Vector3f other = (BasicMath::Abs(from.Dot(Vector3f(1.0f, 0.0, 0.0f))) < 1.0f) ?
-                            Vector3f(1.0f, 0.0f, 0.0f) :
-                            Vector3f(0.0f, 1.0f, 0.0f);
-        Vector3f axis = from.Cross(other).Normalized();
+    //The value of w is based on the angle between the two vectors.
+    w = (1.0f + from.Dot(to));
 
-        x = axis.x;
-        y = axis.y;
-        z = axis.z;
-        w = BasicMath::DegToRad(180.0f);
-    }
-
-    Vector3f axis = from.Cross(to);
-    x = axis.x;
-    y = axis.y;
-    z = axis.z;
-    w = k_cos_theta + k;
     Normalize();
 }
 
-void Quaternion::Normalize(void)
-{
-	float length = Length();
 
-	x /= length;
-	y /= length;
-	z /= length;
-	w /= length;
-}
 Quaternion Quaternion::Normalized(void) const
 {
-	Quaternion ret(*this);
-	ret.Normalize();
-	return ret;
+    Vector4f normed = ((Vector4f*)this)->Normalized();
+    return *(Quaternion*)(&normed);
+}
+Quaternion Quaternion::FastNormalized(void) const
+{
+    Vector4f normed = ((Vector4f*)this)->FastNormalized();
+    return *(Quaternion*)(&normed);
 }
 
-Quaternion Quaternion::Multiply(const Quaternion & l, const Quaternion & r)
+
+Quaternion Quaternion::Multiply(const Quaternion& l, const Quaternion& r)
 {
 	const float w2 = (l.w * r.w) - (l.x * r.x) - (l.y * r.y) - (l.z * r.z),
 				x2 = (l.x * r.w) + (l.w * r.x) + (l.y * r.z) - (l.z * r.y),
@@ -104,18 +94,13 @@ Quaternion Quaternion::Multiply(const Quaternion & l, const Quaternion & r)
 
 	return Quaternion(x2, y2, z2, w2);
 }
-Quaternion Quaternion::Multiply(const Quaternion & l, const Vector3f & r)
+Quaternion Quaternion::Multiply(const Quaternion& l, const Vector3f& r)
 {
 	return Multiply(l, Quaternion(r.x, r.y, r.z, 0.0f));
-	const float w2 = -(l.x * r.x) - (l.y * r.y) - (l.z * r.z),
-				x2 =  (l.w * r.x) + (l.y * r.z) - (l.z * r.y),
-				y2 =  (l.w * r.y) + (l.z * r.x) - (l.x * r.z),
-				z2 =  (l.w * r.z) + (l.x * r.y) - (l.y * r.x);
-
-	return Quaternion(x2, y2, z2, w2);
 }
 
-void Quaternion::ToMatrix(Matrix4f & out, bool amINormalized) const
+
+void Quaternion::ToMatrix(Matrix4f& out, bool amINormalized) const
 {
 	Quaternion q = (amINormalized ? *this : Normalized());
 	float xSqr = q.x * q.x,
@@ -165,22 +150,13 @@ void Quaternion::ToMatrix(Matrix4f & out, bool amINormalized) const
 	out[l] = 1;
 }
 
-void Quaternion::Rotate(Vector3f & v) const
+
+void Quaternion::Rotate(Vector3f& v) const
 {
-	Quaternion conjugate = CalcConjugate();
+	Quaternion conjugate = operator-();
 	Quaternion finalW = Multiply(Multiply(*this, v), conjugate);
 
 	v.x = finalW.x;
 	v.y = finalW.y;
 	v.z = finalW.z;
-
-	//v.Normalize();
-}
-
-void Quaternion::Round(int decimals)
-{
-	x = BasicMath::Round(x, decimals);
-	y = BasicMath::Round(y, decimals);
-	z = BasicMath::Round(z, decimals);
-	w = BasicMath::Round(w, decimals);
 }

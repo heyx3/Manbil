@@ -22,7 +22,7 @@ void PauseConsole(void)
     cout << "Enter any character to continue.\n";
     cin >> dummy;
 }
-void WriteToConsole(const std::string & outStr)
+void WriteToConsole(const std::string& outStr)
 {
     cout << outStr << "\n";
 }
@@ -30,6 +30,8 @@ void WriteToConsole(const std::string & outStr)
 
 
 //TODO: Replace "intentionally not implemented" functions with the ' = delete' syntax.
+
+
 #include "DebugAssist.h"
 int main()
 {
