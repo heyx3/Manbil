@@ -165,6 +165,7 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.cpp" />
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp" />
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp" />
@@ -338,6 +339,7 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h" />
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\SerializedMaterial.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h" />

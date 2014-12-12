@@ -444,6 +444,9 @@
     <ClCompile Include="Math\Lower Math\Vectors.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.cpp">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -981,6 +984,9 @@
     </ClInclude>
     <ClInclude Include="Math\Lower Math/Array2D.h">
       <Filter>Math\Lower Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.h">
+      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
