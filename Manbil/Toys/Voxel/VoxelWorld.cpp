@@ -445,11 +445,11 @@ void main()                                                                     
 
     //Player camera/input.
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
-    Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
+    Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.15f, 0.15f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f((float)sf::Mouse::getPosition().x, (float)sf::Mouse::getPosition().y)));
     player.Cam = VoxelCamera(Vector3f(0, 0, 0),
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
-                             Vector3f(1, 1, 1).Normalized());
+                             Vector3f(-1, -1, -1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(fov);
     player.Cam.Info.Width = (float)vWindowSize.x;
