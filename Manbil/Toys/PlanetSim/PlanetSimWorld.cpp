@@ -19,7 +19,7 @@ PlanetSimWorld::PlanetSimWorld(void)
     : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1)),
       planetHeightTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false), planetMat(0),
       planetTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F_GREYSCALE, true),
-      cam(Vector3f(6000.0f, 6000.0f, 6000.0f), 400.0f, 0.025f, 1.65f, Vector3f(-1.0f, -1.0f, 0.0f).Normalized()),
+      cam(Vector3f(6000.0f, 6000.0f, 6000.0f), 400.0f, 0.1f, 1.65f, Vector3f(-1.0f, -1.0f, 0.0f).Normalized()),
       world(0)
 {
 
