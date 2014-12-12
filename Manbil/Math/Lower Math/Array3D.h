@@ -187,7 +187,7 @@ public:
 
         for (Vector3u loc; loc.z < depth; ++loc.z)
         {
-            offsetLoc.z = loc.z + copyOffset.z;
+            offsetLoc.z = (int)loc.z + copyOffset.z;
 
             if (offsetLoc.z < 0)
                 continue;
@@ -196,7 +196,7 @@ public:
 
             for (loc.y = 0; loc.y < height; ++loc.y)
             {
-                offsetLoc.y = loc.y + copyOffset.y;
+                offsetLoc.y = (int)loc.y + copyOffset.y;
 
                 if (offsetLoc.y < 0)
                     continue;
@@ -205,13 +205,13 @@ public:
 
                 for (loc.x = 0; loc.x < width; ++loc.x)
                 {
-                    offsetLoc.x = loc.x + copyOffset.x;
+                    offsetLoc.x = (int)loc.x + copyOffset.x;
 
                     if (offsetLoc.x >= width)
                         break;
 
                     if (offsetLoc.x >= 0)
-                        operator[](loc) = toCopy(ToV3u(offsetLoc));
+                        operator[](ToV3u(offsetLoc)) = toCopy[loc];
                 }
             }
         }

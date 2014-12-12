@@ -170,9 +170,9 @@ public:
 	{
 		Vector2i offsetLoc;
 
-        for (Vector2i loc; loc.y < toCopy.height; ++loc.y)
+        for (Vector2u loc; loc.y < toCopy.height; ++loc.y)
         {
-            offsetLoc.y = loc.y + copyOffset.y;
+            offsetLoc.y = (int)loc.y + copyOffset.y;
 
             if (offsetLoc.y < 0)
                 continue;
@@ -181,13 +181,13 @@ public:
 
             for (loc.x = 0; loc.x < toCopy.width; ++loc.x)
             {
-                offsetLoc.x = loc.x + copyOffset.x;
+                offsetLoc.x = (int)loc.x + copyOffset.x;
 
                 if (offsetLoc.x >= width)
                     break;
 
                 if (offsetLoc.x >= 0)
-                    operator[](loc) = toCopy(ToV2u(offsetLoc));
+                    operator[](ToV2u(offsetLoc)) = toCopy[loc];
             }
         }
 	}
