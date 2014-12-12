@@ -261,22 +261,28 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         //Fragment shader outputs.
         DataLine normalMap1Scale(10.0f),
-                 normalMap1Pan(VectorF(-0.15f, 0.0f));
+                 normalMap1Pan(VectorF(-0.09f, 0.01f));
         DNP normalMap1Scaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMap1Scale, "normalMapScaled1")),
             normalMap1PanAmount(new MultiplyNode(normalMap1Pan, TimeNode::GetInstance())),
             normalMap1Panned(new AddNode(normalMap1Scaled, normalMap1PanAmount));
         DNP normalMap1Ptr(new TextureSample2DNode(normalMap1Panned, "u_normalMap1Tex", "normalMapSample1"));
         DataLine normalMap1(normalMap1Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+        DNP finalNormalMap1(new RemapNode(normalMap1,
+                                          Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f),
+                                          Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(1.0f, 1.0f, 1.0f)));
 
-        DataLine normalMap2Scale(10.0f),
-                 normalMap2Pan(VectorF(0.0f, 0.15f));
+        DataLine normalMap2Scale(3.0f),
+                 normalMap2Pan(VectorF(0.015f, 0.05f));
         DNP normalMap2Scaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMap2Scale, "normalMapScaled2")),
             normalMap2PanAmount(new MultiplyNode(normalMap2Pan, TimeNode::GetInstance())),
             normalMap2Panned(new AddNode(normalMap2Scaled, normalMap2PanAmount));
         DNP normalMap2Ptr(new TextureSample2DNode(normalMap2Panned, "u_normalMap2Tex", "normalMapSample2"));
         DataLine normalMap2(normalMap2Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+        DNP finalNormalMap2(new RemapNode(normalMap2,
+                                          Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 1.0f, 1.0f),
+                                          Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(1.0f, 1.0f, 1.0f)));
 
-        DNP combineNormalMaps(new TangentSpaceNormalsNode(normalMap1, normalMap2, "combinedNormals"));
+        DNP combineNormalMaps(new TangentSpaceNormalsNode(finalNormalMap1, finalNormalMap2, "combinedNormals"));
 
         DNP applyNormalMap(new AddNode(combineNormalMaps, DataLine(waterCalcs, WaterNode::GetSurfaceNormalOutputIndex()), "afterNormalMapping"));
         DNP finalObjNormal(new NormalizeNode(applyNormalMap, "finalObjNormal"));

@@ -116,9 +116,6 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\TwoDOpenGLTest.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
       <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
@@ -201,9 +198,6 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="DebugAssist.cpp" />
-    <ClCompile Include="Oculus\OculusDevice.cpp">
-      <Filter>Oculus Rift Stuff</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp">
       <Filter>Rendering\GPU Particles</Filter>
     </ClCompile>
@@ -614,9 +608,6 @@
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\TwoDOpenGLTest.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
       <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
@@ -757,9 +748,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="DebugAssist.h" />
-    <ClInclude Include="Oculus\OculusDevice.h">
-      <Filter>Oculus Rift Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
     </ClInclude>
@@ -1070,9 +1058,6 @@
     </Filter>
     <Filter Include="Rendering\Materials\Data Nodes\Miscellaneous">
       <UniqueIdentifier>{cbed0f25-2a3e-49c5-99d3-90316bb497bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Oculus Rift Stuff\Source">
-      <UniqueIdentifier>{8a2c0e1a-b834-49f6-be8e-474fb5408f6e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\GPU Particles">
       <UniqueIdentifier>{215761ec-d5e7-4ef2-9067-f3077de54bd2}</UniqueIdentifier>

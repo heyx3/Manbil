@@ -49,7 +49,7 @@ VoxelWorld::VoxelWorld(void)
     : SFMLOpenGLWorld(vWindowSize.x, vWindowSize.y, sf::ContextSettings(8, 0, 0, 4, 1)),
         voxelMat(0), voxelHighlightMat(0), voxelHighlightMesh(PrimitiveTypes::TriangleList),
         renderState(RenderingState::Cullables::C_BACK),
-        player(manager), oculusDev(0), postProcessing(0),
+        player(manager), postProcessing(0),
         voxelTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
         worldRenderTargetColorTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
         worldRenderTargetDepthTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F_DEPTH, false)
@@ -65,7 +65,6 @@ VoxelWorld::~VoxelWorld(void)
     voxelTex.DeleteIfValid();
     worldRenderTargetColorTex.DeleteIfValid();
     worldRenderTargetDepthTex.DeleteIfValid();
-    assert(oculusDev == 0);
 }
 
 void VoxelWorld::SetUpVoxels(void)
@@ -448,10 +447,8 @@ void main()                                                                     
     Deadzone * deadzone = (Deadzone*)(new EmptyDeadzone());
     Vector2Input * mouseInput = (Vector2Input*)(new MouseDeltaVector2Input(Vector2f(0.35f, 0.35f), DeadzonePtr(deadzone), sf::Vector2i(100, 100),
                                                                            Vector2f((float)sf::Mouse::getPosition().x, (float)sf::Mouse::getPosition().y)));
-    oculusDev = new OculusDevice(0);
     player.Cam = VoxelCamera(Vector3f(0, 0, 0),
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
-                             oculusDev,
                              Vector3f(1, 1, 1).Normalized());
     player.Cam.Window = GetWindow();
     player.Cam.Info.SetFOVDegrees(fov);
@@ -474,7 +471,6 @@ void VoxelWorld::OnWorldEnd(void)
     for (auto element = chunkMeshes.begin(); element != chunkMeshes.end(); ++element)
         delete element->second;
 
-    DeleteAndSetToNull(oculusDev);
     voxelTex.DeleteIfValid();
     worldRenderTargetColorTex.DeleteIfValid();
     worldRenderTargetDepthTex.DeleteIfValid();
@@ -531,8 +527,6 @@ void VoxelWorld::UpdateWorld(float elapsed)
 
     //Update player/camera.
     player.Update(elapsed, GetTotalElapsedSeconds());
-    if (oculusDev->IsValid())
-        oculusDev->Update();
 
 
     //FOV input.

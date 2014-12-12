@@ -9,7 +9,6 @@
 #include "OpenGLTestWorld.h"
 #include "TwoTrianglesWorld.h"
 #include "Toys/Voxel/VoxelWorld.h"
-#include "Tests/TwoDOpenGLTest.h"
 #include "Tests/GUITestWorld.h"
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
@@ -35,9 +34,8 @@ void WriteToConsole(const std::string& outStr)
 #include "DebugAssist.h"
 int main()
 {
-    //OpenGLTestWorld().RunWorld();
+    OpenGLTestWorld().RunWorld();
     
-    //TwoDOpenGLTest().RunWorld();
     //GUITestWorld().RunWorld();
     
     //NoiseTest().RunWorld();
@@ -45,5 +43,5 @@ int main()
     //TwoTrianglesWorld().RunWorld();
 
     //VoxelWorld().RunWorld();
-    PlanetSimWorld().RunWorld();
+    //PlanetSimWorld().RunWorld();
 }

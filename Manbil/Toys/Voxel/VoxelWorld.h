@@ -68,7 +68,6 @@ private:
     std::unordered_map<Vector3i, ChunkMesh*, Vector3i> chunkMeshes;
 
     VoxelPlayer player;
-    OculusDevice * oculusDev;
 
     RenderingState renderState;
 
