@@ -75,5 +75,5 @@ private:
 
     TextRenderer::FontSlot testFontSlot;
 
-    MTexture2D waterNormalTex;
+    MTexture2D waterNormalTex1, waterNormalTex2;
 };

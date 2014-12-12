@@ -3,49 +3,19 @@
 #include "../../OpenGLIncludes.h"
 #include "../../RenderDataHandler.h"
 #include "../../Math/Higher Math/Terrain.h"
-#include "../../Math/NoiseGeneration.hpp"
 #include "../../Material.h"
 
-//TODO: Don't use a string literal for all the water uniforms; define const strings.
 
 
 void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
-    //Create some random noise.
-
-    Noise2D noise(size, size);
-
-    //Layered Perin noise.
-    int scale = (size > 256 ? 8 : (size > 128 ? 4 : (size > 64 ? 2 : 1)));
-    Perlin2D per1(scale * 32.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 135213),
-             per2(scale * 16.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 3523),
-             per3(scale * 8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 24623),
-             per4(scale * 4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 136),
-             per5(scale * 2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 24675476),
-             per6(scale * 1.0f, Perlin2D::Smoothness::Quintic, Vector2i(), 3463);
-    Generator2D * gens[] = { &per3, &per4, &per5, &per6 };
-    float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.1f };
-    LayeredOctave2D octaves(4, weights, gens);
-
-    //Filter the layered Perlin noise to have less contrast.
-    NoiseFilterer2D nf;
-    MaxFilterRegion mfr;
-    mfr.StrengthLerp = 0.0f;
-    nf.FillRegion = &mfr;
-    nf.NoiseToFilter = &octaves;
-    nf.FilterFunc = &NoiseFilterer2D::Average;
-
-    nf.Generate(noise);
-
+    Array2D<float> terrainHeight(size, size, 0.0f);
 
     //Just create a flat terrain and let it do the math.
-
-    //Put the noise into the terrain heightmap so that the terrain class will automatically put each noise value into the correct vertex.
-    //However, because we're putting noise into the z coordinate, don't calculate normals until after the noise is extracted.
     Terrain terr(size);
-    terr.SetHeightmap(noise);
+    terr.SetHeightmap(terrainHeight);
     std::vector<Terrain::TerrainVertex> terrVertices;
     std::vector<unsigned int> terrIndices;
     terr.GenerateVerticesIndices(terrVertices, terrIndices);
@@ -53,14 +23,13 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
     //Convert the terrain vertices into water vertices.
     std::vector<WaterVertex> waterVertices;
     waterVertices.reserve(terrVertices.size());
-    FastRand fr(146230);
     for (unsigned int i = 0; i < terrVertices.size(); ++i)
     {
+        Vector3f terrainPos(terrVertices[i].Pos.x, terrVertices[i].Pos.y, 0.0f);
+
         waterVertices.insert(waterVertices.end(),
-                             WaterVertex(scle.ComponentProduct(Vector3f(terrVertices[i].Pos.x, terrVertices[i].Pos.y, 0.0f)) + offset,
-                                         terrVertices[i].TexCoords,
-                                         Vector2f(-1.0f + (2.0f * terrVertices[i].Pos.z), (12.0f * terrVertices[i].Pos.z))));
-        waterVertices[i].Pos.z = 0.0f;
+                             WaterVertex(scle.ComponentProduct(terrainPos) + offset,
+                                         terrVertices[i].TexCoords));
     }
 
     //Create the vertex and index buffers.
@@ -73,14 +42,12 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
 
 Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
              OptionalValue<RippleWaterCreationArgs> rippleArgs,
-             OptionalValue<DirectionalWaterCreationArgs> directionArgs,
-             OptionalValue<SeedmapWaterCreationArgs> seedmapArgs)
+             OptionalValue<DirectionalWaterCreationArgs> directionArgs)
     : currentRippleIndex(0), totalRipples(0), nextRippleID(0),
       currentFlowIndex(0), totalFlows(0), nextFlowID(0),
       rippleIDs(0), dp_tsc_h_p(0), sXY_sp(0),
       flowIDs(0), f_a_p(0), tsc(0),
-      waterMesh(PrimitiveTypes::TriangleList),
-      seedTex(seedmapArgs.HasValue() ? seedmapArgs.GetValue().SeedValues : 0)
+      waterMesh(PrimitiveTypes::TriangleList)
 {
     //Create mesh.
     CreateWaterMesh(size, scale, waterMesh);
@@ -131,23 +98,6 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
     else
     {
         maxFlows = 0;
-    }
-
-    //Set up seedmap.
-    if (seedmapArgs.HasValue())
-    {
-        SeedmapWaterCreationArgs seedArgs = seedmapArgs.GetValue();
-
-        assert(seedArgs.SeedValues->GetWidth() == seedArgs.SeedValues->GetHeight());
-
-        Params.FloatUniforms["amplitude_period_speed"] = UniformValueF(Vector3f(1.0f, 1.0f, 1.0f), "amplitude_period_speed");
-        Params.FloatUniforms["seedMapResolution"] = UniformValueF(Vector2f((float)seedArgs.SeedValues->GetWidth(), (float)seedArgs.SeedValues->GetHeight()), "seedMapResolution");
-
-
-        //Create a texture from the seed map.
-
-        Params.Texture2DUniforms["seedMap"].Texture = seedTex->GetTextureHandle();
-        
     }
 }
 Water::~Water(void)
@@ -270,18 +220,18 @@ bool Water::ChangeFlow(unsigned int element, const DirectionalWaterArgs & args)
     return false;
 }
 
-void Water::SetSeededWater(const SeededWaterArgs & args)
+void Water::UpdateUniformLocations(const Material * mat)
 {
-    Vector3f data(args.Amplitude, args.Period, args.Speed);
-    Params.FloatUniforms["amplitude_period_speed"].SetValue(data);
+    std::vector<UniformList::Uniform> fArrUs = mat->GetUniforms().FloatArrayUniforms;
+    Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Location =
+        UniformList::FindUniform("dropoffPoints_timesSinceCreated_heights_periods", fArrUs).Loc;
+    Params.FloatArrayUniforms["sourcesXY_speeds"].Location =
+        UniformList::FindUniform("sourcesXY_speeds", fArrUs).Loc;
+    Params.FloatArrayUniforms["flow_amplitude_period"].Location =
+        UniformList::FindUniform("flow_amplitude_period", fArrUs).Loc;
+    Params.FloatArrayUniforms["timesSinceCreated"].Location =
+        UniformList::FindUniform("timesSinceCreated", fArrUs).Loc;
 }
-void Water::SetSeededWaterSeed(const MTexture2D * newSeedValues)
-{
-    seedTex = newSeedValues;
-    Params.Texture2DUniforms["seedMap"].Texture = seedTex->GetTextureHandle();
-    Params.FloatUniforms["seedMapResolution"].SetValue(Vector2f((float)seedTex->GetWidth(), (float)seedTex->GetHeight()));
-}
-
 
 void Water::Update(float elapsed)
 {

@@ -13,20 +13,18 @@
 //0: Pos (size 3)
 //1: UV (size 2)
 //2: Normal (size 3)
-//3: Random seeds useful for WaterSurfaceDistortNode (size 2)
 struct WaterVertex
 {
     Vector3f Pos;
     Vector2f TexCoord;
-    Vector2f RandSeeds;
 
-    WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f(), Vector2f randSeeds = Vector2f(0.0f, 0.0f))
-        : Pos(pos), TexCoord(texCoord), RandSeeds(randSeeds)
+    WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f())
+        : Pos(pos), TexCoord(texCoord)
     {
 
     }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, 2, false, false, false, "vIn_pos", "vIn_texCoord", "vIn_randSeeds"); }
+    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, false, false, "vIn_pos", "vIn_texCoord"); }
 };
 
 
@@ -71,14 +69,6 @@ public:
             : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
-    //Data that only applies to seeded heightmap water.
-    struct SeededWaterArgs
-    {
-    public:
-        float Amplitude, Period, Speed;
-        SeededWaterArgs(float amplitude, float period, float speed) : Amplitude(amplitude), Period(period), Speed(speed) { }
-    };
-
 
     TransformObject & GetTransform(void) { return waterMesh.Transform; }
     const TransformObject & GetTransform(void) const { return waterMesh.Transform; }
@@ -96,33 +86,15 @@ public:
         unsigned int MaxFlows;
         DirectionalWaterCreationArgs(unsigned int maxFlows = 0) : MaxFlows(maxFlows) { }
     };
-    struct SeedmapWaterCreationArgs
-    {
-    public:
-        const MTexture2D * SeedValues;
-        SeedmapWaterCreationArgs(const MTexture2D * seedValues = 0) : SeedValues(seedValues) { }
-    };
     //Creates a new Water object.
     Water(unsigned int size, Vector3f pos, Vector3f scale,
           OptionalValue<RippleWaterCreationArgs> rippleArgs,
-          OptionalValue<DirectionalWaterCreationArgs> directionArgs,
-          OptionalValue<SeedmapWaterCreationArgs> seedmapArgs);
+          OptionalValue<DirectionalWaterCreationArgs> directionArgs);
     //Destroys this water, releasing all related rendering memory (Material, index/vertex buffers, etc.)
     ~Water(void);
 
     //Gets the location of the water-related uniforms from the given material.
-    void UpdateUniformLocations(const Material * mat)
-    {
-        std::vector<UniformList::Uniform> fArrUs = mat->GetUniforms().FloatArrayUniforms;
-        Params.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"].Location =
-            UniformList::FindUniform("dropoffPoints_timesSinceCreated_heights_periods", fArrUs).Loc;
-        Params.FloatArrayUniforms["sourcesXY_speeds"].Location =
-            UniformList::FindUniform("sourcesXY_speeds", fArrUs).Loc;
-        Params.FloatArrayUniforms["flow_amplitude_period"].Location =
-            UniformList::FindUniform("flow_amplitude_period", fArrUs).Loc;
-        Params.FloatArrayUniforms["timesSinceCreated"].Location =
-            UniformList::FindUniform("timesSinceCreated", fArrUs).Loc;
-    }
+    void UpdateUniformLocations(const Material * mat);
 
     //Gets the water mesh without updating its uniforms.
     const Mesh & GetMesh(void) const { return waterMesh; }
@@ -140,11 +112,6 @@ public:
     //Changes the water flow with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
     bool ChangeFlow(unsigned int element, const DirectionalWaterArgs & args);
-
-    //Changes the properties of the water.
-    void SetSeededWater(const SeededWaterArgs & args);
-    //Changes the heightmap used to seed this water.
-    void SetSeededWaterSeed(const MTexture2D * newSeedValues);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
@@ -175,6 +142,5 @@ private:
     Vector4f * f_a_p;
     float * tsc;
 
-    const MTexture2D * seedTex;
     Mesh waterMesh;
 };

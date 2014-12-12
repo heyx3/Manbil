@@ -50,7 +50,9 @@ using namespace OGLTestPrints;
 
 Vector2i windowSize(800, 600);
 const RenderingState worldRenderState;
-std::string texSamplerName = "";
+std::string texSamplerName = "",
+            texSampler2Name = "",
+            cubeSamplerName = "";
 const unsigned int maxRipples = 3,
                    maxFlows = 2;
 
@@ -95,12 +97,48 @@ void OpenGLTestWorld::InitializeTextures(void)
     }
 
 
-    //Water normal-map creation.
-    waterNormalTex.Create();
+    //Water normal-map 1 creation.
+
+    waterNormalTex1.Create();
     std::string error;
-    if (!waterNormalTex.SetDataFromFile("Content/Textures/Normalmap.png", error))
+    if (!waterNormalTex1.SetDataFromFile("Content/Textures/Normalmap.png", error))
     {
         std::cout << "Failed to load 'Content/Textures/Normalmap.png': " + error + "\n";
+        Pause();
+        EndWorld();
+        return;
+    }
+
+
+    //Water normal-map 2 creation.
+
+    Perlin2D pers[4] =
+    {
+        Perlin2D(Vector2f(128, 128), Perlin2D::Quintic, Vector2i(), 12512, true, Vector2u(128, 128)),
+        Perlin2D(Vector2f(64, 64), Perlin2D::Quintic, Vector2i(), 1166223, true, Vector2u(64, 64)),
+        Perlin2D(Vector2f(32, 32), Perlin2D::Quintic, Vector2i(), 676232, true, Vector2u(32, 32)),
+        Perlin2D(Vector2f(16, 16), Perlin2D::Quintic, Vector2i(), 39863984, true, Vector2u(16, 16)),
+    };
+    Generator2D*const perPointers[4] = { &pers[0], &pers[1], &pers[2], &pers[3] };
+    float weights[4] = { 0.5f, 0.25f, 0.125f, 0.06125f };
+    LayeredOctave2D layeredPers(4, weights, perPointers);
+    
+    Array2D<float> noise(512, 512, 0.0f);
+    layeredPers.Generate(noise);
+
+    Array2D<Vector3f> bumpNormals(512, 512);
+    BumpmapToNormalmap::Convert(noise, 100.0f, true, bumpNormals);
+
+    Array2D<Vector4f> finalNormals(512, 512);
+    finalNormals.FillFunc([&bumpNormals](Vector2u loc, Vector4f* outV)
+    {
+        *outV = Vector4f(bumpNormals[loc], 1.0f);
+    });
+
+    waterNormalTex2.Create();
+    if (!waterNormalTex2.SetColorData(finalNormals))
+    {
+        std::cout << "Failed to set generated normalmap data for second normal map texture.\n";
         Pause();
         EndWorld();
         return;
@@ -195,8 +233,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         //Vertex output 0: object-space position.
         //Vertex output 1: UV coords.
-        //Vertex output 2: water rand seeds.
-        //Vertex output 3: world-space position.
+        //Vertex output 2: world-space position.
 
 
         DataNode::ClearMaterialData();
@@ -220,28 +257,44 @@ void OpenGLTestWorld::InitializeMaterials(void)
         vertOuts.insert(vertOuts.end(),
                         ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
         vertOuts.insert(vertOuts.end(),
-                        ShaderOutput("vOut_objNormal", DataLine(VertexInputNode::GetInstance(), 2)));
-        vertOuts.insert(vertOuts.end(),
                         ShaderOutput("vOut_worldPos", DataLine(worldPos)));
 
         //Fragment shader outputs.
-        DataLine normalMapScale(10.0f),
-                 normalMapPan(VectorF(-0.15f, 0.0f));
-        DNP normalMapScaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMapScale, "normalMapScaled")),
-            normalMapPanned(new AddNode(normalMapScaled, normalMapPan));
-        DNP normalMapPtr(new TextureSample2DNode(normalMapPanned, "u_normalMapTex", "normalMapSample"));
-        DataLine normalMap(normalMapPtr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+        DataLine normalMap1Scale(10.0f),
+                 normalMap1Pan(VectorF(-0.15f, 0.0f));
+        DNP normalMap1Scaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMap1Scale, "normalMapScaled1")),
+            normalMap1PanAmount(new MultiplyNode(normalMap1Pan, TimeNode::GetInstance())),
+            normalMap1Panned(new AddNode(normalMap1Scaled, normalMap1PanAmount));
+        DNP normalMap1Ptr(new TextureSample2DNode(normalMap1Panned, "u_normalMap1Tex", "normalMapSample1"));
+        DataLine normalMap1(normalMap1Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
 
-        DNP applyNormalMap(new AddNode(normalMap, DataLine(waterCalcs, WaterNode::GetSurfaceNormalOutputIndex()), "afterNormalMapping"));
+        DataLine normalMap2Scale(10.0f),
+                 normalMap2Pan(VectorF(0.0f, 0.15f));
+        DNP normalMap2Scaled(new MultiplyNode(DataLine(FragmentInputNode::GetInstance(), 1), normalMap2Scale, "normalMapScaled2")),
+            normalMap2PanAmount(new MultiplyNode(normalMap2Pan, TimeNode::GetInstance())),
+            normalMap2Panned(new AddNode(normalMap2Scaled, normalMap2PanAmount));
+        DNP normalMap2Ptr(new TextureSample2DNode(normalMap2Panned, "u_normalMap2Tex", "normalMapSample2"));
+        DataLine normalMap2(normalMap2Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+
+        DNP combineNormalMaps(new TangentSpaceNormalsNode(normalMap1, normalMap2, "combinedNormals"));
+
+        DNP applyNormalMap(new AddNode(combineNormalMaps, DataLine(waterCalcs, WaterNode::GetSurfaceNormalOutputIndex()), "afterNormalMapping"));
         DNP finalObjNormal(new NormalizeNode(applyNormalMap, "finalObjNormal"));
         DNP worldNormal(new SpaceConverterNode(finalObjNormal, SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
                                                SpaceConverterNode::DT_NORMAL, "worldNormal"));
         DNP finalWorldNormal(new NormalizeNode(worldNormal));
 
-        DNP lightCalc(new LightingNode(DataLine(FragmentInputNode::GetInstance(), 3),
-                                       finalWorldNormal, DataLine(Vector3f(-1.0f, -1.0f, -0.1f).Normalized()),
-                                       "lightCalc", DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
-        DNP finalColorRGB(new MultiplyNode(lightCalc, DataLine(VectorF(0.275f, 0.275f, 1.0f)), "finalColorRGB")),
+        DNP eyeRay(new SubtractNode(worldPos, CameraDataNode::GetCamPos(), "eyeRay")),
+            reflectedEyeRay(new ReflectNode(eyeRay, finalWorldNormal, "reflectedEyeRay"));
+        DNP cubemapSamplePtr(new TextureSampleCubemapNode(reflectedEyeRay, "u_cubemapTex", "cubemapSample"));
+        DataLine cubemapSampleRGB(cubemapSamplePtr, TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
+
+        DNP lightCalc(new LightingNode(DataLine(FragmentInputNode::GetInstance(), 2),
+                                       finalWorldNormal, DataLine(Vector3f(0.6f, -1.0f, -0.1f).Normalized()),
+                                       "lightCalc", DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(64.0f)));
+        DNP litColorRGB(new MultiplyNode(lightCalc, DataLine(VectorF(0.275f, 0.275f, 1.0f)), "litColorRGB"));
+
+        DNP finalColorRGB(new InterpolateNode(litColorRGB, cubemapSampleRGB, 0.65f, InterpolateNode::IT_Linear, "lerpCubemap")),
             finalColor(new CombineVectorNode(finalColorRGB, 1.0f, "finalColor"));
 
         DNP worldNormalToTexValue(new RemapNode(finalWorldNormal, DataLine(-1.0f), DataLine(1.0f), DataLine(0.0f), DataLine(1.0f), "worldNormToTexVal"));
@@ -250,7 +303,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
         fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor", finalColor));
         fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_WorldNormal", worldNormalColor));
 
-        texSamplerName = ((TextureSample2DNode*)normalMapPtr.get())->SamplerName;
+        texSamplerName = ((TextureSample2DNode*)normalMap1Ptr.get())->SamplerName;
+        texSampler2Name = ((TextureSample2DNode*)normalMap2Ptr.get())->SamplerName;
+        cubeSamplerName = ((TextureSampleCubemapNode*)cubemapSamplePtr.get())->SamplerName;
 
         UniformDictionary unDict;
         ShaderGenerator::GeneratedMaterial wM = ShaderGenerator::GenerateMaterial(unDict, RenderingModes::RM_Opaque);
@@ -269,46 +324,6 @@ void OpenGLTestWorld::InitializeMaterials(void)
             EndWorld();
             return;
         }
-
-        /*
-        ShaderInOutAttributes fragInputAttributes(3, 2, 2, 3, false, false, false, false);
-        DataLine materialUVs(DNP(new ShaderInNode(2, 1, -1, 0, 1)), 0);
-        DNP fragmentInput(new FragmentInputNode(fragInputAttributes));
-        DNP waterVertexInput(new VertexInputNode(WaterVertex::GetAttributeData()));
-        DNP waterNode(new WaterNode(DataLine(waterVertexInput, 0),
-                                    DataLine(fragmentInput, 0),
-                                    3, 2));
-        channels[RC::RC_VERTEX_OUT_0] = DataLine(waterNode, WaterNode::GetVertexPosOutputIndex());
-        channels[RC::RC_VERTEX_OUT_1] = materialUVs;
-        channels[RC::RC_VERTEX_OUT_2] = DataLine(waterVertexInput, 2);
-        channels[RC::RC_VERTEX_OUT_3] = DataLine(DNP(new ObjectPosToWorldPosCalcNode(channels[RC::RC_VERTEX_OUT_0])), 0);
-
-        DNP waterSurfaceDistortion(new WaterSurfaceDistortNode(WaterSurfaceDistortNode::GetWaterSeedIn(fragInputAttributes, 2),
-                                                               DataLine(0.01f), DataLine(0.5f),
-                                                               WaterSurfaceDistortNode::GetTimeIn(fragInputAttributes, 2)));
-        DataLine normalMapUVs = DataNodeGenerators::CreateComplexUV(materialUVs,
-                                                                    DataLine(VectorF(10.0f, 10.0f)),
-                                                                    DataLine(VectorF(0.0f, 0.0f)),
-                                                                    DataLine(VectorF(-0.15f, 0.0f)));
-        DNP normalMap(new TextureSample2DNode(normalMapUVs, "u_normalMapTex"));
-        texSamplerName = ((TextureSample2DNode*)(normalMap.get()))->GetSamplerUniformName();
-
-        DNP finalNormal(new NormalizeNode(DataLine(DNP(new AddNode(DataLine(normalMap, TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels)),
-                                                                   DataLine(waterNode, WaterNode::GetSurfaceNormalOutputIndex()))), 0)));
-        DataLine waterNormal(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0);
-        DNP light(new LightingNode(DataLine(fragmentInput, 3),
-                                   waterNormal,//DataLine(DNP(new NormalizeNode(DataLine(DNP(new ObjectNormalToWorldNormalCalcNode(DataLine(finalNormal, 0))), 0))), 0),//TODO: Remove the last outer "Normalize" node; it's already normalized.
-                                   DataLine(Vector3f(-1, -1, -0.1f).Normalized()),
-                                   DataLine(0.3f), DataLine(0.7f), DataLine(3.0f), DataLine(256.0f)));
-
-        DNP finalColor(new MultiplyNode(DataLine(light, 0), DataLine(Vector3f(0.275f, 0.275f, 1.0f))));
-
-        channels[RC::RC_Color] = DataLine(DNP(new MultiplyNode(DataLine(light, 0),
-                                                               DataLine(Vector3f(0.275f, 0.275f, 1.0f)))), 0);
-        channels[RC::RC_VertexPosOutput] = DataLine(DNP(new ObjectPosToScreenPosCalcNode(DataLine(waterNode, WaterNode::GetVertexPosOutputIndex()))),
-                                                    ObjectPosToScreenPosCalcNode::GetHomogenousPosOutputIndex());
-        channels[RC::RC_COLOR_OUT_2] = DataLine(DNP(new CombineVectorNode(DataLine(DNP(new RemapNode(waterNormal, DataLine(-1.0f), DataLine(1.0f))), 0), DataLine(1.0f))), 0);
-        */
 
         #pragma endregion
     }
@@ -554,15 +569,22 @@ void OpenGLTestWorld::InitializeObjects(void)
 
     water = new Water(size, Vector3f(0.0f, 0.0f, 0.0f), Vector3f(6.0f, 6.0f, 2.0f),
                       OptionalValue<Water::RippleWaterCreationArgs>(Water::RippleWaterCreationArgs(maxRipples)),
-                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)),
-                      OptionalValue<Water::SeedmapWaterCreationArgs>());
+                      OptionalValue<Water::DirectionalWaterCreationArgs>(Water::DirectionalWaterCreationArgs(maxFlows)));
     water->GetTransform().IncrementPosition(Vector3f(0.0f, 0.0f, -10.0f));
 
     water->UpdateUniformLocations(waterMat);
     water->Params.Texture2DUniforms[texSamplerName] =
-        UniformSampler2DValue(waterNormalTex.GetTextureHandle(), texSamplerName,
-                              waterMat->GetUniforms().FindUniform(texSamplerName, waterMat->GetUniforms().Texture2DUniforms).Loc);
-    //TODO: Try changing the above line to just use "... .Texture = waterNormalTex.GetTextureHandle()". Look for similiar issues in other worlds.
+        UniformSampler2DValue(waterNormalTex1.GetTextureHandle(), texSamplerName,
+                              waterMat->GetUniforms().FindUniform(texSamplerName,
+                                                                  waterMat->GetUniforms().Texture2DUniforms).Loc);
+    water->Params.Texture2DUniforms[texSampler2Name] =
+        UniformSampler2DValue(waterNormalTex2.GetTextureHandle(), texSampler2Name,
+                              waterMat->GetUniforms().FindUniform(texSampler2Name,
+                                                                  waterMat->GetUniforms().Texture2DUniforms).Loc);
+    water->Params.TextureCubemapUniforms[cubeSamplerName] =
+        UniformSamplerCubemapValue(cubemapTex.GetTextureHandle(), cubeSamplerName,
+                                   waterMat->GetUniforms().FindUniform(cubeSamplerName,
+                                                                       waterMat->GetUniforms().TextureCubemapUniforms).Loc);
 
     water->AddFlow(Water::DirectionalWaterArgs(Vector2f(2.0f, 0.0f), 10.0f, 50.0f));
 
@@ -601,7 +623,8 @@ OpenGLTestWorld::OpenGLTestWorld(void)
       particleManager(particleParams),
       cubemapMesh(PrimitiveTypes::TriangleList), cubemapMat(0),
       gsTestTex3D(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PS_32F, false),
-      waterNormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
+      waterNormalTex1(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
+      waterNormalTex2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_32F, true),
       cubemapTex(TextureSampleSettings3D(FT_LINEAR, WT_CLAMP), PS_32F, true),
       worldColorTex1(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
       worldColorTex2(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PS_32F, false),
@@ -666,7 +689,8 @@ void OpenGLTestWorld::OnWorldEnd(void)
     DeleteAndSetToNull(finalScreenMat);
     DeleteAndSetToNull(particleMat);
     DeleteAndSetToNull(cubemapMat);
-    waterNormalTex.DeleteIfValid();
+    waterNormalTex1.DeleteIfValid();
+    waterNormalTex2.DeleteIfValid();
     cubemapTex.DeleteIfValid();
     gsTestTex3D.DeleteIfValid();
 }
