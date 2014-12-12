@@ -80,8 +80,8 @@ public:
 
     //Constructors/destructors.
 
-    DataNode(const std::vector<DataLine> & _inputs, std::string _name = "");
-    //DataNode(const DataNode & cpy) = delete; // Intentionally left blank.
+    DataNode(const std::vector<DataLine>& _inputs, std::string _name = "");
+    //DataNode(const DataNode& cpy) = delete; // Intentionally left blank.
 
     virtual ~DataNode(void);
 
@@ -101,20 +101,20 @@ public:
     virtual std::string GetTypeName(void) const { return "ERROR_BAD_TYPE_NAME"; }
 
 
-    const std::vector<DataLine> & GetInputs(void) const { return inputs; }
-    std::vector<DataLine> & GetInputs(void) { return inputs; }
+    const std::vector<DataLine>& GetInputs(void) const { return inputs; }
+    std::vector<DataLine>& GetInputs(void) { return inputs; }
 
     //Note that the inputs should be in the same order they were specified in the constructor.
-    void ReplaceInput(unsigned int inputIndex, const DataLine & replacement);
+    void ReplaceInput(unsigned int inputIndex, const DataLine& replacement);
 
     
     //Functions to traverse down this node and its inputs.
     void AssertAllInputsValid(void) const;
-    void SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const;
-    void GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<const DataNode*> & writtenNodes) const;
-    void GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<const DataNode*> & writtenNodes) const;
+    void SetFlags(MaterialUsageFlags& flags, unsigned int outputIndex) const;
+    void GetParameterDeclarations(UniformDictionary& outUniforms, std::vector<const DataNode*>& writtenNodes) const;
+    void GetFunctionDeclarations(std::vector<std::string>& outDecls, std::vector<const DataNode*>& writtenNodes) const;
 
-    void WriteOutputs(std::string & outCode, std::vector<const DataNode*> & writtenNodeIDs) const;
+    void WriteOutputs(std::string& outCode, std::vector<const DataNode*> & writtenNodeIDs) const;
 
 
     //Gets the variable name for this node's given output.
@@ -126,8 +126,8 @@ public:
     virtual unsigned int GetNumbOutputs(void) const { return 1; }
 
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const final;
-    virtual bool ReadData(DataReader * reader, std::string & outError) final;
+    virtual bool WriteData(DataWriter* writer, std::string& outError) const final;
+    virtual bool ReadData(DataReader* reader, std::string& outError) final;
 
 
 protected:
