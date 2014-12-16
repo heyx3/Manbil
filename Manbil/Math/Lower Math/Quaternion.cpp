@@ -168,6 +168,20 @@ void Quaternion::ToMatrix(Matrix4f& out, bool amINormalized) const
 
 	out[l] = 1;
 }
+Vector4f Quaternion::GetAxisAngle(void) const
+{
+    float halfAngle = acosf(w);
+    return Vector4f(*(Vector3f*)&x * (1.0f / sinf(halfAngle)),
+                    2.0f * halfAngle);
+}
+Vector3f Quaternion::GetEulerAngles(void) const
+{
+    return Vector3f(atan2f(2.0f * ((w * x) + (y * z)),
+                           1.0f - (2.0f * ((x * x) + (y * y)))),
+                    asinf(2.0f * ((w * y) - (z * x))),
+                    atan2f(2.0f * ((w * z) + (x * y)),
+                           1.0f - (2.0f * ((y * y) + (z * z)))));
+}
 
 
 void Quaternion::Rotate(Vector3f& v) const

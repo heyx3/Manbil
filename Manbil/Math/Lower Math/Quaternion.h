@@ -37,6 +37,7 @@ public:
     //    because in the future, the vector math classes can be optimized with things like SIMD ops,
     //    and now this Quaternion class can take advantage of that without having to rewrite that stuff
     //    here.
+    //It also incidentally reduces the use of copy constructors/assignment operators.
     
     //The components of this Quaternion.
 	float x, y, z, w;
@@ -89,6 +90,10 @@ public:
     
     //Sets the given matrix to represent the same rotation as this quaternion.
 	void ToMatrix(Matrix4f& out, bool amINormalized = false) const;
+    //Gets the axis this quaternion rotates points around and the angle it rotates them by.
+    Vector4f GetAxisAngle(void) const;
+    //Gets the euler angles (in radians) of the rotation this quaternion represents.
+    Vector3f GetEulerAngles(void) const;
 };
 
 static_assert(sizeof(Quaternion) == sizeof(Vector4f),
