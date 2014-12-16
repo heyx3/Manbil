@@ -11,6 +11,7 @@
 #include "Rendering/PostProcessing/PostProcessData.h"
 
 //The following #include statements are just for "InitializeStaticSystems".
+#include "Oculus Rift/OculusDevice.h"
 #include "Rendering/GUI/TextRenderer.h"
 #include "Rendering/Helper Classes/DrawingQuad.h"
 
@@ -21,7 +22,7 @@ std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRendere
 
     if (rift)
     {
-        //OculusDevice::InitializeSystem();
+        OculusDevice::InitializeSystem();
     }
     if (drawingQuad)
     {

@@ -14,9 +14,6 @@
     <ClCompile Include="OpenGLTestWorld.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainWalkCamera.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Two Triangles</Filter>
     </ClCompile>
@@ -441,6 +438,9 @@
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Oculus Rift\OculusDevice.cpp">
+      <Filter>Oculus Rift</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -453,9 +453,6 @@
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLTestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainWalkCamera.h">
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="RenderInfo.h">
@@ -976,6 +973,9 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
+    <ClInclude Include="Oculus Rift\OculusDevice.h">
+      <Filter>Oculus Rift</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -989,9 +989,6 @@
     </Filter>
     <Filter Include="Math\Shapes">
       <UniqueIdentifier>{d3a505b7-f782-4bb9-8d96-9d0eeb45aa42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Oculus Rift Stuff">
-      <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
     </Filter>
     <Filter Include="MGame">
       <UniqueIdentifier>{e679110c-e835-44d9-bd5e-ed3d7286a232}</UniqueIdentifier>
@@ -1103,6 +1100,9 @@
     </Filter>
     <Filter Include="Math\Lower Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Oculus Rift">
+      <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -39,13 +39,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\C++\Libraries\Oculus SDK 0.4.4\LibOVR\Include;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\C++\Libraries\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\C++\Libraries\Oculus SDK 0.4.4\LibOVR\Include;E:\C++\Libraries\Freetype 2.3.5\include\freetype2;E:\C++\Libraries\Freetype 2.3.5\include;E:\C++\Libraries\glew-1.10.0\include;E:\C++\Libraries\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\C++\Libraries\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;C:\Program Files %28x86%29\GnuWin32\lib;E:\C++\Libraries\Freetype 2.3.5\lib;E:\C++\Libraries\glew-1.10.0\lib\Release\Win32;E:\C++\Libraries\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -127,6 +127,7 @@
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
     <ClCompile Include="Math\Shapes\Circle.cpp" />
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
+    <ClCompile Include="Oculus Rift\OculusDevice.cpp" />
     <ClCompile Include="RenderDataHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -220,7 +221,6 @@
     <ClCompile Include="SFMLOpenGLWorld.cpp" />
     <ClCompile Include="SFMLWorld.cpp" />
     <ClCompile Include="ShaderHandler.cpp" />
-    <ClCompile Include="TerrainWalkCamera.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
@@ -301,6 +301,7 @@
     <ClInclude Include="Math\Shapes\Boxes.h" />
     <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
+    <ClInclude Include="Oculus Rift\OculusDevice.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="RenderDataHandler.h" />
     <ClInclude Include="Material.h" />
@@ -400,7 +401,6 @@
     <ClInclude Include="SFMLOpenGLWorld.h" />
     <ClInclude Include="SFMLWorld.h" />
     <ClInclude Include="ShaderHandler.h" />
-    <ClInclude Include="TerrainWalkCamera.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />

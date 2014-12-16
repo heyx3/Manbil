@@ -188,7 +188,7 @@ void VoxelWorld::SetUpVoxels(void)
 void VoxelWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
-    InitializeStaticSystems(true, true, true);
+    InitializeStaticSystems(false, true, true);
 
     DataNode::ClearMaterialData();
 
