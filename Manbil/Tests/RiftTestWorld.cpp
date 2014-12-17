@@ -7,7 +7,7 @@
 
 
 RiftTestWorld::RiftTestWorld(void)
-    : objectMat(0), quad(0), cube(TriangleList),
+    : objectMat(0), quad(0), quadMat(0), cube(TriangleList),
       floorTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, true),
       obj1Tex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, true),
       obj2Tex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, true),
@@ -56,6 +56,7 @@ void RiftTestWorld::InitializeMaterials(void)
 {
     #pragma region Quad mat
 
+    //Create shaders.
     std::string vertShader = "\
 #version 400            \n\
 \n\
@@ -83,6 +84,15 @@ void main()        \n\
 {        \n\
     finalColor4 = texture2D(u_tex, out_uv);    \n\
 }";
+
+    //Initialize parameters.
+    quadParams.Texture2DUniforms["u_tex"] = UniformSampler2DValue(0, "u_tex");
+
+    //Create the material.
+    quadMat = new Material(vertShader, fragShader, quadParams, DrawingQuad::GetAttributeData(),
+                           RenderingModes::RM_Opaque);
+    if (!Assert(quadMat->GetErrorMsg().empty(), "Error creating quad mat", quadMat->GetErrorMsg()))
+        return;
 
     #pragma endregion
     
@@ -204,11 +214,15 @@ void RiftTestWorld::InitializeWorld(void)
     if (!Assert(err.empty(), "Error initializing systems", err))
         return;
 
+
     GetWindow()->setVerticalSyncEnabled(false);
+
 
     InitializeTextures();
     InitializeMaterials();
     InitializeObjects();
+    if (IsGameOver()) return;
+
 
     baseCam.Window = GetWindow();
     baseCam.Info.zNear = 0.1f;
@@ -216,6 +230,7 @@ void RiftTestWorld::InitializeWorld(void)
     baseCam.Info.Width = windowSize.x;
     baseCam.Info.Height = windowSize.y;
     baseCam.Info.SetFOVDegrees(55.0f);
+
 
     //Set up OVR HMD.
     if (ovrHmd_Detect() > 0)
@@ -243,7 +258,9 @@ void RiftTestWorld::InitializeWorld(void)
         std::cout << "No Rift HMD was found.\n\n";
     }
 
+
     windowSize = Vector2u((unsigned int)hmd->Resolution.w, (unsigned int)hmd->Resolution.h);
+    GetWindow()->setPosition(sf::Vector2i(0, 0));
     GetWindow()->setSize(sf::Vector2u(windowSize.x, windowSize.y));
 
 
@@ -253,6 +270,7 @@ void RiftTestWorld::InitializeWorld(void)
 void RiftTestWorld::OnWorldEnd(void)
 {
     DeleteAndSetToNull(objectMat);
+    DeleteAndSetToNull(quadMat);
     DeleteAndSetToNull(quad);
 
     floorTex.DeleteIfValid();

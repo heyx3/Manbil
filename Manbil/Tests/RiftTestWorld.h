@@ -47,13 +47,14 @@ private:
 
 
     Material* objectMat;
-    Material* quadTexMat;
-
-    DrawingQuad* quad;
     Mesh cube;
-
     UniformDictionary floorParams, obj1Params, obj2Params;
     TransformObject floorT, obj1T, obj2T;
+
+
+    Material* quadMat;
+    DrawingQuad* quad;
+    UniformDictionary quadParams;
 
 
     MTexture2D floorTex, obj1Tex, obj2Tex;
