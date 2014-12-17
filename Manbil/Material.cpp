@@ -41,6 +41,7 @@ Material::Material(const std::string & vs, const std::string & fs, UniformDictio
 
 
     //Get node uniforms.
+    //TODO: Refactor into UniformDictionary.
     UniformLocation tempLoc;
     for (auto iterator = dict.FloatUniforms.begin(); iterator != dict.FloatUniforms.end(); ++iterator)
     {

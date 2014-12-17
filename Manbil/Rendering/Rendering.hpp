@@ -1,5 +1,7 @@
 #pragma once
 
+//TODO: Refactor the various rendering .hpp files (and the filters/folders for that matter).
+
 #include "../Material.h"
 #include "../RenderingState.h"
 #include "../ScreenClearer.h"

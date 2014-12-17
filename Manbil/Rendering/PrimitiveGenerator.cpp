@@ -1,7 +1,7 @@
 #include "PrimitiveGenerator.h"
 
 
-void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVertices, std::vector<unsigned int> & outIndices, bool smoothNormals,
+void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal>& outVertices, std::vector<unsigned int>& outIndices, bool smoothNormals,
                                       bool faceInward, Vector2f xFaceScaling, Vector2f yFaceScaling, Vector2f zFaceScaling, Vector3f minCorner, Vector3f maxCorner)
 {
     unsigned int index = outIndices.size();
@@ -209,7 +209,7 @@ void PrimitiveGenerator::GenerateCube(std::vector<VertexPosTex1Normal> & outVert
     index += 4;
 }
 
-void PrimitiveGenerator::GenerateCubemapCube(std::vector<CubemapVertex> & outVertices, std::vector<unsigned int> & outIndices, bool smoothNormals,
+void PrimitiveGenerator::GenerateCubemapCube(std::vector<CubemapVertex>& outVertices, std::vector<unsigned int>& outIndices, bool smoothNormals,
                                              bool faceInward, Vector3f minCorner, Vector3f maxCorner)
 {
     unsigned int index = outIndices.size();

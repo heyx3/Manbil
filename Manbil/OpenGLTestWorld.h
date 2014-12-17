@@ -43,17 +43,17 @@ private:
 
 	void RenderWorldGeometry(const RenderInfo & info);
 
-    Water * water;
-    Material * waterMat;
+    Water* water;
+    Material* waterMat;
 
     Mesh gsMesh;
-    Material * gsTestMat;
+    Material* gsTestMat;
     MTexture3D gsTestTex3D;
     UniformDictionary gsTestParams;
 
     HGPComponentManager particleManager;
     Mesh particleMesh;
-    Material * particleMat;
+    Material* particleMat;
     UniformDictionary particleParams;
 
 	MovingCamera cam;
@@ -61,16 +61,16 @@ private:
     unsigned int worldRenderID;
     MTexture2D worldColorTex1, worldColorTex2, worldDepthTex;
 
-    PostProcessChain * ppc;
+    PostProcessChain* ppc;
     std::vector<std::shared_ptr<PostProcessEffect>> ppcChain;
 
     Mesh cubemapMesh;
     UniformDictionary cubemapParams;
-    Material * cubemapMat;
+    Material* cubemapMat;
     MTextureCubemap cubemapTex;
 
-    DrawingQuad * finalScreenQuad;
-    Material * finalScreenMat;
+    DrawingQuad* finalScreenQuad;
+    Material* finalScreenMat;
     UniformDictionary finalScreenQuadParams;
 
     TextRenderer::FontSlot testFontSlot;

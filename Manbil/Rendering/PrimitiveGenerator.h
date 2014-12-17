@@ -4,6 +4,8 @@
 #include "../Vertices.h"
 
 
+//TODO: Move into the folder that matches this file's filter.
+
 //Generates 3D primitive volumes.
 class PrimitiveGenerator
 {

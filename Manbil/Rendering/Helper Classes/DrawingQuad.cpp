@@ -48,14 +48,14 @@ DrawingQuad::DrawingQuad(void)
     quad.SetVertexIndexData(&vid, 1);
     meshes.insert(meshes.end(), &quad);
 }
-DrawingQuad::DrawingQuad(const DrawingQuad & cpy)
+DrawingQuad::DrawingQuad(const DrawingQuad& cpy)
     : quad(PrimitiveTypes::TriangleList), origin(cpy.origin)
 {
     quad = cpy.quad;
     meshes.insert(meshes.end(), &quad);
 }
 
-DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
+DrawingQuad & DrawingQuad::operator=(const DrawingQuad& cpy)
 {
     quad.Transform = cpy.quad.Transform;
     origin = cpy.origin;
@@ -63,7 +63,7 @@ DrawingQuad & DrawingQuad::operator=(const DrawingQuad & cpy)
     return *this;
 }
 
-bool DrawingQuad::Render(const RenderInfo & info, const UniformDictionary & params, Material & mat)
+bool DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)
 {
     assert(mat.GetAttributeData() == GetAttributeData());
 

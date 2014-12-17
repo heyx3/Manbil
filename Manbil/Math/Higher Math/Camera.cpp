@@ -72,7 +72,7 @@ void Camera::Rotate(Quaternion rotation)
     up.Normalize();
 }
 
-void Camera::GetViewTransform(Matrix4f & outM) const
+void Camera::GetViewTransform(Matrix4f& outM) const
 {
 	Matrix4f mPos, mRot;
 	
@@ -85,7 +85,7 @@ void Camera::GetPerspectiveTransform(Matrix4f& outM) const
 {
     outM.SetAsPerspProj(Info.FOV, Info.Width, Info.Height, Info.zNear, Info.zFar);
 }
-void Camera::GetOrthoProjection(Matrix4f & outM) const
+void Camera::GetOrthoProjection(Matrix4f& outM) const
 {
     outM.SetAsOrthoProj(MinOrthoBounds + pos, MaxOrthoBounds + pos);
 }
