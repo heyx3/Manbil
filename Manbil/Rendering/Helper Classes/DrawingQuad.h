@@ -4,6 +4,7 @@
 #include "../../Mesh.h"
 #include "../../Material.h"
 
+
 //Represents a simple 1x1 square.
 //Uses the VertexPosTex1Normal struct for the vertices.
 class DrawingQuad
