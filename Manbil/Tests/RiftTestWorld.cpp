@@ -54,9 +54,44 @@ void RiftTestWorld::InitializeTextures(void)
 }
 void RiftTestWorld::InitializeMaterials(void)
 {
-    //Create shaders.
+    #pragma region Quad mat
 
     std::string vertShader = "\
+#version 400            \n\
+\n\
+layout (location = 0) in vec3 in_pos;            \n\
+layout (location = 1) in vec2 in_uv;            \n\
+layout (location = 2) in vec3 in_normal;            \n\
+\n\
+out vec2 out_uv;            \n\
+\n\
+void main()            \n\
+{            \n\
+    gl_Position = vec4(in_pos, 1.0f);        \n\
+    out_uv = in_uv;        \n\
+}";
+    std::string fragShader = "\
+#version 400        \n\
+\n\
+in vec2 out_uv;        \n\
+\n\
+out vec4 finalColor4;        \n\
+\n\
+uniform sampler2D u_tex;        \n\
+\n\
+void main()        \n\
+{        \n\
+    finalColor4 = texture2D(u_tex, out_uv);    \n\
+}";
+
+    #pragma endregion
+    
+
+    #pragma region Object mat
+
+    //Create shaders.
+
+    vertShader = "\
 #version 400            \n\
 \n\
 layout (location = 0) in vec3 in_pos;            \n\
@@ -82,7 +117,7 @@ void main()            \n\
     gl_Position = screenPos4;            \n\
 }";
 
-    std::string fragShader = "\
+    fragShader = "\
 #version 400            \n\
 \n\
 in vec2 out_uv;            \n\
@@ -140,6 +175,7 @@ void main()            \n\
     obj2Params = params;
     obj2Params.Texture2DUniforms["u_tex"].Texture = obj2Tex.GetTextureHandle();
 
+    #pragma endregion
 }
 void RiftTestWorld::InitializeObjects(void)
 {
@@ -181,6 +217,36 @@ void RiftTestWorld::InitializeWorld(void)
     baseCam.Info.Height = windowSize.y;
     baseCam.Info.SetFOVDegrees(55.0f);
 
+    //Set up OVR HMD.
+    if (ovrHmd_Detect() > 0)
+    {
+        std::cout << "Rift HMD was found!\n";
+        hmd = ovrHmd_Create(0);
+
+        std::cout << "Manufacturer: " << hmd->Manufacturer << "\n" <<
+                     "Serial number: " << hmd->SerialNumber << "\n" <<
+                     "Display device name: " << hmd->DisplayDeviceName << "\n";
+
+        if (Assert(ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
+                                                 ovrTrackingCap_MagYawCorrection |
+                                                 ovrTrackingCap_Position, 0),
+                   "Error configuring Rift headset for tracking", ovrHmd_GetLastError(hmd)))
+        {
+
+        }
+
+        std::cout << "\n";
+    }
+    else
+    {
+        hmd = ovrHmd_CreateDebug(ovrHmdType::ovrHmd_DK2);
+        std::cout << "No Rift HMD was found.\n\n";
+    }
+
+    windowSize = Vector2u((unsigned int)hmd->Resolution.w, (unsigned int)hmd->Resolution.h);
+    GetWindow()->setSize(sf::Vector2u(windowSize.x, windowSize.y));
+
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, windowSize.x, windowSize.y);
 }
@@ -192,6 +258,10 @@ void RiftTestWorld::OnWorldEnd(void)
     floorTex.DeleteIfValid();
     obj1Tex.DeleteIfValid();
     obj2Tex.DeleteIfValid();
+
+
+    ovrHmd_Destroy(hmd);
+
 
     DestroyStaticSystems(true, false, true);
 }
@@ -254,6 +324,20 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
     baseCam.GetViewTransform(viewM);
     baseCam.GetPerspectiveTransform(projM);
 
+    
+    //Update OVR/camera state.
+
+    Vector3f forward = baseCam.GetForward(),
+             up = baseCam.GetUpward();
+
+    hmdState = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
+    Quaternion hmdRot(hmdState.HeadPose.ThePose.Orientation.x,
+                      hmdState.HeadPose.ThePose.Orientation.y,
+                      hmdState.HeadPose.ThePose.Orientation.z,
+                      hmdState.HeadPose.ThePose.Orientation.w);
+    baseCam.Rotate(hmdRot);
+
+    //Render.
     TransformObject dummy;
     RenderInfo info(this, (Camera*)&baseCam, &dummy, &worldM, &viewM, &projM);
 
@@ -263,6 +347,10 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
     std::string generalError = GetCurrentRenderingError();
     if (!Assert(generalError.empty(), "General rendering error", generalError))
         return;
+
+
+    //Revert camera to pre-OVR rotation.
+    baseCam.SetRotation(forward, up, true);
 }
 
 void RiftTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)

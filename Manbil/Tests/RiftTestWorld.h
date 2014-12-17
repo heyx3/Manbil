@@ -5,6 +5,7 @@
 #include "../Rendering/Rendering.hpp"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
 #include "../MovingCamera.h"
+#include "../Oculus Rift/OculusDevice.h"
 
 
 //A simple game world that demos the capabilities of the Rift.
@@ -46,6 +47,7 @@ private:
 
 
     Material* objectMat;
+    Material* quadTexMat;
 
     DrawingQuad* quad;
     Mesh cube;
@@ -63,4 +65,8 @@ private:
 
     Vector2u windowSize;
     MovingCamera baseCam;
+
+
+    ovrHmd hmd = 0;
+    ovrTrackingState hmdState;
 };
