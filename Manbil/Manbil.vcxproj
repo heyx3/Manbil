@@ -222,6 +222,7 @@
     <ClCompile Include="SFMLWorld.cpp" />
     <ClCompile Include="ShaderHandler.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
+    <ClCompile Include="Tests\RiftTestWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
@@ -402,6 +403,7 @@
     <ClInclude Include="SFMLWorld.h" />
     <ClInclude Include="ShaderHandler.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
+    <ClInclude Include="Tests\RiftTestWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />

@@ -185,7 +185,7 @@ public:
     UniformLocation Location;
     std::string Name;
     UniformMatrixValue(void) { }
-    UniformMatrixValue(const Matrix4f & value, std::string name, UniformLocation loc)
+    UniformMatrixValue(const Matrix4f & value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Value(value) { }
     std::string GetDeclaration(void) const { return "uniform mat4 " + Name + ";"; }
 };

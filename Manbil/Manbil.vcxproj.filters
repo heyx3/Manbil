@@ -15,7 +15,7 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
-      <Filter>Two Triangles</Filter>
+      <Filter>Toys\Two Triangles</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLIncludes.cpp">
       <Filter>Rendering\Helper Classes</Filter>
@@ -190,9 +190,6 @@
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
-      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp">
@@ -441,6 +438,12 @@
     <ClCompile Include="Oculus Rift\OculusDevice.cpp">
       <Filter>Oculus Rift</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
+      <Filter>Rendering\Helper Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\RiftTestWorld.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -459,7 +462,7 @@
       <Filter>Worlds</Filter>
     </ClInclude>
     <ClInclude Include="TwoTrianglesWorld.h">
-      <Filter>Two Triangles</Filter>
+      <Filter>Toys\Two Triangles</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLIncludes.h">
       <Filter>Rendering\Helper Classes</Filter>
@@ -741,9 +744,6 @@
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
       <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\PrimitiveGenerator.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
       <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
@@ -976,6 +976,12 @@
     <ClInclude Include="Oculus Rift\OculusDevice.h">
       <Filter>Oculus Rift</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\RiftTestWorld.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\PrimitiveGenerator.h">
+      <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -995,12 +1001,6 @@
     </Filter>
     <Filter Include="Math\Higher Math">
       <UniqueIdentifier>{977d905e-3054-4196-b423-4c0d8d5da765}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Two Triangles">
-      <UniqueIdentifier>{3508bde8-92db-4455-83bd-8647a08958b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Two Triangles\Shaders">
-      <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Input">
       <UniqueIdentifier>{b872daea-bb08-4de0-9136-bbf9c4c11796}</UniqueIdentifier>
@@ -1104,34 +1104,40 @@
     <Filter Include="Oculus Rift">
       <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Toys\Two Triangles">
+      <UniqueIdentifier>{3508bde8-92db-4455-83bd-8647a08958b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toys\Two Triangles\Shaders">
+      <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="water2d.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="raymarcheddistancefunc.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="raymarchedterrain.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="fbm.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="mandlebrot.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="Test.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="RMDFFun.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="t.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
     <Text Include="Perlin.txt">
-      <Filter>Two Triangles\Shaders</Filter>
+      <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
   </ItemGroup>
 </Project>

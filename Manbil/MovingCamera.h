@@ -11,10 +11,20 @@ public:
 
 	sf::Window * Window;
 
-	MovingCamera(float moveSpd = 10.0f, float rSpeed = 0.03f) : pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed) { Window = NULL; mouseTarget = Vector2i(100, 100); }
+	MovingCamera(float moveSpd = 10.0f, float rSpeed = 0.03f)
+        : pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
+    {
+        Window = NULL;
+        mouseTarget = Vector2i(100, 100);
+    }
 	MovingCamera(Vector3f pos, float moveSpd = 10.0f, float rSpeed = 0.03f,
-				 Vector3f forward = Vector3f(1, 0, 0), Vector3f up = Vector3f(0, 0, 1))
-				 : Camera(pos, forward, up), pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed) { Window = NULL; mouseTarget = Vector2i(100, 100); }
+				 Vector3f forward = Vector3f(1, 0, 0), Vector3f up = Vector3f(0, 0, 1),
+                 bool lockUp = true)
+				 : Camera(pos, forward, up, lockUp), pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
+    {
+        Window = NULL;
+        mouseTarget = Vector2i(100, 100);
+    }
 
 	float GetMoveSpeed(void) const { return moveSpeed; }
 	float GetRotSpeed(void) const { return rotSpeed; }

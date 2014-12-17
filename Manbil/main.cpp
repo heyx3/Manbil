@@ -5,11 +5,12 @@
 #include "IO/XmlSerialization.h"
 #include "IO/BinarySerialization.h"
 
-#include "NoiseTest.h"
 #include "OpenGLTestWorld.h"
+#include "Tests/RiftTestWorld.h"
+#include "Tests/GUITestWorld.h"
+#include "NoiseTest.h"
 #include "TwoTrianglesWorld.h"
 #include "Toys/Voxel/VoxelWorld.h"
-#include "Tests/GUITestWorld.h"
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
 
@@ -29,19 +30,22 @@ void WriteToConsole(const std::string& outStr)
 
 
 //TODO: Replace "intentionally not implemented" functions with the ' = delete' syntax.
+//TODO: Move static declarations in world CPP files to member fields to eliminate large static allocation.
+//TODO: Add a "Skybox" class in "Rendering/Helper Classes" that simplifies creation/modification/rendering of a cubemapped skybox.
 
 
 #include "DebugAssist.h"
 int main()
 {
-    OpenGLTestWorld().RunWorld();
-    
+    //OpenGLTestWorld().RunWorld();
+    RiftTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
+
     //NoiseTest().RunWorld();
 
-    //TwoTrianglesWorld().RunWorld();
 
+    //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
     //PlanetSimWorld().RunWorld();
 }
