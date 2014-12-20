@@ -139,7 +139,7 @@ void PlanetSimWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
 
-    std::string error = InitializeStaticSystems(true, true, true);
+    std::string error = InitializeStaticSystems(false, true, true);
     if (!error.empty())
     {
         PrintError("Error initializing static systems: " + error);

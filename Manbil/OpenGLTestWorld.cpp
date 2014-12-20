@@ -642,7 +642,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 	SFMLOpenGLWorld::InitializeWorld();
 	if (IsGameOver()) return;
 
-    std::string err = InitializeStaticSystems(true, true, true);
+    std::string err = InitializeStaticSystems(false, true, true);
     if (!err.empty())
     {
         std::cout << "Error initializing systems: " << err << "\n";

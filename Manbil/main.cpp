@@ -37,8 +37,8 @@ void WriteToConsole(const std::string& outStr)
 #include "DebugAssist.h"
 int main()
 {
-    //OpenGLTestWorld().RunWorld();
-    RiftTestWorld().RunWorld();
+    OpenGLTestWorld().RunWorld();
+    //RiftTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
 
