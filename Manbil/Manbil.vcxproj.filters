@@ -444,6 +444,9 @@
     <ClCompile Include="Tests\RiftTestWorld.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="Tests\AssImpTestWorld.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -981,6 +984,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\PrimitiveGenerator.h">
       <Filter>Rendering\Helper Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\AssImpTestWorld.h">
+      <Filter>Tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

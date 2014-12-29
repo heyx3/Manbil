@@ -29,8 +29,9 @@ struct MaterialOutputs : public ISerializable
 {
 public:
 
-    //Should be size 4. Unless the material has a geometry shader,
-    //   this DataLine should output NDC coordinates (i.e. screen-space coordinates before the Z divide).
+    //The position output of the vertex shader ("gl_Position"). Should be size 4.
+    //Unless the material has a geometry shader, this DataLine should output NDC coordinates
+    //    (i.e. homogenous screen-space coordinates before the Z divide).
     DataLine VertexPosOutput;
     //The outputs for the vertex/fragment shaders. Fragment outputs should all be size 4.
     std::vector<ShaderOutput> VertexOutputs, FragmentOutputs;

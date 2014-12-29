@@ -134,7 +134,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string & outCode) const
     switch (DataType)
     {
         case DT_NORMAL:
-            outCode += "\tvec3 " + GetOutputName(0) + " = (" + matName + " * vec4(" + GetInputs()[0].GetValue() + ", 0.0f)).xyz;\n";
+            outCode += "\tvec3 " + GetOutputName(0) + " = normalize((" + matName + " * vec4(" + GetInputs()[0].GetValue() + ", 0.0f)).xyz);\n";
             break;
         case DT_POSITION:
             outCode += "\tvec4 " + GetOutputName(1) + " = (" + matName + " * vec4(" + GetInputs()[0].GetValue() + ", 1.0f));\n";

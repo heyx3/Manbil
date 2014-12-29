@@ -7,6 +7,7 @@
 
 #include "OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
+#include "Tests/AssImpTestWorld.h"
 #include "Tests/GUITestWorld.h"
 #include "NoiseTest.h"
 #include "TwoTrianglesWorld.h"
@@ -37,8 +38,9 @@ void WriteToConsole(const std::string& outStr)
 #include "DebugAssist.h"
 int main()
 {
-    OpenGLTestWorld().RunWorld();
+    //OpenGLTestWorld().RunWorld();
     //RiftTestWorld().RunWorld();
+    AssImpTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
 

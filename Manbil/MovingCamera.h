@@ -5,6 +5,9 @@
 
 #include "Math/Higher Math/Camera.h"
 
+
+//A Camera that is controlled with WASD/EQ and mouse.
+//Spacebar toggles mouse capture/input.
 class MovingCamera : public Camera
 {
 public:
@@ -14,7 +17,7 @@ public:
 	MovingCamera(float moveSpd = 10.0f, float rSpeed = 0.03f)
         : pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
     {
-        Window = NULL;
+        Window = 0;
         mouseTarget = Vector2i(100, 100);
     }
 	MovingCamera(Vector3f pos, float moveSpd = 10.0f, float rSpeed = 0.03f,
@@ -22,7 +25,7 @@ public:
                  bool lockUp = true)
 				 : Camera(pos, forward, up, lockUp), pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
     {
-        Window = NULL;
+        Window = 0;
         mouseTarget = Vector2i(100, 100);
     }
 
@@ -32,6 +35,8 @@ public:
 	void SetMoveSpeed(float newVal) { moveSpeed = newVal; }
 	void SetRotSpeed(float newVal) { rotSpeed = newVal; }
 
+    //Updates this camera and returns whether the user pressed escape.
+    //TODO: Refactor out the actual input stuff into the various worlds and something like a "CaptureMouse()" method for this class.
 	virtual bool Update(float elapsedTime);
 
 private:

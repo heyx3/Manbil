@@ -39,13 +39,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\Plugins\Oculus SDK 0.4.4\LibOVR\Src;..\Plugins\Oculus SDK 0.4.4\LibOVR\Include;..\Plugins\Freetype 2.3.5\include\freetype2;..\Plugins\Freetype 2.3.5\include;..\Plugins\glew-1.10.0\include;..\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\Plugins\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;C:\Program Files %28x86%29\GnuWin32\lib;..\Plugins\Freetype 2.3.5\lib;..\Plugins\glew-1.10.0\lib\Release\Win32;..\Plugins\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Plugins\assimp-3.1.1\include;..\Plugins\Oculus SDK 0.4.4\LibOVR\Src;..\Plugins\Oculus SDK 0.4.4\LibOVR\Include;..\Plugins\Freetype 2.3.5\include\freetype2;..\Plugins\Freetype 2.3.5\include;..\Plugins\glew-1.10.0\include;..\Plugins\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Git Repos\Manbil\Plugins\assimp-3.1.1\bin\code\Release;..\Plugins\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;C:\Program Files %28x86%29\GnuWin32\lib;..\Plugins\Freetype 2.3.5\lib;..\Plugins\glew-1.10.0\lib\Release\Win32;..\Plugins\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\Plugins\Oculus SDK 0.4.4\LibOVR\Src;..\Plugins\Oculus SDK 0.4.4\LibOVR\Include;..\Plugins\Freetype 2.3.5\include\freetype2;..\Plugins\Freetype 2.3.5\include;..\Plugins\glew-1.10.0\include;..\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;..\Plugins\Freetype 2.3.5\lib;..\Plugins\glew-1.10.0\lib\Release\Win32;..\Plugins\SFML\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Plugins\assimp-3.1.1\include;..\Plugins\Oculus SDK 0.4.4\LibOVR\Src;..\Plugins\Oculus SDK 0.4.4\LibOVR\Include;..\Plugins\Freetype 2.3.5\include\freetype2;..\Plugins\Freetype 2.3.5\include;..\Plugins\glew-1.10.0\include;..\Plugins\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\GnuWin32\lib;..\Plugins\Freetype 2.3.5\lib;..\Plugins\assimp-3.1.1\bin\code\Debug;..\Plugins\glew-1.10.0\lib\Release\Win32;..\Plugins\SFML\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -61,7 +61,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glu32.lib;libovrd.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glu32.lib;assimpd.lib;libovrd.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Plugins\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>libovrd.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -82,7 +82,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;glu32.lib;libovr.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glu32.lib;assimp.lib;libovr.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Plugins\Oculus SDK 0.4.4\LibOVR\Lib\Win32\VS2013;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>libovr.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -223,6 +223,7 @@
     <ClCompile Include="SFMLOpenGLWorld.cpp" />
     <ClCompile Include="SFMLWorld.cpp" />
     <ClCompile Include="ShaderHandler.cpp" />
+    <ClCompile Include="Tests\AssImpTestWorld.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\RiftTestWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
@@ -404,6 +405,7 @@
     <ClInclude Include="SFMLOpenGLWorld.h" />
     <ClInclude Include="SFMLWorld.h" />
     <ClInclude Include="ShaderHandler.h" />
+    <ClInclude Include="Tests\AssImpTestWorld.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\RiftTestWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />

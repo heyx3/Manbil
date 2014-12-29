@@ -14,7 +14,7 @@ class RiftTestWorld : public SFMLOpenGLWorld
 public:
 
     RiftTestWorld(void);
-    ~RiftTestWorld(void);
+    virtual ~RiftTestWorld(void);
 
 
 protected:
