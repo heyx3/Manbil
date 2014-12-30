@@ -4,6 +4,10 @@
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/PrimitiveGenerator.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <iostream>
 
 
@@ -140,9 +144,71 @@ void AssImpTestWorld::InitializeMaterials(void)
 }
 void AssImpTestWorld::InitializeObjects(void)
 {
+    //Generate the mesh data.
     std::vector<VertexPosTex1Normal> vertices;
     std::vector<unsigned int> indices;
-    PrimitiveGenerator::GenerateCube(vertices, indices, false, false);
+    if (false)
+    {
+        //Generate a cube.
+        PrimitiveGenerator::GenerateCube(vertices, indices, false, false);
+    }
+    else if (true)
+    {
+        //Load a mesh using AssImp. The "Importer"s destructor will clean up all meshes it loaded.
+        Assimp::Importer importer;
+        unsigned int flags = aiProcessPreset_TargetRealtime_MaxQuality;
+        const aiScene* scene = importer.ReadFile("Content/Meshes/TestRectPrism.fbx", flags);
+
+        //Make sure the mesh was loaded properly.
+        if (!Assert(scene != 0,
+                    "Error importing mesh 'Content/Meshes/TestRectPrism.fbx'",
+                    importer.GetErrorString()))
+        {
+            return;
+        }
+        if (!Assert(scene->mNumMeshes == 1,
+                    "Invalid 'TestRectPrism.fbx' file", "should have exactly one mesh!"))
+        {
+            return;
+        }
+
+        aiMesh* mesh = scene->mMeshes[0];
+        //Make sure the mesh is defined properly.
+        if (!Assert(mesh->HasPositions(), "Error in loaded mesh", "doesn't have positions!") ||
+            !Assert(mesh->HasTextureCoords(0), "Error in loaded mesh", "doesn't have UVs!") ||
+            !Assert(mesh->HasNormals(), "Error in loaded mesh", "doesn't have normals!") ||
+            !Assert(mesh->HasFaces(), "Error in loaded mesh", "doesn't have indices!"))
+        {
+            return;
+        }
+
+        //Put the vertices into the vertex array.
+        vertices.resize(mesh->mNumVertices);
+        for (int i = 0; i < mesh->mNumVertices; ++i)
+        {
+            vertices[i].Pos = *(Vector3f*)(&mesh->mVertices[i].x);
+            vertices[i].Normal = *(Vector3f*)(&mesh->mNormals[i].x);
+            vertices[i].TexCoords = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
+        }
+        //Put the indices into the indices array.
+        for (int i = 0; i < mesh->mNumFaces; ++i)
+        {
+            aiFace& fce = mesh->mFaces[i];
+            if (!Assert(fce.mNumIndices == 3,
+                        "Error in loaded mesh",
+                        "a face has " + std::to_string(fce.mNumIndices) + " indices instead of 3!"))
+            {
+                return;
+            }
+
+            indices.insert(indices.end(), fce.mIndices[0]);
+            indices.insert(indices.end(), fce.mIndices[1]);
+            indices.insert(indices.end(), fce.mIndices[2]);
+        }
+    }
+
+
+    //Create the mesh object.
 
     RenderObjHandle vbo, ibo;
     RenderDataHandler::CreateVertexBuffer(vbo, vertices.data(), vertices.size());
@@ -151,6 +217,8 @@ void AssImpTestWorld::InitializeObjects(void)
     VertexIndexData vid(vertices.size(), vbo, indices.size(), ibo);
     objMesh.SetVertexIndexData(vid);
 
+
+    //Set up the mesh's transform.
     objMesh.Transform.SetPosition(Vector3f(5.0f, 2.0f, 4.0f));
 }
 void AssImpTestWorld::InitializeWorld(void)
