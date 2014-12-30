@@ -50,19 +50,20 @@ private:
     Mesh cube;
     UniformDictionary floorParams, obj1Params, obj2Params;
     TransformObject floorT, obj1T, obj2T;
+    MTexture2D floorTex, obj1Tex, obj2Tex;
+
+    Vector3f lightCol, lightDir;
+    float ambientLight, diffuseLight, specLight;
+    float specIntensity;
 
 
     Material* quadMat;
     DrawingQuad* quad;
     UniformDictionary quadParams;
+    unsigned int eyeRendTarget;
+    MTexture2D eyeColorTex1, eyeColorTex2;
+    MTexture2D eyeDepthTex;
 
-
-    MTexture2D floorTex, obj1Tex, obj2Tex;
-
-
-    Vector3f lightCol, lightDir;
-    float ambientLight, diffuseLight, specLight;
-    float specIntensity;
 
     Vector2u windowSize;
     MovingCamera baseCam;
@@ -70,4 +71,5 @@ private:
 
     ovrHmd hmd = 0;
     ovrTrackingState hmdState;
+    ovrEyeRenderDesc hmdEyeSettings[2];
 };
