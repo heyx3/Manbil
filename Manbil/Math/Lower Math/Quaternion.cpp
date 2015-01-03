@@ -5,7 +5,6 @@
 
 
 
-
 Quaternion Quaternion::Slerp(Quaternion one, Quaternion two, float zeroToOne, bool areBothNormalized)
 {
 	if (!areBothNormalized)
@@ -89,6 +88,21 @@ Quaternion::Quaternion(Vector3f from, Vector3f to)
 
         Normalize();
     }
+}
+Quaternion::Quaternion(Vector3f eulerAngles)
+{
+    eulerAngles *= 0.5f;
+    float c1 = cosf(eulerAngles.z),
+          c2 = cosf(eulerAngles.x),
+          c3 = cosf(eulerAngles.y),
+          s1 = sinf(eulerAngles.z),
+          s2 = sinf(eulerAngles.x),
+          s3 = sinf(eulerAngles.y);
+
+    w = (c1 * c2 * c3) - (s1 * s2 * s3);
+    x = (s1 * s2 * c3) + (c1 * c2 * s3);
+    y = (s1 * c2 * c3) + (c1 * s2 * s3);
+    z = (c1 * s2 * c3) - (s1 * c2 * s3);
 }
 
 

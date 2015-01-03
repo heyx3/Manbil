@@ -57,6 +57,8 @@ public:
     //Creates a quaternion that rotates from the first given direction to the second given direction.
     //If either given direction isn't normalized, the quaternion will not work correctly.
     Quaternion(Vector3f from, Vector3f to);
+    //Creates a quaternion representing a rotation by the given Euler angles.
+    Quaternion(Vector3f eulerAngles);
 
 
     //Gets the inverse of this quaternion.
