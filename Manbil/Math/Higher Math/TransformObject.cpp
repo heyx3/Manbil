@@ -1,31 +1,39 @@
 #include "TransformObject.h"
 
 
+
 TransformObject::TransformObject(void)
+    : pos(Vector3f()), scale(Vector3f(1.0f, 1.0f, 1.0f))
 {
-	SetPosition(Vector3f());
-	SetRotation(Vector3f());
-	SetScale(1.0f);
+    SetRotation(Quaternion());
 }
-TransformObject::TransformObject(Vector3f position, Vector3f eulerRotationAngles, Vector3f scale)
+TransformObject::TransformObject(Vector3f position, Vector3f eulerRotationAngles, Vector3f _scale)
+    : pos(position), scale(_scale)
 {
-	SetPosition(position);
 	SetRotation(eulerRotationAngles);
-	SetScale(scale);
 }
-
-void TransformObject::GetRotationMatrix(Matrix4f & outM) const
+TransformObject::TransformObject(Vector3f position, Quaternion _rot, Vector3f _scale)
+    : pos(position), scale(_scale)
 {
-	Matrix4f xRot, yRot, zRot;
-	xRot.SetAsRotateX(eulerRotation.x);
-	yRot.SetAsRotateY(eulerRotation.y);
-	zRot.SetAsRotateZ(eulerRotation.z);
-
-	Matrix4f temp = Matrix4f::Multiply(xRot, yRot, zRot);
-	outM.Set(temp);
+    SetRotation(_rot);
 }
+
+Vector3f TransformObject::GetRightward(void) const
+{
+    Vector3f side = forward.Cross(up);
+    return (side.x < 0.0f) ? -side : side;
+}
+
+void TransformObject::SetRotation(Vector3f eulerAngleAmounts)
+{
+    rot = Quaternion(eulerAngleAmounts);
+    CalculateNewDirVectors();
+}
+
 void TransformObject::GetWorldTransform(Matrix4f & outM) const
 {
+    //TODO: Figure out the math for making one matrix instead of multiplying the pos, rot, and scale matrices.
+
 	Matrix4f posM, rotM, scaleM;
 	GetTranslationMatrix(posM);
 	GetRotationMatrix(rotM);
@@ -38,9 +46,6 @@ void TransformObject::GetWorldTransform(Matrix4f & outM) const
 
 void TransformObject::CalculateNewDirVectors(void)
 {
-    Matrix4f rot;
-    GetRotationMatrix(rot);
-    
-    forward = rot.Apply(Forward()).Normalized();
-    up = Upward();
+    forward = rot.Rotated(Forward());
+    up = rot.Rotated(Upward());
 }

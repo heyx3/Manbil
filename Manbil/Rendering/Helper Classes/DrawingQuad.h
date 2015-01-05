@@ -40,7 +40,7 @@ public:
     void MakeSizePositive(void) { quad.Transform.SetScale(Vector3f(BasicMath::Abs(quad.Transform.GetScale().x), BasicMath::Abs(quad.Transform.GetScale().y), 1.0f)); }
     void SetDepth(float depth) { Vector3f pos = quad.Transform.GetPosition(); quad.Transform.SetPosition(Vector3f(pos.x, pos.y, depth)); }
     void SetRotation(float newRot) { quad.Transform.SetRotation(Vector3f(0.0f, 0.0f, newRot)); }
-    void Rotate(float amount) { quad.Transform.Rotate(Vector3f(0.0f, 0.0f, amount)); }
+    void Rotate(float amount) { quad.Transform.RotateRelative(Vector3f(0.0f, 0.0f, amount)); }
     void SetOrigin(Vector2f newOrg) { origin = newOrg; }
 
     DrawingQuad(void);

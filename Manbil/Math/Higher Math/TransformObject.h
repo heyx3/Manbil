@@ -2,8 +2,11 @@
 
 #include "../LowerMath.hpp"
 
+
 //Represents an object with a position, orientation, and scale.
 //X axis is left/right, Y axis is forward/back, and Z axis is up/down.
+//Euler angle rotations are done along the Z axis (upwards -- yaw),
+//    then the rotated Y axis (forwards -- roll), then the rotated X axis (sideways -- pitch).
 class TransformObject
 {
 public:
@@ -13,40 +16,54 @@ public:
     static Vector3f Upward(void) { return Vector3f(0.0f, 0.0f, 1.0f); }
 
 
-	TransformObject(void);
-	TransformObject(Vector3f position, Vector3f eulerRotationAngles = Vector3f(), Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f));
+    TransformObject(void);
+	TransformObject(Vector3f position, Vector3f eulerAngles = Vector3f(),
+                    Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f));
+    TransformObject(Vector3f position, Quaternion rot = Quaternion(),
+                    Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f));
+
 
 	Vector3f GetPosition(void) const { return pos; }
-	Vector3f GetRotationAngles(void) const { return eulerRotation; }
+	Vector3f GetRotationAngles(void) const { return rot.GetEulerAngles(); }
+    Quaternion GetRotation(void) const { return rot; }
 	Vector3f GetScale(void) const { return scale; }
 
 
+    //Gets the forward vector.
     Vector3f GetForward(void) const { return forward; }
-    Vector3f GetRightward(void) const { Vector3f side = forward.Cross(up); return (side.x < 0.0f) ? -side : side; }
-
-    //Gets the upward vector (not necessarily perpendicular to the forward and right vectors).
-    Vector3f GetUpward(void) const { return up; }
-    //Gets the upward vector that is perpendicular to the forward and rightward vectors.
-    Vector3f GetPerpUpward(void) const { return GetRightward().Cross(GetForward()); }
+    //Gets the upward vector (guaranteed to be perpendicular to the forward vector).
+    Vector3f GetUpward(void) const { return GetRightward().Cross(GetForward()); }
+    //Calculates the rightward vector (by crossing the forward and up vectors).
+    Vector3f GetRightward(void) const;
 
 
 	void SetPosition(Vector3f value) { pos = value; }
-	void SetRotation(Vector3f eulerAngleAmounts) { eulerRotation = eulerAngleAmounts; CalculateNewDirVectors(); }
+	void SetRotation(Vector3f eulerAngleAmounts);
+    void SetRotation(const Quaternion& newRot) { rot = newRot; CalculateNewDirVectors(); }
 	void SetScale(Vector3f value) { scale = value; }
 	void SetScale(float value) { scale = Vector3f(value, value, value); }
 
 	void IncrementPosition(Vector3f value) { pos += value; }
-    void Rotate(Vector3f eulerAngleAmounts) { eulerRotation += eulerAngleAmounts; CalculateNewDirVectors(); }
+    //Rotates by the given euler angles in world space.
+    void RotateAbsolute(Vector3f eulers) { SetRotation(Quaternion(rot, Quaternion(eulers))); }
+    //Rotates by the given euler angles in object space.
+    void RotateRelative(Vector3f eulers) { SetRotation(Quaternion(Quaternion(eulers), rot)); }
+    //Applies the given rotation to this object.
+    void Rotate(Quaternion rotation) { SetRotation(Quaternion(rot, rotation)); }
 	
-	void GetTranslationMatrix(Matrix4f & outM) const { outM.SetAsTranslation(pos); }
-	void GetRotationMatrix(Matrix4f & outM) const;
-	void GetScaleMatrix(Matrix4f & outM) const { outM.SetAsScale(scale); }
-	void GetWorldTransform(Matrix4f & outM) const;
+	void GetTranslationMatrix(Matrix4f& outM) const { outM.SetAsTranslation(pos); }
+    void GetRotationMatrix(Matrix4f& outM) const { outM.SetAsRotation(rot); }
+	void GetScaleMatrix(Matrix4f& outM) const { outM.SetAsScale(scale); }
+	void GetWorldTransform(Matrix4f& outM) const;
+
 
 private:
 
-	Vector3f pos, scale, eulerRotation,
-             forward, up;
+	Vector3f pos, scale;
+    Quaternion rot;
+
+    Vector3f forward, up;
+
 
     void CalculateNewDirVectors(void);
 };

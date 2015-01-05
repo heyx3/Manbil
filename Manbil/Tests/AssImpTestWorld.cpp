@@ -4,6 +4,8 @@
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Rendering/PrimitiveGenerator.h"
 
+#include "../DebugAssist.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -219,7 +221,7 @@ void AssImpTestWorld::InitializeObjects(void)
 
 
     //Set up the mesh's transform.
-    objMesh.Transform.SetPosition(Vector3f(5.0f, 2.0f, 4.0f));
+    objMesh.Transform.SetPosition(Vector3f(5.0f, 0.0f, 0.0f));
 }
 void AssImpTestWorld::InitializeWorld(void)
 {
@@ -254,8 +256,50 @@ void AssImpTestWorld::UpdateWorld(float elapsedSeconds)
         return;
     }
 
-    objMesh.Transform.Rotate(Vector3f(0.001f, 0.0f, 0.0f));
-    objMesh.Transform.SetPosition(Vector3f(5.0f + sinf(GetTotalElapsedSeconds()), 2.0f, 4.0f));
+
+    const float rotSpeed = 0.01f;
+    Vector3f eulerRots;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        eulerRots.y += rotSpeed;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        eulerRots.y -= rotSpeed;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        eulerRots.x -= rotSpeed;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        eulerRots.x += rotSpeed;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+        eulerRots.z += rotSpeed;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+        eulerRots.z -= rotSpeed;
+
+    //All of the following rotation sequences are identical.
+    if (false)
+    {
+        objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), eulerRots.z));
+        objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 1.0f, 0.0f), eulerRots.y));
+        objMesh.Transform.Rotate(Quaternion(Vector3f(1.0f, 0.0f, 0.0f), eulerRots.x));
+    }
+    else if (true)
+    {
+        objMesh.Transform.RotateAbsolute(eulerRots);
+    }
+
+
+    if (eulerRots.Length() > 0.0f)
+    {
+        std::cout << DebugAssist::ToString(objMesh.Transform.GetRotationAngles()) << "\n";
+    }
+
+
+    const float moveSpeed = 0.01f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+        objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * moveSpeed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+        objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * -moveSpeed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+        objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * moveSpeed);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::V))
+        objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * -moveSpeed);
 }
 
 bool AssImpTestWorld::RenderWorldGeometry(const RenderInfo& info)
