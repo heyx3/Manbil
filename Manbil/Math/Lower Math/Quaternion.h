@@ -52,14 +52,15 @@ public:
 	Quaternion(Vector3f axisOfRotation, float rotInRadians);
     //Creates a quaternion that represents two rotations in sequence:
     //    the first given rotation followed by the second given rotation.
-    Quaternion(Quaternion firstRotation, Quaternion secondRotation)
+    Quaternion(const Quaternion& firstRotation, const Quaternion& secondRotation)
         : Quaternion(Multiply(secondRotation, firstRotation)) { }
     //Creates a quaternion that rotates from the first given direction to the second given direction.
     //If either given direction isn't normalized, the quaternion will not work correctly.
     Quaternion(Vector3f from, Vector3f to);
     //Creates a quaternion representing a rotation by the given Euler angles.
-    //The euler angles represent a rotation along the Z axis, then the Y axis, then the X axis.
-    Quaternion(Vector3f eulerAngles);
+    //The euler angles represent a rotation along the Z axis, then the rotated Y axis,
+    //    then the rotated X axis.
+    explicit Quaternion(Vector3f eulerAngles);
 
 
     //Gets the inverse of this quaternion.
@@ -99,7 +100,8 @@ public:
     //Gets the euler angles (in radians) of the rotation this quaternion represents.
     //Note that these may be different than the euler angles passed into this Quaternion's constructor;
     //There is more than one way to represent a given rotation with euler angles.
-    //The euler angles represent a rotation along the Z axis, then the Y axis, then the X axis.
+    //The euler angles represent a rotation along the Z axis, then the rotated Y axis,
+    //    then the rotated X axis.
     Vector3f GetEulerAngles(void) const;
 };
 
