@@ -92,17 +92,14 @@ Quaternion::Quaternion(Vector3f from, Vector3f to)
 Quaternion::Quaternion(Vector3f eulerAngles)
 {
     eulerAngles *= 0.5f;
-    float c1 = cosf(eulerAngles.z),
-          c2 = cosf(eulerAngles.x),
-          c3 = cosf(eulerAngles.y),
-          s1 = sinf(eulerAngles.z),
-          s2 = sinf(eulerAngles.x),
-          s3 = sinf(eulerAngles.y);
 
-    w = (c1 * c2 * c3) - (s1 * s2 * s3);
-    x = (s1 * s2 * c3) + (c1 * c2 * s3);
-    y = (s1 * c2 * c3) + (c1 * s2 * s3);
-    z = (c1 * s2 * c3) - (s1 * c2 * s3);
+    Vector3f c(cosf(eulerAngles.x), cosf(eulerAngles.y), cosf(eulerAngles.z)),
+             s(sinf(eulerAngles.x), sinf(eulerAngles.y), sinf(eulerAngles.z));
+
+    w = (c.z * c.y * c.x) + (s.z * s.y * s.x);
+    x = (c.z * c.y * s.x) - (s.z * s.y * c.x);
+    y = (c.z * s.y * c.x) + (s.z * c.y * s.x);
+    z = (s.z * c.y * c.x) - (c.z * s.y * s.x);
 }
 
 
@@ -190,6 +187,32 @@ Vector4f Quaternion::GetAxisAngle(void) const
 }
 Vector3f Quaternion::GetEulerAngles(void) const
 {
+    float determinant = 2.0f * ((x * z) - (w * y));
+    if (determinant == -1.0f)
+    {
+        return Vector3f(atan2f((x * y) - (w * z),
+                               (x * z) + (w * y)),
+                        (3.1415926535898f * 0.5f),
+                        0.0f);
+    }
+    else if (determinant == 1.0f)
+    {
+        return Vector3f(atan2f((x * y) - (w * z),
+                               (x * z) + (w * y)),
+                        (-3.1415926535898f * 0.5f),
+                        0.0f);
+    }
+    else
+    {
+        return Vector3f(atan2f((y * z) + (w * x),
+                               0.5f - ((x * x) + (y * y))),
+                        asinf(-determinant),
+                        atan2f((x * y) + (w * z),
+                               0.5f - ((y * y) + (z * z))));
+    }
+
+
+    //Old version of this function:
     return Vector3f(atan2f(2.0f * ((w * x) + (y * z)),
                            1.0f - (2.0f * ((x * x) + (y * y)))),
                     asinf(2.0f * ((w * y) - (z * x))),

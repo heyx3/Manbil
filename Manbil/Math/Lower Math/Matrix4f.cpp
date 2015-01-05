@@ -1,5 +1,7 @@
 #include "Matrix4f.h"
 
+#include "Quaternion.h"
+
 #include <limits>
 
 
@@ -9,7 +11,7 @@
 
 
 
-//Smaller matrices used in finding the determinant/inverse of a 4x4.
+//Smaller matrices are used in finding the determinant/inverse of a 4x4 matrix.
 #pragma region Smaller matrices
 
 class Matrix2f
@@ -243,9 +245,37 @@ void Matrix4f::SetAsRotateZ(float radians)
     El(3, 3) = 1.0f;
 
     El(0, 0) = cosTheta;
-    El(0, 1) = sinTheta;
     El(1, 0) = -sinTheta;
     El(1, 1) = cosTheta;
+    El(0, 1) = sinTheta;
+}
+void Matrix4f::SetAsRotateXYZ(Vector3f eulers)
+{
+    Vector3f s(sinf(eulers.x), sinf(eulers.y), sinf(eulers.z)),
+             c(cosf(eulers.x), cosf(eulers.y), cosf(eulers.z));
+
+    El(0, 0) = (c.z * c.y) + (s.x * s.y * s.z);   El(1, 0) = -(s.z * c.x);   El(2, 0) = (s.x * c.y * s.z) - (c.z * s.y);     El(3, 0) = 0.0f;
+    El(0, 1) = (s.z * c.y) - (s.x * s.y * c.z);   El(1, 1) = (c.x * c.z);    El(2, 1) = -((s.y * s.z) + (s.x * c.y * c.z));  El(3, 1) = 0.0f;
+    El(0, 2) = (c.x * s.y);                       El(1, 2) = s.x;            El(2, 2) = (c.x * c.y);                         El(3, 2) = 0.0f;
+    El(0, 3) = 0.0f;                              El(1, 3) = 0.0f;           El(2, 3) = 0.0f;                                El(3, 3) = 1.0f;
+}
+void Matrix4f::SetAsRotation(const Quaternion& rot)
+{
+    float x2 = rot.x * rot.x,
+          y2 = rot.y * rot.y,
+          z2 = rot.z * rot.z,
+          w2 = rot.w * rot.w,
+          xy = rot.x * rot.y,
+          xz = rot.x * rot.z,
+          yz = rot.y * rot.z,
+          wx = rot.w * rot.x,
+          wy = rot.w * rot.y,
+          wz = rot.w * rot.z;
+
+    El(0, 0) = (w2 + x2 - y2 - z2);  El(1, 0) = 2.0f * (xy - wz);     El(2, 0) = 2.0f * (xz + wy);     El(3, 0) = 0.0f;
+    El(0, 1) = 2.0f * (xy + wz);     El(1, 1) = (w2 - x2 + y2 - z2);  El(2, 1) = 2.0f * (yz - wx);     El(3, 1) = 0.0f;
+    El(0, 2) = 2.0f * (xz - wy);     El(1, 2) = 2.0f * (yz + wx);     El(2, 2) = (w2 - x2 - y2 + z2);  El(3, 2) = 0.0f;
+    El(0, 3) = 0.0f;                 El(1, 3) = 0.0f;                 El(2, 3) = 0.0f;                 El(3, 3) = 1.0f;
 }
 void Matrix4f::SetAsTranslation(Vector3f pos)
 {
@@ -254,28 +284,25 @@ void Matrix4f::SetAsTranslation(Vector3f pos)
     El(3, 1) = pos.y;
     El(3, 2) = pos.z;
 }
-void Matrix4f::SetAsRotation(Vector3f Target, Vector3f Up, bool alreadyNormalized)
+void Matrix4f::SetAsOrientation(Vector3f target, Vector3f up, bool alreadyNormalized)
 {
-	Vector3f n = Target;
-	Vector3f u = Up;
 	if (!alreadyNormalized)
 	{
-		n.Normalize();
-		u.Normalize();
+		target.Normalize();
+		up.Normalize();
 	}
 
-	u = u.Cross(n);
+    Vector3f right = up.Cross(target);
 
-	Vector3f v = n.Cross(u);
+    up = target.Cross(right);
 
-	Vector3f U = u.Normalized(),
-			 V = v.Normalized(),
-			 N = n;
+    right.Normalize();
+	up.Normalize();
 
-	El(0, 0) = U.x;   El(1, 0) = U.y;   El(2, 0) = U.z;   El(3, 0) = 0.0f;
-	El(0, 1) = V.x;   El(1, 1) = V.y;   El(2, 1) = V.z;   El(3, 1) = 0.0f;
-	El(0, 2) = N.x;   El(1, 2) = N.y;   El(2, 2) = N.z;   El(3, 2) = 0.0f;
-	El(0, 3) = 0.0f;  El(1, 3) = 0.0f;  El(2, 3) = 0.0f;  El(3, 3) = 1.0f;
+    El(0, 0) = right.x;   El(1, 0) = right.y;   El(2, 0) = right.z;   El(3, 0) = 0.0f;
+    El(0, 1) = up.x;      El(1, 1) = up.y;      El(2, 1) = up.z;      El(3, 1) = 0.0f;
+    El(0, 2) = target.x;  El(1, 2) = target.y;  El(2, 2) = target.z;  El(3, 2) = 0.0f;
+	El(0, 3) = 0.0f;      El(1, 3) = 0.0f;      El(2, 3) = 0.0f;      El(3, 3) = 1.0f;
 }
 void Matrix4f::SetAsPerspProj(float fovRadians, float screenW, float screenH, float zNear, float zFar)
 {

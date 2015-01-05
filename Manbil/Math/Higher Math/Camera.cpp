@@ -77,7 +77,7 @@ void Camera::GetViewTransform(Matrix4f& outM) const
 	Matrix4f mPos, mRot;
 	
 	mPos.SetAsTranslation(-pos);
-	mRot.SetAsRotation(forward, up, true);
+	mRot.SetAsOrientation(forward, up, true);
 
 	outM.Set(Matrix4f::Multiply(mRot, mPos));
 }

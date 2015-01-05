@@ -3,6 +3,7 @@
 #include "Vectors.h"
 
 
+class Quaternion;
 
 #pragma warning(disable: 4100)
 
@@ -67,8 +68,14 @@ public:
 	void SetAsRotateX(float radians);
     void SetAsRotateY(float radians);
     void SetAsRotateZ(float radians);
+    //Creates a matrix that rotates by the given amounts around each axis.
+    //First by Y axis, then by X, then by Z.
+    void SetAsRotateXYZ(Vector3f eulerAngles);
+    void SetAsRotation(const Quaternion& rot);
     void SetAsTranslation(Vector3f pos);
-	void SetAsRotation(Vector3f target, Vector3f up, bool alreadyNormalized = false);
+    //Creates a matrix that rotates space so that "target" is pointing along the Z
+    //    and "up" is pointing along the Y.
+	void SetAsOrientation(Vector3f target, Vector3f up, bool alreadyNormalized = false);
 	void SetAsPerspProj(float fovRadians, float screenW, float screenH, float zNear, float zFar);
     void SetAsOrthoProj(Vector3f minBounds, Vector3f maxBounds);
 	void SetAsWVP(const Matrix4f& projM, const Matrix4f& camM, const Matrix4f& worldM);

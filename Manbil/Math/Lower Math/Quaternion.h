@@ -28,6 +28,7 @@ public:
 
     //Yields a new quaternion whose rotation is equal to "rhs"'s rotation followed by "lhs"'s rotation.
     static Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
+    //Part of the process for rotating a vector by a quaternion.
     static Quaternion Multiply(const Quaternion& lhs, const Vector3f& rhs);
 
 
@@ -37,7 +38,6 @@ public:
     //    because in the future, the vector math classes can be optimized with things like SIMD ops,
     //    and now this Quaternion class can take advantage of that without having to rewrite that stuff
     //    here.
-    //It also incidentally reduces the use of copy constructors/assignment operators.
     
     //The components of this Quaternion.
 	float x, y, z, w;
@@ -58,6 +58,7 @@ public:
     //If either given direction isn't normalized, the quaternion will not work correctly.
     Quaternion(Vector3f from, Vector3f to);
     //Creates a quaternion representing a rotation by the given Euler angles.
+    //The euler angles represent a rotation along the Z axis, then the Y axis, then the X axis.
     Quaternion(Vector3f eulerAngles);
 
 
@@ -76,6 +77,7 @@ public:
     Vector3f Rotated(Vector3f v) const { Rotate(v); return v; }
 
 
+    //Gets the dot product of this quaternion with the given one.
     float Dot(Quaternion other) const { return ((Vector4f*)this)->Dot(*(Vector4f*)&other); }
 
 
@@ -95,6 +97,9 @@ public:
     //Gets the axis this quaternion rotates points around and the angle it rotates them by.
     Vector4f GetAxisAngle(void) const;
     //Gets the euler angles (in radians) of the rotation this quaternion represents.
+    //Note that these may be different than the euler angles passed into this Quaternion's constructor;
+    //There is more than one way to represent a given rotation with euler angles.
+    //The euler angles represent a rotation along the Z axis, then the Y axis, then the X axis.
     Vector3f GetEulerAngles(void) const;
 };
 
