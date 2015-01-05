@@ -114,10 +114,10 @@ void OpenGLTestWorld::InitializeTextures(void)
 
     Perlin2D pers[4] =
     {
-        Perlin2D(Vector2f(128, 128), Perlin2D::Quintic, Vector2i(), 12512, true, Vector2u(128, 128)),
-        Perlin2D(Vector2f(64, 64), Perlin2D::Quintic, Vector2i(), 1166223, true, Vector2u(64, 64)),
-        Perlin2D(Vector2f(32, 32), Perlin2D::Quintic, Vector2i(), 676232, true, Vector2u(32, 32)),
-        Perlin2D(Vector2f(16, 16), Perlin2D::Quintic, Vector2i(), 39863984, true, Vector2u(16, 16)),
+        Perlin2D(Vector2f(128, 128), Perlin2D::Quintic, Vector2i(), 12512, true, Vector2u(64, 64)),
+        Perlin2D(Vector2f(64, 64), Perlin2D::Quintic, Vector2i(), 1166223, true, Vector2u(32, 32)),
+        Perlin2D(Vector2f(32, 32), Perlin2D::Quintic, Vector2i(), 676232, true, Vector2u(16, 16)),
+        Perlin2D(Vector2f(16, 16), Perlin2D::Quintic, Vector2i(), 39863984, true, Vector2u(8, 8)),
     };
     Generator2D*const perPointers[4] = { &pers[0], &pers[1], &pers[2], &pers[3] };
     float weights[4] = { 0.5f, 0.25f, 0.125f, 0.06125f };
