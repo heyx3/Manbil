@@ -456,7 +456,7 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
         eyeCam.IncrementPosition(orientation.Rotated(*(Vector3f*)&eyePose.Position));
         float fov = 2.0f * atanf(hmdEyeSettings[eye].Fov.UpTan);
-        eyeCam.Info.SetFOVRadians(fov);
+        eyeCam.Info.FOV = fov;
         eyeCam.Info.Width = rendTex.GetWidth();
         eyeCam.Info.Height = rendTex.GetHeight();
 
