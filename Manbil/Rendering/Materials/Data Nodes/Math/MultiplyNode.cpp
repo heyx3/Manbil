@@ -8,7 +8,7 @@ unsigned int GetMaxDLSize(const std::vector<DataLine> & lines)
 {
     unsigned int max = 0;
     for (unsigned int i = 0; i < lines.size(); ++i)
-        max = BasicMath::Max(max, lines[i].GetSize());
+        max = Mathf::Max(max, lines[i].GetSize());
     return max;
 }
 

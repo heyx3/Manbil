@@ -166,8 +166,8 @@ Vector2u FreeTypeHandler::GetGlyphMaxSize(FontID id) const
     FaceMapLoc loc;
     if (!TryFindID(id, loc)) return Vector2u();
 
-    return Vector2u(BasicMath::Abs(loc->second->bbox.xMax - loc->second->bbox.xMin),
-                    BasicMath::Abs(loc->second->bbox.yMax - loc->second->bbox.yMin));
+    return Vector2u(Mathf::Abs(loc->second->bbox.xMax - loc->second->bbox.xMin),
+                    Mathf::Abs(loc->second->bbox.yMax - loc->second->bbox.yMin));
 }
 Vector2i FreeTypeHandler::GetGlyphOffset(FontID id) const
 {
@@ -222,7 +222,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
 
     //Different pixel values work differently.
     char pixelMode = fce->glyph->bitmap.pixel_mode;
-    unsigned int absPitch = (unsigned int)BasicMath::Abs(fce->glyph->bitmap.pitch);
+    unsigned int absPitch = (unsigned int)Mathf::Abs(fce->glyph->bitmap.pitch);
     if (pixelMode == FT_Pixel_Mode::FT_PIXEL_MODE_MONO)
     {
         //Each pixel is 1 bit.

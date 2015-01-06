@@ -99,13 +99,13 @@ Vector4b& Vector4b::operator -=(const Vector4b& other)
 
 Vector2u Vector2u::Clamp(unsigned int min, unsigned int max) const
 {
-    return Vector2u(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max));
+    return Vector2u(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max));
 }
 Vector2u Vector2u::Clamp(Vector2u min, Vector2u max) const
 {
-    return Vector2u(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y));
+    return Vector2u(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y));
 }
 
 unsigned int Vector2u::DistanceSquared(Vector2u other) const
@@ -135,15 +135,15 @@ unsigned int Vector2u::ManhattanDistance(Vector2u other) const
 
 Vector3u Vector3u::Clamp(unsigned int min, unsigned int max) const
 {
-    return Vector3u(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max));
+    return Vector3u(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max));
 }
 Vector3u Vector3u::Clamp(Vector3u min, Vector3u max) const
 {
-    return Vector3u(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z));
+    return Vector3u(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z));
 }
 
 unsigned int Vector3u::DistanceSquared(Vector3u other) const
@@ -178,17 +178,17 @@ unsigned int Vector3u::ManhattanDistance(Vector3u other) const
 
 Vector4u Vector4u::Clamp(unsigned int min, unsigned int max) const
 {
-    return Vector4u(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max),
-                    BasicMath::Clamp(w, min, max));
+    return Vector4u(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max),
+                    Mathf::Clamp(w, min, max));
 }
 Vector4u Vector4u::Clamp(Vector4u min, Vector4u max) const
 {
-    return Vector4u(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z),
-                    BasicMath::Clamp(w, min.w, max.w));
+    return Vector4u(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z),
+                    Mathf::Clamp(w, min.w, max.w));
 }
 
 unsigned int Vector4u::DistanceSquared(const Vector4u& other) const
@@ -229,13 +229,13 @@ unsigned int Vector4u::ManhattanDistance(const Vector4u& other) const
 
 Vector2i Vector2i::Clamp(int min, int max) const
 {
-    return Vector2i(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max));
+    return Vector2i(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max));
 }
 Vector2i Vector2i::Clamp(Vector2i min, Vector2i max) const
 {
-    return Vector2i(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y));
+    return Vector2i(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y));
 }
 
 int Vector2i::DistanceSquared(Vector2i other) const
@@ -247,8 +247,8 @@ int Vector2i::DistanceSquared(Vector2i other) const
 
 int Vector2i::ManhattanDistance(Vector2i other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y);
 }
 
 #pragma endregion
@@ -257,15 +257,15 @@ int Vector2i::ManhattanDistance(Vector2i other) const
 
 Vector3i Vector3i::Clamp(int min, int max) const
 {
-    return Vector3i(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max));
+    return Vector3i(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max));
 }
 Vector3i Vector3i::Clamp(Vector3i min, Vector3i max) const
 {
-    return Vector3i(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z));
+    return Vector3i(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z));
 }
 
 int Vector3i::DistanceSquared(Vector3i other) const
@@ -278,9 +278,9 @@ int Vector3i::DistanceSquared(Vector3i other) const
 
 int Vector3i::ManhattanDistance(Vector3i other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y) +
-           BasicMath::Abs(z - other.z);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y) +
+           Mathf::Abs(z - other.z);
 }
 
 #pragma endregion
@@ -289,17 +289,17 @@ int Vector3i::ManhattanDistance(Vector3i other) const
 
 Vector4i Vector4i::Clamp(int min, int max) const
 {
-    return Vector4i(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max),
-                    BasicMath::Clamp(w, min, max));
+    return Vector4i(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max),
+                    Mathf::Clamp(w, min, max));
 }
 Vector4i Vector4i::Clamp(Vector4i min, Vector4i max) const
 {
-    return Vector4i(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z),
-                    BasicMath::Clamp(w, min.w, max.w));
+    return Vector4i(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z),
+                    Mathf::Clamp(w, min.w, max.w));
 }
 
 int Vector4i::DistanceSquared(Vector4i other) const
@@ -313,10 +313,10 @@ int Vector4i::DistanceSquared(Vector4i other) const
 
 int Vector4i::ManhattanDistance(Vector4i other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y) +
-           BasicMath::Abs(z - other.z) +
-           BasicMath::Abs(w - other.w);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y) +
+           Mathf::Abs(z - other.z) +
+           Mathf::Abs(w - other.w);
 }
 
 #pragma endregion
@@ -326,12 +326,12 @@ int Vector4i::ManhattanDistance(Vector4i other) const
 
 Vector2f Vector2f::Lerp(Vector2f start, Vector2f end, float t)
 {
-    return Vector2f(BasicMath::Lerp(start.x, end.x, t),
-                    BasicMath::Lerp(start.y, end.y, t));
+    return Vector2f(Mathf::Lerp(start.x, end.x, t),
+                    Mathf::Lerp(start.y, end.y, t));
 }Vector2f Vector2f::Lerp(Vector2f start, Vector2f end, Vector2f t)
 {
-    return Vector2f(BasicMath::Lerp(start.x, end.x, t.x),
-                    BasicMath::Lerp(start.y, end.y, t.y));
+    return Vector2f(Mathf::Lerp(start.x, end.x, t.x),
+                    Mathf::Lerp(start.y, end.y, t.y));
 }
 
 void Vector2f::Rotate(float radians)
@@ -379,13 +379,13 @@ Vector2f Vector2f::FastNormalized() const
 
 Vector2f Vector2f::Clamp(float min, float max) const
 {
-    return Vector2f(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max));
+    return Vector2f(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max));
 }
 Vector2f Vector2f::Clamp(Vector2f min, Vector2f max) const
 {
-    return Vector2f(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y));
+    return Vector2f(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y));
 }
 
 float Vector2f::DistanceSquared(Vector2f other) const
@@ -396,8 +396,8 @@ float Vector2f::DistanceSquared(Vector2f other) const
 }
 float Vector2f::ManhattanDistance(Vector2f other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y);
 }
 
 int Vector2f::GetHashCode(void) const
@@ -413,14 +413,14 @@ int Vector2f::GetHashCode(void) const
 
 Vector3f Vector3f::Lerp(Vector3f start, Vector3f end, float t)
 {
-    return Vector3f(BasicMath::Lerp(start.x, end.x, t),
-                    BasicMath::Lerp(start.y, end.y, t),
-                    BasicMath::Lerp(start.z, end.z, t));
+    return Vector3f(Mathf::Lerp(start.x, end.x, t),
+                    Mathf::Lerp(start.y, end.y, t),
+                    Mathf::Lerp(start.z, end.z, t));
 }Vector3f Vector3f::Lerp(Vector3f start, Vector3f end, Vector3f t)
 {
-    return Vector3f(BasicMath::Lerp(start.x, end.x, t.x),
-                    BasicMath::Lerp(start.y, end.y, t.y),
-                    BasicMath::Lerp(start.z, end.z, t.z));
+    return Vector3f(Mathf::Lerp(start.x, end.x, t.x),
+                    Mathf::Lerp(start.y, end.y, t.y),
+                    Mathf::Lerp(start.z, end.z, t.z));
 }
 
 void Vector3f::Normalize(void)
@@ -462,15 +462,15 @@ Vector3f Vector3f::Cross(Vector3f v) const
 
 Vector3f Vector3f::Clamp(float min, float max) const
 {
-    return Vector3f(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max));
+    return Vector3f(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max));
 }
 Vector3f Vector3f::Clamp(Vector3f min, Vector3f max) const
 {
-    return Vector3f(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z));
+    return Vector3f(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z));
 }
 
 float Vector3f::DistanceSquared(Vector3f other) const
@@ -482,9 +482,9 @@ float Vector3f::DistanceSquared(Vector3f other) const
 }
 float Vector3f::ManhattanDistance(Vector3f other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y) +
-           BasicMath::Abs(z - other.z);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y) +
+           Mathf::Abs(z - other.z);
 }
 
 int Vector3f::GetHashCode(void) const
@@ -500,16 +500,16 @@ int Vector3f::GetHashCode(void) const
 
 Vector4f Vector4f::Lerp(Vector4f start, Vector4f end, float t)
 {
-    return Vector4f(BasicMath::Lerp(start.x, end.x, t),
-                    BasicMath::Lerp(start.y, end.y, t),
-                    BasicMath::Lerp(start.z, end.z, t),
-                    BasicMath::Lerp(start.w, end.w, t));
+    return Vector4f(Mathf::Lerp(start.x, end.x, t),
+                    Mathf::Lerp(start.y, end.y, t),
+                    Mathf::Lerp(start.z, end.z, t),
+                    Mathf::Lerp(start.w, end.w, t));
 }Vector4f Vector4f::Lerp(Vector4f start, Vector4f end, Vector4f t)
 {
-    return Vector4f(BasicMath::Lerp(start.x, end.x, t.x),
-                    BasicMath::Lerp(start.y, end.y, t.y),
-                    BasicMath::Lerp(start.z, end.z, t.z),
-                    BasicMath::Lerp(start.w, end.w, t.w));
+    return Vector4f(Mathf::Lerp(start.x, end.x, t.x),
+                    Mathf::Lerp(start.y, end.y, t.y),
+                    Mathf::Lerp(start.z, end.z, t.z),
+                    Mathf::Lerp(start.w, end.w, t.w));
 }
 void Vector4f::Normalize(void)
 {
@@ -545,17 +545,17 @@ Vector4f Vector4f::FastNormalized(void) const
 
 Vector4f Vector4f::Clamp(float min, float max) const
 {
-    return Vector4f(BasicMath::Clamp(x, min, max),
-                    BasicMath::Clamp(y, min, max),
-                    BasicMath::Clamp(z, min, max),
-                    BasicMath::Clamp(w, min, max));
+    return Vector4f(Mathf::Clamp(x, min, max),
+                    Mathf::Clamp(y, min, max),
+                    Mathf::Clamp(z, min, max),
+                    Mathf::Clamp(w, min, max));
 }
 Vector4f Vector4f::Clamp(Vector4f min, Vector4f max) const
 {
-    return Vector4f(BasicMath::Clamp(x, min.x, max.x),
-                    BasicMath::Clamp(y, min.y, max.y),
-                    BasicMath::Clamp(z, min.z, max.z),
-                    BasicMath::Clamp(w, min.w, max.w));
+    return Vector4f(Mathf::Clamp(x, min.x, max.x),
+                    Mathf::Clamp(y, min.y, max.y),
+                    Mathf::Clamp(z, min.z, max.z),
+                    Mathf::Clamp(w, min.w, max.w));
 }
 
 float Vector4f::DistanceSquared(Vector4f other) const
@@ -568,10 +568,10 @@ float Vector4f::DistanceSquared(Vector4f other) const
 }
 float Vector4f::ManhattanDistance(Vector4f other) const
 {
-    return BasicMath::Abs(x - other.x) +
-           BasicMath::Abs(y - other.y) +
-           BasicMath::Abs(z - other.z) +
-           BasicMath::Abs(w - other.w);
+    return Mathf::Abs(x - other.x) +
+           Mathf::Abs(y - other.y) +
+           Mathf::Abs(z - other.z) +
+           Mathf::Abs(w - other.w);
 }
 
 int Vector4f::GetHashCode(void) const

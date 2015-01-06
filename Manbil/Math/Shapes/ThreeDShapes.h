@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include "../Lower Math/Vectors.h"
-#include "../Lower Math/BasicMath.h"
+#include "../Lower Math/Mathf.h"
 #include "../Higher Math/GeometricMath.h"
 #include "Boxes.h"
 
@@ -242,7 +242,7 @@ public:
 
         //If the direction is along the plane, return a value in the right direction.
         float dot = dirNormalized.Dot(Normal);
-        if (BasicMath::Abs(dot) < MarginOfError)
+        if (Mathf::Abs(dot) < MarginOfError)
         {
             return GetCenter() + (dirNormalized * std::numeric_limits<float>::infinity());
         }
@@ -263,7 +263,7 @@ public:
 
     virtual bool IsPointInside(Vector3f point) const override
     {
-        return BasicMath::Abs(GetDistanceToPlane(point)) <= MarginOfError;
+        return Mathf::Abs(GetDistanceToPlane(point)) <= MarginOfError;
     }
 
     virtual ShapePtr GetClone(void) const override { return ShapePtr(new Plane(GetCenter(), Normal)); }
@@ -328,12 +328,12 @@ public:
 
     virtual Box3D GetBoundingBox(void) const override
     {
-        return Box3D(BasicMath::Min(vertices[0].x, vertices[1].x, vertices[2].x),
-                     BasicMath::Max(vertices[0].x, vertices[1].x, vertices[2].x),
-                     BasicMath::Min(vertices[0].y, vertices[1].y, vertices[2].y),
-                     BasicMath::Max(vertices[0].y, vertices[1].y, vertices[2].y),
-                     BasicMath::Min(vertices[0].z, vertices[1].z, vertices[2].z),
-                     BasicMath::Max(vertices[0].z, vertices[1].z, vertices[2].z));
+        return Box3D(Mathf::Min(vertices[0].x, vertices[1].x, vertices[2].x),
+                     Mathf::Max(vertices[0].x, vertices[1].x, vertices[2].x),
+                     Mathf::Min(vertices[0].y, vertices[1].y, vertices[2].y),
+                     Mathf::Max(vertices[0].y, vertices[1].y, vertices[2].y),
+                     Mathf::Min(vertices[0].z, vertices[1].z, vertices[2].z),
+                     Mathf::Max(vertices[0].z, vertices[1].z, vertices[2].z));
     }
 
     //Gets the three vertices that represent this triangle.

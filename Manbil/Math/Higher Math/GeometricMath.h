@@ -29,15 +29,15 @@ public:
 		Vector p12 = (p1 - p2).Normalized(),
 				 p13 = (p1 - p3).Normalized(),
 				 p23 = (p2 - p3).Normalized();
-		float roundD_12_13 = BasicMath::Round(p12.Dot(p13), roundDecimals),
-			  roundD_12_23 = BasicMath::Round(p12.Dot(p23), roundDecimals);
+		float roundD_12_13 = Mathf::Round(p12.Dot(p13), roundDecimals),
+			  roundD_12_23 = Mathf::Round(p12.Dot(p23), roundDecimals);
 		return (roundD_12_13 == 1.0f || roundD_12_13 == -1.0f) &&
 			   (roundD_12_23 == 1.0f || roundD_12_23 == -1.0f);
 		
 
 		/*
-		if (BasicMath::Round(p1.x, roundDecimals) == BasicMath::Round(p2.x, roundDecimals) &&
-			BasicMath::Round(p2.x, roundDecimals) == BasicMath::Round(p3.x, roundDecimals))
+		if (Mathf::Round(p1.x, roundDecimals) == Mathf::Round(p2.x, roundDecimals) &&
+			Mathf::Round(p2.x, roundDecimals) == Mathf::Round(p3.x, roundDecimals))
 		{
 			return true;
 		}
@@ -46,7 +46,7 @@ public:
 		slope1 = (p1.y - p2.y) / (p1.x - p2.x);
 		slope2 = (p1.y - p3.y) / (p1.x - p3.x);
 
-		return (BasicMath::Round(BasicMath::Abs(slope1), roundDecimals) == BasicMath::Round(BasicMath::Abs(slope2), roundDecimals));
+		return (Mathf::Round(Mathf::Abs(slope1), roundDecimals) == Mathf::Round(Mathf::Abs(slope2), roundDecimals));
 		*/
 	}
 
@@ -108,10 +108,10 @@ public:
     {
         unsigned int size = NumbDimensions(v),
                      largestAxis = 0,
-                     float largestValue = BasicMath::Abs(v[0]);
+                     float largestValue = Mathf::Abs(v[0]);
         for (unsigned int axis = 1; axis < size; ++axis)
         {
-            float tempValue = BasicMath::Abs(v[axis]);
+            float tempValue = Mathf::Abs(v[axis]);
             if (tempValue > largestValue)
             {
                 largestAxis = axis;
@@ -123,14 +123,14 @@ public:
     template<>
     static unsigned int GetLongestAxis(Vector2f v)
     {
-        Vector2f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y));
+        Vector2f abs(Mathf::Abs(v.x), Mathf::Abs(v.y));
         if (abs.x > abs.y) return 0;
         return 1;
     }
     template<>
     static unsigned int GetLongestAxis(Vector3f v)
     {
-        Vector3f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y), BasicMath::Abs(v.z));
+        Vector3f abs(Mathf::Abs(v.x), Mathf::Abs(v.y), Mathf::Abs(v.z));
         if (abs.x > abs.y && abs.x > abs.z) return 0;
         else if (abs.y > abs.x && abs.y > abs.z) return 1;
         else return 2;
@@ -138,7 +138,7 @@ public:
     template<>
     static unsigned int GetLongestAxis(Vector4f v)
     {
-        Vector4f abs(BasicMath::Abs(v.x), BasicMath::Abs(v.y), BasicMath::Abs(v.z), BasicMath::Abs(v.w));
+        Vector4f abs(Mathf::Abs(v.x), Mathf::Abs(v.y), Mathf::Abs(v.z), Mathf::Abs(v.w));
         if (abs.x > abs.y && abs.x > abs.z && abs.x > abs.w) return 0;
         else if (abs.y > abs.x && abs.y > abs.z && abs.y > abs.w) return 1;
         else if (abs.z > abs.x && abs.z > abs.y && abs.z > abs.w) return 2;
@@ -199,8 +199,8 @@ public:
 
 		if (!areLinesInfinite)
 		{
-			sc = BasicMath::Clamp(sc, 0.0f, 1.0f);
-            tc = BasicMath::Clamp(tc, 0.0f, 1.0f);
+			sc = Mathf::Clamp(sc, 0.0f, 1.0f);
+            tc = Mathf::Clamp(tc, 0.0f, 1.0f);
 		}
 
 		return ClosestValues<Vector>(p0 + (u * sc), q0 + (v * tc));

@@ -15,8 +15,8 @@ public:
     Box2D(float left, float top, Vector2f _dimensions)
         : x(left), y(top), width(_dimensions.x), height(_dimensions.y)
     {
-        width = BasicMath::Abs(width);
-        height = BasicMath::Abs(height);
+        width = Mathf::Abs(width);
+        height = Mathf::Abs(height);
     }
     //Makes a rectangle from the given center position and dimensions.
     Box2D(Vector2f center, Vector2f _dimensions)
@@ -32,10 +32,10 @@ public:
     }
     //Makes the smallest-possible box that covers the given two boxes.
     Box2D(const Box2D& first, const Box2D& second)
-        : Box2D(BasicMath::Min(first.GetXMin(), second.GetXMin()),
-                BasicMath::Max(first.GetXMax(), second.GetXMax()),
-                BasicMath::Min(first.GetYMin(), second.GetYMin()),
-                BasicMath::Max(first.GetYMax(), second.GetYMax()))
+        : Box2D(Mathf::Min(first.GetXMin(), second.GetXMin()),
+                Mathf::Max(first.GetXMax(), second.GetXMax()),
+                Mathf::Min(first.GetYMin(), second.GetYMin()),
+                Mathf::Max(first.GetYMax(), second.GetYMax()))
     {
 
     }
@@ -108,7 +108,7 @@ private:
     float x, y, width, height;
 
     //Finds if the given floats are within "GeometricError" from each other.
-    static bool WithinError(float f1, float f2) { return BasicMath::Abs(f1 - f2) <= GeometricError; }
+    static bool WithinError(float f1, float f2) { return Mathf::Abs(f1 - f2) <= GeometricError; }
     //Finds if the first value is greater than the second value or within error of it.
     static bool GreaterThanOrEqual(float f1, float f2) { return (WithinError(f1, f2) || f1 > f2); }
     //Finds if the first value is less than the second value or within error of it.
@@ -133,7 +133,7 @@ public:
     Box3D(float minX, float minY, float minZ, Vector3f _dimensions)
         : minCorner(Vector3f(minX, minY, minZ)), dimensions(_dimensions)
     {
-        dimensions = Vector3f(BasicMath::Abs(dimensions.x), BasicMath::Abs(dimensions.y), BasicMath::Abs(dimensions.z));
+        dimensions = Vector3f(Mathf::Abs(dimensions.x), Mathf::Abs(dimensions.y), Mathf::Abs(dimensions.z));
     }
     //Makes a rectangle from the given center position and dimensions.
     Box3D(Vector3f center, Vector3f _dimensions)
@@ -149,12 +149,12 @@ public:
     }
     //Makes the smallest-possible box that contains the two given boxes.
     Box3D(const Box3D& one, const Box3D& two)
-        : Box3D(BasicMath::Min(one.GetXMin(), two.GetXMin()),
-                BasicMath::Max(one.GetXMax(), two.GetXMax()),
-                BasicMath::Min(one.GetYMin(), two.GetYMin()),
-                BasicMath::Max(one.GetYMax(), two.GetYMax()),
-                BasicMath::Min(one.GetZMin(), two.GetZMin()),
-                BasicMath::Max(one.GetZMax(), two.GetZMax()))
+        : Box3D(Mathf::Min(one.GetXMin(), two.GetXMin()),
+                Mathf::Max(one.GetXMax(), two.GetXMax()),
+                Mathf::Min(one.GetYMin(), two.GetYMin()),
+                Mathf::Max(one.GetYMax(), two.GetYMax()),
+                Mathf::Min(one.GetZMin(), two.GetZMin()),
+                Mathf::Max(one.GetZMax(), two.GetZMax()))
     {
 
     }
@@ -226,7 +226,7 @@ private:
     Vector3f minCorner, dimensions;
 
     //Finds if the given floats are within "GeometricError" from each other.
-    static bool WithinError(float f1, float f2) { return BasicMath::Abs(f1 - f2) <= GeometricError; }
+    static bool WithinError(float f1, float f2) { return Mathf::Abs(f1 - f2) <= GeometricError; }
     //Finds if the first value is greater than the second value or within error of it.
     static bool GreaterThanOrEqual(float f1, float f2) { return (WithinError(f1, f2) || f1 > f2); }
     //Finds if the first value is less than the second value or within error of it.

@@ -61,7 +61,7 @@ void Worley2D::Generate(Array2D<float> & noise) const
 
 
 	//Get the size of a cell.
-	unsigned int cSize = BasicMath::Min<unsigned int>(CellSize, noise.GetWidth(), noise.GetHeight());
+	unsigned int cSize = Mathf::Min<unsigned int>(CellSize, noise.GetWidth(), noise.GetHeight());
     float cSizeF = (float)cSize;
 
 	//Get the number of cells (use one extra row/column of cells behind the noise array).
@@ -93,7 +93,7 @@ void Worley2D::Generate(Array2D<float> & noise) const
             fr.Seed = Vector3i(Seed, loc.x, loc.y).GetHashCode();
 
             //Generate some randomized number of points in this cell.
-            pointsInCell = (BasicMath::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
+            pointsInCell = (Mathf::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
             pointsInCell = 1;
             for (int i = 0; i < pointsInCell; ++i)
             {
@@ -248,7 +248,7 @@ void Worley3D::Generate(Array3D<float> & noise) const
     unsigned int pointsPerCellRange = MaxPointsPerCell - MinPointsPerCell;
 
     //Get the size of a cell.
-    unsigned int cSize = BasicMath::Min(CellSize, noise.GetWidth(), BasicMath::Min(noise.GetHeight(), noise.GetDepth()));
+    unsigned int cSize = Mathf::Min(CellSize, noise.GetWidth(), Mathf::Min(noise.GetHeight(), noise.GetDepth()));
 
     //Get the number of cells (use one extra row/column of cells behind the noise array).
     Vector3u cells = Vector3u((noise.GetWidth() / cSize),
@@ -284,7 +284,7 @@ void Worley3D::Generate(Array3D<float> & noise) const
                 fr.Seed = Vector4i(loc.z, Seed, loc.x, loc.y).GetHashCode();
 
                 //Generate some randomized number of points in this cell.
-                pointsInCell = (BasicMath::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
+                pointsInCell = (Mathf::Abs(fr.GetRandInt()) % pointsPerCellRange) + MinPointsPerCell;
                 pointsInCell = 1;
                 for (int i = 0; i < pointsInCell; ++i)
                 {

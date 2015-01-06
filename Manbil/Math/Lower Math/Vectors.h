@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicMath.h"
+#include "Mathf.h"
 
 
 //Define these vectors in a namespace because SFML uses some of the same names for its vectors.
@@ -391,7 +391,7 @@ namespace ManbilVectors
         Vector2i Clamp(Vector2i min, Vector2i max) const;
 
         //Gets the absolute value of this vector's components.
-        Vector2u Abs(void) const { return Vector2u(BasicMath::Abs(x), BasicMath::Abs(y)); }
+        Vector2u Abs(void) const { return Vector2u(Mathf::Abs(x), Mathf::Abs(y)); }
 
 
         int LengthSquared(void) const { return (x * x) + (y * y); }
@@ -495,7 +495,7 @@ namespace ManbilVectors
 
 
         //Gets the absolute value of this vector's components.
-        Vector3u Abs(void) const { return Vector3u(BasicMath::Abs(x), BasicMath::Abs(y), BasicMath::Abs(z)); }
+        Vector3u Abs(void) const { return Vector3u(Mathf::Abs(x), Mathf::Abs(y), Mathf::Abs(z)); }
 
 
         //Gets the dot product of this vector and the given one.
@@ -589,8 +589,8 @@ namespace ManbilVectors
         //Gets the absolute value of this vector's components.
         inline Vector4u Abs(void) const
         {
-            return Vector4u(BasicMath::Abs(x), BasicMath::Abs(y),
-                            BasicMath::Abs(z), BasicMath::Abs(w));
+            return Vector4u(Mathf::Abs(x), Mathf::Abs(y),
+                            Mathf::Abs(z), Mathf::Abs(w));
         }
 
 
@@ -690,7 +690,7 @@ namespace ManbilVectors
         //Floors this vector's components (towards negative infinity).
         Vector2i Floored(void) const { return Vector2i((int)floor(x), (int)floor(y)); }
         //Gets the absolute value of all components.
-        Vector2f Abs(void) const { return Vector2f(BasicMath::Abs(x), BasicMath::Abs(y)); }
+        Vector2f Abs(void) const { return Vector2f(Mathf::Abs(x), Mathf::Abs(y)); }
 
         //Rotates this vector by the given amount of radians.
         void Rotate(float radians);
@@ -713,7 +713,7 @@ namespace ManbilVectors
 
 
         //Quickly computes "1.0 / this->Length()" using a good approximation.
-		float FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
+		float FastInvLength(void) const { return Mathf::FastInvSqrt1(LengthSquared()); }
 
 		float LengthSquared(void) const { return (x * x) + (y * y); }
 		float Length(void) const { return sqrtf(LengthSquared()); }
@@ -819,7 +819,7 @@ namespace ManbilVectors
         //Floors this vector's components (towards negative infinity).
         Vector3i Floored(void) const { return Vector3i((int)floor(x), (int)floor(y), (int)floor(z)); }
         //Gets the absolute value of all components.
-        Vector3f Abs(void) const { return Vector3f(BasicMath::Abs(x), BasicMath::Abs(y), BasicMath::Abs(z)); }
+        Vector3f Abs(void) const { return Vector3f(Mathf::Abs(x), Mathf::Abs(y), Mathf::Abs(z)); }
 
 
         //Normalize this vector.
@@ -838,7 +838,7 @@ namespace ManbilVectors
 
 
         //Quickly computes "1.0 / this->Length()" using a good approximation.
-		float FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
+		float FastInvLength(void) const { return Mathf::FastInvSqrt1(LengthSquared()); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		float LengthSquared(void) const { return (x * x) + (y * y) + (z * z); }
@@ -953,7 +953,7 @@ namespace ManbilVectors
         //Gets the absolute value of this vector's components.
         inline Vector4f Abs(void) const
         {
-            return Vector4f(BasicMath::Abs(x), BasicMath::Abs(y), BasicMath::Abs(z), BasicMath::Abs(w));
+            return Vector4f(Mathf::Abs(x), Mathf::Abs(y), Mathf::Abs(z), Mathf::Abs(w));
         }
 
 
@@ -973,7 +973,7 @@ namespace ManbilVectors
 
 
         //Quickly computes "1.0 / this->Length()" using a good approximation.
-		float FastInvLength(void) const { return BasicMath::FastInvSqrt1(LengthSquared()); }
+		float FastInvLength(void) const { return Mathf::FastInvSqrt1(LengthSquared()); }
 
 		float Length(void) const { return sqrtf(LengthSquared()); }
 		float LengthSquared(void) const { return (x * x) + (y * y) + (z * z) + (w * w); }

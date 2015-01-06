@@ -275,9 +275,9 @@ void PlanetSimWorld::UpdateWorld(float elapsed)
     //Lower the camera's zFar as it gets closer to the surface.
     const float maxHeightSpeed = world->GetMaxHeight() * 1.15f;
     const float minZFar = 1200.0f;
-    float zFarLerp = BasicMath::Clamp(BasicMath::LerpComponent(world->GetMinHeight(), maxHeightSpeed, cam.GetPosition().Length()),
+    float zFarLerp = Mathf::Clamp(Mathf::LerpComponent(world->GetMinHeight(), maxHeightSpeed, cam.GetPosition().Length()),
                                       0.0f, 1.0f);
-    cam.Info.zFar = BasicMath::Lerp(minZFar, startingZFar, zFarLerp);
+    cam.Info.zFar = Mathf::Lerp(minZFar, startingZFar, zFarLerp);
 }
 void PlanetSimWorld::RenderOpenGL(float elapsed)
 {

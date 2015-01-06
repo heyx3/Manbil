@@ -13,16 +13,16 @@ bool Shape::TouchingPolygon(const PolygonSolid & poly) const
 
 Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
 {
-    Vector3f absDirNormalized(BasicMath::Abs(dirNormalized.x) / Bounds.GetXSize(),
-                              BasicMath::Abs(dirNormalized.y) / Bounds.GetYSize(),
-                              BasicMath::Abs(dirNormalized.z) / Bounds.GetZSize());
+    Vector3f absDirNormalized(Mathf::Abs(dirNormalized.x) / Bounds.GetXSize(),
+                              Mathf::Abs(dirNormalized.y) / Bounds.GetYSize(),
+                              Mathf::Abs(dirNormalized.z) / Bounds.GetZSize());
 
     //On X face.
     if (absDirNormalized.x >= absDirNormalized.y && absDirNormalized.x >= absDirNormalized.z)
     {
         return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 0,
                                                     Bounds.GetCenterX() +
-                                                    (BasicMath::Sign(dirNormalized.x) * 0.5f *
+                                                    (Mathf::Sign(dirNormalized.x) * 0.5f *
                                                      Bounds.GetXSize())).Point;
     }
     //On Y face.
@@ -30,7 +30,7 @@ Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
     {
         return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 1,
                                                     Bounds.GetCenterY() +
-                                                    (BasicMath::Sign(dirNormalized.y) * 0.5f *
+                                                    (Mathf::Sign(dirNormalized.y) * 0.5f *
                                                      Bounds.GetYSize())).Point;
     }
     //On Z face.
@@ -39,7 +39,7 @@ Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
         assert(absDirNormalized.z > absDirNormalized.x && absDirNormalized.z > absDirNormalized.y);
         return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 2,
                                                     Bounds.GetCenterZ() +
-                                                    (BasicMath::Sign(dirNormalized.z) * 0.5f *
+                                                    (Mathf::Sign(dirNormalized.z) * 0.5f *
                                                      Bounds.GetZSize())).Point;
     }
 }
@@ -47,11 +47,11 @@ Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
 bool Cube::TouchingSphere(const Sphere & sphere) const
 {
     //Get the closest point in/on the cube to the sphere's center and see if it's inside the sphere.
-    Vector3f clampedToCube = Vector3f(BasicMath::Clamp(sphere.GetCenter().x,
+    Vector3f clampedToCube = Vector3f(Mathf::Clamp(sphere.GetCenter().x,
                                                        Bounds.GetXMin(), Bounds.GetXMax()),
-                                      BasicMath::Clamp(sphere.GetCenter().y,
+                                      Mathf::Clamp(sphere.GetCenter().y,
                                                        Bounds.GetYMin(), Bounds.GetYMax()),
-                                      BasicMath::Clamp(sphere.GetCenter().z,
+                                      Mathf::Clamp(sphere.GetCenter().z,
                                                        Bounds.GetZMin(), Bounds.GetZMax()));
     return sphere.IsPointInside(clampedToCube);
 }
@@ -477,10 +477,10 @@ bool Cube::TouchingCapsule(const Capsule & capsule) const
     max = Bounds.GetMaxCorner();
     float r = capsule.Radius;
 
-    if (BasicMath::Max(a.y, b.y) < min.y || BasicMath::Min(a.y, b.y) > max.y)
+    if (Mathf::Max(a.y, b.y) < min.y || Mathf::Min(a.y, b.y) > max.y)
     {
-    if (BasicMath::Abs(a.x - max.x) < r || BasicMath::Abs(a.x - min.x) < r ||
-    BasicMath::Abs(a.z - max.z) < r || BasicMath::Abs(a.z - min.z) < r)
+    if (Mathf::Abs(a.x - max.x) < r || Mathf::Abs(a.x - min.x) < r ||
+    Mathf::Abs(a.z - max.z) < r || Mathf::Abs(a.z - min.z) < r)
     {
     return true;
     }
@@ -516,8 +516,8 @@ bool Cube::TouchingCapsule(const Capsule & capsule) const
     {
     //Get the capsule line's intersection with the plane.
 
-    float distL1 = BasicMath::Abs(pl.GetDistanceToPlane(capsule.GetEndpoint1())),
-    distL2 = BasicMath::Abs(pl.GetDistanceToPlane(capsule.GetEndpoint2()));
+    float distL1 = Mathf::Abs(pl.GetDistanceToPlane(capsule.GetEndpoint1())),
+    distL2 = Mathf::Abs(pl.GetDistanceToPlane(capsule.GetEndpoint2()));
     Vector3f rayStart, rayEnd;
     if (distL1 > 0.0f)
     {
@@ -579,14 +579,14 @@ bool Cube::TouchingPlane(const Plane & plane) const
     //Taken from http://www.gamasutra.com/view/feature/131790/simple_intersection_tests_for_games.php?print=1, section "A Box-Plane Intersection Test".
 
     //If this function gets remade for a box that isn't axis-aligned, use
-    //    "BasicMath::Abs(plane.Normal.Dot([normalized axis vector])"
+    //    "Mathf::Abs(plane.Normal.Dot([normalized axis vector])"
     //    for each axis rotated from box space to world space.
-    float val = (Bounds.GetXSize() * BasicMath::Abs(plane.Normal.x)) +
-                (Bounds.GetYSize() * BasicMath::Abs(plane.Normal.y)) +
-                (Bounds.GetZSize() * BasicMath::Abs(plane.Normal.z));
+    float val = (Bounds.GetXSize() * Mathf::Abs(plane.Normal.x)) +
+                (Bounds.GetYSize() * Mathf::Abs(plane.Normal.y)) +
+                (Bounds.GetZSize() * Mathf::Abs(plane.Normal.z));
     val *= 0.5f;
 
-    return BasicMath::Abs(plane.GetDistanceToPlane(GetCenter())) <= val;
+    return Mathf::Abs(plane.GetDistanceToPlane(GetCenter())) <= val;
 }
 
 #pragma warning(disable: 4100)
@@ -606,17 +606,17 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
     //Get the closest x, y, and z faces. If the vector is pointing parallel to a face,
     //    there is no intersection along that face.
     Vector3f faces((rayDir.x == 0.0f) ?
-                       BasicMath::NaN :
+                       Mathf::NaN :
                        ((rayDir.x > 0.0f) ?
                            (rayStart.x > Bounds.GetXMin() ? Bounds.GetXMax() : Bounds.GetXMin()) :
                            (rayStart.x < Bounds.GetXMax() ? Bounds.GetXMin() : Bounds.GetXMax())),
                    (rayDir.y == 0.0f) ?
-                       BasicMath::NaN :
+                       Mathf::NaN :
                        ((rayDir.y > 0.0f) ?
                            (rayStart.y > Bounds.GetYMin() ? Bounds.GetYMax() : Bounds.GetYMin()) :
                            (rayStart.y < Bounds.GetYMax() ? Bounds.GetYMin() : Bounds.GetYMax())),
                    (rayDir.z == 0.0f) ?
-                       BasicMath::NaN :
+                       Mathf::NaN :
                        ((rayDir.z > 0.0f) ?
                            (rayStart.z > Bounds.GetZMin() ? Bounds.GetZMax() : Bounds.GetZMin()) :
                            (rayStart.z < Bounds.GetZMax() ? Bounds.GetZMin() : Bounds.GetZMax())));
@@ -624,13 +624,13 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
     //For each face, get the ray's intersection with that face.
     PointOnFaces faceIntersectData[3] =
     {
-        (faces.x == BasicMath::NaN ?
+        (faces.x == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
             GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 0, faces.x)),
-        (faces.y == BasicMath::NaN ?
+        (faces.y == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
             GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 1, faces.y)),
-        (faces.z == BasicMath::NaN ?
+        (faces.z == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
             GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 2, faces.z)),
     };
@@ -657,7 +657,7 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
         }
     }
     res.ReflectNormal[closestAxis] =
-        (float)BasicMath::Sign(res.HitPos[closestAxis] - GetCenter()[closestAxis]);
+        (float)Mathf::Sign(res.HitPos[closestAxis] - GetCenter()[closestAxis]);
 
     return res;
 }
@@ -667,9 +667,9 @@ bool Sphere::TouchingCube(const Cube & cube) const
 {
     //Get the closest point in/on the cube to the sphere's center and see if it's inside the sphere.
     const Box3D & bounds = cube.GetBounds();
-    Vector3f clampedToCube = Vector3f(BasicMath::Clamp(GetCenter().x, bounds.GetXMin(), bounds.GetXMax()),
-                                      BasicMath::Clamp(GetCenter().y, bounds.GetYMin(), bounds.GetYMax()),
-                                      BasicMath::Clamp(GetCenter().z, bounds.GetZMin(), bounds.GetZMax()));
+    Vector3f clampedToCube = Vector3f(Mathf::Clamp(GetCenter().x, bounds.GetXMin(), bounds.GetXMax()),
+                                      Mathf::Clamp(GetCenter().y, bounds.GetYMin(), bounds.GetYMax()),
+                                      Mathf::Clamp(GetCenter().z, bounds.GetZMin(), bounds.GetZMax()));
     return IsPointInside(clampedToCube);
 }
 bool Sphere::TouchingCapsule(const Capsule & capsule) const
@@ -1064,12 +1064,12 @@ Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir)
 
 Box3D Capsule::GetBoundingBox(void) const
 {
-    return Box3D(BasicMath::Min(l1.x, l2.x) - Radius,
-                 BasicMath::Max(l1.x, l2.x) + Radius,
-                 BasicMath::Min(l1.y, l2.y) - Radius,
-                 BasicMath::Max(l1.y, l2.y) + Radius,
-                 BasicMath::Min(l1.z, l2.z) - Radius,
-                 BasicMath::Max(l1.z, l2.z) + Radius);
+    return Box3D(Mathf::Min(l1.x, l2.x) - Radius,
+                 Mathf::Max(l1.x, l2.x) + Radius,
+                 Mathf::Min(l1.y, l2.y) - Radius,
+                 Mathf::Max(l1.y, l2.y) + Radius,
+                 Mathf::Min(l1.z, l2.z) - Radius,
+                 Mathf::Max(l1.z, l2.z) + Radius);
 }
 
 
@@ -1081,12 +1081,12 @@ bool Plane::TouchingCube(const Cube & cube) const
 
     const Box3D & bounds = cube.GetBounds();
 
-    float val = bounds.GetXSize() * BasicMath::Abs(Normal.x) +
-        bounds.GetYSize() * BasicMath::Abs(Normal.y) +
-        bounds.GetZSize() * BasicMath::Abs(Normal.z);
+    float val = bounds.GetXSize() * Mathf::Abs(Normal.x) +
+        bounds.GetYSize() * Mathf::Abs(Normal.y) +
+        bounds.GetZSize() * Mathf::Abs(Normal.z);
     val *= 0.5f;
 
-    return BasicMath::Abs(GetDistanceToPlane(cube.GetCenter())) <= val;
+    return Mathf::Abs(GetDistanceToPlane(cube.GetCenter())) <= val;
 }
 bool Plane::TouchingSphere(const Sphere & sphere) const
 {
@@ -1114,7 +1114,7 @@ bool Plane::TouchingCapsule(const Capsule & capsule) const
 }
 bool Plane::TouchingPlane(const Plane & plane) const
 {
-    float dot = BasicMath::Round(Normal.Dot(plane.Normal), 2);
+    float dot = Mathf::Round(Normal.Dot(plane.Normal), 2);
 
     return (dot != 1.0f && dot != -1.0f) ||
         (plane.GetCenter().DistanceSquared(GetCenter()) <= MarginOfError);
@@ -1132,13 +1132,13 @@ Plane::RayTraceResult Plane::RayHitCheck(Vector3f rayStart, Vector3f rayDir) con
     float denominator = rayDir.Dot(Normal);
 
     //If ray is perpendicular to plane, no intersection.
-    if (BasicMath::Abs(denominator) <= MarginOfError) return RayTraceResult();
+    if (Mathf::Abs(denominator) <= MarginOfError) return RayTraceResult();
 
     float t = Normal.Dot(GetCenter() - rayStart) / denominator;
     if (t < 0.0f) return RayTraceResult();
 
     return RayTraceResult(rayStart + (rayDir * t),
-                          Normal * (float)BasicMath::Sign(GetDistanceToPlane(rayStart)), t);
+                          Normal * (float)Mathf::Sign(GetDistanceToPlane(rayStart)), t);
 }
 
 Box3D Plane::GetBoundingBox(void) const
@@ -1147,9 +1147,9 @@ Box3D Plane::GetBoundingBox(void) const
         max = std::numeric_limits<float>::max();
 
     //If the plane is aligned along an axis, one of the box's dimensions will have 0 size.
-    bool xAligned = (1.0f - BasicMath::Abs(Normal.x)) < MarginOfError,
-        yAligned = (1.0f - BasicMath::Abs(Normal.y)) < MarginOfError,
-        zAligned = (1.0f - BasicMath::Abs(Normal.z)) < MarginOfError;
+    bool xAligned = (1.0f - Mathf::Abs(Normal.x)) < MarginOfError,
+        yAligned = (1.0f - Mathf::Abs(Normal.y)) < MarginOfError,
+        zAligned = (1.0f - Mathf::Abs(Normal.z)) < MarginOfError;
 
     return Box3D(xAligned ? GetCenter().x : min, xAligned ? GetCenter().x : max,
                  yAligned ? GetCenter().y : min, yAligned ? GetCenter().y : max,

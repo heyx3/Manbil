@@ -15,8 +15,8 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
     //First compute the gradient at each grid point.
 
     //Calculate the number of gradients that will be needed.
-	unsigned int gradientWidth = BasicMath::RoundToInt(noiseDim.x / Scale.x),
-		         gradientHeight = BasicMath::RoundToInt(noiseDim.y / Scale.y);
+	unsigned int gradientWidth = Mathf::RoundToInt(noiseDim.x / Scale.x),
+		         gradientHeight = Mathf::RoundToInt(noiseDim.y / Scale.y);
     if (gradientWidth == 0 || gradientHeight == 0)
     {
         outValues.Fill(0.0f);
@@ -52,7 +52,7 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
             offLoc.x %= GradientWrapInterval.x;
 
             fr.Seed = offLoc.GetHashCode() + RandSeed;
-			gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
+			gradients[loc] = gradientTable[Mathf::Abs(fr.GetRandInt()) % numGradients];
 		}
 	}
 
@@ -66,10 +66,10 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 			smoothStepper = [](float inF) { return inF; };
 			break;
 		case Smoothness::Cubic:
-			smoothStepper = &BasicMath::Smooth;
+			smoothStepper = &Mathf::Smooth;
 			break;
 		case Smoothness::Quintic:
-			smoothStepper = &BasicMath::Supersmooth;
+			smoothStepper = &Mathf::Supersmooth;
 			break;
 
 		default: assert(false);
@@ -122,13 +122,13 @@ void Perlin2D::Generate(Array2D<float> & outValues) const
 
             //Interpolate the values.
             float smoothedX = smoothStepper(relGrid.x);
-            float val = BasicMath::Lerp(BasicMath::Lerp(tlDot, trDot, smoothedX),
-                                        BasicMath::Lerp(blDot, brDot, smoothedX),
+            float val = Mathf::Lerp(Mathf::Lerp(tlDot, trDot, smoothedX),
+                                        Mathf::Lerp(blDot, brDot, smoothedX),
                                         smoothStepper(relGrid.y));
             outValues[loc] = val;
 
-            min = BasicMath::Min(val, min);
-            max = BasicMath::Max(val, max);
+            min = Mathf::Min(val, min);
+            max = Mathf::Max(val, max);
         }
     }
 
@@ -153,9 +153,9 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
     //First compute the gradient at every grid.
 
     //Calculate the number of gradient points that will be needed.
-    Vector3u gradientDims((unsigned int)BasicMath::RoundToInt(dimensions.x / Scale.x) + 2,
-                          (unsigned int)BasicMath::RoundToInt(dimensions.y / Scale.y) + 2,
-                          (unsigned int)BasicMath::RoundToInt(dimensions.z / Scale.z) + 2);
+    Vector3u gradientDims((unsigned int)Mathf::RoundToInt(dimensions.x / Scale.x) + 2,
+                          (unsigned int)Mathf::RoundToInt(dimensions.y / Scale.y) + 2,
+                          (unsigned int)Mathf::RoundToInt(dimensions.z / Scale.z) + 2);
 
     Array3D<Vector3f> gradients(gradientDims.x, gradientDims.y, gradientDims.z);
 
@@ -203,7 +203,7 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
                 offLoc.x %= GradientWrapInterval.x;
 
                 fr.Seed = offLoc.GetHashCode() + RandSeed;
-                gradients[loc] = gradientTable[BasicMath::Abs(fr.GetRandInt()) % numGradients];
+                gradients[loc] = gradientTable[Mathf::Abs(fr.GetRandInt()) % numGradients];
             }
         }
     }
@@ -218,10 +218,10 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
             smoothStepper = [](float inF) { return inF; };
             break;
         case Smoothness::Cubic:
-            smoothStepper = &BasicMath::Smooth;
+            smoothStepper = &Mathf::Smooth;
             break;
         case Smoothness::Quintic:
-            smoothStepper = &BasicMath::Supersmooth;
+            smoothStepper = &Mathf::Supersmooth;
             break;
 
         default: assert(false);
@@ -276,17 +276,17 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
 
                 //Interpolate the values one axis at a time.
                 Vector3f smoothed(smoothStepper(relGrid.x), smoothStepper(relGrid.y), smoothStepper(relGrid.z));
-                float val = BasicMath::Lerp(BasicMath::Lerp(BasicMath::Lerp(minXYZ_dot, maxX_minYZ_dot, smoothed.x),
-                                                            BasicMath::Lerp(minX_maxY_minZ_dot, maxXY_minZ_dot, smoothed.x),
+                float val = Mathf::Lerp(Mathf::Lerp(Mathf::Lerp(minXYZ_dot, maxX_minYZ_dot, smoothed.x),
+                                                            Mathf::Lerp(minX_maxY_minZ_dot, maxXY_minZ_dot, smoothed.x),
                                                             smoothed.y),
-                                            BasicMath::Lerp(BasicMath::Lerp(minXY_maxZ_dot, maxX_minY_maxZ_dot, smoothed.x),
-                                                            BasicMath::Lerp(minX_maxYZ_dot, maxXYZ_dot, smoothed.x),
+                                            Mathf::Lerp(Mathf::Lerp(minXY_maxZ_dot, maxX_minY_maxZ_dot, smoothed.x),
+                                                            Mathf::Lerp(minX_maxYZ_dot, maxXYZ_dot, smoothed.x),
                                                             smoothed.y),
                                             smoothed.z);
                 outNoise[loc] = val;
 
-                min = BasicMath::Min(val, min);
-                max = BasicMath::Max(val, max);
+                min = Mathf::Min(val, min);
+                max = Mathf::Max(val, max);
             }
         }
     }

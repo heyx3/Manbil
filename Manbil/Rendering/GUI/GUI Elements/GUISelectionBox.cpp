@@ -289,13 +289,13 @@ void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
             const float moveDir = (extendAbove ? -0.5f : 0.5f);
 
             unsigned int closestElement = 0;
-            float closestDist = BasicMath::Abs(relativeMousePos.y);
+            float closestDist = Mathf::Abs(relativeMousePos.y);
 
             for (unsigned int i = 1; i < visibleIndices.size(); ++i)
             {
                 float yOffset = yIncrement * (float)i;
 
-                float tempDist = BasicMath::Abs(yOffset - relativeMousePos.y);
+                float tempDist = Mathf::Abs(yOffset - relativeMousePos.y);
                 if (tempDist < closestDist)
                 {
                     closestDist = tempDist;

@@ -289,7 +289,7 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
         scaledMovement = ToV2f(movement).ComponentProduct(invRendTargSize);
 
         outTextWidth += movement.x;
-        outTextHeight = BasicMath::Max(size.y, (int)outTextHeight);
+        outTextHeight = Mathf::Max(size.y, (int)outTextHeight);
 
 
         //If the character is empty (i.e. a space), don't bother rendering it.

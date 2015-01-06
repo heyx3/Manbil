@@ -6,7 +6,7 @@
 
 
 //Basic math functions.
-class BasicMath
+class Mathf
 {
 public:
 
@@ -99,7 +99,7 @@ public:
     //    (intervalStart + (n * intervalSize)) for any integer n.
     static inline float ClampToInterval(float intervalStart, float intervalSize, float value)
     {
-        int rounded = BasicMath::RoundToInt((value - intervalStart) / intervalSize);
+        int rounded = RoundToInt((value - intervalStart) / intervalSize);
         return intervalStart + (intervalSize * rounded);
     }
     struct ClampIntervalResult { int zero, one; ClampIntervalResult(int _zero, int _one) : zero(_zero), one(_one) { } };

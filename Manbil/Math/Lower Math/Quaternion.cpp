@@ -1,7 +1,7 @@
 #include "Quaternion.h"
 
 #include <math.h>
-#include "BasicMath.h"
+#include "Mathf.h"
 
 
 
@@ -15,7 +15,7 @@ Quaternion Quaternion::Slerp(Quaternion one, Quaternion two, float zeroToOne, bo
 
 	float dot = one.Dot(two);
 
-	dot = BasicMath::Clamp(dot, -1.0f, 1.0f);
+	dot = Mathf::Clamp(dot, -1.0f, 1.0f);
 	float theta = acosf(dot) * zeroToOne;
 
 	Quaternion finalQ = two - (one * dot);
@@ -70,7 +70,7 @@ Quaternion::Quaternion(Vector3f from, Vector3f to)
     else if (1.0f + dotted < 0.0001f)
     {
         //Get an arbitrary perpendicular axis to rotate around.
-        Vector3f axis = (BasicMath::Abs(from.Dot(Vector3f(1.0f, 0.0f, 0.0f))) < 1.0f) ?
+        Vector3f axis = (Mathf::Abs(from.Dot(Vector3f(1.0f, 0.0f, 0.0f))) < 1.0f) ?
                             Vector3f(1.0f, 0.0f, 0.0f) :
                             Vector3f(0.0f, 1.0f, 0.0f);
         axis = axis.Cross(from).Normalized();

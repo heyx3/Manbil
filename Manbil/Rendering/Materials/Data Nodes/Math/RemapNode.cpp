@@ -6,10 +6,10 @@ MAKE_NODE_READABLE_CPP(RemapNode, 0.0f, -1.0f, 1.0f)
 
 unsigned int RemapNode::GetOutputSize(unsigned int index) const
 {
-    return BasicMath::Max(GetInputs()[0].GetSize(),
-                          BasicMath::Max(GetInputs()[1].GetSize(),
-                          BasicMath::Max(GetInputs()[2].GetSize(),
-                          BasicMath::Max(GetInputs()[3].GetSize(),
+    return Mathf::Max(GetInputs()[0].GetSize(),
+                          Mathf::Max(GetInputs()[1].GetSize(),
+                          Mathf::Max(GetInputs()[2].GetSize(),
+                          Mathf::Max(GetInputs()[3].GetSize(),
                           GetInputs()[4].GetSize()))));
 }
 

@@ -82,7 +82,7 @@ public:
 
 
     //Clamps the given value to stay inside this interval.
-    float Clamp(float value) const { return BasicMath::Clamp(value, GetStart(), GetEnd()); }
+    float Clamp(float value) const { return Mathf::Clamp(value, GetStart(), GetEnd()); }
     //Wraps the given value around the edges of this interval.
 	float WrapValueAroundInterval(float value) const;
 	

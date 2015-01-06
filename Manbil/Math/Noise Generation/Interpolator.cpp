@@ -20,10 +20,10 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
             smoothStepper = [](float inVal) { return inVal; };
             break;
         case Smoothness::I2S_CUBIC:
-            smoothStepper = BasicMath::Smooth;
+            smoothStepper = Mathf::Smooth;
             break;
         case Smoothness::I2S_QUINTIC:
-            smoothStepper = BasicMath::Supersmooth;
+            smoothStepper = Mathf::Supersmooth;
             break;
 
         default: assert(false);
@@ -53,10 +53,10 @@ void Interpolator2D::Generate(Array2D<float> & outN) const
             srcLocMax.x = srcLocMin.x + 1;
             lerpVal.x = smoothStepper(srcX - (float)srcLocMin.x);
 
-            outN[loc] = BasicMath::Lerp(BasicMath::Lerp(toInterp[srcLocMin],
+            outN[loc] = Mathf::Lerp(Mathf::Lerp(toInterp[srcLocMin],
                                                         toInterp[Vector2u(srcLocMax.x, srcLocMin.y)],
                                                         lerpVal.x),
-                                        BasicMath::Lerp(toInterp[Vector2u(srcLocMin.x, srcLocMax.y)],
+                                        Mathf::Lerp(toInterp[Vector2u(srcLocMin.x, srcLocMax.y)],
                                                         toInterp[srcLocMax],
                                                         lerpVal.x),
                                         lerpVal.y);

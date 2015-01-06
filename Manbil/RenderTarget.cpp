@@ -189,8 +189,8 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
                 return false;
             }
 
-            newWidth = BasicMath::Min(newWidth, colWidth);
-            newHeight = BasicMath::Min(newHeight, colHeight);
+            newWidth = Mathf::Min(newWidth, colWidth);
+            newHeight = Mathf::Min(newHeight, colHeight);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, textureType, texHandle, 0);
         }
     }
@@ -285,8 +285,8 @@ bool RenderTarget::UpdateSize(void)
         }
 
         //Update the size of this frame buffer.
-        width = BasicMath::Min(width, tempWidth);
-        height = BasicMath::Min(height, tempHeight);
+        width = Mathf::Min(width, tempWidth);
+        height = Mathf::Min(height, tempHeight);
     }
 
     //Update the depth buffer.

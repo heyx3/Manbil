@@ -1,12 +1,12 @@
-#include "BasicMath.h"
+#include "Mathf.h"
 
 #include <limits>
 
 
-const float BasicMath::NaN = std::numeric_limits<float>::quiet_NaN();
+const float Mathf::NaN = std::numeric_limits<float>::quiet_NaN();
 
 
-float BasicMath::FastInvSqrt1(float f)
+float Mathf::FastInvSqrt1(float f)
 {
     long i;
     float x2, y;
@@ -22,7 +22,7 @@ float BasicMath::FastInvSqrt1(float f)
 
     return y;
 }
-float BasicMath::FastInvSqrt2(float f)
+float Mathf::FastInvSqrt2(float f)
 {
     long i;
     float x2, y;
@@ -40,7 +40,7 @@ float BasicMath::FastInvSqrt2(float f)
     return y;
 }
 
-long BasicMath::IntPow(int base, int exponent)
+long Mathf::IntPow(int base, int exponent)
 {
     //Use "exponentiation by squaring".
     //http://stackoverflow.com/questions/101439/the-most-efficient-way-to-implement-an-integer-based-power-function-powint-int
@@ -57,7 +57,7 @@ long BasicMath::IntPow(int base, int exponent)
     return result;
 }
 
-float BasicMath::Round(float v, int decimals)
+float Mathf::Round(float v, int decimals)
 {
     float multiplier = pow(10.0f, decimals),
           f1 = (v * multiplier),
@@ -66,9 +66,9 @@ float BasicMath::Round(float v, int decimals)
     return f3;
 }
 
-BasicMath::ClampIntervalResult BasicMath::ClampToIntervalBounds(float intervalStart,
-                                                                float intervalSize,
-                                                                float value)
+Mathf::ClampIntervalResult Mathf::ClampToIntervalBounds(float intervalStart,
+                                                        float intervalSize,
+                                                        float value)
 {
     float sub = value - intervalStart;
     float divided = Abs(sub / intervalSize);

@@ -63,10 +63,10 @@ void NF2::UpContrast(Noise2D * nse) const
 	switch (UpContrast_Power)
 	{
 		case UpContrastPowers::CUBIC:
-			args.SmoothStepper = &BasicMath::Smooth;
+			args.SmoothStepper = &Mathf::Smooth;
 			break;
 		case UpContrastPowers::QUINTIC:
-			args.SmoothStepper = &BasicMath::Supersmooth;
+			args.SmoothStepper = &Mathf::Supersmooth;
 			break;
 
 		default: assert(false);
@@ -175,7 +175,7 @@ void NF2::Min(Noise2D * nse) const
 
     SetAtEveryPoint((void*)&Min_Value, [](void *pData, Vector2u loc, Noise2D * noise)
     {
-        return BasicMath::Min((*noise)[loc], *(float*)pData);
+        return Mathf::Min((*noise)[loc], *(float*)pData);
     });
 }
 void NF2::Max(Noise2D * nse) const
@@ -184,7 +184,7 @@ void NF2::Max(Noise2D * nse) const
 
     SetAtEveryPoint((void*)&Max_Value, [](void *pData, Vector2u loc, Noise2D * noise)
     {
-        return BasicMath::Max((*noise)[loc], *(float*)pData);
+        return Mathf::Max((*noise)[loc], *(float*)pData);
     });
 }
 void NF2::Clamp(Noise2D * nse) const
@@ -194,7 +194,7 @@ void NF2::Clamp(Noise2D * nse) const
     float fs[2] = { Min_Value, Max_Value };
     SetAtEveryPoint((void*)fs, [](void *pData, Vector2u loc, Noise2D * noise)
     {
-        return BasicMath::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
+        return Mathf::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
     });
 }
 
@@ -256,7 +256,7 @@ void NF2::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2u
 		}
 
 		//Lerp between the old and new value using the strength value.
-		dt->Noise->operator[](loc) = BasicMath::Clamp(BasicMath::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
+		dt->Noise->operator[](loc) = Mathf::Clamp(Mathf::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
 	}, *noise, noise->GetDimensions());
 }
 
@@ -312,10 +312,10 @@ void NF3::UpContrast(Noise3D * nse) const
     switch (UpContrast_Power)
     {
     case UpContrastPowers::CUBIC:
-        args.SmoothStepper = &BasicMath::Smooth;
+        args.SmoothStepper = &Mathf::Smooth;
         break;
     case UpContrastPowers::QUINTIC:
-        args.SmoothStepper = &BasicMath::Supersmooth;
+        args.SmoothStepper = &Mathf::Supersmooth;
         break;
 
     default: assert(false);
@@ -417,14 +417,14 @@ void NF3::Min(Noise3D * nse) const
 {
     SetAtEveryPoint(nse, (void*)&Min_Value, [](void *pData, Vector3u loc, Noise3D * noise)
     {
-        return BasicMath::Min((*noise)[loc], *(float*)pData);
+        return Mathf::Min((*noise)[loc], *(float*)pData);
     });
 }
 void NF3::Max(Noise3D * nse) const
 {
     SetAtEveryPoint(nse, (void*)&Max_Value, [](void *pData, Vector3u loc, Noise3D * noise)
     {
-        return BasicMath::Max((*noise)[loc], *(float*)pData);
+        return Mathf::Max((*noise)[loc], *(float*)pData);
     });
 }
 void NF3::Clamp(Noise3D * nse) const
@@ -432,7 +432,7 @@ void NF3::Clamp(Noise3D * nse) const
     float fs[2] = { Min_Value, Max_Value };
     SetAtEveryPoint(nse, (void*)fs, [](void *pData, Vector3u loc, Noise3D * noise)
     {
-        return BasicMath::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
+        return Mathf::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
     });
 }
 
@@ -483,7 +483,7 @@ void NF3::SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * p
         }
 
         //Lerp between the old and new value using the strength value.
-        dt->Noise->operator[](loc) = BasicMath::Clamp(BasicMath::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
+        dt->Noise->operator[](loc) = Mathf::Clamp(Mathf::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
     }, *nse, nse->GetDimensions());
 }
 

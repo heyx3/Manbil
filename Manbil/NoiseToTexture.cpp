@@ -17,7 +17,7 @@ void NoiseToTexture::GetImage(Array2D<Vector4b> & outImage) const
 		for (y = 0; y < NoiseToUse->GetHeight(); ++y)
 		{
 			tempF = (*NoiseToUse)[Vector2u(x, y)];
-            readNoise = BasicMath::Clamp(tempF, 0.0f, 1.0f);
+            readNoise = Mathf::Clamp(tempF, 0.0f, 1.0f);
 
 			//Get the coordinates of the pixel in the out aray.
 			pixX = x * 4;
@@ -25,12 +25,12 @@ void NoiseToTexture::GetImage(Array2D<Vector4b> & outImage) const
 
 			//Set the pixel values.
 			col = GradientToUse->GetColor(readNoise) * 255.0f;
-			col = Vector4f(BasicMath::Clamp(col.x, 0.0f, 255.0f), BasicMath::Clamp(col.y, 0.0f, 255.0f),
-						   BasicMath::Clamp(col.z, 0.0f, 255.0f), BasicMath::Clamp(col.w, 0.0f, 255.0f));
-			colB = Vector4b((unsigned char)BasicMath::RoundToInt(col.x),
-							(unsigned char)BasicMath::RoundToInt(col.y),
-							(unsigned char)BasicMath::RoundToInt(col.z),
-							(unsigned char)BasicMath::RoundToInt(col.w));
+			col = Vector4f(Mathf::Clamp(col.x, 0.0f, 255.0f), Mathf::Clamp(col.y, 0.0f, 255.0f),
+						   Mathf::Clamp(col.z, 0.0f, 255.0f), Mathf::Clamp(col.w, 0.0f, 255.0f));
+			colB = Vector4b((unsigned char)Mathf::RoundToInt(col.x),
+							(unsigned char)Mathf::RoundToInt(col.y),
+							(unsigned char)Mathf::RoundToInt(col.z),
+							(unsigned char)Mathf::RoundToInt(col.w));
             outImage[Vector2u(pixX, pixY)] = colB;
 		}
 	}

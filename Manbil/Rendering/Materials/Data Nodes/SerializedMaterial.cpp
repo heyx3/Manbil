@@ -252,7 +252,7 @@ bool SerializedMaterial::WriteData(DataWriter * writer, std::string & outError) 
 
             //Set/update the node's entry in the graph.
             nodesAndDepth[toSearch.Node] = toSearch.Depth;
-            maxDepth = BasicMath::Max(maxDepth, toSearch.Depth);
+            maxDepth = Mathf::Max(maxDepth, toSearch.Depth);
 
             //Add the node's DataNode children (as opposed to constant VectorF children) to the search space.
             for (unsigned int i = 0; i < toSearch.Node->GetInputs().size(); ++i)

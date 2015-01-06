@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../Lower Math/BasicMath.h"
+#include "../Lower Math/Mathf.h"
 
 
 //Should be an int in the range [1, 4].
@@ -87,16 +87,16 @@ public:
         const GNode & end = Nodes[topBound];
 
         //Use a lerp between the start and end, but first smooth the "t" component to create a smooth curve.
-        float remappedT = BasicMath::LerpComponent(start.T, end.T, t);
+        float remappedT = Mathf::LerpComponent(start.T, end.T, t);
         switch (SmoothQuality)
         {
             case SM_LINEAR: break;
-            case SM_CUBIC: remappedT = BasicMath::Smooth(remappedT); break;
-            case SM_QUINTIC: remappedT = BasicMath::Supersmooth(remappedT); break;
+            case SM_CUBIC: remappedT = Mathf::Smooth(remappedT); break;
+            case SM_QUINTIC: remappedT = Mathf::Supersmooth(remappedT); break;
             default: assert(false);
         }
         for (unsigned int i = 0; i < Components; ++i)
-            outVals[i] = BasicMath::Lerp(start.Value[i], end.Value[i], remappedT);
+            outVals[i] = Mathf::Lerp(start.Value[i], end.Value[i], remappedT);
     }
 
 

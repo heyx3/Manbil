@@ -18,12 +18,12 @@ void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Arra
              maxCorner = (Center + Vector3f(Radius, Radius, Radius)).Ceil();
     if (!Wrap)
     {
-        minCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
-        minCorner.y = BasicMath::Clamp<int>(minCorner.y, 0, noiseSize.y - 1);
-        minCorner.z = BasicMath::Clamp<int>(minCorner.z, 0, noiseSize.z - 1);
-        maxCorner.x = BasicMath::Clamp<int>(maxCorner.x, 0, noiseSize.x - 1);
-        maxCorner.y = BasicMath::Clamp<int>(maxCorner.y, 0, noiseSize.y - 1);
-        maxCorner.z = BasicMath::Clamp<int>(maxCorner.z, 0, noiseSize.z - 1);
+        minCorner.x = Mathf::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        minCorner.y = Mathf::Clamp<int>(minCorner.y, 0, noiseSize.y - 1);
+        minCorner.z = Mathf::Clamp<int>(minCorner.z, 0, noiseSize.z - 1);
+        maxCorner.x = Mathf::Clamp<int>(maxCorner.x, 0, noiseSize.x - 1);
+        maxCorner.y = Mathf::Clamp<int>(maxCorner.y, 0, noiseSize.y - 1);
+        maxCorner.z = Mathf::Clamp<int>(maxCorner.z, 0, noiseSize.z - 1);
     }
 
     Sphere sphere(Center, Radius);
@@ -70,9 +70,9 @@ void SphereFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Arra
     }
     else
     {
-        Vector3u minCornerU(BasicMath::Max<unsigned int>(0, minCorner.x),
-                            BasicMath::Max<unsigned int>(0, minCorner.y),
-                            BasicMath::Max<unsigned int>(0, minCorner.z));
+        Vector3u minCornerU(Mathf::Max<unsigned int>(0, minCorner.x),
+                            Mathf::Max<unsigned int>(0, minCorner.y),
+                            Mathf::Max<unsigned int>(0, minCorner.z));
         for (Vector3u loc(0, 0, minCornerU.z); loc.z <= (unsigned int)maxCorner.z; ++loc.z)
         {
             locF.z = (float)loc.z;
@@ -100,15 +100,15 @@ float SphereFilterVolume::GetStrengthDropoffScale(Vector3f pos) const
         return 1.0f;
     }
 
-    float maxDist = BasicMath::Abs(DropoffRadiusPercent) * Radius,
+    float maxDist = Mathf::Abs(DropoffRadiusPercent) * Radius,
           dist = pos.Distance(Center);
     if (DropoffRadiusPercent > 0.0f)
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
     }
     else
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 0.0f, 1.0f, dist), 0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::Remap(0, maxDist, 0.0f, 1.0f, dist), 0.0f, 1.0f);
     }
 }
 
@@ -144,12 +144,12 @@ void CubeFilterVolume::DoToEveryPoint(void* pData, ActionFunc toDo, const Array3
     }
     else
     {
-        Vector3u minCornerU(BasicMath::Max<unsigned int>(0, MinCorner.x),
-                            BasicMath::Max<unsigned int>(0, MinCorner.y),
-                            BasicMath::Max<unsigned int>(0, MinCorner.z));
-        Vector3u maxCornerU(BasicMath::Min<unsigned int>(MaxCorner.x, noiseSize.x),
-                            BasicMath::Min<unsigned int>(MaxCorner.y, noiseSize.y),
-                            BasicMath::Min<unsigned int>(MaxCorner.z, noiseSize.z));
+        Vector3u minCornerU(Mathf::Max<unsigned int>(0, MinCorner.x),
+                            Mathf::Max<unsigned int>(0, MinCorner.y),
+                            Mathf::Max<unsigned int>(0, MinCorner.z));
+        Vector3u maxCornerU(Mathf::Min<unsigned int>(MaxCorner.x, noiseSize.x),
+                            Mathf::Min<unsigned int>(MaxCorner.y, noiseSize.y),
+                            Mathf::Min<unsigned int>(MaxCorner.z, noiseSize.z));
         for (Vector3u loc(0, 0, minCornerU.z); loc.z <= maxCornerU.z; ++loc.z)
             for (loc.y = minCornerU.y; loc.y <= maxCornerU.y; ++loc.y)
                 for (loc.x = minCornerU.x; loc.x <= maxCornerU.x; ++loc.x)

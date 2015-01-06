@@ -7,7 +7,7 @@ MAKE_NODE_READABLE_CPP(MinNode, 1.0f, 1.0f)
 
 unsigned int MaxNode::GetOutputSize(unsigned int index) const
 {
-    return BasicMath::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
+    return Mathf::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
 }
 std::string MaxNode::GetOutputName(unsigned int index) const
 {
@@ -35,7 +35,7 @@ void MaxNode::AssertMyInputsValid(void) const
 
 unsigned int MinNode::GetOutputSize(unsigned int index) const
 {
-    return BasicMath::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
+    return Mathf::Max(GetInputs()[0].GetSize(), GetInputs()[1].GetSize());
 }
 std::string MinNode::GetOutputName(unsigned int index) const
 {

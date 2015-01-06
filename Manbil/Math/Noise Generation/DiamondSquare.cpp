@@ -28,7 +28,7 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 
 
 	//"Diamond" part of the algorithm.
-	if (BasicMath::IsNaN(noise[m]))
+	if (Mathf::IsNaN(noise[m]))
 	{
 		f = noise[tl] + noise[tr] + noise[bl] + noise[br];
 		f *= 0.25f;
@@ -40,7 +40,7 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 	//"Square" part of the algorithm.
 
 	//Left point.
-	if (BasicMath::IsNaN(noise[l]))
+	if (Mathf::IsNaN(noise[l]))
 	{
 		f = (noise[tl] + noise[bl]) * 0.5f;
         f2 = var.RandomInsideRange(FastRand(Vector3i((int)l.x, (int)l.y, Seed).GetHashCode()));
@@ -48,7 +48,7 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 	}
 
 	//Top point.
-	if (BasicMath::IsNaN(noise[tm]))
+	if (Mathf::IsNaN(noise[tm]))
 	{
 		f = (noise[tl] + noise[tr]) * 0.5f;
         f2 = var.RandomInsideRange(FastRand(Vector3i((int)tm.x, (int)tm.y, Seed).GetHashCode()));
@@ -56,7 +56,7 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 	}
 
 	//Right point.
-	if (BasicMath::IsNaN(noise[r]))
+	if (Mathf::IsNaN(noise[r]))
 	{
 		f = (noise[tr] + noise[br]) * 0.5f;
         f2 = var.RandomInsideRange(FastRand(Vector3i((int)r.x, (int)r.y, Seed).GetHashCode()));
@@ -64,7 +64,7 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 	}
 
 	//Bottom point.
-	if (BasicMath::IsNaN(noise[bm]))
+	if (Mathf::IsNaN(noise[bm]))
 	{
 		f = (noise[bl] + noise[br]) * 0.5f;
         f2 = var.RandomInsideRange(FastRand(Vector3i((int)bm.x, (int)bm.y, Seed).GetHashCode()));
@@ -100,7 +100,7 @@ void DiamondSquare::Generate(Noise2D & noise) const
     unsigned int powValue;
 	for (pow2 = 0; ; ++pow2)
 	{
-		powValue = BasicMath::IntPow(2, pow2);
+		powValue = Mathf::IntPow(2, pow2);
 
 		if (noiseSize == (powValue + 1))
 		{
@@ -129,19 +129,19 @@ void DiamondSquare::Generate(Noise2D & noise) const
 		}
 	}
 	//If there aren't enough variances, add the default variance.
-	unsigned int steps = (unsigned int)BasicMath::RoundToInt(BasicMath::Log(noiseSize, 2.0f)) + 1;
+	unsigned int steps = (unsigned int)Mathf::RoundToInt(Mathf::Log(noiseSize, 2.0f)) + 1;
 	for (unsigned int i = steps - variances.size(); i > 0; --i)
 		variances.insert(variances.end(), DefaultVariance);
 
 
     //Seed the corners of the noise.
-	if (BasicMath::IsNaN(noise[Vector2u(0, 0)]))
+	if (Mathf::IsNaN(noise[Vector2u(0, 0)]))
 		noise[Vector2u(0, 0)] = StartingCornerValues;
-	if (BasicMath::IsNaN(noise[Vector2u(0, noiseSize - 1)]))
+	if (Mathf::IsNaN(noise[Vector2u(0, noiseSize - 1)]))
 		noise[Vector2u(0, noiseSize - 1)] = StartingCornerValues;
-	if (BasicMath::IsNaN(noise[Vector2u(noiseSize - 1, 0)]))
+	if (Mathf::IsNaN(noise[Vector2u(noiseSize - 1, 0)]))
 		noise[Vector2u(noiseSize - 1, 0)] = StartingCornerValues;
-	if (BasicMath::IsNaN(noise[Vector2u(noiseSize - 1, noiseSize - 1)]))
+	if (Mathf::IsNaN(noise[Vector2u(noiseSize - 1, noiseSize - 1)]))
 		noise[Vector2u(noiseSize - 1, noiseSize - 1)] = StartingCornerValues;
 
     //Start the iteration algorithm.

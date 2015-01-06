@@ -15,7 +15,7 @@ void LookRotation::Update(float el, float total)
     EulerRotation += Vector3f(0.0f, movement.y, movement.x);
 
     //Constrain rotation.
-    EulerRotation.x = BasicMath::Clamp(EulerRotation.x, -MaxRot.x, MaxRot.x);
-    EulerRotation.y = BasicMath::Clamp(EulerRotation.y, -MaxRot.y, MaxRot.y);
-    EulerRotation.z = BasicMath::Clamp(EulerRotation.z, -MaxRot.z, MaxRot.z);
+    EulerRotation.x = Mathf::Clamp(EulerRotation.x, -MaxRot.x, MaxRot.x);
+    EulerRotation.y = Mathf::Clamp(EulerRotation.y, -MaxRot.y, MaxRot.y);
+    EulerRotation.z = Mathf::Clamp(EulerRotation.z, -MaxRot.z, MaxRot.z);
 }

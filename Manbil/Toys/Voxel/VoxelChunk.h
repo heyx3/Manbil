@@ -98,7 +98,7 @@ public:
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3u Clamp(Vector3i inV) const { return ToV3u(inV.Clamp(0, ChunkSize)); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
-    Vector3u Clamp(Vector3u inV) const { return Vector3u(BasicMath::Min(inV.x, ChunkSize), BasicMath::Min(inV.y, ChunkSize), BasicMath::Min(inV.z, ChunkSize)); }
+    Vector3u Clamp(Vector3u inV) const { return Vector3u(Mathf::Min(inV.x, ChunkSize), Mathf::Min(inV.y, ChunkSize), Mathf::Min(inV.z, ChunkSize)); }
     //Clamps the given Local-Chunk-Space coordinate to be inside this Chunk.
     Vector3f Clamp(Vector3f inV) const { return inV.Clamp(0.0f, ChunkSizeF); }
 
@@ -174,7 +174,7 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -189,12 +189,12 @@ public:
             return false;
         }
 
-        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
-            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
+        int xStart = Mathf::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = Mathf::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = Mathf::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = Mathf::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = Mathf::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = Mathf::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -209,7 +209,7 @@ public:
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -224,12 +224,12 @@ public:
             return;
         }
 
-        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
-            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
+        int xStart = Mathf::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = Mathf::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = Mathf::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = Mathf::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = Mathf::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = Mathf::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -244,7 +244,7 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryVoxelPredicate(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -259,12 +259,12 @@ public:
             return false;
         }
 
-        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
-            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
+        int xStart = Mathf::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = Mathf::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = Mathf::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = Mathf::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = Mathf::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = Mathf::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)
@@ -279,7 +279,7 @@ public:
     //Calls "todo" on every valid local voxel index between "start" and "end", inclusive.
     void DoToEveryVoxel(Func todo, Vector3i start = Vector3i(0, 0, 0), Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -294,12 +294,12 @@ public:
             return;
         }
         
-        int xStart = BasicMath::Clamp<int>(start.x, 0, ChunkSize - 1),
-            yStart = BasicMath::Clamp<int>(start.y, 0, ChunkSize - 1),
-            zStart = BasicMath::Clamp<int>(start.z, 0, ChunkSize - 1),
-            xEnd = BasicMath::Clamp<int>(end.x, 0, ChunkSize - 1),
-            yEnd = BasicMath::Clamp<int>(end.y, 0, ChunkSize - 1),
-            zEnd = BasicMath::Clamp<int>(end.z, 0, ChunkSize - 1);
+        int xStart = Mathf::Clamp<int>(start.x, 0, ChunkSize - 1),
+            yStart = Mathf::Clamp<int>(start.y, 0, ChunkSize - 1),
+            zStart = Mathf::Clamp<int>(start.z, 0, ChunkSize - 1),
+            xEnd = Mathf::Clamp<int>(end.x, 0, ChunkSize - 1),
+            yEnd = Mathf::Clamp<int>(end.y, 0, ChunkSize - 1),
+            zEnd = Mathf::Clamp<int>(end.z, 0, ChunkSize - 1);
 
         Vector3i loc;
         for (loc.z = zStart; (sign.z > 0 && loc.z <= zEnd) || (sign.z < 0 && loc.z >= zEnd); loc.z += sign.z)

@@ -12,7 +12,7 @@ unsigned int GetDataNodeLastID(void)
     //'now' is type 'long', so just grab the first half of it and interpret that. 
     unsigned int hash = *(unsigned int*)(&now);
 
-    return BasicMath::Abs(FastRand((int)hash).GetRandInt());
+    return Mathf::Abs(FastRand((int)hash).GetRandInt());
 }
 unsigned int DataNode::lastID = GetDataNodeLastID();
 

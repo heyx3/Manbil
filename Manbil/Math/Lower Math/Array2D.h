@@ -96,20 +96,20 @@ public:
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector2i Clamp(Vector2i in) const
     {
-        return Vector2i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
-                        BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1));
+        return Vector2i(Mathf::Clamp<int>(in.x, 0, GetWidth() - 1),
+                        Mathf::Clamp<int>(in.y, 0, GetHeight() - 1));
     }
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector2u Clamp(Vector2u in) const
     {
-        return Vector2u(BasicMath::Min<unsigned int>(in.x, GetWidth() - 1),
-                        BasicMath::Min<unsigned int>(in.y, GetHeight() - 1));
+        return Vector2u(Mathf::Min<unsigned int>(in.x, GetWidth() - 1),
+                        Mathf::Min<unsigned int>(in.y, GetHeight() - 1));
     }
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector2f Clamp(Vector2f in) const
     {
-        return Vector2f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth() - 1),
-                        BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1));
+        return Vector2f(Mathf::Clamp<float>(in.x, 0.0f, GetWidth() - 1),
+                        Mathf::Clamp<float>(in.y, 0.0f, GetHeight() - 1));
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector2i Wrap(Vector2i in) const

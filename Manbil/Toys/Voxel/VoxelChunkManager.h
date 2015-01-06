@@ -123,7 +123,7 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryChunkPredicate(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -145,7 +145,7 @@ public:
     //Assume the "chunk" parameter in Func is never 0.
     void DoToEveryChunk(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1))
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -167,7 +167,7 @@ public:
     //Returns whether or not "todo" ever returned "true".
     bool DoToEveryChunkPredicate(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;
@@ -189,7 +189,7 @@ public:
     //Assume the "chunk" parameter in Func is never 0.
     bool DoToEveryChunk(Func todo, Vector3i start, Vector3i end = Vector3i(ChunkSize - 1, ChunkSize - 1, ChunkSize - 1)) const
     {
-        Vector3i sign(BasicMath::Sign(end.x - start.x), BasicMath::Sign(end.y - start.y), BasicMath::Sign(end.z - start.z));
+        Vector3i sign(Mathf::Sign(end.x - start.x), Mathf::Sign(end.y - start.y), Mathf::Sign(end.z - start.z));
         if (sign.x == 0) sign.x = 1;
         if (sign.y == 0) sign.y = 1;
         if (sign.z == 0) sign.z = 1;

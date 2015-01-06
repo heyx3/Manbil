@@ -11,14 +11,14 @@ Box2D GUISlider::GetBounds(void) const
     if (IsVertical)
     {
         return Box2D(Bar.GetPos(),
-                     Vector2f(BasicMath::Max(barBounds.GetXSize(), nubBounds.GetXSize()),
+                     Vector2f(Mathf::Max(barBounds.GetXSize(), nubBounds.GetXSize()),
                               barBounds.GetYSize() + nubBounds.GetYSize()));
     }
     else
     {
         return Box2D(Bar.GetPos(),
                      Vector2f(barBounds.GetXSize() + nubBounds.GetXSize(),
-                              BasicMath::Max(barBounds.GetYSize(), nubBounds.GetYSize())));
+                              Mathf::Max(barBounds.GetYSize(), nubBounds.GetYSize())));
     }
 }
 
@@ -40,13 +40,13 @@ float GUISlider::GetNewValue(Vector2f mousePos) const
 
     if (IsVertical)
     {
-        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax(),
+        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax(),
                                                          mousePos.y),
                                 0.0f, 1.0f);
     }
     else
     {
-        return BasicMath::Clamp(BasicMath::LerpComponent(barBounds.GetXMin(), barBounds.GetXMax(),
+        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetXMin(), barBounds.GetXMax(),
                                                          mousePos.x),
                                 0.0f, 1.0f);
     }

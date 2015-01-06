@@ -16,7 +16,7 @@ public:
 
     LookRotation(std::shared_ptr<Vector2Input> input,
                  Vector3f rotSpeed = Vector3f(0.0f, 2.0f, 2.0f),
-                 Vector3f maxRot = Vector3f(0.0f, BasicMath::DegToRad(85.0f), 9999.0f),
+                 Vector3f maxRot = Vector3f(0.0f, Mathf::DegToRad(85.0f), 9999.0f),
                  Vector3f startingRotation = Vector3f())
         : EulerRotation(startingRotation), RotateSpeed(rotSpeed), MaxRot(maxRot),
           Input(input)

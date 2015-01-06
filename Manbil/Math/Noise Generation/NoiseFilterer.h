@@ -75,11 +75,11 @@ public:
 
 
     float Min_Value, Max_Value;
-    //Performs the operation "BasicMath::Min(Min_Value, x)" on each noise value.
+    //Performs the operation "Mathf::Min(Min_Value, x)" on each noise value.
     void Min(Noise2D * nse = 0) const;
-    //Performs the operation "BasicMath::Max(Max_Value, x)" on each noise value.
+    //Performs the operation "Mathf::Max(Max_Value, x)" on each noise value.
     void Max(Noise2D * nse = 0) const;
-    //Performs the operation "BasicMath::Clamp(x, Min_Value, Max_Value)" on each noise value.
+    //Performs the operation "Mathf::Clamp(x, Min_Value, Max_Value)" on each noise value.
     void Clamp(Noise2D * nse = 0) const;
 
 
@@ -180,11 +180,11 @@ public:
 
 
     float Min_Value, Max_Value;
-    //Performs the operation "BasicMath::Min(Min_Value, x)" on each noise value.
+    //Performs the operation "Mathf::Min(Min_Value, x)" on each noise value.
     void Min(Noise3D * nse = 0) const;
-    //Performs the operation "BasicMath::Max(Max_Value, x)" on each noise value.
+    //Performs the operation "Mathf::Max(Max_Value, x)" on each noise value.
     void Max(Noise3D * nse = 0) const;
-    //Performs the operation "BasicMath::Clamp(x, Min_Value, Max_Value)" on each noise value.
+    //Performs the operation "Mathf::Clamp(x, Min_Value, Max_Value)" on each noise value.
     void Clamp(Noise3D * nse = 0) const;
 
 

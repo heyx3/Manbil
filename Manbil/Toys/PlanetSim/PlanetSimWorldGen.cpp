@@ -68,12 +68,12 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
             PlanetVertex & vert = outVertGrid[loc];
 
             float heightVal = noiseGrid[loc];
-            heightVal = BasicMath::Remap(minMax.Min, minMax.Max, 0.0f, 1.0f, heightVal);
+            heightVal = Mathf::Remap(minMax.Min, minMax.Max, 0.0f, 1.0f, heightVal);
 
-            vert.Heightmap = BasicMath::Supersmooth(BasicMath::Supersmooth(heightVal));
+            vert.Heightmap = Mathf::Supersmooth(Mathf::Supersmooth(heightVal));
 
             vert.Pos = getWorldPos(halfSide, loc).Normalized();
-            vert.Pos *= BasicMath::Lerp(minHeight, maxHeight, vert.Heightmap);
+            vert.Pos *= Mathf::Lerp(minHeight, maxHeight, vert.Heightmap);
         }
     }
     
@@ -146,7 +146,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     float(*filterHeight)(float heightVal) = [](float heightVal)
     {
-        return BasicMath::Supersmooth(BasicMath::Supersmooth(heightVal));
+        return Mathf::Supersmooth(Mathf::Supersmooth(heightVal));
     };
 
 
@@ -164,7 +164,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     //Generate the negative X face heightmap.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     sqr.Generate(outNoise);
 
     //Save the edges.
@@ -182,7 +182,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     //Generate the negative Y face.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     for (unsigned int y = 0; y < verticesPerSide; ++y)
         outNoise[Vector2u(0, y)] = edgeNegXY[y];
     sqr.Seed = 268281371;
@@ -205,7 +205,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     //Generate the positive X face.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     for (unsigned int y = 0; y < verticesPerSide; ++y)
         outNoise[Vector2u(0, y)] = edgePosXNegY[y];
     sqr.Seed = 2612633;
@@ -228,7 +228,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     //Generate the positive Y face.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     for (unsigned int y = 0; y < verticesPerSide; ++y)
     {
         outNoise[Vector2u(0, y)] = edgeNegXPosY[y];
@@ -256,7 +256,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
 
     //Generate the negative Z face.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     for (unsigned int i = 0; i < verticesPerSide; ++i)
     {
         outNoise[Vector2u(i, 0)] = edgeNegYZ[i];
@@ -281,7 +281,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
     
     //Generate the positive Z face.
 
-    outNoise.Fill(BasicMath::NaN);
+    outNoise.Fill(Mathf::NaN);
     for (unsigned int i = 0; i < verticesPerSide; ++i)
     {
         outNoise[Vector2u(i, 0)] = edgeNegYPosZ[i];

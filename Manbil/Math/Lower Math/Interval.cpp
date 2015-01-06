@@ -4,8 +4,8 @@
 
 Interval Union(Interval one, Interval two)
 {
-    return Interval(BasicMath::Min(one.GetStart(), two.GetStart()),
-                    BasicMath::Max(one.GetEnd(), two.GetEnd()),
+    return Interval(Mathf::Min(one.GetStart(), two.GetStart()),
+                    Mathf::Max(one.GetEnd(), two.GetEnd()),
                     0.001f, true, true);
 }
 Interval Interval::Intersection(Interval one, Interval two)
@@ -38,7 +38,7 @@ Interval::Interval(float start, float end, float epsilon, bool startInclusive, b
 	float en = (endInclusive ? end : end - epsilon);
 
 	center = (st + en) * 0.5f;
-	range = BasicMath::Abs(en - st);
+	range = Mathf::Abs(en - st);
 	halfRange = range * 0.5f;
 }
 
@@ -63,23 +63,23 @@ float Interval::GetLerpComponent(float value) const
     if (range == 0.0f)
         return 0.5f;
 
-    return BasicMath::LerpComponent(GetStart(), GetEnd(), value);
+    return Mathf::LerpComponent(GetStart(), GetEnd(), value);
 }
 float Interval::Lerp(float t) const
 {
     if (range == 0.0f)
         return center;
 
-    return BasicMath::Lerp(GetStart(), GetEnd(), t);
+    return Mathf::Lerp(GetStart(), GetEnd(), t);
 }
 float Interval::MapValue(Interval destination, float value) const
 {
     if (range == 0.0f || destination.range == 0.0f)
         return destination.center;
 
-    return BasicMath::Remap(GetStart(), GetEnd(),
-                            destination.GetStart(), destination.GetEnd(),
-                            value);
+    return Mathf::Remap(GetStart(), GetEnd(),
+                        destination.GetStart(), destination.GetEnd(),
+                        value);
 }
 
 bool Interval::IsInside(Interval outer) const

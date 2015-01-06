@@ -16,14 +16,14 @@ public:
     //Takes in the LOD (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.).
     static inline unsigned int GetVerticesCount(unsigned int regionSize, unsigned int zoomOut = 0)
     {
-        return (regionSize * regionSize) / (unsigned int)BasicMath::IntPow(4, zoomOut);
+        return (regionSize * regionSize) / (unsigned int)Mathf::IntPow(4, zoomOut);
     }
     //Gets the number of indices necessary to generate triangles for a terrain of the given size.
     //Assumes the size of the region is a power of 2.
     //Takes in the LOD (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.).
     static inline unsigned int GetIndicesCount(unsigned int regionSize, unsigned int zoomOut = 0)
     {
-        return (6 * (regionSize - 1) * (regionSize - 1)) / (unsigned int)BasicMath::IntPow(4, zoomOut);
+        return (6 * (regionSize - 1) * (regionSize - 1)) / (unsigned int)Mathf::IntPow(4, zoomOut);
     }
 
 

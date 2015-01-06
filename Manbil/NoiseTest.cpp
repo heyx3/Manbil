@@ -61,14 +61,14 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
     {
         for (loc.x = 0; loc.x < noise.GetWidth(); ++loc.x)
         {
-            float noiseVal = BasicMath::Clamp(noise[loc], 0.0f, 1.0f);
+            float noiseVal = Mathf::Clamp(noise[loc], 0.0f, 1.0f);
 
             float gradientCol[3] = { 0.0f, 0.0f, 0.0f };
             colGrad.GetValue(noiseVal, gradientCol);
 
-            Vector3b colorB((sf::Uint8)BasicMath::RoundToInt(gradientCol[0] * 255.0f),
-                            (sf::Uint8)BasicMath::RoundToInt(gradientCol[1] * 255.0f),
-                            (sf::Uint8)BasicMath::RoundToInt(gradientCol[2] * 255.0f));
+            Vector3b colorB((sf::Uint8)Mathf::RoundToInt(gradientCol[0] * 255.0f),
+                            (sf::Uint8)Mathf::RoundToInt(gradientCol[1] * 255.0f),
+                            (sf::Uint8)Mathf::RoundToInt(gradientCol[2] * 255.0f));
 
             Vector2u pixelStart(loc.x * 4, loc.y);
             outPixels[pixelStart] = colorB.x;
@@ -217,9 +217,9 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
             z = 0.0f;
 
             //Interpolate between layers to get the value.
-            *outFl = BasicMath::Lerp(tempNoise[Vector3u(loc.x, loc.y, (unsigned int)floorf(z))],
+            *outFl = Mathf::Lerp(tempNoise[Vector3u(loc.x, loc.y, (unsigned int)floorf(z))],
                                      tempNoise[Vector3u(loc.x, loc.y, (unsigned int)ceilf(z))],
-                                     BasicMath::Supersmooth(z - floorf(z)));
+                                     Mathf::Supersmooth(z - floorf(z)));
             *outFl = tempNoise[Vector3u(loc.x, loc.y, 0)];
         });
 
@@ -335,8 +335,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 //Part rocky, part plateau.
                 else if (distLerp >= mountainStartFadeInRadius)
                 {
-                    float lerpComponent = BasicMath::LerpComponent(mountainStartFadeInRadius, mountainBeginningRadius, distLerp);
-                    finalNoise[loc] = BasicMath::Lerp(plateauNoise[loc], rockyNoise[loc], lerpComponent);
+                    float lerpComponent = Mathf::LerpComponent(mountainStartFadeInRadius, mountainBeginningRadius, distLerp);
+                    finalNoise[loc] = Mathf::Lerp(plateauNoise[loc], rockyNoise[loc], lerpComponent);
                 }
                 //Fully plateau.
                 else if (distLerp >= plateauBeginningRadius)
@@ -346,8 +346,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 //Part plateau, part hilly.
                 else if (distLerp >= plateauStartFadeInRadius)
                 {
-                    float lerpComponent = BasicMath::LerpComponent(plateauStartFadeInRadius, plateauBeginningRadius, distLerp);
-                    finalNoise[loc] = BasicMath::Lerp(hillNoise[loc], plateauNoise[loc], lerpComponent);
+                    float lerpComponent = Mathf::LerpComponent(plateauStartFadeInRadius, plateauBeginningRadius, distLerp);
+                    finalNoise[loc] = Mathf::Lerp(hillNoise[loc], plateauNoise[loc], lerpComponent);
                 }
                 //Fully hilly.
                 else
@@ -377,7 +377,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
             Interval(0.0f, 5.0f),
         };
 
-        finalNoise.Fill(BasicMath::NaN);
+        finalNoise.Fill(Mathf::NaN);
         DiamondSquare dsq(fr.Seed, Interval(0.0f, 3.0f), variances, sizeof(variances) / sizeof(DiamondSquareStep), 0.0f);
         dsq.Generate(finalNoise);
 
@@ -419,7 +419,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
         bumpHeight *= bumpIncrement;
-        bumpHeight = BasicMath::Max(0.00001f, bumpHeight);
+        bumpHeight = Mathf::Max(0.00001f, bumpHeight);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
     {
@@ -450,9 +450,9 @@ void NoiseTest::UpdateWorld(float elapsedTime)
             normalColors.FillFunc([&normals](Vector2u loc, Vector4b * outCol)
             {
                 Vector3f c = normals[loc];
-                *outCol = Vector4b((unsigned char)BasicMath::Min(255.0f, c.x * 255.0f),
-                                   (unsigned char)BasicMath::Min(255.0f, c.y * 255.0f),
-                                   (unsigned char)BasicMath::Min(255.0f, c.z * 255.0f),
+                *outCol = Vector4b((unsigned char)Mathf::Min(255.0f, c.x * 255.0f),
+                                   (unsigned char)Mathf::Min(255.0f, c.y * 255.0f),
+                                   (unsigned char)Mathf::Min(255.0f, c.z * 255.0f),
                                    255);
             });
             renderedNoiseTex->update((sf::Uint8*)normalColors.GetArray());

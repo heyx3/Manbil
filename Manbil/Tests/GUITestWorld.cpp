@@ -78,7 +78,7 @@ public:
                            EditorObjectPtr(new SlidingBarUInt(0, 100, Vector2f(), EditorObject::DescriptionData(),
                                                               [](GUISlider* slider, unsigned int newVal, void* pData)
                                                                  { std::cout << newVal << "\n"; },
-                                                              BasicMath::LerpComponent(0.0f, 100.0f, Int))));
+                                                              Mathf::LerpComponent(0.0f, 100.0f, Int))));
         outElements.insert(outElements.end(),
                            EditorObjectPtr(new TextBoxString(String, 600.0f,
                                                              Vector2f(), EditorObject::DescriptionData(),

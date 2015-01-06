@@ -23,7 +23,7 @@ void ColorGradient::GetColors(Vector4f * outColors, const float * noiseValues, u
 }
 Vector4f ColorGradient::GetColorWOErrorChecking(float f) const
 {
-    f = BasicMath::Clamp(f, OrderedNodes[0].Position, OrderedNodes[OrderedNodes.size() - 1].Position);
+    f = Mathf::Clamp(f, OrderedNodes[0].Position, OrderedNodes[OrderedNodes.size() - 1].Position);
 
 	//Edge cases. Choose a random node side if the given value sits right on a Node.
 	if (f == OrderedNodes[0].Position)

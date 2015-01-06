@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicMath.h"
+#include "Mathf.h"
 
 
 //A fast (but not cryptographically-strong) PRNG.

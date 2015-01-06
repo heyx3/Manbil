@@ -187,16 +187,16 @@ void GUIFormattedPanel::RePositionElements()
         Box2D bnds = objects[i].Element->GetBounds();
 
         if (objects[i].MoveHorizontal)
-            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x);
+            max.x = Mathf::Max(max.x, moveDat.AutoPosCounter.x);
         else
-            max.x = BasicMath::Max(max.x, moveDat.AutoPosCounter.x -
+            max.x = Mathf::Max(max.x, moveDat.AutoPosCounter.x -
                                             objects[i].SpaceAfter.x +
                                             bnds.GetXSize());
 
         if (objects[i].MoveVertical)
-            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y);
+            max.y = Mathf::Max(max.y, moveDat.AutoPosCounter.y);
         else
-            max.y = BasicMath::Max(max.y, moveDat.AutoPosCounter.y -
+            max.y = Mathf::Max(max.y, moveDat.AutoPosCounter.y -
                                             objects[i].SpaceAfter.y +
                                             bnds.GetYSize());
 

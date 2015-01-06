@@ -1,6 +1,6 @@
 #include "Timing.h"
 
-#include "../Math/Lower Math/BasicMath.h"
+#include "../Math/Lower Math/Mathf.h"
 
 
 bool Timer::Update(float timeElapsed)
@@ -45,7 +45,7 @@ unsigned int TimerManager::UpdateTimers(float elapsedTime)
     toAdd.clear();
 
     //Remove timers based on event id and predicates.
-    for (unsigned int i = 0; i < BasicMath::Max(toRemoveByEventType.size(), toRemoveByPredicate.size()); ++i)
+    for (unsigned int i = 0; i < Mathf::Max(toRemoveByEventType.size(), toRemoveByPredicate.size()); ++i)
     {
         for (unsigned int j = 0; j < timers.size(); ++j)
         {

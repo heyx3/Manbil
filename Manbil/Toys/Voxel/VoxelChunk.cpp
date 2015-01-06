@@ -140,7 +140,7 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
 
     int axis = GeometricMath::GetLongestAxis(rayDir);
     float tIncrement = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, axis,
-                                                            rayStart[axis] + BasicMath::Sign(rayDir[axis])).t;
+                                                            rayStart[axis] + Mathf::Sign(rayDir[axis])).t;
 
 
     //March the ray in increments of that amount and check the bounding area
@@ -186,12 +186,12 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
                     vrh.VoxelIndex = loc;
                     vrh.CastResult = res;
                     //Calculate which face was hit by finding the axis with the smallest difference between the hit pos and the bounds.
-                    Vector3f distancesToMin(BasicMath::Abs(res.HitPos.x - vBounds.GetXMin()),
-                                            BasicMath::Abs(res.HitPos.y - vBounds.GetYMin()),
-                                            BasicMath::Abs(res.HitPos.z - vBounds.GetZMin())),
-                             distancesToMax(BasicMath::Abs(res.HitPos.x - vBounds.GetXMax()),
-                                            BasicMath::Abs(res.HitPos.y - vBounds.GetYMax()),
-                                            BasicMath::Abs(res.HitPos.z - vBounds.GetZMax()));
+                    Vector3f distancesToMin(Mathf::Abs(res.HitPos.x - vBounds.GetXMin()),
+                                            Mathf::Abs(res.HitPos.y - vBounds.GetYMin()),
+                                            Mathf::Abs(res.HitPos.z - vBounds.GetZMin())),
+                             distancesToMax(Mathf::Abs(res.HitPos.x - vBounds.GetXMax()),
+                                            Mathf::Abs(res.HitPos.y - vBounds.GetYMax()),
+                                            Mathf::Abs(res.HitPos.z - vBounds.GetZMax()));
                     bool minX_minY = (distancesToMin.x < distancesToMin.y),
                          minX_minZ = (distancesToMin.x < distancesToMin.z),
                          minX_maxX = (distancesToMin.x < distancesToMax.x),

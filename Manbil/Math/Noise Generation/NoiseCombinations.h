@@ -9,16 +9,16 @@ public:
 
     static float Add2(float f1, float f2) { return f1 + f2; }
     static float Subtract2(float f1, float f2) { return f1 - f2; }
-    static float Max2(float f1, float f2) { return BasicMath::Max(f1, f2); }
-    static float Min2(float f1, float f2) { return BasicMath::Min(f1, f2); }
+    static float Max2(float f1, float f2) { return Mathf::Max(f1, f2); }
+    static float Min2(float f1, float f2) { return Mathf::Min(f1, f2); }
     static float Multiply2(float f1, float f2) { return f1 * f2; }
     static float Divide2(float f1, float f2) { return f1 / f2; }
     static float Pow2(float f1, float f2) { return powf(f1, f2); }
-    static float Root2(float f1, float f2) { return BasicMath::Root(f1, f2); }
+    static float Root2(float f1, float f2) { return Mathf::Root(f1, f2); }
 
-    static float Max3(float f1, float f2, float f3) { return BasicMath::Max(f1, BasicMath::Max(f2, f3)); }
-    static float Min3(float f1, float f2, float f3) { return BasicMath::Min(f1, BasicMath::Min(f2, f3)); }
-    static float Clamp(float value, float min, float max) { return BasicMath::Clamp(value, min, max); }
+    static float Max3(float f1, float f2, float f3) { return Mathf::Max(f1, Mathf::Max(f2, f3)); }
+    static float Min3(float f1, float f2, float f3) { return Mathf::Min(f1, Mathf::Min(f2, f3)); }
+    static float Clamp(float value, float min, float max) { return Mathf::Clamp(value, min, max); }
     static float MultiplyThenAdd(float multiply1, float multiply2, float addToResult) { return (multiply1 * multiply2) + addToResult; }
 };
 

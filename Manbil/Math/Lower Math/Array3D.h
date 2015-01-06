@@ -102,23 +102,23 @@ public:
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector3i Clamp(Vector3i in) const
     {
-        return Vector3i(BasicMath::Clamp<int>(in.x, 0, GetWidth() - 1),
-                        BasicMath::Clamp<int>(in.y, 0, GetHeight() - 1),
-                        BasicMath::Clamp<int>(in.z, 0, GetDepth() - 1));
+        return Vector3i(Mathf::Clamp<int>(in.x, 0, GetWidth() - 1),
+                        Mathf::Clamp<int>(in.y, 0, GetHeight() - 1),
+                        Mathf::Clamp<int>(in.z, 0, GetDepth() - 1));
     }
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector3u Clamp(Vector3u in) const
     {
-        return Vector3u(BasicMath::Min<unsigned int>(in.x, GetWidth() - 1),
-                        BasicMath::Min<unsigned int>(in.y, GetHeight() - 1),
-                        BasicMath::Min<unsigned int>(in.z, GetDepth() - 1));
+        return Vector3u(Mathf::Min<unsigned int>(in.x, GetWidth() - 1),
+                        Mathf::Min<unsigned int>(in.y, GetHeight() - 1),
+                        Mathf::Min<unsigned int>(in.z, GetDepth() - 1));
     }
     //Clamps the given index to be inside the range of allowable indices for this array.
     Vector3f Clamp(Vector3f in) const
     {
-        return Vector3f(BasicMath::Clamp<float>(in.x, 0.0f, GetWidth - 1),
-                        BasicMath::Clamp<float>(in.y, 0.0f, GetHeight() - 1),
-                        BasicMath::Clamp<float>(in.z, 0.0f, GetDepth() - 1));
+        return Vector3f(Mathf::Clamp<float>(in.x, 0.0f, GetWidth - 1),
+                        Mathf::Clamp<float>(in.y, 0.0f, GetHeight() - 1),
+                        Mathf::Clamp<float>(in.z, 0.0f, GetDepth() - 1));
     }
     //Wraps the given index around the range of allowable indices for this array.
     Vector3i Wrap(Vector3i in) const

@@ -240,7 +240,7 @@ public:
 
 class InterpretValue_Float
 {
-public: float operator()(float min, float max, float t) { return BasicMath::Lerp(min, max, t); }
+public: float operator()(float min, float max, float t) { return Mathf::Lerp(min, max, t); }
 };
 class InterpretValue_Int
 {
@@ -252,7 +252,7 @@ public:
         double range = (double)max - (double)min;
 
         double val = min + (range * (double)t);
-        return BasicMath::RoundToInt(val);
+        return Mathf::RoundToInt(val);
     }
 };
 class InterpretValue_UInt
@@ -266,7 +266,7 @@ public:
 
         double val = min + (range * (double)t);
         assert(val > -0.5f);
-        return BasicMath::RoundToUInt(val);
+        return Mathf::RoundToUInt(val);
     }
 };
 

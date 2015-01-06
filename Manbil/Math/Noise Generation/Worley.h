@@ -52,8 +52,8 @@ public:
     static inline float StraightLineDistance(Vector3f o, Vector3f p) { return o.Distance(p); }
     static inline float StraightLineDistanceSquared(Vector3f o, Vector3f p) { return o.DistanceSquared(p); }
     static inline float ManhattanDistance(Vector3f o, Vector3f p) { return o.ManhattanDistance(p); }
-    static inline float LargestManhattanDistance(Vector3f o, Vector3f p) { return BasicMath::Max(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y), BasicMath::Abs(o.z - p.z)); }
-    static inline float SmallestManhattanDistance(Vector3f o, Vector3f p) { return BasicMath::Min(BasicMath::Abs(o.x - p.x), BasicMath::Abs(o.y - p.y), BasicMath::Abs(o.z - p.z)); }
+    static inline float LargestManhattanDistance(Vector3f o, Vector3f p) { return Mathf::Max(Mathf::Abs(o.x - p.x), Mathf::Abs(o.y - p.y), Mathf::Abs(o.z - p.z)); }
+    static inline float SmallestManhattanDistance(Vector3f o, Vector3f p) { return Mathf::Min(Mathf::Abs(o.x - p.x), Mathf::Abs(o.y - p.y), Mathf::Abs(o.z - p.z)); }
 
     //Value functions.
     static const int NUMB_DISTANCE_VALUES = 3;

@@ -15,10 +15,10 @@ void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Ar
              maxCorner = (Center + Vector2f(Radius, Radius)).Ceil();
     if (!Wrap)
     {
-        minCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
-        minCorner.y = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
-        maxCorner.x = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
-        maxCorner.y = BasicMath::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        minCorner.x = Mathf::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        minCorner.y = Mathf::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        maxCorner.x = Mathf::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
+        maxCorner.y = Mathf::Clamp<int>(minCorner.x, 0, noiseSize.x - 1);
     }
 
     Vector2f locF;
@@ -53,8 +53,8 @@ void CircularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const Ar
     }
     else
     {
-        Vector2u minCornerU(BasicMath::Max<unsigned int>(0, minCorner.x),
-                            BasicMath::Max<unsigned int>(0, minCorner.y));
+        Vector2u minCornerU(Mathf::Max<unsigned int>(0, minCorner.x),
+                            Mathf::Max<unsigned int>(0, minCorner.y));
         for (Vector2u loc(0, minCornerU.y); loc.y <= (unsigned int)maxCorner.y; ++loc.y)
         {
             locF.y = (float)loc.y;
@@ -76,15 +76,15 @@ float CircularFilterRegion::GetStrengthDropoffScale(Vector2f pos) const
         return 1.0f;
     }
 
-    float maxDist = BasicMath::Abs(DropoffRadiusPercent) * Radius,
+    float maxDist = Mathf::Abs(DropoffRadiusPercent) * Radius,
           dist = pos.Distance(Center);
     if (DropoffRadiusPercent > 0.0f)
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::Remap(0, maxDist, 1.0f, 0.0f, dist), 0.0f, 1.0f);
     }
     else
     {
-        return BasicMath::Clamp(BasicMath::Remap(0, maxDist, 0.0f, 1.0f, dist), 0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::Remap(0, maxDist, 0.0f, 1.0f, dist), 0.0f, 1.0f);
     }
 }
 
@@ -114,10 +114,10 @@ void RectangularFilterRegion::DoToEveryPoint(void* pData, ActionFunc toDo, const
     }
     else
     {
-        Vector2u topLeftU(BasicMath::Max<unsigned int>(0, TopLeft.x),
-                          BasicMath::Max<unsigned int>(0, TopLeft.y));
-        Vector2u maxCornerU(BasicMath::Min<unsigned int>(BottomRight.x, noiseSize.x),
-                            BasicMath::Min<unsigned int>(BottomRight.y, noiseSize.y));
+        Vector2u topLeftU(Mathf::Max<unsigned int>(0, TopLeft.x),
+                          Mathf::Max<unsigned int>(0, TopLeft.y));
+        Vector2u maxCornerU(Mathf::Min<unsigned int>(BottomRight.x, noiseSize.x),
+                            Mathf::Min<unsigned int>(BottomRight.y, noiseSize.y));
         for (Vector2u loc(0, topLeftU.y); loc.y <= maxCornerU.y; ++loc.y)
             for (loc.x = topLeftU.x; loc.x <= maxCornerU.x; ++loc.x)
                 if (ActiveIn.IsInside(noise[loc]))

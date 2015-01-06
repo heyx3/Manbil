@@ -112,7 +112,7 @@ std::string GUITextBox::Render(float elapsedTime, const RenderInfo & info)
         }
         else
         {
-            cursorX = BasicMath::Lerp(boxBounds.GetXMin(), boxBounds.GetXMin() + textBounds.GetXSize(),
+            cursorX = Mathf::Lerp(boxBounds.GetXMin(), boxBounds.GetXMin() + textBounds.GetXSize(),
                                       (float)keyboardInput.CursorPos / (float)GetText().size());
         }
         Cursor.SetPosition(Vector2f(cursorX, Cursor.GetPos().y));
@@ -135,7 +135,7 @@ void GUITextBox::OnMouseClick(Vector2f relativeMousePos)
     {
         isSelected = true;
 
-        float inverseLerp = BasicMath::LerpComponent(bounds.GetXMin(),
+        float inverseLerp = Mathf::LerpComponent(bounds.GetXMin(),
                                                      bounds.GetXMin() + Contents.GetBounds().GetXSize(),
                                                      relativeMousePos.x);
         if (inverseLerp < 0.5f)

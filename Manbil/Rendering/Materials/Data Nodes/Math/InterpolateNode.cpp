@@ -5,7 +5,7 @@ MAKE_NODE_READABLE_CPP(InterpolateNode, 0.0f, 1.0f, 0.5f, InterpolateNode::IT_Li
 
 unsigned int InterpolateNode::GetOutputSize(unsigned int index) const
 {
-    return BasicMath::Max(GetMaxInput().GetSize(), GetInterpInput().GetSize());
+    return Mathf::Max(GetMaxInput().GetSize(), GetInterpInput().GetSize());
 }
 std::string InterpolateNode::GetOutputName(unsigned int index) const
 {
@@ -43,7 +43,7 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string minMaxType = VectorF(GetMinInput().GetSize()).GetGLSLType(),
                 interpType = VectorF(GetInterpInput().GetSize()).GetGLSLType(),
-                returnType = VectorF(BasicMath::Max(GetMinInput().GetSize(), GetInterpInput().GetSize())).GetGLSLType();
+                returnType = VectorF(Mathf::Max(GetMinInput().GetSize(), GetInterpInput().GetSize())).GetGLSLType();
     std::string interpValue = GetInterpInput().GetValue();
 
     switch (intType)

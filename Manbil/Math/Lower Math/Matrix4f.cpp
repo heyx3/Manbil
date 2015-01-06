@@ -368,7 +368,7 @@ Matrix4f Matrix4f::GetInverse(void) const
 	float det = GetDeterminant();
 	if(det == 0.0f) 
 	{
-		ret.Set(BasicMath::NaN);
+		ret.Set(Mathf::NaN);
 		return ret;
 	}
 

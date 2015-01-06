@@ -414,9 +414,6 @@
     <ClCompile Include="Math\Shapes\Circle.cpp">
       <Filter>Math\Shapes</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Lower Math\BasicMath.cpp">
-      <Filter>Math\Lower Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Lower Math\Interval.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
@@ -443,6 +440,9 @@
     </ClCompile>
     <ClCompile Include="Tests\AssImpTestWorld.cpp">
       <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Lower Math\Mathf.cpp">
+      <Filter>Math\Lower Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -943,9 +943,6 @@
     <ClInclude Include="Math\Lower Math\Array3D.h">
       <Filter>Math\Lower Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Lower Math\BasicMath.h">
-      <Filter>Math\Lower Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Lower Math\FastRand.h">
       <Filter>Math\Lower Math</Filter>
     </ClInclude>
@@ -978,6 +975,9 @@
     </ClInclude>
     <ClInclude Include="Tests\AssImpTestWorld.h">
       <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Lower Math\Mathf.h">
+      <Filter>Math\Lower Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

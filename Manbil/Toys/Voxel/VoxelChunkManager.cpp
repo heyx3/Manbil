@@ -17,7 +17,7 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
     //Find the axis that moves the most, and figure out what
     //   't' increment is needed to move the ray one chunk length along that axis.
     unsigned int largestRayAxis = GeometricMath::GetLongestAxis(rayDir);
-    float destination = rayStart[largestRayAxis] + (BasicMath::Sign(rayDir[largestRayAxis]) * (VC::ChunkSizeF * VC::VoxelSizeF));
+    float destination = rayStart[largestRayAxis] + (Mathf::Sign(rayDir[largestRayAxis]) * (VC::ChunkSizeF * VC::VoxelSizeF));
     float chunkMoveLength = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis, destination).t;
 
 
