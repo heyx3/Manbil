@@ -106,7 +106,6 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
     <ClCompile Include="Math\Higher Math\Camera.cpp" />
     <ClCompile Include="Math\Higher Math\GeometricMath.cpp" />
-    <ClCompile Include="Math\Higher Math\Lighting.cpp" />
     <ClCompile Include="Math\Higher Math\Terrain.cpp" />
     <ClCompile Include="Math\Higher Math\TransformObject.cpp" />
     <ClCompile Include="Math\Lower Math\BasicMath.cpp" />
@@ -274,9 +273,7 @@
     <ClInclude Include="Math\Higher Math\Camera.h" />
     <ClInclude Include="Math\Higher Math\GeometricMath.h" />
     <ClInclude Include="Math\Higher Math\Gradient.h" />
-    <ClInclude Include="Math\Higher Math\Lighting.h" />
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h" />
-    <ClInclude Include="Math\Higher Math\RegionSplitter.h" />
     <ClInclude Include="Math\Higher Math\Terrain.h" />
     <ClInclude Include="Math\Higher Math\TransformObject.h" />
     <ClInclude Include="Math\HigherMath.hpp" />

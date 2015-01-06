@@ -59,9 +59,6 @@
     <ClCompile Include="Math\Higher Math\GeometricMath.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Higher Math\Lighting.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Higher Math\Terrain.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
@@ -536,13 +533,7 @@
     <ClInclude Include="Math\Higher Math\GeometricMath.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Higher Math\Lighting.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Higher Math\RegionSplitter.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Terrain.h">

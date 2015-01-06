@@ -1,6 +1,5 @@
 #include "ShaderGenerator.h"
 
-#include "../../../Math/Higher Math/Lighting.h"
 #include "../../../Material.h"
 #include "../../../DebugAssist.h"
 #include "SerializedMaterial.h"
