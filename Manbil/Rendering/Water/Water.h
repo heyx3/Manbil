@@ -12,7 +12,6 @@
 //The Vertex struct used for water. Inputs:
 //0: Pos (size 3)
 //1: UV (size 2)
-//2: Normal (size 3)
 struct WaterVertex
 {
     Vector3f Pos;

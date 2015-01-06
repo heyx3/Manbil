@@ -7,7 +7,7 @@
 
 
 
-void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
+void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
 {
     Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
 
@@ -16,27 +16,30 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh & outM)
     //Just create a flat terrain and let it do the math.
     Terrain terr(size);
     terr.SetHeightmap(terrainHeight);
-    std::vector<Terrain::TerrainVertex> terrVertices;
-    std::vector<unsigned int> terrIndices;
-    terr.GenerateVerticesIndices(terrVertices, terrIndices);
+    std::vector<WaterVertex> verts;
+    std::vector<unsigned int> indices;
+    terr.GenerateTriangles(verts, indices,
+                           [](WaterVertex& v, Vector3f pos) { v.Pos = pos; },
+                           [](const WaterVertex& v) { return v.Pos; },
+                           [](WaterVertex& v, Vector2f uv) { v.TexCoord = uv; },
+                           [](const WaterVertex& v) { return v.TexCoord; },
+                           [](WaterVertex& v, Vector3f normal) { },
+                           [](const WaterVertex& v) { return Vector3f(0.0f, 0.0f, 1.0f); },
+                           1.0f, 0);
 
     //Convert the terrain vertices into water vertices.
-    std::vector<WaterVertex> waterVertices;
-    waterVertices.reserve(terrVertices.size());
-    for (unsigned int i = 0; i < terrVertices.size(); ++i)
-    {
-        Vector3f terrainPos(terrVertices[i].Pos.x, terrVertices[i].Pos.y, 0.0f);
+    for (unsigned int i = 0; i < verts.size(); ++i)
+        verts[i].Pos = verts[i].Pos.ComponentProduct(scle) + offset;
 
-        waterVertices.insert(waterVertices.end(),
-                             WaterVertex(scle.ComponentProduct(terrainPos) + offset,
-                                         terrVertices[i].TexCoords));
-    }
 
     //Create the vertex and index buffers.
     RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, waterVertices.data(), waterVertices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, terrIndices.data(), terrIndices.size(), RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    VertexIndexData vid(terr.GetVerticesCount(), vbo, terr.GetIndicesCount(), ibo);
+    RenderDataHandler::CreateVertexBuffer(vbo, verts.data(), verts.size(),
+                                          RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(),
+                                         RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
+    VertexIndexData vid(Terrain::GetVerticesCount(terr.GetSize()), vbo,
+                        Terrain::GetIndicesCount(terr.GetSize()), ibo);
     outM.SetVertexIndexData(&vid, 1);
 }
 
