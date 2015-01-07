@@ -21,14 +21,18 @@ public:
     //The value at this node.
     float Value[Components];
 
-    GradientNode(float t, const float value[Components]) : T(t) { memcpy(Value, value, sizeof(float) * Components); }
-    GradientNode(const GradientNode & cpy) : GradientNode(cpy.T, cpy.Value) { } // TODO: Test that using "memcpy(this, &cpy, sizeof(GradientNode<Components>))" would work instead.
+    GradientNode(float t, const float value[Components])
+        : T(t)
+    {
+        memcpy(Value, value, sizeof(float) * Components);
+    }
+    GradientNode(const GradientNode& cpy) : GradientNode(cpy.T, cpy.Value) { }
 };
 
 
 
 //Should be an int in the range [1, 4].
-//The number of different float values in a single point on the gradient.
+//Represents the number of different float values in a single point on the gradient
 //    (float, vec2, vec3, or vec4).
 template<unsigned int Components>
 //Represents some kind of smooth gradient for a value.
@@ -51,10 +55,14 @@ public:
     std::vector<GradientNode<Components>> Nodes;
 
 
-    Gradient(const std::vector<GNode> & nodes, Smoothness smoothQuality) : SmoothQuality(smoothQuality), Nodes(nodes) { }
-    Gradient(GNode startVal, GNode endVal, Smoothness smoothQuality) : Gradient(MakeVector(startVal, endVal), smoothQuality) { }
-    Gradient(GNode startVal, GNode endVal, GNode mid1, Smoothness smoothQuality) : Gradient(MakeVector(startVal, mid1, endVal, smoothQuality)) { }
-    Gradient(GNode startVal, GNode endVal, GNode mid1, GNode mid2, Smoothness smoothQuality) : Gradient(MakeVector(startVal, mid1, mid2, endVal, smoothQuality)) { }
+    Gradient(const std::vector<GNode>& nodes, Smoothness smoothQuality)
+        : SmoothQuality(smoothQuality), Nodes(nodes) { }
+    Gradient(GNode startVal, GNode endVal, Smoothness smoothQuality)
+        : Gradient(MakeVector(startVal, endVal), smoothQuality) { }
+    Gradient(GNode startVal, GNode endVal, GNode mid1, Smoothness smoothQuality)
+        : Gradient(MakeVector(startVal, mid1, endVal, smoothQuality)) { }
+    Gradient(GNode startVal, GNode endVal, GNode mid1, GNode mid2, Smoothness smoothQuality)
+        : Gradient(MakeVector(startVal, mid1, mid2, endVal, smoothQuality)) { }
 
 
     //Whether this gradient has at least one point, making it valid for use.
@@ -83,10 +91,11 @@ public:
         unsigned int topBound = 1;
         while (Nodes[topBound].T < t)
             topBound += 1;
-        const GNode & start = Nodes[topBound - 1];
-        const GNode & end = Nodes[topBound];
+        const GNode& start = Nodes[topBound - 1],
+                     end = Nodes[topBound];
 
-        //Use a lerp between the start and end, but first smooth the "t" component to create a smooth curve.
+        //Use a lerp between the start and end, but first smooth the "t" component
+        //    to create a smooth curve.
         float remappedT = Mathf::LerpComponent(start.T, end.T, t);
         switch (SmoothQuality)
         {
