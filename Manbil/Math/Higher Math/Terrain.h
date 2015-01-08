@@ -42,30 +42,19 @@ public:
 
 
     //"VertexType" is the class of vertex. It must have a default constructor.
-    //"VertexSetPosFunc" is a function like
-    //    "void SetPos(VertexType& v, Vector3f pos)".
-    //"VertexGetPosFunc" is a function like "Vector3f GetPos(const VertexType& vertex)".
-    //"VertexSetUVFunc" is a function like
-    //    "void SetUV(VertexType& v, Vector2f uv)".
-    //"VertexGetUVFunc" is a function like "Vector2f GetUV(const VertexType& vertex)".
-    //"VertexSetNormalFunc" is a function like
-    //    "void SetNormal(VertexType& v, Vector3f normal)".
-    //"VertexGetNormalFunc" is a function like "Vector3f GetNormal(const VertexType& vertex)".
-    template<typename VertexType, typename VertexSetPosFunc, typename VertexGetPosFunc,
-             typename VertexSetUVFunc, typename VertexGetUVFunc,
-             typename VertexSetNormalFunc, typename VertexGetNormalFunc>
+    template<typename VertexType>
     //Generates positions and indices for some rectangular subset of this terrain.
     //Takes in:
     //    1) The output collections for vertices/indices.
-    //    2) Getters/setters for a vertex's position.
+    //    2) Getters for a vertex's data (pass 0 for the vertex normal getter to not compute normals).
     //    3) The rectangular region of terrain to create.
     //    4) The scale for the terrain's height
     //    5) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
     //Assumes the size of the rectangular region is a power of 2.
     void GenerateTriangles(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
-                           VertexSetPosFunc vertPosSetter, VertexGetPosFunc vertPosGetter,
-                           VertexSetUVFunc vertUVSetter, VertexGetUVFunc vertUVGetter,
-                           VertexSetNormalFunc vertNormalSetter, VertexGetNormalFunc vertNormalGetter,
+                           Vector3f&(*vertPosGetter)(VertexType& vert),
+                           Vector2f&(*vertUVGetter)(VertexType& vert),
+                           Vector3f&(*vertNormalGetter)(VertexType& vert),
                            Vector2u topLeft, Vector2u bottomRight,
                            float heightScale = 1.0f, unsigned int zoomOut = 0) const
     {
@@ -90,19 +79,23 @@ public:
                 outVerts.insert(outVerts.end(), VertexType());
 
                 //Output position and texture coordinates.
-                vertPosSetter(outVerts[vertIndex], Vector3f(posF.x, posF.y, heightScale * heightmap[pos]));
-                vertUVSetter(outVerts[vertIndex], Vector2f(texCoordIncrement * posF.x, texCoordIncrement * posF.y));
+                vertPosGetter(outVerts[vertIndex]) = Vector3f(posF.x, posF.y,
+                                                              heightScale * heightmap[pos]);
+                vertUVGetter(outVerts[vertIndex]) = Vector2f(texCoordIncrement * posF.x,
+                                                             texCoordIncrement * posF.y);
 
                 //Calculate normals and indices if this vertex isn't on the top/left borders.
                 if (pos.x > 0 && pos.y > 0)
                 {
-                    Vector3f lessX = vertPosGetter(outVerts[vertIndex - 1]),
-                             lessY = vertPosGetter(outVerts[vertIndex - areaSize.x]),
-                             toLessX = (lessX - vertPosGetter(outVerts[vertIndex])).Normalized(),
-                             toLessY = (lessY - vertPosGetter(outVerts[vertIndex])).Normalized();
-                    vertNormalSetter(outVerts[vertIndex], toLessX.Cross(toLessY));
-                    assert(vertNormalGetter(outVerts[vertIndex]).z * heightScale > 0.0f);
-
+                    if (vertNormalGetter != 0)
+                    {
+                        Vector3f lessX = vertPosGetter(outVerts[vertIndex - 1]),
+                                 lessY = vertPosGetter(outVerts[vertIndex - areaSize.x]),
+                                 toLessX = (lessX - vertPosGetter(outVerts[vertIndex])).Normalized(),
+                                 toLessY = (lessY - vertPosGetter(outVerts[vertIndex])).Normalized();
+                        vertNormalGetter(outVerts[vertIndex]) = toLessX.Cross(toLessY);
+                        assert(vertNormalGetter(outVerts[vertIndex]).z * heightScale > 0.0f);
+                    }
 
                     outIndices.insert(outIndices.end(), vertIndex);
                     outIndices.insert(outIndices.end(), vertIndex - 1);
@@ -119,6 +112,9 @@ public:
         
         
         //Calculate the normals that couldn't be calculated normally (the ones on the top/left borders).
+
+        if (vertNormalGetter == 0)
+            return;
 
         //First, the top-left spot.
         Vector3f moreX = vertPosGetter(outVerts[1]),
@@ -139,7 +135,7 @@ public:
             toMoreX = (moreX - vertPosGetter(outVerts[vertIndex])).Normalized();
             Vector3f toLessY = (lessY - vertPosGetter(outVerts[vertIndex])).Normalized();
 
-            vertNormalSetter(outVerts[vertIndex], toLessY.Cross(toMoreX));
+            vertNormalGetter(outVerts[vertIndex]) = toLessY.Cross(toMoreX);
             assert(vertNormalGetter(outVerts[vertIndex]).z * heightScale > 0.0f);
 
 
@@ -152,38 +148,26 @@ public:
             Vector3f toLessX = (lessX - vertPosGetter(outVerts[vertIndex])).Normalized();
             toMoreY = (moreY - vertPosGetter(outVerts[vertIndex])).Normalized();
 
-            vertNormalSetter(outVerts[vertIndex], toMoreY.Cross(toLessX));
+            vertNormalGetter(outVerts[vertIndex]) = toMoreY.Cross(toLessX);
             assert(vertNormalGetter(outVerts[vertIndex]).z * heightScale > 0.0f);
         }
     }
     //"VertexType" is the class of vertex. It must have a default constructor.
-    //"VertexSetPosFunc" is a function like
-    //    "void SetPos(VertexType& v, Vector3f pos)".
-    //"VertexGetPosFunc" is a function like "Vector3f GetPos(const VertexType& vertex)".
-    //"VertexSetUVFunc" is a function like
-    //    "void SetUV(VertexType& v, Vector2f uv)".
-    //"VertexGetUVFunc" is a function like "Vector2f GetUV(const VertexType& vertex)".
-    //"VertexSetNormalFunc" is a function like
-    //    "void SetNormal(VertexType& v, Vector3f normal)".
-    //"VertexGetNormalFunc" is a function like "Vector3f GetNormal(const VertexType& vertex)".
-    template<typename VertexType, typename VertexSetPosFunc, typename VertexGetPosFunc,
-             typename VertexSetUVFunc, typename VertexGetUVFunc,
-             typename VertexSetNormalFunc, typename VertexGetNormalFunc>
+    template<typename VertexType>
     //Generates positions and indices for this terrain.
     //Takes in:
     //    1) The output collections for vertices/indices.
-    //    2) Getters/setters for a vertex's position.
+    //    2) Getters for a vertex's data (pass 0 for the vertex normal getter to not compute normals).
     //    3) The scale for the terrain's height
     //    4) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
-    void GenerateTriangles(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
-                           VertexSetPosFunc vertPosSetter, VertexGetPosFunc vertPosGetter,
-                           VertexSetUVFunc vertUVSetter, VertexGetUVFunc vertUVGetter,
-                           VertexSetNormalFunc vertNormSetter, VertexGetNormalFunc vertNormGetter,
-                           float heightScale = 1.0f, unsigned int zoomOut = 0) const
+    void GenerateTrianglesFull(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
+                               Vector3f&(*vertPosGetter)(VertexType& vert),
+                               Vector2f&(*vertUVGetter)(VertexType& vert),
+                               Vector3f&(*vertNormalGetter)(VertexType& vert) = 0,
+                               float heightScale = 1.0f, unsigned int zoomOut = 0) const
     {
-        GenerateTriangles(outVerts, outIndices, vertPosSetter, vertPosGetter, vertUVSetter, vertUVGetter,
-                          vertNormSetter, vertNormGetter, Vector2u(), Vector2u(GetSize(), GetSize()),
-                          heightScale, zoomOut);
+        GenerateTriangles(outVerts, outIndices, vertPosGetter, vertUVGetter, vertNormalGetter,
+                          Vector2u(), Vector2u(GetSize(), GetSize()), heightScale, zoomOut);
     }
 
 

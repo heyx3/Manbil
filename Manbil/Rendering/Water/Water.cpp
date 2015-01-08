@@ -18,14 +18,9 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
     terr.SetHeightmap(terrainHeight);
     std::vector<WaterVertex> verts;
     std::vector<unsigned int> indices;
-    terr.GenerateTriangles(verts, indices,
-                           [](WaterVertex& v, Vector3f pos) { v.Pos = pos; },
-                           [](const WaterVertex& v) { return v.Pos; },
-                           [](WaterVertex& v, Vector2f uv) { v.TexCoord = uv; },
-                           [](const WaterVertex& v) { return v.TexCoord; },
-                           [](WaterVertex& v, Vector3f normal) { },
-                           [](const WaterVertex& v) { return Vector3f(0.0f, 0.0f, 1.0f); },
-                           1.0f, 0);
+    terr.GenerateTrianglesFull<WaterVertex>(verts, indices,
+                                            [](WaterVertex& v) -> Vector3f& { return v.Pos; },
+                                            [](WaterVertex& v) -> Vector2f& { return v.TexCoord; });
 
     //Convert the terrain vertices into water vertices.
     for (unsigned int i = 0; i < verts.size(); ++i)
