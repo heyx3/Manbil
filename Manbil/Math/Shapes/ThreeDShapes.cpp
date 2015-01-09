@@ -1169,6 +1169,7 @@ Box3D PolygonSolid::GetBoundingBox(void) const
     Vector3f min = triangles[0].GetVertices()[0],
              max = triangles[0].GetVertices()[0];
 
+    //TODO: Don't use std::foreach; just use a normal for loop.
     std::_For_each(triangles.begin(), triangles.end(),
                    [&min, &max](const Triangle & tri)
     {

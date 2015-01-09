@@ -17,6 +17,8 @@ class Triangle;
 class PolygonSolid;
 
 
+//TODO: Remove triangle and polygon from this system. Integrate Bullet.
+
 //Represents some kind of 3D shape. Uses double dispatch for checking collision against other shapes.
 class Shape
 {
@@ -35,11 +37,11 @@ public:
     virtual bool TouchingShape(const Shape& shape) const = 0;
 
     virtual bool TouchingCube(const Cube& cube) const = 0;
-    virtual bool TouchingSphere(const Sphere & sphere) const = 0;
-    virtual bool TouchingCapsule(const Capsule & capsule) const = 0;
-    virtual bool TouchingPlane(const Plane & plane) const = 0;
-    virtual bool TouchingTriangle(const Triangle & tri) const = 0;
-    virtual bool TouchingPolygon(const PolygonSolid & poly) const;
+    virtual bool TouchingSphere(const Sphere& sphere) const = 0;
+    virtual bool TouchingCapsule(const Capsule& capsule) const = 0;
+    virtual bool TouchingPlane(const Plane& plane) const = 0;
+    virtual bool TouchingTriangle(const Triangle& tri) const = 0;
+    virtual bool TouchingPolygon(const PolygonSolid& poly) const;
 
 
     struct RayTraceResult
