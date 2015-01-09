@@ -3,9 +3,9 @@
 #include <assert.h>
 
 
-bool Shape::TouchingPolygon(const PolygonSolid & poly) const
+bool Shape::TouchingPolygon(const PolygonSolid& poly) const
 {
-    const Shape * shpe = this;
+    const Shape* shpe = this;
     return std::any_of(poly.GetTriangles().begin(), poly.GetTriangles().end(),
                        [shpe](const Triangle & tri) { return shpe->TouchingTriangle(tri); });
 }
@@ -20,50 +20,50 @@ Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
     //On X face.
     if (absDirNormalized.x >= absDirNormalized.y && absDirNormalized.x >= absDirNormalized.z)
     {
-        return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 0,
-                                                    Bounds.GetCenterX() +
-                                                    (Mathf::Sign(dirNormalized.x) * 0.5f *
-                                                     Bounds.GetXSize())).Point;
+        return Geometryf::GetPointOnLineAtValue(GetCenter(), dirNormalized, 0,
+                                                Bounds.GetCenterX() +
+                                                (Mathf::Sign(dirNormalized.x) * 0.5f *
+                                                 Bounds.GetXSize())).Point;
     }
     //On Y face.
     else if (absDirNormalized.y >= absDirNormalized.x && absDirNormalized.y >= absDirNormalized.z)
     {
-        return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 1,
-                                                    Bounds.GetCenterY() +
-                                                    (Mathf::Sign(dirNormalized.y) * 0.5f *
-                                                     Bounds.GetYSize())).Point;
+        return Geometryf::GetPointOnLineAtValue(GetCenter(), dirNormalized, 1,
+                                                Bounds.GetCenterY() +
+                                                (Mathf::Sign(dirNormalized.y) * 0.5f *
+                                                 Bounds.GetYSize())).Point;
     }
     //On Z face.
     else
     {
         assert(absDirNormalized.z > absDirNormalized.x && absDirNormalized.z > absDirNormalized.y);
-        return GeometricMath::GetPointOnLineAtValue(GetCenter(), dirNormalized, 2,
-                                                    Bounds.GetCenterZ() +
-                                                    (Mathf::Sign(dirNormalized.z) * 0.5f *
-                                                     Bounds.GetZSize())).Point;
+        return Geometryf::GetPointOnLineAtValue(GetCenter(), dirNormalized, 2,
+                                                Bounds.GetCenterZ() +
+                                                (Mathf::Sign(dirNormalized.z) * 0.5f *
+                                                 Bounds.GetZSize())).Point;
     }
 }
 
-bool Cube::TouchingSphere(const Sphere & sphere) const
+bool Cube::TouchingSphere(const Sphere& sphere) const
 {
     //Get the closest point in/on the cube to the sphere's center and see if it's inside the sphere.
     Vector3f clampedToCube = Vector3f(Mathf::Clamp(sphere.GetCenter().x,
-                                                       Bounds.GetXMin(), Bounds.GetXMax()),
+                                                   Bounds.GetXMin(), Bounds.GetXMax()),
                                       Mathf::Clamp(sphere.GetCenter().y,
-                                                       Bounds.GetYMin(), Bounds.GetYMax()),
+                                                   Bounds.GetYMin(), Bounds.GetYMax()),
                                       Mathf::Clamp(sphere.GetCenter().z,
-                                                       Bounds.GetZMin(), Bounds.GetZMax()));
+                                                   Bounds.GetZMin(), Bounds.GetZMax()));
     return sphere.IsPointInside(clampedToCube);
 }
-bool Cube::TouchingCapsule(const Capsule & capsule) const
+bool Cube::TouchingCapsule(const Capsule& capsule) const
 {
     //GJK algorithm. http://vec3.ca/gjk/implementation/
-    //TODO: Abstract out to GeometricMath, or even a standalone class.
+    //TODO: Abstract out to Geometryf, or even a standalone class.
 
     if (GetCenter() == capsule.GetCenter()) return true;
 
-    const Cube * cbe = this;
-    const Capsule & caps = capsule;
+    const Cube* cbe = this;
+    const Capsule& caps = capsule;
     auto supportFunc = [cbe, caps](Vector3f dir) -> Vector3f
     {
         return cbe->FarthestPointInDirection(dir) - caps.FarthestPointInDirection(-dir);
@@ -574,7 +574,7 @@ bool Cube::TouchingCapsule(const Capsule & capsule) const
     }
     */
 }
-bool Cube::TouchingPlane(const Plane & plane) const
+bool Cube::TouchingPlane(const Plane& plane) const
 {
     //Taken from http://www.gamasutra.com/view/feature/131790/simple_intersection_tests_for_games.php?print=1, section "A Box-Plane Intersection Test".
 
@@ -590,7 +590,7 @@ bool Cube::TouchingPlane(const Plane & plane) const
 }
 
 #pragma warning(disable: 4100)
-bool Cube::TouchingTriangle(const Triangle & tris) const
+bool Cube::TouchingTriangle(const Triangle& tris) const
 {
     return false;
 }
@@ -598,7 +598,7 @@ bool Cube::TouchingTriangle(const Triangle & tris) const
 
 Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
-    typedef GeometricMath::PointOnLineAtValueResult<Vector3f> PointOnFaces;
+    typedef Geometryf::PointOnLineAtValueResult<Vector3f> PointOnFaces;
 
     Vector3f center = Bounds.GetCenter();
     Interval dInts[3] = { Bounds.GetXInterval(), Bounds.GetYInterval(), Bounds.GetZInterval() };
@@ -626,13 +626,13 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
     {
         (faces.x == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
-            GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 0, faces.x)),
+            Geometryf::GetPointOnLineAtValue(rayStart, rayDir, 0, faces.x)),
         (faces.y == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
-            GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 1, faces.y)),
+            Geometryf::GetPointOnLineAtValue(rayStart, rayDir, 1, faces.y)),
         (faces.z == Mathf::NaN ?
             PointOnFaces(Vector3f(), -1.0f) :
-            GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, 2, faces.z)),
+            Geometryf::GetPointOnLineAtValue(rayStart, rayDir, 2, faces.z)),
     };
 
     //Get the closest intersection.
@@ -663,7 +663,7 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 }
 
 
-bool Sphere::TouchingCube(const Cube & cube) const
+bool Sphere::TouchingCube(const Cube& cube) const
 {
     //Get the closest point in/on the cube to the sphere's center and see if it's inside the sphere.
     const Box3D & bounds = cube.GetBounds();
@@ -672,10 +672,10 @@ bool Sphere::TouchingCube(const Cube & cube) const
                                       Mathf::Clamp(GetCenter().z, bounds.GetZMin(), bounds.GetZMax()));
     return IsPointInside(clampedToCube);
 }
-bool Sphere::TouchingCapsule(const Capsule & capsule) const
+bool Sphere::TouchingCapsule(const Capsule& capsule) const
 {
-    Vector3f capPoint = GeometricMath::ClosestToLine(capsule.GetEndpoint1(), capsule.GetEndpoint2(),
-                                                     GetCenter(), false);
+    Vector3f capPoint = Geometryf::ClosestToLine(capsule.GetEndpoint1(), capsule.GetEndpoint2(),
+                                                 GetCenter(), false);
 
     return capPoint.DistanceSquared(GetCenter()) <=
            ((Radius + capsule.Radius) * (Radius + capsule.Radius));
@@ -686,7 +686,7 @@ bool Sphere::TouchingSphere(const Sphere& sphere) const
     radSqr *= radSqr;
     return GetCenter().DistanceSquared(sphere.GetCenter()) <= radSqr;
 }
-bool Sphere::TouchingPlane(const Plane & plane) const
+bool Sphere::TouchingPlane(const Plane& plane) const
 {
     //Get the min/max distances along the plane normal that would make the sphere touch the cube.
 
@@ -702,7 +702,7 @@ bool Sphere::TouchingPlane(const Plane & plane) const
 }
 
 #pragma warning(disable: 4100)
-bool Sphere::TouchingTriangle(const Triangle & tris) const
+bool Sphere::TouchingTriangle(const Triangle& tris) const
 {
     return false;
 }
@@ -765,7 +765,7 @@ Vector3f Capsule::FarthestPointInDirection(Vector3f dirNormalized) const
     return RayHitCheck(GetCenter() + (dirNormalized * (l2 - l1).LengthSquared()), -dirNormalized).HitPos;
 }
 
-bool Capsule::TouchingCube(const Cube & cube) const
+bool Capsule::TouchingCube(const Cube& cube) const
 {
     if (cube.GetCenter() == GetCenter()) return true;
 
@@ -943,25 +943,25 @@ bool Capsule::TouchingCube(const Cube & cube) const
     //If the loop never managed to exit, it's very likely that this was an intersection.
     return true;
 }
-bool Capsule::TouchingSphere(const Sphere & sphere) const
+bool Capsule::TouchingSphere(const Sphere& sphere) const
 {
-    Vector3f capPoint = GeometricMath::ClosestToLine(l1, l2, sphere.GetCenter(), false);
+    Vector3f capPoint = Geometryf::ClosestToLine(l1, l2, sphere.GetCenter(), false);
 
     return capPoint.DistanceSquared(sphere.GetCenter()) <=
                ((sphere.Radius + Radius) * (sphere.Radius + Radius));
 }
-bool Capsule::TouchingCapsule(const Capsule & capsule) const
+bool Capsule::TouchingCapsule(const Capsule& capsule) const
 {
-    GeometricMath::ClosestValues<Vector3f> cvs =
-        GeometricMath::ClosestToIntersection(l1, l2, capsule.l1, capsule.l2, false);
+    Geometryf::ClosestValues<Vector3f> cvs =
+        Geometryf::ClosestToIntersection(l1, l2, capsule.l1, capsule.l2, false);
 
     return cvs.OnFirstLine.DistanceSquared(cvs.OnSecondLine) <=
         ((Radius * Radius) + (capsule.Radius * capsule.Radius));
 }
-bool Capsule::TouchingPlane(const Plane & plane) const
+bool Capsule::TouchingPlane(const Plane& plane) const
 {
     float distance1 = plane.GetDistanceToPlane(l1),
-        distance2 = plane.GetDistanceToPlane(l2);
+          distance2 = plane.GetDistanceToPlane(l2);
 
     Interval distanceIntvl(distance1, distance2, Plane::MarginOfError, true, true);
     distanceIntvl = distanceIntvl.Widen(Radius + Radius);
@@ -970,7 +970,7 @@ bool Capsule::TouchingPlane(const Plane & plane) const
 }
 
 #pragma warning(disable: 4100)
-bool Capsule::TouchingTriangle(const Triangle & tris) const
+bool Capsule::TouchingTriangle(const Triangle& tris) const
 {
     return false;
 }
@@ -987,27 +987,27 @@ Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir)
     Vector3f aToO = rayStart - l1;
     float aToB_dot_aToB = aToB.Dot(aToB);
     float m = aToB.Dot(rayDir) / aToB_dot_aToB,
-        n = aToB.Dot(aToO) / aToB_dot_aToB;
+          n = aToB.Dot(aToO) / aToB_dot_aToB;
 
     Vector3f q = rayDir - (aToB * m),
-        r = aToO - (aToB * n);
+             r = aToO - (aToB * n);
 
 
     //Quadratic formula. The solutions are the 't' values for
     //    the ray's equation that correspond to intersections.
 
     float a = q.Dot(q),
-        b = 2.0f * q.Dot(r),
-        c = r.Dot(r) - (Radius * Radius);
+          b = 2.0f * q.Dot(r),
+          c = r.Dot(r) - (Radius * Radius);
 
     float determinant = (b * b) - (4.0f * a * c);
     if (determinant < 0.0f) return RayTraceResult();
 
     float detSqrt = sqrtf(determinant),
-        otherNominator = -b,
-        divDenominator = 0.5f / a;
+          otherNominator = -b,
+          divDenominator = 0.5f / a;
     float t1 = (otherNominator + detSqrt) * divDenominator,
-        t2 = (otherNominator - detSqrt) * divDenominator;
+          t2 = (otherNominator - detSqrt) * divDenominator;
 
 
     //These intersections are actually for the infinite cylinder that this capsule is a subset of.
@@ -1015,7 +1015,7 @@ Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir)
 
     RayTraceResult intersect1, intersect2;
     float capsuleT1 = (t1 * m) + n,
-        capsuleT2 = (t2 * m) + n;
+          capsuleT2 = (t2 * m) + n;
 
     if (capsuleT1 < 0.0f)
     {
@@ -1058,8 +1058,13 @@ Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir)
     //    will both contain that intersection.
     if ((!intersect1.DidHitTarget && !intersect2.DidHitTarget) ||
         intersect1.HitPos.DistanceSquared(rayStart) < intersect2.HitPos.DistanceSquared(rayStart))
+    {
         return intersect1;
-    else return intersect2;
+    }
+    else
+    {
+        return intersect2;
+    }
 }
 
 Box3D Capsule::GetBoundingBox(void) const
@@ -1075,53 +1080,53 @@ Box3D Capsule::GetBoundingBox(void) const
 
 const float Plane::MarginOfError = 0.001f;
 
-bool Plane::TouchingCube(const Cube & cube) const
+bool Plane::TouchingCube(const Cube& cube) const
 {
     //Refer to Cube::TouchingPlane(const Plane & plane) for the info about this formula.
 
     const Box3D & bounds = cube.GetBounds();
 
     float val = bounds.GetXSize() * Mathf::Abs(Normal.x) +
-        bounds.GetYSize() * Mathf::Abs(Normal.y) +
-        bounds.GetZSize() * Mathf::Abs(Normal.z);
+          bounds.GetYSize() * Mathf::Abs(Normal.y) +
+          bounds.GetZSize() * Mathf::Abs(Normal.z);
     val *= 0.5f;
 
     return Mathf::Abs(GetDistanceToPlane(cube.GetCenter())) <= val;
 }
-bool Plane::TouchingSphere(const Sphere & sphere) const
+bool Plane::TouchingSphere(const Sphere& sphere) const
 {
     //Get the min/max distances along the plane normal that would make the sphere touch the cube.
 
     Vector3f dirRad = Normal * sphere.Radius;
     Vector3f min = sphere.GetCenter() - dirRad,
-        max = sphere.GetCenter() + dirRad;
+             max = sphere.GetCenter() + dirRad;
     float minDist = min.Dot(Normal),
-        maxDist = max.Dot(Normal);
+          maxDist = max.Dot(Normal);
 
     float dist = GetCenter().Dot(Normal);
 
     return dist >= minDist && dist <= maxDist;
 }
-bool Plane::TouchingCapsule(const Capsule & capsule) const
+bool Plane::TouchingCapsule(const Capsule& capsule) const
 {
     float distance1 = GetDistanceToPlane(capsule.GetEndpoint1()),
-        distance2 = GetDistanceToPlane(capsule.GetEndpoint2());
+          distance2 = GetDistanceToPlane(capsule.GetEndpoint2());
 
     Interval distanceIntvl(distance1, distance2, MarginOfError, true, true);
     distanceIntvl = distanceIntvl.Widen(capsule.Radius + capsule.Radius);
 
     return distanceIntvl.IsInside(0.0f);
 }
-bool Plane::TouchingPlane(const Plane & plane) const
+bool Plane::TouchingPlane(const Plane& plane) const
 {
     float dot = Mathf::Round(Normal.Dot(plane.Normal), 2);
 
     return (dot != 1.0f && dot != -1.0f) ||
-        (plane.GetCenter().DistanceSquared(GetCenter()) <= MarginOfError);
+           (plane.GetCenter().DistanceSquared(GetCenter()) <= MarginOfError);
 }
 
 #pragma warning(disable: 4100)
-bool Plane::TouchingTriangle(const Triangle & tris) const
+bool Plane::TouchingTriangle(const Triangle& tris) const
 {
     return false;
 }
@@ -1144,12 +1149,12 @@ Plane::RayTraceResult Plane::RayHitCheck(Vector3f rayStart, Vector3f rayDir) con
 Box3D Plane::GetBoundingBox(void) const
 {
     const float min = std::numeric_limits<float>::min(),
-        max = std::numeric_limits<float>::max();
+                max = std::numeric_limits<float>::max();
 
     //If the plane is aligned along an axis, one of the box's dimensions will have 0 size.
     bool xAligned = (1.0f - Mathf::Abs(Normal.x)) < MarginOfError,
-        yAligned = (1.0f - Mathf::Abs(Normal.y)) < MarginOfError,
-        zAligned = (1.0f - Mathf::Abs(Normal.z)) < MarginOfError;
+         yAligned = (1.0f - Mathf::Abs(Normal.y)) < MarginOfError,
+         zAligned = (1.0f - Mathf::Abs(Normal.z)) < MarginOfError;
 
     return Box3D(xAligned ? GetCenter().x : min, xAligned ? GetCenter().x : max,
                  yAligned ? GetCenter().y : min, yAligned ? GetCenter().y : max,
@@ -1162,7 +1167,7 @@ Box3D PolygonSolid::GetBoundingBox(void) const
     if (triangles.size() == 0) return Box3D();
 
     Vector3f min = triangles[0].GetVertices()[0],
-        max = triangles[0].GetVertices()[0];
+             max = triangles[0].GetVertices()[0];
 
     std::_For_each(triangles.begin(), triangles.end(),
                    [&min, &max](const Triangle & tri)

@@ -56,9 +56,6 @@
     <ClCompile Include="Math\Higher Math\Camera.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Higher Math\GeometricMath.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Higher Math\Terrain.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
@@ -444,6 +441,9 @@
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Higher Math\Geometryf.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -528,9 +528,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Camera.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Higher Math\GeometricMath.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h">
@@ -978,6 +975,9 @@
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Mathf.h">
       <Filter>Math\Lower Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Geometryf.h">
+      <Filter>Math\Higher Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

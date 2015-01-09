@@ -105,7 +105,7 @@
     <ClCompile Include="IO\XmlSerialization.cpp" />
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
     <ClCompile Include="Math\Higher Math\Camera.cpp" />
-    <ClCompile Include="Math\Higher Math\GeometricMath.cpp" />
+    <ClCompile Include="Math\Higher Math\Geometryf.cpp" />
     <ClCompile Include="Math\Higher Math\Terrain.cpp" />
     <ClCompile Include="Math\Higher Math\TransformObject.cpp" />
     <ClCompile Include="Math\Lower Math\Mathf.cpp" />
@@ -271,7 +271,7 @@
     <ClInclude Include="Math\Lower Math/Array2D.h" />
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h" />
     <ClInclude Include="Math\Higher Math\Camera.h" />
-    <ClInclude Include="Math\Higher Math\GeometricMath.h" />
+    <ClInclude Include="Math\Higher Math\Geometryf.h" />
     <ClInclude Include="Math\Higher Math\Gradient.h" />
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h" />
     <ClInclude Include="Math\Higher Math\Terrain.h" />

@@ -1,6 +1,6 @@
 #include "VoxelChunkManager.h"
 
-#include "../../Math/Higher Math/GeometricMath.h"
+#include "../../Math/Higher Math/Geometryf.h"
 #include "../../Math/Shapes/ThreeDShapes.h"
 #include "../../DebugAssist.h"
 #include <iostream>
@@ -16,9 +16,9 @@ VCM::RayCastResult VCM::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDis
 {
     //Find the axis that moves the most, and figure out what
     //   't' increment is needed to move the ray one chunk length along that axis.
-    unsigned int largestRayAxis = GeometricMath::GetLongestAxis(rayDir);
+    unsigned int largestRayAxis = Geometryf::GetLongestAxis(rayDir);
     float destination = rayStart[largestRayAxis] + (Mathf::Sign(rayDir[largestRayAxis]) * (VC::ChunkSizeF * VC::VoxelSizeF));
-    float chunkMoveLength = GeometricMath::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis, destination).t;
+    float chunkMoveLength = Geometryf::GetPointOnLineAtValue(rayStart, rayDir, largestRayAxis, destination).t;
 
 
     //March the ray forward in increments, checking each chunk it passes through.

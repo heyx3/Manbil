@@ -1,13 +1,13 @@
-#include "GeometricMath.h"
+#include "Geometryf.h"
 
 
-void GeometricMath::CalculateNormals(void* verts, unsigned int sizeofVerts, unsigned int nVerts,
-                                     const unsigned int * inds, unsigned int nInds,
-                                     Vector3f(*getNormal)(const void* vertex),
-                                     void(*setNormal)(void * vertex, Vector3f normal),
-                                     Vector3f(*getPos)(const void* vertex),
-                                     bool(*shouldFlipNormal)(Vector3f normal, void* vertex, void* pData),
-                                     void* pData)
+void Geometryf::CalculateNormals(void* verts, unsigned int sizeofVerts, unsigned int nVerts,
+                                 const unsigned int * inds, unsigned int nInds,
+                                 Vector3f(*getNormal)(const void* vertex),
+                                 void(*setNormal)(void * vertex, Vector3f normal),
+                                 Vector3f(*getPos)(const void* vertex),
+                                 bool(*shouldFlipNormal)(Vector3f normal, void* vertex, void* pData),
+                                 void* pData)
 {
     unsigned char* vertsB = (unsigned char*)verts;
 

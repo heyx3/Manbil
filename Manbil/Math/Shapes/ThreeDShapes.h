@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "../Lower Math/Vectors.h"
 #include "../Lower Math/Mathf.h"
-#include "../Higher Math/GeometricMath.h"
+#include "../Higher Math/Geometryf.h"
 #include "Boxes.h"
 
 
@@ -32,9 +32,9 @@ public:
     //Gets the point on the shape's surface farthest in the given direction.
     virtual Vector3f FarthestPointInDirection(Vector3f dirNormalized) const = 0;
 
-    virtual bool TouchingShape(const Shape & shape) const = 0;
+    virtual bool TouchingShape(const Shape& shape) const = 0;
 
-    virtual bool TouchingCube(const Cube & cube) const = 0;
+    virtual bool TouchingCube(const Cube& cube) const = 0;
     virtual bool TouchingSphere(const Sphere & sphere) const = 0;
     virtual bool TouchingCapsule(const Capsule & capsule) const = 0;
     virtual bool TouchingPlane(const Plane & plane) const = 0;
@@ -192,7 +192,7 @@ public:
 
     virtual bool IsPointInside(Vector3f point) const override
     {
-        return point.DistanceSquared(GeometricMath::ClosestToLine(l1, l2, point, false)) <=
+        return point.DistanceSquared(Geometryf::ClosestToLine(l1, l2, point, false)) <=
             (Radius * Radius);
     }
 

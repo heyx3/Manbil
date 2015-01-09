@@ -1,6 +1,6 @@
 #include "Terrain.h"
 
-#include "GeometricMath.h"
+#include "Geometryf.h"
 
 #include <iostream>
 #include <assert.h>
@@ -52,9 +52,9 @@ float Terrain::Interp(Vector2f p) const
 	}
 
 	//Interpolate.
-	return GeometricMath::TriangleInterpolate<Vector2f>(Vector2f(0, 0), operator[](baseL),
-													    Vector2f(1, 1), operator[](baseL + baseLDelta1),
-													    Vector2f(baseLDelta2.x, baseLDelta2.y),
-                                                        operator[](baseL + baseLDelta2),
-													    Vector2f(p.x - baseL.x, p.y - baseL.y));
+	return Geometryf::TriangleInterpolate<Vector2f>(Vector2f(0, 0), operator[](baseL),
+													Vector2f(1, 1), operator[](baseL + baseLDelta1),
+													Vector2f(baseLDelta2.x, baseLDelta2.y),
+                                                    operator[](baseL + baseLDelta2),
+													Vector2f(p.x - baseL.x, p.y - baseL.y));
 }
