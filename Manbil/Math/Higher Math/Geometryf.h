@@ -13,6 +13,7 @@ private:
         return Mathf::Abs(f1 - f2) <= error;
     }
 
+
 #pragma warning(disable: 4100)
 	template<class Vector>
 	static int NumbDimensions(Vector v) { return sizeof(v) / sizeof(float); }
@@ -96,45 +97,26 @@ public:
 
 
     //Gets the axis of the given vector with the largest magnitude.
-    template<class Vector>
-    static unsigned int GetLongestAxis(Vector v)
-    {
-        unsigned int size = NumbDimensions(v),
-            largestAxis = 0,
-            float largestValue = Mathf::Abs(v[0]);
-        for (unsigned int axis = 1; axis < size; ++axis)
-        {
-            float tempValue = Mathf::Abs(v[axis]);
-            if (tempValue > largestValue)
-            {
-                largestAxis = axis;
-                largestValue = tempValue;
-            }
-        }
-        return largestAxis;
-    }
-    template<>
     static unsigned int GetLongestAxis(Vector2f v)
     {
-        Vector2f abs(Mathf::Abs(v.x), Mathf::Abs(v.y));
-        if (abs.x > abs.y) return 0;
-        return 1;
+        v = v.Abs();
+        return (v.x > v.y) ? 0 : 1;
     }
-    template<>
+    //Gets the axis of the given vector with the largest magnitude.
     static unsigned int GetLongestAxis(Vector3f v)
     {
-        Vector3f abs(Mathf::Abs(v.x), Mathf::Abs(v.y), Mathf::Abs(v.z));
-        if (abs.x > abs.y && abs.x > abs.z) return 0;
-        else if (abs.y > abs.x && abs.y > abs.z) return 1;
+        v = v.Abs();
+        if (v.x > v.y && v.x > v.z) return 0;
+        else if (v.y > v.x && v.y > v.z) return 1;
         else return 2;
     }
-    template<>
+    //Gets the axis of the given vector with the largest magnitude.
     static unsigned int GetLongestAxis(Vector4f v)
     {
-        Vector4f abs(Mathf::Abs(v.x), Mathf::Abs(v.y), Mathf::Abs(v.z), Mathf::Abs(v.w));
-        if (abs.x > abs.y && abs.x > abs.z && abs.x > abs.w) return 0;
-        else if (abs.y > abs.x && abs.y > abs.z && abs.y > abs.w) return 1;
-        else if (abs.z > abs.x && abs.z > abs.y && abs.z > abs.w) return 2;
+        v = v.Abs();
+        if (v.x > v.y && v.x > v.z && v.x > v.w) return 0;
+        else if (v.y > v.x && v.y > v.z && v.y > v.w) return 1;
+        else if (v.z > v.x && v.z > v.y && v.z > v.w) return 2;
         else return 3;
     }
 
