@@ -176,15 +176,15 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
     if (RenderDataHandler::UniformLocIsValid(camSideL))
         RenderDataHandler::SetUniformValue(camSideL, 3, &camS[0]);
     if (RenderDataHandler::UniformLocIsValid(camWidthL))
-        RenderDataHandler::SetUniformValue(camWidthL, 1, &info.Cam->Info.Width);
+        RenderDataHandler::SetUniformValue(camWidthL, 1, &info.Cam->PerspectiveInfo.Width);
     if (RenderDataHandler::UniformLocIsValid(camHeightL))
-        RenderDataHandler::SetUniformValue(camHeightL, 1, &info.Cam->Info.Height);
+        RenderDataHandler::SetUniformValue(camHeightL, 1, &info.Cam->PerspectiveInfo.Height);
     if (RenderDataHandler::UniformLocIsValid(camZNearL))
-        RenderDataHandler::SetUniformValue(camZNearL, 1, &info.Cam->Info.zNear);
+        RenderDataHandler::SetUniformValue(camZNearL, 1, &info.Cam->PerspectiveInfo.zNear);
     if (RenderDataHandler::UniformLocIsValid(camZFarL))
-        RenderDataHandler::SetUniformValue(camZFarL, 1, &info.Cam->Info.zFar);
+        RenderDataHandler::SetUniformValue(camZFarL, 1, &info.Cam->PerspectiveInfo.zFar);
     if (RenderDataHandler::UniformLocIsValid(camFovL))
-        RenderDataHandler::SetUniformValue(camFovL, 1, &info.Cam->Info.FOV);
+        RenderDataHandler::SetUniformValue(camFovL, 1, &info.Cam->PerspectiveInfo.FOV);
     if (RenderDataHandler::UniformLocIsValid(camOrthoMinL))
     {
         Vector3f min = info.Cam->MinOrthoBounds + info.Cam->GetPosition();

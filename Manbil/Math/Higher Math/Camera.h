@@ -5,20 +5,26 @@
 
 
 //Basic camera functionality: UVN rotation, transform calculation, etc.
+//Has two modes, indicated by the "LockUp" flag:
+//   - If "LockUp" is true, the camera's Up vector will not be affected by pitching,
+//        and the Forward vector can only get so close to it (specified by "ClosestDotVariance").
+//        Rolling the camera or rotating it with a Quaternion will still change the Up vector like normal.
+//   - If "LockUP" is false, the camera's Up vector is not locked in any way.
 //Can specify a "closest dot variance", which means the closest the "forward" vector can get
 //     to pointing straight down/up, in terms of the dot product value.
 class Camera
 {
 public:
-	
 
     //If true, keeps the upward vector along the positive Z axis regardless of rotation.
     bool LockUp;
-    //If "LockUp" is true, this field indicates the closest the camera can get to pointing straight down/up.
+    //If "LockUp" is true, this field indicates the closest the camera can get to the up/down vector.
     //Should be between 0 (can look all the way up/down) and 1 (can't pitch the camera at all).
     float ClosestDotVariance;
 
-	ProjectionInfo Info;
+    //The information about this camera's 3D perspective (field of view, z-near/far, and aspect ratio).
+	ProjectionInfo PerspectiveInfo;
+    //The information about this camera's 2D perspective (visible region, relative to the camera).
     Vector3f MinOrthoBounds, MaxOrthoBounds;
 
 

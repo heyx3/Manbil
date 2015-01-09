@@ -1,6 +1,5 @@
 #include "VoxelWorld.h"
 
-#include "../../Math/Higher Math/GeometricMath.h"
 #include "../../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../../Rendering/Materials/Data Nodes/ShaderGenerator.h"
 #include "../../ScreenClearer.h"
@@ -451,11 +450,11 @@ void main()                                                                     
                              LookRotation(Vector2InputPtr(mouseInput), Vector3f(0.0f, 2.25f, 2.65f)),
                              Vector3f(-1, -1, -1).Normalized());
     player.Cam.Window = GetWindow();
-    player.Cam.Info.SetFOVDegrees(fov);
-    player.Cam.Info.Width = (float)vWindowSize.x;
-    player.Cam.Info.Height = (float)vWindowSize.y;
-    player.Cam.Info.zNear = 0.1f;
-    player.Cam.Info.zFar = 500.0f;
+    player.Cam.PerspectiveInfo.SetFOVDegrees(fov);
+    player.Cam.PerspectiveInfo.Width = (float)vWindowSize.x;
+    player.Cam.PerspectiveInfo.Height = (float)vWindowSize.y;
+    player.Cam.PerspectiveInfo.zNear = 0.1f;
+    player.Cam.PerspectiveInfo.zFar = 500.0f;
 
     player.MoveSpeed = 15.0f;
     player.CamOffset = Vector3f(0.0f, 0.0f, 0.5f);
@@ -482,8 +481,8 @@ void VoxelWorld::OnWindowResized(unsigned int w, unsigned int h)
     glViewport(0, 0, w, h);
     vWindowSize.x = w;
     vWindowSize.y = h;
-    player.Cam.Info.Width = (float)w;
-    player.Cam.Info.Height = (float)h;
+    player.Cam.PerspectiveInfo.Width = (float)w;
+    player.Cam.PerspectiveInfo.Height = (float)h;
     worldRenderTargetColorTex.ClearData(w, h);
     (*RenderTargets)[worldRenderTarget]->UpdateSize();
     if (!postProcessing->OnWindowResized(w, h))
@@ -541,7 +540,7 @@ void VoxelWorld::UpdateWorld(float elapsed)
         fov -= fovChangeSpeed * elapsed;
         std::cout << fov << '\n';
     }
-    player.Cam.Info.SetFOVDegrees(fov);
+    player.Cam.PerspectiveInfo.SetFOVDegrees(fov);
 
     //Input handling.
 
@@ -824,7 +823,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //Render the post-process chain.
     if (!postProcessing->RenderPostProcessing((*RenderTargets)[worldRenderTarget]->GetColorTextures()[0].MTex->GetTextureHandle(),
                                               (*RenderTargets)[worldRenderTarget]->GetDepthTexture().MTex->GetTextureHandle(),
-                                              player.Cam.Info))
+                                              player.Cam.PerspectiveInfo))
     {
         PrintError("Error rendering post-process chains", postProcessing->GetError());
         EndWorld();

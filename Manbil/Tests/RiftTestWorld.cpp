@@ -245,11 +245,11 @@ void RiftTestWorld::InitializeWorld(void)
 
 
     baseCam.Window = GetWindow();
-    baseCam.Info.zNear = 0.1f;
-    baseCam.Info.zFar = 1000.0f;
-    baseCam.Info.Width = windowSize.x;
-    baseCam.Info.Height = windowSize.y;
-    baseCam.Info.SetFOVDegrees(55.0f);
+    baseCam.PerspectiveInfo.zNear = 0.1f;
+    baseCam.PerspectiveInfo.zFar = 1000.0f;
+    baseCam.PerspectiveInfo.Width = windowSize.x;
+    baseCam.PerspectiveInfo.Height = windowSize.y;
+    baseCam.PerspectiveInfo.SetFOVDegrees(55.0f);
 
 
     //Set up OVR HMD.
@@ -456,9 +456,9 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
         eyeCam.IncrementPosition(orientation.Rotated(*(Vector3f*)&eyePose.Position));
         float fov = 2.0f * atanf(hmdEyeSettings[eye].Fov.UpTan);
-        eyeCam.Info.FOV = fov;
-        eyeCam.Info.Width = rendTex.GetWidth();
-        eyeCam.Info.Height = rendTex.GetHeight();
+        eyeCam.PerspectiveInfo.FOV = fov;
+        eyeCam.PerspectiveInfo.Width = rendTex.GetWidth();
+        eyeCam.PerspectiveInfo.Height = rendTex.GetHeight();
 
         eyeCam.GetViewTransform(viewM);
         eyeCam.GetPerspectiveTransform(projM);
@@ -501,8 +501,8 @@ void RiftTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
     windowSize.x = newW;
     windowSize.y = newH;
 
-    baseCam.Info.Width = (float)newW;
-    baseCam.Info.Height = (float)newH;
+    baseCam.PerspectiveInfo.Width = (float)newW;
+    baseCam.PerspectiveInfo.Height = (float)newH;
 }
 void RiftTestWorld::OnInitializeError(std::string errorMsg)
 {

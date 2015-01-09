@@ -236,7 +236,7 @@ void AssImpTestWorld::InitializeWorld(void)
 
     cam.Window = GetWindow();
 
-    cam.Info.SetFOVDegrees(55.0f);
+    cam.PerspectiveInfo.SetFOVDegrees(55.0f);
 }
 
 void AssImpTestWorld::OnWorldEnd(void)
@@ -335,8 +335,8 @@ void AssImpTestWorld::OnInitializeError(std::string errorMsg)
 }
 void AssImpTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
-    cam.Info.Width = newW;
-    cam.Info.Height = newH;
+    cam.PerspectiveInfo.Width = newW;
+    cam.PerspectiveInfo.Height = newH;
 
     glViewport(0, 0, newW, newH);
 

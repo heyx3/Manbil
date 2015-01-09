@@ -233,8 +233,8 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));
     cam.MinOrthoBounds = Vector3f(0.0f, 0.0f, -10.0f);
     cam.MaxOrthoBounds = Vector3f((float)WindowSize.x, (float)WindowSize.y, 10.0f);
-    cam.Info.Width = WindowSize.x;
-    cam.Info.Height = WindowSize.y;
+    cam.PerspectiveInfo.Width = WindowSize.x;
+    cam.PerspectiveInfo.Height = WindowSize.y;
     Matrix4f worldM, viewM, projM;
     TransformObject trns;
     trns.GetWorldTransform(worldM);

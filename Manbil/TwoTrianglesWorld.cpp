@@ -387,6 +387,6 @@ void TTW::RenderOpenGL(float elapsedSeconds)
 void TTW::OnWindowResized(unsigned int newWidth, unsigned int newHeight)
 {
 	glViewport(0, 0, newWidth, newHeight);
-    worldCam.Info.Width = newWidth;
-    worldCam.Info.Height = newHeight;
+    worldCam.PerspectiveInfo.Width = newWidth;
+    worldCam.PerspectiveInfo.Height = newHeight;
 }

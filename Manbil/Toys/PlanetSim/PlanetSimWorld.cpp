@@ -235,11 +235,11 @@ void PlanetSimWorld::InitializeWorld(void)
     //Camera data.
     cam.LockUp = false;
     cam.Window = GetWindow();
-    cam.Info.Width = windowSize.x;
-    cam.Info.Height = windowSize.y;
-    cam.Info.zNear = 0.1f;
-    cam.Info.zFar = startingZFar;
-    cam.Info.SetFOVDegrees(60.0f);
+    cam.PerspectiveInfo.Width = windowSize.x;
+    cam.PerspectiveInfo.Height = windowSize.y;
+    cam.PerspectiveInfo.zNear = 0.1f;
+    cam.PerspectiveInfo.zFar = startingZFar;
+    cam.PerspectiveInfo.SetFOVDegrees(60.0f);
     
 }
 void PlanetSimWorld::OnWorldEnd(void)
@@ -277,7 +277,7 @@ void PlanetSimWorld::UpdateWorld(float elapsed)
     const float minZFar = 1200.0f;
     float zFarLerp = Mathf::Clamp(Mathf::LerpComponent(world->GetMinHeight(), maxHeightSpeed, cam.GetPosition().Length()),
                                       0.0f, 1.0f);
-    cam.Info.zFar = Mathf::Lerp(minZFar, startingZFar, zFarLerp);
+    cam.PerspectiveInfo.zFar = Mathf::Lerp(minZFar, startingZFar, zFarLerp);
 }
 void PlanetSimWorld::RenderOpenGL(float elapsed)
 {
@@ -323,7 +323,7 @@ void PlanetSimWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
     windowSize = Vector2u(newW, newH);
 
-    cam.Info.Width = windowSize.x;
-    cam.Info.Height = windowSize.y;
+    cam.PerspectiveInfo.Width = windowSize.x;
+    cam.PerspectiveInfo.Height = windowSize.y;
     glViewport(0, 0, windowSize.x, windowSize.y);
 }

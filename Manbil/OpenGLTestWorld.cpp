@@ -667,11 +667,11 @@ void OpenGLTestWorld::InitializeWorld(void)
     cam.SetPosition(pos);
     cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
     cam.Window = GetWindow();
-    cam.Info.SetFOVDegrees(55.0f);
-    cam.Info.zFar = 5000.0f;
-    cam.Info.zNear = 1.0f;
-    cam.Info.Width = windowSize.x;
-    cam.Info.Height = windowSize.y;
+    cam.PerspectiveInfo.SetFOVDegrees(55.0f);
+    cam.PerspectiveInfo.zFar = 5000.0f;
+    cam.PerspectiveInfo.zNear = 1.0f;
+    cam.PerspectiveInfo.Width = windowSize.x;
+    cam.PerspectiveInfo.Height = windowSize.y;
     cam.SetMoveSpeed(100.0f);
     cam.SetRotSpeed(0.25f);
 }
@@ -814,7 +814,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
     else worldRendTex = (*RenderTargets)[worldRenderID]->GetColorTextures()[0].MTex->GetTextureHandle();
 
     //Render post-process effects on top of the world.
-    if (!ppc->RenderChain(this, cam.Info, worldRendTex, (*RenderTargets)[worldRenderID]->GetDepthTexture().MTex->GetTextureHandle()))
+    if (!ppc->RenderChain(this, cam.PerspectiveInfo, worldRendTex, (*RenderTargets)[worldRenderID]->GetDepthTexture().MTex->GetTextureHandle()))
     {
         std::cout << "Error rendering post-process chain: " << ppc->GetError() << "\n";
         Pause();
@@ -852,8 +852,8 @@ void OpenGLTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 	ClearAllRenderingErrors();
 
 	glViewport(0, 0, newW, newH);
-	cam.Info.Width = (float)newW;
-	cam.Info.Height = (float)newH;
+	cam.PerspectiveInfo.Width = (float)newW;
+	cam.PerspectiveInfo.Height = (float)newH;
     windowSize.x = newW;
     windowSize.y = newH;
     worldColorTex1.ClearData(newW, newH);

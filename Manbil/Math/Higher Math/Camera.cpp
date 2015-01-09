@@ -83,7 +83,8 @@ void Camera::GetViewTransform(Matrix4f& outM) const
 }
 void Camera::GetPerspectiveTransform(Matrix4f& outM) const
 {
-    outM.SetAsPerspProj(Info.FOV, Info.Width, Info.Height, Info.zNear, Info.zFar);
+    outM.SetAsPerspProj(PerspectiveInfo.FOV, PerspectiveInfo.Width, PerspectiveInfo.Height,
+                        PerspectiveInfo.zNear, PerspectiveInfo.zFar);
 }
 void Camera::GetOrthoProjection(Matrix4f& outM) const
 {

@@ -235,7 +235,7 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
 
     //Set up the RenderInfo struct.
     Camera cam;
-    cam.Info = pInfo;
+    cam.PerspectiveInfo = pInfo;
     TransformObject trans;
     Matrix4f identity;
     identity.SetAsIdentity();
