@@ -6,6 +6,7 @@
 #include "Math/Higher Math/Camera.h"
 
 
+//PRIORITY: Pull out mouse position calculation and mouse capturing into SFMLWorld.
 //A Camera that is controlled with WASD/EQ and mouse.
 //Spacebar toggles mouse capture/input.
 class MovingCamera : public Camera
@@ -36,7 +37,6 @@ public:
 	void SetRotSpeed(float newVal) { rotSpeed = newVal; }
 
     //Updates this camera and returns whether the user pressed escape.
-    //TODO: Refactor out the actual input stuff into the various worlds and something like a "CaptureMouse()" method for this class.
 	virtual bool Update(float elapsedTime);
 
 private:
