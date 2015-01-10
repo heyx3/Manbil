@@ -105,7 +105,6 @@
     <ClCompile Include="IO\XmlSerialization.cpp" />
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
     <ClCompile Include="Math\Higher Math\Camera.cpp" />
-    <ClCompile Include="Math\Higher Math\Geometryf.cpp" />
     <ClCompile Include="Math\Higher Math\Terrain.cpp" />
     <ClCompile Include="Math\Higher Math\TransformObject.cpp" />
     <ClCompile Include="Math\Lower Math\Mathf.cpp" />

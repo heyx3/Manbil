@@ -441,9 +441,6 @@
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Higher Math\Geometryf.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">

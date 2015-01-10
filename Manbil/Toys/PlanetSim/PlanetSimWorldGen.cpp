@@ -103,11 +103,14 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
     }
 
     //Generate normals.
-    bool(*shouldFlipNormal)(Vector3f norm, void* vertx, void* pData) = [](Vector3f norm, void* vertx, void* pData)
+    bool(*shouldFlipNormal)(const Vector3f&, const PlanetVertex&, void*) =
+        [](const Vector3f& norm, const PlanetVertex& vertx, void* pData)
     {
-        return norm.Dot(((PlanetVertex*)vertx)->Pos) < 0.0f;
+        return norm.Dot(vertx.Pos) < 0.0f;
     };
-    Geometryf::CalculateNormals(vertList.data(), vertList.size(), indList.data(), indList.size(), shouldFlipNormal);
+    Geometryf::CalculateNormals<PlanetVertex>(vertList.data(), vertList.size(),
+                                indList.data(), indList.size(),
+                                shouldFlipNormal, (void*)0);
 
     //Generate buffers.
     RenderObjHandle vbo, ibo;
