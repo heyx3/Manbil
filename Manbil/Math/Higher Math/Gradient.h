@@ -52,15 +52,15 @@ public:
 
 
     Smoothness SmoothQuality;
-    std::vector<GradientNode<Components>> Nodes;
+    std::vector<GNode> Nodes;
 
 
     Gradient(const std::vector<GNode>& nodes, Smoothness smoothQuality)
         : SmoothQuality(smoothQuality), Nodes(nodes) { }
     Gradient(GNode startVal, GNode endVal, Smoothness smoothQuality)
         : Gradient(MakeVector(startVal, endVal), smoothQuality) { }
-    Gradient(GNode startVal, GNode endVal, GNode mid1, Smoothness smoothQuality)
-        : Gradient(MakeVector(startVal, mid1, endVal, smoothQuality)) { }
+    Gradient(GNode startVal, GNode endVal, GNode mid, Smoothness smoothQuality)
+        : Gradient(MakeVector(startVal, mid, endVal, smoothQuality)) { }
     Gradient(GNode startVal, GNode endVal, GNode mid1, GNode mid2, Smoothness smoothQuality)
         : Gradient(MakeVector(startVal, mid1, mid2, endVal, smoothQuality)) { }
 
@@ -116,12 +116,6 @@ private:
         memcpy(dest, src, sizeof(float) * Components);
     }
 
-    static std::vector<GNode> MakeVector(GNode n1)
-    {
-        std::vector<GNode> ret;
-        ret.insert(ret.end(), n1);
-        return ret;
-    }
     static std::vector<GNode> MakeVector(GNode n1, GNode n2)
     {
         std::vector<GNode> ret;
