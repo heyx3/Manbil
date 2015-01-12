@@ -78,7 +78,7 @@ public:
         //If the LOD level isn't 0, calculate a lower-detail terrain and generate triangles for it.
         if (zoomOut != 0)
         {
-            Vector2u fullSize = bottomRight - topLeft;
+            Vector2u fullSize = bottomRight - topLeft + Vector2u(1, 1);
             unsigned int skippedVerts = Mathf::IntPow(2, zoomOut) - 1;
             
             //Calculate the size of the lower-detail terrain and make sure it can be constructed.
@@ -111,14 +111,14 @@ public:
 
 
             //Generate the triangles.
-            float scalePos = powf(2.0f, (float)skippedVerts);
+            float scalePos = powf(2.0f, (float)zoomOut);
             Vector3f translatePos(ToV2f(topLeft), 0.0f);
             unsigned int startIndex = outVerts.size();
             smallerTerr.GenerateTriangles(outVerts, outIndices,
                                           vertPosGetter, vertUVGetter, vertNormalGetter,
                                           Vector2u(0, 0),
                                           Vector2u(smallerTerr.GetWidth(), smallerTerr.GetHeight()),
-                                          1.0f / scalePos);
+                                          heightScale);
 
             //Remap the vertices to fit the correct region of space.
             Vector3f scalePos3(scalePos, scalePos, 1.0f);

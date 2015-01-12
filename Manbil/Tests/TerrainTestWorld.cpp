@@ -4,12 +4,17 @@
 #include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
 #include "../Math/Higher Math/Terrain.h"
 
+#include "../Input/Input.hpp"
+
 #include "../DebugAssist.h"
 
 #include <iostream>
 
 
 typedef TerrainTestWorld TTW;
+
+const unsigned int INPUT_NextLOD = 1,
+                   INPUT_PrevLOD = 2;
 
 
 TTW::TerrainTestWorld(void)
@@ -23,6 +28,28 @@ TTW::TerrainTestWorld(void)
 TTW::~TerrainTestWorld(void)
 {
 
+}
+
+void TTW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
+{
+    std::vector<VertexPosTex1Normal> verts;
+    std::vector<unsigned int> inds;
+    terr.GenerateTrianglesFull<VertexPosTex1Normal>(verts, inds,
+                                                    [](VertexPosTex1Normal& v) -> Vector3f&
+                                                        { return v.Pos; },
+                                                    [](VertexPosTex1Normal& v) -> Vector2f&
+                                                        { return v.TexCoords;},
+                                                    [](VertexPosTex1Normal& v) -> Vector3f&
+                                                        { return v.Normal; },
+                                                    100.0f, lodLevel);
+    
+    RenderObjHandle vbo, ibo;
+    RenderDataHandler::CreateVertexBuffer(vbo, verts.data(), verts.size(),
+                                          RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+    RenderDataHandler::CreateIndexBuffer(ibo, inds.data(), inds.size(),
+                                         RenderDataHandler::UPDATE_ONCE_AND_DRAW);
+    VertexIndexData vid(verts.size(), vbo, inds.size(), ibo);
+    terrMesh.SubMeshes.insert(terrMesh.SubMeshes.end(), vid);
 }
 
 void TTW::InitializeTextures(void)
@@ -76,11 +103,11 @@ void TTW::InitializeMaterials(void)
              fIn_WorldNormal(FragmentInputNode::GetInstance(), 2);
     DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal, "normalizedNormal"));
     DataLine lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
-             ambientLight(0.35f),
-             diffuseLight(0.65f),
+             ambientLight(0.5f),
+             diffuseLight(0.5f),
              specLight(0.0f),
              specIntensity(256.0f);
-    DataLine texScaleDown(40.0f);
+    DataLine texScaleDown(513.0f);
     
     DataNode::Ptr finalUV(new MultiplyNode(fIn_UV, texScaleDown, "finalUV"));
     DataNode::Ptr texSamplePtr(new TextureSample2DNode(finalUV, "u_tex", "texSampler"));
@@ -114,10 +141,13 @@ void TTW::InitializeObjects(void)
     Perlin2D pers[] =
     {
         Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
-        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
-        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
-        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
-        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
+        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), 6543, true),
+        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 666778, true),
+        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 44, true),
+        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
+        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
+        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
+        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
     };
     Generator2D*const gens[] = 
     {
@@ -126,6 +156,9 @@ void TTW::InitializeObjects(void)
         &pers[2],
         &pers[3],
         &pers[4],
+        &pers[5],
+        &pers[6],
+        &pers[7],
     };
 
     std::vector<float> weights;
@@ -142,25 +175,14 @@ void TTW::InitializeObjects(void)
 
     Terrain terr(outNoise.GetDimensions());
     terr.SetHeightmap(outNoise);
-
-    std::vector<VertexPosTex1Normal> verts;
-    std::vector<unsigned int> inds;
-    terr.GenerateTrianglesFull<VertexPosTex1Normal>(verts, inds,
-                                                    [](VertexPosTex1Normal& v) -> Vector3f&
-                                                        { return v.Pos; },
-                                                    [](VertexPosTex1Normal& v) -> Vector2f&
-                                                        { return v.TexCoords;},
-                                                    [](VertexPosTex1Normal& v) -> Vector3f&
-                                                        { return v.Normal; },
-                                                    70.0f, 0);
     
-    RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, verts.data(), verts.size(),
-                                          RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, inds.data(), inds.size(),
-                                         RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    VertexIndexData vid(verts.size(), vbo, inds.size(), ibo);
-    terrMesh.SubMeshes.insert(terrMesh.SubMeshes.end(), vid);
+    GenerateTerrainLOD(terr, 0);
+    GenerateTerrainLOD(terr, 1);
+    GenerateTerrainLOD(terr, 2);
+    GenerateTerrainLOD(terr, 3);
+    GenerateTerrainLOD(terr, 4);
+    GenerateTerrainLOD(terr, 5);
+    GenerateTerrainLOD(terr, 6);
 
     terrMesh.Transform.SetScale(1.0f);
 }
@@ -174,6 +196,13 @@ void TTW::InitializeWorld(void)
     InitializeTextures();
     InitializeMaterials();
     InitializeObjects();
+    
+    Input.AddBoolInput(INPUT_NextLOD,
+                       BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Right,
+                                                                      BoolInput::JustPressed)));
+    Input.AddBoolInput(INPUT_PrevLOD,
+                       BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Left,
+                                                                      BoolInput::JustPressed)));
 
     cam.Window = GetWindow();
     cam.PerspectiveInfo.SetFOVDegrees(55.0f);
@@ -194,6 +223,17 @@ void TTW::UpdateWorld(float elapsedSeconds)
     {
         EndWorld();
         return;
+    }
+
+    if (Input.GetBoolInputValue(INPUT_NextLOD) &&
+        terrMesh.CurrentSubMesh < terrMesh.SubMeshes.size() - 1)
+    {
+        terrMesh.CurrentSubMesh += 1;
+    }
+    if (Input.GetBoolInputValue(INPUT_PrevLOD) &&
+        terrMesh.CurrentSubMesh > 0)
+    {
+        terrMesh.CurrentSubMesh -= 1;
     }
 }
 
