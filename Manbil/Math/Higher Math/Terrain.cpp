@@ -15,7 +15,8 @@ void Terrain::SetHeightmap(const Array2D<float> & copy)
 
 float Terrain::Interp(Vector2f p) const
 {
-    p = p.Clamp(0.0f, (float)GetSize());
+    p = p.Clamp(Vector2f(0.0f, 0.0f),
+                Vector2f((float)GetWidth(), (float)GetHeight()));
 
 	//There are two triangles in the terrain square:
 	// (x, y) - (x + 1, y) - (x + 1, y + 1)

@@ -14,7 +14,7 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
     Array2D<float> terrainHeight(size, size, 0.0f);
 
     //Just create a flat terrain and let it do the math.
-    Terrain terr(size);
+    Terrain terr(Vector2u(size, size));
     terr.SetHeightmap(terrainHeight);
     std::vector<WaterVertex> verts;
     std::vector<unsigned int> indices;
@@ -33,8 +33,10 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
                                           RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(),
                                          RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    VertexIndexData vid(Terrain::GetVerticesCount(terr.GetSize()), vbo,
-                        Terrain::GetIndicesCount(terr.GetSize()), ibo);
+    Vector2u terrSize(terr.GetWidth(), terr.GetHeight());
+    Vector2u nVerts = Terrain::GetNVertices(terrSize);
+    VertexIndexData vid(nVerts.x * nVerts.y, vbo,
+                        Terrain::GetNIndices(terrSize), ibo);
     outM.SetVertexIndexData(&vid, 1);
 }
 

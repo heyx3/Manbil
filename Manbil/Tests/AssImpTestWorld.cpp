@@ -76,8 +76,7 @@ void AssImpTestWorld::InitializeMaterials(void)
 
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
-    //TODO: It's input is currently the vertex type used in PrimitiveGenerator. This will have to be changed once AssImp is actually integrated.
-
+    
     DataNode::VertexIns = VertexPosTex1Normal::GetAttributeData();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
@@ -331,7 +330,13 @@ void AssImpTestWorld::RenderOpenGL(float elapsedSeconds)
 
 void AssImpTestWorld::OnInitializeError(std::string errorMsg)
 {
+	EndWorld();
 
+	SFMLOpenGLWorld::OnInitializeError(errorMsg);
+
+	std::cout << "Enter any key to continue:\n";
+    char dummy;
+    std::cin >> dummy;
 }
 void AssImpTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
