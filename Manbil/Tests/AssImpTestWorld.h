@@ -7,7 +7,7 @@
 
 
 
-//A simple world that demos the capabilities of the AssImp library.
+//A simple world that tests the capabilities of the AssImp library.
 class AssImpTestWorld : public SFMLOpenGLWorld
 {
 public:
