@@ -441,6 +441,9 @@
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
+    <ClCompile Include="Tests\TerrainTestWorld.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
@@ -975,6 +978,9 @@
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Geometryf.h">
       <Filter>Math\Higher Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\TerrainTestWorld.h">
+      <Filter>Tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

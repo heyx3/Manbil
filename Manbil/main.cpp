@@ -8,6 +8,7 @@
 #include "OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
+#include "Tests/TerrainTestWorld.h"
 #include "Tests/GUITestWorld.h"
 #include "NoiseTest.h"
 #include "TwoTrianglesWorld.h"
@@ -41,6 +42,7 @@ int main()
     //OpenGLTestWorld().RunWorld();
     //RiftTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
+    TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
 
@@ -49,5 +51,5 @@ int main()
 
     //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
-    PlanetSimWorld().RunWorld();
+    //PlanetSimWorld().RunWorld();
 }
