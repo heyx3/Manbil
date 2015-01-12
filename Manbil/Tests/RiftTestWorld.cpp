@@ -219,7 +219,7 @@ void RiftTestWorld::InitializeObjects(void)
     RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(),
                                          RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     VertexIndexData cubeDat(verts.size(), vbo, indices.size(), ibo);
-    cube.SetVertexIndexData(cubeDat);
+    cube.SubMeshes.insert(cube.SubMeshes.end(), cubeDat);
 
 
     quad = new DrawingQuad();

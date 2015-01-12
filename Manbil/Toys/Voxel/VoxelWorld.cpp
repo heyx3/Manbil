@@ -239,7 +239,8 @@ void VoxelWorld::InitializeWorld(void)
     RenderObjHandle vhvbo, vhibo;
     RenderDataHandler::CreateVertexBuffer(vhvbo, vhvs.data(), vhvs.size());
     RenderDataHandler::CreateIndexBuffer(vhibo, vsis.data(), vsis.size());
-    voxelHighlightMesh.SetVertexIndexData(VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
+    voxelHighlightMesh.SubMeshes.insert(voxelHighlightMesh.SubMeshes.end(),
+                                        VertexIndexData(vhvs.size(), vhvbo, vsis.size(), vhibo));
     
     //Voxel highlight material.
     DataNode::ClearMaterialData();
@@ -684,12 +685,12 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     //Draw each of the faces one at a time.
     std::vector<const Mesh*> lessX, lessY, lessZ, moreX, moreY, moreZ;
     Vector3i camPosIndex = manager.ToChunkIndex(player.Cam.GetPosition() + player.CamOffset);
-    std::unordered_map<Vector3i, ChunkMesh*, Vector3i> & meshes = chunkMeshes;
+    std::unordered_map<Vector3i, ChunkMesh*, Vector3i>& meshes = chunkMeshes;
     //TODO: Speed things up by keeping a persistent set of mesh vectors and only modify them when the camera moves into a new chunk.
     manager.DoToEveryChunk([camPosIndex, &meshes, &lessX, &lessY, &lessZ, &moreX, &moreY, &moreZ](Vector3i chunkIndex, VoxelChunk *chnk)
     {
         const Mesh * msh = &meshes[chunkIndex]->GetMesh();
-        if (msh->GetVertexIndexData(0).GetVerticesCount() == 0) return;
+        if (msh->SubMeshes[0].GetVerticesCount() == 0) return;
 
         bool equalX = (camPosIndex.x == chunkIndex.x);
         if (equalX || camPosIndex.x < chunkIndex.x)

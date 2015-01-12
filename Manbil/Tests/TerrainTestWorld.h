@@ -6,6 +6,7 @@
 #include "../MovingCamera.h"
 
 
+class Terrain;
 
 //A simple world that tests the Terrain class.
 class TerrainTestWorld : public SFMLOpenGLWorld
@@ -36,6 +37,8 @@ private:
     //Otherwise, returns true.
     bool Assert(bool test, std::string errorIntro, const std::string& error);
 
+
+    void GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel);
 
     void InitializeTextures(void);
     void InitializeMaterials(void);

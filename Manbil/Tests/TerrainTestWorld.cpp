@@ -160,7 +160,7 @@ void TTW::InitializeObjects(void)
     RenderDataHandler::CreateIndexBuffer(ibo, inds.data(), inds.size(),
                                          RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     VertexIndexData vid(verts.size(), vbo, inds.size(), ibo);
-    terrMesh.SetVertexIndexData(vid);
+    terrMesh.SubMeshes.insert(terrMesh.SubMeshes.end(), vid);
 
     terrMesh.Transform.SetScale(1.0f);
 }

@@ -45,7 +45,7 @@ DrawingQuad::DrawingQuad(void)
     assert(IsInitialized());
 
     //Set up this quad's mesh.
-    quad.SetVertexIndexData(&vid, 1);
+    quad.SubMeshes.insert(quad.SubMeshes.end(), vid);
     meshes.insert(meshes.end(), &quad);
 }
 DrawingQuad::DrawingQuad(const DrawingQuad& cpy)

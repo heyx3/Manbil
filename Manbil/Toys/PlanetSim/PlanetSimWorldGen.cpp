@@ -116,7 +116,8 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
     RenderObjHandle vbo, ibo;
     RenderDataHandler::CreateVertexBuffer(vbo, vertList.data(), vertList.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(ibo, indList.data(), indList.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    outMesh.SetVertexIndexData(VertexIndexData(vertList.size(), vbo, indList.size(), ibo));
+    outMesh.SubMeshes.insert(outMesh.SubMeshes.end(),
+                             VertexIndexData(vertList.size(), vbo, indList.size(), ibo));
 }
 
 WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)

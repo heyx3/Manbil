@@ -216,7 +216,7 @@ void AssImpTestWorld::InitializeObjects(void)
     RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size());
 
     VertexIndexData vid(vertices.size(), vbo, indices.size(), ibo);
-    objMesh.SetVertexIndexData(vid);
+    objMesh.SubMeshes.insert(objMesh.SubMeshes.end(), vid);
 
 
     //Set up the mesh's transform.

@@ -457,8 +457,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
         particleMat = gen.Mat;
 
         GPUParticleGenerator::NumberOfParticles numb = GPUParticleGenerator::NumberOfParticles::NOP_262144;
-        particleMesh.SetVertexIndexData(VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
-                                                        GPUParticleGenerator::GenerateGPUPParticles(numb)));
+        particleMesh.SubMeshes.insert(particleMesh.SubMeshes.end(),
+                                      VertexIndexData(GPUParticleGenerator::GetNumbParticles(numb),
+                                                      GPUParticleGenerator::GenerateGPUPParticles(numb)));
 
 
         #pragma endregion
@@ -565,7 +566,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     RenderObjHandle gsVBO;
     Vector3f vertex[1] = { Vector3f(0.0f, 0.0f, 0.0f) };
     RenderDataHandler::CreateVertexBuffer(gsVBO, &vertex, 1, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-    gsMesh.SetVertexIndexData(VertexIndexData(1, gsVBO));
+    gsMesh.SubMeshes.insert(gsMesh.SubMeshes.end(), VertexIndexData(1, gsVBO));
     gsMesh.Transform.SetPosition(Vector3f(90.0f, 90.0f, 90.0f));
 
 
@@ -604,7 +605,8 @@ void OpenGLTestWorld::InitializeObjects(void)
     RenderObjHandle cmVBO, cmIBO;
     RenderDataHandler::CreateVertexBuffer(cmVBO, cmVertices.data(), cmVertices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
     RenderDataHandler::CreateIndexBuffer(cmIBO, cmIndices.data(), cmIndices.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    cubemapMesh.SetVertexIndexData(VertexIndexData(cmVertices.size(), cmVBO, cmIndices.size(), cmIBO));
+    cubemapMesh.SubMeshes.insert(cubemapMesh.SubMeshes.end(),
+                                 VertexIndexData(cmVertices.size(), cmVBO, cmIndices.size(), cmIBO));
 
 
     //Post-process chain.

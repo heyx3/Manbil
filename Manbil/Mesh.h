@@ -6,50 +6,34 @@
 #include "Vertices.h"
 
 
-//TODO: Use VID array to split up vertex buffers into multiple draw calls to get an optimal amount of triangles per draw call.
-//TODO: Come up with an LOD system.
+//TODO: Use VID array to split up vertex buffers into multiple draw calls to get an optimal amount of triangles per draw call?
 
-//Wraps the rendering of vertices using a material.
+//A set of vertices (and possibly indices) with a position, rotation, and scale.
+//The vertex data is split into sub-meshes, stored in an std::vector.
 class Mesh
 {
 public:
+    
+    //The mesh data belonging to this mesh.
+    std::vector<VertexIndexData> SubMeshes;
+    //Which mesh data to render.
+    unsigned int CurrentSubMesh = 0;
 
 	TransformObject Transform;
+    PrimitiveTypes PrimType;
     
 
 	Mesh(PrimitiveTypes pType = PrimitiveTypes::TriangleList,
-         int numbVIData = 0, const VertexIndexData * viDataArray = 0);
-	Mesh(const Mesh & cpy);
+         std::vector<VertexIndexData> subMeshData = std::vector<VertexIndexData>())
+        : PrimType(pType), SubMeshes(subMeshData) { }
 
-	~Mesh(void) { if (viData != 0) delete[] viData; }
+    ~Mesh(void) { DestroySubMeshes(); }
 
-    //Deletes the vertex/index buffers held by this mesh from OpenGL.
-    void DestroyVertexIndexBuffers(void)
-    {
-        for (unsigned int i = 0; i < nVIData; ++i)
-        {
-            RenderDataHandler::DeleteBuffer(viData[i].GetVerticesHandle());
-            RenderDataHandler::DeleteBuffer(viData[i].GetIndicesHandle());
-            viData[i] = VertexIndexData();
-        }
-    }
+
+    //Must be called before destroying this Mesh if this Mesh has any sub-meshes.
+    void DestroySubMeshes(void);
     
-
-	unsigned int GetNumbVertexIndexData(void) const { return nVIData; }
-
-	const VertexIndexData & GetVertexIndexData(unsigned int datNumb) const { return viData[datNumb]; }
-    void SetVertexIndexData(const VertexIndexData & toCopy) { SetVertexIndexData(&toCopy, 1); }
-	void SetVertexIndexData(const VertexIndexData * toCopy, int numbToCopy);
-
-	PrimitiveTypes GetPrimType(void) const { return primType; }
-    void SetPrimType(PrimitiveTypes type) { primType = type; }
-
-	void operator=(const Mesh & other);
-
-private:
-
-	PrimitiveTypes primType;
-
-	VertexIndexData * viData;
-	unsigned int nVIData;
+    //Adds the given vertex data to this mesh's sub-mesh collection at the given index.
+    //If the given index is less than 0, the sub-mesh will be inserted at the end of the collection.
+    void AddSubMesh(VertexIndexData subMesh, int location = -1);
 };

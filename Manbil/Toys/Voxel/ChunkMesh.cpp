@@ -11,7 +11,7 @@ ChunkMesh::ChunkMesh(VoxelChunkManager & mangr, Vector3i chunkIndex, VoxelChunk 
 {
     RenderObjHandle vbo;
     RenderDataHandler::CreateVertexBuffer<VoxelVertex>(vbo, 0, 0, RenderDataHandler::UPDATE_CONSTANTLY_AND_DRAW);
-    mesh.SetVertexIndexData(VertexIndexData(0, vbo));
+    mesh.SubMeshes.insert(mesh.SubMeshes.end(), VertexIndexData(0, vbo));
 }
 
 const Mesh & ChunkMesh::GetMesh(void)
@@ -59,7 +59,7 @@ void ChunkMesh::BuildBuffer(void)
 
     ClearAllRenderingErrors();
 
-    RenderDataHandler::UpdateVertexBuffer(mesh.GetVertexIndexData(0).GetVerticesHandle(),
+    RenderDataHandler::UpdateVertexBuffer(mesh.SubMeshes[0].GetVerticesHandle(),
                                           vertices.data(), vertices.size(),
                                           RenderDataHandler::BufferPurpose::UPDATE_CONSTANTLY_AND_DRAW);
 
@@ -67,7 +67,7 @@ void ChunkMesh::BuildBuffer(void)
     if (!err.empty())
         std::cout << "Error updating index/vertex buffers: " + err + "\n";
 
-    mesh.SetVertexIndexData(VertexIndexData(vertices.size(), mesh.GetVertexIndexData(0).GetVerticesHandle()));
+    mesh.SubMeshes[0] = VertexIndexData(vertices.size(), mesh.SubMeshes[0].GetVerticesHandle());
 
     vertices.clear();
     status = ThreadStatus::TS_OFF;

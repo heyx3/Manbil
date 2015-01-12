@@ -281,27 +281,27 @@ bool Material::Render(const RenderInfo & info, const std::vector<const Mesh*> & 
         if (RenderDataHandler::UniformLocIsValid(wvpMatL))
             RenderDataHandler::SetMatrixValue(wvpMatL, finalWVP);
 
+
         //Now render the mesh.
-        for (unsigned int v = 0; v < mesh.GetNumbVertexIndexData(); ++v)
+
+        const VertexIndexData& vid = mesh.SubMeshes[mesh.CurrentSubMesh];
+        
+        RenderDataHandler::BindVertexBuffer(vid.GetVerticesHandle());
+        
+        attributes.EnableAttributes();
+
+        if (vid.UsesIndices())
         {
-            const VertexIndexData & vid = mesh.GetVertexIndexData(v);
-
-            RenderDataHandler::BindVertexBuffer(vid.GetVerticesHandle());
-
-            attributes.EnableAttributes();
-
-            if (vid.UsesIndices())
-            {
-                RenderDataHandler::BindIndexBuffer(vid.GetIndicesHandle());
-                ShaderHandler::DrawIndexedVertices(mesh.GetPrimType(), vid.GetIndicesCount());
-            }
-            else
-            {
-                ShaderHandler::DrawVertices(mesh.GetPrimType(), vid.GetVerticesCount(), sizeof(int) * vid.GetFirstVertex());
-            }
-
-            attributes.DisableAttributes();
+            RenderDataHandler::BindIndexBuffer(vid.GetIndicesHandle());
+            ShaderHandler::DrawIndexedVertices(mesh.PrimType, vid.GetIndicesCount());
         }
+        else
+        {
+            ShaderHandler::DrawVertices(mesh.PrimType, vid.GetVerticesCount(),
+                                        sizeof(int) * vid.GetFirstVertex());
+        }
+
+        attributes.DisableAttributes();
     }
 
 

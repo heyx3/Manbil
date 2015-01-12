@@ -17,7 +17,7 @@ public:
 
     //Creates OpenGL vertex buffer.
     ChunkMesh(VoxelChunkManager & manager, Vector3i chunkIndex, VoxelChunk * chunk = 0);
-    ~ChunkMesh(void) { HangUntilThreadDone(); RenderDataHandler::DeleteBuffer(mesh.GetVertexIndexData(0).GetVerticesHandle()); }
+    ~ChunkMesh(void) { HangUntilThreadDone(); }
 
 
     //Rebuilds the chunk's mesh.

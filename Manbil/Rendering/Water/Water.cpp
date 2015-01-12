@@ -37,7 +37,7 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
     Vector2u nVerts = Terrain::GetNVertices(terrSize);
     VertexIndexData vid(nVerts.x * nVerts.y, vbo,
                         Terrain::GetNIndices(terrSize), ibo);
-    outM.SetVertexIndexData(&vid, 1);
+    outM.SubMeshes.insert(outM.SubMeshes.end(), vid);
 }
 
 Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
@@ -102,8 +102,6 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
 }
 Water::~Water(void)
 {
-    waterMesh.DestroyVertexIndexBuffers();
-
     if (rippleIDs != 0)
     {
         delete[] rippleIDs, dp_tsc_h_p, sXY_sp;
