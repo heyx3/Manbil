@@ -206,7 +206,7 @@ void TTW::InitializeWorld(void)
 
     cam.Window = GetWindow();
     cam.PerspectiveInfo.SetFOVDegrees(55.0f);
-    cam.PerspectiveInfo.zFar = 1000.0f;
+    cam.PerspectiveInfo.zFar = 4000.0f;
 }
 
 void TTW::OnWorldEnd(void)
