@@ -2,7 +2,9 @@ Manbil
 ======
 
 
-My 3D engine in C++/OpenGL. Uses some libraries here and there -- tinyXML for serialization, OVR for Oculus Rift support, SFML for window management and loading textures, FreeType for loading font glyphs, etc. These plugins are in the "Plugins" folder in the repo.
+My 3D engine in C++/OpenGL. Currently undergoing refactoring and documentation to turn it into an educational resource for anybody who wants to learn how to write a basic game engine.
+
+Uses some libraries here and there -- tinyXML for serialization, OVR for Oculus Rift support, SFML for window management and loading textures, FreeType for loading font glyphs, etc. These plugins are in the "Plugins" folder in the repo.
 
 Everything else is done by me, available under the [Creative Commons 3.0 Attribution license](https://creativecommons.org/licenses/by/3.0/us/).
 
