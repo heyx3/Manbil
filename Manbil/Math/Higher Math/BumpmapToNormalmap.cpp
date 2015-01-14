@@ -3,6 +3,13 @@
 void BumpmapToNormalmap::Convert(const Array2D<float>& heightmap, float heightScale,
                                  bool normalizeRange, Array2D<Vector3f>& normals)
 {
+    if (normals.GetWidth() != heightmap.GetWidth() ||
+        normals.GetHeight() != heightmap.GetHeight())
+    {
+        normals.Resize(heightmap.GetWidth(), heightmap.GetHeight(), Vector3f());
+    }
+
+
     //Go through every point on the bumpmap and find its normal.
     Vector3f base, first, second;
     for (Vector2u loc(0, 0); loc.y < heightmap.GetHeight(); ++loc.y)
