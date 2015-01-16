@@ -14,12 +14,13 @@ struct GradientNode
 {
 public:
 
-    //TODO: Split "Value" into "LeftValue" and "RightValue" so that the gradient no longer has to be continuous.
+    //TODO: Split "Value" into "LeftValue" and "RightValue" so that the gradient no longer HAS to be continuous.
 
     //The position of this node, from 0 to 1.
     float T;
     //The value at this node.
     float Value[Components];
+
 
     GradientNode(float t, const float value[Components])
         : T(t)
@@ -27,6 +28,12 @@ public:
         memcpy(Value, value, sizeof(float) * Components);
     }
     GradientNode(const GradientNode& cpy) : GradientNode(cpy.T, cpy.Value) { }
+
+
+    void SetValue(const float newValue[Components])
+    {
+        memcpy(Value, newValue, sizeof(float) * Components);
+    }
 };
 
 
