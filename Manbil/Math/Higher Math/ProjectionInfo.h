@@ -2,7 +2,7 @@
 
 
 //Information about a perspective projection.
-class ProjectionInfo
+struct ProjectionInfo
 {
 public:
 
@@ -19,7 +19,7 @@ public:
 
 
     //Creates a ProjectionInfo with some basic, sane values.
-	ProjectionInfo(void) : FOV(2.3561945f), Width(10.0f), Height(10.0f), zNear(0.1f), zFar(1000.0f) { }
+	ProjectionInfo(void) : FOV(2.3561945f), Width(800.0f), Height(600.0f), zNear(0.1f), zFar(1000.0f) { }
     //Creates a ProjectionInfo with the given values.
 	ProjectionInfo(float fov, float width, float height, float _zNear, float _zFar)
         : FOV(fov), Width(width), Height(height), zNear(_zNear), zFar(_zFar) { }
