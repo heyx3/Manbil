@@ -272,15 +272,15 @@ public:
     //If the array is being extended, the new elements will be filled with the given default value.
     void Resize(unsigned int newWidth, unsigned int newHeight, const ArrayType& defaultVal)
     {
-        if (with != newWidth || height != newHeight)
+        if (width != newWidth || height != newHeight)
         {
-            //Create a new version of this array with the new values.
-            Array2D<ArrayType> newArr(newWidth, newHeight);
-            newArr.Fill(*this, defaultVal);
+            //Create a copy of this array.
+            Array2D<ArrayType> cpy(width, height);
+            cpy.Fill(arrayVals, true);
 
-            //Fill this array with those values.
-            Reset(newWidth, newHeight);
-            Fill(newArr, defaultVal);
+            //Resize this array and fill it with the old values.
+            Reset(newWidth, newHeight, defaultVal);
+            Fill(cpy);
         }
     }
 
