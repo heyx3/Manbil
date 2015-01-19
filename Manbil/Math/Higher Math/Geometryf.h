@@ -3,7 +3,7 @@
 #include "../Lower Math/Vectors.h"
 
 
-//Custom math functions. Generalized for a float vector of any dimensionality.
+//Various useful geometric functions. Generalized for a float vector of any number of dimensions.
 class Geometryf
 {
 private:
@@ -17,13 +17,13 @@ private:
 #pragma warning(disable: 4100)
     //A vector class with no data beyond its components.
 	template<class Vector>
-	static int NumbDimensions(Vector v) { return sizeof(v) / sizeof(float); }
+	static int NumbDimensions(void) { return sizeof(v) / sizeof(float); }
 	template<>
-	static int NumbDimensions<Vector2f>(Vector2f v) { return 2; }
+	static int NumbDimensions<Vector2f>(void) { return 2; }
 	template<>
-	static int NumbDimensions<Vector3f>(Vector3f v) { return 3; }
+	static int NumbDimensions<Vector3f>(void) { return 3; }
 	template<>
-	static int NumbDimensions<Vector4f>(Vector4f v) { return 4; }
+	static int NumbDimensions<Vector4f>(void) { return 4; }
 #pragma warning(default: 4100)
 
 public:
@@ -117,7 +117,7 @@ public:
     //Gets the axis of the given vector with the largest magnitude.
     static unsigned int GetLongestAxis(Vector v)
     {
-        unsigned int size = NumbDimensions(v);
+        unsigned int size = NumbDimensions<Vector>();
 
         unsigned int currentLargestAxis = 0;
         float currentLargestValue = Mathf::Abs(v[currentLargestAxis]);
@@ -132,30 +132,7 @@ public:
             }
         }
 
-        return largestAxis;
-    }
-    //Gets the axis of the given vector with the largest magnitude.
-    static unsigned int GetLongestAxis(Vector2f v)
-    {
-        v = v.Abs();
-        return (v.x > v.y) ? 0 : 1;
-    }
-    //Gets the axis of the given vector with the largest magnitude.
-    static unsigned int GetLongestAxis(Vector3f v)
-    {
-        v = v.Abs();
-        if (v.x > v.y && v.x > v.z) return 0;
-        else if (v.y > v.x && v.y > v.z) return 1;
-        else return 2;
-    }
-    //Gets the axis of the given vector with the largest magnitude.
-    static unsigned int GetLongestAxis(Vector4f v)
-    {
-        v = v.Abs();
-        if (v.x > v.y && v.x > v.z && v.x > v.w) return 0;
-        else if (v.y > v.x && v.y > v.z && v.y > v.w) return 1;
-        else if (v.z > v.x && v.z > v.y && v.z > v.w) return 2;
-        else return 3;
+        return currentLargestAxis;
     }
 
 
@@ -244,7 +221,7 @@ public:
 
 
 	template<class Vector>
-    //The return value of "PointOnLineAtValueResult".
+    //The return value of "GetPointOnLineAtValue".
 	struct PointOnLineAtValueResult
     {
         Vector Point;
@@ -259,7 +236,7 @@ public:
 	//For example, this function could be used to find the point with Y value 5.25f on a given line.
 	//Assumes that "vLineDir" is not 0 in the given dimension.
 	static PointOnLineAtValueResult<Vector> GetPointOnLineAtValue(Vector vOnLine, Vector vLineDir,
-                                                                  int axis, float targetValue)
+                                                                  unsigned int axis, float targetValue)
 	{
         assert(vLineDir[axis] != 0.0f);
 		float t = (targetValue - vOnLine[axis]) / vLineDir[axis];
@@ -279,7 +256,7 @@ public:
                                  bool(*shouldFlipNormal)(const Vector3f& normal,
                                                          const VertexType& vert,
                                                          void* pData),
-                                 void* extraData = 0)
+                                 void* pData = 0)
     {
         //Start all normals at 0.0f.
         for (unsigned int vert = 0; vert < nVertices; ++vert)
@@ -295,7 +272,7 @@ public:
                      v_1_3 = getPos(v1) - getPos(v3);
             Vector3f norm = v_1_2.Normalized().Cross(v_1_3.Normalized());
 
-            if (shouldFlipNormal(norm, v1, extraData))
+            if (shouldFlipNormal(norm, v1, pData))
             {
                 norm = -norm;
             }
@@ -315,11 +292,11 @@ public:
                                  bool(*shouldFlipNormal)(const Vector3f& pos,
                                                          const VertexType& vert,
                                                          void* pData),
-                                 void* extraData = 0)
+                                 void* pData = 0)
     {
         CalculateNormals<VertexType>(vertices, nVertices, indices, nIndices,
                                      [](VertexType& vert) -> Vector3f& { return vert.Normal; },
                                      [](const VertexType& vert) -> Vector3f { return vert.Pos; },
-                                     shouldFlipNormal, extraData);
+                                     shouldFlipNormal, pData);
     }
 };

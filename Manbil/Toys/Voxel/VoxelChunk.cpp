@@ -138,9 +138,9 @@ VC::VoxelRayHit VC::CastRay(Vector3f rayStart, Vector3f rayDir, float maxDist) c
     //Find the axis that moves the fastest, and figure out what
     //   't' increment is needed to move the ray one unit along that axis.
 
-    int axis = Geometryf::GetLongestAxis(rayDir);
+    unsigned int axis = Geometryf::GetLongestAxis(rayDir);
     float tIncrement = Geometryf::GetPointOnLineAtValue(rayStart, rayDir, axis,
-                                                            rayStart[axis] + Mathf::Sign(rayDir[axis])).t;
+                                                        rayStart[axis] + Mathf::Sign(rayDir[axis])).t;
 
 
     //March the ray in increments of that amount and check the bounding area
