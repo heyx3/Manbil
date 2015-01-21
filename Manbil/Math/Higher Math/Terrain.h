@@ -43,16 +43,18 @@ public:
     Terrain(Vector2u size) : heightmap(size.x, size.y, 0.0f) { }
 
 
+	float& operator[](Vector2u l) { return heightmap[l]; }
+	float operator[](Vector2u l) const { return heightmap[l]; }
+
+	float operator[](Vector2f p) const { return Interp(p); }
+
+
     unsigned int GetWidth(void) const { return heightmap.GetWidth(); }
     unsigned int GetHeight(void) const { return heightmap.GetHeight(); }
 
 
+    const Array2D<float>& GetHeightmap(void) const { return heightmap; }
 	void SetHeightmap(const Array2D<float>& copy);
-
-	float& operator[](Vector2u l) { return heightmap[l]; }
-	const float& operator[](Vector2u l) const { return heightmap[l]; }
-
-	float operator[](Vector2f p) const { return Interp(p); }
 
 
     //"VertexType" is the class of vertex. It must have a default constructor.
@@ -66,9 +68,9 @@ public:
     //    5) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
     //Assumes the region can be split down to the given level of detail.
     void GenerateTriangles(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
-                           Vector3f&(*vertPosGetter)(VertexType& vert),
-                           Vector2f&(*vertUVGetter)(VertexType& vert),
-                           Vector3f&(*vertNormalGetter)(VertexType& vert),
+                           Vector3f*(*vertPosGetter)(VertexType& vert),
+                           Vector2f*(*vertUVGetter)(VertexType& vert),
+                           Vector3f*(*vertNormalGetter)(VertexType& vert),
                            Vector2u topLeft, Vector2u bottomRight,
                            float heightScale = 1.0f, unsigned int zoomOut = 0) const
     {
@@ -124,9 +126,9 @@ public:
             Vector3f scalePos3(scalePos, scalePos, 1.0f);
             for (unsigned int i = startIndex; i < outVerts.size(); ++i)
             {
-                Vector3f& vPos = vertPosGetter(outVerts[i]);
-                vPos.MultiplyComponents(scalePos3);
-                vPos += translatePos;
+                Vector3f* vPos = vertPosGetter(outVerts[i]);
+                vPos->MultiplyComponents(scalePos3);
+                *vPos += translatePos;
             }
 
             return;
@@ -158,24 +160,24 @@ public:
                 outVerts.insert(outVerts.end(), VertexType());
 
                 //Output position and texture coordinates.
-                vertPosGetter(outVerts[vertIndex]) = Vector3f(posF.x, posF.y,
-                                                              heightScale * heightmap[pos]);
-                vertUVGetter(outVerts[vertIndex]) = Vector2f(texCoordIncrement.x * posF.x,
-                                                             texCoordIncrement.y * posF.y);
+                *(vertPosGetter(outVerts[vertIndex])) = Vector3f(posF.x, posF.y,
+                                                                 heightScale * heightmap[pos]);
+                *(vertUVGetter(outVerts[vertIndex])) = Vector2f(texCoordIncrement.x * posF.x,
+                                                                texCoordIncrement.y * posF.y);
 
                 //Calculate normals and indices if this vertex isn't on the top/left borders.
                 if (pos.x > 0 && pos.y > 0)
                 {
                     if (vertNormalGetter != 0)
                     {
-                        Vector3f lessX = vertPosGetter(outVerts[vertIndex - 1]),
-                                 lessY = vertPosGetter(outVerts[vertIndex - areaSize.x]),
-                                 toLessX = (lessX - vertPosGetter(outVerts[vertIndex])).Normalized(),
-                                 toLessY = (lessY - vertPosGetter(outVerts[vertIndex])).Normalized();
-                        Vector3f& vNorm = vertNormalGetter(outVerts[vertIndex]);
-                        vNorm = toLessX.Cross(toLessY);
-                        if (vNorm.z < 0.0f)
-                            vNorm = -vNorm;
+                        Vector3f lessX = *vertPosGetter(outVerts[vertIndex - 1]),
+                                 lessY = *vertPosGetter(outVerts[vertIndex - areaSize.x]),
+                                 toLessX = (lessX - *vertPosGetter(outVerts[vertIndex])).Normalized(),
+                                 toLessY = (lessY - *vertPosGetter(outVerts[vertIndex])).Normalized();
+                        Vector3f* vNorm = vertNormalGetter(outVerts[vertIndex]);
+                        *vNorm = toLessX.Cross(toLessY);
+                        if (vNorm->z < 0.0f)
+                            *vNorm = -(*vNorm);
                     }
 
                     outIndices.insert(outIndices.end(), vertIndex);
@@ -200,14 +202,14 @@ public:
         //First, the top-left corner.
         if (topLeft.x == 0 && topLeft.y == 0)
         {
-            Vector3f moreX = vertPosGetter(outVerts[1]),
-                     moreY = vertPosGetter(outVerts[GetWidth()]),
-                     toMoreX = (moreX - vertPosGetter(outVerts[0])).Normalized(),
-                     toMoreY = (moreY - vertPosGetter(outVerts[0])).Normalized();
-            Vector3f& vNorm = vertNormalGetter(outVerts[0]);
-            vNorm = toMoreX.Cross(toMoreY);
-            if (vNorm.z < 0.0f)
-                vNorm = -vNorm;
+            Vector3f moreX = *vertPosGetter(outVerts[1]),
+                     moreY = *vertPosGetter(outVerts[GetWidth()]),
+                     toMoreX = (moreX - *vertPosGetter(outVerts[0])).Normalized(),
+                     toMoreY = (moreY - *vertPosGetter(outVerts[0])).Normalized();
+            Vector3f* vNorm = vertNormalGetter(outVerts[0]);
+            *vNorm = toMoreX.Cross(toMoreY);
+            if (vNorm->z < 0.0f)
+                *vNorm = -(*vNorm);
         }
 
         //Next, the left edge.
@@ -217,15 +219,15 @@ public:
             {
                 vertIndex = y * areaSize.x;
 
-                Vector3f moreX = vertPosGetter(outVerts[vertIndex + 1]),
-                         lessY = vertPosGetter(outVerts[vertIndex - areaSize.x]),
-                         toMoreX = (moreX - vertPosGetter(outVerts[vertIndex])).Normalized(),
-                         toLessY = (lessY - vertPosGetter(outVerts[vertIndex])).Normalized();
+                Vector3f moreX = *vertPosGetter(outVerts[vertIndex + 1]),
+                         lessY = *vertPosGetter(outVerts[vertIndex - areaSize.x]),
+                         toMoreX = (moreX - *vertPosGetter(outVerts[vertIndex])).Normalized(),
+                         toLessY = (lessY - *vertPosGetter(outVerts[vertIndex])).Normalized();
                 
-                Vector3f& vNorm = vertNormalGetter(outVerts[vertIndex]);
-                vNorm = toLessY.Cross(toMoreX);
-                if (vNorm.z < 0.0f)
-                    vNorm = -vNorm;
+                Vector3f* vNorm = vertNormalGetter(outVerts[vertIndex]);
+                *vNorm = toLessY.Cross(toMoreX);
+                if (vNorm->z < 0.0f)
+                    *vNorm = -(*vNorm);
             }
         }
 
@@ -236,15 +238,15 @@ public:
             {
                 vertIndex = x;
 
-                Vector3f lessX = vertPosGetter(outVerts[vertIndex - 1]),
-                         moreY = vertPosGetter(outVerts[vertIndex + areaSize.x]),
-                         toLessX = (lessX - vertPosGetter(outVerts[vertIndex])).Normalized(),
-                         toMoreY = (moreY - vertPosGetter(outVerts[vertIndex])).Normalized();
+                Vector3f lessX = *vertPosGetter(outVerts[vertIndex - 1]),
+                         moreY = *vertPosGetter(outVerts[vertIndex + areaSize.x]),
+                         toLessX = (lessX - *vertPosGetter(outVerts[vertIndex])).Normalized(),
+                         toMoreY = (moreY - *vertPosGetter(outVerts[vertIndex])).Normalized();
                 
-                Vector3f& vNorm = vertNormalGetter(outVerts[vertIndex]);
-                vNorm = toMoreY.Cross(toLessX);
-                if (vNorm.z < 0.0f)
-                    vNorm = -vNorm;
+                Vector3f* vNorm = vertNormalGetter(outVerts[vertIndex]);
+                *vNorm = toMoreY.Cross(toLessX);
+                if (vNorm->z < 0.0f)
+                    *vNorm = -*(vNorm);
             }
         }
     }
@@ -257,9 +259,9 @@ public:
     //    3) The scale for the terrain's height
     //    4) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
     void GenerateTrianglesFull(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
-                               Vector3f&(*vertPosGetter)(VertexType& vert),
-                               Vector2f&(*vertUVGetter)(VertexType& vert),
-                               Vector3f&(*vertNormalGetter)(VertexType& vert) = 0,
+                               Vector3f*(*vertPosGetter)(VertexType& vert),
+                               Vector2f*(*vertUVGetter)(VertexType& vert),
+                               Vector3f*(*vertNormalGetter)(VertexType& vert) = 0,
                                float heightScale = 1.0f, unsigned int zoomOut = 0) const
     {
         GenerateTriangles(outVerts, outIndices, vertPosGetter, vertUVGetter, vertNormalGetter,

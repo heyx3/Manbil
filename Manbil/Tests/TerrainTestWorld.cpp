@@ -35,12 +35,9 @@ void TTW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
     std::vector<VertexPosTex1Normal> verts;
     std::vector<unsigned int> inds;
     terr.GenerateTrianglesFull<VertexPosTex1Normal>(verts, inds,
-                                                    [](VertexPosTex1Normal& v) -> Vector3f&
-                                                        { return v.Pos; },
-                                                    [](VertexPosTex1Normal& v) -> Vector2f&
-                                                        { return v.TexCoords;},
-                                                    [](VertexPosTex1Normal& v) -> Vector3f&
-                                                        { return v.Normal; },
+                                                    [](VertexPosTex1Normal& v) { return &v.Pos; },
+                                                    [](VertexPosTex1Normal& v) { return &v.TexCoords; },
+                                                    [](VertexPosTex1Normal& v) { return &v.Normal; },
                                                     100.0f, lodLevel);
     
     RenderObjHandle vbo, ibo;
