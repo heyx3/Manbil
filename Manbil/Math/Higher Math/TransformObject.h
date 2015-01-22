@@ -3,6 +3,8 @@
 #include "../LowerMath.hpp"
 
 
+//TODO: Copy this class into a new "TransformObjectTree" class that is basically a TransformObject with children and a parent. It should cache its transform matrix, and along with the current "GetXMatrix" functions, it should provide overloads that return a const reference to the cached matrices.
+
 //Represents an object with a position, orientation, and scale.
 //X axis is left/right, Y axis is forward/back, and Z axis is up/down.
 //Euler angle rotations are done along the Z axis (upwards -- yaw),
