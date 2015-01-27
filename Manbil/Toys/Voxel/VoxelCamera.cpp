@@ -8,13 +8,13 @@ void VoxelCamera::Update(float elapsed, float total)
     {
         Quaternion rot;// = Oculus->GetRotation();
     
-        SetRotation(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), true);
+        SetRotation(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
         AddYaw(RotationInput.EulerRotation.x);
         Rotate(rot);
     }
     else
     {
-        SetRotation(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), true);
+        SetRotation(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
         AddPitch(RotationInput.EulerRotation.y);
         AddYaw(RotationInput.EulerRotation.z);
         AddRoll(RotationInput.EulerRotation.x);

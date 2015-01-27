@@ -296,7 +296,7 @@ void TTW::InitializeWorld(void)
 
     //Set up camera.
 	worldCam.SetPosition(Vector3f());
-    worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), true);
+    worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0));
     worldCam.Window = GetWindow();
 
     RenderingState(false, false, RenderingState::Cullables::C_BACK).EnableState();

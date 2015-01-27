@@ -5,7 +5,9 @@ Camera::Camera(Vector3f _pos, Vector3f _forward, Vector3f _up, bool lockUp)
       MinOrthoBounds(-50.0f, -50.0f, 0.0f), MaxOrthoBounds(50.0f, 50.0f, 1000.0f)
 {
 	IncrementPosition(Vector3f());
-	SetRotation(forward, up, false);
+    forward.Normalize();
+    up.Normalize();
+	SetRotation(forward, up);
 }
 
 
@@ -23,9 +25,9 @@ void Camera::AddPitch(float radians)
         rotation.Rotate(up);
         up.Normalize();
     }
-
     else
     {
+        //The camera's up vector is locked, so make sure the forward vector doesn't get too close.
         float dot = forward.Dot(up);
         float variance = abs(abs(dot) - 1);
 
@@ -51,18 +53,10 @@ void Camera::AddRoll(float radians)
 	up.Normalize();
 }
 
-void Camera::SetRotation(Vector3f newForward, Vector3f newUp, bool alreadyNormalized)
+void Camera::SetRotation(Vector3f newForward, Vector3f newUp)
 {
-	if (alreadyNormalized)
-	{
-		forward = newForward;
-		up = newUp;
-	}
-	else
-	{
-		forward = newForward.Normalized();
-		up = newUp.Normalized();
-	}
+	forward = newForward;
+	up = newUp;
 }
 void Camera::Rotate(Quaternion rotation)
 {

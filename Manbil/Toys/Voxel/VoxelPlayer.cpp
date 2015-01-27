@@ -25,7 +25,7 @@ void VoxelPlayer::Update(float el, float tot)
 
     //Debug vertical movement.
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
-        Cam.IncrementPositionZ(el * -20.0f);
+        Cam.IncrementPosition(Vector3f(0.0f, 0.0f, el * -20.0f));
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
-        Cam.IncrementPositionZ(el * 20.0f);
+        Cam.IncrementPosition(Vector3f(0.0f, 0.0f, el * 20.0f));
 }

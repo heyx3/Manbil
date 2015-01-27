@@ -9,9 +9,7 @@
 //   - If "LockUp" is true, the camera's Up vector will not be affected by pitching,
 //        and the Forward vector can only get so close to it (specified by "ClosestDotVariance").
 //        Rolling the camera or rotating it with a Quaternion will still change the Up vector like normal.
-//   - If "LockUP" is false, the camera's Up vector is not locked in any way.
-//Can specify a "closest dot variance", which means the closest the "forward" vector can get
-//     to pointing straight down/up, in terms of the dot product value.
+//   - If "LockUp" is false, the camera's Up vector is not locked in any way.
 class Camera
 {
 public:
@@ -40,20 +38,13 @@ public:
 	Vector3f GetSideways(void) const { return up.Cross(forward).Normalized(); }
 
 	void SetPosition(Vector3f newPos) { pos = newPos; }
-	void SetPositionX(float newX) { SetPosition(Vector3f(newX, pos.y, pos.z)); }
-	void SetPositionY(float newY) { SetPosition(Vector3f(pos.x, newY, pos.z)); }
-	void SetPositionZ(float newZ) { SetPosition(Vector3f(pos.x, pos.y, newZ)); }
 	void IncrementPosition(Vector3f amount) { SetPosition(pos + amount); }
-	void IncrementPositionX(float newX) { IncrementPosition(Vector3f(newX, 0.0f, 0.0f)); }
-	void IncrementPositionY(float newY) { IncrementPosition(Vector3f(0.0f, newY, 0.0f)); }
-	void IncrementPositionZ(float newZ) { IncrementPosition(Vector3f(0.0f, 0.0f, newZ)); }
 
-	void SetRotation(Vector3f newForward, Vector3f newUp, bool alreadyNormalized);
+	void SetRotation(Vector3f newForward, Vector3f newUp);
     void Rotate(Quaternion rotation);
 	void AddPitch(float radians);
 	void AddYaw(float radians);
 	void AddRoll(float radians);
-
 
 	void GetViewTransform(Matrix4f & outM) const;
     void GetPerspectiveTransform(Matrix4f& outM) const;

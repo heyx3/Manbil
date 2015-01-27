@@ -667,7 +667,7 @@ void OpenGLTestWorld::InitializeWorld(void)
 
     Vector3f pos(2.0f, 2.0f, 10.0f);
     cam.SetPosition(pos);
-    cam.SetRotation(-pos, Vector3f(0.0f, 0.0f, 1.0f), false);
+    cam.SetRotation(-pos.Normalized(), Vector3f(0.0f, 0.0f, 1.0f));
     cam.Window = GetWindow();
     cam.PerspectiveInfo.SetFOVDegrees(55.0f);
     cam.PerspectiveInfo.zFar = 5000.0f;
