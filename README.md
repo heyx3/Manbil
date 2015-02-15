@@ -10,12 +10,14 @@ Everything else is done by me, available under the [Creative Commons 3.0 Attribu
 
 The task of documenting the engine has only recently begun; the documentation (and a tool for generating it known as "HTMLGenerator" is available in [another Git repo](https://github.com/heyx3/ManbilDocumentation/commits?author=heyx3).
 
-Portions of this software (including but not limited to the basic GUI system and anything that uses it) make use of The FreeType Project (www.freetype.org).  All rights reserved.
+Portions of this software (including but not limited to the basic GUI system and anything that uses it) make use of The FreeType Project (www.freetype.org). All rights reserved.
     
-Portions of this software (including but not limited to the "world" system and anything that uses it) make use of the SFML library (http://www.sfml-dev.org/license.php).  All rights reserved.
+Portions of this software (including but not limited to the "world" system and anything that uses it) make use of the SFML library (http://www.sfml-dev.org/license.php). All rights reserved.
 
 Portions of this software (including but not limited to the "AssImpTestWorld" class) make use of the Open Asset Import Library (http://assimp.sourceforge.net/main_license.html).  All rights reserved.
 
-Portions of this software (including but not limited to the "world" system and anything that uses it) make use of the GLEW library (http://glew.sourceforge.net/credits.html).  All rights reserved.
+Portions of this software (including but not limited to the "world" system and anything that uses it) make use of the GLEW library (http://glew.sourceforge.net/credits.html). All rights reserved.
 
-Portions of this software (including but not limited to the "RiftTestWorld" class) make use of the Oculus Rift SDK (https://developer.oculus.com/licenses/license-3.2/).   All rights reserved.
+Portions of this software (including but not limited to the "RiftTestWorld" class) make use of the Oculus Rift SDK (https://developer.oculus.com/licenses/license-3.2/). All rights reserved.
+
+Portions of this software (including but not limited to the "Serialization" system and anything that uses it) make use of the TinyXML library (https://github.com/leethomason/tinyxml2). All rights reserved.
