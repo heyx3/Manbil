@@ -1,81 +1,82 @@
 #include "DrawingQuad.h"
 
-const VertexPosTex1Normal DrawingQuad::vertices[4] =
+
+
+DrawingQuad* DrawingQuad::instance = 0;
+
+void DrawingQuad::SetBounds(Vector2f min, Vector2f max)
 {
-    VertexPosTex1Normal(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    VertexPosTex1Normal(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    VertexPosTex1Normal(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-    VertexPosTex1Normal(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f)),
-};
-const unsigned int DrawingQuad::indices[6] =
+    SetPos((min + max) * 0.5f);
+    SetSize((max - min) * 0.5f);
+}
+void DrawingQuad::SetPos(Vector2f pos)
 {
-    0, 1, 3,
-    0, 3, 2,
-};
-
-VertexIndexData DrawingQuad::vid = VertexIndexData(-1, 0, -1, 0);
-
-
-
-void DrawingQuad::InitializeQuadData(void)
+    mesh.Transform.SetPosition(Vector3f(pos.x, pos.y, GetDepth()));
+}
+void DrawingQuad::IncrementPos(Vector2f increment)
 {
-    if (!IsInitialized())
+    mesh.Transform.IncrementPosition(Vector3f(increment.x, increment.y, 0.0f));
+}
+void DrawingQuad::SetSize(Vector2f size)
+{
+    mesh.Transform.SetScale(Vector3f(size.x, size.y, 1.0f));
+}
+void DrawingQuad::MakeSizePositive(void)
+{
+    mesh.Transform.SetScale(Vector3f(Mathf::Abs(mesh.Transform.GetScale().x),
+                                     Mathf::Abs(mesh.Transform.GetScale().y),
+                                     1.0f));
+}
+void DrawingQuad::SetDepth(float depth)
+{
+    Vector3f pos = mesh.Transform.GetPosition();
+    mesh.Transform.SetPosition(Vector3f(pos.x, pos.y, depth));
+}
+void DrawingQuad::SetRotation(float newRot)
+{
+    mesh.Transform.SetRotation(Vector3f(0.0f, 0.0f, newRot));
+}
+void DrawingQuad::Rotate(float amount)
+{
+    mesh.Transform.RotateRelative(Vector3f(0.0f, 0.0f, amount));
+}
+
+void DrawingQuad::InitializeQuad(void)
+{
+    if (instance == 0)
     {
-        RenderObjHandle vbo, ibo;
-        RenderDataHandler::CreateVertexBuffer(vbo, vertices, 4, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-        RenderDataHandler::CreateIndexBuffer(ibo, indices, 6, RenderDataHandler::BufferPurpose::UPDATE_ONCE_AND_DRAW);
-
-        vid = VertexIndexData(4, vbo, 6, ibo);
+        VertexPosUV vertices[4] =
+        {
+            VertexPosUV(Vector3f(-1.0f, -1.0f, 0.0f), Vector2f(0.0f, 0.0f)),
+            VertexPosUV(Vector3f(1.0f, -1.0f, 0.0f), Vector2f(1.0f, 0.0f)),
+            VertexPosUV(Vector3f(-1.0f, 1.0f, 0.0f), Vector2f(0.0f, 1.0f)),
+            VertexPosUV(Vector3f(1.0f, 1.0f, 0.0f), Vector2f(1.0f, 1.0f)),
+        };
+        const unsigned int indices[6] =
+        {
+            0, 1, 3,
+            0, 3, 2,
+        };
+        
+        instance = new DrawingQuad();
+        instance->mesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
+        MeshData& dat = instance->mesh.SubMeshes[0];
+        dat.SetVertexData(vertices, 4, MeshData::BUF_STATIC, VertexPosUV::GetAttributeData());
+        dat.SetIndexData(indices, 6, MeshData::BUF_STATIC);
     }
 }
-void DrawingQuad::DestroyQuadData(void)
+void DrawingQuad::DestroyQuad(void)
 {
-    if (IsInitialized())
-    {
-        RenderDataHandler::DeleteBuffer(vid.GetVerticesHandle());
-        RenderDataHandler::DeleteBuffer(vid.GetIndicesHandle());
-        vid = VertexIndexData(-1, 0, -1, 0);
-    }
+    assert(instance != 0);
+    delete instance;
 }
 
-
-DrawingQuad::DrawingQuad(void)
-    : quad(PrimitiveTypes::TriangleList), origin(0.0f, 0.0f)
+void DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)
 {
-    assert(IsInitialized());
+    assert(mat.GetExpectedVertexData() == VertexPosUV::GetAttributeData());
 
-    //Set up this quad's mesh.
-    quad.SubMeshes.insert(quad.SubMeshes.end(), vid);
-    meshes.insert(meshes.end(), &quad);
-}
-DrawingQuad::DrawingQuad(const DrawingQuad& cpy)
-    : quad(PrimitiveTypes::TriangleList), origin(cpy.origin)
-{
-    quad = cpy.quad;
-    meshes.insert(meshes.end(), &quad);
-}
-
-DrawingQuad & DrawingQuad::operator=(const DrawingQuad& cpy)
-{
-    quad.Transform = cpy.quad.Transform;
-    origin = cpy.origin;
-
-    return *this;
-}
-
-bool DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)
-{
-    assert(mat.GetAttributeData() == GetAttributeData());
-
-    Vector3f scale = quad.Transform.GetScale();
+    Vector3f scale = mesh.Transform.GetScale();
     Vector2f scale2d(scale.x, scale.y);
 
-    //Vector2f delta = origin.ComponentProduct(scale2d);
-    Vector2f delta = origin;
-
-    quad.Transform.IncrementPosition(Vector3f(delta.x, delta.y, 0.0f));
-    bool rendered = mat.Render(info, meshes, params);
-    quad.Transform.IncrementPosition(-Vector3f(delta.x, delta.y, 0.0f));
-
-    return rendered;
+    mat.Render(info, &mesh, params);
 }

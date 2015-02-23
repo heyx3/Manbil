@@ -37,7 +37,7 @@ private:
 
     FragmentInputNode(void);
     
-    MAKE_NODE_READABLE_H(FragmentInputNode)
+    ADD_NODE_REFLECTION_DATA_H(FragmentInputNode)
 };
 
 #pragma warning(default: 4100)

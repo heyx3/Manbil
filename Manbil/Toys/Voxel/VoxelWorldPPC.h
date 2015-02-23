@@ -4,44 +4,35 @@
 #include "VoxelWorld.h"
 
 
-//Manages the post-process chain for VoxelWorld.
+//Manages the post-process chain of effects for VoxelWorld.
 class VoxelWorldPPC
 {
 public:
 
-    VoxelWorldPPC(VoxelWorld & _world);
-    ~VoxelWorldPPC(void)
-    {
-        for (unsigned int i = 0; i < chains.size(); ++i)
-            delete chains[i];
-    }
+    VoxelWorldPPC(VoxelWorld& _world, std::string& outError);
+    ~VoxelWorldPPC(void);
 
 
-    bool HasError(void) const { return !errorMsg.empty(); }
-    std::string GetError(void) const { return errorMsg; }
-
-    RenderTarget * GetFinalRender(void) const { return chains[chains.size() - 1]->GetFinalRender(); }
+    const MTexture2D& GetFinalColor(void) const { return colorTex; }
+    MTexture2D& GetFinalColor(void) { return colorTex; }
 
 
-    //Returns false if there was an error resizing; returns true otherwise.
-    bool OnWindowResized(unsigned int newW, unsigned int newH)
-    {
-        for (unsigned int i = 0; i < chains.size(); ++i)
-            if (!chains[i]->ResizeRenderTargets(newW, newH))
-                return false;
-        return true;
-    }
+    void OnWindowResized(unsigned int newW, unsigned int newH);
 
 
-    //Renders the post-processing effects given the rendered world.
-    //Returns whether or not the rendering succeeded.
-    bool RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandle depthIn, const ProjectionInfo & info);
+    //Renders the post-processing effects, given the world color, depth, and projection info.
+    void RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandle depthIn,
+                              const ProjectionInfo& info);
 
 
 private:
 
     std::string errorMsg;
+    VoxelWorld& world;
 
-    VoxelWorld & world;
-    std::vector<PostProcessChain *> chains;
+    Material* ppMat;
+    UniformDictionary ppParams;
+
+    RenderTarget rendTarg;
+    MTexture2D colorTex;
 };

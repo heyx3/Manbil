@@ -1,30 +1,26 @@
 #pragma once
 
-#include "../../RenderDataHandler.h"
 #include "TextureSettings.h"
+#include "../../Math/Lower Math/Array3D.h"
 
 
 //Represents a 3D texture.
-//TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-class MTexture3D : public ISerializable
+class MTexture3D
 {
 public:
 
 
     //Constructors/destructors.
 
-    MTexture3D(const TextureSampleSettings3D & _settings, PixelSizes _pixelSize, bool useMipmapping)
-        : texHandle(0), width(0), height(0), depth(0), settings(_settings), pixelSize(_pixelSize), usesMipmaps(useMipmapping)
+    MTexture3D(const TextureSampleSettings3D& _settings, PixelSizes _pixelSize, bool useMipmapping)
+        : texHandle(0), width(0), height(0), depth(0), settings(_settings),
+          pixelSize(_pixelSize), usesMipmaps(useMipmapping)
     {
 
     }
     ~MTexture3D(void) { DeleteIfValid(); }
 
-    MTexture3D(MTexture3D & cpy) = delete;
-
-
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
+    MTexture3D(MTexture3D& cpy) = delete;
 
 
     //Getters.
@@ -35,7 +31,7 @@ public:
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
     unsigned int GetDepth(void) const { return depth; }
-    const TextureSampleSettings3D & GetSamplingSettings(void) const { return settings; }
+    const TextureSampleSettings3D& GetSamplingSettings(void) const { return settings; }
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
@@ -46,7 +42,7 @@ public:
 
     //Setters.
 
-    void SetSettings(const TextureSampleSettings3D & newSettings);
+    void SetSettings(const TextureSampleSettings3D& newSettings);
 
     void SetMinFilterType(FilteringTypes newFiltering);
     void SetMagFilterType(FilteringTypes newFiltering);
@@ -58,14 +54,15 @@ public:
     void SetWrappingType(WrappingTypes wrapping);
 
 
-    //Texture operations. All operations other than "Create" and "Bind" fail if this is not a valid texture.
+    //Texture operations. All operations other than "Create" and "Bind" fail
+    //    if this is not a valid texture.
 
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
     void Create(void) { Create(settings, usesMipmaps, pixelSize); }
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
-    void Create(const TextureSampleSettings3D & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
+    void Create(const TextureSampleSettings3D& sampleSettings, bool useMipmaps, PixelSizes pixelSize);
 
     //If this is a valid texture, deletes it from OpenGL.
     //Returns whether anything needed to be deleted.
@@ -77,99 +74,108 @@ public:
 
     //Sets this texture as the active one.
     //If this isn't a valid texture, then the currently-active texture is just deactivated.
-    void Bind(void) const
-    {
-        glBindTexture(GL_TEXTURE_3D, texHandle);
-    }
+    void Bind(void) const { glBindTexture(GL_TEXTURE_3D, texHandle); }
 
 
     //This operation only succeeds if this texture's pixel type is not a depth or greyscale type.
     //If a non-color type pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetColorData(const Array3D<Vector4b> & pixelData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    bool SetColorData(const Array3D<Vector4b>& pixelData,
+                      PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
     //This operation only succeeds if this texture's pixel type is not a depth or greyscale type.
     //If a non-color pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetColorData(const Array3D<Vector4f> & pixelData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    bool SetColorData(const Array3D<Vector4f>& pixelData,
+                      PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
     //Updates this texture's color data without having to allocate new space.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateColorData(const Array3D<Vector4b> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateColorData(const Array3D<Vector4b>& pixelData,
+                         unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
     //Updates this texture's color data without having to allocate new space.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateColorData(const Array3D<Vector4f> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateColorData(const Array3D<Vector4f>& pixelData,
+                         unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
 
     //This operation only succeeds if this texture's pixel type is a greyscale type.
     //If a non-greyscale type pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetGreyscaleData(const Array3D<unsigned char> & greyscaleData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    bool SetGreyscaleData(const Array3D<unsigned char>& greyscaleData,
+                          PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
     //This operation only succeeds if this texture's pixel type is a greyscale type.
     //If a non-greyscale pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetGreyscaleData(const Array3D<float> & greyscaleData, PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
+    bool SetGreyscaleData(const Array3D<float>& greyscaleData,
+                          PixelSizes newSize = PixelSizes::PS_16U_DEPTH);
     //Updates this texture's greyscale data without having to allocate new space.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateGreyscaleData(const Array3D<unsigned char> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateGreyscaleData(const Array3D<unsigned char>& pixelData,
+                             unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
     //Updates this texture's greyscale data without having to allocate new space.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateGreyscaleData(const Array3D<float> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateGreyscaleData(const Array3D<float>& pixelData,
+                             unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
 
 
     //This operation only succeeds if this texture's pixel type is a depth type.
     //If a non-"depth" pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetDepthData(const Array3D<unsigned char> & depthData, PixelSizes newSize = PixelSizes::PS_8U);
+    bool SetDepthData(const Array3D<unsigned char>& depthData,
+                      PixelSizes newSize = PixelSizes::PS_8U);
     //This operation only succeeds if this texture's pixel type is a depth type.
     //If a non-"depth" pixel size is passed in, the current pixel size is not changed.
     //Returns whether the operation succeeded.
-    bool SetDepthData(const Array3D<float> & depthData, PixelSizes newSize = PixelSizes::PS_8U);
+    bool SetDepthData(const Array3D<float>& depthData,
+                      PixelSizes newSize = PixelSizes::PS_8U);
     //Updates this texture's depth data without having to allocate new space.
     //This operation fails if this is not a depth texture.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateDepthData(const Array3D<unsigned char> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateDepthData(const Array3D<unsigned char>& pixelData,
+                         unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
     //Updates this texture's depth data without having to allocate new space.
     //This operation fails if this is not a depth texture.
     //This operation fails if any part of the pixel array is outside the texture bounds.
     //Returns whether the operation succeeded.
-    bool UpdateDepthData(const Array3D<float> & pixelData, unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
+    bool UpdateDepthData(const Array3D<float>& pixelData,
+                         unsigned int offsetX = 0, unsigned int offsetY = 0, unsigned int offsetZ = 0);
 
 
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a color texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetColorData(Array3D<Vector4b> & outData) const;
+    bool GetColorData(Array3D<Vector4b>& outData) const;
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a color texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetColorData(Array3D<Vector4f> & outData) const;
+    bool GetColorData(Array3D<Vector4f>& outData) const;
 
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetGreyscaleData(Array3D<unsigned char> & outData) const;
+    bool GetGreyscaleData(Array3D<unsigned char>& outData) const;
     //Copies this texture's color data from the graphics card into the given array.
     //This operation fails if this is not a greyscale texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetGreyscaleData(Array3D<float> & outData) const;
+    bool GetGreyscaleData(Array3D<float>& outData) const;
 
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetDepthData(Array3D<unsigned char> & outData) const;
+    bool GetDepthData(Array3D<unsigned char>& outData) const;
     //Copies this texture's depth data from the graphics card into the given array.
     //This operation fails if this is not a depth texture.
     //If the out array extends beyond the texture bounds, this function fails.
     //Returns whether the operation succeeded.
-    bool GetDepthData(Array3D<float> & outData) const;
+    bool GetDepthData(Array3D<float>& outData) const;
 
 
 private:

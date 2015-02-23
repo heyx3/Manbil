@@ -20,7 +20,6 @@ class VoxelWorld : public SFMLOpenGLWorld
 public:
 
     VoxelWorld(void);
-    ~VoxelWorld(void);
 
 
 protected:
@@ -36,12 +35,14 @@ protected:
 
 private:
 
-    VoxelChunk * GetCreateChunk(Vector3i location)
+    VoxelChunk* GetCreateChunk(Vector3i location)
     {
         if (manager.DoesChunkExist(location))
+        {
             return manager.GetChunk(location);
+        }
 
-        VoxelChunk * chnk = manager.GetCreateChunk(location);
+        VoxelChunk* chnk = manager.GetCreateChunk(location);
         chunkMeshes[location] = new ChunkMesh(manager, location, chnk);
         return manager.GetChunk(location);
     }
@@ -58,7 +59,7 @@ private:
         }
         return false;
     }
-    const Mesh & GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetMesh(); }
+    const Mesh& GetMesh(Vector3i chunkIndex) { return chunkMeshes[chunkIndex]->GetMesh(); }
 
     void SetUpVoxels(void);
 
@@ -71,19 +72,18 @@ private:
     RenderingState renderState;
 
 
-    Material * voxelMat;
+    Material* voxelMat;
     UniformDictionary voxelParams;
     MTexture2D voxelTex;
 
-    Material * voxelHighlightMat;
+    Material* voxelHighlightMat;
     Mesh voxelHighlightMesh;
     UniformDictionary voxelHighlightParams;
 
-    unsigned int worldRenderTarget;
+    RenderTarget* worldRenderTarget;
     MTexture2D worldRenderTargetColorTex, worldRenderTargetDepthTex;
-    VoxelWorldPPC * postProcessing;
+    VoxelWorldPPC* postProcessing;
 
-    Material * finalWorldRenderMat;
-    DrawingQuad * finalWorldRenderQuad;
+    Material* finalWorldRenderMat;
     UniformDictionary finalWorldRenderParams;
 };

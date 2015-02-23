@@ -2,7 +2,6 @@
 
 
 //Different kinds of data about what a material uses.
-//TODO: Create "world render sampler" built-in uniform so that objects can sample and display/distort the world behind them (along with usage flags -- no DataNode is needed though, as a SamplerNode will work fine).
 struct MaterialUsageFlags
 {
 public:
@@ -62,8 +61,6 @@ public:
 
 
 private:
-
-    //TODO: Track the outputs taken from every input data node (an unordered_map indexed by pointer?), then use that information to remove any unnecessary lines of shader code in the data node shader code generation functions.
 
     unsigned int value = 0;
 };

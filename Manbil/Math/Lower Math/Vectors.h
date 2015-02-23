@@ -4,7 +4,7 @@
 
 
 //Define these vectors in a namespace because SFML uses some of the same names for its vectors.
-namespace ManbilVectors
+namespace MVectors
 {
 	#pragma region Vector2b, Vector3b, Vector4b
 
@@ -1045,4 +1045,4 @@ namespace ManbilVectors
 }
 
 //Hide the namespace so that it only needs to be specified if a file is also using SFML stuff.
-using namespace ManbilVectors;
+using namespace MVectors;

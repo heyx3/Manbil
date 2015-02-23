@@ -1,13 +1,25 @@
 #include "GUIPanel.h"
 
 
+GUIPanel::GUIPanel(Vector2f borderSize, float timeLerpSpeed)
+    : borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed)
+{
+
+}
+GUIPanel::GUIPanel(GUITexture& background, Vector2f borderSize, float timeLerpSpeed)
+    : Background(background), borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed)
+{
+
+}
 
 Box2D GUIPanel::GetBounds(void) const
 {
     Box2D bounds;
 
     if (elements.empty())
+    {
         bounds = Box2D();
+    }
     else
     {
         bounds = elements[0]->GetBounds();
@@ -25,11 +37,18 @@ Box2D GUIPanel::GetBounds(void) const
 }
 bool GUIPanel::GetDidBoundsChangeDeep(void) const
 {
-    if (DidBoundsChange) return true;
+    if (DidBoundsChange)
+    {
+        return true;
+    }
 
     for (unsigned int i = 0; i < elements.size(); ++i)
+    {
         if (elements[i]->GetDidBoundsChangeDeep())
+        {
             return true;
+        }
+    }
 
     return false;
 }
@@ -37,7 +56,9 @@ void GUIPanel::ClearDidBoundsChangeDeep(void)
 {
     DidBoundsChange = false;
     for (unsigned int i = 0; i < elements.size(); ++i)
+    {
         elements[i]->DidBoundsChange = false;
+    }
 }
 
 void GUIPanel::ScaleBy(Vector2f scaleAmount)
@@ -73,7 +94,9 @@ bool GUIPanel::RemoveElement(GUIElementPtr element)
 {
     auto loc = std::find(elements.begin(), elements.end(), element);
     if (loc == elements.end())
+    {
         return false;
+    }
 
     elements.erase(loc);
 
@@ -87,7 +110,9 @@ bool GUIPanel::ContainsElement(GUIElementPtr element) const
 void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     if (Background.IsValid())
+    {
         Background.Update(elapsed, relativeMousePos - Background.GetPos());
+    }
 
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
@@ -96,43 +121,29 @@ void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     }
 }
 
-std::string GUIPanel::Render(float elapsedTime, const RenderInfo & info)
+void GUIPanel::Render(float elapsedTime, const RenderInfo& info)
 {
-    //Instead of returning an error as soon as it is found,
-    //    render all sub-elements and collect any errors into one big error string.
-    std::string err = "";
-    unsigned int line = 0;
-
     //Render the background.
     if (Background.IsValid())
     {
         Background.SetBounds(GetBounds());
         Background.Depth = -0.001f;
-        err = RenderChild(&Background, elapsedTime, info);
-        if (!err.empty())
-            return "Error rendering background: " + err;
+        RenderChild(&Background, elapsedTime, info);
     }
 
     //Render the elements.
     for (unsigned int i = 0; i < elements.size(); ++i)
     {
-        std::string tempErr = RenderChild(elements[i].get(), elapsedTime, info);
-        if (!tempErr.empty())
-        {
-            if (line > 0) err += "\n";
-            line += 1;
-
-            err += std::to_string(line) + ") " + tempErr;
-        }
+        RenderChild(elements[i].get(), elapsedTime, info);
     }
-
-    return err;
 }
 
 void GUIPanel::OnMouseClick(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < elements.size(); ++i)
+    {
         elements[i]->OnMouseClick(mouseP - elements[i]->GetPos());
+    }
 }
 void GUIPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 {
@@ -145,5 +156,7 @@ void GUIPanel::OnMouseDrag(Vector2f oldP, Vector2f currentP)
 void GUIPanel::OnMouseRelease(Vector2f mouseP)
 {
     for (unsigned int i = 0; i < elements.size(); ++i)
+    {
         elements[i]->OnMouseRelease(mouseP - elements[i]->GetPos());
+    }
 }

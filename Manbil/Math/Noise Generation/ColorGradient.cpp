@@ -14,12 +14,14 @@ void ColorGradient::CheckErrors(void) const
 	}
 }
 
-void ColorGradient::GetColors(Vector4f * outColors, const float * noiseValues, unsigned int numbElements) const
+void ColorGradient::GetColors(Vector4f* outColors, const float* inValues, unsigned int numbElements) const
 {
 	CheckErrors();
 
     for (unsigned int i = 0; i < numbElements; ++i)
-        outColors[i] = GetColorWOErrorChecking(noiseValues[i]);
+    {
+        outColors[i] = GetColorWOErrorChecking(inValues[i]);
+    }
 }
 Vector4f ColorGradient::GetColorWOErrorChecking(float f) const
 {

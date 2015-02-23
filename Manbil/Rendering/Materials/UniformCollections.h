@@ -5,244 +5,307 @@
 #include <memory>
 #include "../../OpenGLIncludes.h"
 #include "../../Math/Lower Math/Matrix4f.h"
-#include "Data Nodes/Vector.h"
-#include "../../ShaderHandler.h"
+#include "Data Nodes/GLVectors.h"
 
 
-#define U_UMAP(Type) (std::unordered_map<std::string, Type>)
+//"Uniforms" are customizable parameters in OpenGL shaders.
+//This file provides various data structures that facilitate their definition and use.
 
 
-//TODO: Add matrix array uniforms. Add matrix array uniform set function to RenderDataHandler. Finally, make sure that Material handles matrix array uniforms. Do the same for 1D and 3D textures.
+//TODO: Consider adding 1D texture uniforms.
 
 
-//Represents a single float/vec2/vec3/vec4 uniform.
-struct UniformValueF
+#pragma region Template definition for UniformValueF and UniformValueI
+
+//A version of "GLSLVector" such as "VectorF" or "VectorI".
+template<typename GLVectorType, typename MyComponent,
+         typename MyVec2, typename MyVec3, typename MyVec4>
+//A single vector of some type (float, int, etc).
+struct UniformValueVector
 {
 public:
-    float Value[4];
+
+    MyComponent Value[4];
+    //The number of components in this vector.
     unsigned int NData;
     std::string Name;
     UniformLocation Location;
-    UniformValueF(float value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(1) { Value[0] = value; }
-    UniformValueF(Vector2f value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
-    UniformValueF(Vector3f value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    UniformValueF(Vector4f value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValueF(const float * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
+
+    UniformValueVector(MyComponent value, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), NData(1)
+    {
+        memcpy(Value, &value, sizeof(MyComponent));
+    }
+    UniformValueVector(MyVec2 value, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), NData(2)
+    {
+        memcpy(Value, &value.x, sizeof(MyVec2));
+    }
+    UniformValueVector(MyVec3 value, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), NData(3)
+    {
+        memcpy(Value, &value.y, sizeof(MyVec3));
+    }
+    UniformValueVector(MyVec4 value, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), NData(4)
+    {
+        memcpy(Value, &value.z, sizeof(MyVec4));
+    }
+    UniformValueVector(const MyComponent* value = 0, unsigned int nData = 0,
+                       std::string name = "", UniformLocation loc = -1)
         : Name(name), Location(loc), NData(nData)
     {
-        for (unsigned int i = 0; i < nData; ++i) Value[i] = value[i];
+        assert(value == 0 || (nData >= 1 && nData <= 4));
+        if (value != 0)
+        {
+            memcpy(Value, value, sizeof(value));
+        }
     }
-    void SetValue(float value) { NData = 1; Value[0] = value; }
-    void SetValue(Vector2f value) { NData = 2; Value[0] = value.x; Value[1] = value.y; }
-    void SetValue(Vector3f value) { NData = 3; Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    void SetValue(Vector4f value) { NData = 4; Value[0] = value.x; Value[1] = value.y; Value[2] = value.z;  Value[3] = value.w; }
-    std::string GetDeclaration(void) const { return "uniform " + VectorF(NData).GetGLSLType() + " " + Name + ";"; }
+
+    void SetValue(MyComponent value)
+    {
+        NData = 1;
+        memcpy(Value, &value, sizeof(MyComponent));
+    }
+    void SetValue(MyVec2 value)
+    {
+        NData = 2;
+        memcpy(Value, &value.x, sizeof(MyVec2));
+    }
+    void SetValue(MyVec3 value)
+    {
+        NData = 3;
+        memcpy(Value, &value.x, sizeof(MyVec3));
+    }
+    void SetValue(MyVec4 value)
+    {
+        NData = 4;
+        memcpy(Value, &value.x, sizeof(MyVec4));
+    }
+
+    std::string GetDeclaration(void) const
+    {
+        return "uniform " + GLVectorType::GetGLSLType(NData) + " " + Name + ";";
+    }
 };
 
-//Represents an array of float/vec2/vec3/vec4 uniforms.
-struct UniformArrayValueF
+#pragma endregion
+
+//A single float vector.
+typedef UniformValueVector<VectorF, float, Vector2f, Vector3f, Vector4f> UniformValueF;
+//A single signed integer vector.
+typedef UniformValueVector<VectorI, int, Vector2i, Vector3i, Vector4i> UniformValueI;
+
+
+
+#pragma region Template definition for UniformValueArrayF and UniformValueArrayI
+
+//A version of "GLSLVector" such as "VectorF" or "VectorI".
+template<typename GLVectorType, typename ComponentType>
+//Represents an array of vectors of some type (float, int, etc).
+struct UniformValueVectorArray
 {
+private:
+
+    typedef UniformValueVectorArray<GLVectorType, ComponentType> ThisType;
+
+
 public:
-    float * Values;
-    unsigned int NumbValues, BasicTypesPerValue;
-    UniformLocation Location;
+
+    ComponentType* Values;
+    unsigned int NValues, NComponentsPerValue;
     std::string Name;
-    UniformArrayValueF(const float * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, std::string name = "", UniformLocation loc = -1)
-        : Name(name), Location(loc), Values(0), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue)
+    UniformLocation Location;
+
+
+    UniformValueVectorArray(const ComponentType* values = 0, unsigned int nValues = 0,
+                            unsigned int nComponentsPerValue = 0, std::string name = "",
+                            UniformLocation loc = -1)
+        : Name(name), Location(loc), Values(0),
+          NValues(nValues), NComponentsPerValue(nComponentsPerValue)
     {
         if (values != 0)
         {
-            unsigned int count = NumbValues * BasicTypesPerValue;
-            Values = new float[count];
-            for (unsigned int i = 0; i < count; ++i) Values[i] = values[i];
+            unsigned int count = NValues * NComponentsPerValue;
+            Values = new ComponentType[count];
+            for (unsigned int i = 0; i < count; ++i)
+            {
+                Values[i] = values[i];
+            }
         }
     }
-    UniformArrayValueF(const UniformArrayValueF & cpy)
-        : UniformArrayValueF(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
-    ~UniformArrayValueF(void)
+    UniformValueVectorArray(const ThisType& cpy) { operator=(cpy); }
+    UniformValueVectorArray(ThisType&& other) { *this = std::move(other); }
+
+    ThisType& operator=(const ThisType& cpy)
+    {
+        Name = cpy.Name;
+        Location = cpy.Location;
+        NValues = cpy.NValues;
+        NComponentsPerValue = cpy.NComponentsPerValue;
+
+        Values = new ComponentType[NValues * NComponentsPerValue];
+        assert(sizeof(Values) == sizeof(cpy.Values));
+        memcpy(Values, cpy.Values, sizeof(Values));
+
+        return *this;
+    }
+    ThisType& operator=(ThisType&& other)
+    {
+        Name = other.Name;
+        Location = other.Location;
+        Values = other.Values;
+        NValues = other.NValues;
+        NComponentsPerValue = other.NComponentsPerValue;
+        
+        other.Values = 0;
+        other.Location = -1;
+        other.NValues = 0;
+        other.NComponentsPerValue = 0;
+        other.Name.clear();
+
+        return *this;
+    }
+
+    ~UniformValueVectorArray(void)
     {
         if (Values != 0)
+        {
             delete[] Values;
-    }
-    void SetData(const float * values = 0, int nValues = -1, int nBasicTypesPerValue = -1)
-    {
-        if (nValues > 0 && nBasicTypesPerValue > 0)
-        {
-            delete[] values;
-            NumbValues = nValues;
-            BasicTypesPerValue = nBasicTypesPerValue;
-            values = new float[nValues * nBasicTypesPerValue];
         }
-        for (unsigned int i = 0; i < NumbValues * BasicTypesPerValue; ++i) Values[i] = values[i];
     }
-    UniformArrayValueF & operator=(const UniformArrayValueF & cpy)
-    {
-        Name = cpy.Name;
-        Location = cpy.Location;
-        NumbValues = cpy.NumbValues;
-        BasicTypesPerValue = cpy.BasicTypesPerValue;
-        
-        if (cpy.Values != 0)
-        {
-            unsigned int count = NumbValues * BasicTypesPerValue;
-            Values = new float[count];
-            for (unsigned int i = 0; i < count; ++i) Values[i] = cpy.Values[i];
-        }
 
-        return *this;
+
+    //Copies this value's data to the given instance.
+    void CopyTo(ThisType& other) const
+    {
+        other = ThisType(Values, NValues, NComponentsPerValue, Name, Location);
     }
-    std::string GetDeclaration(void) const { return "uniform " + VectorF(BasicTypesPerValue).GetGLSLType() + " " + Name + "[" + std::to_string(NumbValues) + "];"; }
-};
 
-
-//Represents a single int/ivec2/ivec3/ivec4 uniform.
-struct UniformValueI
-{
-public:
-    int Value[4];
-    unsigned int NData;
-    std::string Name;
-    UniformLocation Location;
-    UniformValueI(int value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(1) { Value[0] = value; }
-    UniformValueI(Vector2i value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(2) { Value[0] = value.x; Value[1] = value.y; }
-    UniformValueI(Vector3i value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(3) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    UniformValueI(Vector4i value, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(4) { Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; Value[3] = value.w; }
-    UniformValueI(const int * value = 0, unsigned int nData = 0, std::string name = "", UniformLocation loc = -1)
-        : Name(name), Location(loc), NData(nData)
+    void SetData(const ComponentType* values = 0, unsigned int nValues = 0,
+                 unsigned int nComponentsPerValue = 0)
     {
-        for (unsigned int i = 0; i < nData; ++i) Value[i] = value[i];
-    }
-    void SetValue(int value) { NData = 1; Value[0] = value; }
-    void SetValue(Vector2i value) { NData = 2; Value[0] = value.x; Value[1] = value.y; }
-    void SetValue(Vector3i value) { NData = 3; Value[0] = value.x; Value[1] = value.y; Value[2] = value.z; }
-    void SetValue(Vector4i value) { NData = 4; Value[0] = value.x; Value[1] = value.y; Value[2] = value.z;  Value[3] = value.w; }
-    std::string GetDeclaration(void) const { return "uniform " + VectorI(NData).GetGLSLType() + " " + Name + ";"; }
-};
-
-//Represents an array of int/ivec2/ivec3/ivec4 uniforms.
-struct UniformArrayValueI
-{
-public:
-    int * Values;
-    unsigned int NumbValues, BasicTypesPerValue;
-    UniformLocation Location;
-    std::string Name;
-    UniformArrayValueI(const int * values = 0, unsigned int nValues = 0, unsigned int nBasicTypesPerValue = 0, std::string name = "", UniformLocation loc = -1)
-        : Name(name), Location(loc), Values(0), NumbValues(nValues), BasicTypesPerValue(nBasicTypesPerValue)
-    {
+        //If the array needs to be resized, do so.
         if (values != 0)
         {
-            unsigned int count = NumbValues * BasicTypesPerValue;
-            Values = new int[count];
-            for (unsigned int i = 0; i < count; ++i) Values[i] = values[i];
+            if ((nValues * nComponentsPerValue) != (NValues * NComponentsPerValue))
+            {
+                delete[] Values;
+                Values = new ComponentType[nValues * nComponentsPerValue];
+            }
         }
-    }
-    UniformArrayValueI(const UniformArrayValueI & cpy) : UniformArrayValueI(cpy.Values, cpy.NumbValues, cpy.BasicTypesPerValue, cpy.Name, cpy.Location) { }
-    ~UniformArrayValueI(void) { if (Values != 0) delete[] Values; }
-    void SetData(const int * values = 0, int nValues = -1, int nBasicTypesPerValue = -1)
-    {
-        if (nValues > 0 && nBasicTypesPerValue > 0)
+        else
         {
-            delete[] values;
-            NumbValues = nValues;
-            BasicTypesPerValue = nBasicTypesPerValue;
-            values = new int[nValues * nBasicTypesPerValue];
+            Values = new ComponentType[nValues * nComponentsPerValue];
         }
-        for (unsigned int i = 0; i < NumbValues * BasicTypesPerValue; ++i) Values[i] = values[i];
+        
+        //Now copy the values in.
+        NValues = nValues;
+        NComponentsPerValue = nComponentsPerValue;
+        memcpy(Values, values, sizeof(ComponentType) * NComponentsPerValue);
     }
-    UniformArrayValueI & operator=(const UniformArrayValueI & cpy)
+
+
+    std::string GetDeclaration(void) const
     {
-        Name = cpy.Name;
-        Location = cpy.Location;
-        NumbValues = cpy.NumbValues;
-        BasicTypesPerValue = cpy.BasicTypesPerValue;
-
-        if (cpy.Values != 0)
-        {
-            unsigned int count = NumbValues * BasicTypesPerValue;
-            Values = new int[count];
-            for (unsigned int i = 0; i < count; ++i) Values[i] = cpy.Values[i];
-        }
-
-        return *this;
+        assert(NValues > 0);
+        return "uniform " + GLVectorType::GetGLSLType(NComponentsPerValue) +
+                  " " + Name + "[" + std::to_string(NValues) + "];";
     }
-    std::string GetDeclaration(void) const { return "uniform " + VectorI(BasicTypesPerValue).GetGLSLType() + " " + Name + "[" + std::to_string(NumbValues) + "];"; }
 };
 
-//Represents a uniform mat4.
-struct UniformMatrixValue
+#pragma endregion
+
+//An array of float vectors.
+typedef UniformValueVectorArray<VectorF, float> UniformValueArrayF;
+//An array of signed integer vectors.
+typedef UniformValueVectorArray<VectorI, int> UniformValueArrayI;
+
+
+
+//Represents a 4x4 matrix.
+struct UniformValueMatrix4f
 {
 public:
+
     Matrix4f Value;
     UniformLocation Location;
     std::string Name;
-    UniformMatrixValue(void) { }
-    UniformMatrixValue(const Matrix4f & value, std::string name, UniformLocation loc = -1)
+
+    UniformValueMatrix4f(void) { }
+    UniformValueMatrix4f(const Matrix4f& value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), Value(value) { }
+
     std::string GetDeclaration(void) const { return "uniform mat4 " + Name + ";"; }
 };
 
-//Represents a 2D texture sampler uniform.
-struct UniformSampler2DValue
+
+
+//Represents a 2D texture sampler.
+struct UniformValueSampler2D
 {
 public:
+
     RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSampler2DValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), Texture(texture) { }
-    UniformSampler2DValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
+    UniformValueSampler2D(RenderObjHandle textureHandle, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(textureHandle) { }
+    UniformValueSampler2D(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
     std::string GetDeclaration(void) const { return "uniform sampler2D " + Name + ";"; }
 };
 
-//Represents a 3D texture sampler uniform.
-struct UniformSampler3DValue
+
+//Represents a 3D texture sampler.
+struct UniformValueSampler3D
 {
 public:
+
     RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSampler3DValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), Texture(texture)
-    { }
-    UniformSampler3DValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
+    UniformValueSampler3D(RenderObjHandle textureHandle, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(textureHandle) { }
+    UniformValueSampler3D(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
     std::string GetDeclaration(void) const { return "uniform sampler3D " + Name + ";"; }
 };
 
-//Represents a cubemap texture sampler uniform.
-struct UniformSamplerCubemapValue
+
+//Represents a cubemap texture sampler.
+struct UniformValueSamplerCubemap
 {
 public:
+
     RenderObjHandle Texture;
     UniformLocation Location;
     std::string Name;
-    UniformSamplerCubemapValue(RenderObjHandle texture, std::string name, UniformLocation loc = -1)
-        : Name(name), Location(loc), Texture(texture) { }
-    UniformSamplerCubemapValue(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
+    UniformValueSamplerCubemap(RenderObjHandle textureHandle, std::string name, UniformLocation loc = -1)
+        : Name(name), Location(loc), Texture(textureHandle) { }
+    UniformValueSamplerCubemap(std::string name = "") : Name(name), Location(-1), Texture(0) { }
+
     std::string GetDeclaration(void) const { return "uniform samplerCube " + Name + ";"; }
 };
 
 
-//Represents a definition of a subroutine.
+
+//Represents a definition of a subroutine value (i.e. a function with a specific signature).
+//Each definition is a specific possible value of a "subroutine" uniform.
 struct SubroutineDefinition
 {
 public:
 
-    //An input into the subroutine.
+    //A potential input into the subroutine.
     struct Parameter
     {
         unsigned int Size;
         std::string Name;
         Parameter(unsigned int size = 0, std::string name = "") : Size(size), Name(name) { }
-        std::string GetDeclaration(void) const { return VectorF(Size).GetGLSLType() + " " + Name; }
+        std::string GetDeclaration(void) const { return VectorF::GetGLSLType(Size) + " " + Name; }
     };
 
     //The size of the subroutine's output (float, vec2, vec3, or vec4).
@@ -253,11 +316,12 @@ public:
     std::vector<Parameter> Params;
 
     //The shader this uniform resides in.
-    ShaderHandler::Shaders Shader;
+    Shaders Shader;
 
 
-    SubroutineDefinition(ShaderHandler::Shaders shader = ShaderHandler::Shaders::SH_Vertex_Shader, unsigned int returnValSize = 0,
-                         std::string name = "", std::vector<Parameter> params = std::vector<Parameter>())
+    SubroutineDefinition(Shaders shader = Shaders::SH_VERTEX, unsigned int returnValSize = 0,
+                         std::string name = "",
+                         std::vector<Parameter> params = std::vector<Parameter>())
         : Shader(shader), ReturnValueSize(returnValSize), Name(name), Params(params) { }
 
 
@@ -265,20 +329,24 @@ public:
 };
 
 //Represents a subroutine.
-struct UniformSubroutineValue
+//Subroutines are essentially OpenGL's version of function pointers.
+struct UniformValueSubroutine
 {
 public:
 
+    typedef std::shared_ptr<SubroutineDefinition> SubroutineDefinitionPtr;
+
+
     //The definition of the subroutine.
     //Multiple values can have the same definition, so point to a managed, heap-allocated definition.
-    std::shared_ptr<SubroutineDefinition> Definition;
+    SubroutineDefinitionPtr Definition;
 
     //The name of the uniform definition.
     std::string Name;
     //The location of the uniform in the GLSL program.
     UniformLocation Location;
 
-    //The values this subroutine uniform can have.
+    //The values (i.e. functions) this subroutine uniform can have.
     std::vector<std::string> PossibleValues;
     //Parallel to "PossibleValues". Provides the id for each coroutine function.
     std::vector<RenderObjHandle> PossibleValueIDs;
@@ -286,40 +354,34 @@ public:
     unsigned int ValueIndex = 0;
 
     //Creates a new instance. Fills in the "PossibleValueIDs" vector with default values of 0.
-    UniformSubroutineValue(std::shared_ptr<SubroutineDefinition> definition = std::shared_ptr<SubroutineDefinition>(),
+    UniformValueSubroutine(SubroutineDefinitionPtr definition = SubroutineDefinitionPtr(),
                            std::vector<std::string> possibleValues = std::vector<std::string>(),
-                           unsigned int currentValueIndex = 0, std::string name = "", UniformLocation location = 0)
-        : Definition(definition), PossibleValues(possibleValues), ValueIndex(currentValueIndex), Name(name), Location(location)
-    {
-        PossibleValueIDs.reserve(PossibleValues.size());
-        for (unsigned int i = 0; i < PossibleValues.size(); ++i)
-            PossibleValueIDs.insert(PossibleValueIDs.end(), 0);
-    }
+                           unsigned int currentValueIndex = 0, std::string name = "",
+                           UniformLocation location = 0);
 
-    std::string GetDeclaration(void) const { return "subroutine uniform " + Definition->Name + " " + Name + ";"; }
+    std::string GetDeclaration(void) const;
 };
 
 
 
-
-//Represents a list of uniforms.
+//A collection of all uniforms a shader posesses.
 struct UniformList
 {
 public:
-    struct Uniform { public: std::string Name; UniformLocation Loc; Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { } };
-    std::vector<Uniform> FloatUniforms, FloatArrayUniforms,
-                         MatrixUniforms,
-                         Texture2DUniforms, Texture3DUniforms, TextureCubemapUniforms,
-                         IntUniforms, IntArrayUniforms,
-                         SubroutineUniforms;
-    //Returns "Uniform("", -1)" if the given name isn't found.
-    static Uniform FindUniform(std::string name, const std::vector<Uniform> & toSearch)
+
+    struct Uniform
     {
-        for (unsigned int i = 0; i < toSearch.size(); ++i)
-            if (toSearch[i].Name == name)
-                return toSearch[i];
-        return Uniform("");
-    }
+    public:
+        std::string Name;
+        UniformLocation Loc;
+        Uniform(std::string name, UniformLocation loc = -1) : Name(name), Loc(loc) { }
+    };
+
+    std::vector<Uniform> Floats, Ints, FloatArrays, IntArrays, Matrices, Subroutines,
+                         Texture2Ds, Texture3Ds, TextureCubemaps;
+
+    //Returns "Uniform("", -1)" if the given name isn't found.
+    Uniform FindUniform(std::string name) const;
 };
 
 //Represents a collection of uniform locations.
@@ -327,17 +389,21 @@ public:
 struct UniformDictionary
 {
 public:
-    U_UMAP(UniformValueF) FloatUniforms;
-    U_UMAP(UniformArrayValueF) FloatArrayUniforms;
-    U_UMAP(UniformValueI) IntUniforms;
-    U_UMAP(UniformArrayValueI) IntArrayUniforms;
-    U_UMAP(UniformMatrixValue) MatrixUniforms;
-    U_UMAP(UniformSampler2DValue) Texture2DUniforms;
-    U_UMAP(UniformSampler3DValue) Texture3DUniforms;
-    U_UMAP(UniformSamplerCubemapValue) TextureCubemapUniforms;
-    U_UMAP(UniformSubroutineValue) SubroutineUniforms;
 
-    void AddUniforms(const UniformDictionary & other, bool overwriteDuplicates);
+    #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
+
+    U_UMAP(UniformValueF) Floats;
+    U_UMAP(UniformValueArrayF) FloatArrays;
+    U_UMAP(UniformValueI) Ints;
+    U_UMAP(UniformValueArrayI) IntArrays;
+    U_UMAP(UniformValueMatrix4f) Matrices;
+    U_UMAP(UniformValueSampler2D) Texture2Ds;
+    U_UMAP(UniformValueSampler3D) Texture3Ds;
+    U_UMAP(UniformValueSamplerCubemap) TextureCubemaps;
+    U_UMAP(UniformValueSubroutine) Subroutines;
+
+
+    void AddUniforms(const UniformDictionary& other, bool overwriteDuplicates);
     void ClearUniforms(void);
 
     unsigned int GetNumbUniforms(void) const;

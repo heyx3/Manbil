@@ -1,16 +1,18 @@
 #include "VectorComponentsNode.h"
 
 
-MAKE_NODE_READABLE_CPP(VectorComponentsNode, 1.0f)
+ADD_NODE_REFLECTION_DATA_CPP(VectorComponentsNode, 1.0f)
 
 
+#pragma warning(disable: 4100)
 unsigned int VectorComponentsNode::GetOutputSize(unsigned int index) const
 {
     return 1;
 }
+#pragma warning(default: 4100)
+
 std::string VectorComponentsNode::GetOutputName(unsigned int index) const
 {
-
     std::string ret = GetInputs()[0].GetValue() + ".";
 
     //Swizzling is only valid if the input isn't a float.
@@ -35,10 +37,12 @@ VectorComponentsNode::VectorComponentsNode(const DataLine & inData, std::string 
 
 }
 
+#pragma warning(disable: 4100)
 std::string VectorComponentsNode::GetInputDescription(unsigned int index) const
 {
     return "toSplit";
 }
+#pragma warning(default: 4100)
 
 #pragma warning(disable: 4100)
 void VectorComponentsNode::WriteMyOutputs(std::string & outCode) const

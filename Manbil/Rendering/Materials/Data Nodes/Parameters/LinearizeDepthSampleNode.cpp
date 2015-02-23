@@ -1,9 +1,10 @@
 #include "LinearizeDepthSampleNode.h"
 
 
-MAKE_NODE_READABLE_CPP(LinearizeDepthSampleNode, 0.5f)
+ADD_NODE_REFLECTION_DATA_CPP(LinearizeDepthSampleNode, 0.5f)
 
 
+#pragma warning(disable: 4100)
 unsigned int LinearizeDepthSampleNode::GetOutputSize(unsigned int i) const
 {
     return 1;
@@ -12,6 +13,7 @@ std::string LinearizeDepthSampleNode::GetOutputName(unsigned int i) const
 {
     return GetName() + "_linearized";
 }
+#pragma warning(default: 4100)
 
 LinearizeDepthSampleNode::LinearizeDepthSampleNode(const DataLine & dIn, std::string name)
     : DataNode(MakeVector(dIn), name)
@@ -19,11 +21,14 @@ LinearizeDepthSampleNode::LinearizeDepthSampleNode(const DataLine & dIn, std::st
 
 }
 
+#pragma warning(disable: 4100)
 void LinearizeDepthSampleNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
     flags.EnableFlag(MaterialUsageFlags::DNF_USES_ZNEAR);
     flags.EnableFlag(MaterialUsageFlags::DNF_USES_ZFAR);
 }
+#pragma warning(default: 4100)
+
 void LinearizeDepthSampleNode::WriteMyOutputs(std::string & outStr) const
 {
     std::string zn = MaterialConstants::CameraZNearName,

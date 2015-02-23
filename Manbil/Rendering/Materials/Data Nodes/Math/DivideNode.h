@@ -23,5 +23,5 @@ protected:
 
     virtual void AssertMyInputsValid(void) const override;
 
-    MAKE_NODE_READABLE_H(DivideNode)
+    ADD_NODE_REFLECTION_DATA_H(DivideNode)
 };

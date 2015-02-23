@@ -33,7 +33,7 @@ void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
     wasMouseClicked = clicked;
 }
 
-std::string GUIManager::Render(float elapsed, const RenderInfo & info)
+void GUIManager::Render(float elapsed, const RenderInfo& info)
 {
-    return RootElement->Render(elapsed, info);
+    RootElement->Render(elapsed, info);
 }

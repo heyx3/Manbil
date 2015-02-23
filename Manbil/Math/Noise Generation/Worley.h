@@ -7,6 +7,7 @@
 
 //TODO: Specify X/Y/Z ranges (0 - 1) that constrain each point's placement in a cell.
 //TODO: Change Worley to always generate just one point per cell.
+//TODO: More descriptive comment documentation.
 
 
 //Creates 2D noise using the "Worley Noise" algorithm.
@@ -23,8 +24,9 @@ public:
 	struct DistanceValues { float Values[NUMB_DISTANCE_VALUES]; DistanceValues(void) { } };
 	typedef float (*GetValueFunc)(DistanceValues distVals);
 
-	//Function members.
+    //How to calculate the distance between two points.
 	DistanceCalculatorFunc DistFunc;
+    //The value of each pixel of worley noise given the distances to the closest points.
 	GetValueFunc ValueGenerator;
 	
 	//Other members.

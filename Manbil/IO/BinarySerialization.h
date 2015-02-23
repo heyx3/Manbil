@@ -5,6 +5,7 @@
 
 
 //The different types of data that can be written into a binary file.
+//These enum values can be written into the binary file to add error-checking to the data.
 enum BinaryDataTypes : unsigned char
 {
     BDT_BOOL = 0,
@@ -14,12 +15,13 @@ enum BinaryDataTypes : unsigned char
     BDT_FLOAT = 4,
     BDT_DOUBLE = 5,
     BDT_STRING = 6,
+    BDT_BYTES = 7,
 
-    BDT_COLLECTION = 7,
-    BDT_COLLECTION_END = 8,
+    BDT_COLLECTION = 8,
+    BDT_COLLECTION_END = 9,
 
-    BDT_DATA_STRUCTURE = 9,
-    BDT_DATA_STRUCTURE_END = 10,
+    BDT_DATA_STRUCTURE = 19,
+    BDT_DATA_STRUCTURE_END = 11,
 };
 
 
@@ -28,36 +30,45 @@ class BinaryWriter : public DataWriter
 {
 public:
 
-    //Whether to ensure type safety when reading this data back later at the cost of an extra byte for every piece of data.
+    //Whether to ensure type safety when reading this data back later.
+    //Adds an extra byte of data for every call to a Write function.
     bool EnsureTypeSafety;
 
+
+    //"moreErrorChecking" indicates whether to ensure type safety.
     //Optionally takes in the amount of space to initially reserve in the byte data container.
-    //"moreErrorChecking" indicates whether to ensure type safety at the cost of an extra byte for every pice of data.
     BinaryWriter(bool ensureTypeSafety, unsigned int byteDataSizeReservation = 64)
         : EnsureTypeSafety(ensureTypeSafety)
     {
         byteData.reserve(byteDataSizeReservation);
     }
 
-    virtual std::string SaveData(std::string filePath) override;
+    
+    //Saves the written data out to a file at the given path.
+    //Returns an error message, or the empty string if the data was saved successfully.
+    std::string SaveData(const std::string& filePath);
 
-    virtual bool WriteBool(bool value, std::string name, std::string & outError) override;
-    virtual bool WriteByte(unsigned char value, std::string name, std::string & outError) override;
-    virtual bool WriteInt(int value, std::string name, std::string & outError) override;
-    virtual bool WriteUInt(unsigned int value, std::string name, std::string & outError) override;
-    virtual bool WriteFloat(float value, std::string name, std::string & outError) override;
-    virtual bool WriteDouble(double value, std::string name, std::string & outError) override;
-    virtual bool WriteString(const std::string & value, std::string name, std::string & outError) override;
+    virtual void WriteBool(bool value, const std::string& name) override;
+    virtual void WriteByte(unsigned char value, const std::string& name) override;
+    virtual void WriteInt(int value, const std::string& name) override;
+    virtual void WriteUInt(unsigned int value, const std::string& name) override;
+    virtual void WriteFloat(float value, const std::string& name) override;
+    virtual void WriteDouble(double value, const std::string& name) override;
+    virtual void WriteString(const std::string& value, const std::string& name) override;
+    virtual void WriteBytes(const unsigned char* bytes, unsigned int nBytes,
+                            const std::string& name) override;
 
-    virtual bool WriteCollection(std::string name, ElementWriter writerFunc, const void* collection, unsigned int collectionSize,
-                                 std::string & outError, void *optionalData = 0) override;
+    virtual void WriteCollection(ElementWriter writerFunc, const std::string& name,
+                                 unsigned int bytesPerElement,
+                                 const void* collection, unsigned int collectionSize,
+                                 void* optionalData = 0) override;
 
-    virtual bool WriteDataStructure(const ISerializable & toSerialize, std::string name, std::string & outError) override;
+    virtual void WriteDataStructure(const IWritable& toSerialize, const std::string& name) override;
     
 private:
 
     //Used for writing primitive data types.
-    bool WriteSimpleData(unsigned int sizeofType, BinaryDataTypes dataType, const void* pData);
+    void WriteSimpleData(unsigned int sizeofType, BinaryDataTypes dataType, const void* pData);
 
     std::vector<unsigned char> byteData;
 };
@@ -67,30 +78,41 @@ class BinaryReader : public DataReader
 {
 public:
 
-    //Whether the BinaryWriter that made this file used extra error checking at the cost of 1 extra byte per piece of data.
+    //Indicates whether the BinaryWriter that made the file being read used extra error checking.
     bool EnsureTypeSafety;
 
-    //"ensureTypeSafety" indicates whether the BinaryWriter that made this file used extra error checking
-    //    at the cost of 1 extra byte per piece of data.
-    BinaryReader(bool ensureTypeSafety, std::string fileName, std::string & outErrorMsg);
+    //If this reader throws an exception, this string will be set to an error message.
+    std::string ErrorMessage;
 
-    virtual MaybeValue<bool> ReadBool(std::string & outError) override;
-    virtual MaybeValue<unsigned char> ReadByte(std::string & outError) override;
-    virtual MaybeValue<int> ReadInt(std::string & outError) override;
-    virtual MaybeValue<unsigned int> ReadUInt(std::string & outError) override;
-    virtual MaybeValue<float> ReadFloat(std::string & outError) override;
-    virtual MaybeValue<double> ReadDouble(std::string & outError) override;
-    virtual MaybeValue<std::string> ReadString(std::string & outError) override;
 
-    virtual bool ReadCollection(ElementReader readerFunc, unsigned int bytesPerElement, std::string & outError,
-                                std::vector<unsigned char> & outData, void * optionalData = 0) override;
+    //"ensureTypeSafety" indicates whether the BinaryWriter that made the file used extra error checking.
+    //This constructor does not throw exceptions, but it may set the "ErrorMessage" field
+    //    if something went wrong.
+    BinaryReader(bool ensureTypeSafety, const std::string& fileName);
 
-    virtual bool ReadDataStructure(ISerializable & toSerialize, std::string & outError) override;
+
+    virtual void ReadBool(bool& outB) override;
+    virtual void ReadByte(unsigned char& outB) override;
+    virtual void ReadInt(int& outI) override;
+    virtual void ReadUInt(unsigned int& outU) override;
+    virtual void ReadFloat(float& outF) override;
+    virtual void ReadDouble(double& outD) override;
+    virtual void ReadString(std::string& outStr) override;
+    virtual void ReadBytes(std::vector<unsigned char>& outBytes) override;
+
+    virtual void ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
+                                CollectionResizer resizer, void* pCollection,
+                                void* optionalData = 0) override;
+
+    virtual void ReadDataStructure(IReadable& toSerialize) override;
 
 private:
 
-    bool ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expectedType, void* outData, std::string & errorMsg);
+    void ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expectedType,
+                        void* outData);
 
+    //Reads in the next few bytes from the "byteData" vector.
+    //Returns true if everything went fine, or false if there weren't enough bytes left to read.
     bool NextData(unsigned int size, void *pData);
 
     std::vector<unsigned char> byteData;

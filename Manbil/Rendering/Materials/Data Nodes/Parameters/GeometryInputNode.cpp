@@ -1,7 +1,8 @@
 #include "GeometryInputNode.h"
 
 
-MAKE_NODE_READABLE_CPP(GeometryInputNode, )
+ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(GeometryInputNode)
+
 
 std::shared_ptr<DataNode> GeometryInputNode::instance = std::shared_ptr<DataNode>(new GeometryInputNode());
 
@@ -24,7 +25,7 @@ std::string GeometryInputNode::GetOutputName(unsigned int outputIndex) const
 
 void GeometryInputNode::AssertGeoShader(void) const
 {
-    Assert(CurrentShader == ShaderHandler::SH_GeometryShader,
+    Assert(CurrentShader == SH_GEOMETRY,
            "Invalid shader type (should be Geometry): " + ToString(CurrentShader));
 }
 

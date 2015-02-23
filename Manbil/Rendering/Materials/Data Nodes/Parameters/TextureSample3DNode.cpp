@@ -1,7 +1,7 @@
 #include "TextureSample3DNode.h"
 
 
-MAKE_NODE_READABLE_CPP(TextureSample3DNode, Vector3f())
+ADD_NODE_REFLECTION_DATA_CPP(TextureSample3DNode, Vector3f())
 
 
 unsigned int TextureSample3DNode::GetOutputIndex(ChannelsOut channel)
@@ -15,7 +15,9 @@ unsigned int TextureSample3DNode::GetOutputIndex(ChannelsOut channel)
         case ChannelsOut::CO_AllColorChannels: return 4;
         case ChannelsOut::CO_AllChannels: return 5;
 
-        default: assert(false); return 999;
+        default:
+            assert(false);
+            return 999;
     }
 }
 
@@ -58,17 +60,21 @@ TextureSample3DNode::TextureSample3DNode(const DataLine & uvs, std::string sampl
     : DataNode(MakeVector(uvs), name),
       SamplerName(samplerName)
 {
-    if (SamplerName.empty()) SamplerName = "u_" + GetName() + "_3DTex";
+    if (SamplerName.empty())
+    {
+        SamplerName = "u_" + GetName() + "_3DTex";
+    }
 }
 
 
 void TextureSample3DNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
 {
-    uniforms.Texture3DUniforms[SamplerName] = UniformSampler3DValue(SamplerName);
+    uniforms.Texture3Ds[SamplerName] = UniformValueSampler3D(SamplerName);
 }
 void TextureSample3DNode::WriteMyOutputs(std::string & outCode) const
 {
-    outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + SamplerName + ", " + GetInputs()[0].GetValue() + ");\n";
+    outCode += "\tvec4 " + GetSampleOutputName() + " = texture(" + SamplerName + ", " +
+                    GetInputs()[0].GetValue() + ");\n";
 }
 
 void TextureSample3DNode::AssertMyInputsValid(void) const
@@ -88,25 +94,11 @@ std::string TextureSample3DNode::GetInputDescription(unsigned int index) const
 }
 
 
-bool TextureSample3DNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void TextureSample3DNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(SamplerName, "samplerUniformName", outError))
-    {
-        outError = "Error writing sampler uniform name '" + SamplerName + "': " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(SamplerName, "Sampler uniform name");
 }
-bool TextureSample3DNode::ReadExtraData(DataReader * reader, std::string & outError)
+void TextureSample3DNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> trySName = reader->ReadString(outError);
-    if (!trySName.HasValue())
-    {
-        outError = "Error reading sampler name: " + outError;
-        return false;
-    }
-    SamplerName = trySName.GetValue();
-
-    return true;
+    reader->ReadString(SamplerName);
 }

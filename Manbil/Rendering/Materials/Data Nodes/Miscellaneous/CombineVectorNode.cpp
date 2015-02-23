@@ -1,9 +1,10 @@
 #include "CombineVectorNode.h"
 
 
-MAKE_NODE_READABLE_CPP(CombineVectorNode, 1.0f, 1.0f)
+ADD_NODE_REFLECTION_DATA_CPP(CombineVectorNode, 1.0f, 1.0f)
 
 
+#pragma warning(disable: 4100)
 unsigned int CombineVectorNode::GetOutputSize(unsigned int index) const
 {
     unsigned int count = 0;
@@ -15,6 +16,7 @@ std::string CombineVectorNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_combined";
 }
+#pragma warning(default: 4100)
 
 
 CombineVectorNode::CombineVectorNode(const std::vector<DataLine> & inputs, std::string name)
@@ -34,7 +36,7 @@ void CombineVectorNode::WriteMyOutputs(std::string & outCode) const
 {
     unsigned int outSize = GetOutputSize(0);
 
-    std::string vecType = VectorF(outSize).GetGLSLType();
+    std::string vecType = VectorF(outSize, 0).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = " + vecType + "(";
 

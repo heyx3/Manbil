@@ -45,8 +45,7 @@ private:
     void InitializeObjects(void);
 
     //Renders the world geometry using the given rendering info.
-    //Returns whether there was an error rendering.
-    bool RenderWorldGeometry(const RenderInfo& info);
+    void RenderWorldGeometry(const RenderInfo& info);
 
 
     Material* terrMat;

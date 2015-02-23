@@ -14,6 +14,8 @@ public:
 	KeyboardBoolInput(Key toCheck, ValueStates desiredVS = ValueStates::IsDown) : BoolInput(desiredVS != ValueStates::IsNotDown, desiredVS), KeyToCheck(toCheck) { }
 
 protected:
-
+    
+#pragma warning(disable: 4100)
 	virtual bool GetRawInput(float el, float total) override { return sf::Keyboard::isKeyPressed(KeyToCheck); }
+#pragma warning(default: 4100)
 };

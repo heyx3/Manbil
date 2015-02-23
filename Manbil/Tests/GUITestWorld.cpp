@@ -5,10 +5,11 @@
 
 #include "../Vertices.h"
 #include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
-#include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Rendering/Materials/Data Nodes/DataNodes.hpp"
 
 #include "../ScreenClearer.h"
 #include "../RenderingState.h"
+#include "../Rendering/GUI/GUI Elements/GUIPanel.h"
 #include "../Editor/EditorPanel.h"
 #include "../Editor/EditorObjects.h"
 
@@ -35,9 +36,6 @@ namespace GUITESTWORLD_NAMESPACE
     }
 }
 using namespace GUITESTWORLD_NAMESPACE;
-
-
-Vector2i GUITestWorld::WindowSize = Vector2i();
 
 
 bool GUITestWorld::ReactToError(bool isEverythingOK, std::string errorIntro, std::string errorMsg)
@@ -71,19 +69,25 @@ struct CollectionElement : public IEditable
 public:
     unsigned int Int = 4;
     std::string String = "Test";
-    virtual std::string BuildEditorElements(std::vector<EditorObjectPtr> & outElements,
-                                            EditorMaterialSet & materialSet) override
+    virtual std::string BuildEditorElements(std::vector<EditorObjectPtr>& outElements,
+                                            EditorMaterialSet& materialSet) override
     {
-        outElements.insert(outElements.end(),
-                           EditorObjectPtr(new SlidingBarUInt(0, 100, Vector2f(), EditorObject::DescriptionData(),
-                                                              [](GUISlider* slider, unsigned int newVal, void* pData)
-                                                                 { std::cout << newVal << "\n"; },
-                                                              Mathf::LerpComponent(0.0f, 100.0f, Int))));
-        outElements.insert(outElements.end(),
-                           EditorObjectPtr(new TextBoxString(String, 600.0f,
-                                                             Vector2f(), EditorObject::DescriptionData(),
-                                                             [](GUITextBox* textBox, std::string newVal, void* pData)
-                                                             { std::cout << newVal << "\n"; })));
+        EditorObjectPtr slideBar(new SlidingBarInt(0, 100, Vector2f(),
+                                                   EditorObject::DescriptionData(),
+                                                   [](GUISlider* slider, int newVal, void* pData)
+                                                   {
+                                                       std::cout << newVal << "\n";
+                                                   },
+                                                   Mathf::LerpComponent(0.0f, 0.0f, Int)));
+        outElements.push_back(slideBar);
+
+        EditorObjectPtr textBox(new TextBoxString(String, 600.0f, Vector2f(),
+                                                  EditorObject::DescriptionData(),
+                                                  [](GUITextBox* slider, std::string newVal, void* pData)
+                                                  {
+                                                      std::cout << newVal << "\n";
+                                                  }));
+        outElements.push_back(textBox);
 
         return "";
     }
@@ -96,10 +100,20 @@ void GUITestWorld::InitializeWorld(void)
 
     SFMLOpenGLWorld::InitializeWorld();
 
-    //Initialize static stuff.
-    err = InitializeStaticSystems(false, true, true);
-    if (!ReactToError(err.empty(), "Error initializing static systems", err))
+    //Initialize systems.
+    DrawingQuad::InitializeQuad();
+    if (!ReactToError(!FreeTypeHandler::Instance.HasError(),
+                      "Error initializing FreeTypeHandler",
+                      FreeTypeHandler::Instance.GetError()))
+    {
         return;
+    }
+    err = TextRenderer::InitializeSystem();
+    if (!ReactToError(err.empty(), "Error initializing text renderer", err))
+    {
+        return;
+    }
+    TextRender = new TextRenderer();
 
 
     //Set up editor content.
@@ -113,121 +127,148 @@ void GUITestWorld::InitializeWorld(void)
     }
 
     //Build the GUI elements.
-    if (true)
+    //There are a couple different branches here, in order to show various aspects of the editor system.
+    if (false)
     {
+        //Use an empty panel.
+        guiManager = GUIManager(GUIElementPtr(new GUIPanel(GUITexture())));
+    }
+    else if (false)
+    {
+        //Build out some individual editor elements that just print out their values.
+
         EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
         
-        editor->AddObject(EditorObjectPtr(new CheckboxValue(EditorObject::DescriptionData("Check this shit"), Vector2f(), false)));
-        editor->AddObject(EditorObjectPtr(new TextBoxUInt(56, 200.0f, Vector2f(),
-                                                          EditorObject::DescriptionData("Type a uint!"),
-                                                          [](GUITextBox* textBox, unsigned int newVal, void* pData)
-                                                            { std::cout << newVal << "\n"; })));
-        editor->AddObject(EditorObjectPtr(new EditorButton("Push me", Vector2f(200.0f, 50.0f), 0, Vector2f(),
-                                                           EditorObject::DescriptionData("<-- Push this shit", false, 30.0f),
-                                                           [](GUITexture* clicked, Vector2f mp, void* pDat)
-                                                            { std::cout << "Clicked\n"; })));
+        //Checkbox.
+        EditorObjectPtr checkbox(new CheckboxValue(EditorObject::DescriptionData("Check this box:"),
+                                                   Vector2f(), false));
+        editor->AddObject(checkbox);
+
+        //Text box for an unsigned int value.
+        EditorObjectPtr textBoxU(new TextBoxUInt(56, 200.0f, Vector2f(),
+                                                 EditorObject::DescriptionData("Type a uint!"),
+                                                 [](GUITextBox* textBox, unsigned int newVal, void* pDat)
+                                                 {
+                                                     std::cout << "UInt: " << newVal << "\n";
+                                                 }));
+        editor->AddObject(textBoxU);
+
+        //Button.
+        EditorObjectPtr button(new EditorButton("Push me", Vector2f(200.0f, 50.0f), 0, Vector2f(),
+                                                EditorObject::DescriptionData("<-- Push this!",
+                                                                              false, 30.0f),
+                                                [](GUITexture* clicked, Vector2f mousePos, void* pDat)
+                                                {
+                                                    std::cout << "Clicked button\n";
+                                                }));
+        editor->AddObject(button);
+
+        //Label.
         editor->AddObject(EditorObjectPtr(new EditorLabel("I'm just a label.", 800)));
 
+        //Collapsible region with some GUI elements inside.
         MTexture2D* testTex = &editorMaterials->DeleteFromCollectionTex;
         GUIElementPtr innerEl(new GUITexture(editorMaterials->GetStaticMatParams(testTex), testTex,
                                              editorMaterials->GetStaticMaterial(testTex)));
-        editor->AddObject(EditorObjectPtr(new EditorCollapsibleBranch(innerEl, 20.0f, "This is collapsible")));
+        EditorObjectPtr collapseRegion(new EditorCollapsibleBranch(innerEl, 20.0f,
+                                                                   "This is collapsible"));
+        editor->AddObject(collapseRegion);
         
+        //A collection of a data structure, defined above.
         editor->AddObject(EditorObjectPtr(new EditorCollection<CollectionElement>()));
 
+        //Stick the editor element into the GUI root manager.
         guiManager = GUIManager(GUIElementPtr(editor));
     }
-    else if (false)
+    else if (true)
     {
+        //Generate an editor panel for editing the values in ColorEditor instance called "colEd".
+
         EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
+
         std::vector<EditorObjectPtr> ptrs;
         colEd.Color = Vector4f(0.5f, 0.25f, 1.0f, 0.5f);
-
         std::string err = colEd.BuildEditorElements(ptrs, *editorMaterials);
         if (!ReactToError(err.empty(), "Error building color editor elements", err))
-            return;
-
-        for (unsigned int i = 0; i < ptrs.size(); ++i)
         {
-            err = editor->AddObject(ptrs[i]);
-            if (!ReactToError(err.empty(), "Error adding ptr element #" + std::to_string(i + 1), err))
-                return;
+            return;
         }
 
+        err = editor->AddObjects(ptrs);
+        if (!ReactToError(err.empty(), "Error adding editor elements", err))
+        {
+            return;
+        }
+
+        //Stick the editor element into the GUI root manager.
         guiManager = GUIManager(GUIElementPtr(editor));
     }
-    else if (false)
+    else
     {
-        MTexture2D *check = &editorMaterials->CheckBoxCheckTex,
-                   *box = &editorMaterials->CheckBoxBackgroundTex;
-        GUITexture checkTex(editorMaterials->GetStaticMatParams(check), check,
-                            editorMaterials->GetStaticMaterial(check), false, 1.0f),
-                   boxTex(editorMaterials->GetAnimatedMatParams(box), box,
-                          editorMaterials->GetAnimatedMaterial(box), true,
-                          editorMaterials->AnimateSpeed);
-        GUICheckbox* guiCheckbox = new GUICheckbox(UniformDictionary(), boxTex, checkTex, false, 1.0f);
-
-
-        GUIElementPtr guiPtr(guiCheckbox);
-        //GUIElementPtr guiPtr(lbl);
-        guiPtr->OnUpdate = [](GUIElement* thisEl, Vector2f relativeMouse, void* pData)
-        {
-            thisEl->SetScale(thisEl->GetScale() * 1.002f);
-            //std::cout << DebugAssist::ToString(relativeMouse) << "\n";
-        };
-
-        //Create the GUIManager.
-        guiManager = GUIManager(guiPtr);
+        //This is just here to make sure that one of the above branches is actually used.
+        assert(false);
     }
-    else assert(false);
 
     //Set up the window.
-    Vector2f dims = guiManager.RootElement->GetBounds().GetDimensions();
-    //WindowSize = Vector2i((int)dims.x, (int)dims.y);
     WindowSize = Vector2i(500, 500);
-    //guiManager.RootElement->SetPosition(dims * 0.5f);
+    Vector2f dims = guiManager.RootElement->GetBounds().GetDimensions();
     guiManager.RootElement->SetBounds(Box2D(dims.ComponentProduct(Vector2f(0.5f, -0.5f)), dims));
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
+    GetWindow()->setPosition(sf::Vector2i(0, 0));
+    
 }
-void GUITestWorld::DestroyMyStuff(bool destroyStatics)
+void GUITestWorld::OnWorldEnd(void)
 {
-    DeleteAndSetToNull(editorMaterials);
+    delete editorMaterials;
+    delete TextRender;
 
-    if (destroyStatics) DestroyStaticSystems(false, true, true);
+    DrawingQuad::DestroyQuad();
+    TextRenderer::DestroySystem();
 }
 
 
 void GUITestWorld::UpdateWorld(float elapsed)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+    {
         EndWorld();
+    }
     
-    //Move the gui window.
+    //Move the gui window with WASD.
     const float speed = 100.0f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    {
         guiManager.RootElement->MoveElement(Vector2f(-(speed * elapsed), 0.0f));
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    {
         guiManager.RootElement->MoveElement(Vector2f((speed * elapsed), 0.0f));
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    {
         guiManager.RootElement->MoveElement(Vector2f(0.0f, -(speed * elapsed)));
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
         guiManager.RootElement->MoveElement(Vector2f(0.0f, (speed * elapsed)));
+    }
 
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
     mPosFinal.y -= WindowSize.y;
 
-    guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y), sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    //guiManager.RootElement->SetPosition(Vector2f(WindowSize.x * 0.5f, WindowSize.y * 0.5f));
+    guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y),
+                      sf::Mouse::isButtonPressed(sf::Mouse::Left));
 }
 void GUITestWorld::RenderOpenGL(float elapsed)
 {
-    //Prepare the back-buffer to be rendered into.
+    //Set up the rendering state.
     glViewport(0, 0, WindowSize.x, WindowSize.y);
     ScreenClearer(true, true, false, Vector4f(0.5f, 0.2f, 0.2f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_NONE, RenderingState::BE_SOURCE_ALPHA, RenderingState::BE_ONE_MINUS_SOURCE_ALPHA,
-                   true, true, RenderingState::AT_GREATER, 0.0f).EnableState();
+    //TODO: Set culling mode once I can test this world.
+    RenderingState(RenderingState::C_NONE, false, true).EnableState();
+    BlendMode::GetTransparent().EnableMode();
 
     //Set up the "render info" struct.
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));
@@ -235,15 +276,11 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     cam.MaxOrthoBounds = Vector3f((float)WindowSize.x, (float)WindowSize.y, 10.0f);
     cam.PerspectiveInfo.Width = WindowSize.x;
     cam.PerspectiveInfo.Height = WindowSize.y;
-    Matrix4f worldM, viewM, projM;
-    TransformObject trns;
-    trns.GetWorldTransform(worldM);
+    Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
     cam.GetOrthoProjection(projM);
-    RenderInfo info(this, &cam, &trns, &worldM, &viewM, &projM);
 
     //Render the GUI.
-    std::string err = guiManager.Render(elapsed, info);
-    if (!ReactToError(err.empty(), "Error rendering GUI", err))
-        return;
+    RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
+    guiManager.Render(elapsed, info);
 }

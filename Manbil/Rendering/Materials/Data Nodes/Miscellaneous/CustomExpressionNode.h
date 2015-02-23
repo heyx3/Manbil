@@ -28,9 +28,9 @@ public:
 protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
-
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
 
 private:
@@ -41,5 +41,5 @@ private:
     //Converts variables like '0', '1', etc. in the expression string into the actual inputs' output values.
     std::string InterpretExpression() const;
 
-    MAKE_NODE_READABLE_H(CustomExpressionNode)
+    ADD_NODE_REFLECTION_DATA_H(CustomExpressionNode)
 };

@@ -1,7 +1,7 @@
 #include "VertexInputNode.h"
 
 
-MAKE_NODE_READABLE_CPP(VertexInputNode, )
+ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(VertexInputNode)
 
 
 std::shared_ptr<DataNode> VertexInputNode::instance = std::shared_ptr<DataNode>(new VertexInputNode());
@@ -9,19 +9,19 @@ std::shared_ptr<DataNode> VertexInputNode::instance = std::shared_ptr<DataNode>(
 
 unsigned int VertexInputNode::GetOutputSize(unsigned int outputIndex) const
 {
-    return VertexIns.GetAttributeSize(outputIndex);
+    return VertexIns.GetAttribute(outputIndex).Size;
 }
 std::string VertexInputNode::GetOutputName(unsigned int outputIndex) const
 {
-    return VertexIns.GetAttributeName(outputIndex);
+    return VertexIns.GetAttribute(outputIndex).Name;
 }
 
 
 #pragma warning(disable: 4100)
 void VertexInputNode::WriteMyOutputs(std::string & outCode) const
 {
-    Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
-           std::string() + "Invalid shader type (must be Vertex): " + ToString(CurrentShader));
+    Assert(CurrentShader == SH_VERTEX,
+           std::string("Invalid shader type (must be Vertex): ") + ToString(CurrentShader));
     //Don't actually output anything, since the output name is an "in" variable.
 }
 #pragma warning(default: 4100)

@@ -1,7 +1,7 @@
 #include "TextureSampleCubemapNode.h"
 
 
-MAKE_NODE_READABLE_CPP(TextureSampleCubemapNode, Vector3f(1.0f, 0.0f, 0.0f), "fakeSampler")
+ADD_NODE_REFLECTION_DATA_CPP(TextureSampleCubemapNode, Vector3f(1.0f, 0.0f, 0.0f), "fakeSampler")
 
 
 std::string TextureSampleCubemapNode::GetOutputName(unsigned int index) const
@@ -73,7 +73,7 @@ TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, s
 
 void TextureSampleCubemapNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
 {
-    uniforms.TextureCubemapUniforms[SamplerName] = UniformSamplerCubemapValue(SamplerName);
+    uniforms.TextureCubemaps[SamplerName] = UniformValueSamplerCubemap(SamplerName);
 }
 void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 {
@@ -81,31 +81,19 @@ void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 }
 
 
+#pragma warning(disable: 4100)
 std::string TextureSampleCubemapNode::GetInputDescription(unsigned int index) const
 {
     return "Tex Coord vector";
 }
+#pragma warning(default: 4100)
 
 
-bool TextureSampleCubemapNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void TextureSampleCubemapNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(SamplerName, "samplerUniformName", outError))
-    {
-        outError = "Error writing sampler uniform name '" + SamplerName + "': " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(SamplerName, "Sampler uniform name");
 }
-bool TextureSampleCubemapNode::ReadExtraData(DataReader * reader, std::string & outError)
+void TextureSampleCubemapNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> trySName = reader->ReadString(outError);
-    if (!trySName.HasValue())
-    {
-        outError = "Error reading sampler name: " + outError;
-        return false;
-    }
-    SamplerName = trySName.GetValue();
-
-    return true;
+    reader->ReadString(SamplerName);
 }

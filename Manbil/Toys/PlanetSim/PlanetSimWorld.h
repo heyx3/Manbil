@@ -12,7 +12,6 @@ class PlanetSimWorld : public SFMLOpenGLWorld
 public:
 
     PlanetSimWorld(void);
-    ~PlanetSimWorld(void);
 
 protected:
     
@@ -26,15 +25,15 @@ protected:
 
 private:
 
-    void RenderWorld(float elapsedSeconds, RenderInfo & camInfo);
+    void RenderWorld(float elapsedSeconds, RenderInfo& camInfo);
     void PrintError(std::string error);
 
-    Material * planetMat;
+    Material* planetMat;
     UniformDictionary planetParams;
     MTexture2D planetHeightTex;
     MTexture3D planetTex3D;
 
-    WorldData * world;
+    WorldData* world;
     PlanetSimCamera cam;
 
     Vector2u windowSize;

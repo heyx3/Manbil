@@ -1,9 +1,25 @@
 #include "GUISlider.h"
 
 
+bool GUISlider::GetDidBoundsChangeDeep(void) const
+{
+    return DidBoundsChange || Bar.DidBoundsChange;
+}
+void GUISlider::ClearDidBoundsChangeDeep(void)
+{
+    DidBoundsChange = false;
+    Bar.DidBoundsChange = false;
+}
+
+void GUISlider::ScaleBy(Vector2f scaleAmount)
+{
+    SetScale(scaleAmount.ComponentProduct(GetScale()));
+}    
+
 Box2D GUISlider::GetBounds(void) const
 {
-    //The length along the slider axis is the length of the slider plus the length of half the nub on each side.
+    //The length along the slider axis is the length of the slider plus
+    //    the length of half the nub on each side.
     //The length perpendicular to the slider axis is the length of the bar/nub -- whichever is longest.
 
     Box2D barBounds = Bar.GetBounds(),
@@ -40,15 +56,17 @@ float GUISlider::GetNewValue(Vector2f mousePos) const
 
     if (IsVertical)
     {
-        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetYMin(), barBounds.GetYMax(),
-                                                         mousePos.y),
-                                0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetYMin(),
+                                                 barBounds.GetYMax(),
+                                                 mousePos.y),
+                            0.0f, 1.0f);
     }
     else
     {
-        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetXMin(), barBounds.GetXMax(),
-                                                         mousePos.x),
-                                0.0f, 1.0f);
+        return Mathf::Clamp(Mathf::LerpComponent(barBounds.GetXMin(),
+                                                 barBounds.GetXMax(),
+                                                 mousePos.x),
+                            0.0f, 1.0f);
     }
 }
 
@@ -57,14 +75,10 @@ void GUISlider::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     Bar.Update(elapsed, relativeMousePos);
     Nub.Update(elapsed, relativeMousePos);
 }
-std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
+void GUISlider::Render(float elapsedTime, const RenderInfo & info)
 {
-    std::string err;
-
-
     //Render bar.
-    err = RenderChild(&Bar, elapsedTime, info);
-    if (!err.empty()) return "Error rendering bar: " + err;
+    RenderChild(&Bar, elapsedTime, info);
 
 
     //Render nub. Keep the nub's "DidBoundsChange" boolean from being effected during rendering,
@@ -84,12 +98,8 @@ std::string GUISlider::Render(float elapsedTime, const RenderInfo & info)
     }
     Nub.SetPosition(nubPos);
 
-    err = RenderChild(&Nub, elapsedTime, info);
+    RenderChild(&Nub, elapsedTime, info);
     Nub.DidBoundsChange = oldNubChanged;
-    if (!err.empty()) return "Error rendering nub: " + err;
-
-
-    return "";
 }
 
 void GUISlider::OnMouseClick(Vector2f mousePos)
@@ -123,5 +133,13 @@ void GUISlider::OnMouseDrag(Vector2f originalPos, Vector2f currentPos)
         }
 
         RaiseValueChangedEvent(currentPos);
+    }
+}
+
+void GUISlider::RaiseValueChangedEvent(Vector2f localMouse)
+{
+    if (OnValueChanged != 0)
+    {
+        OnValueChanged(this, localMouse, OnValueChanged_pData);
     }
 }

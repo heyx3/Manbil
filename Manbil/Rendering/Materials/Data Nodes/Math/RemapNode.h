@@ -40,5 +40,5 @@ private:
     const DataLine & GetDestMaxInput(void) const { return GetInputs()[4]; }
 
 
-    MAKE_NODE_READABLE_H(RemapNode)
+    ADD_NODE_REFLECTION_DATA_H(RemapNode)
 };

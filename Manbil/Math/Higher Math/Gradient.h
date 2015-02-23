@@ -37,6 +37,12 @@ public:
 };
 
 
+enum Smoothness
+{
+    SM_LINEAR,
+    SM_CUBIC,
+    SM_QUINTIC,
+};
 
 //Should be an int in the range [1, 4].
 //Represents the number of different float values in a single point on the gradient
@@ -49,13 +55,6 @@ class Gradient
 public:
 
     typedef GradientNode<Components> GNode;
-
-    enum Smoothness
-    {
-        SM_LINEAR,
-        SM_CUBIC,
-        SM_QUINTIC,
-    };
 
 
     Smoothness SmoothQuality;
@@ -97,7 +96,9 @@ public:
         //Get the two nodes the given t value is between.
         unsigned int topBound = 1;
         while (Nodes[topBound].T < t)
+        {
             topBound += 1;
+        }
         const GNode& start = Nodes[topBound - 1],
                      end = Nodes[topBound];
 
@@ -106,13 +107,21 @@ public:
         float remappedT = Mathf::LerpComponent(start.T, end.T, t);
         switch (SmoothQuality)
         {
-            case SM_LINEAR: break;
-            case SM_CUBIC: remappedT = Mathf::Smooth(remappedT); break;
-            case SM_QUINTIC: remappedT = Mathf::Supersmooth(remappedT); break;
-            default: assert(false);
+            case SM_LINEAR:
+                break;
+            case SM_CUBIC:
+                remappedT = Mathf::Smooth(remappedT);
+                break;
+            case SM_QUINTIC:
+                remappedT = Mathf::Supersmooth(remappedT);
+                break;
+            default:
+                assert(false);
         }
         for (unsigned int i = 0; i < Components; ++i)
+        {
             outVals[i] = Mathf::Lerp(start.Value[i], end.Value[i], remappedT);
+        }
     }
 
 

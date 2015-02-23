@@ -29,5 +29,5 @@ protected:
     virtual std::string GetInputDescription(unsigned int index) const override;
 
 
-    MAKE_NODE_READABLE_H(TangentSpaceNormals);
+    ADD_NODE_REFLECTION_DATA_H(TangentSpaceNormals);
 };

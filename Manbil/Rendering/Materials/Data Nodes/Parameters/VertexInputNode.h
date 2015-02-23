@@ -36,5 +36,5 @@ private:
     VertexInputNode(void);
 
 
-    MAKE_NODE_READABLE_H(VertexInputNode)
+    ADD_NODE_REFLECTION_DATA_H(VertexInputNode)
 };

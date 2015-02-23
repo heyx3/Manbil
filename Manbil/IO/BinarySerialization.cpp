@@ -5,12 +5,15 @@
 
 
 
-std::string BinaryWriter::SaveData(std::string filePath)
+std::string BinaryWriter::SaveData(const std::string& filePath)
 {
     //Try to open the file for writing.
-    std::ofstream writer(filePath.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+    std::ios_base::openmode openMode = std::ios_base::out | std::ios_base::binary | std::ios_base::trunc;
+    std::ofstream writer(filePath.c_str(), openMode);
     if (writer.fail())
+    {
         return "Could not open the file for writing";
+    }
     
     //First write the number of bytes in the data array.
     if (EnsureTypeSafety)
@@ -34,103 +37,108 @@ std::string BinaryWriter::SaveData(std::string filePath)
 }
 
 
-bool BinaryWriter::WriteSimpleData(unsigned int sizeofType, BinaryDataTypes dataType, const void* pData)
+void BinaryWriter::WriteSimpleData(unsigned int sizeofType, BinaryDataTypes dataType, const void* pData)
 {
     //Insert the header describing the data type.
-    if (EnsureTypeSafety) byteData.insert(byteData.end(), dataType);
+    if (EnsureTypeSafety)
+    {
+        byteData.insert(byteData.end(), dataType);
+    }
 
     //Reserve space for the data.
     unsigned int startIndex = byteData.size();
     for (unsigned int i = 0; i < sizeofType; ++i)
+    {
         byteData.insert(byteData.end(), 0);
+    }
 
     //Set the data.
     memcpy(&byteData.data()[startIndex], pData, sizeofType);
-
-    return true;
 }
 
 #pragma warning(disable: 4100)
-bool BinaryWriter::WriteBool(bool value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(bool), BDT_BOOL, &value);
-}
-bool BinaryWriter::WriteByte(unsigned char value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(unsigned char), BDT_BYTE, &value);
-}
-bool BinaryWriter::WriteInt(int value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(int), BDT_INT, &value);
-}
-bool BinaryWriter::WriteUInt(unsigned int value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(unsigned int), BDT_UINT, &value);
-}
-bool BinaryWriter::WriteFloat(float value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(float), BDT_FLOAT, &value);
-}
-bool BinaryWriter::WriteDouble(double value, std::string name, std::string & outError)
-{
-    return WriteSimpleData(sizeof(double), BDT_DOUBLE, &value);
-}
-bool BinaryWriter::WriteString(const std::string & value, std::string name, std::string & outError)
-{
-    if (!WriteUInt(value.size(), "", outError))
-        return false;
 
+#define BINARY_WRITE_DATA(dataType, dataTypeEnum, dataTypeFuncName) \
+    void BinaryWriter::Write ## dataTypeFuncName(dataType value, const std::string& name) \
+    { \
+        WriteSimpleData(sizeof(dataType), dataTypeEnum, &value); \
+    }
+BINARY_WRITE_DATA(bool, BDT_BOOL, Bool)
+BINARY_WRITE_DATA(unsigned char, BDT_BYTE, Byte)
+BINARY_WRITE_DATA(int, BDT_INT, Int)
+BINARY_WRITE_DATA(unsigned int, BDT_UINT, UInt)
+BINARY_WRITE_DATA(float, BDT_FLOAT, Float)
+BINARY_WRITE_DATA(double, BDT_DOUBLE, Double)
+
+void BinaryWriter::WriteString(const std::string& value, const std::string& name)
+{
+    WriteUInt(value.size(), "");
     return WriteSimpleData(sizeof(char) * value.size(), BDT_STRING, value.c_str());
 }
-#pragma warning(default: 4100)
-
-bool BinaryWriter::WriteCollection(std::string name, ElementWriter writerFunc, const void* collection, unsigned int size,
-                                   std::string & outError, void *optionalData)
+void BinaryWriter::WriteBytes(const unsigned char* bytes, unsigned int nBytes, const std::string& name)
 {
-    outError.clear();
+    WriteUInt(nBytes, "");
+    return WriteSimpleData(nBytes, BDT_BYTES, bytes);
+}
 
+void BinaryWriter::WriteCollection(ElementWriter writerFunc, const std::string& name,
+                                   unsigned int bytesPerElement,
+                                   const void* collection, unsigned int collectionSize,
+                                   void* optionalData)
+{
     //Insert the header describing the data type.
-    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_COLLECTION);
+    if (EnsureTypeSafety)
+    {
+        byteData.insert(byteData.end(), BDT_COLLECTION);
+    }
 
     //Write the size of the collection.
-    if (!WriteUInt(size, "size", outError))
-        return false;
+    WriteUInt(collectionSize, "size");
 
     //Write each collection element.
-    unsigned int i = 0;
-    while (i < size && writerFunc(collection, i, this, outError, optionalData))
-        i += 1;
+    for (unsigned int i = 0; i < collectionSize; ++i)
+    {
+        const void* toWrite = ((const char*)collection) + (i * bytesPerElement);
+        writerFunc(this, toWrite, i, optionalData);
+    }
 
     //Insert the footer indicating the end of the data type.
-    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_COLLECTION_END);
-
-    return outError.empty();
+    if (EnsureTypeSafety)
+    {
+        byteData.insert(byteData.end(), BDT_COLLECTION_END);
+    }
 }
 
-bool BinaryWriter::WriteDataStructure(const ISerializable & toSerialize, std::string name, std::string & outError)
+void BinaryWriter::WriteDataStructure(const IWritable& toSerialize, const std::string& name)
 {
     //Insert the header describing the data type.
-    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_DATA_STRUCTURE);
+    if (EnsureTypeSafety)
+    {
+        byteData.insert(byteData.end(), BDT_DATA_STRUCTURE);
+    }
 
     //Write the class.
-    if (!toSerialize.WriteData(this, outError)) return false;
+    toSerialize.WriteData(this);
 
     //Insert the footer describing the end of the structure.
-    if (EnsureTypeSafety) byteData.insert(byteData.end(), BDT_DATA_STRUCTURE_END);
-
-    return true;
+    if (EnsureTypeSafety)
+    {
+        byteData.insert(byteData.end(), BDT_DATA_STRUCTURE_END);
+    }
 }
 
+#pragma warning(default: 4100)
 
 
-BinaryReader::BinaryReader(bool ensureTypeSafety, std::string filePath, std::string & outError)
+
+BinaryReader::BinaryReader(bool ensureTypeSafety, const std::string& filePath)
     : EnsureTypeSafety(ensureTypeSafety), currentDataPtr(0)
 {
     //Try to open the file.
     std::ifstream fileDat(filePath, std::ios_base::in | std::ios_base::binary);
     if (fileDat.fail())
     {
-        outError = "Couldn't open file";
+        ErrorMessage = "Couldn't open file";
         return;
     }
 
@@ -141,7 +149,8 @@ BinaryReader::BinaryReader(bool ensureTypeSafety, std::string filePath, std::str
         fileDat >> firstType;
         if (firstType != BDT_UINT)
         {
-            outError = "First data element isn't an unsigned int";
+            ErrorMessage = "First data element isn't an unsigned int";
+            fileDat.close();
             return;
         }
     }
@@ -149,7 +158,8 @@ BinaryReader::BinaryReader(bool ensureTypeSafety, std::string filePath, std::str
     fileDat.read((char*)&dataSize, sizeof(unsigned int));
     if (fileDat.fail())
     {
-        outError = "Couldn't read out size of data in file.";
+        ErrorMessage = "Couldn't read out size of data in file.";
+        fileDat.close();
         return;
     }
     
@@ -158,7 +168,8 @@ BinaryReader::BinaryReader(bool ensureTypeSafety, std::string filePath, std::str
     fileDat.read((char*)byteData.data(), byteData.size());
     if (fileDat.fail())
     {
-        outError = "Expected " + std::to_string(dataSize) + " bytes of data, but it contained " + std::to_string(fileDat.gcount());
+        ErrorMessage = "Expected " + std::to_string(dataSize) +
+                            " bytes of data, but it contained " + std::to_string(fileDat.gcount());
         fileDat.close();
         return;
     }
@@ -166,71 +177,61 @@ BinaryReader::BinaryReader(bool ensureTypeSafety, std::string filePath, std::str
     fileDat.close();
 }
 
-MaybeValue<bool> BinaryReader::ReadBool(std::string & outError)
-{
-    bool val;
-    if (!ReadSimpleData(sizeof(bool), BDT_BOOL, &val, outError))
-        return MaybeValue<bool>();
-    else return MaybeValue<bool>(val);
-}
-MaybeValue<unsigned char> BinaryReader::ReadByte(std::string & outError)
-{
-    bool val;
-    if (!ReadSimpleData(sizeof(unsigned char), BDT_BYTE, &val, outError))
-        return MaybeValue<unsigned char>();
-    else return MaybeValue<unsigned char>(val);
-}
-MaybeValue<int> BinaryReader::ReadInt(std::string & outError)
-{
-    int val;
-    if (!ReadSimpleData(sizeof(int), BDT_INT, &val, outError))
-        return MaybeValue<int>();
-    else return MaybeValue<int>(val);
-}
-MaybeValue<unsigned int> BinaryReader::ReadUInt(std::string & outError)
-{
-    unsigned int val;
-    if (!ReadSimpleData(sizeof(unsigned int), BDT_UINT, &val, outError))
-        return MaybeValue<unsigned int>();
-    else return MaybeValue<unsigned int>(val);
-}
-MaybeValue<float> BinaryReader::ReadFloat(std::string & outError)
-{
-    float val;
-    if (!ReadSimpleData(sizeof(float), BDT_FLOAT, &val, outError))
-        return MaybeValue<float>();
-    else return MaybeValue<float>(val);
-}
-MaybeValue<double> BinaryReader::ReadDouble(std::string & outError)
-{
-    double val;
-    if (!ReadSimpleData(sizeof(double), BDT_DOUBLE, &val, outError))
-        return MaybeValue<double>();
-    else return MaybeValue<double>(val);
-}
-MaybeValue<std::string> BinaryReader::ReadString(std::string & outError)
-{
-    MaybeValue<unsigned int> size = ReadUInt(outError);
-    if (!size.HasValue())
-        return MaybeValue<std::string>();
 
+#define BINARY_READ_DATA(dataType, dataTypeEnum, dataTypeName) \
+    void BinaryReader::Read ## dataTypeName(dataType& outDat) \
+    { \
+        ReadSimpleData(sizeof(dataType), dataTypeEnum, &outDat); \
+    }
+BINARY_READ_DATA(bool, BDT_BOOL, Bool)
+BINARY_READ_DATA(unsigned char, BDT_BYTE, Byte)
+BINARY_READ_DATA(int, BDT_INT, Int)
+BINARY_READ_DATA(unsigned int, BDT_UINT, UInt)
+BINARY_READ_DATA(float, BDT_FLOAT, Float)
+BINARY_READ_DATA(double, BDT_DOUBLE, Double)
+
+void BinaryReader::ReadString(std::string& outStr)
+{
+    //Get the length of the string.
+    unsigned int size;
+    ReadUInt(size);
+
+    //Read in the string data.
     std::vector<char> str;
-    str.resize(size.GetValue());
-    if (!ReadSimpleData(sizeof(char) * size.GetValue(), BDT_STRING, str.data(), outError))
-        return MaybeValue<std::string>();
-    else return MaybeValue<std::string>(std::string(str.begin(), str.end()));
+    str.resize(size);
+    ReadSimpleData(sizeof(char) * size, BDT_STRING, str.data());
+
+    outStr.clear();
+    outStr.reserve(size);
+    for (unsigned int i = 0; i < str.size(); ++i)
+    {
+        outStr += str[i];
+    }
+}
+void BinaryReader::ReadBytes(std::vector<unsigned char>& outBytes)
+{
+    //Get the number of bytes.
+    unsigned int size;
+    ReadUInt(size);
+
+    //Read in the bytes.
+    outBytes.resize(outBytes.size() + size);
+    ReadSimpleData(sizeof(unsigned char) * size, BDT_BYTES, outBytes.data());
 }
 
-bool BinaryReader::NextData(unsigned int size, void *pData)
+bool BinaryReader::NextData(unsigned int size, void* pData)
 {
-    int dataLeft = (int)byteData.size() - (int)currentDataPtr;
-    if (dataLeft < size) return false;
+    unsigned int dataLeft = byteData.size() - currentDataPtr;
+    if (dataLeft < size)
+    {
+        return false;
+    }
 
     memcpy(pData, &byteData.data()[currentDataPtr], size);
     currentDataPtr += size;
     return true;
 }
-bool BinaryReader::ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expectedType, void* outData, std::string & errorMsg)
+void BinaryReader::ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expectedType, void* outData)
 {
     //Get the type of the data.
     if (EnsureTypeSafety)
@@ -238,31 +239,30 @@ bool BinaryReader::ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expec
         BinaryDataTypes type;
         if (!NextData(1, &type))
         {
-            errorMsg = "Unexptected end of file when reading data type";
-            return false;
+            ErrorMessage = "Unexptected end of file when reading data type";
+            throw EXCEPTION_FAILURE;
         }
 
         //Make sure it is the expected type.
         if (type != expectedType)
         {
-            errorMsg = "Wrong type: expected " + DebugAssist::ToString(expectedType) +
-                " but found " + DebugAssist::ToString(type);
-            return false;
+            ErrorMessage = "Wrong type: expected " + DebugAssist::ToString(expectedType) +
+                                " but found " + DebugAssist::ToString(type);
+            throw EXCEPTION_FAILURE;
         }
     }
 
     //Read the actual data.
     if (!NextData(sizeofType, outData))
     {
-        errorMsg = "Unexpected end of file when reading data";
-        return false;
+        ErrorMessage = "Unexpected end of file when reading data";
+        throw EXCEPTION_FAILURE;
     }
-
-    return true;
 }
 
-bool BinaryReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPerElement, std::string & outError,
-                                  std::vector<unsigned char> & outData, void * optionalData)
+void BinaryReader::ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
+                                  CollectionResizer resizer, void* pCollection,
+                                  void* optionalData)
 {
     //Check the header describing the data type.
     if (EnsureTypeSafety)
@@ -270,35 +270,29 @@ bool BinaryReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPe
         BinaryDataTypes collHeader;
         if (!NextData(1, &collHeader))
         {
-            outError = "Unexpected end of file when reading data type";
-            return false;
+            ErrorMessage = "Unexpected end of file when reading data type";
+            throw EXCEPTION_FAILURE;
         }
 
         //Make sure it's the expected type.
         if (collHeader != BDT_COLLECTION)
         {
-            outError = "Wrong type: expected 'collection' but found '" + DebugAssist::ToString(collHeader);
-            return false;
+            ErrorMessage = "Wrong type: expected 'collection' but found '" +
+                                DebugAssist::ToString(collHeader);
+            throw EXCEPTION_FAILURE;
         }
     }
 
     //Read the size of the collection.
-    MaybeValue<unsigned int> readSize = ReadUInt(outError);
-    if (!readSize.HasValue())
-    {
-        outError = "Error reading collection size: " + outError;
-        return false;
-    }
-    outData.resize(readSize.GetValue() * bytesPerElement);
+    unsigned int readSize;
+    ReadUInt(readSize);
+    resizer(pCollection, readSize);
 
     //Read each collection element.
-    for (unsigned int i = 0; i < readSize.GetValue(); ++i)
+    for (unsigned int i = 0; i < readSize; ++i)
     {
-        if (!readerFunc(outData.data(), i, this, outError, optionalData))
-        {
-            outError = "Error reading collection element " + std::to_string(i) + ": " + outError;
-            return false;
-        }
+        creatorFunc(pCollection, i, optionalData);
+        readerFunc(this, pCollection, i, optionalData);
     }
 
     //Check that the data structure is at its end.
@@ -307,22 +301,21 @@ bool BinaryReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPe
         BinaryDataTypes collFooter;
         if (!NextData(1, &collFooter))
         {
-            outError = "Unexpected end of file when reading footer data";
-            return false;
+            ErrorMessage = "Unexpected end of file when reading footer data";
+            throw EXCEPTION_FAILURE;
         }
 
         //Make sure it's the expected type.
         if (collFooter != BDT_COLLECTION_END)
         {
-            outError = "Invalid footer: expected 'collectionEND' but found '" + DebugAssist::ToString(collFooter, false) + "' instead";
-            return false;
+            ErrorMessage = "Invalid footer: expected 'collectionEND' but found '" +
+                                DebugAssist::ToString(collFooter, false) + "' instead";
+            throw EXCEPTION_FAILURE;
         }
     }
-
-    return true;
 }
 
-bool BinaryReader::ReadDataStructure(ISerializable & toSerialize, std::string & outError)
+void BinaryReader::ReadDataStructure(IReadable& toSerialize)
 {
     //Check the header describing the data type.
     if (EnsureTypeSafety)
@@ -330,21 +323,18 @@ bool BinaryReader::ReadDataStructure(ISerializable & toSerialize, std::string & 
         BinaryDataTypes bdt;
         if (!NextData(1, &bdt))
         {
-            outError = "Unexpected end of file.";
-            return false;
+            ErrorMessage = "Unexpected end of file.";
+            throw EXCEPTION_FAILURE;
         }
         if (bdt != BDT_DATA_STRUCTURE)
         {
-            outError = "Expected 'DataStructure' type but got " + DebugAssist::ToString(bdt, false) + " instead";
-            return false;
+            ErrorMessage = "Expected 'DataStructure' type but got " +
+                                DebugAssist::ToString(bdt, false) + " instead";
+            throw EXCEPTION_FAILURE;
         }
     }
 
-    if (!toSerialize.ReadData(this, outError))
-    {
-        outError = "Error reading data structure: " + outError;
-        return false;
-    }
+    toSerialize.ReadData(this);
 
     //Check the footer describing the end of the data structure.
     if (EnsureTypeSafety)
@@ -352,14 +342,13 @@ bool BinaryReader::ReadDataStructure(ISerializable & toSerialize, std::string & 
         BinaryDataTypes bdt;
         if (!NextData(1, &bdt))
         {
-            outError = "Unexpected end of file.";
-            return false;
+            ErrorMessage = "Unexpected end of file.";
+            throw EXCEPTION_FAILURE;
         }
         if (bdt != BDT_DATA_STRUCTURE_END)
         {
-            outError = "Expected 'DataStructureEND' type but got '" + DebugAssist::ToString(bdt, false) + " instead";
+            ErrorMessage = "Expected 'DataStructureEND' type but got '" +
+                                DebugAssist::ToString(bdt, false) + " instead";
         }
     }
-
-    return true;
 }

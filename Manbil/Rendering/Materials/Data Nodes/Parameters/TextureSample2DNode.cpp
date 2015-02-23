@@ -1,7 +1,7 @@
 #include "TextureSample2DNode.h"
 
 
-MAKE_NODE_READABLE_CPP(TextureSample2DNode, Vector2f())
+ADD_NODE_REFLECTION_DATA_CPP(TextureSample2DNode, Vector2f())
 
 
 std::string TextureSample2DNode::GetOutputName(unsigned int index) const
@@ -66,7 +66,7 @@ TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string sampl
 
 void TextureSample2DNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
 {
-    uniforms.Texture2DUniforms[SamplerName] = UniformSampler2DValue(SamplerName);
+    uniforms.Texture2Ds[SamplerName] = UniformValueSampler2D(SamplerName);
 }
 void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 {
@@ -83,31 +83,19 @@ void TextureSample2DNode::AssertMyInputsValid(void) const
 }
 
 
+#pragma warning(disable: 4100)
 std::string TextureSample2DNode::GetInputDescription(unsigned int index) const
 {
     return "Tex Coord 2D";
 }
+#pragma warning(default: 4100)
 
 
-bool TextureSample2DNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void TextureSample2DNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(SamplerName, "samplerUniformName", outError))
-    {
-        outError = "Error writing sampler uniform name '" + SamplerName + "': " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(SamplerName, "Sampler name uniform");
 }
-bool TextureSample2DNode::ReadExtraData(DataReader * reader, std::string & outError)
+void TextureSample2DNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> trySName = reader->ReadString(outError);
-    if (!trySName.HasValue())
-    {
-        outError = "Error reading sampler name: " + outError;
-        return false;
-    }
-    SamplerName = trySName.GetValue();
-
-    return true;
+    reader->ReadString(SamplerName);
 }

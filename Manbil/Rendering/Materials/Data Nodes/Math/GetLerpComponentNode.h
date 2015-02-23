@@ -29,5 +29,5 @@ private:
     const DataLine & GetValueInput(void) const { return GetInputs()[2]; }
 
 
-    MAKE_NODE_READABLE_H(GetLerpComponentNode)
+    ADD_NODE_REFLECTION_DATA_H(GetLerpComponentNode)
 };

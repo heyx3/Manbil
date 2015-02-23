@@ -1,7 +1,7 @@
 #include "DivideNode.h"
 
 
-MAKE_NODE_READABLE_CPP(DivideNode, 1.0f, 1.0f)
+ADD_NODE_REFLECTION_DATA_CPP(DivideNode, 1.0f, 1.0f)
 
 
 unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & baseValue)
@@ -16,6 +16,7 @@ unsigned int GetMax(const std::vector<DataLine> & toDivide, const DataLine & bas
 }
 
 
+#pragma warning(disable: 4100)
 unsigned int DivideNode::GetOutputSize(unsigned int index) const
 {
     return GetMax(std::vector<DataLine>(GetInputs().begin() + 1, GetInputs().end()), GetInputs()[0]);
@@ -24,6 +25,7 @@ std::string DivideNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_divided";
 }
+#pragma warning(default: 4100)
 
 DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivide, std::string name)
     : DataNode(MakeVector(baseValue, 0, toDivide), name)
@@ -32,7 +34,7 @@ DivideNode::DivideNode(DataLine baseValue, const std::vector<DataLine> & toDivid
 
 void DivideNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (unsigned int i = 0; i < GetInputs().size(); ++i)

@@ -4,15 +4,18 @@
 #include "../Rendering/GUI/GUI Elements/GUIFormattedPanel.h"
 
 
-GUIElementPtr EditorObject::AddDescription(EditorMaterialSet & set, GUIElementPtr element) const
+
+GUIElementPtr EditorObject::AddDescription(EditorMaterialSet& set, GUIElementPtr element,
+                                           std::string& outError) const
 {
     //First try to create the font slot to render the label.
-    if (!set.TextRender.CreateTextRenderSlots(set.FontID, DescriptionLabel.TextRenderWidth,
+    std::string outErr;
+    if (!set.TextRender.CreateTextRenderSlots(set.FontID, outErr, DescriptionLabel.TextRenderWidth,
                                               set.TextRenderSpaceHeight, false,
                                               TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
     {
-        ErrorMsg = "Error creating text render slot for description '" +
-                       DescriptionLabel.Text + "': " + set.TextRender.GetError();
+        outError = "Error creating text render slot for description '" +
+                        DescriptionLabel.Text + "': " + outErr;
         return GUIElementPtr(0);
     }
     TextRenderer::FontSlot labelSlot(set.FontID, set.TextRender.GetNumbSlots(set.FontID) - 1);
@@ -20,8 +23,7 @@ GUIElementPtr EditorObject::AddDescription(EditorMaterialSet & set, GUIElementPt
     //Next try to render the text.
     if (!set.TextRender.RenderString(labelSlot, DescriptionLabel.Text))
     {
-        ErrorMsg = "Error rendering '" + DescriptionLabel.Text + "' into the description label: " +
-                       set.TextRender.GetError();
+        outError = "Error rendering '" + DescriptionLabel.Text + "' into the description label.";
         return GUIElementPtr(0);
     }
 

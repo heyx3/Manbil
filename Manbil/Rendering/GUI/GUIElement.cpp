@@ -1,11 +1,34 @@
 #include "GUIElement.h"
 
 #include "GUIMaterials.h"
-#include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Materials/Data Nodes/DataNodes.hpp"
 
 
-DrawingQuad * GUIElement::quad = 0;
 
+bool GUIElement::UsesTimeLerp(void) const
+{
+    return Params.Floats.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.Floats.end();
+}
+
+float GUIElement::GetTimeLerp(void) const
+{
+    return Params.Floats.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second.Value[0];
+}
+void GUIElement::SetTimeLerp(float newVal)
+{
+    Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp].SetValue(newVal);
+}
+
+void GUIElement::SetColor(Vector4f newCol)
+{
+    Params.Floats[GUIMaterials::QuadDraw_Color].SetValue(newCol);
+}
+
+void GUIElement::ScaleBy(Vector2f scaleAmount)
+{
+    DidBoundsChange = true;
+    scale.MultiplyComponents(scaleAmount);
+}
 
 void GUIElement::SetBounds(Box2D newBounds)
 {
@@ -33,20 +56,32 @@ void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
 
 Vector4f GUIElement::GetColor(void) const
 {
-    auto loc = Params.FloatUniforms.find(GUIMaterials::QuadDraw_Color);
-    if (loc == Params.FloatUniforms.end()) return Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-    else return *(Vector4f*)&loc->second.Value;
+    auto loc = Params.Floats.find(GUIMaterials::QuadDraw_Color);
+    if (loc == Params.Floats.end())
+    {
+        return Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    else
+    {
+        return *(Vector4f*)&loc->second.Value;
+    }
 }
 
 void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
     DidBoundsChange = false;
 
-    if (OnUpdate != 0) OnUpdate(this, relativeMouse, OnUpdate_Data);
+    if (OnUpdate != 0)
+    {
+        OnUpdate(this, relativeMouse, OnUpdate_Data);
+    }
 
     this->CustomUpdate(elapsed, relativeMouse);
 
-    if (!UsesTimeLerp()) return;
+    if (!UsesTimeLerp())
+    {
+        return;
+    }
 
 
     //Update the time lerp value.
@@ -81,7 +116,7 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
     SetTimeLerp(timeLerp);
 }
 
-std::string GUIElement::RenderChild(GUIElement* child, float elapsedTime, const RenderInfo& info) const
+void GUIElement::RenderChild(GUIElement* child, float elapsedTime, const RenderInfo& info) const
 {
     Vector2f myPos = GetPos();
     Vector4f myCol = GetColor();
@@ -96,13 +131,11 @@ std::string GUIElement::RenderChild(GUIElement* child, float elapsedTime, const 
     child->SetColor(oldCol.ComponentProduct(myCol));
     
     child->DidBoundsChange = oldDidChange;
-    std::string err = child->Render(elapsedTime, info);
+    child->Render(elapsedTime, info);
     oldDidChange = child->DidBoundsChange;
 
     child->SetPosition(oldPos);
     child->Depth = oldDepth;
     child->SetColor(oldCol);
     child->DidBoundsChange = oldDidChange;
-
-    return err;
 }

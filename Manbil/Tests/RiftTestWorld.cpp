@@ -3,11 +3,12 @@
 
 #include "../Rendering/PrimitiveGenerator.h"
 #include "../DebugAssist.h"
+#include "../Rendering/Materials/MaterialData.h"
 
 
 
 RiftTestWorld::RiftTestWorld(void)
-    : objectMat(0), quad(0), quadMat(0), cube(TriangleList),
+    : objectMat(0), quadMat(0),
       floorTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true),
       obj1Tex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true),
       obj2Tex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true),
@@ -24,10 +25,6 @@ RiftTestWorld::RiftTestWorld(void)
       obj1T(Vector3f(3.0f, 3.0f, 1.5f), Vector3f(), Vector3f(0.25f, 0.25f, 0.25f)),
       obj2T(Vector3f(-2.0f, -2.0f, 1.5f), Vector3f(), Vector3f(0.25f, 0.25f, 0.25f)),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
-{
-
-}
-RiftTestWorld::~RiftTestWorld(void)
 {
 
 }
@@ -64,13 +61,13 @@ void RiftTestWorld::InitializeTextures(void)
     eyeColorTex2.Create();
     eyeDepthTex.Create();
 
-    eyeRendTarget = RenderTargets->CreateRenderTarget(eyeDepthTex.GetPixelSize());
+    eyeRendTarget = RenderTargets.CreateRenderTarget(eyeDepthTex.GetPixelSize(), err);
     if (!Assert(eyeRendTarget != RenderTargetManager::ERROR_ID,
-                "Error creating eye render target", RenderTargets->GetError()))
+                "Error creating eye render target", err))
     {
         return;
     }
-    (*RenderTargets)[eyeRendTarget]->SetDepthAttachment(RenderTargetTex(&eyeDepthTex), false);
+    RenderTargets[eyeRendTarget]->SetDepthAttachment(RenderTargetTex(&eyeDepthTex), false);
 }
 void RiftTestWorld::InitializeMaterials(void)
 {
@@ -106,13 +103,17 @@ void main()        \n\
 }";
 
     //Initialize parameters.
-    quadParams.Texture2DUniforms["u_tex"] = UniformSampler2DValue(0, "u_tex");
+    quadParams.Texture2Ds["u_tex"] = UniformValueSampler2D(0, "u_tex");
 
     //Create the material.
-    quadMat = new Material(vertShader, fragShader, quadParams, DrawingQuad::GetAttributeData(),
-                           RenderingModes::RM_Opaque);
-    if (!Assert(quadMat->GetErrorMsg().empty(), "Error creating quad mat", quadMat->GetErrorMsg()))
+    std::string err;
+    quadMat = new Material(vertShader, fragShader, quadParams,
+                           DrawingQuad::GetVertexInputData(), BlendMode::GetOpaque(),
+                           err);
+    if (!Assert(err.empty(), "Error creating quad mat", err))
+    {
         return;
+    }
 
     #pragma endregion
     
@@ -179,60 +180,58 @@ void main()            \n\
 
     //Initialize parameters.
     UniformDictionary params;
-    params.FloatUniforms["u_ambientLight"] = UniformValueF(ambientLight, "u_ambientLight");
-    params.FloatUniforms["u_diffuseLight"] = UniformValueF(diffuseLight, "u_diffuseLight");
-    params.FloatUniforms["u_specularLight"] = UniformValueF(specLight, "u_specularLight");
-    params.FloatUniforms["u_specularIntensity"] = UniformValueF(specIntensity, "u_specularIntensity");
-    params.FloatUniforms["u_lightCol"] = UniformValueF(lightCol, "u_lightCol");
-    params.FloatUniforms["u_lightDir"] = UniformValueF(lightDir, "u_lightDir");
-    params.FloatUniforms["u_texScale"] = UniformValueF(1.0f, "u_texScale");
-    params.Texture2DUniforms["u_tex"] = UniformSampler2DValue(0, "u_tex");
+    params.Floats["u_ambientLight"] = UniformValueF(ambientLight, "u_ambientLight");
+    params.Floats["u_diffuseLight"] = UniformValueF(diffuseLight, "u_diffuseLight");
+    params.Floats["u_specularLight"] = UniformValueF(specLight, "u_specularLight");
+    params.Floats["u_specularIntensity"] = UniformValueF(specIntensity, "u_specularIntensity");
+    params.Floats["u_lightCol"] = UniformValueF(lightCol, "u_lightCol");
+    params.Floats["u_lightDir"] = UniformValueF(lightDir, "u_lightDir");
+    params.Floats["u_texScale"] = UniformValueF(1.0f, "u_texScale");
+    params.Texture2Ds["u_tex"] = UniformValueSampler2D(0, "u_tex");
 
     //Create the material.
     objectMat = new Material(vertShader, fragShader, params,
-                             VertexPosTex1Normal::GetAttributeData(), RenderingModes::RM_Opaque);
-    if (!Assert(objectMat->GetErrorMsg().empty(),
-                "Error creating object material", objectMat->GetErrorMsg()))
+                             VertexPosUVNormal::GetAttributeData(),
+                             BlendMode::GetOpaque(), err);
+    if (!Assert(err.empty(), "Error creating object material", err))
     {
         return;
     }
 
     floorParams = params;
-    floorParams.Texture2DUniforms["u_tex"].Texture = floorTex.GetTextureHandle();
-    floorParams.FloatUniforms["u_texScale"].SetValue(4.0f);
+    floorParams.Texture2Ds["u_tex"].Texture = floorTex.GetTextureHandle();
+    floorParams.Floats["u_texScale"].SetValue(4.0f);
     obj1Params = params;
-    obj1Params.Texture2DUniforms["u_tex"].Texture = obj1Tex.GetTextureHandle();
+    obj1Params.Texture2Ds["u_tex"].Texture = obj1Tex.GetTextureHandle();
     obj2Params = params;
-    obj2Params.Texture2DUniforms["u_tex"].Texture = obj2Tex.GetTextureHandle();
+    obj2Params.Texture2Ds["u_tex"].Texture = obj2Tex.GetTextureHandle();
 
     #pragma endregion
 }
 void RiftTestWorld::InitializeObjects(void)
 {
-    std::vector<VertexPosTex1Normal> verts;
+    DrawingQuad::InitializeQuad();
+
+
+    std::vector<VertexPosUVNormal> verts;
     std::vector<unsigned int> indices;
     PrimitiveGenerator::GenerateCube(verts, indices, false, false);
 
-    RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, verts.data(), verts.size(),
-                                          RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size(),
-                                         RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    VertexIndexData cubeDat(verts.size(), vbo, indices.size(), ibo);
-    cube.SubMeshes.insert(cube.SubMeshes.end(), cubeDat);
-
-
-    quad = new DrawingQuad();
+    cube.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
+    MeshData& dat = cube.SubMeshes[0];
+    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
+    dat.SetIndexData(indices, MeshData::BUF_STATIC);
 }
 
 void RiftTestWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
-    if (IsGameOver()) return;
-
-    std::string err = InitializeStaticSystems(true, false, true);
-    if (!Assert(err.empty(), "Error initializing systems", err))
+    if (IsGameOver())
+    {
         return;
+    }
+
+    OculusDevice::InitializeSystem();
 
 
     GetWindow()->setVerticalSyncEnabled(false);
@@ -241,7 +240,10 @@ void RiftTestWorld::InitializeWorld(void)
     InitializeTextures();
     InitializeMaterials();
     InitializeObjects();
-    if (IsGameOver()) return;
+    if (IsGameOver())
+    {
+        return;
+    }
 
 
     baseCam.Window = GetWindow();
@@ -343,15 +345,16 @@ void RiftTestWorld::InitializeWorld(void)
 }
 void RiftTestWorld::OnWorldEnd(void)
 {
-    DeleteAndSetToNull(objectMat);
-    DeleteAndSetToNull(quadMat);
+    DrawingQuad::DestroyQuad();
 
-    DeleteAndSetToNull(quad);
+    delete objectMat;
+    objectMat = 0;
+    delete quadMat;
+    quadMat = 0;
 
     floorTex.DeleteIfValid();
     obj1Tex.DeleteIfValid();
     obj2Tex.DeleteIfValid();
-
 
     eyeColorTex1.DeleteIfValid();
     eyeColorTex2.DeleteIfValid();
@@ -359,8 +362,7 @@ void RiftTestWorld::OnWorldEnd(void)
 
     ovrHmd_Destroy(hmd);
 
-
-    DestroyStaticSystems(true, false, true);
+    OculusDevice::DestroySystem();
 }
 
 void RiftTestWorld::UpdateWorld(float elapsedSeconds)
@@ -378,49 +380,36 @@ void RiftTestWorld::UpdateWorld(float elapsedSeconds)
     for (int i = 0; i < 3; ++i)
     {
         UniformDictionary& d = (i == 0 ? floorParams : (i == 1 ? obj1Params : obj2Params));
-        d.FloatUniforms["u_ambientLight"].SetValue(ambientLight);
-        d.FloatUniforms["u_diffuseLight"].SetValue(diffuseLight);
-        d.FloatUniforms["u_specularLight"].SetValue(specLight);
-        d.FloatUniforms["u_specularIntensity"].SetValue(specIntensity);
-        d.FloatUniforms["u_lightCol"].SetValue(lightCol);
-        d.FloatUniforms["u_lightDir"].SetValue(lightDir);
+        d.Floats["u_ambientLight"].SetValue(ambientLight);
+        d.Floats["u_diffuseLight"].SetValue(diffuseLight);
+        d.Floats["u_specularLight"].SetValue(specLight);
+        d.Floats["u_specularIntensity"].SetValue(specIntensity);
+        d.Floats["u_lightCol"].SetValue(lightCol);
+        d.Floats["u_lightDir"].SetValue(lightDir);
     }
 }
 
 void RiftTestWorld::RenderWorldGeometry(const RenderInfo& info)
 {
     ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.2f, 0.0f)).ClearScreen();
-    RenderingState(true, true, RenderingState::C_NONE).EnableState();
-
-    std::vector<const Mesh*> toRender;
-    toRender.insert(toRender.end(), &cube);
+    RenderingState(RenderingState::C_NONE).EnableState();
 
     //Floor.
     cube.Transform = floorT;
-    if (!Assert(objectMat->Render(info, toRender, floorParams),
-                "Error rendering floor", objectMat->GetErrorMsg()))
-    {
-        return;
-    }
+    objectMat->Render(info, &cube, floorParams);
+
     //Object 1.
     cube.Transform = obj1T;
-    if (!Assert(objectMat->Render(info, toRender, obj1Params),
-                "Error rendering obj1", objectMat->GetErrorMsg()))
-    {
-        return;
-    }
+    objectMat->Render(info, &cube, obj1Params);
+
     //Object 2.
     cube.Transform = obj2T;
-    if (!Assert(objectMat->Render(info, toRender, obj2Params),
-                "Error rendering obj2", objectMat->GetErrorMsg()))
-    {
-        return;
-    }
+    objectMat->Render(info, &cube, obj2Params);
+
 }
 void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 {
-    Matrix4f worldM, viewM, projM;
-    worldM.SetAsIdentity();
+    Matrix4f viewM, projM;
 
     
     //Update OVR/camera state and render.
@@ -429,11 +418,10 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
                   "Vector3f should be the same size as ovrVector3f!");
 
     ovrVector3f useHmdToEyeViewOffset[2] = { hmdEyeSettings[0].HmdToEyeViewOffset,
-			                                 hmdEyeSettings[1].HmdToEyeViewOffset};
+			                                 hmdEyeSettings[1].HmdToEyeViewOffset };
     ovrPosef eyeRenderPose[2];
     ovrHmd_GetEyePoses(hmd, 0, useHmdToEyeViewOffset, eyeRenderPose, 0);
 
-    TransformObject dummy;
     for (unsigned int eyeIndex = 0; eyeIndex < ovrEye_Count; ++eyeIndex)
     {
         //Get eye data.
@@ -441,7 +429,7 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
         ovrEyeType eye = hmd->EyeRenderOrder[eyeIndex];
 
         MTexture2D& rendTex = (eyeIndex == 0 ? eyeColorTex1 : eyeColorTex2);
-        (*RenderTargets)[eyeRendTarget]->SetColorAttachment(RenderTargetTex(&rendTex), true);
+        RenderTargets[eyeRendTarget]->SetColorAttachment(RenderTargetTex(&rendTex), true);
 
         ovrPosef& eyePose = eyeRenderPose[eye];
 
@@ -465,17 +453,12 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
 
         //Render the world.
-        (*RenderTargets)[eyeRendTarget]->EnableDrawingInto();
+        RenderTargets[eyeRendTarget]->EnableDrawingInto();
         glViewport(0, 0, rendTex.GetWidth(), rendTex.GetHeight());
-        RenderInfo info(this, (Camera*)&eyeCam, &dummy, &worldM, &viewM, &projM);
+        RenderInfo info(GetTotalElapsedSeconds(), &eyeCam, &viewM, &projM);
         RenderWorldGeometry(info);
-        (*RenderTargets)[eyeRendTarget]->DisableDrawingInto();
+        RenderTargets[eyeRendTarget]->DisableDrawingInto();
     }
-
-
-    std::string generalError = GetCurrentRenderingError();
-    if (!Assert(generalError.empty(), "General rendering error", generalError))
-        return;
 
 
     //Output rendered eye data to the SDK for display.

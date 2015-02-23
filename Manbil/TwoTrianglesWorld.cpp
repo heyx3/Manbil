@@ -12,15 +12,20 @@
 //Debug printing stuff.
 namespace TTWPrints
 {
-	void Pause(void) { std::cout << "Enter any character to continue.\n"; std::string dummy; std::getline(std::cin, dummy); }
+	void Pause(void)
+    {
+        std::cout << "Enter any character to continue.\n";
+        std::string dummy;
+        std::getline(std::cin, dummy);
+    }
 	void PrintData(std::string datIntro, std::string dat, bool useLineBreak = true)
 	{
 		std::cout << datIntro << ": " << dat;
 		if (useLineBreak) std::cout << "\n";
 	}
-	bool PrintRenderError(const char * errorIntro)
+	bool PrintRenderError(const char* errorIntro)
 	{
-		const char * error = GetCurrentRenderingError();
+		const char* error = GetCurrentRenderingError();
 		if (strcmp(error, "") != 0)
 		{
 			PrintData(errorIntro, error);
@@ -41,22 +46,22 @@ typedef TwoTrianglesWorld TTW;
 #pragma region Material and quad
 
 
-Material * mat = 0;
-DrawingQuad * quad = 0;
+Material* mat = 0;
 UniformDictionary params;
 std::string shaderPath = "";
 
-void CreateQuad(void)
+bool CreateMaterial(const std::string& vs, const std::string& fs, UniformDictionary& uniforms,
+                    std::string& outErr)
 {
-    if (quad != 0) delete quad;
-    quad = new DrawingQuad();
-}
-bool CreateMaterial(const std::string & vs, const std::string & fs, UniformDictionary & uniforms)
-{
-    if (mat != 0) delete mat;
-    mat = new Material(vs, fs, uniforms, DrawingQuad::GetAttributeData(), RenderingModes::RM_Opaque);
+    if (mat != 0)
+    {
+        delete mat;
+    }
 
-    return !mat->HasError();
+    mat = new Material(vs, fs, uniforms, DrawingQuad::GetVertexInputData(),
+                       BlendMode::GetOpaque(), outErr);
+
+    return outErr.empty();
 }
 
 //Continuously asks the user for a valid shader and tries to create the material.
@@ -69,19 +74,19 @@ void GetCreateMaterial(bool askForFile = true)
     typedef MaterialConstants MC;
 
     //The vertex shader is a very simple, constant program.
-    ShaderInOutAttributes vertIns = DrawingQuad::GetAttributeData();
+    RenderIOAttributes vertIns = DrawingQuad::GetVertexInputData();
     MaterialUsageFlags vertFlags;
     vs = MC::GetVertexHeader("out vec2 in_UV;\n", vertIns, vertFlags) + "\n\n\
 void main()                              \n\
 {                                        \n\
-    gl_Position = vec4(" + vertIns.GetAttributeName(0) + ", 1.0);  \n\
-    in_UV = " + vertIns.GetAttributeName(1) + ";\n\
+    gl_Position = vec4(" + vertIns.GetAttribute(0).Name + ", 1.0);  \n\
+    in_UV = " + vertIns.GetAttribute(1).Name + ";\n\
 }";
     //Add any custom QuadWorld uniforms.
-    uniforms.FloatUniforms[TTW::ShaderElapsedName].SetValue(0.0f);
-    uniforms.FloatUniforms[TTW::ShaderElapsedName].Name = TTW::ShaderElapsedName;
-    uniforms.Texture2DUniforms[TTW::CustomSamplerName].Name = TTW::CustomSamplerName;
-    uniforms.Texture2DUniforms[TTW::NoiseSamplerName].Name = TTW::NoiseSamplerName;
+    uniforms.Floats[TTW::ShaderElapsedName].SetValue(0.0f);
+    uniforms.Floats[TTW::ShaderElapsedName].Name = TTW::ShaderElapsedName;
+    uniforms.Texture2Ds[TTW::CustomSamplerName].Name = TTW::CustomSamplerName;
+    uniforms.Texture2Ds[TTW::NoiseSamplerName].Name = TTW::NoiseSamplerName;
 
     bool first = true;
 
@@ -96,7 +101,9 @@ void main()                              \n\
             shaderPath = "";
             std::getline(std::cin, shaderPath);
             if (shaderPath.find(".txt") == std::string::npos)
+            {
                 shaderPath += ".txt";
+            }
         }
         first = false;
 
@@ -129,24 +136,27 @@ uniform sampler2D " + TTW::CustomSamplerName + ";\n\
 uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
         std::string line = "";
         while (std::getline(reader, line))
+        {
             fs += line + "\n";
+        }
         reader.close();
 
         //Try creating the material.
-        if (!CreateMaterial(vs, fs, uniforms))
+        std::string err;
+        if (!CreateMaterial(vs, fs, uniforms, err))
         {
-            PrintData("Error compiling material", mat->GetErrorMsg());
+            PrintData("Error compiling material", err);
             std::cout << "\n\n";
             Pause();
             std::cout << "\n\n\n\n\n\n";
             continue;
         }
 
-        RenderObjHandle customTexHandle = params.Texture2DUniforms[TTW::CustomSamplerName].Texture;
-        RenderObjHandle noiseTexHandle = params.Texture2DUniforms[TTW::NoiseSamplerName].Texture;
+        RenderObjHandle customTexHandle = params.Texture2Ds[TTW::CustomSamplerName].Texture;
+        RenderObjHandle noiseTexHandle = params.Texture2Ds[TTW::NoiseSamplerName].Texture;
         params.AddUniforms(uniforms, true);
-        params.Texture2DUniforms[TTW::CustomSamplerName].Texture = customTexHandle;
-        params.Texture2DUniforms[TTW::NoiseSamplerName].Texture = noiseTexHandle;
+        params.Texture2Ds[TTW::CustomSamplerName].Texture = customTexHandle;
+        params.Texture2Ds[TTW::NoiseSamplerName].Texture = noiseTexHandle;
 
         valid = true;
     }
@@ -155,9 +165,9 @@ uniform sampler2D " + TTW::NoiseSamplerName + ";\n\n\n";
 //Gets whether or not "mat" uses the custom user texture.
 bool DoesMatUseCustomTex(void)
 {
-    const std::vector<UniformList::Uniform> & uniforms = mat->GetUniforms().Texture2DUniforms;
+    const std::vector<UniformList::Uniform>& uniforms = mat->GetUniforms().Texture2Ds;
     auto location = std::find_if(uniforms.begin(), uniforms.end(),
-                                 [](const UniformList::Uniform & unf)
+                                 [](const UniformList::Uniform& unf)
                                  {
                                      return unf.Name == TTW::CustomSamplerName;
                                  });
@@ -182,22 +192,29 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
     //Get the noise texture.
     
     if (!noiseTex.IsValidTexture())
+    {
         noiseTex.Create();
+    }
     std::string error;
     if (!noiseTex.SetDataFromFile("Content/Textures/NoiseTex.png", error))
     {
         PrintData("Error loding 'Content/Textures/NoiseTex.png'", error);
         Pause();
     }
-    params.Texture2DUniforms[TTW::NoiseSamplerName].Texture = noiseTex.GetTextureHandle();
+    params.Texture2Ds[TTW::NoiseSamplerName].Texture = noiseTex.GetTextureHandle();
 
 
     //Ask the user for a custom texture.
 
-    if (!getUserTex) return;
+    if (!getUserTex)
+    {
+        return;
+    }
 
     if (!customTex.IsValidTexture())
+    {
         customTex.Create();
+    }
 
     bool valid = false;
     bool first = true;
@@ -229,7 +246,8 @@ void LoadTextures(bool getUserTex, bool askUserTexPath = true)
         valid = true;
     }
 
-    params.Texture2DUniforms[TTW::CustomSamplerName] = UniformSampler2DValue(customTex.GetTextureHandle(), TTW::CustomSamplerName);
+    params.Texture2Ds[TTW::CustomSamplerName] = UniformValueSampler2D(customTex.GetTextureHandle(),
+                                                                      TTW::CustomSamplerName);
 }
 
 
@@ -246,14 +264,19 @@ float shaderLoadedTime = 0.0f;
 bool isInFocus = true;
 
 
-void SetUpInput(InputManager<unsigned int> & input)
+void SetUpInput(InputManager<unsigned int>& input)
 {
-    input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num1, BoolInput::JustPressed)));
-    input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num2, BoolInput::JustPressed)));
-    input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num3, BoolInput::JustPressed)));
-    input.AddBoolInput(4, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num4, BoolInput::JustPressed)));
+    input.AddBoolInput(1, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num1,
+                                                                         BoolInput::JustPressed)));
+    input.AddBoolInput(2, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num2,
+                                                                         BoolInput::JustPressed)));
+    input.AddBoolInput(3, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num3,
+                                                                         BoolInput::JustPressed)));
+    input.AddBoolInput(4, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Num4,
+                                                                         BoolInput::JustPressed)));
 
-    input.AddBoolInput(5, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape, BoolInput::JustPressed)));
+    input.AddBoolInput(5, BoolInputPtr((BoolInput*)new KeyboardBoolInput(KeyboardBoolInput::Key::Escape,
+                                                                         BoolInput::JustPressed)));
 }
 
 
@@ -266,28 +289,28 @@ TTW::TwoTrianglesWorld(void)
     : SFMLOpenGLWorld(windowSize.x, windowSize.y, sf::ContextSettings(24, 0, 0, 4, 1))
 {
     mat = 0;
-    quad = 0;
 }
 
 void TTW::InitializeWorld(void)
 {
     mat = 0;
-    quad = 0;
 
     SetUpInput(Input);
 
 
 	//GL/SFML/window initialization.
-
 	SFMLOpenGLWorld::InitializeWorld();
-    InitializeStaticSystems(false, false, true);
-	if (IsGameOver()) return;
+    if (IsGameOver())
+    {
+        return;
+    }
+
 
 	GetWindow()->setVerticalSyncEnabled(true);
 	GetWindow()->setMouseCursorVisible(true);
 
     //Create the quad and the material.
-    CreateQuad();
+    DrawingQuad::InitializeQuad();
     GetCreateMaterial();
 
     //Set up textures.
@@ -299,19 +322,14 @@ void TTW::InitializeWorld(void)
     worldCam.SetRotation(Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0));
     worldCam.Window = GetWindow();
 
-    RenderingState(false, false, RenderingState::Cullables::C_BACK).EnableState();
+    RenderingState(RenderingState::C_BACK).EnableState();
 }
 
 void TTW::OnWorldEnd(void)
 {
-	DeleteAndSetToNull(mat);
-    DeleteAndSetToNull(quad);
-    DestroyStaticSystems(false, false, true);
-}
-TTW::~TwoTrianglesWorld(void)
-{
-    DeleteAndSetToNull(mat);
-    DeleteAndSetToNull(quad);
+    delete mat;
+    noiseTex.DeleteIfValid();
+    DrawingQuad::DestroyQuad();
 }
 
 void TTW::OnInitializeError(std::string errorMsg)
@@ -324,23 +342,30 @@ void TTW::OnInitializeError(std::string errorMsg)
 }
 
 
-void TTW::OnOtherWindowEvent(sf::Event & event)
+void TTW::OnOtherWindowEvent(sf::Event& event)
 {
-	if (event.type == sf::Event::LostFocus)
-		isInFocus = false;
-	if (event.type == sf::Event::GainedFocus)
-		isInFocus = true;
+    if (event.type == sf::Event::LostFocus)
+    {
+        isInFocus = false;
+    }
+    if (event.type == sf::Event::GainedFocus)
+    {
+        isInFocus = true;
+    }
 }
 
 
 void TTW::UpdateWorld(float elapsedSeconds)
 {
     //Update camera.
-    if (isInFocus) worldCam.Update(elapsedSeconds);
+    if (isInFocus)
+    {
+        worldCam.Update(elapsedSeconds);
+    }
 
     //Update time.
     shaderLoadedTime += elapsedSeconds;
-    params.FloatUniforms[TTW::ShaderElapsedName].SetValue(shaderLoadedTime);
+    params.Floats[TTW::ShaderElapsedName].SetValue(shaderLoadedTime);
 
     //Reload materials/textures based on player input.
     if (isInFocus)
@@ -368,20 +393,13 @@ void TTW::UpdateWorld(float elapsedSeconds)
 
 void TTW::RenderOpenGL(float elapsedSeconds)
 {
-	Matrix4f id;
-	id.SetAsIdentity();
-    TransformObject trans;
-    RenderInfo info(this, &worldCam, &trans, &id, &id, &id);
+	Matrix4f identity;
+    RenderInfo info(GetTotalElapsedSeconds(), &worldCam, &identity, &identity);
 
+    ScreenClearer().ClearScreen();
 
-	ScreenClearer().ClearScreen();
-    if (!quad->Render(info, params, *mat))
-    {
-        PrintData("Error rendering quad", mat->GetErrorMsg());
-        std::cout << "\n\n\n";
-        Pause();
-        std::cout << "\n\n\n\n\n";
-    }
+    RenderingState(RenderingState::C_BACK).EnableState();
+    DrawingQuad::GetInstance()->Render(info, params, *mat);
 }
 
 void TTW::OnWindowResized(unsigned int newWidth, unsigned int newHeight)

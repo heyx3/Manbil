@@ -6,16 +6,17 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include "Rendering/GUI/TextRenderer.h"
-#include "Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "Rendering/Materials/Data Nodes/DataNodes.hpp"
 #include "Rendering/Water/WaterRendering.h"
 #include "Rendering/PostProcessing/PostProcessData.h"
 
 //The following #include statements are just for "InitializeStaticSystems".
-#include "Oculus Rift/OculusDevice.h"
-#include "Rendering/GUI/TextRenderer.h"
-#include "Rendering/Helper Classes/DrawingQuad.h"
+//#include "Oculus Rift/OculusDevice.h"
+//#include "Rendering/GUI/TextRenderer.h"
+//#include "Rendering/Helper Classes/DrawingQuad.h"
 
 
+/*
 std::string SFMLOpenGLWorld::InitializeStaticSystems(bool rift, bool textRenderer, bool drawingQuad)
 {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -56,18 +57,14 @@ void SFMLOpenGLWorld::DestroyStaticSystems(bool rift, bool textRend, bool drawQu
         DrawingQuad::DestroyQuadData();
     }
 }
-
+*/
 
 SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings)
     : SFMLWorld(windowWidth, windowHeight, settings)
 {
-    RenderTargets = new RenderTargetManager();
-    TextRender = new TextRenderer(*RenderTargets);
 }
 SFMLOpenGLWorld::~SFMLOpenGLWorld(void)
 {
-    delete TextRender;
-    delete RenderTargets;
 }
 
 void SFMLOpenGLWorld::InitializeWorld(void)
@@ -87,4 +84,9 @@ void SFMLOpenGLWorld::RenderWorld(float elapsedSeconds)
 {
     RenderOpenGL(elapsedSeconds);
     GetWindow()->display();
+}
+
+void SFMLOpenGLWorld::OnInitializeError(std::string errorMsg)
+{
+    std::cout << "Initialization error: " << errorMsg.c_str() << "\n";
 }

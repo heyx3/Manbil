@@ -1,7 +1,7 @@
 #include "CustomExpressionNode.h"
 
 
-MAKE_NODE_READABLE_CPP(CustomExpressionNode, "1.0f", 1)
+ADD_NODE_REFLECTION_DATA_CPP(CustomExpressionNode, "1.0f", 1)
 
 
 CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSize, std::string name)
@@ -34,7 +34,7 @@ CustomExpressionNode::CustomExpressionNode(std::string expr, unsigned int outSiz
 
 void CustomExpressionNode::WriteMyOutputs(std::string & outCode) const
 {
-    outCode += "\t" + VectorF(expressionOutputSize).GetGLSLType() + " " +
+    outCode += "\t" + VectorF(expressionOutputSize, 0).GetGLSLType() + " " +
                     GetOutputName(0) + " = " + InterpretExpression() + ";\n";
 }
 
@@ -66,38 +66,13 @@ std::string CustomExpressionNode::InterpretExpression() const
 }
 
 
-bool CustomExpressionNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void CustomExpressionNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(expression, "GLSL Expression", outError))
-    {
-        outError = "Error writing out the expression value '" + expression + "': " + outError;
-        return false;
-    }
-    if (!writer->WriteUInt(expressionOutputSize, "Output Size", outError))
-    {
-        outError = "Error writing out the expression's output size " + ToString(expressionOutputSize) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(expression, "GLSL expression");
+    writer->WriteUInt(expressionOutputSize, "Output size");
 }
-bool CustomExpressionNode::ReadExtraData(DataReader * reader, std::string & outError)
+void CustomExpressionNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> tryExpr = reader->ReadString(outError);
-    if (!tryExpr.HasValue())
-    {
-        outError = "Error trying to read out the expression string: " + outError;
-        return false;
-    }
-    expression = tryExpr.GetValue();
-
-    MaybeValue<unsigned int> trySize = reader->ReadUInt(outError);
-    if (!trySize.HasValue())
-    {
-        outError = "Error trying to read out the expression size: " + outError;
-        return false;
-    }
-    expressionOutputSize = trySize.GetValue();
-
-    return true;
+    reader->ReadString(expression);
+    reader->ReadUInt(expressionOutputSize);
 }

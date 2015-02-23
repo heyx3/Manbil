@@ -1,7 +1,9 @@
 #pragma once
 
+/*
+
 #include <string>
-#include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Materials/Data Nodes/DataNodes.hpp"
 
 
 //Abstract class representing a post-process effect as a DataNode.
@@ -155,7 +157,7 @@ protected:
     }
 
 
-    MAKE_NODE_READABLE_H(ColorTintEffect)
+    ADD_NODE_REFLECTION_DATA_H(ColorTintEffect)
 };
 
 
@@ -193,7 +195,7 @@ protected:
     virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
 
     
-    MAKE_NODE_READABLE_H(ContrastEffect)
+    ADD_NODE_REFLECTION_DATA_H(ContrastEffect)
 };
 
 
@@ -236,7 +238,7 @@ private:
     const DataLine & GetFogThicknessInput(void) const { return GetInputs()[2]; }
 
 
-    MAKE_NODE_READABLE_H(FogEffect)
+    ADD_NODE_REFLECTION_DATA_H(FogEffect)
 };
 
 
@@ -266,5 +268,7 @@ private:
 
     mutable Ptr uvAddPtrs[15];
 
-    MAKE_NODE_READABLE_H(GaussianBlurEffect)
+    ADD_NODE_REFLECTION_DATA_H(GaussianBlurEffect)
 };
+
+*/

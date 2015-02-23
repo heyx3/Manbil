@@ -1,5 +1,6 @@
 #include "PostProcessChain.h"
 
+
 #include "../Materials/Data Nodes/ShaderGenerator.h"
 #include "../../ScreenClearer.h"
 
@@ -264,10 +265,10 @@ bool PostProcessChain::RenderChain(SFMLOpenGLWorld * world, const ProjectionInfo
         params.ClearUniforms();
         params.AddUniforms(oldUniforms, true);
         params.Texture2DUniforms[PostProcessEffect::ColorSampler] =
-            UniformSampler2DValue(source, PostProcessEffect::ColorSampler,
+            UniformValueSampler2D(source, PostProcessEffect::ColorSampler,
                                 matUniforms.FindUniform(PostProcessEffect::ColorSampler, matUniforms.Texture2DUniforms).Loc);
         params.Texture2DUniforms[PostProcessEffect::DepthSampler] =
-            UniformSampler2DValue(depthIn, PostProcessEffect::DepthSampler,
+            UniformValueSampler2D(depthIn, PostProcessEffect::DepthSampler,
                                 matUniforms.FindUniform(PostProcessEffect::DepthSampler, matUniforms.Texture2DUniforms).Loc);
         params.AddUniforms(uniforms[i], true);
 

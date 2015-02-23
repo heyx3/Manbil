@@ -1,7 +1,7 @@
 #include "RefractNode.h"
 
 
-MAKE_NODE_READABLE_CPP(RefractNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 1.0f)
+ADD_NODE_REFLECTION_DATA_CPP(RefractNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 1.0f)
 
 
 unsigned int RefractNode::GetOutputSize(unsigned int index) const
@@ -23,10 +23,10 @@ RefractNode::RefractNode(const DataLine & toRefract, const DataLine & refractNor
 
 void RefractNode::WriteMyOutputs(std::string & outCode) const
 {
-    outCode += "\t" + VectorF(GetOutputSize(0)).GetGLSLType() + " " + GetOutputName(0) +
-        " = reflect(" + GetInputs()[0].GetValue() + ", " +
-        GetInputs()[1].GetValue() + ", " +
-        GetInputs()[2].GetValue() + ");\n";
+    outCode += "\t" + VectorF(GetOutputSize(0), 0).GetGLSLType() + " " + GetOutputName(0) +
+                    " = reflect(" + GetInputs()[0].GetValue() + ", " +
+                    GetInputs()[1].GetValue() + ", " +
+                    GetInputs()[2].GetValue() + ");\n";
 }
 
 std::string RefractNode::GetInputDescription(unsigned int index) const

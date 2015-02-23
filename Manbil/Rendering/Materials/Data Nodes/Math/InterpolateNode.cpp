@@ -1,8 +1,9 @@
 #include "InterpolateNode.h"
 
 
-MAKE_NODE_READABLE_CPP(InterpolateNode, 0.0f, 1.0f, 0.5f, InterpolateNode::IT_Linear)
+ADD_NODE_REFLECTION_DATA_CPP(InterpolateNode, 0.0f, 1.0f, 0.5f, InterpolateNode::IT_Linear)
 
+#pragma warning(disable: 4100)
 unsigned int InterpolateNode::GetOutputSize(unsigned int index) const
 {
     return Mathf::Max(GetMaxInput().GetSize(), GetInterpInput().GetSize());
@@ -11,6 +12,7 @@ std::string InterpolateNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_interpolated";
 }
+#pragma warning(default: 4100)
 
 
 InterpolateNode::InterpolateNode(DataLine min, DataLine max, DataLine interp, InterpolationType type, std::string name)
@@ -25,8 +27,8 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
 {
     if (intType != InterpolationType::IT_VerySmooth) return;
 
-    std::string vType = VectorF(GetMinInput().GetSize()).GetGLSLType();
-    std::string vType2 = VectorF(GetInterpInput().GetSize()).GetGLSLType();
+    std::string vType = VectorF(GetMinInput().GetSize(), 0).GetGLSLType();
+    std::string vType2 = VectorF(GetInterpInput().GetSize(), 0).GetGLSLType();
     std::string funcName = GetName() + "_verySmoothStep";
 
     //TODO: See if part of this function can be replaced with a single mix() or smoothstep().
@@ -41,9 +43,10 @@ void InterpolateNode::GetMyFunctionDeclarations(std::vector<std::string> & outFu
 }
 void InterpolateNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string minMaxType = VectorF(GetMinInput().GetSize()).GetGLSLType(),
-                interpType = VectorF(GetInterpInput().GetSize()).GetGLSLType(),
-                returnType = VectorF(Mathf::Max(GetMinInput().GetSize(), GetInterpInput().GetSize())).GetGLSLType();
+    std::string minMaxType = VectorF(GetMinInput().GetSize(), 0).GetGLSLType(),
+                interpType = VectorF(GetInterpInput().GetSize(), 0).GetGLSLType(),
+                returnType = VectorF(Mathf::Max(GetMinInput().GetSize(),
+                                                GetInterpInput().GetSize()), 0).GetGLSLType();
     std::string interpValue = GetInterpInput().GetValue();
 
     switch (intType)
@@ -73,9 +76,10 @@ void InterpolateNode::WriteMyOutputs(std::string & outCode) const
             break;
 
         case IT_VerySmooth:
-            outCode += "\t" + returnType + " " + GetOutputName(0) + " = " + GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
-                                                                                                             GetMaxInput().GetValue() + ", " +
-                                                                                                             interpValue + ");\n";
+            outCode += "\t" + returnType + " " + GetOutputName(0) + " = " +
+                            GetName() + "_verySmoothStep(" + GetMinInput().GetValue() + ", " +
+                            GetMaxInput().GetValue() + ", " +
+                            interpValue + ");\n";
             break;
 
         default:
@@ -90,7 +94,7 @@ std::string InterpolateNode::GetInputDescription(unsigned int index) const
 }
 
 
-bool InterpolateNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void InterpolateNode::WriteExtraData(DataWriter* writer) const
 {
     unsigned int smoothLevel;
     switch (intType)
@@ -106,28 +110,18 @@ bool InterpolateNode::WriteExtraData(DataWriter * writer, std::string & outError
             break;
 
         default:
-            outError = "Unknown interpolation type '" + ToString(intType);
-            return false;
+            writer->ErrorMessage = "Unknown interpolation type '" + ToString(intType);
+            throw DataWriter::EXCEPTION_FAILURE;
     }
 
-    if (!writer->WriteUInt(smoothLevel, "Smooth Level (0-2)", outError))
-    {
-        outError = "Error writing out smooth level of " + ToString(smoothLevel) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteUInt(smoothLevel, "Smooth level (0-2)");
 }
-bool InterpolateNode::ReadExtraData(DataReader * reader, std::string & outError)
+void InterpolateNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<unsigned int> trySmoothLevel = reader->ReadUInt(outError);
-    if (!trySmoothLevel.GetValue())
-    {
-        outError = "Error reading smooth level: " + outError;
-        return false;
-    }
+    unsigned int smoothLevel;
+    reader->ReadUInt(smoothLevel);
 
-    switch (trySmoothLevel.GetValue())
+    switch (smoothLevel)
     {
         case 0:
             intType = IT_Linear;
@@ -140,11 +134,10 @@ bool InterpolateNode::ReadExtraData(DataReader * reader, std::string & outError)
             break;
 
         default:
-            outError = "Smooth level must be between 0 and 2 inclusive; it was " + ToString(trySmoothLevel.GetValue());
-        return false;
+            reader->ErrorMessage = "Smooth level must be between 0 and 2 inclusive; it was " +
+                                        ToString(smoothLevel);
+            throw DataReader::EXCEPTION_FAILURE;
     }
-
-    return true;
 }
 
 void InterpolateNode::AssertMyInputsValid(void) const

@@ -8,21 +8,20 @@ class GUITexture : public GUIElement
 {
 public:
 
-    Material * Mat;
+    Material* Mat;
 
     bool IsButton;
 
-    //Only applicable if "IsButton" is true. Raised when this element is clicked.
-    void(*OnClicked)(GUITexture * clicked, Vector2f localMouse, void* pData) = 0;
-    //Only applicable if "IsButton" is true. Raised when the mouse releases after clicking this element.
-    void(*OnReleased)(GUITexture * released, Vector2f localMouse, void* pData) = 0;
+    //Raised when this element is clicked. Only applicable if "IsButton" is true.
+    void(*OnClicked)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0;
+    //Raised when the mouse releases after clicking this element. Only applicable if "IsButton" is true.
+    void(*OnReleased)(GUITexture* released, Vector2f localMouse, void* pData) = 0;
     //Only applicable if "IsButton" is true.
     void *OnClicked_pData = 0,
          *OnReleased_pData = 0;
 
 
-    GUITexture(const UniformDictionary & params,
-               MTexture2D * tex = 0, Material * mat = 0,
+    GUITexture(const UniformDictionary& params, MTexture2D* tex = 0, Material* mat = 0,
                bool isButton = false, float timeLerpSpeed = 1.0f)
         : tex(tex), Mat(mat), IsButton(isButton), GUIElement(params, timeLerpSpeed) { }
     GUITexture(void) : GUITexture(UniformDictionary()) { }
@@ -43,7 +42,7 @@ public:
 
     virtual Box2D GetBounds(void) const override;
 
-    virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
+    virtual void Render(float elapsedTime, const RenderInfo& info) override;
 
     virtual void OnMouseClick(Vector2f mouse_centerOffset) override;
     virtual void OnMouseRelease(Vector2f mouse_centerOffset) override;

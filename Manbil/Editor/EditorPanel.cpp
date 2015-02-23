@@ -3,7 +3,8 @@
 
 std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
 {
-    if (toAdd->InitGUIElement(MaterialSet))
+    std::string err = toAdd->InitGUIElement(MaterialSet);
+    if (err.empty())
     {
         editorObjects.insert(editorObjects.begin() + index, toAdd);
         panel.InsertObject(index,
@@ -13,17 +14,23 @@ std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
     }
     else
     {
-        return EditorObject::ErrorMsg;
+        return err;
     }
 }
-std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds, unsigned int startIndex)
+
+std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr>& toAdd)
+{
+    return AddObjects(toAdd, editorObjects.size());
+}
+std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr>& toAdds, unsigned int startIndex)
 {
     std::vector<GUIFormatObject> newObjs;
     newObjs.reserve(toAdds.size());
 
     for (unsigned int i = 0; i < toAdds.size(); ++i)
     {
-        if (toAdds[i]->InitGUIElement(MaterialSet))
+        std::string err = toAdds[i]->InitGUIElement(MaterialSet);
+        if (err.empty())
         {
             newObjs.insert(newObjs.begin() + startIndex + i,
                            GUIFormatObject(toAdds[i]->GetActiveGUIElement(),
@@ -36,7 +43,7 @@ std::string EditorPanel::AddObjects(const std::vector<EditorObjectPtr> & toAdds,
         {
             //Make sure to remove all the other elements that were added.
             editorObjects.erase(editorObjects.end() - newObjs.size(), editorObjects.end());
-            return std::string("Error adding object #") + std::to_string(i) + ": " + EditorObject::ErrorMsg;
+            return std::string("Error adding object #") + std::to_string(i) + ": " + err;
         }
     }
 
@@ -72,6 +79,35 @@ void EditorPanel::ClearDidBoundsChangeDeep(void)
     panel.ClearDidBoundsChangeDeep();
 }
 
+void EditorPanel::MoveElement(Vector2f moveAmount)
+{
+    GUIElement::MoveElement(moveAmount); panel.MoveElement(moveAmount);
+}
+void EditorPanel::SetPosition(Vector2f newPos)
+{
+    GUIElement::SetPosition(newPos); panel.SetPosition(newPos);
+}
+void EditorPanel::ScaleBy(Vector2f scaleAmount)
+{
+    GUIElement::ScaleBy(scaleAmount); panel.ScaleBy(scaleAmount);
+}
+void EditorPanel::SetScale(Vector2f newScale)
+{
+    GUIElement::SetScale(newScale); panel.SetScale(newScale);
+}
+void EditorPanel::OnMouseClick(Vector2f relativeMousePos)
+{
+    panel.OnMouseClick(relativeMousePos);
+}
+void EditorPanel::OnMouseDrag(Vector2f originalMPos, Vector2f currentMPos)
+{
+    panel.OnMouseDrag(originalMPos, currentMPos);
+}
+void EditorPanel::OnMouseRelease(Vector2f relativeMousePos)
+{
+    panel.OnMouseRelease(relativeMousePos);
+}
+
 void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
 {
     //Update the editor objects.
@@ -91,7 +127,7 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
     //Now update the GUI objects.
     panel.Update(elapsedTime, relMousePos);
 }
-std::string EditorPanel::Render(float elapsedTime, const RenderInfo & info)
+void EditorPanel::Render(float elapsedTime, const RenderInfo& info)
 {
-    return panel.Render(elapsedTime, info);
+    panel.Render(elapsedTime, info);
 }

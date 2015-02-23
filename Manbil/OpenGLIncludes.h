@@ -6,35 +6,31 @@
 #include "SFML/OpenGL.hpp"
 
 
-//TODO: Make a GLEnum static class that provides all these enums as well as their conversions to GLenums.
+//This file contains various global types for easy interaction with OpenGL data types.
 
 
-//An OpenGL pointer to some kind of data (buffer, texture, etc).
+//An OpenGL pointer to some kind of data (buffer, texture, shader program, etc).
 typedef GLuint RenderObjHandle;
 //An OpenGL pointer to the location of a uniform in a shader.
 typedef GLint UniformLocation;
 
-typedef GLchar Char;
-typedef GLvoid Void;
-
-
-//TODO: Remove error messages from classes and instead make them all return strings and take in a pointer/reference to output to.
+extern UniformLocation INVALID_UNIFORM_LOCATION;
 
 
 
 //Grabs the next error on the render error queue.
-const char * GetCurrentRenderingError(void);
+const char* GetCurrentRenderingError(void);
 //Removes all errors from the render error queue.
 void ClearAllRenderingErrors(void);
 
 
 enum PrimitiveTypes
 {
-	Points,
-	LineList,
-    LineStrip,
-	TriangleList,
-    TriangleStrip,
+	PT_POINTS,
+	PT_LINE_LIST,
+    PT_LINE_STRIP,
+	PT_TRIANGLE_LIST,
+    PT_TRIANGLE_STRIP,
 };
 //Converts the given primitive type to the corresponding GLenum.
 GLenum PrimitiveTypeToGLEnum(PrimitiveTypes t);
@@ -69,35 +65,10 @@ enum CubeTextureTypes
 GLenum TextureTypeToGLEnum(CubeTextureTypes t);
 
 
-//TODO: Replace "VertexIndexData" with a full, contained object that manages vertices and indices, and can optionally keep a cpu copy of them on hand to manipulate.
-
-//Useful data about vertices/indices of a mesh.
-struct VertexIndexData
+enum Shaders
 {
-public:
-
-	//Creates a VertexIndexData with invalid data.
-	VertexIndexData(void) : indices(-1), vertices(-1), hVertex(0), hIndex(0), firstVertex(0) { }
-	//Creates a VertexIndexData that doesn't use indices.
-	VertexIndexData(int nVertices, RenderObjHandle vbo, int _firstVertex = 0) : indices(-1), vertices(nVertices), hVertex(vbo), hIndex(0), firstVertex(_firstVertex) { }
-	//Creates a VertexIndexData that uses indices.
-	VertexIndexData(int nVertices, RenderObjHandle vbo, int nIndices, RenderObjHandle ibo) : indices(nIndices), vertices(nVertices), hVertex(vbo), hIndex(ibo), firstVertex(0) { }
-	//Creates a copy of the VertexIndexData with a different starting index.
-	VertexIndexData(const VertexIndexData & copy, int newFirstIndex = 0) : indices(copy.indices), vertices(copy.vertices), hVertex(copy.hVertex), hIndex(copy.hIndex), firstVertex(newFirstIndex) { }
-
-	RenderObjHandle GetVerticesHandle(void) const { return hVertex; }
-	RenderObjHandle GetIndicesHandle(void) const { return hIndex; }
-
-	int GetIndicesCount(void) const { return indices; }
-	int GetVerticesCount(void) const { return vertices; }
-
-	int GetFirstVertex(void) const { return firstVertex; }
-
-	bool IsValid(void) const { return (vertices != -1); }
-	bool UsesIndices(void) const { return (indices != -1); }
-
-private:
-
-	int indices, vertices, firstVertex;
-	RenderObjHandle hVertex, hIndex;
+    SH_VERTEX,
+    SH_FRAGMENT,
+    SH_GEOMETRY,
 };
+GLenum ShaderTypeToGLEnum(Shaders sh);

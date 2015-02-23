@@ -1,163 +1,8 @@
 #pragma once
 
 #include "../../OpenGLIncludes.h"
-#include "../../IO/DataSerialization.h"
 #include <assert.h>
 
-
-
-//The types of texture filtering.
-enum FilteringTypes
-{
-    FT_NEAREST,
-    FT_LINEAR,
-};
-
-//The types of texture wrapping.
-enum WrappingTypes
-{
-    WT_CLAMP,
-    WT_WRAP,
-};
-
-GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips);
-GLint ToGLInt(WrappingTypes twa);
-
-
-//Information about how a 2D texture is sampled.
-struct TextureSampleSettings2D : public ISerializable
-{
-public:
-
-    FilteringTypes MinFilter, MagFilter;
-    WrappingTypes HorzWrap, VertWrap;
-
-
-    TextureSampleSettings2D(FilteringTypes min, FilteringTypes mag, WrappingTypes horz, WrappingTypes vert)
-        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert) { }
-    TextureSampleSettings2D(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP)
-        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap) { }
-
-
-    //Sets the currently-bound 2D texture to use this setting's min filter.
-    void ApplyMinFilter(bool usesMipmaps) const
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
-    }
-    //Sets the currently-bound 2D texture to use this setting's mag filter.
-    void ApplyMagFilter(bool usesMipmaps) const
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
-    }
-    //Sets the currently-bound 2D texture to use this setting's min and mag filters.
-    void ApplyFilter(bool usesMipmaps) const
-    {
-        ApplyMinFilter(usesMipmaps);
-        ApplyMagFilter(usesMipmaps);
-    }
-
-    //Sets the currently-bound 2D texture to use this setting's horizontal wrapping behavior.
-    void ApplyHorzWrapping(void) const
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
-    }
-    //Sets the currently-bound 2D texture to use this setting's vertical wrapping behavior.
-    void ApplyVertWrapping(void) const
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
-    }
-    //Sets the currently-bound 2D texture to use this setting's horizontal/vertical wrapping behavior.
-    void ApplyWrapping(void) const
-    {
-        ApplyHorzWrapping();
-        ApplyVertWrapping();
-    }
-
-    //Applies all this instance's settings to the currently-bound 2D texture.
-    void ApplyAllSettings(bool usesMipmaps) const
-    {
-        ApplyFilter(usesMipmaps);
-        ApplyWrapping();
-    }
-
-
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
-};
-
-//Information about how a 3D/cubemap texture is sampled.
-struct TextureSampleSettings3D : public ISerializable
-{
-public:
-
-    FilteringTypes MinFilter, MagFilter;
-    WrappingTypes XWrap, YWrap, ZWrap;
-
-
-    TextureSampleSettings3D(FilteringTypes min, FilteringTypes mag, WrappingTypes x, WrappingTypes y, WrappingTypes z)
-        : MinFilter(min), MagFilter(mag), XWrap(x), YWrap(y), ZWrap(z)
-    { }
-    TextureSampleSettings3D(FilteringTypes filter = FilteringTypes::FT_NEAREST, WrappingTypes wrap = WrappingTypes::WT_WRAP)
-        : MinFilter(filter), MagFilter(filter), XWrap(wrap), YWrap(wrap), ZWrap(wrap)
-    { }
-
-
-    //Sets the currently-bound 3D/cubemap texture to use this setting's min filter.
-    void ApplyMinFilter(TextureTypes type, bool usesMipmaps) const
-    {
-        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
-        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
-    }
-    //Sets the currently-bound 3D/cubemap texture to use this setting's mag filter.
-    void ApplyMagFilter(TextureTypes type, bool usesMipmaps) const
-    {
-        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
-        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
-    }
-    //Sets the currently-bound 3D/cubemap texture to use this setting's min and mag filters.
-    void ApplyFilter(TextureTypes type, bool usesMipmaps) const
-    {
-        ApplyMinFilter(type, usesMipmaps);
-        ApplyMagFilter(type, usesMipmaps);
-    }
-
-    //Sets the currently-bound 3D/cubemap texture to use this setting's X wrapping behavior.
-    void ApplyXWrapping(TextureTypes type) const
-    {
-        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
-        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_S, ToGLInt(XWrap));
-    }
-    //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
-    void ApplyYWrapping(TextureTypes type) const
-    {
-        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
-        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_T, ToGLInt(YWrap));
-    }
-    //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
-    void ApplyZWrapping(TextureTypes type) const
-    {
-        assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
-        glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_R, ToGLInt(ZWrap));
-    }
-    //Sets the currently-bound 3D/cubemap texture to use this setting's XYZ wrapping behavior.
-    void ApplyWrapping(TextureTypes type) const
-    {
-        ApplyXWrapping(type);
-        ApplyYWrapping(type);
-        ApplyZWrapping(type);
-    }
-
-    //Applies all this instance's settings to the currently-bound 3D/cubemap texture.
-    void ApplyAllSettings(TextureTypes type, bool usesMipmaps) const
-    {
-        ApplyFilter(type, usesMipmaps);
-        ApplyWrapping(type);
-    }
-
-
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
-};
 
 
 //The different possible sizes of each component of a pixel in a texture.
@@ -206,3 +51,98 @@ bool IsPixelSizeFloat(PixelSizes pixelSize);
 GLenum ToGLenum(PixelSizes pixelSize);
 //Gets the size of a single pixel component in bytes for the given pixel size.
 unsigned int GetComponentSize(PixelSizes pixelSize);
+//Outputs the given pixel size as a descriptive string.
+std::string ToString(PixelSizes pixelSize);
+//Gets the pixel size represented by the given descriptive string.
+PixelSizes ToPixelSize(const std::string& pixelSizeToString);
+
+
+//The types of texture filtering.
+enum FilteringTypes
+{
+    FT_NEAREST,
+    FT_LINEAR,
+};
+
+//The types of texture wrapping.
+enum WrappingTypes
+{
+    WT_CLAMP,
+    WT_WRAP,
+};
+
+GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips);
+GLint ToGLInt(WrappingTypes twa);
+
+
+//Information about how a 2D texture is sampled.
+struct TextureSampleSettings2D
+{
+public:
+
+    FilteringTypes MinFilter, MagFilter;
+    WrappingTypes HorzWrap, VertWrap;
+
+
+    TextureSampleSettings2D(FilteringTypes min, FilteringTypes mag,
+                            WrappingTypes horz, WrappingTypes vert)
+        : MinFilter(min), MagFilter(mag), HorzWrap(horz), VertWrap(vert) { }
+    TextureSampleSettings2D(FilteringTypes filter = FilteringTypes::FT_NEAREST,
+                            WrappingTypes wrap = WrappingTypes::WT_WRAP)
+        : MinFilter(filter), MagFilter(filter), HorzWrap(wrap), VertWrap(wrap) { }
+
+
+    //Sets the currently-bound 2D texture to use this setting's min filter.
+    void ApplyMinFilter(bool usesMipmaps) const;
+    //Sets the currently-bound 2D texture to use this setting's mag filter.
+    void ApplyMagFilter(bool usesMipmaps) const;
+    //Sets the currently-bound 2D texture to use this setting's min and mag filters.
+    void ApplyFilter(bool usesMipmaps) const;
+
+    //Sets the currently-bound 2D texture to use this setting's horizontal wrapping behavior.
+    void ApplyHorzWrapping(void) const;
+    //Sets the currently-bound 2D texture to use this setting's vertical wrapping behavior.
+    void ApplyVertWrapping(void) const;
+    //Sets the currently-bound 2D texture to use this setting's horizontal/vertical wrapping behavior.
+    void ApplyWrapping(void) const;
+
+    //Applies all this instance's settings to the currently-bound 2D texture.
+    void ApplyAllSettings(bool usesMipmaps) const;
+};
+
+//Information about how a 3D texture or cubemap texture is sampled.
+struct TextureSampleSettings3D
+{
+public:
+
+    FilteringTypes MinFilter, MagFilter;
+    WrappingTypes XWrap, YWrap, ZWrap;
+
+
+    TextureSampleSettings3D(FilteringTypes min, FilteringTypes mag,
+                            WrappingTypes x, WrappingTypes y, WrappingTypes z)
+        : MinFilter(min), MagFilter(mag), XWrap(x), YWrap(y), ZWrap(z) { }
+    TextureSampleSettings3D(FilteringTypes filter = FilteringTypes::FT_NEAREST,
+                            WrappingTypes wrap = WrappingTypes::WT_WRAP)
+        : MinFilter(filter), MagFilter(filter), XWrap(wrap), YWrap(wrap), ZWrap(wrap) { }
+
+
+    //Sets the currently-bound 3D/cubemap texture to use this setting's min filter.
+    void ApplyMinFilter(TextureTypes type, bool usesMipmaps) const;
+    //Sets the currently-bound 3D/cubemap texture to use this setting's mag filter.
+    void ApplyMagFilter(TextureTypes type, bool usesMipmaps) const;
+    //Sets the currently-bound 3D/cubemap texture to use this setting's min and mag filters.
+    void ApplyFilter(TextureTypes type, bool usesMipmaps) const;
+
+    //Sets the currently-bound 3D/cubemap texture to use this setting's X wrapping behavior.
+    void ApplyXWrapping(TextureTypes type) const;
+    //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
+    void ApplyYWrapping(TextureTypes type) const;
+    //Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
+    void ApplyZWrapping(TextureTypes type) const;
+    //Sets the currently-bound 3D/cubemap texture to use this setting's XYZ wrapping behavior.
+    void ApplyWrapping(TextureTypes type) const;
+
+    //Applies all this instance's settings to the currently-bound 3D/cubemap texture.
+    void ApplyAllSettings(TextureTypes type, bool usesMipmaps) const;
+};

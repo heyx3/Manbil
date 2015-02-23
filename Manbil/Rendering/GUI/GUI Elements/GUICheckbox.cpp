@@ -1,11 +1,50 @@
 #include "GUICheckbox.h"
 
 
+GUICheckbox::GUICheckbox(const UniformDictionary& params, const GUITexture& box, const GUITexture& check,
+                         bool hideBoxIfChecked, float timeLerpSpeed)
+    : Box(box), Check(check), HideBoxIfChecked(hideBoxIfChecked),
+      GUIElement(params, timeLerpSpeed)
+{
+    Box.Depth = 0.0f;
+    Check.Depth = 0.01f;
+}
+
+void GUICheckbox::ToggleCheck(bool raiseEvent)
+{
+    isChecked = !isChecked;
+    if (raiseEvent)
+    {
+        RaiseOnClickedEvent();
+    }
+}
+void GUICheckbox::SetChecked(bool newVal, bool raiseEvent)
+{
+    isChecked = newVal;
+    if (raiseEvent)
+    {
+        RaiseOnClickedEvent();
+    }
+}
+
 Box2D GUICheckbox::GetBounds(void) const
 {
     Box2D bx = Box.GetBounds();
     bx.Move(Box.GetPos());
     return bx;
+}
+bool GUICheckbox::GetDidBoundsChangeDeep(void) const
+{
+    return DidBoundsChange || Box.DidBoundsChange;
+}
+void GUICheckbox::ClearDidBoundsChangeDeep(void)
+{
+    DidBoundsChange = false;
+    Box.DidBoundsChange = false;
+}
+void GUICheckbox::ScaleBy(Vector2f scaleAmount)
+{
+    SetScale(GetScale().ComponentProduct(scaleAmount));
 }
 void GUICheckbox::SetScale(Vector2f newScale)
 {
@@ -17,31 +56,24 @@ void GUICheckbox::SetScale(Vector2f newScale)
     Check.ScaleBy(delta);
 }
 
-std::string GUICheckbox::Render(float elapsedTime, const RenderInfo & info)
+void GUICheckbox::Render(float elapsedTime, const RenderInfo & info)
 {
     if (isChecked)
     {
         if (HideBoxIfChecked)
         {
-            std::string err = RenderChild(&Check, elapsedTime, info);
-            if (!err.empty()) return "Error rendering check: " + err;
+            RenderChild(&Check, elapsedTime, info);
         }
         else
         {
-            std::string err = RenderChild(&Box, elapsedTime, info);
-            if (!err.empty()) return "Error rendering box: " + err;
-
-            err = RenderChild(&Check, elapsedTime, info);
-            if (!err.empty()) return std::string("Error rendering check: ") + err;
+            RenderChild(&Box, elapsedTime, info);
+            RenderChild(&Check, elapsedTime, info);
         }
     }
     else
     {
-        std::string err = RenderChild(&Box, elapsedTime, info);
-        if (!err.empty()) return "Error rendering box: " + err;
+        RenderChild(&Box, elapsedTime, info);
     }
-
-    return "";
 }
 
 void GUICheckbox::OnMouseClick(Vector2f relativeMouse)
@@ -124,5 +156,13 @@ void GUICheckbox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     else
     {
         Box.Update(elapsed, relativeMousePos);
+    }
+}
+
+void GUICheckbox::RaiseOnClickedEvent(void)
+{
+    if (OnClicked != 0)
+    {
+        OnClicked(this, OnClicked_Data);
     }
 }

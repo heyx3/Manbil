@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../Vertices.h"
+#include "../Basic Rendering/RenderIOAttributes.h"
+#include "../../Math/Lower Math/Vectors.h"
 
 
 //TODO: Add similar "SplineCurve" and "SmoothedCurve" (i.e. smoothstep/supersmoothstep) classes.
@@ -11,11 +12,12 @@ struct CurveVertex
 public:
 
     //Ranges from {0, -1} to {1, 1}.
-    //Represents where on the line this point is (X is line length [0, 1], Y is line thickness [-1, 1]).
+    //Represents where on the line this point is.
+    //X is line length [0, 1], Y is line thickness [-1, 1]).
     Vector2f LinePosLerp;
 
     CurveVertex(Vector2f linePosLerp = Vector2f()) : LinePosLerp(linePosLerp) { }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(2, false, "vIn_LinePosLerp"); }
-    static void GenerateVertices(std::vector<CurveVertex> & outVertices, unsigned int nLineSegments);
+    static RenderIOAttributes GetAttributeData(void);
+    static void GenerateVertices(std::vector<CurveVertex>& outVertices, unsigned int nLineSegments);
 };

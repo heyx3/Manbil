@@ -1,6 +1,10 @@
 #include "AssetPackage.h"
 
-#include "../DebugAssist.h"
+/*
+#include "../IO/Serialization.h"
+
+
+//TODO: Remake this and split it up into some files (and use #defines).
 
 
 
@@ -11,40 +15,18 @@ public:
     std::string Key = "";
     AssetPackage::Texture2DPtr Value = AssetPackage::Texture2DPtr(0);
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override
+    virtual void WriteData(DataWriter* writer) const override
     {
-        if (!writer->WriteString(Key, "Tex Name", outError))
-        {
-            outError = "Error writing out the key, '" + Key + "': " + outError;
-            return false;
-        }
-
-        if (!writer->WriteDataStructure(*Value.get(), "Texture Data", outError))
-        {
-            outError = "Error writing out the texture data: " + outError;
-            return false;
-        }
-
-        return true;
+        writer->WriteString(Key, "Texture name");
+        writer->WriteDataStructure(MTexture2D_Writable(*Value.get()), "Texture value");
     }
-    virtual bool ReadData(DataReader * reader, std::string & outError) override
+    virtual void ReadData(DataReader* reader) override
     {
-        MaybeValue<std::string> tryKey = reader->ReadString(outError);
-        if (!tryKey.HasValue())
-        {
-            outError = "Error reading in the key: " + outError;
-            return false;
-        }
-        Key = tryKey.GetValue();
+        reader->ReadString(Key);
 
-        Value = AssetPackage::Texture2DPtr(new MTexture2D(TextureSampleSettings2D(), PixelSizes::PS_8U, false));
-        if (!reader->ReadDataStructure(*Value.get(), outError))
-        {
-            outError = "Error reading in the texture: " + outError;
-            return false;
-        }
-
-        return true;
+        Value = AssetPackage::Texture2DPtr(new MTexture2D(TextureSampleSettings2D(),
+                                                          PixelSizes::PS_8U, false));
+        reader->ReadDataStructure(MTexture2D_Readable(*Value.get()));
     }
 };
 struct KVPTex3 : public ISerializable
@@ -54,40 +36,18 @@ public:
     std::string Key = "";
     AssetPackage::Texture3DPtr Value = AssetPackage::Texture3DPtr(0);
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override
+    virtual void WriteData(DataWriter* writer) const override
     {
-        if (!writer->WriteString(Key, "Key", outError))
-        {
-            outError = "Error writing out the key, '" + Key + "': " + outError;
-            return false;
-        }
-
-        if (!writer->WriteDataStructure(*Value.get(), "Texture Data", outError))
-        {
-            outError = "Error writing out the texture data: " + outError;
-            return false;
-        }
-
-        return true;
+        writer->WriteString(Key, "Texture name");
+        writer->WriteDataStructure(MTexture3D_Writable(*Value.get()), "Texture value");
     }
-    virtual bool ReadData(DataReader * reader, std::string & outError) override
+    virtual void ReadData(DataReader* reader) override
     {
-        MaybeValue<std::string> tryKey = reader->ReadString(outError);
-        if (!tryKey.HasValue())
-        {
-            outError = "Error reading in the key: " + outError;
-            return false;
-        }
-        Key = tryKey.GetValue();
+        reader->ReadString(Key);
 
-        Value = AssetPackage::Texture3DPtr(new MTexture3D(TextureSampleSettings3D(), PixelSizes::PS_8U, false));
-        if (!reader->ReadDataStructure(*Value.get(), outError))
-        {
-            outError = "Error reading in the texture: " + outError;
-            return false;
-        }
-
-        return true;
+        Value = AssetPackage::Texture3DPtr(new MTexture3D(TextureSampleSettings3D(),
+                                                          PixelSizes::PS_8U, false));
+        reader->ReadDataStructure(MTexture3D_Readable(*Value.get()));
     }
 };
 struct KVPTexCube : public ISerializable
@@ -97,40 +57,18 @@ public:
     std::string Key = "";
     AssetPackage::TextureCubePtr Value = AssetPackage::TextureCubePtr(0);
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override
+    virtual void WriteData(DataWriter* writer) const override
     {
-        if (!writer->WriteString(Key, "Key", outError))
-        {
-            outError = "Error writing out the key, '" + Key + "': " + outError;
-            return false;
-        }
-
-        if (!writer->WriteDataStructure(*Value.get(), "Texture Data", outError))
-        {
-            outError = "Error writing out the texture data: " + outError;
-            return false;
-        }
-
-        return true;
+        writer->WriteString(Key, "Texture name");
+        writer->WriteDataStructure(MTextureCubemap_Writable(*Value.get()), "Texture value");
     }
-    virtual bool ReadData(DataReader * reader, std::string & outError) override
+    virtual void ReadData(DataReader* reader) override
     {
-        MaybeValue<std::string> tryKey = reader->ReadString(outError);
-        if (!tryKey.HasValue())
-        {
-            outError = "Error reading in the key: " + outError;
-            return false;
-        }
-        Key = tryKey.GetValue();
+        reader->ReadString(Key);
 
-        Value = AssetPackage::TextureCubePtr(new MTextureCubemap(TextureSampleSettings3D(), PixelSizes::PS_8U, false));
-        if (!reader->ReadDataStructure(*Value.get(), outError))
-        {
-            outError = "Error reading in the texture: " + outError;
-            return false;
-        }
-
-        return true;
+        Value = AssetPackage::TextureCubePtr(new MTextureCubemap(TextureSampleSettings3D(),
+                                                                 PixelSizes::PS_8U, false));
+        reader->ReadDataStructure(MTextureCubemap_Readable(*Value.get()));
     }
 };
 
@@ -141,40 +79,17 @@ public:
     std::string Key = "";
     AssetPackage::SerializedMatPtr Value = AssetPackage::SerializedMatPtr(0);
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override
+    virtual void WriteData(DataWriter* writer) const override
     {
-        if (!writer->WriteString(Key, "Key", outError))
-        {
-            outError = "Error writing out the material name, '" + Key + "': " + outError;
-            return false;
-        }
-
-        if (!writer->WriteDataStructure(*Value.get(), "Material Data", outError))
-        {
-            outError = "Error writing out the material data: " + outError;
-            return false;
-        }
-
-        return true;
+        writer->WriteString(Key, "Material key");
+        writer->WriteDataStructure(*Value.get(), "Material data");
     }
-    virtual bool ReadData(DataReader * reader, std::string & outError) override
+    virtual void ReadData(DataReader* reader) override
     {
-        MaybeValue<std::string> tryKey = reader->ReadString(outError);
-        if (!tryKey.HasValue())
-        {
-            outError = "Error reading in the material name: " + outError;
-            return false;
-        }
-        Key = tryKey.GetValue();
+        reader->ReadString(Key);
 
         Value = AssetPackage::SerializedMatPtr(new SerializedMaterial());
-        if (!reader->ReadDataStructure(*Value.get(), outError))
-        {
-            outError = "Error reading in the data for the material '" + Key + "': " + outError;
-            return false;
-        }
-
-        return true;
+        reader->ReadDataStructure(*Value.get());
     }
 };
 
@@ -595,3 +510,6 @@ bool AssetPackage::ReadData(DataReader * reader, std::string & outError)
 
     return true;
 }
+
+
+*/

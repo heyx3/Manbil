@@ -1,51 +1,32 @@
 #pragma once
 
-#include "../../RenderDataHandler.h"
 #include "TextureSettings.h"
+#include "../../Math/Lower Math/Array2D.h"
 
 
-//Represents a cubemap texture.
-//TODO: Whenever texture data is changed, mipmaps are immediately regenerated if enabled. Double-check that this is necessary and good design.
-class MTextureCubemap : public ISerializable
+
+//Note for anybody perusing the source: this is a particularly ugly class.
+//Just refer to MTexture2D and MTexture3D for an easier-to-read version of the same kind of stuff.
+
+
+
+//Represents a cubemap texture, which is made up of six textures representing the six faces of a cube.
+//Whereas 2D and 3D textures can be queried with 2D or 3D coordinates respectively,
+//   cubemap textures are queried with a 3D vector (of any size; magnitude is unimportant).
+//This vector points towards some spot on a certain face of the cube,
+//    corresponding to a pixel on that face's texture.
+//This is very useful for skyboxes and certain lighting effects.
+class MTextureCubemap
 {
 public:
 
-    template<typename ArrayType>
-    //Rotates/reflects the cubemap faces that need rotating for the X to correspond to horizontal and Y to vertical as expected.
-    //Assumes that all three faces have the same square dimensions.
-    //If "useFastCopy" is true, the array's binary data will be directly and quickly copied using "memcpy"
-    //   instead of using the assignment operator for each element.
-    static void TransformFaces(Array2D<ArrayType> & posX, Array2D<ArrayType> & negX, Array2D<ArrayType> & negY, bool useFastCopy = true)
-    {
-        assert(posX.IsSquare() && negX.IsSquare() && negY.IsSquare() &&
-               posX.GetWidth() == negX.GetWidth() && posX.GetWidth() == negY.GetWidth());
-        Array2D<ArrayType> tempArr(posX.GetWidth(), posX.GetHeight());
-        
-        tempArr.Fill(posX.GetArray(), useFastCopy);
-        tempArr.RotateInto(3, posX, useFastCopy);
-
-        tempArr.Fill(negX.GetArray(), useFastCopy);
-        tempArr.RotateInto(1, negX, useFastCopy);
-
-        tempArr.Fill(negY.GetArray(), useFastCopy);
-        tempArr.RotateInto(2, negY, useFastCopy);
-    }
-
-
     //Constructors/destructors.
 
-    MTextureCubemap(const TextureSampleSettings3D & _settings, PixelSizes _pixelSize, bool useMipmapping)
-        : texHandle(0), width(0), height(0), settings(_settings), pixelSize(_pixelSize), usesMipmaps(useMipmapping)
-    {
-        assert(!IsPixelSizeDepth(_pixelSize));
-    }
+    MTextureCubemap(const TextureSampleSettings3D& _settings,
+                    PixelSizes _pixelSize, bool useMipmapping);
     ~MTextureCubemap(void) { DeleteIfValid(); }
 
-    MTextureCubemap(MTextureCubemap & cpy) = delete;
-
-
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
+    MTextureCubemap(MTextureCubemap& cpy) = delete;
 
 
     //Getters.
@@ -55,7 +36,7 @@ public:
 
     unsigned int GetWidth(void) const { return width; }
     unsigned int GetHeight(void) const { return height; }
-    const TextureSampleSettings3D & GetSamplingSettings(void) const { return settings; }
+    const TextureSampleSettings3D& GetSamplingSettings(void) const { return settings; }
     bool UsesMipmaps(void) const { return usesMipmaps; }
     PixelSizes GetPixelSize(void) const { return pixelSize; }
 
@@ -66,7 +47,7 @@ public:
 
     //Setters.
 
-    void SetSettings(const TextureSampleSettings3D & newSettings);
+    void SetSettings(const TextureSampleSettings3D& newSettings);
 
     void SetMinFilterType(FilteringTypes newFiltering);
     void SetMagFilterType(FilteringTypes newFiltering);
@@ -78,14 +59,12 @@ public:
     void SetWrappingType(WrappingTypes wrapping);
 
 
-    //Texture operations. All operations other than "Create" and "Bind" cause an OpenGL error if this is not a valid texture.
-
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
     void Create(void) { Create(settings, usesMipmaps, pixelSize); }
     //Creates a new texture with no data.
     //Deletes the previous texture held by this instance if one existed.
-    void Create(const TextureSampleSettings3D & sampleSettings, bool useMipmaps, PixelSizes pixelSize);
+    void Create(const TextureSampleSettings3D& sampleSettings, bool useMipmaps, PixelSizes pixelSize);
 
     //If this is a valid texture, deletes it from OpenGL.
     //Returns whether anything needed to be deleted.
@@ -97,10 +76,7 @@ public:
 
     //Sets this cubemap texture as the active one.
     //If this isn't a valid texture, then the currently-active cubemap texture is just deactivated.
-    void Bind(void) const
-    {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle);
-    }
+    void Bind(void) const { glBindTexture(GL_TEXTURE_CUBE_MAP, texHandle); }
 
 
     //Sets the given face's data from the given file.
@@ -111,10 +87,7 @@ public:
     //Sets this cubemap's data from the given files.
     //Returns an error message, or the empty string if everything went fine.
     std::string SetDataFromFiles(std::string negXPath, std::string negYPath, std::string negZPath,
-                                 std::string posXPath, std::string posYPath, std::string posZPath)
-    {
-        return SetDataFromFiles(negXPath, negYPath, negZPath, posXPath, posYPath, posZPath, usesMipmaps);
-    }
+                                 std::string posXPath, std::string posYPath, std::string posZPath);
     //Sets this cubemap's data from the given files.
     //Returns an error message, or the empty string if everything went fine.
     std::string SetDataFromFiles(std::string negXPath, std::string negYPath, std::string negZPath,
@@ -122,21 +95,31 @@ public:
                                  bool useMipmapping);
 
 
-    //Lots of macro abuse below because I am lazy.
+    //Trigger warning: macros.
 
-    //If an invalid pixel size is passed in, the current pixel size is used.
+    #pragma region Texture operations
+
+
+    //The below macro defines functions that set a cubemap's data.
+    //The functions will be named "SetDataColor", "SetDataGreyscale", and "SetDataDepth",
+    //    signifying the various kinds of textues.
+    //If an invalid pixel size is passed in to any of these, the current pixel size is kept unchanged.
     //All faces must be the same width/height.
     //Returns whether the operation succeeded.
-
 #define DEF_SET_DATA(pixelType, colorType, defaultPixelSize) \
-    bool SetData ## colorType(const Array2D<pixelType> & negXData, const Array2D<pixelType> & negYData, const Array2D<pixelType> & negZData, \
-                              const Array2D<pixelType> & posXData, const Array2D<pixelType> & posYData, const Array2D<pixelType> & posZData, \
+    bool SetData ## colorType(const Array2D<pixelType>& negXData, const Array2D<pixelType>& negYData, \
+                              const Array2D<pixelType>& negZData, \
+                              const Array2D<pixelType>& posXData, const Array2D<pixelType>& posYData, \
+                              const Array2D<pixelType>& posZData, \
                               PixelSizes newPixelSize = defaultPixelSize) \
     { \
-        return SetData ## colorType(negXData, negYData, negZData, posXData, posYData, posZData, usesMipmaps, newPixelSize); \
+        return SetData ## colorType(negXData, negYData, negZData, posXData, posYData, posZData, \
+                                    usesMipmaps, newPixelSize); \
     } \
-    bool SetData ## colorType(const Array2D<pixelType> & negXData, const Array2D<pixelType> & negYData, const Array2D<pixelType> & negZData, \
-                              const Array2D<pixelType> & posXData, const Array2D<pixelType> & posYData, const Array2D<pixelType> & posZData, \
+    bool SetData ## colorType(const Array2D<pixelType>& negXData, const Array2D<pixelType>& negYData, \
+                              const Array2D<pixelType>& negZData, \
+                              const Array2D<pixelType>& posXData, const Array2D<pixelType>& posYData, \
+                              const Array2D<pixelType>& posZData, \
                               bool useMipmaps, PixelSizes newPixelSize = defaultPixelSize)
 
     DEF_SET_DATA(Vector4b, Color, PS_16U_DEPTH);
@@ -150,11 +133,14 @@ public:
     DEF_SET_DATA(unsigned int, Depth, PS_8U);
 
 
+    //Another macro, for defining the functions to set a single cubemap face.
+    //The functions are named "SetFaceColor", "SetFaceGreyscale", and "SetFaceDepth",
+    //    signifying the various kinds of textues.
     //If the given data is not the same size as the rest of the cubemap, the operation fails.
     //Returns whether the operation succeeded.
-
 #define DEF_SET_FACE(pixelType, colorType) \
-    bool SetFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & pixelData, bool shouldUpdateMipmaps)
+    bool SetFace ## colorType(CubeTextureTypes face, const Array2D<pixelType>& pixelData, \
+                              bool shouldUpdateMipmaps)
 
     DEF_SET_FACE(Vector4b, Color);
     DEF_SET_FACE(Vector4f, Color);
@@ -167,11 +153,14 @@ public:
     DEF_SET_FACE(unsigned int, Depth);
 
 
+    //Yet another macro, for defining functions to update part of a face's data.
+    //The functions are named "UpdateFaceColor", "UpdateFaceGreyscale", and "UpdateFaceDepth",
+    //    signifying the various kinds of textues.
     //If the given array extends past the texture bounds, the operation fails.
     //Returns whether the operation succeeded.
-
 #define DEF_UPDATE_FACE(pixelType, colorType) \
-    bool UpdateFace ## colorType(CubeTextureTypes face, const Array2D<pixelType> & newData, bool updateMips, unsigned int offsetX = 0, unsigned int offsetY = 0)
+    bool UpdateFace ## colorType(CubeTextureTypes face, const Array2D<pixelType>& newData, \
+                                 bool updateMips, unsigned int offsetX = 0, unsigned int offsetY = 0)
 
     DEF_UPDATE_FACE(Vector4b, Color);
     DEF_UPDATE_FACE(Vector4f, Color);
@@ -184,11 +173,13 @@ public:
     DEF_UPDATE_FACE(unsigned int, Depth);
 
 
+    //One last macro, for defining functions to read in a face's data from the GPU's memory.
+    //The functions are named "GetFaceColor", "GetFaceGreyscale", and "GetFaceDepth",
+    //    signifying the various kinds of textues.
     //If the given array is the wrong size, the operation fails.
     //Returns whether the operation succeeded.
-
 #define DEF_GET_FACE(pixelType, colorType) \
-    bool GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType> & outData) const
+    bool GetFace ## colorType(CubeTextureTypes face, Array2D<pixelType>& outData) const
 
     DEF_GET_FACE(Vector4b, Color);
     DEF_GET_FACE(Vector4f, Color);
@@ -199,6 +190,9 @@ public:
     DEF_GET_FACE(unsigned char, Depth);
     DEF_GET_FACE(float, Depth);
     DEF_GET_FACE(unsigned int, Depth);
+
+
+    #pragma endregion
 
 
 private:
@@ -214,24 +208,16 @@ private:
 
     template<typename Type>
     //Finds whether all given arrays have the exact same dimensions.
-    static bool AreSameSize(const Array2D<Type> & one, const Array2D<Type> & two, const Array2D<Type> & three,
-                            const Array2D<Type> & four, const Array2D<Type> & five, const Array2D<Type> & six)
+    //Used to make sure that a cubemap's data is the same size on each face.
+    static bool AreSameSize(const Array2D<Type>& one, const Array2D<Type>& two,
+                            const Array2D<Type>& three, const Array2D<Type>& four,
+                            const Array2D<Type>& five, const Array2D<Type>& six)
     {
-        //Oh dear god this expression.
-        return one.GetWidth() == two.GetWidth() && one.GetHeight() == two.GetHeight() &&
-            one.GetWidth() == three.GetWidth() && one.GetHeight() == three.GetHeight() &&
-            one.GetWidth() == four.GetWidth() && one.GetHeight() == four.GetHeight() &&
-            one.GetWidth() == five.GetWidth() && one.GetHeight() == five.GetHeight() &&
-            one.GetWidth() == six.GetWidth() && one.GetHeight() == six.GetHeight() &&
-            two.GetWidth() == three.GetWidth() && two.GetHeight() == three.GetHeight() &&
-            two.GetWidth() == four.GetWidth() && two.GetHeight() == four.GetHeight() &&
-            two.GetWidth() == five.GetWidth() && two.GetHeight() == five.GetHeight() &&
-            two.GetWidth() == six.GetWidth() && two.GetHeight() == six.GetHeight() &&
-            three.GetWidth() == four.GetWidth() && three.GetHeight() == four.GetHeight() &&
-            three.GetWidth() == five.GetWidth() && three.GetHeight() == five.GetHeight() &&
-            three.GetWidth() == six.GetWidth() && three.GetHeight() == six.GetHeight() &&
-            four.GetWidth() == five.GetWidth() && four.GetHeight() == five.GetHeight() &&
-            four.GetWidth() == six.GetWidth() && four.GetHeight() == six.GetHeight() &&
-            five.GetWidth() == six.GetWidth() && five.GetHeight() == six.GetHeight();
+        #define EQUALDIMS(arr1, arr2) \
+            (arr1.GetWidth() == arr2.GetWidth() && arr1.GetHeight() == arr2.GetHeight())
+
+        return EQUALDIMS(one, two) && EQUALDIMS(two, three) &&
+               EQUALDIMS(three, four) && EQUALDIMS(four, five) &&
+               EQUALDIMS(five, six);
     }
 };

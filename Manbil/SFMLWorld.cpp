@@ -3,11 +3,29 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
+
 typedef sf::Clock Clock;
+
+
+
+SFMLWorld::SFMLWorld(int windWidth, int windHeight, sf::ContextSettings settings)
+    : contextSettings(settings), totalElapsedSeconds(0.0f), window(0),
+      windowWidth(windWidth), windowHeight(windHeight)
+{
+    window = 0;
+}
+SFMLWorld::~SFMLWorld(void)
+{
+    if (window)
+    {
+        delete window;
+    }
+}
 
 void SFMLWorld::RunWorld(void)
 {
-	window = new sf::RenderWindow(sf::VideoMode(windowWidth, windowHeight), "World window", sf::Style::Default, contextSettings);
+	window = new sf::RenderWindow(sf::VideoMode(windowWidth, windowHeight),
+                                  "World window", sf::Style::Default, contextSettings);
 	Clock cl = Clock();
 
 	totalElapsedSeconds = 0.0f;

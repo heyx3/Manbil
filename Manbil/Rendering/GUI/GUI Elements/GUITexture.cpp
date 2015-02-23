@@ -15,16 +15,20 @@ Box2D GUITexture::GetBounds(void) const
     return Box2D(Vector2f(), dims);
 }
 
-std::string GUITexture::Render(float elapsed, const RenderInfo & info)
+#pragma warning(disable: 4100)
+void GUITexture::Render(float elapsed, const RenderInfo& info)
 {
-    if (tex == 0 || Mat == 0) return "Texture or material is not set!";
+    if (tex == 0 || Mat == 0)
+    {
+        return;
+    }
 
     SetUpQuad();
-    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
-    return (GetQuad()->Render(info, Params, *Mat) ?
-                "" :
-                "Error rendering GUITexture: " + Mat->GetErrorMsg());
+    Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
+    Mat->GetBlendMode().EnableMode();
+    GetQuad()->Render(info, Params, *Mat);
 }
+#pragma warning(default: 4100)
 
 void GUITexture::OnMouseClick(Vector2f mousePos)
 {
@@ -32,7 +36,10 @@ void GUITexture::OnMouseClick(Vector2f mousePos)
     {
         isBeingClicked = true;
         CurrentTimeLerpSpeed = TimeLerpSpeed;
-        if (OnClicked != 0) OnClicked(this, mousePos, OnClicked_pData);
+        if (OnClicked != 0)
+        {
+            OnClicked(this, mousePos, OnClicked_pData);
+        }
     }
 }
 void GUITexture::OnMouseRelease(Vector2f mousePos)
@@ -40,6 +47,9 @@ void GUITexture::OnMouseRelease(Vector2f mousePos)
     if (IsButton && isBeingClicked)
     {
         isBeingClicked = false;
-        if (OnReleased != 0) OnReleased(this, mousePos, OnReleased_pData);
+        if (OnReleased != 0)
+        {
+            OnReleased(this, mousePos, OnReleased_pData);
+        }
     }
 }

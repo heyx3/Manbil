@@ -19,9 +19,11 @@ public:
 	}
 
 protected:
-
+    
+#pragma warning(disable: 4100)
 	virtual bool GetRawInput(float elapsed, float total) override
 	{
 		return sf::Mouse::isButtonPressed(Button);
 	}
+#pragma warning(default: 4100)
 };

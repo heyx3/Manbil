@@ -1,7 +1,7 @@
 #include "AssImpTestWorld.h"
 
 #include "../Math/NoiseGeneration.hpp"
-#include "../Rendering/Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Rendering/Materials/Data Nodes/DataNodes.hpp"
 #include "../Rendering/PrimitiveGenerator.h"
 
 #include "../DebugAssist.h"
@@ -15,10 +15,10 @@
 
 
 AssImpTestWorld::AssImpTestWorld(void)
-    : objMat(0), objMesh(TriangleList), windowSize(800, 600),
+    : objMat(0), windowSize(800, 600),
       objTex2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, true),
       objTex3(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_32F, true),
-      cam(Vector3f(), 10.0f, 0.06f),
+      cam(Vector3f(), 10.0f, 0.18f),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
 {
 
@@ -77,7 +77,7 @@ void AssImpTestWorld::InitializeMaterials(void)
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
     
-    DataNode::VertexIns = VertexPosTex1Normal::GetAttributeData();
+    DataNode::VertexIns = VertexPosUVNormal::GetAttributeData();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),
@@ -132,7 +132,8 @@ void AssImpTestWorld::InitializeMaterials(void)
 
     
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(objParams, RM_Opaque);
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(objParams,
+                                                                                BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(), "Error generating material shaders", genM.ErrorMessage))
     {
         objMat = genM.Mat;
@@ -140,13 +141,13 @@ void AssImpTestWorld::InitializeMaterials(void)
 
 
     //Set up the parameters.
-    objParams.Texture2DUniforms["u_tex2"].Texture = objTex2.GetTextureHandle();
-    objParams.Texture3DUniforms["u_tex3"].Texture = objTex3.GetTextureHandle();
+    objParams.Texture2Ds["u_tex2"].Texture = objTex2.GetTextureHandle();
+    objParams.Texture3Ds["u_tex3"].Texture = objTex3.GetTextureHandle();
 }
 void AssImpTestWorld::InitializeObjects(void)
 {
     //Generate the mesh data.
-    std::vector<VertexPosTex1Normal> vertices;
+    std::vector<VertexPosUVNormal> vertices;
     std::vector<unsigned int> indices;
     if (false)
     {
@@ -189,7 +190,7 @@ void AssImpTestWorld::InitializeObjects(void)
         {
             vertices[i].Pos = *(Vector3f*)(&mesh->mVertices[i].x);
             vertices[i].Normal = *(Vector3f*)(&mesh->mNormals[i].x);
-            vertices[i].TexCoords = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
+            vertices[i].UV = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
         }
         //Put the indices into the indices array.
         for (int i = 0; i < mesh->mNumFaces; ++i)
@@ -202,22 +203,18 @@ void AssImpTestWorld::InitializeObjects(void)
                 return;
             }
 
-            indices.insert(indices.end(), fce.mIndices[0]);
-            indices.insert(indices.end(), fce.mIndices[1]);
-            indices.insert(indices.end(), fce.mIndices[2]);
+            indices.push_back(fce.mIndices[0]);
+            indices.push_back(fce.mIndices[1]);
+            indices.push_back(fce.mIndices[2]);
         }
     }
 
 
     //Create the mesh object.
-
-    RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, vertices.data(), vertices.size());
-    RenderDataHandler::CreateIndexBuffer(ibo, indices.data(), indices.size());
-
-    VertexIndexData vid(vertices.size(), vbo, indices.size(), ibo);
-    objMesh.SubMeshes.insert(objMesh.SubMeshes.end(), vid);
-
+    objMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
+    MeshData& dat = objMesh.SubMeshes[0];
+    dat.SetVertexData(vertices, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
+    dat.SetIndexData(indices, MeshData::BUF_STATIC);
 
     //Set up the mesh's transform.
     objMesh.Transform.SetPosition(Vector3f(5.0f, 0.0f, 0.0f));
@@ -225,9 +222,10 @@ void AssImpTestWorld::InitializeObjects(void)
 void AssImpTestWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
-    if (IsGameOver()) return;
-
-    InitializeStaticSystems(false, false, false);
+    if (IsGameOver())
+    {
+        return;
+    }
 
     InitializeTextures();
     InitializeMaterials();
@@ -243,8 +241,6 @@ void AssImpTestWorld::OnWorldEnd(void)
     delete objMat;
     objTex2.DeleteIfValid();
     objTex3.DeleteIfValid();
-
-    DestroyStaticSystems(false, false, false);
 }
 
 void AssImpTestWorld::UpdateWorld(float elapsedSeconds)
@@ -255,21 +251,33 @@ void AssImpTestWorld::UpdateWorld(float elapsedSeconds)
         return;
     }
 
-
     const float rotSpeed = 0.01f;
     Vector3f eulerRots;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
         eulerRots.y += rotSpeed;
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
         eulerRots.y -= rotSpeed;
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
         eulerRots.x -= rotSpeed;
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
         eulerRots.x += rotSpeed;
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+    {
         eulerRots.z += rotSpeed;
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+    {
         eulerRots.z -= rotSpeed;
+    }
+
 
     //All of the following rotation sequences are identical.
     if (false)
@@ -283,7 +291,7 @@ void AssImpTestWorld::UpdateWorld(float elapsedSeconds)
         objMesh.Transform.RotateAbsolute(eulerRots);
     }
 
-
+    //Output the amount that was rotated.
     if (eulerRots.Length() > 0.0f)
     {
         std::cout << DebugAssist::ToString(objMesh.Transform.GetRotationAngles()) << "\n";
@@ -292,47 +300,48 @@ void AssImpTestWorld::UpdateWorld(float elapsedSeconds)
 
     const float moveSpeed = 0.01f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+    {
         objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * moveSpeed);
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+    {
         objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * -moveSpeed);
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+    {
         objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * moveSpeed);
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::V))
+    {
         objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * -moveSpeed);
+    }
 }
 
-bool AssImpTestWorld::RenderWorldGeometry(const RenderInfo& info)
-{
-    ScreenClearer().ClearScreen();
-    RenderingState(true, true, RenderingState::C_NONE).EnableState();
-
-    std::vector<const Mesh*> toDraw;
-    toDraw.insert(toDraw.end(), &objMesh);
-
-    return objMat->Render(info, toDraw, objParams);
-}
-void AssImpTestWorld::RenderOpenGL(float elapsedSeconds)
+void AssImpTestWorld::RenderWorldGeometry(const RenderInfo& info)
 {
     glViewport(0, 0, windowSize.x, windowSize.y);
 
-    Matrix4f worldM, viewM, projM;
-    TransformObject dummy;
+    ScreenClearer().ClearScreen();
+    //TODO: Set culling state once I can test this world.
+    RenderingState(RenderingState::C_NONE).EnableState();
+    objMat->GetBlendMode().EnableMode();
 
+    objMat->Render(info, &objMesh, objParams);
+}
+void AssImpTestWorld::RenderOpenGL(float elapsedSeconds)
+{
+    Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
     cam.GetPerspectiveTransform(projM);
 
-    RenderInfo info(this, &cam, &dummy, &worldM, &viewM, &projM);
-    if (!Assert(RenderWorldGeometry(info), "Error rendering world", objMat->GetErrorMsg()))
-    {
-        return;
-    }
+    RenderWorldGeometry(RenderInfo(GetTotalElapsedSeconds(), &cam, &viewM, &projM));
 }
 
 void AssImpTestWorld::OnInitializeError(std::string errorMsg)
 {
-	EndWorld();
-
 	SFMLOpenGLWorld::OnInitializeError(errorMsg);
+
+	EndWorld();
 
 	std::cout << "Enter any key to continue:\n";
     char dummy;

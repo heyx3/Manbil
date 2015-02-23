@@ -29,8 +29,8 @@ protected:
     virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override;
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
     virtual void AssertMyInputsValid(void) const override;
 
@@ -41,5 +41,5 @@ private:
 
     std::string GetSampleOutputName(void) const { return GetName() + "_sampled"; }
 
-    MAKE_NODE_READABLE_H(TextureSample3DNode)
+    ADD_NODE_REFLECTION_DATA_H(TextureSample3DNode)
 };

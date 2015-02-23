@@ -7,15 +7,22 @@
 
 
 
+RenderIOAttributes PlanetVertex::GetAttributeData(void)
+{
+    return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
+                              RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
+                              RenderIOAttributes::Attribute(1, false, "vIn_Heightmap"));
+}
+
 //Generates vertices from the given noise grid into the given vertex grid.
 //Takes in which face (0=X, 1=Y, 2=Z; either positive or negative on that axis) is being generated.
 //Then, generates triangles into the given std::vectors.
 //Finally, generates vertex/index buffers and puts them into the given mesh.
-void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & outVertGrid,
+void HeightmapToMesh(const Array2D<float>& noiseGrid, Array2D<PlanetVertex>& outVertGrid,
                      unsigned int faceAxis, bool isNegative,
                      float minHeight, float maxHeight,
-                     std::vector<PlanetVertex> & vertList, std::vector<unsigned int> & indList,
-                     Mesh & outMesh)
+                     std::vector<PlanetVertex>& vertList, std::vector<unsigned int>& indList,
+                     Mesh& outMesh)
 {
     assert(noiseGrid.GetWidth() == noiseGrid.GetHeight());
 
@@ -28,10 +35,19 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
     unsigned int nVerts = outVertGrid.GetWidth() * outVertGrid.GetHeight(),
                  nInds = 6 * (outVertGrid.GetWidth() - 1) * (outVertGrid.GetHeight() - 1);
 
-    if (vertList.size() != nVerts) vertList.resize(nVerts);
-    if (indList.size() != nInds) indList.resize(nInds);
-    if (outVertGrid.GetWidth() != noiseGrid.GetWidth() || outVertGrid.GetHeight() != noiseGrid.GetHeight())
+    if (vertList.size() != nVerts)
+    {
+        vertList.resize(nVerts);
+    }
+    if (indList.size() != nInds)
+    {
+        indList.resize(nInds);
+    }
+    if (outVertGrid.GetWidth() != noiseGrid.GetWidth() ||
+        outVertGrid.GetHeight() != noiseGrid.GetHeight())
+    {
         outVertGrid.Reset(noiseGrid.GetWidth(), noiseGrid.GetHeight());
+    }
 
 
     //Figure out how to convert a grid spot to a 3D position.
@@ -40,23 +56,57 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
     {
         case 0:
             if (isNegative)
-                getWorldPos = [](float hfS, Vector2u l) { return Vector3f(-hfS, (float)l.x - hfS, (float)l.y - hfS); };
-            else getWorldPos = [](float hfS, Vector2u l) { return Vector3f(hfS, (float)l.x - hfS, (float)l.y - hfS); };
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f(-hfS, (float)l.x - hfS, (float)l.y - hfS);
+                              };
+            }
+            else
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f(hfS, (float)l.x - hfS, (float)l.y - hfS);
+                              };
+            }
         break;
         
         case 1:
             if (isNegative)
-                getWorldPos = [](float hfS, Vector2u l) { return Vector3f((float)l.x - hfS, -hfS, (float)l.y - hfS); };
-            else getWorldPos = [](float hfS, Vector2u l) { return Vector3f((float)l.x - hfS, hfS, (float)l.y - hfS); };
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f((float)l.x - hfS, -hfS, (float)l.y - hfS);
+                              };
+            }
+            else
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f((float)l.x - hfS, hfS, (float)l.y - hfS);
+                              };
+            }
         break;
         
         case 2:
             if (isNegative)
-                getWorldPos = [](float hfS, Vector2u l) { return Vector3f((float)l.x - hfS, (float)l.y - hfS, -hfS); };
-            else getWorldPos = [](float hfS, Vector2u l) { return Vector3f((float)l.x - hfS, (float)l.y - hfS, hfS); };
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f((float)l.x - hfS, (float)l.y - hfS, -hfS);
+                              };
+            }
+            else
+            {
+                getWorldPos = [](float hfS, Vector2u l)
+                              {
+                                  return Vector3f((float)l.x - hfS, (float)l.y - hfS, hfS);
+                              };
+            }
         break;
 
-        default: assert(false);
+        default:
+            assert(false);
     }
 
     //Generate the vertex grid based on the noise values.
@@ -65,7 +115,7 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
     {
         for (loc.x = 0; loc.x < noiseGrid.GetWidth(); ++loc.x)
         {
-            PlanetVertex & vert = outVertGrid[loc];
+            PlanetVertex& vert = outVertGrid[loc];
 
             float heightVal = noiseGrid[loc];
             heightVal = Mathf::Remap(minMax.Min, minMax.Max, 0.0f, 1.0f, heightVal);
@@ -113,17 +163,13 @@ void HeightmapToMesh(const Array2D<float> & noiseGrid, Array2D<PlanetVertex> & o
                                 shouldFlipNormal, (void*)0);
 
     //Generate buffers.
-    RenderObjHandle vbo, ibo;
-    RenderDataHandler::CreateVertexBuffer(vbo, vertList.data(), vertList.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    RenderDataHandler::CreateIndexBuffer(ibo, indList.data(), indList.size(), RenderDataHandler::UPDATE_ONCE_AND_DRAW);
-    outMesh.SubMeshes.insert(outMesh.SubMeshes.end(),
-                             VertexIndexData(vertList.size(), vbo, indList.size(), ibo));
+    outMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
+    outMesh.SubMeshes[0].SetVertexData(vertList, MeshData::BUF_STATIC, PlanetVertex::GetAttributeData());
+    outMesh.SubMeshes[0].SetIndexData(indList, MeshData::BUF_STATIC);
 }
 
 WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
     : minHeight(minH), maxHeight(maxH),
-      mNegX(TriangleList), mPosX(TriangleList), mNegY(TriangleList),
-      mPosY(TriangleList), mNegZ(TriangleList), mPosZ(TriangleList),
       pNegX(verticesPerSide, verticesPerSide), pNegY(verticesPerSide, verticesPerSide),
       pNegZ(verticesPerSide, verticesPerSide), pPosX(verticesPerSide, verticesPerSide),
       pPosY(verticesPerSide, verticesPerSide), pPosZ(verticesPerSide, verticesPerSide)
@@ -144,14 +190,7 @@ WorldData::WorldData(unsigned int verticesPerSide, float minH, float maxH)
     };
     DiamondSquare sqr(131415, Interval(0.0f, 0.0025f), variances, sizeof(variances) / sizeof(DiamondSquareStep), 0.0f);
 
-    unsigned int halfSide = verticesPerSide / 2;
-
     Array2D<float> outNoise(verticesPerSide, verticesPerSide);
-
-    float(*filterHeight)(float heightVal) = [](float heightVal)
-    {
-        return Mathf::Supersmooth(Mathf::Supersmooth(heightVal));
-    };
 
 
     //Generate the faces.

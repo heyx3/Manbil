@@ -9,7 +9,7 @@
 #include "../Texture Management/MTexture2D.h"
 
 
-//The Vertex struct used for water. Inputs:
+//The Vertex type used for this water system. Inputs:
 //0: Pos (size 3)
 //1: UV (size 2)
 struct WaterVertex
@@ -23,32 +23,39 @@ struct WaterVertex
 
     }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 2, false, false, "vIn_pos", "vIn_texCoord"); }
+    static RenderIOAttributes GetAttributeData(void);
 };
 
 
-//Represents a flowing body of water.
 //TODO: Create static strings that store the uniform names.
+
+//Represents a flowing body of water.
+//Contains two kinds of water flows:
+// -Directional -- water that oscillates along a direction on the plane of the surface
+// -Ripple -- water that oscillates outwards from some point on its surface
 class Water
 {
 public:
 
+    Mesh MyMesh;
     UniformDictionary Params;
 
-    //Data that only applies to directional water.
+
+    //Data about a directional water flow.
     struct DirectionalWaterArgs
     {
     public:
         //The direction and magnitude of the water flow in object space.
-        //The magnitude is in units per second.
+        //The magnitude is in object units per second.
         Vector2f Flow;
         float Amplitude, Period;
+        //The amount of time since this wave was initially created.
+        //This is used to create a smooth fade-in for the wave.
         float TimeSinceCreated;
         DirectionalWaterArgs(Vector2f flow, float amplitude, float period)
             : Flow(flow), Amplitude(amplitude), Period(period), TimeSinceCreated(0.0f) { }
     };
-
-    //Data that only applies to rippling water.
+    //Data about a ripple water flow.
     struct RippleWaterArgs
     {
     public:
@@ -65,81 +72,77 @@ public:
         //The speed of the waves.
         float Speed;
         RippleWaterArgs(Vector3f source, float dropoffPoint, float height, float period, float speed)
-            : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint), Amplitude(height), TimeSinceCreated(0.0f) { }
+            : Source(source), Period(period), Speed(speed), DropoffPoint(dropoffPoint),
+              Amplitude(height), TimeSinceCreated(0.0f) { }
     };
 
 
-    TransformObject & GetTransform(void) { return waterMesh.Transform; }
-    const TransformObject & GetTransform(void) const { return waterMesh.Transform; }
+    TransformObject& GetTransform(void) { return MyMesh.Transform; }
+    const TransformObject& GetTransform(void) const { return MyMesh.Transform; }
 
-
-    struct RippleWaterCreationArgs
-    {
-    public:
-        unsigned int MaxRipples;
-        RippleWaterCreationArgs(unsigned int maxRipples = 0) : MaxRipples(maxRipples) { }
-    };
-    struct DirectionalWaterCreationArgs
-    {
-    public:
-        unsigned int MaxFlows;
-        DirectionalWaterCreationArgs(unsigned int maxFlows = 0) : MaxFlows(maxFlows) { }
-    };
-    //Creates a new Water object.
+    
     Water(unsigned int size, Vector3f pos, Vector3f scale,
-          OptionalValue<RippleWaterCreationArgs> rippleArgs,
-          OptionalValue<DirectionalWaterCreationArgs> directionArgs);
-    //Destroys this water, releasing all related rendering memory (Material, index/vertex buffers, etc.)
+          unsigned int maxRipples = 0,
+          unsigned int maxFlows = 0);
     ~Water(void);
 
-    //Gets the location of the water-related uniforms from the given material.
-    void UpdateUniformLocations(const Material * mat);
 
-    //Gets the water mesh without updating its uniforms.
-    const Mesh & GetMesh(void) const { return waterMesh; }
+    //Sets this instance to render with the given material.
+    //The given new material is assumed to use the WaterNode uniforms from the WaterNode class.
+    void SetMaterial(Material* newMat);
+
 
     //Adds another ripple to the water.
     //Returns the id for the created ripple, or -1 if it was unsuccessful.
-    unsigned int AddRipple(const RippleWaterArgs & args);
+    unsigned int AddRipple(const RippleWaterArgs& args);
     //Changes the water ripple with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
-    bool ChangeRipple(unsigned int element, const RippleWaterArgs & args);
+    bool ChangeRipple(unsigned int element, const RippleWaterArgs& args);
 
     //Adds a new flow to the water.
     //Returns the id for the created flow, or -1 if this water isn't Directional water.
-    unsigned int AddFlow(const DirectionalWaterArgs & args);
+    unsigned int AddFlow(const DirectionalWaterArgs& args);
     //Changes the water flow with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
-    bool ChangeFlow(unsigned int element, const DirectionalWaterArgs & args);
+    bool ChangeFlow(unsigned int element, const DirectionalWaterArgs& args);
 
     //TODO: Allow ripples to be stopped, and track in the shader how long ago they were stopped using negative "timeSinceCreated" values.
 
+    //Updates this water's flows.
     void Update(float elapsedTime);
+    //Renders this water. Assumes its material has already been set through "SetMaterial()".
+    void Render(const RenderInfo& info);
 
 
 private:
 
     void UpdateMeshUniforms(void);
 
+
     //Ripple stuff.
     unsigned int currentRippleIndex;
     unsigned int maxRipples;
     unsigned int nextRippleID;
     unsigned int totalRipples;
-    unsigned int * rippleIDs;
+    unsigned int* rippleIDs;
     //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
-    Vector4f * dp_tsc_h_p;
-    Vector3f * sXY_sp;
+    //This data represents the DropoffPoint, TimeSinceCreated, Height, and Period of each ripple.
+    Vector4f* dp_tsc_h_p;
+    //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
+    //This data represents the source of each ripple along the water's surface as well as its speed.
+    Vector3f* sXY_sp;
 
-    //Flow stuff.
+    //Directional flow stuff.
     unsigned int currentFlowIndex;
     unsigned int maxFlows;
     unsigned int nextFlowID;
     unsigned int totalFlows;
-    unsigned int * flowIDs;
+    unsigned int* flowIDs;
     //Uniform data is compressed into vectors instead of individual floats for faster handling by the GPU.
-    Vector4f * f_a_p;
-    float * tsc;
+    //This data represents the direction/magnitude, amplitude, and period of each directional flow.
+    Vector4f* f_a_p;
+    //This data represents the time since each directional flow was created.
+    float* tsc;
 
-    Mesh waterMesh;
+    Material* waterMat;
 };

@@ -1,5 +1,7 @@
 #include "MaterialData.h"
 
+#include "UniformCollections.h"
+
 #include <assert.h>
 
 
@@ -42,61 +44,50 @@ bool MaterialConstants::IsValidGLSLName(const std::string & name)
     return true;
 }
 
-std::string MaterialConstants::GetVertexInputDeclarations(const ShaderInOutAttributes & attribs)
+std::string MaterialConstants::GetVertexInputDeclarations(const RenderIOAttributes & attribs)
 {
     std::string output;
     unsigned int nAttribs = attribs.GetNumbAttributes();
     for (unsigned int i = 0; i < nAttribs; ++i)
         output += "layout (location = " + std::to_string(i) + ") in " +
-                    VectorF((unsigned int)attribs.GetAttributeSize(i)).GetGLSLType() + " " +
-                    attribs.GetAttributeName(i) + ";\n";
+                    VectorF((unsigned int)attribs.GetAttribute(i).Size, 0).GetGLSLType() + " " +
+                    attribs.GetAttribute(i).Name + ";\n";
     return output;
-}
-RenderingState MaterialConstants::GetRenderingState(RenderingModes mode)
-{
-    switch (mode)
-    {
-        case RenderingModes::RM_Opaque:
-            return RenderingState();
-        case RenderingModes::RM_Transluscent:
-            //TODO: I think transluscent shouldn't write to the depth buffer, because then it removes the need for depth sorting (as long as you draw transluscent stuff after all opaque stuff)? Test this.
-            return RenderingState(RenderingState::Cullables::C_NONE);
-        case RenderingModes::RM_Additive:
-            return RenderingState(RenderingState::C_NONE, RenderingState::BE_ONE, RenderingState::BE_ONE, true, false);
-
-        default:
-            assert(false);
-            return RenderingState();
-    }
 }
 std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags & flags)
 {
     typedef MaterialUsageFlags::Flags FL;
 
-    std::string uniformDecls = (flags.GetFlag(FL::DNF_USES_TIME) ? "uniform float " + ElapsedTimeName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_CAM_POS) ? "uniform vec3 " + CameraPosName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_CAM_FORWARD) ? "uniform vec3 " + CameraForwardName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_CAM_UPWARDS) ? "uniform vec3 " + CameraUpName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_CAM_SIDEWAYS) ? "uniform vec3 " + CameraSideName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_WIDTH) ? "uniform float " + CameraWidthName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_HEIGHT) ? "uniform float " + CameraHeightName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_ZNEAR) ? "uniform float " + CameraZNearName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_ZFAR) ? "uniform float " + CameraZFarName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_FOV) ? "uniform float " + CameraFovName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_ORTHO_MIN) ? "uniform vec3 " + CameraOrthoMinName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_ORTHO_MAX) ? "uniform vec3 " + CameraOrthoMaxName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_WORLD_MAT) ? "uniform mat4 " + WorldMatName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_VIEW_MAT) ? "uniform mat4 " + ViewMatName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_PROJ_MAT) ? "uniform mat4 " + ProjMatName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_VIEWPROJ_MAT) ? "uniform mat4 " + ViewProjMatName + ";\n" : "") +
-                               (flags.GetFlag(FL::DNF_USES_WVP_MAT) ? "uniform mat4 " + WVPMatName + ";\n" : "");
+    std::string uniformDecls =
+        (flags.GetFlag(FL::DNF_USES_TIME) ?         "uniform float " + ElapsedTimeName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_CAM_POS) ?      "uniform vec3 " + CameraPosName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_CAM_FORWARD) ?  "uniform vec3 " + CameraForwardName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_CAM_UPWARDS) ?  "uniform vec3 " + CameraUpName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_CAM_SIDEWAYS) ? "uniform vec3 " + CameraSideName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_WIDTH) ?        "uniform float " + CameraWidthName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_HEIGHT) ?       "uniform float " + CameraHeightName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_ZNEAR) ?        "uniform float " + CameraZNearName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_ZFAR) ?         "uniform float " + CameraZFarName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_FOV) ?          "uniform float " + CameraFovName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_ORTHO_MIN) ?    "uniform vec3 " + CameraOrthoMinName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_ORTHO_MAX) ?    "uniform vec3 " + CameraOrthoMaxName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_WORLD_MAT) ?    "uniform mat4 " + WorldMatName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_VIEW_MAT) ?     "uniform mat4 " + ViewMatName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_PROJ_MAT) ?     "uniform mat4 " + ProjMatName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_VIEWPROJ_MAT) ? "uniform mat4 " + ViewProjMatName + ";\n" : "") +
+        (flags.GetFlag(FL::DNF_USES_WVP_MAT) ?      "uniform mat4 " + WVPMatName + ";\n" : "");
+
     if (!uniformDecls.empty())
+    {
         uniformDecls = std::string() + "//Built-in uniforms.\n" + uniformDecls + "\n\n\n";
+    }
 
     return uniformDecls;
 }
 
-std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, const ShaderInOutAttributes & attribs, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations,
+                                               const RenderIOAttributes& attribs,
+                                               const MaterialUsageFlags& flags)
 {
     return std::string() +
 "#version 400                                                    \n\
@@ -107,7 +98,10 @@ std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations, c
                                                                  \n\
 " + GetUniformDeclarations(flags);
 }
-std::string MaterialConstants::GetGeometryHeader(std::string outputDeclarations, PrimitiveTypes input, PrimitiveTypes output, unsigned int maxVertices, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetGeometryHeader(std::string outputDeclarations,
+                                                 PrimitiveTypes input, PrimitiveTypes output,
+                                                 unsigned int maxVertices,
+                                                 const MaterialUsageFlags& flags)
 {
     return std::string() +
 "#version 400                                                   \n\
@@ -120,7 +114,9 @@ layout (max_vertices = " + std::to_string(maxVertices) + ") out;\n\
                                                                 \n\
 " + GetUniformDeclarations(flags);
 }
-std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations, const MaterialUsageFlags & flags)
+std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations,
+                                                 std::string outputDeclarations,
+                                                 const MaterialUsageFlags& flags)
 {
     return std::string() +
 "#version 400                                                    \n\

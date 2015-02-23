@@ -5,6 +5,73 @@
 using namespace tinyxml2;
 
 
+
+
+//The following stuff converts between binary data and hex data.
+
+
+const char valueToHex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                            'A', 'B', 'C', 'D', 'E', 'F' };
+const unsigned char hexToValue(char hex)
+{
+    switch (hex)
+    {
+        case '0': return 0;
+        case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case '8': return 8;
+        case '9': return 9;
+        case 'A': return 10;
+        case 'B': return 11;
+        case 'C': return 12;
+        case 'D': return 13;
+        case 'E': return 14;
+        case 'F': return 15;
+
+        default:
+            assert(false);
+            return 0;
+    }
+}
+
+//Converts byte data into two-digit hex numbers. The hex numbers are combined and output into a string.
+void BytesToHex(const unsigned char* byteData, unsigned int nBytes, std::string& outHex)
+{
+    outHex.reserve(outHex.size() + nBytes);
+    for (unsigned int i = 0; i < nBytes; ++i)
+    {
+        unsigned char data = byteData[i];
+        outHex += valueToHex[data / 16];
+        outHex += valueToHex[data % 16];
+    }
+}
+//Converts a sequence of two-digit hex numbers into byte data.
+//Outputs the byte data to the end of the given vector.
+void HexToBytes(const std::string& hexData, std::vector<unsigned char>& outBytes, std::string& outError)
+{
+    if (hexData.size() % 2 != 0)
+    {
+        outError = std::string("Hex string should be filled with two-digit numbers ") +
+                        "but it has an odd number of digits!";
+        throw XmlReader::EXCEPTION_FAILURE;
+    }
+
+    outBytes.reserve(outBytes.size() + (hexData.size() / 2));
+    for (unsigned int i = 0; i < hexData.size(); i += 2)
+    {
+        unsigned char sixteensPlace = hexToValue(hexData[i]),
+                      onesPlace = hexToValue(hexData[i + 1]);
+        outBytes.push_back((16 * sixteensPlace) + onesPlace);
+    }
+}
+
+
+//Converts a TinyXML error code into an error message.
 std::string TinyXMLErrorToString(XMLError err)
 {
     switch (err)
@@ -50,7 +117,9 @@ std::string TinyXMLErrorToString(XMLError err)
         case XMLError::XML_NO_TEXT_NODE:
             return "No text node";
 
-        default: assert(false); return "Unknown error code " + std::to_string(err);
+        default:
+            assert(false);
+            return "Unknown error code " + std::to_string(err);
     }
 }
 
@@ -60,21 +129,31 @@ XmlWriter::XmlWriter(std::string rootNodeName)
     currentRoot = doc.NewElement(rootNodeName.c_str());
     doc.InsertEndChild(currentRoot);
 }
-std::string XmlWriter::SaveData(std::string path)
+
+#include <fstream>
+std::string XmlWriter::SaveData(const std::string& path)
 {
+    //Create the file, or overwrite it with an empty file.
+    errno = 0;
+    FILE* file = fopen(path.c_str(), "w");
+    if (file == 0)
+    {
+        return "The file doesn't exist to be written to, or it cannot be opened.";
+    }
+    
+    fclose(file);
+    
     return TinyXMLErrorToString(doc.SaveFile(path.c_str()));
 }
 
 
 #define IMPL_WRITE_XML_DATA(dataType, dataTypeName, dataTypeString, valueToString) \
-    bool XmlWriter::Write ## dataTypeName(dataType value, std::string name, std::string & outError) \
+    void XmlWriter::Write ## dataTypeName(dataType value, const std::string& name) \
 { \
-    XMLElement * child = doc.NewElement(dataTypeString); \
+    XMLElement* child = doc.NewElement(dataTypeString); \
     child->SetAttribute("name", name.c_str()); \
     child->SetAttribute("value", valueToString.c_str()); \
     currentRoot->InsertEndChild(child); \
-    \
-    return true; \
 }
 IMPL_WRITE_XML_DATA(bool, Bool, "bool", (value ? std::string("true") : std::string("false")))
 IMPL_WRITE_XML_DATA(unsigned char, Byte, "byte", std::to_string(value))
@@ -82,11 +161,25 @@ IMPL_WRITE_XML_DATA(int, Int, "int", std::to_string(value))
 IMPL_WRITE_XML_DATA(unsigned int, UInt, "uint", std::to_string(value))
 IMPL_WRITE_XML_DATA(float, Float, "float", std::to_string(value))
 IMPL_WRITE_XML_DATA(double, Double, "double", std::to_string(value))
-IMPL_WRITE_XML_DATA(const std::string &, String, "string", value)
+IMPL_WRITE_XML_DATA(const std::string&, String, "string", value)
+
+void XmlWriter::WriteBytes(const unsigned char* bytes, unsigned int nBytes, const std::string& name)
+{
+    XMLElement* child = doc.NewElement("byteData");
+    child->SetAttribute("name", name.c_str());
+
+    std::string value;
+    BytesToHex(bytes, nBytes, value);
+    child->SetAttribute("value", value.c_str());
+
+    currentRoot->InsertEndChild(child);
+}
 
 
-bool XmlWriter::WriteCollection(std::string name, ElementWriter writerFunc, const void* collection,
-                                unsigned int collectionSize, std::string & outError, void * optionalData)
+void XmlWriter::WriteCollection(ElementWriter writerFunc, const std::string& name,
+                                unsigned int bytesPerElement,
+                                const void* collection, unsigned int collectionSize,
+                                void* optionalData)
 {
     //Create the root of the collection.
     XMLElement * collectionRoot = doc.NewElement("collection");
@@ -97,52 +190,48 @@ bool XmlWriter::WriteCollection(std::string name, ElementWriter writerFunc, cons
     for (unsigned int i = 0; i < collectionSize; ++i)
     {
         //Set up the element's node.
-        XMLElement * collElement = doc.NewElement("element");
+        XMLElement* collElement = doc.NewElement("element");
         collElement->SetAttribute("index", std::to_string(i).c_str());
         collectionRoot->InsertEndChild(collElement);
 
         //Move into this element's node and write the data.
         currentRoot = collElement;
-        if (!writerFunc(collection, i, this, outError, optionalData))
-            return false;
+        const void* element = ((const char*)collection) + (i * bytesPerElement);
+        writerFunc(this, element, i, optionalData);
     }
 
     //Move out of the current XML element, back into the original "currentRoot".
     currentRoot = collectionRoot->Parent()->ToElement();
-    return true;
 }
 
-bool XmlWriter::WriteDataStructure(const ISerializable & toSerialize, std::string name, std::string & outError)
+void XmlWriter::WriteDataStructure(const IWritable& toSerialize, const std::string& name)
 {
     //Create the structure's root.
-    XMLElement * dataStructureRoot = doc.NewElement("dataStructure");
+    XMLElement* dataStructureRoot = doc.NewElement("dataStructure");
     dataStructureRoot->SetAttribute("name", name.c_str());
     currentRoot->InsertEndChild(dataStructureRoot);
 
     //Move into that root and write the structure.
     currentRoot = dataStructureRoot;
-    if (!toSerialize.WriteData(this, outError))
-        return false;
+    toSerialize.WriteData(this);
 
     //Move out of that root, back into its parent.
     currentRoot = dataStructureRoot->Parent()->ToElement();
-
-    return true;
 }
 
 
 
-XmlReader::XmlReader(std::string filePath, std::string & outErrorMsg)
+XmlReader::XmlReader(const std::string& filePath)
 {
-    outErrorMsg = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
+    ErrorMessage = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
 
     currentRoot = 0;
     currentChild = 0;
 
-    if (outErrorMsg.empty())
+    if (ErrorMessage.empty())
     {
         //Find the root element.
-        for (XMLNode * child = doc.FirstChild(); child != 0; child = child->NextSibling())
+        for (XMLNode* child = doc.FirstChild(); child != 0; child = child->NextSibling())
         {
             if (child->ToElement() != 0)
             {
@@ -154,7 +243,7 @@ XmlReader::XmlReader(std::string filePath, std::string & outErrorMsg)
         //If no element was found, error.
         if (currentRoot == 0)
         {
-            outErrorMsg = "Couldn't find a root XML element in the document";
+            ErrorMessage = "Couldn't find a root XML element in the document";
             return;
         }
 
@@ -164,71 +253,74 @@ XmlReader::XmlReader(std::string filePath, std::string & outErrorMsg)
 }
 
 
-#define XML_READ_ERROR_CHECK(dataType, dataTypeStr) \
+//Throws an exception if the "currentChild" field in XML reader doesn't use the given element tag.
+#define XML_READ_ERROR_CHECK(dataTypeStr) \
     if (currentChild == 0) \
     { \
-        outError = std::string("No more data in the structure '") + currentRoot->Attribute("name") + "'"; \
-        return MaybeValue<dataType>(); \
+        ErrorMessage = std::string("No more data in the structure '") + \
+                           currentRoot->Attribute("name") + "'"; \
+        throw EXCEPTION_FAILURE; \
     } \
     \
     if (std::string(currentChild->Name()).compare(dataTypeStr) != 0) \
     { \
-        outError = std::string("The next data in this structure '") + currentRoot->Attribute("name") + \
-                       "' is the " + currentChild->Name() + " '" + \
-                       currentChild->Attribute("name") + "', not a " + dataTypeStr; \
-        return MaybeValue<dataType>(); \
+        ErrorMessage = std::string("The next data in this structure '") + \
+                           currentRoot->Attribute("name") + \
+                           "' is the " + currentChild->Name() + " '" + \
+                           currentChild->Attribute("name") + "', not a " + dataTypeStr; \
+        throw EXCEPTION_FAILURE; \
     }
 
-MaybeValue<bool> XmlReader::ReadBool(std::string & outError)
+void XmlReader::ReadBool(bool& outB)
 {
-    XML_READ_ERROR_CHECK(bool, "bool")
+    XML_READ_ERROR_CHECK("bool")
 
     std::string val = currentChild->Attribute("value");
     if (val.compare("true") == 0)
     {
         currentChild = currentChild->NextSiblingElement();
-        return MaybeValue<bool>(true);
+        outB = true;
     }
     else if (val.compare("false") == 0)
     {
         currentChild = currentChild->NextSiblingElement();
-        return MaybeValue<bool>(false);
+        outB = false;
     }
     else
     {
-        outError = std::string("bool data '") + currentChild->Name() +
-                       "' has an invalid value of '" + currentChild->Attribute("value") + "'";
-        return MaybeValue<bool>();
+        ErrorMessage = std::string("bool data '") + currentChild->Name() +
+                           "' has an invalid value of '" + currentChild->Attribute("value") + "'";
+        throw EXCEPTION_FAILURE;
     }
 }
-MaybeValue<std::string> XmlReader::ReadString(std::string & outError)
+void XmlReader::ReadString(std::string& outStr)
 {
-    XML_READ_ERROR_CHECK(std::string, "string")
+    XML_READ_ERROR_CHECK("string")
 
-    std::string val = currentChild->Attribute("value");
+    outStr = currentChild->Attribute("value");
     currentChild = currentChild->NextSiblingElement();
-    return MaybeValue<std::string>(val);
 }
 
 
 //Other implementations of "Read" functions are all nearly identical.
 #define IMPL_XML_READ(dataType, dataTypeName, queryAttributeData, dataTypeStr, preDataType) \
-    MaybeValue<dataType> XmlReader::Read ## dataTypeName(std::string & outError) \
+    void XmlReader::Read ## dataTypeName(dataType & outData) \
     { \
-        XML_READ_ERROR_CHECK(dataType, dataTypeStr); \
+        XML_READ_ERROR_CHECK(dataTypeStr); \
         \
         preDataType value; \
-        outError = TinyXMLErrorToString(currentChild-> ## queryAttributeData("value", &value)); \
+        ErrorMessage = TinyXMLErrorToString(currentChild-> ## queryAttributeData("value", &value)); \
         \
-        if (outError.empty()) \
+        if (ErrorMessage.empty()) \
         { \
             currentChild = currentChild->NextSiblingElement(); \
-            return MaybeValue<dataType>((dataType)value); \
+            outData = (dataType)value; \
         } \
         else \
         { \
-            outError = std::string("Invalid ") + dataTypeStr + " value of '" + currentChild->Attribute("value") + ": " + outError; \
-            return MaybeValue<dataType>(); \
+            ErrorMessage = std::string("Invalid ") + dataTypeStr + " value of '" + \
+                               currentChild->Attribute("value") + ": " + ErrorMessage; \
+            throw EXCEPTION_FAILURE; \
         } \
     }
 
@@ -238,26 +330,40 @@ IMPL_XML_READ(unsigned int, UInt, QueryUnsignedAttribute, "uint", unsigned int)
 IMPL_XML_READ(float, Float, QueryFloatAttribute, "float", float)
 IMPL_XML_READ(double, Double, QueryDoubleAttribute, "double", double)
 
-bool XmlReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPerElement, std::string & outError,
-                               std::vector<unsigned char> & outData, void * optionalData)
+void XmlReader::ReadBytes(std::vector<unsigned char>& outBytes)
+{
+    XML_READ_ERROR_CHECK("byteData");
+
+    std::string hexNumbers = currentChild->Attribute("value");
+    currentChild = currentChild->NextSiblingElement();
+
+    HexToBytes(hexNumbers, outBytes, ErrorMessage);
+}
+
+void XmlReader::ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
+                               CollectionResizer resizer, void* pCollection,
+                               void* optionalData)
 {
     if (currentChild == 0)
     {
-        outError = std::string("No more data in the structure '") + currentRoot->Attribute("name") + "'";
-        return false;
+        ErrorMessage = std::string("No more data in the structure '") +
+                           currentRoot->Attribute("name") + "'";
+        throw EXCEPTION_FAILURE;
     }
     
     if (std::string(currentChild->Name()).compare("collection") != 0)
     {
-        outError = std::string("The next data in this structure '") + currentRoot->Attribute("name") +
-            "' is the " + currentChild->Name() + " '" +
-            currentChild->Attribute("name") + "', not a collection";
-        return false;
+        ErrorMessage = std::string("The next data in this structure '") +
+                           currentRoot->Attribute("name") +
+                           "' is the " + currentChild->Name() + " '" +
+                           currentChild->Attribute("name") + "', not a collection";
+        throw EXCEPTION_FAILURE;
     }
+    //TODO: Use that XML_READ_ERROR_CHECK macro instead of the above two conditionals.
 
     //Hold on to the new values of this instance's fields after this operation is done.
-    XMLElement * oldRoot = currentRoot;
-    XMLElement * nextChild = currentChild->NextSiblingElement();
+    XMLElement* oldRoot = currentRoot;
+    XMLElement* nextChild = currentChild->NextSiblingElement();
 
     currentChild = currentChild->FirstChildElement();
 
@@ -265,16 +371,13 @@ bool XmlReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPerEl
     while (currentChild != 0)
     {
         //Prepare the data to be read.
-        outData.reserve(outData.size() + bytesPerElement);
-        for (unsigned int byte = 0; byte < bytesPerElement; ++byte)
-            outData.insert(outData.end(), 0);
+        creatorFunc(pCollection, index, optionalData);
 
         //Try to read the data.
         currentRoot = currentChild;
-        XMLElement * oldChild = currentChild;
+        XMLElement* oldChild = currentChild;
         currentChild = currentRoot->FirstChildElement();
-        if (!readerFunc(outData.data(), index, this, outError, optionalData))
-            return false;
+        readerFunc(this, pCollection, index, optionalData);
 
         currentChild = oldChild->NextSiblingElement();
         index += 1;
@@ -283,40 +386,37 @@ bool XmlReader::ReadCollection(ElementReader readerFunc, unsigned int bytesPerEl
     //Reset this reader's position to the next child after the collection.
     currentRoot = oldRoot;
     currentChild = nextChild;
-
-    return true;
 }
 
-bool XmlReader::ReadDataStructure(ISerializable & toSerialize, std::string & outError)
+void XmlReader::ReadDataStructure(IReadable& toSerialize)
 {
     //Make sure the structure's root exists.
     if (currentChild == 0)
     {
-        outError = std::string("No more data in the structure '") + currentRoot->Attribute("name") + "'";
-        return false;
+        ErrorMessage = std::string("No more data in the structure '") +
+                           currentRoot->Attribute("name") + "'";
+        throw EXCEPTION_FAILURE;
     }
     if (std::string(currentChild->Name()).compare("dataStructure") != 0)
     {
-        outError = std::string("The next data in this structure '") + currentRoot->Attribute("name") +
-                       "' is the " + currentChild->Name() + " '" +
-                       currentChild->Attribute("name") + "', not a 'dataStructure'.";
-        return false;
+        ErrorMessage = std::string("The next data in this structure '") +
+                           currentRoot->Attribute("name") + "' is the " + currentChild->Name() + " '" +
+                           currentChild->Attribute("name") + "', not a 'dataStructure'.";
+        throw EXCEPTION_FAILURE;
     }
+    //TODO: Use that XML_READ_ERROR_CHECK macro instead of the above two conditionals.
 
 
     //Keep hold of this instance's new field data after this function is done.
-    XMLElement * oldRoot = currentRoot;
-    XMLElement * nextChild = currentChild->NextSiblingElement();
+    XMLElement* oldRoot = currentRoot;
+    XMLElement* nextChild = currentChild->NextSiblingElement();
 
     //Try writing to the structure.
     currentRoot = currentChild;
     currentChild = currentRoot->FirstChildElement();
-    if (!toSerialize.ReadData(this, outError))
-        return false;
+    toSerialize.ReadData(this);
 
     //Move out of that structure's root, back into its parent.
     currentRoot = oldRoot;
     currentChild = nextChild;
-
-    return true;
 }

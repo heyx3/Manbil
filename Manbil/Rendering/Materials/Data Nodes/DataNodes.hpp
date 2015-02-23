@@ -42,7 +42,3 @@
 #include "Parameters/TextureSampleCubemapNode.h"
 #include "Parameters/TimeNode.h"
 #include "Parameters/VertexInputNode.h"
-
-
-//Sets up all basic nodes (i.e. the ones inside this folder and its subfolder) to be readable from a file.
-extern void PrepareBasicNodesToBeRead(void);

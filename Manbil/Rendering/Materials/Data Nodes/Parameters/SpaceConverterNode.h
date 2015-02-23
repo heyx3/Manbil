@@ -67,9 +67,9 @@ protected:
     virtual void WriteMyOutputs(std::string & outCode) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
-
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
     virtual void AssertMyInputsValid(void) const override;
 
@@ -78,7 +78,7 @@ private:
 
     //Asserts that the src space is "closer" to object-space than the dest space.
     //If the assert fails, sets the error message and returns false.
-    bool AssertValidSrcDestSpaces(void) const;
+    bool AssertValidSrcDestSpaces(std::string& outError) const;
 
     std::string ST_ToString(SpaceTypes st) const;
     std::string DT_ToString(DataTypes dt) const;
@@ -87,5 +87,5 @@ private:
     static bool DT_FromString(std::string str, DataTypes & outDt);
 
 
-    MAKE_NODE_READABLE_H(SpaceConverterNode)
+    ADD_NODE_REFLECTION_DATA_H(SpaceConverterNode)
 };
