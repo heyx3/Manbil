@@ -3,30 +3,32 @@
 #include "../../MaterialData.h"
 
 
-MAKE_NODE_READABLE_CPP(ShaderInNode, 1)
+ADD_NODE_REFLECTION_DATA_CPP(ShaderInNode, 1)
 
 
+#pragma warning(disable: 4100)
 unsigned int ShaderInNode::GetOutputSize(unsigned int outputIndex) const
 {
     switch (CurrentShader)
     {
-        case ShaderHandler::SH_Vertex_Shader:
+        case SH_VERTEX:
             Assert(HasVertexInput(), "Attempted to get value of a vertex input that doesn't exist!");
-            return VertexIns.GetAttributeSize(vInputIndex);
+            return VertexIns.GetAttribute(vInputIndex).Size;
 
-        case ShaderHandler::SH_GeometryShader:
+        case SH_FRAGMENT:
             Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(GeometryShader.IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
+            Assert(GeometryShader.IsValidData(),
+                   "Attempted to get value of a geometry input when there is no geometry shader!");
             return MaterialOuts.VertexOutputs[gInputIndex].Value.GetSize();
 
-        case ShaderHandler::SH_Fragment_Shader:
+        case SH_GEOMETRY:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
             if (GeometryShader.IsValidData())
-                return GeometryShader.OutputTypes.GetAttributeSize(fInputIndex);
+                return GeometryShader.OutputTypes.GetAttribute(fInputIndex).Size;
             else return MaterialOuts.VertexOutputs[fInputIndex].Value.GetSize();
 
         default:
-            Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
+            Assert(false, std::string("Unknown shader type ") + ToString(CurrentShader));
             return 0;
     }
 }
@@ -34,119 +36,60 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
 {
     switch (CurrentShader)
     {
-        case ShaderHandler::SH_Vertex_Shader:
+        case SH_VERTEX:
             Assert(HasVertexInput(), "Attempted to get value of a vertex input that doesn't exist!");
-            return VertexIns.GetAttributeName(vInputIndex);
+            return VertexIns.GetAttribute(vInputIndex).Name;
 
-        case ShaderHandler::SH_GeometryShader:
-            Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(GeometryShader.IsValidData(), "Attempted to get value of a geometry input when there is no geometry shader!");
-            return MaterialOuts.VertexOutputs[gInputIndex].Name + "[" + ToString(gInputArrayIndex) + "]";
-
-        case ShaderHandler::SH_Fragment_Shader:
+        case SH_FRAGMENT:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
             if (GeometryShader.IsValidData())
-                return GeometryShader.OutputTypes.GetAttributeName(fInputIndex);
+                return GeometryShader.OutputTypes.GetAttribute(fInputIndex).Name;
             else return MaterialOuts.VertexOutputs[fInputIndex].Name;
+
+        case SH_GEOMETRY:
+            Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
+            Assert(GeometryShader.IsValidData(),
+                   "Attempted to get value of a geometry input when there is no geometry shader!");
+            return MaterialOuts.VertexOutputs[gInputIndex].Name + "[" + ToString(gInputArrayIndex) + "]";
 
         default:
             Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
             return "ERROR_UNKNOWN_SHADER_TYPE";
     }
 }
+#pragma warning(default: 4100)
 
-ShaderInNode::ShaderInNode(unsigned int size, std::string name, int vertIn, int fragIn, int geoIn, unsigned int geoArrIn)
+ShaderInNode::ShaderInNode(unsigned int size, std::string name,
+                           int vertIn, int fragIn, int geoIn, unsigned int geoArrIn)
     : vInputIndex(vertIn), gInputIndex(geoIn), fInputIndex(fragIn), gInputArrayIndex(geoArrIn), outSize(size),
-    DataNode(std::vector<DataLine>(), name)
+      DataNode(std::vector<DataLine>(), name)
 {
 
 }
 
 #pragma warning (disable: 4100)
-
-void ShaderInNode::WriteMyOutputs(std::string & outCode) const
+void ShaderInNode::WriteMyOutputs(std::string& outCode) const
 {
     //Don't write anything; this node outputs shader inputs.
 }
-
 #pragma warning (default: 4100)
 
 
-bool ShaderInNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void ShaderInNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteUInt(outSize, "Output Size", outError))
-    {
-        outError = "Error writing the output size, " + ToString(outSize) + ": " + outError;
-        return false;
-    }
+    writer->WriteUInt(outSize, "Output size");
 
-    if (!writer->WriteInt(vInputIndex, "Vertex Input Index", outError))
-    {
-        outError = "Error writing the vertex input index " + std::to_string(vInputIndex) + ": " + outError;
-        return false;
-    }
-
-    if (!writer->WriteInt(fInputIndex, "Fragment Input Index", outError))
-    {
-        outError = "Error writing the fragment input index " + std::to_string(fInputIndex) + ": " + outError;
-        return false;
-    }
-
-    if (!writer->WriteInt(gInputIndex, "Geometry Input Index", outError))
-    {
-        outError = "Error writing the geometry input index " + std::to_string(gInputIndex) + ": " + outError;
-        return false;
-    }
-
-    if (!writer->WriteUInt(gInputArrayIndex, "Geometry Input Array Index", outError))
-    {
-        outError = "Error writing the geometry input array index " + ToString(gInputArrayIndex) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteInt(vInputIndex, "Vertex input index");
+    writer->WriteInt(fInputIndex, "Fragment input index");
+    writer->WriteInt(gInputIndex, "Geometry input index");
+    writer->WriteUInt(gInputArrayIndex, "Geometry input array index");
 }
-bool ShaderInNode::ReadExtraData(DataReader * reader, std::string & outError)
+void ShaderInNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<unsigned int> tryOutSize = reader->ReadUInt(outError);
-    if (!tryOutSize.HasValue())
-    {
-        outError = "Error reading output size: " + outError;
-        return false;
-    }
-    outSize = tryOutSize.GetValue();
+    reader->ReadUInt(outSize);
 
-    MaybeValue<int> tryVertIn = reader->ReadInt(outError);
-    if (!tryVertIn.HasValue())
-    {
-        outError = "Error reading vertex input index: " + outError;
-        return false;
-    }
-    vInputIndex = tryVertIn.GetValue();
-
-    MaybeValue<int> tryFragIn = reader->ReadInt(outError);
-    if (!tryFragIn.HasValue())
-    {
-        outError = "Error reading fragment input index: " + outError;
-        return false;
-    }
-    fInputIndex = tryFragIn.GetValue();
-
-    MaybeValue<int> tryGeoValue = reader->ReadInt(outError);
-    if (!tryGeoValue.HasValue())
-    {
-        outError = "Error reading geometry input index: " + outError;
-        return false;
-    }
-    gInputIndex = tryGeoValue.GetValue();
-
-    MaybeValue<unsigned int> tryGeoArrValue = reader->ReadUInt(outError);
-    if (!tryGeoArrValue.HasValue())
-    {
-        outError = "Error reading geometry array input index: " + outError;
-        return false;
-    }
-    gInputArrayIndex = tryGeoArrValue.GetValue();
-
-    return true;
+    reader->ReadInt(vInputIndex);
+    reader->ReadInt(fInputIndex);
+    reader->ReadInt(gInputIndex);
+    reader->ReadUInt(gInputArrayIndex);
 }

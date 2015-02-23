@@ -3,10 +3,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SFMLWorld.cpp">
-      <Filter>Worlds</Filter>
+      <Filter>Game Loop</Filter>
     </ClCompile>
     <ClCompile Include="SFMLOpenGLWorld.cpp">
-      <Filter>Worlds</Filter>
+      <Filter>Game Loop</Filter>
     </ClCompile>
     <ClCompile Include="NoiseTest.cpp">
       <Filter>Tests</Filter>
@@ -16,30 +16,6 @@
     </ClCompile>
     <ClCompile Include="TwoTrianglesWorld.cpp">
       <Filter>Toys\Two Triangles</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenGLIncludes.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderDataHandler.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderingState.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="ScreenClearer.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderHandler.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Vertices.cpp">
-      <Filter>Rendering\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Input\Input Objects\MouseDeltaVector2Input.cpp">
       <Filter>Input\Input Objects\Vector2 Input</Filter>
@@ -107,74 +83,50 @@
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\DataNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\AddNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\Data Nodes\Vector.cpp">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\DataLine.cpp">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\SubtractNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DivideNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\MaterialData.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\LogNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\WhiteNoiseNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\ShaderGenerator.cpp">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\RenderingModes.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Materials\UniformCollections.cpp">
-      <Filter>Rendering\Materials</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\PostProcessing\PostProcessData.cpp">
-      <Filter>Rendering\Post-Processing</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\PostProcessing\PostProcessChain.cpp">
-      <Filter>Rendering\Post-Processing</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
     <ClCompile Include="Input\LookRotation.cpp">
       <Filter>Input</Filter>
@@ -183,7 +135,7 @@
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Rendering\GPU Particles\GPUParticleDefines.cpp">
@@ -193,16 +145,7 @@
       <Filter>Rendering\GPU Particles</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.cpp">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.cpp">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseToTexture.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp">
       <Filter>Rendering\GUI</Filter>
@@ -214,7 +157,7 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Texture Management\TextureSettings.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Water\Water.cpp">
       <Filter>Rendering\Water</Filter>
@@ -223,13 +166,13 @@
       <Filter>Rendering\Water</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Texture Management\MTextureCubemap.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
     <ClCompile Include="IO\XmlSerialization.cpp">
       <Filter>IO</Filter>
@@ -238,85 +181,82 @@
       <Filter>IO</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Texture Management\MTexture2D.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Texture Management\MTexture3D.cpp">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\RemapNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\RefractNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ReflectNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\PowNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DistanceNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\CrossNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ClampNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\SerializedMaterial.cpp">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\ModuloNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Math\DotNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.cpp">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp">
       <Filter>Toys\PlanetSim</Filter>
@@ -369,12 +309,6 @@
     <ClCompile Include="Rendering\GUI\GUI Elements\GUISelectionBox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Curves\CurveVertex.cpp">
-      <Filter>Rendering\Curves</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Curves\BezierCurve.cpp">
-      <Filter>Rendering\Curves</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\GUI\GUIManager.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
@@ -391,22 +325,22 @@
       <Filter>Input</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorPanel.cpp">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUI Elements\GUICheckbox.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorMaterialSet.cpp">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorObjects.cpp">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClCompile>
     <ClCompile Include="Editor\EditorObject.cpp">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClCompile>
     <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp">
-      <Filter>Editors\Editor Panels</Filter>
+      <Filter>Rendering\Editors\Editor Panels</Filter>
     </ClCompile>
     <ClCompile Include="Math\Shapes\Circle.cpp">
       <Filter>Math\Shapes</Filter>
@@ -424,13 +358,10 @@
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.cpp">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
     <ClCompile Include="Oculus Rift\OculusDevice.cpp">
       <Filter>Oculus Rift</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
-      <Filter>Rendering\Helper Classes</Filter>
     </ClCompile>
     <ClCompile Include="Tests\RiftTestWorld.cpp">
       <Filter>Tests</Filter>
@@ -444,13 +375,73 @@
     <ClCompile Include="Tests\TerrainTestWorld.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\MaterialData.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingState.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLIncludes.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenClearer.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\MeshData.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\RenderIOAttributes.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Materials\UniformCollections.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseToTexture.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertices.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Texture Management\RenderTargetManager.cpp">
+      <Filter>Rendering\Management</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\GPU Particles\GPUParticleNodes.cpp">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Helper Classes\DrawingQuad.cpp">
+      <Filter>Rendering\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\PrimitiveGenerator.cpp">
+      <Filter>Rendering\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Curves\BezierCurve.cpp">
+      <Filter>Rendering\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Curves\CurveVertex.cpp">
+      <Filter>Rendering\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\Serialization.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFMLWorld.h">
-      <Filter>Worlds</Filter>
+      <Filter>Game Loop</Filter>
     </ClInclude>
     <ClInclude Include="SFMLOpenGLWorld.h">
-      <Filter>Worlds</Filter>
+      <Filter>Game Loop</Filter>
     </ClInclude>
     <ClInclude Include="NoiseTest.h">
       <Filter>Tests</Filter>
@@ -458,35 +449,8 @@
     <ClInclude Include="OpenGLTestWorld.h">
       <Filter>Tests</Filter>
     </ClInclude>
-    <ClInclude Include="RenderInfo.h">
-      <Filter>Worlds</Filter>
-    </ClInclude>
     <ClInclude Include="TwoTrianglesWorld.h">
       <Filter>Toys\Two Triangles</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLIncludes.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderDataHandler.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderingState.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenClearer.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderHandler.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertices.h">
-      <Filter>Rendering\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
       <Filter>Input\Input Objects\Bool Input</Filter>
@@ -599,123 +563,93 @@
     <ClInclude Include="Math\Higher Math\BumpmapToNormalmap.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
-      <Filter>Rendering\Helper Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\TextureChannels.h">
-      <Filter>Rendering\Texture Management</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\RenderingModes.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\MaterialData.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\DataNodeIncludes.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\DataNode.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\AddNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\Data Nodes\Vector.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\DataLine.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\SubtractNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MultiplyNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DivideNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\InterpolateNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\ShaderGenerator.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\PowNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ParamNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DotNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\CrossNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ClampNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\DistanceNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ModuloNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\LogNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\CameraDataNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\WhiteNoiseNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TimeNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\ReflectNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RefractNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Materials\UniformCollections.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CombineVectorNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\VectorComponentsNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RotateAroundAxisNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SimpleFunctionNodes.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\RemapNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\SwizzleNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\PostProcessing\PostProcessData.h">
-      <Filter>Rendering\Post-Processing</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\PostProcessing\PostProcessChain.h">
-      <Filter>Rendering\Post-Processing</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ProjectionDataNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\FreeTypeHandler.h">
       <Filter>Rendering\GUI</Filter>
@@ -729,18 +663,15 @@
     <ClInclude Include="Math\Noise Generation\NoiseFilterVolume.h">
       <Filter>Math\Noise Generation</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Materials\MaterialUsageFlags.h">
-      <Filter>Rendering\Materials</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\LightingNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\VertexInputNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\GeometryShaderInfo.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GPU Particles\GPUParticleDefines.h">
       <Filter>Rendering\GPU Particles</Filter>
@@ -749,31 +680,19 @@
       <Filter>Rendering\GPU Particles</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\GeometryInputNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\ShaderInNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\FragmentInputNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Gradient.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPComponentManager.h">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\SpecialHGPComponents.h">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\GPU Particles\High-level GPU Particles\HGPOutputComponent.h">
-      <Filter>Rendering\GPU Particles\High-level GPU Particles</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\GetLerpComponentNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseToTexture.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\TextRenderer.h">
       <Filter>Rendering\GUI</Filter>
@@ -782,10 +701,10 @@
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SubroutineNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\TextureSettings.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Water\Water.h">
       <Filter>Rendering\Water</Filter>
@@ -794,13 +713,13 @@
       <Filter>Rendering\Water</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample2DNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSampleCubemapNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTextureCubemap.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
     <ClInclude Include="IO\XmlSerialization.h">
       <Filter>IO</Filter>
@@ -812,28 +731,28 @@
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTexture2D.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Texture Management\MTexture3D.h">
-      <Filter>Rendering\Texture Management</Filter>
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\TextureSample3DNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\CustomExpressionNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Math\MaxMinNodes.h">
-      <Filter>Rendering\Materials\Data Nodes\Math</Filter>
+      <Filter>Rendering\Data Nodes\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\SerializedMaterial.h">
-      <Filter>Rendering\Materials\Data Nodes</Filter>
+      <Filter>Rendering\Data Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\SpaceConverterNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Parameters\LinearizeDepthSampleNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Parameters</Filter>
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h">
       <Filter>Toys\PlanetSim</Filter>
@@ -886,12 +805,6 @@
     <ClInclude Include="Rendering\GUI\GUI Elements\GUISelectionBox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Curves\CurveVertex.h">
-      <Filter>Rendering\Curves</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Curves\BezierCurve.h">
-      <Filter>Rendering\Curves</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\GUI\GUIManager.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
@@ -902,7 +815,7 @@
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorPanel.h">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUITextBox.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
@@ -914,25 +827,25 @@
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorMaterialSet.h">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorObject.h">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorObjects.h">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClInclude>
     <ClInclude Include="Editor\IEditable.h">
-      <Filter>Editors</Filter>
+      <Filter>Rendering\Editors</Filter>
     </ClInclude>
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h">
-      <Filter>Editors\Editor Panels</Filter>
+      <Filter>Rendering\Editors\Editor Panels</Filter>
     </ClInclude>
     <ClInclude Include="Editor\DAG Editor\DAGNode.h">
-      <Filter>Editors\DAG Editor</Filter>
+      <Filter>Rendering\Editors\DAG Editor</Filter>
     </ClInclude>
     <ClInclude Include="Editor\DAG Editor\DAGInput.h">
-      <Filter>Editors\DAG Editor</Filter>
+      <Filter>Rendering\Editors\DAG Editor</Filter>
     </ClInclude>
     <ClInclude Include="Math\Shapes\Circle.h">
       <Filter>Math\Shapes</Filter>
@@ -959,16 +872,13 @@
       <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Materials\Data Nodes\Miscellaneous\TangentSpaceNormalsNode.h">
-      <Filter>Rendering\Materials\Data Nodes\Miscellaneous</Filter>
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="Oculus Rift\OculusDevice.h">
       <Filter>Oculus Rift</Filter>
     </ClInclude>
     <ClInclude Include="Tests\RiftTestWorld.h">
       <Filter>Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\PrimitiveGenerator.h">
-      <Filter>Rendering\Helper Classes</Filter>
     </ClInclude>
     <ClInclude Include="Tests\AssImpTestWorld.h">
       <Filter>Tests</Filter>
@@ -981,6 +891,78 @@
     </ClInclude>
     <ClInclude Include="Tests\TerrainTestWorld.h">
       <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\BlendMode.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\MaterialUsageFlags.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\MaterialData.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingState.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLIncludes.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenClearer.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\TextureChannels.h">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\MeshData.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\RenderIOAttributes.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\UniformCollections.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseToTexture.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertices.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Texture Management\RenderTargetManager.h">
+      <Filter>Rendering\Management</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\GLVectors.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Materials\Data Nodes\DataNodes.hpp">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\GPU Particles\GPUParticleNodes.h">
+      <Filter>Rendering\GPU Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Helper Classes\DrawingQuad.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\PrimitiveGenerator.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Curves\BezierCurve.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Curves\CurveVertex.h">
+      <Filter>Rendering\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\Serialization.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderInfo.h">
+      <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -995,9 +977,6 @@
     </Filter>
     <Filter Include="Math\Shapes">
       <UniqueIdentifier>{d3a505b7-f782-4bb9-8d96-9d0eeb45aa42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MGame">
-      <UniqueIdentifier>{e679110c-e835-44d9-bd5e-ed3d7286a232}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\Higher Math">
       <UniqueIdentifier>{977d905e-3054-4196-b423-4c0d8d5da765}</UniqueIdentifier>
@@ -1020,47 +999,17 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{077822c2-7114-45a1-9e61-f6a8b548b692}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Helper Classes">
-      <UniqueIdentifier>{245e6dd6-d31d-4a83-b45f-ca212d6fc0db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Materials">
-      <UniqueIdentifier>{5dd80362-6981-4b1a-870a-faed149b01aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Worlds">
-      <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Post-Processing">
-      <UniqueIdentifier>{d1d8c8fa-48ec-4ad0-bc6f-63d81ae1bb77}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
       <UniqueIdentifier>{95bef7da-4bab-4a10-9f0f-306b3c80aa15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Texture Management">
-      <UniqueIdentifier>{2e9a24e0-4aee-4777-9c35-afe630868075}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\GUI">
       <UniqueIdentifier>{c8b64acb-b386-4277-a154-8f47c09c666b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Materials\Data Nodes">
-      <UniqueIdentifier>{a5ab7fb2-95fe-443f-a7cd-b7f65bb8e0c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Materials\Data Nodes\Math">
-      <UniqueIdentifier>{89ba6ab3-54f0-441b-916c-03b4fa298a9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Materials\Data Nodes\Parameters">
-      <UniqueIdentifier>{637eb3fd-211d-48da-a50f-af946eabc75a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Materials\Data Nodes\Miscellaneous">
-      <UniqueIdentifier>{cbed0f25-2a3e-49c5-99d3-90316bb497bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\GPU Particles">
       <UniqueIdentifier>{215761ec-d5e7-4ef2-9067-f3077de54bd2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\GPU Particles\High-level GPU Particles">
-      <UniqueIdentifier>{d73909a1-953f-440e-87c3-def0ee62599d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\Water">
       <UniqueIdentifier>{3b14cde5-1c67-4405-bc5d-ed63a93d0054}</UniqueIdentifier>
@@ -1083,20 +1032,8 @@
     <Filter Include="Rendering\GUI\GUI Elements">
       <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Curves">
-      <UniqueIdentifier>{f6d23fde-1015-4a05-b06d-5b44392a923e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset Packaging">
       <UniqueIdentifier>{6ac83a61-b2e1-4f2a-bf8f-d1eb1e9ae1cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Editors">
-      <UniqueIdentifier>{e2dce602-daaf-4ec7-95de-2ef979573e7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Editors\Editor Panels">
-      <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Editors\DAG Editor">
-      <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\Lower Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
@@ -1109,6 +1046,42 @@
     </Filter>
     <Filter Include="Toys\Two Triangles\Shaders">
       <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Basic Rendering">
+      <UniqueIdentifier>{8ad55c55-4ca2-43dd-bfea-912c2bee8b5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Textures">
+      <UniqueIdentifier>{2e9a24e0-4aee-4777-9c35-afe630868075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Management">
+      <UniqueIdentifier>{8ac23e0c-c348-4f0d-a0c1-e092b081748c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Data Nodes">
+      <UniqueIdentifier>{a5ab7fb2-95fe-443f-a7cd-b7f65bb8e0c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Data Nodes\Math">
+      <UniqueIdentifier>{89ba6ab3-54f0-441b-916c-03b4fa298a9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Data Nodes\Parameters">
+      <UniqueIdentifier>{637eb3fd-211d-48da-a50f-af946eabc75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Data Nodes\Miscellaneous">
+      <UniqueIdentifier>{cbed0f25-2a3e-49c5-99d3-90316bb497bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Primitives">
+      <UniqueIdentifier>{8961cf2e-efb8-4fdd-a20e-b213dd2f0cbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Loop">
+      <UniqueIdentifier>{081f6e00-12b3-42b1-8c96-87eb066e25de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Editors">
+      <UniqueIdentifier>{e2dce602-daaf-4ec7-95de-2ef979573e7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Editors\Editor Panels">
+      <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Editors\DAG Editor">
+      <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

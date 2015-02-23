@@ -3,9 +3,10 @@
 #include "../../MaterialData.h"
 
 
-MAKE_NODE_READABLE_CPP(ProjectionDataNode, )
+ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(ProjectionDataNode)
 
-std::shared_ptr<DataNode> ProjectionDataNode::instance = std::shared_ptr<DataNode>(new ProjectionDataNode());
+std::shared_ptr<DataNode> ProjectionDataNode::instance =
+        std::shared_ptr<DataNode>(new ProjectionDataNode());
 
 
 std::string ProjectionDataNode::GetOutputName(unsigned int index) const
@@ -46,7 +47,7 @@ unsigned int ProjectionDataNode::GetOutputSize(unsigned int index) const
     }
 }
 
-void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
+void ProjectionDataNode::SetMyFlags(MaterialUsageFlags& flags, unsigned int outputIndex) const
 {
     switch (outputIndex)
     {
@@ -72,18 +73,17 @@ void ProjectionDataNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
             flags.EnableFlag(MaterialUsageFlags::Flags::DNF_USES_ORTHO_MAX);
             break;
 
-        default: Assert(false, std::string() + "Invalid output index " + ToString(outputIndex));
+        default: Assert(false, std::string("Invalid output index ") + ToString(outputIndex));
     }
 }
 
 
 #pragma warning(disable: 4100)
-void ProjectionDataNode::WriteMyOutputs(std::string & outCode) const
+void ProjectionDataNode::WriteMyOutputs(std::string& outCode) const
 {
     //No output writing needed.
 }
 #pragma warning(default: 4100)
 
 
-ProjectionDataNode::ProjectionDataNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName())
-{ }
+ProjectionDataNode::ProjectionDataNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName()) { }

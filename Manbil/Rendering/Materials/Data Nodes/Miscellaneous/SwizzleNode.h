@@ -30,9 +30,9 @@ protected:
     virtual void WriteMyOutputs(std::string & outStr) const override;
 
     virtual std::string GetInputDescription(unsigned int index) const override;
-
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
 
 private:
@@ -40,5 +40,5 @@ private:
     Components comps[4];
     unsigned int nComps;
 
-    MAKE_NODE_READABLE_H(SwizzleNode)
+    ADD_NODE_REFLECTION_DATA_H(SwizzleNode)
 };

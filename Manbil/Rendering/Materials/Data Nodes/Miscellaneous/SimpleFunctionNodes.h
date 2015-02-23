@@ -7,7 +7,7 @@
 class className : public DataNode \
     { \
     public: \
-        className(const DataLine & input, std::string name = "") \
+        className(const DataLine& input, std::string name = "") \
             : DataNode(MakeVector(input), name) { } \
         \
         \
@@ -23,13 +23,14 @@ class className : public DataNode \
         } \
     \
     protected: \
-        virtual void WriteMyOutputs(std::string & outCode) const override \
+        virtual void WriteMyOutputs(std::string& outCode) const override \
         { \
-            std::string vecType = VectorF(GetInputs()[0].GetSize()).GetGLSLType(); \
-            outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
+            std::string vecType = VectorF(GetInputs()[0].GetSize(), 0).GetGLSLType(); \
+            outCode += "\t" + vecType + " " + GetOutputName(0) + " = (" + \
+                            #funcName + "(" + GetInputs()[0].GetValue() + "));\n"; \
         } \
         \
-        MAKE_NODE_READABLE_H(className) \
+        ADD_NODE_REFLECTION_DATA_H(className) \
     };
 
 

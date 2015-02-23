@@ -3,7 +3,9 @@
 #include "../../MaterialData.h"
 
 
-MAKE_NODE_READABLE_CPP(SpaceConverterNode, Vector3f(1.0f, 0.0f, 0.0f), ST_OBJECT, ST_SCREEN, DT_NORMAL)
+ADD_NODE_REFLECTION_DATA_CPP(SpaceConverterNode, Vector3f(1.0f, 0.0f, 0.0f),
+                             SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
+                             SpaceConverterNode::DT_NORMAL)
 
 unsigned int SpaceConverterNode::GetNumbOutputs(void) const
 {
@@ -34,13 +36,13 @@ SpaceConverterNode::SpaceConverterNode(const DataLine & inV, SpaceTypes src, Spa
     : DataNode(MakeVector(inV), name),
       SrcSpace(src), DestSpace(dest), DataType(dat)
 {
-    Assert(AssertValidSrcDestSpaces(), errorMsg);
+    Assert(AssertValidSrcDestSpaces(errorMsg), errorMsg);
 }
 
 #pragma warning(disable: 4100)
 void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
 {
-    Assert(AssertValidSrcDestSpaces(), errorMsg);
+    Assert(AssertValidSrcDestSpaces(errorMsg), errorMsg);
 
     switch (SrcSpace)
     {
@@ -85,9 +87,9 @@ void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
 }
 #pragma warning(default: 4100)
 
-void SpaceConverterNode::WriteMyOutputs(std::string & outCode) const
+void SpaceConverterNode::WriteMyOutputs(std::string& outCode) const
 {
-    Assert(AssertValidSrcDestSpaces(), errorMsg);
+    Assert(AssertValidSrcDestSpaces(errorMsg), errorMsg);
 
     std::string matName;
 
@@ -144,6 +146,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string & outCode) const
     }
 }
 
+#pragma warning(disable: 4100)
 std::string SpaceConverterNode::GetInputDescription(unsigned int index) const
 {
     switch (DataType)
@@ -157,72 +160,46 @@ std::string SpaceConverterNode::GetInputDescription(unsigned int index) const
             return "UNKNOWN_DATA_TYPE";
     }
 }
+#pragma warning(default: 4100)
 
-bool SpaceConverterNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void SpaceConverterNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(DT_ToString(DataType), "DataType (Normal or Pos)", outError))
-    {
-        outError = "Error writing out the data type '" + DT_ToString(DataType) + ": " + outError;
-        return false;
-    }
-    if (!writer->WriteString(ST_ToString(SrcSpace), "Source space (Obj, World, or View)", outError))
-    {
-        outError = "Error writing out the source space '" + ST_ToString(SrcSpace) + ": " + outError;
-        return false;
-    }
-    if (!writer->WriteString(ST_ToString(DestSpace), "Destination space (World, View, or Screen)", outError))
-    {
-        outError = "Error writing out the dest space '" + ST_ToString(DestSpace) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(DT_ToString(DataType), "DataType ('Normal' or 'Pos')");
+    writer->WriteString(ST_ToString(SrcSpace), "Source space ('Obj', 'World', or 'View')");
+    writer->WriteString(ST_ToString(DestSpace), "Destination space ('Obj', 'World', or 'View')");
 }
-bool SpaceConverterNode::ReadExtraData(DataReader * reader, std::string & outError)
+void SpaceConverterNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> tryStr;
-
-    tryStr = reader->ReadString(outError);
-    if (!tryStr.HasValue())
+    std::string tempStr;
+    reader->ReadString(tempStr);
+    if (!DT_FromString(tempStr, DataType))
     {
-        outError = "Error reading in the data type: " + outError;
-        return false;
-    }
-    if (!DT_FromString(tryStr.GetValue(), DataType))
-    {
-        outError = "Unknown coordinate data type '" + tryStr.GetValue() + "'";
-        return false;
+        reader->ErrorMessage = "Unknown coordinate data type '" + tempStr + "'";
+        throw DataReader::EXCEPTION_FAILURE;
     }
 
-    tryStr = reader->ReadString(outError);
-    if (!tryStr.HasValue())
+    reader->ReadString(tempStr);
+    if (!ST_FromString(tempStr, SrcSpace))
     {
-        outError = "Error reading in the src space: " + outError;
-        return false;
-    }
-    if (!ST_FromString(tryStr.GetValue(), SrcSpace))
-    {
-        outError = "Unknown src space '" + tryStr.GetValue() + "'";
-        return false;
+        reader->ErrorMessage = "Unknown src space '" + tempStr + "'";
+        throw DataReader::EXCEPTION_FAILURE;
     }
 
-    tryStr = reader->ReadString(outError);
-    if (!tryStr.HasValue())
+    reader->ReadString(tempStr);
+    if (!ST_FromString(tempStr, DestSpace))
     {
-        outError = "Error reading in the dest space: " + outError;
-        return false;
-    }
-    if (!ST_FromString(tryStr.GetValue(), DestSpace))
-    {
-        outError = "Unknown dest space '" + tryStr.GetValue() + "'";
-        return false;
+        reader->ErrorMessage = "Unknown dest space '" + tempStr + "'";
+        throw DataReader::EXCEPTION_FAILURE;
     }
 
-    return AssertValidSrcDestSpaces();
+    if (!AssertValidSrcDestSpaces(reader->ErrorMessage))
+    {
+        throw DataReader::EXCEPTION_FAILURE;
+    }
 }
 
 
-bool SpaceConverterNode::AssertValidSrcDestSpaces(void) const
+bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
 {
     switch (SrcSpace)
     {
@@ -232,7 +209,10 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(void) const
                 errorMsg = "SrcSpace is 'object', but dest space is also 'object'!";
                 return false;
             }
-            else return true;
+            else
+            {
+                return true;
+            }
 
         case ST_WORLD:
             if (DestSpace != ST_SCREEN && DestSpace != ST_VIEW)
@@ -240,7 +220,10 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(void) const
                 errorMsg = "SrcSpace is 'world', but dest space isn't 'view' or 'screen'!";
                 return false;
             }
-            else return true;
+            else
+            {
+                return true;
+            }
 
         case ST_VIEW:
             if (DestSpace != ST_SCREEN)
@@ -248,7 +231,10 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(void) const
                 errorMsg = "SrcSpace is 'view', but dest space isn't 'screen'!";
                 return false;
             }
-            else return true;
+            else
+            {
+                return true;
+            }
 
         case ST_SCREEN:
             errorMsg = "SrcSpace cannot be 'screen'!";
@@ -327,5 +313,5 @@ bool SpaceConverterNode::DT_FromString(std::string str, DataTypes & outDt)
 
 void SpaceConverterNode::AssertMyInputsValid(void) const
 {
-    Assert(AssertValidSrcDestSpaces(), errorMsg);
+    Assert(AssertValidSrcDestSpaces(errorMsg), errorMsg);
 }

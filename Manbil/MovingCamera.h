@@ -6,7 +6,8 @@
 #include "Math/Higher Math/Camera.h"
 
 
-//PRIORITY: Pull out mouse position calculation and mouse capturing into SFMLWorld.
+//TODO: Pull out mouse position calculation and mouse capturing into SFMLWorld.
+//TODO: Pull out "escape" key detection into individual worlds.
 //A Camera that is controlled with WASD/EQ and mouse.
 //Spacebar toggles mouse capture/input.
 class MovingCamera : public Camera

@@ -6,8 +6,6 @@
 #include "Rendering/Helper Classes/DrawingQuad.h"
 
 
-//TODO: Add DOF to raymarchers by slightly rotating the ray at every iteration by a random amount.
-//TODO: Add ambient occlusion to raymarchers based on the number of steps taken to destination.
 //TODO: Move TwoTriangles files into "Toys" folder to match filter.
 
 //A world that draws a quad using a fragment shader specified by the user.
@@ -19,7 +17,6 @@ public:
     static const std::string CustomSamplerName, NoiseSamplerName, ShaderElapsedName;
 
 	TwoTrianglesWorld(void);
-	~TwoTrianglesWorld(void);
 
 protected:
 
@@ -34,5 +31,5 @@ protected:
 
     virtual void OnWorldEnd(void) override;
 
-	virtual void OnOtherWindowEvent(sf::Event & event) override;
+	virtual void OnOtherWindowEvent(sf::Event& event) override;
 };

@@ -18,9 +18,18 @@ void ScreenClearer::ClearScreen(void) const
 	}
 
 	GLbitfield mask = 0;
-	if (ClearColor) mask |= GL_COLOR_BUFFER_BIT;
-	if (ClearDepth) mask |= GL_DEPTH_BUFFER_BIT;
-	if (ClearStencil) mask |= GL_STENCIL_BUFFER_BIT;
+	if (ClearColor)
+    {
+        mask |= GL_COLOR_BUFFER_BIT;
+    }
+	if (ClearDepth)
+    {
+        mask |= GL_DEPTH_BUFFER_BIT;
+    }
+	if (ClearStencil)
+    {
+        mask |= GL_STENCIL_BUFFER_BIT;
+    }
 
 	glClear(mask);
 }

@@ -1,16 +1,16 @@
 #include "BezierCurve.h"
 
-#include "../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../Materials/Data Nodes/DataNodes.hpp"
 
 
 
-MAKE_NODE_READABLE_CPP(BezierCurve, Vector3f(), Vector3f(), Vector3f(), Vector3f(), Vector3f(), 1.0f);
+ADD_NODE_REFLECTION_DATA_CPP(BezierCurve, Vector3f(), Vector3f(), Vector3f(),
+                             Vector3f(), Vector3f(), 1.0f);
 
 
-//TODO: Thread these two functions.
 void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
-                                  Vector3f norm, const std::vector<float> & tValues,
-                                  std::vector<BezierPointData> & outData)
+                                  Vector3f norm, const std::vector<float>& tValues,
+                                  std::vector<BezierPointData>& outData)
 {
     Vector3f ss_sp = startSlope - startP,
              es_ss = endSlope - startSlope,
@@ -34,7 +34,7 @@ void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f start
     }
 }
 void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f startSlope, Vector3f endSlope,
-                                  const std::vector<float> & tValues, std::vector<Vector3f> & outData)
+                                  const std::vector<float>& tValues, std::vector<Vector3f>& outData)
 {
     outData.resize(tValues.size());
     for (unsigned int i = 0; i < tValues.size(); ++i)
@@ -50,6 +50,18 @@ void BezierCurve::CalculatePoints(Vector3f startP, Vector3f endP, Vector3f start
     }
 }
 
+BezierCurve::BezierCurve(DataLine startPos, DataLine endPos, DataLine startSlope, DataLine endSlope,
+                         DataLine lineSurfaceNormal, DataLine lineThickness,
+                         unsigned int linePosLerpInputIndex, std::string name)
+    : LinePosLerpIndex(linePosLerpInputIndex),
+      DataNode(MakeVector(startPos, endPos, startSlope, endSlope,
+                          lineSurfaceNormal, lineThickness),
+               name)
+{
+
+}
+
+
 std::string BezierCurve::GetOutputName(unsigned int index) const
 {
     return GetName() + "_" + (index == 0 ? "vertPos" : "linePos");
@@ -64,7 +76,7 @@ void BezierCurve::AssertMyInputsValid(void) const
     Assert(GetInput_LineSurfaceNormal().GetSize() == 3, "'Line Surface Normal' input must be size 3!");
     Assert(GetInput_LineThickness().GetSize() == 1, "'Line Thickness' input must be size 1!");
 }
-void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
+void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) const
 {
     std::string decl;
     const std::string structDecl = "struct SplinePos { vec3 Pos, Perp; };\n";
@@ -100,9 +112,9 @@ void BezierCurve::GetMyFunctionDeclarations(std::vector<std::string> & outDecls)
     return ret;                                                                                   \n\
 }\n\n");
 }
-void BezierCurve::WriteMyOutputs(std::string & outCode) const
+void BezierCurve::WriteMyOutputs(std::string& outCode) const
 {
-    Assert(CurrentShader == ShaderHandler::SH_Vertex_Shader,
+    Assert(CurrentShader == SH_VERTEX,
            "BezierCurve nodes only work in vertex shaders, not '" +
                ToString(CurrentShader) + "'!");
     std::string temp = GetName() + "_splinePos";
@@ -110,33 +122,20 @@ void BezierCurve::WriteMyOutputs(std::string & outCode) const
                     GetInput_StartPos().GetValue() + ", " + GetInput_EndPos().GetValue() + ",\n\t\t" +
                     GetInput_StartSlope().GetValue() + ", " + GetInput_EndSlope().GetValue() + ",\n\t\t" +
                     GetInput_LineSurfaceNormal().GetValue() + ", " +
-                    VertexIns.GetAttributeName(LinePosLerpIndex) + ".x);\n";
+                    VertexIns.GetAttribute(LinePosLerpIndex).Name + ".x);\n";
     outCode += "\tvec3 " + GetOutputName(1) + " = " + temp + ".Pos;\n";
     outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos + " +
                   "(" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + " * " +
-                        VertexIns.GetAttributeName(LinePosLerpIndex) + ".y);\n";
+                        VertexIns.GetAttribute(LinePosLerpIndex).Name + ".y);\n";
 }
 
-bool BezierCurve::WriteExtraData(DataWriter * writer, std::string & outError) const
+void BezierCurve::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteUInt(LinePosLerpIndex, "'Line Pos Lerp' vertex input index", outError))
-    {
-        outError = "Error writing 'line pos lerp' input index value (" + ToString(LinePosLerpIndex) + "): " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteUInt(LinePosLerpIndex, "'LinePosLerp' vertex inptu index");
 }
-bool BezierCurve::ReadExtraData(DataReader * reader, std::string & outError)
+void BezierCurve::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<unsigned int> tryInd = reader->ReadUInt(outError);
-    if (!tryInd.HasValue())
-    {
-        outError = "Error reading 'line pos lerp' input index value: " + outError;
-        return false;
-    }
-
-    return true;
+    reader->ReadUInt(LinePosLerpIndex);
 }
 
 std::string BezierCurve::GetInputDescription(unsigned int index) const
@@ -149,13 +148,15 @@ std::string BezierCurve::GetInputDescription(unsigned int index) const
         case 3: return "End Slope Point";
         case 4: return "Line Surface Normal";
         case 5: return "Line Thickness";
+
         default:
-            Assert(false, "waaaaaaaaaaaat!!!???");
-            return "=>nobody_should_EVER_see_this<=";
+            assert(false);
+            return "INVALID_INPUT_INDEX";
     }
 }
 
-std::vector<DataLine> BezierCurve::MakeVector(DataLine sp, DataLine ep, DataLine ss, DataLine es, DataLine norm, DataLine thick)
+std::vector<DataLine> BezierCurve::MakeVector(DataLine sp, DataLine ep, DataLine ss,
+                                              DataLine es, DataLine norm, DataLine thick)
 {
     std::vector<DataLine> ret;
     ret.insert(ret.end(), sp);

@@ -31,8 +31,6 @@ void WriteToConsole(const std::string& outStr)
 
 
 
-//TODO: Replace "intentionally not implemented" functions with the ' = delete' syntax.
-//TODO: Move static declarations in world CPP files to member fields to eliminate large static allocation.
 //TODO: Add a "Skybox" class in "Rendering/Helper Classes" that simplifies creation/modification/rendering of a cubemapped skybox.
 
 
@@ -42,7 +40,7 @@ int main()
     //OpenGLTestWorld().RunWorld();
     //RiftTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
-    TerrainTestWorld().RunWorld();
+    //TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
 
@@ -50,6 +48,6 @@ int main()
 
 
     //TwoTrianglesWorld().RunWorld();
-    //VoxelWorld().RunWorld();
+    VoxelWorld().RunWorld();
     //PlanetSimWorld().RunWorld();
 }

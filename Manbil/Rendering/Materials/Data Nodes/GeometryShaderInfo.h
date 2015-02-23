@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Vertices.h"
+#include "../../Basic Rendering/RenderIOAttributes.h"
 #include "../MaterialUsageFlags.h"
 #include "../UniformCollections.h"
 
@@ -10,7 +10,7 @@ struct GeoShaderData
 {
 public:
 
-    ShaderInOutAttributes OutputTypes;
+    RenderIOAttributes OutputTypes;
     PrimitiveTypes InputPrimitive, OutputPrimitive;
     unsigned int MaxVertices;
     MaterialUsageFlags UsageFlags;
@@ -18,13 +18,14 @@ public:
     std::string ShaderCode;
 
     //Use the default parameters for "maxVertices" and/or "shaderCode" to create an invalid instance.
-    GeoShaderData(ShaderInOutAttributes outputTypes = ShaderInOutAttributes(), MaterialUsageFlags flags = MaterialUsageFlags(), unsigned int maxVerts = 4,
-                  PrimitiveTypes inPrimitive = PrimitiveTypes::Points, PrimitiveTypes outPrimitive = PrimitiveTypes::TriangleStrip,
+    GeoShaderData(RenderIOAttributes outputTypes = RenderIOAttributes(),
+                  MaterialUsageFlags flags = MaterialUsageFlags(), unsigned int maxVerts = 4,
+                  PrimitiveTypes inPrimitive = PT_POINTS, PrimitiveTypes outPrimitive = PT_TRIANGLE_STRIP,
                   UniformDictionary params = UniformDictionary(), std::string shaderCode = "")
-                  : OutputTypes(outputTypes), InputPrimitive(inPrimitive), OutputPrimitive(outPrimitive), MaxVertices(maxVerts),
-                  UsageFlags(flags), Params(params), ShaderCode(shaderCode)
-    { }
+        : OutputTypes(outputTypes), InputPrimitive(inPrimitive), OutputPrimitive(outPrimitive),
+          MaxVertices(maxVerts), UsageFlags(flags), Params(params), ShaderCode(shaderCode) { }
 
-    //Returns whether this instance has a non-empty shader code string and a MaxVertices value greater than 0.
+    //Returns whether this instance has a non-empty shader code string
+    //    and a MaxVertices value greater than 0.
     bool IsValidData(void) const { return !ShaderCode.empty() && MaxVertices > 0; }
 };

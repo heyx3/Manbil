@@ -45,5 +45,5 @@ private:
     ProjectionDataNode(void);
 
 
-    MAKE_NODE_READABLE_H(ProjectionDataNode)
+    ADD_NODE_REFLECTION_DATA_H(ProjectionDataNode)
 };

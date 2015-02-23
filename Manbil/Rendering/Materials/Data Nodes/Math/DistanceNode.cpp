@@ -1,8 +1,9 @@
 #include "DistanceNode.h"
 
 
-MAKE_NODE_READABLE_CPP(DistanceNode, Vector3f(), Vector3f())
+ADD_NODE_REFLECTION_DATA_CPP(DistanceNode, Vector3f(), Vector3f())
 
+#pragma warning(disable: 4100)
 unsigned int DistanceNode::GetOutputSize(unsigned int index) const
 {
     return 1;
@@ -11,6 +12,7 @@ std::string DistanceNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_distance";
 }
+#pragma warning(default: 4100)
 
 DistanceNode::DistanceNode(const DataLine & pos1, const DataLine & pos2, std::string name)
     : DataNode(MakeVector(pos1, pos2), name)
@@ -19,7 +21,7 @@ DistanceNode::DistanceNode(const DataLine & pos1, const DataLine & pos2, std::st
 
 void DistanceNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType();
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = distance(" + GetInputs()[0].GetValue() + ", " + GetInputs()[1].GetValue() + ");\n";
 }
 

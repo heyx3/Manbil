@@ -7,6 +7,8 @@
 
 
 //A dropdown menu of string items to choose from.
+//Note that instances currently have a fixed number of items, set in the constuctor
+//    (although items can be hidden with "SetDrawEmptyItems(false)").
 class GUISelectionBox : public GUIElement
 {
 public:
@@ -36,19 +38,20 @@ public:
     void* OnDropdownToggled_pData = 0;
 
 
-    //"outError" will be set to an error message, or left unchanged if everything went fine.
-    //Note that this GUIElement currently has a fixed number of items
-    //    (although items with no text can optionally be ignored when rendering).
+    //Probably the most terrifying constructor I've ever made. Just take it one line at a time.
+    //The "outError" string will be set to an error message, or left unchanged if everything went fine.
     //Passing an invalid GUITexture will just cause that gui element to not be drawn;
     //    it is not considered an error.
     //TODO: Add param for separation of items in the dropdown menu.
     //TODO: Add param for horizontal alignment of text.
-    GUISelectionBox(std::string& outError, TextRenderer* textRenderer, const GUITexture& mainBox,
-                    const GUITexture& highlight, const GUITexture& selectionBackground,
-                    bool _extendAbove, Vector4f textColor, FreeTypeHandler::FontID font,
-                    Material* textRenderMat, const UniformDictionary& textRenderParams,
+    GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, Vector4f textColor,
                     bool mipmappedText, FilteringTypes textFilterQuality,
-                    const std::vector<std::string>& _items, Vector2f _textScale, float textSpacing,
+                    Vector2f _textScale, float textSpacing,
+                    Material* textRenderMat, const UniformDictionary& textRenderParams,
+                    const GUITexture& mainBackground, const GUITexture& highlight,
+                    const GUITexture& selectionBackground,
+                    bool _extendAbove, std::string& outError,
+                    const std::vector<std::string>& _items,
                     void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
                                             unsigned int itemIndex, void* pData),
                     void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
@@ -73,14 +76,15 @@ public:
     //Gets all the items.
     const std::vector<std::string>& GetItems(void) const { return items; }
 
-    //Changes the text value of an item. Returns the old value.
+    //Changes the text value of an item. Returns the old text value.
+    //Returns an empty string if the given item index didn't exist.
     std::string SetItem(unsigned int index, std::string newVal);
 
 
     //Gets whether the dropdown menu extends above or below this element.
     bool GetExtendsAbove(void) const { return extendAbove; }
     //Sets whether the dropdown menu extends above or below this element.
-    void SetExtendsAbove(bool newVal) { extendAbove = newVal; if (isExtended) DidBoundsChange = true; }
+    void SetExtendsAbove(bool newVal);
     
     //Gets whether the dropdown menu is currently open.
     bool GetIsExtended(void) const { return isExtended; }
@@ -98,10 +102,10 @@ public:
     virtual bool GetDidBoundsChangeDeep(void) const override;
     virtual void ClearDidBoundsChangeDeep(void) override;
     virtual Box2D GetBounds(void) const override;
-    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
+    virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
 
-    virtual std::string Render(float elapsedTime, const RenderInfo& info) override;
+    virtual void Render(float elapsedTime, const RenderInfo& info) override;
 
     virtual void OnMouseClick(Vector2f relativeMousePos) override;
 

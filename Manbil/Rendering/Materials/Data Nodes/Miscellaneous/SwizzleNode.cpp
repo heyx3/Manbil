@@ -1,9 +1,10 @@
 #include "SwizzleNode.h"
 
 
-MAKE_NODE_READABLE_CPP(SwizzleNode, Vector2f(), C_X)
+ADD_NODE_REFLECTION_DATA_CPP(SwizzleNode, Vector2f(), SwizzleNode::C_X)
 
 
+#pragma warning(disable: 4100)
 std::string SwizzleNode::GetOutputName(unsigned int index) const
 {
     std::string outStr = GetInputs()[0].GetValue();
@@ -37,6 +38,7 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
 
     return outStr;
 }
+#pragma warning(default: 4100)
 
 SwizzleNode::SwizzleNode(const DataLine & in, Components x, std::string name)
     : DataNode(MakeVector(in), name), nComps(1)
@@ -78,86 +80,73 @@ void SwizzleNode::WriteMyOutputs(std::string & outStr) const
 }
 #pragma warning(default: 4100)
 
-bool SwizzleNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void SwizzleNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteUInt(nComps, "numberOfSwizzleComponents", outError))
-    {
-        outError = "Error writing out the number of swizzle components (" + ToString(nComps) + "): " + outError;
-        return false;
-    }
+    writer->WriteUInt(nComps, "Number of swizzle components");
+
     for (unsigned int i = 0; i < nComps; ++i)
     {
         std::string outStr;
         switch (comps[i])
         {
-            case C_X: outStr = "x";
-            case C_Y: outStr = "y";
-            case C_Z: outStr = "z";
-            case C_W: outStr = "w";
+            case C_X: outStr = "x"; break;
+            case C_Y: outStr = "y"; break;
+            case C_Z: outStr = "z"; break;
+            case C_W: outStr = "w"; break;
             default: Assert(false, "Unknown component '" + ToString(comps[i]));
         }
 
         std::string outName;
         switch (i)
         {
-            case 0: outName = "x";
-            case 1: outName = "y";
-            case 2: outName = "z";
-            case 3: outName = "w";
+            case 0: outName = "x"; break;
+            case 1: outName = "y"; break;
+            case 2: outName = "z"; break;
+            case 3: outName = "w"; break;
             default: Assert(false, "Unknown component '" + ToString(comps[i]));
         }
 
-        if (!writer->WriteString(outStr, "out" + outName, outError))
-        {
-            outError = "Error writing the out" + outName + " component value '" + outStr + "': " + outError;
-            return false;
-        }
+        writer->WriteString(outStr, "out" + outName);
     }
-
-    return true;
 }
-bool SwizzleNode::ReadExtraData(DataReader * reader, std::string & outError)
+void SwizzleNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<unsigned int> tryNComps = reader->ReadUInt(outError);
-    if (!tryNComps.HasValue())
-    {
-        outError = "Error reading the number of components: " + outError;
-        return false;
-    }
-    nComps = tryNComps.GetValue();
+    reader->ReadUInt(nComps);
 
     for (unsigned int i = 0; i < nComps; ++i)
     {
         std::string outName;
         switch (i)
         {
-            case 0: outName = "x";
-            case 1: outName = "y";
-            case 2: outName = "z";
-            case 3: outName = "w";
+            case 0: outName = "x"; break;
+            case 1: outName = "y"; break;
+            case 2: outName = "z"; break;
+            case 3: outName = "w"; break;
             default: Assert(false, "Unknown component '" + ToString(comps[i]));
         }
 
-        MaybeValue<std::string> tryCmp = reader->ReadString(outError);
-        if (!tryCmp.HasValue())
+        std::string component;
+        reader->ReadString(component);
+        if (component.compare("x") == 0 || component.compare("r") == 0)
         {
-            outError = "Error reading component output '" + outName + "': " + outError;
-            return false;
-        }
-        if (tryCmp.GetValue().compare("x") == 0 || tryCmp.GetValue().compare("r") == 0)
             comps[i] = C_X;
-        else if (tryCmp.GetValue().compare("y") == 0 || tryCmp.GetValue().compare("g") == 0)
+        }
+        else if (component.compare("y") == 0 || component.compare("g") == 0)
+        {
             comps[i] = C_Y;
-        if (tryCmp.GetValue().compare("z") == 0 || tryCmp.GetValue().compare("b") == 0)
+        }
+        if (component.compare("z") == 0 || component.compare("b") == 0)
+        {
             comps[i] = C_Z;
-        else if (tryCmp.GetValue().compare("w") == 0 || tryCmp.GetValue().compare("a") == 0)
+        }
+        else if (component.compare("w") == 0 || component.compare("a") == 0)
+        {
             comps[i] = C_W;
+        }
         else
         {
-            outError = "Unknown component in output '" + outName + "': " + tryCmp.GetValue();
-            return false;
+            reader->ErrorMessage = "Unknown component in output '" + outName + "': " + component;
+            throw DataReader::EXCEPTION_FAILURE;
         }
     }
-
-    return true;
 }

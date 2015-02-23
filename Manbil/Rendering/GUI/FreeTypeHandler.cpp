@@ -7,7 +7,8 @@
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
 
 
-FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData dat, signed long faceIndex)
+FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData dat,
+                                                  signed long faceIndex)
 {
     FT_Face face;
     FT_Error err;
@@ -16,12 +17,13 @@ FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData
     err = FT_New_Face(ftLib, path.c_str(), faceIndex, &face);
     if (err == FT_Err_Unknown_File_Format)
     {
-        errorMsg = std::string() + "The file '" + path + "' could be opened and read, but is not supported.";
+        errorMsg = std::string("The file '") + path +
+                        "' could be opened and read, but is not supported.";
         return ERROR_ID;
     }
     else if (err != 0)
     {
-        errorMsg = std::string() + "Unkown error code when creating font: " + std::to_string(err);
+        errorMsg = std::string("Unkown error code when creating font: ") + std::to_string(err);
         return ERROR_ID;
     }
 
@@ -29,7 +31,7 @@ FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData
     err = FT_Set_Char_Size(face, dat.CharWidth, dat.CharHeight, dat.HorizontalDPI, dat.VerticalDPI);
     if (err != 0)
     {
-        errorMsg = std::string() + "Unknown error when sizing text: " + std::to_string(err);
+        errorMsg = std::string("Unknown error when sizing text: ") + std::to_string(err);
         return ERROR_ID;
     }
 
@@ -42,7 +44,10 @@ bool FreeTypeHandler::DeleteFont(FontID fontID)
 {
     //Make sure the given font exists.
     FaceMapLoc location;
-    if (!TryFindID(fontID, location)) return false;
+    if (!TryFindID(fontID, location))
+    {
+        return false;
+    }
     const FT_Face& face = location->second;
 
     //Try to delete it.
@@ -62,14 +67,17 @@ bool FreeTypeHandler::LoadGlyph(FontID id, unsigned int charCode)
 
     //Make sure the given font exists.
     FaceMapLoc location;
-    if (!TryFindID(id, location)) return false;
-    const FT_Face & face = location->second;
+    if (!TryFindID(id, location))
+    {
+        return false;
+    }
+    const FT_Face& face = location->second;
 
     //Make sure the given character exists.
     FT_UInt index = FT_Get_Char_Index(face, charCode);
     if (index == 0)
     {
-        errorMsg = std::string() + "Character not found";
+        errorMsg = std::string("Character not found");
         return false;
     }
 
@@ -77,7 +85,7 @@ bool FreeTypeHandler::LoadGlyph(FontID id, unsigned int charCode)
     err = FT_Load_Glyph(face, index, FT_LOAD_DEFAULT);
     if (err != 0)
     {
-        errorMsg = std::string() + "Error loading glyph: " + std::to_string(err);
+        errorMsg = std::string("Error loading glyph: ") + std::to_string(err);
         return false;
     }
 
@@ -87,25 +95,41 @@ bool FreeTypeHandler::LoadGlyph(FontID id, unsigned int charCode)
         err = FT_Render_Glyph(face->glyph, FT_Render_Mode::FT_RENDER_MODE_NORMAL);
         if (err != 0)
         {
-            errorMsg = std::string() + "Error rendering glyph to bitmap: " + std::to_string(err);
+            errorMsg = std::string("Error rendering glyph to bitmap: ") + std::to_string(err);
             return false;
         }
     }
 
     return true;
 }
+const FT_Bitmap* FreeTypeHandler::GetGlyph(FontID id) const
+{
+    FaceMapLoc loc;
+    if (!TryFindID(id, loc))
+    {
+        return 0;
+    }
+
+    return &loc->second->glyph->bitmap;
+}
 
 bool FreeTypeHandler::SetFontSize(FontID id, FontSizeData dat)
 {
     //Try to find the font face with the given ID.
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return false;
+    if (!TryFindID(id, loc))
+    {
+        return false;
+    }
 
     //Try to set its size.
-    FT_Error err = FT_Set_Char_Size(loc->second, dat.CharWidth, dat.CharHeight, dat.HorizontalDPI, dat.VerticalDPI);
+    FT_Error err = FT_Set_Char_Size(loc->second, dat.CharWidth, dat.CharHeight,
+                                    dat.HorizontalDPI, dat.VerticalDPI);
     if (err != 0)
     {
-        errorMsg = std::string("Freetype error when sizing font " + std::to_string(id) + ": " + std::to_string(err) + ". Did you try to set the pixel size to an unsupported value?");
+        errorMsg = std::string("Freetype error when sizing font ") + std::to_string(id) + ": " +
+                        std::to_string(err) +
+                        ". Did you try to set the pixel size to an unsupported value?";
         return false;
     }
 
@@ -114,12 +138,16 @@ bool FreeTypeHandler::SetFontSize(FontID id, FontSizeData dat)
 bool FreeTypeHandler::SetFontSize(FontID id, unsigned int pixelWidth, unsigned int pixelHeight)
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return false;
+    if (!TryFindID(id, loc))
+    {
+        return false;
+    }
 
     FT_Error err = FT_Set_Pixel_Sizes(loc->second, pixelWidth, pixelHeight);
     if (err != 0)
     {
-        errorMsg = std::string() + "Unknown FreeType error " + std::to_string(err) + ". Did you try to set the pixel size to an unsupported value?";
+        errorMsg = std::string("Unknown FreeType error ") + std::to_string(err) +
+                       ". Did you try to set the pixel size to an unsupported value?";
         return false;
     }
 
@@ -129,42 +157,58 @@ bool FreeTypeHandler::SetFontSize(FontID id, unsigned int pixelWidth, unsigned i
 unsigned int FreeTypeHandler::GetNumbGlyphs(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return 0;
+    if (!TryFindID(id, loc))
+    {
+        return 0;
+    }
 
     return loc->second->num_glyphs;
 }
 bool FreeTypeHandler::GetCanBeScaled(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return false;
+    if (!TryFindID(id, loc))
+    {
+        return false;
+    }
 
     return (bool)(loc->second->face_flags | FT_FACE_FLAG_SCALABLE);
 }
-FreeTypeHandler::SupportedSizes FreeTypeHandler::GetSupportedSizes(FontID id)
+std::vector<FT_Bitmap_Size> FreeTypeHandler::GetSupportedSizes(FontID id)
 {
-    SupportedSizes ret;
-    ret.Sizes = 0;
-    ret.NumbSizes = 0;
+    std::vector<FT_Bitmap_Size> ret;
 
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return ret;
+    if (!TryFindID(id, loc))
+    {
+        return ret;
+    }
 
-    ret.Sizes = loc->second->available_sizes;
-    ret.NumbSizes = loc->second->num_fixed_sizes;
+    //Copy the data into the vector.
+    ret.resize(loc->second->num_fixed_sizes);
+    memcpy(ret.data(), loc->second->available_sizes,
+           sizeof(FT_Bitmap_Size) * ret.size());
     return ret;
 }
 
 Vector2i FreeTypeHandler::GetGlyphSize(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return Vector2i();
+    if (!TryFindID(id, loc))
+    {
+        return Vector2i();
+    }
 
-    return Vector2i(loc->second->glyph->bitmap.width, loc->second->glyph->bitmap.rows);
+    return Vector2i(loc->second->glyph->bitmap.width,
+                    loc->second->glyph->bitmap.rows);
 }
 Vector2u FreeTypeHandler::GetGlyphMaxSize(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return Vector2u();
+    if (!TryFindID(id, loc))
+    {
+        return Vector2u();
+    }
 
     return Vector2u(Mathf::Abs(loc->second->bbox.xMax - loc->second->bbox.xMin),
                     Mathf::Abs(loc->second->bbox.yMax - loc->second->bbox.yMin));
@@ -172,22 +216,33 @@ Vector2u FreeTypeHandler::GetGlyphMaxSize(FontID id) const
 Vector2i FreeTypeHandler::GetGlyphOffset(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return Vector2i();
+    if (!TryFindID(id, loc))
+    {
+        return Vector2i();
+    }
 
-    return Vector2i(loc->second->glyph->bitmap_left, loc->second->glyph->bitmap_top);
+    return Vector2i(loc->second->glyph->bitmap_left,
+                    loc->second->glyph->bitmap_top);
 }
 Vector2i FreeTypeHandler::GetMoveToNextGlyph(FontID id) const
 {
     FaceMapLoc loc;
-    if (!TryFindID(id, loc)) return Vector2i();
+    if (!TryFindID(id, loc))
+    {
+        return Vector2i();
+    }
 
-    return Vector2i(loc->second->glyph->advance.x >> 6, loc->second->glyph->advance.y >> 6);
+    return Vector2i(loc->second->glyph->advance.x >> 6,
+                    loc->second->glyph->advance.y >> 6);
 }
 
 FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsigned int charToRender)
 {
     FaceMapLoc loc;
-    if (!TryFindID(fontID, loc)) return CharRenderType::CRT_ERROR;
+    if (!TryFindID(fontID, loc))
+    {
+        return CharRenderType::CRT_ERROR;
+    }
 
     FT_Face fce = loc->second;
     FT_Error err;
@@ -197,7 +252,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
     charIndex = FT_Get_Char_Index(fce, charToRender);
     if (charIndex == 0)
     {
-        errorMsg = std::string() + "Character not found";
+        errorMsg = std::string("Character not found");
         return CharRenderType::CRT_ERROR;
     }
 
@@ -205,7 +260,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
     err = FT_Load_Glyph(fce, charIndex, FT_LOAD_DEFAULT);
     if (err != 0)
     {
-        errorMsg = std::string() + "Error loading glyph: " + std::to_string(err);
+        errorMsg = std::string("Error loading glyph: ") + std::to_string(err);
         return CharRenderType::CRT_ERROR;
     }
 
@@ -215,7 +270,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
         err = FT_Render_Glyph(fce->glyph, FT_Render_Mode::FT_RENDER_MODE_NORMAL);
         if (err != 0)
         {
-            errorMsg = std::string() + "Error rendering glyph to bitmap: " + std::to_string(err);
+            errorMsg = std::string("Error rendering glyph to bitmap: ") + std::to_string(err);
             return CharRenderType::CRT_ERROR;
         }
     }
@@ -231,7 +286,7 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
         renderedTextColor.Reset(1, 1);
 
         renderedTextGreyscale.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2u loc, unsigned char * outP)
+        renderedTextGreyscale.FillFunc([&fce, absPitch](Vector2u loc, unsigned char* outP)
         {
             unsigned int index = (loc.x / 8) + (loc.y * absPitch);
             int bit = loc.x % 8;
@@ -252,9 +307,9 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
         isGreyscale = false;
         renderedTextGreyscale.Reset(1, 1);
 
-        //TODO: Figure out wtf is going on.
+        //TODO: Figure out why this mode isn't working correctly.
         renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b * outP)
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b* outP)
         {
             loc.y = fce->glyph->bitmap.rows - loc.y - 1;
             unsigned int index = loc.x + (loc.y * absPitch);
@@ -272,10 +327,13 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
         isGreyscale = false;
 
         renderedTextColor.Reset(fce->glyph->bitmap.width, fce->glyph->bitmap.rows);
-        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b * outP)
+        renderedTextColor.FillFunc([&fce, absPitch](Vector2u loc, Vector4b* outP)
         {
             unsigned int index = (loc.x * 3) + (loc.y * absPitch);
-            *outP = Vector4b(fce->glyph->bitmap.buffer[index], fce->glyph->bitmap.buffer[index + 1], fce->glyph->bitmap.buffer[index + 2], 255);
+            *outP = Vector4b(fce->glyph->bitmap.buffer[index],
+                             fce->glyph->bitmap.buffer[index + 1],
+                             fce->glyph->bitmap.buffer[index + 2],
+                             255);
         });
 
         return CharRenderType::CRT_COLOR;
@@ -287,7 +345,24 @@ FreeTypeHandler::CharRenderType FreeTypeHandler::RenderChar(FontID fontID, unsig
     }
 }
 
-bool FreeTypeHandler::GetChar(MTexture2D & outTex) const
+const Array2D<Vector4b>* FreeTypeHandler::GetColorChar(void) const
+{
+    if (isGreyscale)
+    {
+        return 0;
+    }
+    return &renderedTextColor;
+}
+const Array2D<unsigned char>* FreeTypeHandler::GetGreyscaleChar(void) const
+{
+    if (!isGreyscale)
+    {
+        return 0;
+    }
+    return &renderedTextGreyscale; 
+}
+
+bool FreeTypeHandler::GetChar(MTexture2D& outTex) const
 {
     if (isGreyscale)
     {
@@ -309,7 +384,7 @@ bool FreeTypeHandler::GetChar(MTexture2D & outTex) const
     return true;
 }
 
-bool FreeTypeHandler::TryFindID(FontID id, FaceMapLoc & outLoc) const
+bool FreeTypeHandler::TryFindID(FontID id, FaceMapLoc& outLoc) const
 {
     outLoc = faces.find(id);
     if (outLoc == faces.end())
@@ -325,13 +400,18 @@ FreeTypeHandler::FreeTypeHandler(void)
 {
     FT_Error err = FT_Init_FreeType(&ftLib);
     if (err != 0)
-        errorMsg = std::string() + "Error initializing FreeType library: " + std::to_string(err);
+    {
+        errorMsg = std::string("Error initializing FreeType library: ") + std::to_string(err);
+    }
 }
 FreeTypeHandler::~FreeTypeHandler(void)
 {
     FT_Error err = FT_Done_FreeType(ftLib);
 
-    if (err == 0) return;
+    if (err == 0)
+    {
+        return;
+    }
 
     std::cout << "Error ending freetype library: " << std::to_string(err);
     char dummy;

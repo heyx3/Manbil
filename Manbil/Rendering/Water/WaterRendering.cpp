@@ -1,19 +1,28 @@
 #include "WaterRendering.h"
 
 
-MAKE_NODE_READABLE_CPP(WaterNode, Vector3f(), Vector3f())
+ADD_NODE_REFLECTION_DATA_CPP(WaterNode, Vector3f(), Vector3f())
 
+
+const char* WaterNode::UniformName_DP_TSC_H_P = "dropoffPoints_timesSinceCreated_heights_periods";
+const char* WaterNode::UniformName_sXY_SP = "sourcesXY_speeds";
+const char* WaterNode::UniformName_F_A_P = "flow_amplitude_period";
+const char* WaterNode::UniformName_TSC = "timesSinceCreated";
+
+
+#pragma warning(disable: 4100)
 unsigned int WaterNode::GetOutputSize(unsigned int index) const
 {
     return 3;
 }
 std::string WaterNode::GetOutputName(unsigned int i) const
 {
-    return GetName() + (i == 0 ? "_waterHeightOffset" : "waterNormal");
+    return GetName() + (i == 0 ? "_waterHeightOffset" : "_waterNormal");
 }
+#pragma warning(default: 4100)
 
 WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
-                     std::string name, unsigned int _maxRipples, unsigned int _maxFlows)
+                     unsigned int _maxRipples, unsigned int _maxFlows, std::string name)
     : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput), name),
       maxRipples(_maxRipples), maxFlows(_maxFlows)
 {
@@ -25,14 +34,14 @@ bool WaterNode::UsesInput(unsigned int inputIndex) const
 {
     switch (CurrentShader)
     {
-        case ShaderHandler::Shaders::SH_Vertex_Shader:
+        case SH_VERTEX:
             return &GetInputs()[inputIndex] == &GetObjectPosVInput();
 
-        case ShaderHandler::Shaders::SH_Fragment_Shader:
+        case SH_FRAGMENT:
             return &GetInputs()[inputIndex] == &GetObjectPosVOutput();
 
         default:
-            Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
+            Assert(false, std::string("Unknown shader type ") + ToString(CurrentShader));
             return DataNode::UsesInput(inputIndex);
     }
 }
@@ -40,50 +49,63 @@ bool WaterNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) con
 {
     switch (CurrentShader)
     {
-        case ShaderHandler::Shaders::SH_Vertex_Shader:
+        case SH_VERTEX:
             return (inputIndex == 0);
 
-        case ShaderHandler::Shaders::SH_Fragment_Shader:
+        case SH_FRAGMENT:
             return (inputIndex == 1);
 
         default:
-            Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));
+            Assert(false, std::string("Unknown shader type ") + ToString(CurrentShader));
             return DataNode::UsesInput(inputIndex, outputIndex);
     }
 }
 
 
-void WaterNode::GetMyParameterDeclarations(UniformDictionary & outUniforms) const
+void WaterNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
 {
     if (maxRipples > 0)
     {
         //Create uniform values.
-        std::shared_ptr<Vector4f> dp_tsc_h_p(new Vector4f[maxRipples], [](Vector4f *p) { delete[] p; });
-        std::shared_ptr<Vector3f> sXY_sp(new Vector3f[maxRipples], [](Vector3f *p) { delete[] p; });
+        Vector4f *dp_tsc_h_p = new Vector4f[maxRipples];
+        Vector3f *sXY_sp = new Vector3f[maxRipples];
         for (unsigned int i = 0; i < maxRipples; ++i)
         {
-            dp_tsc_h_p.get()[i] = Vector4f(0.0001f, 0.0f, 0.0f, 1.0f);
-            sXY_sp.get()[i] = Vector3f(0.0f, 0.0f, 0.0001f);
+            dp_tsc_h_p[i] = Vector4f(0.0001f, 0.0f, 0.0f, 1.0f);
+            sXY_sp[i] = Vector3f(0.0f, 0.0f, 0.0001f);
         }
 
-        outUniforms.FloatArrayUniforms["dropoffPoints_timesSinceCreated_heights_periods"] = UniformArrayValueF((float*)dp_tsc_h_p.get(), maxRipples, 4, "dropoffPoints_timesSinceCreated_heights_periods");
-        outUniforms.FloatArrayUniforms["sourcesXY_speeds"] = UniformArrayValueF((float*)sXY_sp.get(), maxRipples, 3, "sourcesXY_speeds");
+        outUniforms.FloatArrays[UniformName_DP_TSC_H_P] = UniformValueArrayF((float*)dp_tsc_h_p,
+                                                                             maxRipples, 4,
+                                                                             UniformName_DP_TSC_H_P);
+        outUniforms.FloatArrays[UniformName_sXY_SP] = UniformValueArrayF((float*)sXY_sp,
+                                                                         maxRipples, 3,
+                                                                         UniformName_sXY_SP);
+
+        delete[] dp_tsc_h_p;
+        delete[] sXY_sp;
     }
     if (maxFlows > 0)
     {
-        std::shared_ptr<Vector4f> fl_am_per(new Vector4f[maxFlows], [](Vector4f *p) { delete[] p; });
-        std::shared_ptr<float> tsc(new float[maxFlows], [](float *p) { delete[] p; });
+        Vector4f* fl_am_per = new Vector4f[maxFlows];
+        float* tsc = new float[maxFlows];
         for (unsigned int i = 0; i < maxFlows; ++i)
         {
-            fl_am_per.get()[i] = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
-            tsc.get()[i] = 0.0001f;
+            fl_am_per[i] = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+            tsc[i] = 0.0001f;
         }
 
-        outUniforms.FloatArrayUniforms["flow_amplitude_period"] = UniformArrayValueF((float*)fl_am_per.get(), maxFlows, 4, "flow_amplitude_period");
-        outUniforms.FloatArrayUniforms["timesSinceCreated"] = UniformArrayValueF(tsc.get(), maxFlows, 1, "timesSinceCreated");
+        outUniforms.FloatArrays[UniformName_F_A_P] = UniformValueArrayF((float*)fl_am_per,
+                                                                        maxFlows, 4,
+                                                                        UniformName_F_A_P);
+        outUniforms.FloatArrays[UniformName_TSC] = UniformValueArrayF(tsc, maxFlows, 1,
+                                                                      UniformName_TSC);
+
+        delete[] fl_am_per;
+        delete[] tsc;
     }
 }
-void WaterNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const
+void WaterNode::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) const
 {
     //TODO: Remove the base definitions at the start of each "for" loop and see if it cuts down on instructions.
     std::string func =
@@ -148,7 +170,7 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string> & outDecls) c
     func +=
 "    return offset;                                                             \n\
 }\n";
-    outDecls.insert(outDecls.end(), func);
+    outDecls.push_back(func);
 
     func =
 "struct NormalData                                                                      \n\
@@ -187,68 +209,48 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
     return dat;                                                                         \n\
 }                                                                                       \n\
 ";
-    outDecls.insert(outDecls.end(), func);
+    outDecls.push_back(func);
 }
-void WaterNode::WriteMyOutputs(std::string & outCode) const
+void WaterNode::WriteMyOutputs(std::string& outCode) const
 {
     std::string posOutput = GetOutputName(GetVertexPosOutputIndex()),
         normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
 
     switch (CurrentShader)
     {
-    case ShaderHandler::Shaders::SH_Vertex_Shader:
-        outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVInput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
-        outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVInput().GetValue() + ".xy).normal;\n";
-        break;
+        case SH_VERTEX:
+            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVInput().GetValue() +
+                            ".xy, getWaveHeight(" + GetObjectPosVInput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" +
+                            GetObjectPosVInput().GetValue() + ".xy).normal;\n";
+            break;
 
-    case ShaderHandler::Shaders::SH_Fragment_Shader:
-        outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVOutput().GetValue() + ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
-        outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" + GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
-        break;
+        case SH_FRAGMENT:
+            outCode += "\tvec3 " + posOutput + " = vec3(" + GetObjectPosVOutput().GetValue() +
+                            ".xy, getWaveHeight(" + GetObjectPosVOutput().GetValue() + ".xy));\n";
+            outCode += "\tvec3 " + normalOutput + " = getWaveNormal(" +
+                            GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
+            break;
 
-    default: assert(false);
+        default: assert(false);
     }
 }
 
 std::string WaterNode::GetInputDescription(unsigned int index) const
 {
-    return std::string("Object-space postion of the element in the ") + (index == 0 ? "Vertex" : "Fragment") + " shader";
+    return std::string("Object-space postion of the element in the ") +
+                (index == 0 ? "Vertex" : "Fragment") + " shader";
 }
 
-bool WaterNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void WaterNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteUInt(maxFlows, "Max Number Flows", outError))
-    {
-        outError = "Error writing 'max flows' value of " + ToString(maxFlows) + ": " + outError;
-        return false;
-    }
-    if (!writer->WriteUInt(maxRipples, "Max Number Ripples", outError))
-    {
-        outError = "Error writing 'max ripples' value of " + ToString(maxRipples) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteUInt(maxFlows, "Max number flows");
+    writer->WriteUInt(maxRipples, "Max number ripples");
 }
-bool WaterNode::ReadExtraData(DataReader * reader, std::string & outError)
+void WaterNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<unsigned int> tryMax = reader->ReadUInt(outError);
-    if (!tryMax.HasValue())
-    {
-        outError = "Error reading the max number of flows: " + outError;
-        return false;
-    }
-    maxFlows = tryMax.GetValue();
-
-    tryMax = reader->ReadUInt(outError);
-    if (!tryMax.HasValue())
-    {
-        outError = "Error reading the max number of ripples: " + outError;
-        return false;
-    }
-    maxRipples = tryMax.GetValue();
-
-    return true;
+    reader->ReadUInt(maxFlows);
+    reader->ReadUInt(maxRipples);
 }
 
 void WaterNode::AssertMyInputsValid(void) const

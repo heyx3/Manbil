@@ -9,18 +9,13 @@ class GUIPanel : public GUIElement
 {
 public:
 
-
     //Bounds and depth are automatically adjusted to fit this panel's bounds.
     //If it's invalid, it simply isn't drawn.
     GUITexture Background;
 
 
-
-    GUIPanel(Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f)
-        : borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed) { }
-    GUIPanel(GUITexture& background, Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f)
-        : Background(background), borderSize(borderSize), GUIElement(UniformDictionary(), timeLerpSpeed)
-    { }
+    GUIPanel(Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f);
+    GUIPanel(GUITexture& background, Vector2f borderSize = Vector2f(), float timeLerpSpeed = 1.0f);
 
 
     //Adds the given element to this panel IF this panel doesn't have it already.
@@ -30,7 +25,7 @@ public:
     //Gets whether this panel contains the given GUI element.
     bool ContainsElement(GUIElementPtr element) const;
 
-    const std::vector<GUIElementPtr> & GetElements(void) const { return elements; }
+    const std::vector<GUIElementPtr>& GetElements(void) const { return elements; }
 
     Vector2f GetBorderSize(void) const { return borderSize; }
     void SetBorderSize(Vector2f newSize) { DidBoundsChange = true; borderSize = newSize; }
@@ -43,7 +38,7 @@ public:
     virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
 
-    virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
+    virtual void Render(float elapsedTime, const RenderInfo& info) override;
 
     virtual void OnMouseClick(Vector2f mouse_centerOffset) override;
     virtual void OnMouseDrag(Vector2f originalPos_centerOffset,

@@ -25,7 +25,9 @@ public:
     }
 
 	
+    //Creates an identity matrix.
 	Matrix4f(void) { SetAsIdentity(); }
+    //Creates a copy of the given matrix.
 	Matrix4f(const Matrix4f& cpy) { Set(cpy); }
 	
 

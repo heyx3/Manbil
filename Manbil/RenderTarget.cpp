@@ -3,17 +3,37 @@
 #include <assert.h>
 
 #include "Vertices.h"
-#include "ShaderHandler.h"
-#include "RenderDataHandler.h"
 #include "RenderingState.h"
 #include "DebugAssist.h"
+
+
+//Gets the status of the currently-bound framebuffer.
+//If everything is OK, an empty string is returned.
+std::string GetFramebufferStatusMessage(void)
+{
+    switch (glCheckFramebufferStatus(GL_FRAMEBUFFER))
+    {
+        case GL_FRAMEBUFFER_COMPLETE:
+            return "";
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            return "Bad texture or depth buffer attachment";
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+            return "Texture and depth buffer are different dimensions.";
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            return "Nothing is attached";
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+            return "This combination of texture and depth buffer is not supported on this platform.";
+
+		default: return "Unknown frame buffer error.";
+    }
+}
 
 
 
 unsigned int RenderTarget::maxColorAttachments = 0,
              RenderTarget::maxWidth = 0,
              RenderTarget::maxHeight = 0;
-const RenderTarget * RenderTarget::currentTarget = 0;
+const RenderTarget* RenderTarget::currentTarget = 0;
 
 
 unsigned int RenderTarget::GetMaxAttachmentWidth(void)
@@ -51,78 +71,119 @@ unsigned int RenderTarget::GetMaxNumbColorAttachments(void)
 }
 
 
-RenderTarget::RenderTarget(PixelSizes rendBuffSize)
+RenderTarget::RenderTarget(PixelSizes rendBuffSize, std::string& outError)
     : depthTex(0), width(0), height(0), depthRenderBufferSize(rendBuffSize)
 {
-    if (maxColorAttachments == 0) maxColorAttachments = GetMaxNumbColorAttachments();
+    if (maxColorAttachments == 0)
+    {
+        maxColorAttachments = GetMaxNumbColorAttachments();
+    }
 
 	ClearAllRenderingErrors();
+
 
     //Create frame buffer object.
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
 
     //Create the depth renderbuffer to fall back on if not using a depth texture.
     glGenRenderbuffers(1, &depthRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
     if (!IsPixelSizeDepth(rendBuffSize))
     {
-        errorMsg = "Render buffer size specified in constructor is not a depth size type! It is " + DebugAssist::ToString(rendBuffSize);
+        outError = "Render buffer size specified in constructor is not a depth size type! " +
+                       std::string("It is ") + DebugAssist::ToString(rendBuffSize);
         return;
     }
     glRenderbufferStorage(GL_RENDERBUFFER, ToGLenum(rendBuffSize), 1, 1);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+    
+
+    //Save the currently-bound framebuffer before binding this one to check it out.
+	GLint currentBuffer;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBuffer);
 
     //Check framebuffer status.
-    RenderDataHandler::FrameBufferStatus stat = RenderDataHandler::GetFramebufferStatus();
-    if (stat != RenderDataHandler::FrameBufferStatus::EVERYTHING_IS_FINE)
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    std::string err = GetFramebufferStatusMessage();
+    if (!err.empty())
     {
-        errorMsg = "Framebuffer is not ready! Error ";
-        errorMsg += RenderDataHandler::GetFrameBufferStatusMessage();
-        return;
+        outError = "Framebuffer is not ready! " + err;
     }
+
+    //Re-bind the previously-bound framebuffer.
+    glBindFramebuffer(GL_FRAMEBUFFER, currentBuffer);
+}
+
+RenderTarget& RenderTarget::operator=(RenderTarget&& other)
+{
+    frameBuffer = other.frameBuffer;
+    other.frameBuffer = 0;
+
+    colorTexes = std::move(other.colorTexes);
+
+    depthTex = other.depthTex;
+    other.depthTex = 0;
+
+    depthRenderBuffer = other.depthRenderBuffer;
+    other.depthRenderBuffer = 0;
+
+    depthRenderBufferSize = other.depthRenderBufferSize;
+
+    width = other.width;
+    height = other.height;
+
+    return *this;
 }
 
 RenderTarget::~RenderTarget(void)
 {
 	glDeleteFramebuffers(1, &frameBuffer);
-    glDeleteRenderbuffers(1, &depthRenderBuffer);
+    if (depthRenderBuffer != 0)
+    {
+        glDeleteRenderbuffers(1, &depthRenderBuffer);
+    }
 }
 
-bool RenderTarget::IsUseable(void) const
+bool RenderTarget::IsUseable(std::string& outErrorMsg) const
 {
     //Make sure there aren't too many color attachments for the hardware to handle.
     if (GetMaxNumbColorAttachments() < colorTexes.size())
     {
-        errorMsg = std::string() + "You are limited to " + std::to_string(GetMaxNumbColorAttachments()) +
-            " color textures per frame buffer, but you tried to attach " + std::to_string(colorTexes.size());
+        outErrorMsg = std::string("You are limited to ") +
+                           std::to_string(GetMaxNumbColorAttachments()) +
+                           " color textures per frame buffer, but you tried to attach " +
+                           std::to_string(colorTexes.size());
         return false;
     }
 
 
+    //Save the currently-bound framebuffer before binding this one to check it out.
 	GLint currentBuffer;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentBuffer);
 
-
+    //Check out the status of this framebuffer.
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	RenderDataHandler::FrameBufferStatus status = RenderDataHandler::GetFramebufferStatus();
+    outErrorMsg = GetFramebufferStatusMessage();
 
-    if (status != RenderDataHandler::FrameBufferStatus::EVERYTHING_IS_FINE)
-    {
-        errorMsg = RenderDataHandler::GetFrameBufferStatusMessage();
-        glBindFramebuffer(GL_FRAMEBUFFER, currentBuffer);
-        return false;
-    }
-
-    return true && errorMsg.empty();
+    //Clean up and return the status.
+    glBindFramebuffer(GL_FRAMEBUFFER, currentBuffer);
+    return outErrorMsg.empty();
 }
 
-bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexes, bool updateDepthSize)
+bool RenderTarget::SetColorAttachment(RenderTargetTex newColorTex, bool updateDepthSize)
+{
+    std::vector<RenderTargetTex> rtts;
+    rtts.insert(rtts.end(), newColorTex);
+    return SetColorAttachments(rtts, updateDepthSize);
+}
+bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexes,
+                                       bool updateDepthSize)
 {
     //Make sure there aren't too many attachments.
     if (newColorTexes.size() > GetMaxNumbColorAttachments())
     {
-        errorMsg = "You tried to attach " + std::to_string(newColorTexes.size()) + " color textures, but you can only attach up to " + std::to_string(GetMaxNumbColorAttachments());
         return false;
     }
 
@@ -143,14 +204,9 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
             colAttachments.insert(colAttachments.end(), GL_COLOR_ATTACHMENT0 + i);
 
             const RenderTargetTex & tex = newColorTexes[i];
-            if (tex.MTex == 0 && tex.MTexCube == 0)
+
+            if ((tex.MTex == 0 && tex.MTexCube == 0) || (tex.MTex != 0 && tex.MTexCube != 0))
             {
-                errorMsg = "Color attachment " + std::to_string(i) + " doesn't have an associated texture";
-                return false;
-            }
-            if (tex.MTex != 0 && tex.MTexCube != 0)
-            {
-                errorMsg = "Color attachment " + std::to_string(i) + " has an associated 2D texture AND cubemap face texture";
                 return false;
             }
 
@@ -178,20 +234,15 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
             }
 
             //Make sure the texture will work and, if it will, attach it.
-            if (colWidth > maxWidth)
+            if (colWidth > maxWidth || colHeight > maxHeight)
             {
-                errorMsg = "Color attachment " + std::to_string(i) + " is " + std::to_string(width) + " wide, but can't be more than " + std::to_string(GetMaxAttachmentWidth());
-                return false;
-            }
-            if (colHeight > maxHeight)
-            {
-                errorMsg = "Color attachment " + std::to_string(i) + " is " + std::to_string(height) + " tall, but can't be more than " + std::to_string(GetMaxAttachmentHeight());
                 return false;
             }
 
             newWidth = Mathf::Min(newWidth, colWidth);
             newHeight = Mathf::Min(newHeight, colHeight);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, textureType, texHandle, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                   textureType, texHandle, 0);
         }
     }
 
@@ -226,14 +277,21 @@ bool RenderTarget::SetDepthAttachment(RenderTargetTex newDepthTex, bool changeSi
     if (depthTex.MTex != 0)
     {
         if (changeSize)
+        {
             depthTex.MTex->ClearData(width, height);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex.MTex->GetTextureHandle(), 0);
+        }
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+                               depthTex.MTex->GetTextureHandle(), 0);
     }
     else if (depthTex.MTexCube != 0)
     {
         if (changeSize)
+        {
             depthTex.MTexCube->ClearData(width, height);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, TextureTypeToGLEnum(depthTex.MTexCube_Face), depthTex.MTexCube->GetTextureHandle(), 0);
+        }
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                               TextureTypeToGLEnum(depthTex.MTexCube_Face),
+                               depthTex.MTexCube->GetTextureHandle(), 0);
     }
     else
     {
@@ -255,7 +313,7 @@ bool RenderTarget::UpdateSize(void)
     width = maxW;
     height = maxH;
 
-    for (int i = 0; i < colorTexes.size(); ++i)
+    for (unsigned int i = 0; i < colorTexes.size(); ++i)
     {
         //Figure out the attachment's width/height.
         unsigned int tempWidth, tempHeight;
@@ -271,16 +329,8 @@ bool RenderTarget::UpdateSize(void)
         }
 
         //Make sure the size is valid.
-        if (tempWidth > maxW)
+        if (tempWidth > maxW || tempHeight > maxH)
         {
-            errorMsg = "Color attachment index " + std::to_string(i) + " is " + std::to_string(tempWidth) +
-                           " wide, but must be no more than " + std::to_string(maxW);
-            return false;
-        }
-        if (tempHeight > maxH)
-        {
-            errorMsg = "Color attachment index " + std::to_string(i) + " is " + std::to_string(tempHeight) +
-                           " tall, but must be no more than " + std::to_string(maxH);
             return false;
         }
 
@@ -318,12 +368,15 @@ void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updat
     currentTarget = 0;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    if (w == 0 && h == 0) glViewport(0, 0, w, h);
+    if (w != 0 && h != 0)
+    {
+        glViewport(0, 0, w, h);
+    }
 
     if (updateMipmaps)
     {
         //Color textures.
-        for (int i = 0; i < colorTexes.size(); ++i)
+        for (unsigned int i = 0; i < colorTexes.size(); ++i)
         {
             if (colorTexes[i].MTex != 0 && colorTexes[i].MTex->UsesMipmaps())
             {

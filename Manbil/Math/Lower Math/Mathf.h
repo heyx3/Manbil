@@ -102,7 +102,12 @@ public:
         int rounded = RoundToInt((value - intervalStart) / intervalSize);
         return intervalStart + (intervalSize * rounded);
     }
-    struct ClampIntervalResult { int zero, one; ClampIntervalResult(int _zero, int _one) : zero(_zero), one(_one) { } };
+
+    struct ClampIntervalResult
+    {
+        int zero, one;
+        ClampIntervalResult(int _zero, int _one) : zero(_zero), one(_one) { }
+    };
     //Same as "ClampToInterval", but instead of returning the clamped value, this function returns
     //    the two values of n that the given value lies between.
     static ClampIntervalResult ClampToIntervalBounds(float intervalStart, float intervalSize, float value);
@@ -114,7 +119,10 @@ public:
     //Linear interpolation.
     static float Lerp(float start, float end, float lerp) { return (lerp * (end - start)) + start; }
     //Gets the value that, if plugged into "lerp", would output "value".
-    static float LerpComponent(float start, float end, float value) { return (value - start) / (end - start); }
+    static inline float LerpComponent(float start, float end, float value)
+    {
+        return (value - start) / (end - start);
+    }
 
     //Remaps the given value from the given source range to the given destination range.
     static inline float Remap(float startSource, float endSource,

@@ -4,17 +4,21 @@
 #include "../Rendering/GUI/GUIManager.h"
 #include "../Editor/EditorMaterialSet.h"
 #include "../Editor/Editor Panels/ColorEditor.h"
+#include "../Rendering/GUI/TextRenderer.h"
 
 
+//TODO: Rename to something like "EditorSystemTestWorld".
 class GUITestWorld : public SFMLOpenGLWorld
 {
 public:
 
-    static Vector2i WindowSize;
+    Vector2i WindowSize;
+
+    TextRenderer* TextRender;
 
 
-    GUITestWorld(void) : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)) { }
-    virtual ~GUITestWorld(void) { DestroyMyStuff(false); }
+    GUITestWorld(void)
+        : SFMLOpenGLWorld(WindowSize.x, WindowSize.y, sf::ContextSettings(24, 0, 0, 4, 1)) { }
 
 
 protected:
@@ -23,7 +27,7 @@ protected:
     virtual void OnWindowResized(unsigned int newWidth, unsigned int newHeight) override;
 
     virtual void InitializeWorld(void) override;
-    virtual void OnWorldEnd(void) { DestroyMyStuff(true); }
+    virtual void OnWorldEnd(void);
     
     virtual void UpdateWorld(float elapsedSeconds) override;
     virtual void RenderOpenGL(float elapsedSeconds) override;
@@ -33,8 +37,6 @@ private:
 
     //If there is an error, prints 'errorIntro + ": " + errorMsg', ends the world, and returns false.
     bool ReactToError(bool isEverythingOK, std::string errorIntro, std::string errorMsg);
-    //Releases all OpenGL and heap-allocated data that currently exists.
-    void DestroyMyStuff(bool destroyStatics);
 
 
     GUIManager guiManager;

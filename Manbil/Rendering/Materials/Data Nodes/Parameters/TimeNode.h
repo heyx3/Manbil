@@ -33,7 +33,7 @@ private:
 
     TimeNode(void);
 
-    MAKE_NODE_READABLE_H(TimeNode)
+    ADD_NODE_REFLECTION_DATA_H(TimeNode)
 };
 
 #pragma warning(default: 4100)

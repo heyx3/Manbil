@@ -4,6 +4,7 @@
 
 #include "../Rendering/Rendering.hpp"
 #include "../Rendering/Helper Classes/DrawingQuad.h"
+#include "../Rendering/Texture Management/RenderTargetManager.h"
 #include "../MovingCamera.h"
 #include "../Oculus Rift/OculusDevice.h"
 
@@ -13,8 +14,10 @@ class RiftTestWorld : public SFMLOpenGLWorld
 {
 public:
 
+    RenderTargetManager RenderTargets;
+
+
     RiftTestWorld(void);
-    virtual ~RiftTestWorld(void);
 
 
 protected:
@@ -58,7 +61,6 @@ private:
 
 
     Material* quadMat;
-    DrawingQuad* quad;
     UniformDictionary quadParams;
     unsigned int eyeRendTarget;
     MTexture2D eyeColorTex1, eyeColorTex2;

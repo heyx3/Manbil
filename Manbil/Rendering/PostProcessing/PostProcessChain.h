@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include "../Rendering.hpp"
 #include "PostProcessData.h"
 #include "../Texture Management/RenderTargetManager.h"
@@ -87,3 +89,5 @@ private:
     MTexture2D ct1, ct2;
     unsigned int totalPasses;
 };
+
+*/

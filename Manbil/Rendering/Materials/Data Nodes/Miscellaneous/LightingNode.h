@@ -45,5 +45,5 @@ private:
                                                  const DataLine & camPos, const DataLine & surfPos,
                                                  const DataLine & surfNormal, const DataLine & lightDir);
 
-    MAKE_NODE_READABLE_H(LightingNode)
+    ADD_NODE_REFLECTION_DATA_H(LightingNode)
 };

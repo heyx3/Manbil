@@ -7,22 +7,28 @@
 
 
 //Represents all useful rendering data.
-//TODO: Get rid fo the "Trans" and "mWorld" matrices; it hasn't make sense to have them in this struct for a long time (since refactoring Material::Render() to take in a vector of meshes).
 struct RenderInfo
 {
-	SFMLOpenGLWorld * World;
-	Camera * Cam;
-	TransformObject * Trans;
+    float TotalElapsedSeconds;
+	Camera* Cam;
 
-	Matrix4f * mWorld, * mView, * mProj;
-    Matrix4f mWVP;
+	Matrix4f *mView, *mProj;
 
-	RenderInfo(SFMLOpenGLWorld * world, Camera * camera, TransformObject * trans, Matrix4f * worldM, Matrix4f * viewM, Matrix4f * projM)
-		: World(world), Cam(camera), Trans(trans), mWorld(worldM), mView(viewM), mProj(projM)
+    //Automatically computed when this struct is created.
+    //If the view/proj matrices are changed, this matrix will have to be manually recomputed.
+    Matrix4f mVP;
+
+
+	RenderInfo(float totalElapsedSeconds, Camera* camera, Matrix4f* viewM, Matrix4f* projM)
+		: TotalElapsedSeconds(totalElapsedSeconds), Cam(camera), mView(viewM), mProj(projM)
     {
-        if (mProj != 0 && mView != 0 && mWorld != 0)
-            mWVP.SetAsWVP(*mProj, *mView, *mWorld);
-        else mWVP.SetAsIdentity();
+        if (mProj != 0 && mView != 0)
+        {
+            mVP = Matrix4f::Multiply(*mProj, *mView);
+        }
+        else
+        {
+            mVP.SetAsIdentity();
+        }
     }
-	RenderInfo(const RenderInfo & copy) : World(copy.World), Cam(copy.Cam), Trans(copy.Trans), mWorld(copy.mWorld), mView(copy.mView), mProj(copy.mProj), mWVP(copy.mWVP) { }
 };

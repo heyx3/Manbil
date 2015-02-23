@@ -13,94 +13,118 @@
 struct RenderTargetTex
 {
 public:
-    MTexture2D * MTex = 0;
-    MTextureCubemap * MTexCube = 0;
+    MTexture2D* MTex = 0;
+    MTextureCubemap* MTexCube = 0;
     CubeTextureTypes MTexCube_Face;
+
     RenderTargetTex(void) { }
-    RenderTargetTex(MTexture2D * mTex) : MTex(mTex) { }
-    RenderTargetTex(MTextureCubemap * mTexCube, CubeTextureTypes face) : MTexCube(mTexCube), MTexCube_Face(face) { }
+    RenderTargetTex(MTexture2D* mTex) : MTex(mTex) { }
+
+    RenderTargetTex(MTextureCubemap* mTexCube, CubeTextureTypes face)
+        : MTexCube(mTexCube), MTexCube_Face(face) { }
 };
 
 
-//Allows drawing into a texture.
+//A set of textures that can be rendered into instead of rendering into the back buffer.
+//Render targets can have up to one depth texture attached and
+//    up to some number of color textures attached.
 class RenderTarget
 {
 public:
 
+    //Gets the maximum width of an attached texture.
     static unsigned int GetMaxAttachmentWidth(void);
+    //Gets the maximum height of an attached texture.
     static unsigned int GetMaxAttachmentHeight(void);
+    //Gets the maximum number of color attachments allowed at once.
     static unsigned int GetMaxNumbColorAttachments(void);
 
-
     //Gets the currently-bound render target, or 0 if the back buffer is currently bound.
-    static const RenderTarget * GetCurrentTarget(void) { return currentTarget; }
+    //This only works if no systems do framebuffer stuff outside this class.
+    static const RenderTarget* GetCurrentTarget(void) { return currentTarget; }
 
 
-    //Takes in the size of the default depth renderbuffer used if no depth texture is attached.
-    RenderTarget(PixelSizes defaultDepthPixelSize);
+    //This default constructor creates an invalid render target.
+    RenderTarget(void) : frameBuffer(0), depthTex(0), depthRenderBuffer(0), width(0), height(0) { }
+    //If no depth texture gets attached, the depth must still be rendered into somewhere.
+    //This constructor takes in in the pixel size of the default depth render buffer.
+    //It also takes an error message that it will output to if something goes wrong.
+    RenderTarget(PixelSizes defaultDepthPixelSize, std::string& outErrorMsg);
+    
+    RenderTarget(RenderTarget&& moveCpy) { *this = std::move(moveCpy); }
+    RenderTarget& operator=(RenderTarget&& moveCpy);
+
 	~RenderTarget(void);
 
-	RenderTarget(void); //This function intentionally not implemented.
-	void operator=(const RenderTarget & other); //This function intentionally not implemented.
 
-
-    //Error-handling.
-
-    bool HasError(void) const { return !errorMsg.empty(); }
-	const std::string & GetErrorMessage(void) const { return errorMsg; }
-	void ClearErrorMessage(void) { errorMsg.clear(); }
+    RenderTarget(const RenderTarget& cpy) = delete;
+	void operator=(const RenderTarget& other) = delete;
 
 
     //Getters.
 
     RenderObjHandle GetFramebufferHandle(void) const { return frameBuffer; }
-    const std::vector<RenderTargetTex> & GetColorTextures(void) const { return colorTexes; }
-    //The depth texture may or may not exist.
+    const std::vector<RenderTargetTex>& GetColorTextures(void) const { return colorTexes; }
+
+    //Note that the depth texture may or may not exist.
     RenderTargetTex GetDepthTexture(void) const { return depthTex; }
     
-    //The effective width of the render target. Equal to the smallest width of the attached color textures.
+    //The effective width of the render target.
+    //Equal to the smallest width of the attached color textures.
     unsigned int GetWidth(void) const { return width; }
-    //The effective height of the render target. Equal to the smallest height of the attached color textures.
+    //The effective height of the render target.
+    //Equal to the smallest height of the attached color textures.
     unsigned int GetHeight(void) const { return height; }
 
 
     //Render target operations.
 
     //Replaces the current color attachments with the given one.
-    //If "updateDepthSize" is true, the depth texture/render buffer is resized to this render target's new width/height.
+    //If "updateDepthSize" is true, the depth texture/render buffer is resized
+    //    to this render target's new width/height.
     //Returns whether the operation succeeded.
-    bool SetColorAttachment(RenderTargetTex newColorTex, bool updateDepthSize)
-    {
-        std::vector<RenderTargetTex> rtts;
-        rtts.insert(rtts.end(), newColorTex);
-        return SetColorAttachments(rtts, updateDepthSize);
-    }
+    //This operation fails if the size of the attachment is too big for OpenGL,
+    //    or if the RenderTargetTex data structure is malformed.
+    bool SetColorAttachment(RenderTargetTex newColorTex, bool updateDepthSize);
     //Replaces the current color attachments with the given ones.
-    //If "updateDepthSize" is true, the depth texture/render buffer is resized to this render target's new width/height.
+    //If "updateDepthSize" is true, the currently-attached depth texture is resized
+    //    to this render target's new width/height.
     //Returns whether the operation succeeded.
+    //This operation fails if the size of the attachment is too big for OpenGL,
+    //    or if too many attachments were passed in,
+    //    or if any of the RenderTargetTex data structures are malformed.
     bool SetColorAttachments(std::vector<RenderTargetTex> newColorTexes, bool updateDepthSize);
     //Replaces the current depth attachment with the given attachment.
-    //If the default value is supplied, a render buffer will be used instead (an optimized texture that can't be manipulated in software).
-    //"changeToCorrectSize" indicates whether to resize the depth texture to be the effective size of this RenderTarget.
+    //If the default value is supplied, the current depth texture will just be removed.
+    //"changeToCorrectSize" indicates whether to resize the depth texture
+    //    to be the effective size of this RenderTarget.
     //Returns whether the operation succeeded.
-    bool SetDepthAttachment(RenderTargetTex newDepthTex = RenderTargetTex(), bool changeToCorrectSize = true);
+    //This operation fails if the size of the attachment is too big for OpenGL,
+    //    or if the RenderTargetTex data structure is malformed.
+    bool SetDepthAttachment(RenderTargetTex newDepthTex = RenderTargetTex(),
+                            bool changeToCorrectSize = true);
 
     //Should be called whenever a color attachment's size is changed.
+    //Updates the effective size of this render target
     //Returns whether the operation succeeded.
+    //This operation fails if the size of the depth buffer would be too big for OpenGL.
     bool UpdateSize(void);
 
 	//Gets whether this render target is ready to be used.
-	bool IsUseable(void) const;
+    //If this render target isn't ready, an error message is output to the given string.
+	bool IsUseable(std::string& outErrorMsg) const;
 
     //Generates mipmaps for any attached color/depth textures that use it.
     void GenerateMipmaps(void) const;
 
 	//Sets the OpenGL state so that any rendering will go into this render target.
 	void EnableDrawingInto(void) const;
-	//Sets the OpenGL state so that any rendering will go into the default frame buffer (a.k.a. the window).
-    //Takes in the size of the default buffer and whether to update mipmaps for any color/depth textures that use them.
+	//Sets the OpenGL state so that any rendering will go into the back buffer instead of a texture.
+    //Takes in the size of the default buffer and whether to update mipmaps
+    //    for all textures attached to this buffer.
     //If 0 is passed in for the width and height, the back buffer will not be reset.
-	void DisableDrawingInto(unsigned int width = 0, unsigned int height = 0, bool updateMipmaps = true) const;
+	void DisableDrawingInto(unsigned int width = 0, unsigned int height = 0,
+                            bool updateMipmaps = true) const;
 
 
 private:
@@ -114,8 +138,6 @@ private:
 
     unsigned int width, height;
 
-	mutable std::string errorMsg;
-
-    static const RenderTarget * currentTarget;
+    static const RenderTarget* currentTarget;
     static unsigned int maxColorAttachments, maxWidth, maxHeight;
 };

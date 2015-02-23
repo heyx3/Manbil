@@ -1,5 +1,5 @@
 #include "PostProcessData.h"
-
+/*
 #include "../Helper Classes/DrawingQuad.h"
 
 
@@ -8,10 +8,10 @@ const std::string PostProcessEffect::ColorSampler = "u_colorTex",
                   PostProcessEffect::DepthSampler = "u_depthTex";
 
 
-MAKE_NODE_READABLE_CPP(ColorTintEffect, );
-MAKE_NODE_READABLE_CPP(ContrastEffect, Strengths::S_Light, 1)
-MAKE_NODE_READABLE_CPP(FogEffect, )
-MAKE_NODE_READABLE_CPP(GaussianBlurEffect, )
+ADD_NODE_REFLECTION_DATA_CPP(ColorTintEffect, );
+ADD_NODE_REFLECTION_DATA_CPP(ContrastEffect, Strengths::S_Light, 1)
+ADD_NODE_REFLECTION_DATA_CPP(FogEffect, )
+ADD_NODE_REFLECTION_DATA_CPP(GaussianBlurEffect, )
 
 
 
@@ -197,6 +197,7 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
         vertOuts.insert(vertOuts.end(), ShaderOutput("outUV_" + ToString(i), DataLine(nodeName)));
     }
 
+
     /*
     typedef RenderingChannels rc;
     DataLine uvs(Ptr(new VertexInputNode(DrawingQuad::GetAttributeData())), 1);
@@ -242,6 +243,7 @@ void GaussianBlurEffect::OverrideVertexOutputs(std::vector<ShaderOutput> & vertO
         channels[rc::RC_VERTEX_OUT_14] = uvs;
     }
     */
+    /*
 }
 void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
 {
@@ -271,3 +273,5 @@ void GaussianBlurEffect::WriteMyOutputs(std::string & outStr) const
     " + output + " = vec4(" + tempOut + ", 1.0f);\n";
     }
 }
+
+*/

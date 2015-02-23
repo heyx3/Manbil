@@ -12,17 +12,14 @@ class SFMLWorld
 {
 public:
 
-	SFMLWorld(int windWidth, int windHeight, sf::ContextSettings settings = sf::ContextSettings())
-        : contextSettings(settings), totalElapsedSeconds(0.0f), window(0), windowWidth(windWidth), windowHeight(windHeight)
-    {
-        window = 0;
-    }
-	virtual ~SFMLWorld(void) { if (window) delete window; }
+	SFMLWorld(int windWidth, int windHeight,
+              sf::ContextSettings settings = sf::ContextSettings());
+	virtual ~SFMLWorld(void);
 
 	float GetTotalElapsedSeconds(void) const { return totalElapsedSeconds; }
-	sf::RenderWindow * GetWindow(void) const { return window; }
+	sf::RenderWindow* GetWindow(void) const { return window; }
 
-    const sf::ContextSettings & GetContextSettings(void) const { return contextSettings; }
+    const sf::ContextSettings& GetContextSettings(void) const { return contextSettings; }
 
 	bool IsGameOver(void) const { return worldOver; }
 	
@@ -39,9 +36,6 @@ protected:
 
 #pragma warning(disable: 4100)
 
-	template<class SomeClass>
-	void DeleteAndSetToNull(SomeClass *& pointer) { if (pointer) delete pointer; pointer = 0; }
-
 	virtual void InitializeWorld(void) { }
 
 	virtual void UpdateWorld(float elapsedSeconds) = 0;
@@ -49,7 +43,7 @@ protected:
 
 	virtual void OnCloseWindow(void) { worldOver = true; }
 	virtual void OnWindowResized(unsigned int newWidth, unsigned int newHeight) { }
-	virtual void OnOtherWindowEvent(sf::Event & windowEvent) { }
+	virtual void OnOtherWindowEvent(sf::Event& windowEvent) { }
 
 	virtual void OnWorldEnd(void) { }
 
@@ -59,7 +53,7 @@ protected:
 private:
 
 	float totalElapsedSeconds;
-	sf::RenderWindow * window;
+	sf::RenderWindow* window;
 	int windowWidth, windowHeight;
 
     sf::ContextSettings contextSettings;

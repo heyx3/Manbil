@@ -20,29 +20,23 @@ public:
     void* OnClicked_Data = 0;
 
 
-    GUICheckbox(const UniformDictionary & params, const GUITexture & box, const GUITexture & check,
-                bool hideBoxIfChecked = false, float timeLerpSpeed = 1.0f)
-        : Box(box), Check(check), HideBoxIfChecked(hideBoxIfChecked),
-          GUIElement(params, timeLerpSpeed)
-    {
-        Box.Depth = 0.0f;
-        Check.Depth = 0.01f;
-    }
     GUICheckbox(void) : GUICheckbox(UniformDictionary(), GUITexture(), GUITexture()) { }
+    GUICheckbox(const UniformDictionary& params, const GUITexture& box, const GUITexture& check,
+                bool hideBoxIfChecked = false, float timeLerpSpeed = 1.0f);
 
 
     bool IsChecked(void) const { return isChecked; }
-    void ToggleCheck(bool raiseEvent) { isChecked = !isChecked; if (raiseEvent) RaiseOnClickedEvent(); }
-    void SetChecked(bool newVal, bool raiseEvent) { isChecked = newVal; if (raiseEvent) RaiseOnClickedEvent(); }
+    void ToggleCheck(bool raiseEvent);
+    void SetChecked(bool newVal, bool raiseEvent);
 
 
     virtual Box2D GetBounds(void) const override;
-    virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Box.DidBoundsChange; }
-    virtual void ClearDidBoundsChangeDeep(void) override { DidBoundsChange = false; Box.DidBoundsChange = false; }
-    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(GetScale().ComponentProduct(scaleAmount)); }
+    virtual bool GetDidBoundsChangeDeep(void) const override;
+    virtual void ClearDidBoundsChangeDeep(void) override;
+    virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
 
-    virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
+    virtual void Render(float elapsedTime, const RenderInfo& info) override;
 
     virtual void OnMouseClick(Vector2f relativeMousePos) override;
     virtual void OnMouseDrag(Vector2f originalMousePos, Vector2f newMousePos) override;
@@ -55,10 +49,10 @@ protected:
 
 private:
 
-    std::string RenderBox(float elapsed, Vector4f myCol, const RenderInfo & info);
-    std::string RenderCheck(float elapsed, float depth, Vector4f myCol, const RenderInfo & info);
+    std::string RenderBox(float elapsed, Vector4f myCol, const RenderInfo& info);
+    std::string RenderCheck(float elapsed, float depth, Vector4f myCol, const RenderInfo& info);
 
-    void RaiseOnClickedEvent(void) { if (OnClicked != 0) OnClicked(this, OnClicked_Data); }
+    void RaiseOnClickedEvent(void);
 
     bool isChecked = false;
 };

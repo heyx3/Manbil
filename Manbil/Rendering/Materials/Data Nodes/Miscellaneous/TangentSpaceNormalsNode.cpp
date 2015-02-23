@@ -1,24 +1,26 @@
 #include "TangentSpaceNormalsNode.h"
 
 
-MAKE_NODE_READABLE_CPP(TangentSpaceNormalsNode, std::vector<DataLine>());
+ADD_NODE_REFLECTION_DATA_CPP(TangentSpaceNormalsNode, std::vector<DataLine>());
 
 
-std::string TangentSpaceNormalsNode::GetOutputName(unsigned int outputIndex) const
+#pragma warning(disable: 4100)
+std::string TangentSpaceNormalsNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_finalNormal";
 }
-unsigned int TangentSpaceNormalsNode::GetOutputSize(unsigned int outputIndex) const
+unsigned int TangentSpaceNormalsNode::GetOutputSize(unsigned int index) const
 {
     return 3;
 }
+#pragma warning(default: 4100)
 
 
 void TangentSpaceNormalsNode::AssertMyInputsValid(void) const
 {
-    for (int i = 0; i < GetInputs().size(); ++i)
+    for (unsigned int i = 0; i < GetInputs().size(); ++i)
         Assert(GetInputs()[i].GetSize() == 3,
-        "Input normal " + ToString(i) + " isn't size 3!");
+               "Input normal " + ToString(i) + " isn't size 3!");
 }
 
 void TangentSpaceNormalsNode::WriteMyOutputs(std::string& outCode) const
@@ -30,7 +32,7 @@ void TangentSpaceNormalsNode::WriteMyOutputs(std::string& outCode) const
     else
     {
         outCode += "\tvec3 " + GetOutputName(0) + " = normalize(" + GetInputs()[0].GetValue();
-        for (int i = 1; i < GetInputs().size(); ++i)
+        for (unsigned int i = 1; i < GetInputs().size(); ++i)
             outCode += " + " + GetInputs()[i].GetValue();
         outCode += ");\n";
     }

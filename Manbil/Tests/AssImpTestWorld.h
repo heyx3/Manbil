@@ -43,7 +43,7 @@ private:
 
     //Renders the world geometry using the given rendering info.
     //Returns whether there was an error rendering.
-    bool RenderWorldGeometry(const RenderInfo& info);
+    void RenderWorldGeometry(const RenderInfo& info);
 
 
     Material* objMat;
@@ -51,6 +51,7 @@ private:
     UniformDictionary objParams;
     MTexture2D objTex2;
     MTexture3D objTex3;
+    //TODO: remove use of the 3D texture to simplify the world.
 
     Vector2u windowSize;
 

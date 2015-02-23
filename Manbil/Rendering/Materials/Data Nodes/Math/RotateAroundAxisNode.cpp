@@ -3,7 +3,7 @@
 #include "../../../../Math/Lower Math/Quaternion.h"
 
 
-MAKE_NODE_READABLE_CPP(RotateAroundAxisNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 0.0f)
+ADD_NODE_REFLECTION_DATA_CPP(RotateAroundAxisNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), 0.0f)
 
 RotateAroundAxisNode::RotateAroundAxisNode(const DataLine & toRot, const DataLine & axis, const DataLine & angle, std::string name)
     : DataNode(MakeVector(toRot, axis, angle), name)

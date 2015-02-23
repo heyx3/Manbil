@@ -12,11 +12,9 @@
 
 
 const int noiseSize = 513,
-	pixelArrayWidth = noiseSize * 4,
-	pixelArrayHeight = noiseSize;
-#define GET_NOISE2D (Noise2D(noiseSize, noiseSize))
+          pixelArrayWidth = noiseSize * 4,
+          pixelArrayHeight = noiseSize;
 
-sf::Font guiFont;
 void NoiseTest::InitializeWorld(void)
 {
 	guiFont = sf::Font();
@@ -36,27 +34,26 @@ void NoiseTest::InitializeWorld(void)
 
 	ReGenerateNoise(false);
 }
-
-void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
+void NoiseTest::OnWorldEnd(void)
 {
-	//Set the color gradient.
+    delete renderedNoiseTex;
+    renderedNoiseTex = 0;
+
+    delete renderedNoise;
+    renderedNoise = 0;
+}
+
+void NoiseToPixels(const Noise2D& noise, Array2D<sf::Uint8>& outPixels)
+{
+    //Use a "black to white" color gradient.
     std::vector<GradientNode<3>> nodes;
-	if (true)
-	{
-		#pragma region Black and white
-
-        float zeroes[3] = { 0.0f, 0.0f, 0.0f },
-              ones[3] = { 1.0f, 1.0f, 1.0f };
-        nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes));
-        nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones));
-
-		#pragma endregion
-	}
-	else assert(false);
-
+	float zeroes[3] = { 0.0f, 0.0f, 0.0f },
+          ones[3] = { 1.0f, 1.0f, 1.0f };
+    nodes.insert(nodes.end(), GradientNode<3>(0.0f, zeroes));
+    nodes.insert(nodes.end(), GradientNode<3>(1.0f, ones));
 
     //Generate the color gradient.
-    Gradient<3> colGrad(nodes, Gradient<3>::SM_LINEAR);
+    Gradient<3> colGrad(nodes, SM_LINEAR);
     for (Vector2u loc; loc.y < noise.GetHeight(); ++loc.y)
     {
         for (loc.x = 0; loc.x < noise.GetWidth(); ++loc.x)
@@ -81,9 +78,6 @@ void NoiseToPixels(const Noise2D & noise, Array2D<sf::Uint8> & outPixels)
     nodes = nodes;
 }
 
-namespace RandStuff { FastRand fr(255); }
-using namespace RandStuff;
-
 void NoiseTest::ReGenerateNoise(bool newSeeds)
 {
 	//Draw a "loading..." text over the normal noise.
@@ -103,12 +97,17 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	GetWindow()->draw(t);
 
 	GetWindow()->display();
+    
 
+    delete renderedNoiseTex;
+    renderedNoiseTex = 0;
+    delete renderedNoise;
+    renderedNoise = 0;
 
-	DeleteData();
-
-
-	if (newSeeds) fr.Seed = rand();
+	if (newSeeds)
+    {
+        fr.Seed = rand();
+    }
 
 
 	//Do noise generation.
@@ -120,21 +119,29 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 	nf.FillRegion = &mfr;
 
 
+    //The following are various branches for different kinds of noise generation.
 #pragma warning(disable: 4127)
-
 	if (true)
 	{
 		#pragma region Layered Perlin
 
-        const int pScale = 4;
-		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed, true, Vector2u(1, 1) * pScale),
-                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356, true, Vector2u(2, 2) * pScale),
-                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498, true, Vector2u(4, 4) * pScale),
-                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346, true, Vector2u(8, 8) * pScale),
-                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 619398, true, Vector2u(16, 16) * pScale),
-                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 45324, true, Vector2u(32, 32) * pScale),
-                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 21234, true, Vector2u(64, 64) * pScale);
-        Generator2D * gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
+        const unsigned int pScale = 4;
+		Perlin2D per1(128.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed,
+                      true, Vector2u(1, 1) * pScale),
+                 per2(64.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 634356,
+                      true, Vector2u(2, 2) * pScale),
+                 per3(32.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 6193498,
+                      true, Vector2u(4, 4) * pScale),
+                 per4(16.0f, Perlin2D::Smoothness::Cubic, Vector2i(), fr.Seed + 1009346,
+                      true, Vector2u(8, 8) * pScale),
+                 per5(8.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 619398,
+                      true, Vector2u(16, 16) * pScale),
+                 per6(4.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 45324,
+                      true, Vector2u(32, 32) * pScale),
+                 per7(2.0f, Perlin2D::Smoothness::Quintic, Vector2i(), fr.Seed + 21234,
+                      true, Vector2u(64, 64) * pScale);
+        Generator2D* gens[] = { &per1, &per2, &per3, &per4, &per5, &per6, &per7 };
+
         float weights[7];
         float counter = 0.5f;
         for (int i = 0; i < 7; ++i)
@@ -151,9 +158,6 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         nf.NoiseToFilter = &layers;
 		nf.Generate(finalNoise);
 
-        //per4.Generate(finalNoise);
-
-
 		#pragma endregion
 	}
 	else if (false)
@@ -168,14 +172,9 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 		wor.ValueGenerator = [](Worley2D::DistanceValues v) { return v.Values[2] - v.Values[0]; };
 		wor.Generate(finalNoise);
 
-        nf.Increase_Amount = -0.25f;
-        //nf.Increase(&finalNoise);
-
         nf.UpContrast_Passes = 1;
         nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::CUBIC;
         nf.UpContrast(&finalNoise);
-
-        //nf.ReflectValues(&finalNoise);
 
 		#pragma endregion
 	}
@@ -184,7 +183,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         #pragma region TwoD Perlin
 
         const unsigned int pSize = 32;
-        Perlin2D perlin(20.0f, Perlin2D::Quintic, Vector2i(), fr.Seed, true, Vector2u(noiseSize / 20, noiseSize / 20));
+        Perlin2D perlin(20.0f, Perlin2D::Quintic, Vector2i(), fr.Seed,
+                        true, Vector2u(noiseSize / 20, noiseSize / 20));
         perlin.Generate(finalNoise);
 
         NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
@@ -206,7 +206,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         Noise3D tempNoise(noiseSize, noiseSize, depth);
         perl3.Generate(tempNoise);
 
-        finalNoise.FillFunc([&tempNoise, currentTime, depth](Vector2u loc, float * outFl)
+        finalNoise.FillFunc([&tempNoise, currentTime, depth](Vector2u loc, float* outFl)
         {
             const float timeScale = 0.01f;
 
@@ -218,8 +218,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
             //Interpolate between layers to get the value.
             *outFl = Mathf::Lerp(tempNoise[Vector3u(loc.x, loc.y, (unsigned int)floorf(z))],
-                                     tempNoise[Vector3u(loc.x, loc.y, (unsigned int)ceilf(z))],
-                                     Mathf::Supersmooth(z - floorf(z)));
+                                 tempNoise[Vector3u(loc.x, loc.y, (unsigned int)ceilf(z))],
+                                 Mathf::Supersmooth(z - floorf(z)));
             *outFl = tempNoise[Vector3u(loc.x, loc.y, 0)];
         });
 
@@ -238,7 +238,6 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
     {
         #pragma region Layered Interpolated White Noise
 
-
         WhiteNoise2D wn(fr.Seed);
         const unsigned int numbGens = 8;
         Interpolator2D int1(&wn, Interpolator2D::I2S_QUINTIC, 200.0f),
@@ -249,7 +248,7 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                        int6(&wn, Interpolator2D::I2S_QUINTIC, 6.25f),
                        int7(&wn, Interpolator2D::I2S_QUINTIC, 3.125f),
                        int8(&wn, Interpolator2D::I2S_QUINTIC, 1.0f);
-        Generator2D * gens[] = { &int1, &int2, &int3, &int4, &int5, &int6, &int7, &int8 };
+        Generator2D* gens[] = { &int1, &int2, &int3, &int4, &int5, &int6, &int7, &int8 };
         float weights[numbGens];
         float counter = 0.5f;
         for (int i = 0; i < numbGens; ++i)
@@ -264,15 +263,14 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         nf.UpContrast_Power = NoiseFilterer2D::UpContrastPowers::QUINTIC;
         nf.UpContrast(&finalNoise);
 
-
 		#pragma endregion
     }
     else if (false)
     {
-        #pragma region Neuroscouting racer terrain heightmap
+        #pragma region Interesting terrain heightmap
 
-
-        //Create a very rocky mountainous area, then put a thin ring of plateau inside it, then some hills inside that.
+        //Create a very rocky mountainous area, then put a thin ring of plateau inside it,
+        //    then some hills inside that.
 
         Noise2D rockyNoise(noiseSize, noiseSize),
                 plateauNoise(noiseSize, noiseSize),
@@ -308,10 +306,14 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         //Interpolate between the different segments of the noise.
         //These constants are relative to half the length/width of the noise texture.
-        const float mountainBeginningRadius = 1.0f, //The distance at which the noise starts to be 100% rocky.
-                    mountainStartFadeInRadius = 0.8f, //The distance at which the noise just starts to become rocky (from being a plateau).
-                    plateauBeginningRadius = 0.765f, //The distance at which the noise starts to be 100% plateau (until the rocky noise interrupts it).
-                    plateauStartFadeInRadius = 0.725f; //The distance at which the noise just starts to become plateau (from being hilly).
+        //The distance at which the noise starts to be 100% rocky.
+        const float mountainBeginningRadius = 1.0f;
+        //The distance at which the noise just starts to become rocky (from being a plateau).
+        const float mountainStartFadeInRadius = 0.8f;
+        //The distance at which the noise starts to be 100% plateau (until the rocky noise interrupts it).
+        const float plateauBeginningRadius = 0.765f;
+        //The distance at which the noise just starts to become plateau (from being hilly).
+        const float plateauStartFadeInRadius = 0.725f;
 
         Vector2f locF;
         for (Vector2u loc; loc.y < finalNoise.GetHeight(); ++loc.y)
@@ -324,7 +326,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 
                 //Come up with an interpolant that is on the same scale as the interpolation constants.
                 float distLerp = locF.Distance(noiseCenter) * halfNoiseInv;
-                float distortion = 0.01f * (-1.0f + (2.0f * FastRand(Vector3i((int)loc.x, (int)loc.y, fr.Seed).GetHashCode()).GetZeroToOne()));
+                FastRand rand(Vector3i((int)loc.x, (int)loc.y, fr.Seed).GetHashCode());
+                float distortion = 0.01f * (-1.0f + (2.0f * rand.GetZeroToOne()));
                 distLerp += distortion;
 
                 //Fully rocky.
@@ -335,7 +338,9 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 //Part rocky, part plateau.
                 else if (distLerp >= mountainStartFadeInRadius)
                 {
-                    float lerpComponent = Mathf::LerpComponent(mountainStartFadeInRadius, mountainBeginningRadius, distLerp);
+                    float lerpComponent = Mathf::LerpComponent(mountainStartFadeInRadius,
+                                                               mountainBeginningRadius,
+                                                               distLerp);
                     finalNoise[loc] = Mathf::Lerp(plateauNoise[loc], rockyNoise[loc], lerpComponent);
                 }
                 //Fully plateau.
@@ -346,7 +351,9 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
                 //Part plateau, part hilly.
                 else if (distLerp >= plateauStartFadeInRadius)
                 {
-                    float lerpComponent = Mathf::LerpComponent(plateauStartFadeInRadius, plateauBeginningRadius, distLerp);
+                    float lerpComponent = Mathf::LerpComponent(plateauStartFadeInRadius,
+                                                               plateauBeginningRadius,
+                                                               distLerp);
                     finalNoise[loc] = Mathf::Lerp(hillNoise[loc], plateauNoise[loc], lerpComponent);
                 }
                 //Fully hilly.
@@ -378,7 +385,8 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
         };
 
         finalNoise.Fill(Mathf::NaN);
-        DiamondSquare dsq(fr.Seed, Interval(0.0f, 3.0f), variances, sizeof(variances) / sizeof(DiamondSquareStep), 0.0f);
+        DiamondSquare dsq(fr.Seed, Interval(0.0f, 3.0f), variances,
+                          sizeof(variances) / sizeof(DiamondSquareStep), 0.0f);
         dsq.Generate(finalNoise);
 
         NoiseAnalysis2D::MinMax mm = NoiseAnalysis2D::GetMinAndMax(finalNoise);
@@ -388,31 +396,30 @@ void NoiseTest::ReGenerateNoise(bool newSeeds)
 
         #pragma endregion
     }
-	else assert(false);
-
+	else
+    {
+        //Crash the program if no option was chosen.
+        assert(false);
+    }
 #pragma warning(default: 4127)
 
 
 	InterpretNoise(finalNoise);
 }
-void NoiseTest::InterpretNoise(const Noise2D & noise)
+void NoiseTest::InterpretNoise(const Noise2D& noise)
 {
 	Array2D<sf::Uint8> pixels(pixelArrayWidth, pixelArrayHeight, 0);
 	NoiseToPixels(noise, pixels);
-
 
 	//Output pixel array to texture.
 	renderedNoiseTex = new sf::Texture();
 	renderedNoiseTex->create(noiseSize, noiseSize);
 	renderedNoiseTex->update(pixels.GetArray());
 
-
 	//Output texture to Sprite.
 	renderedNoise = new sf::Sprite(*renderedNoiseTex);
 }
 
-float bumpHeight = 1.0f;
-bool pressedLast = false;
 void NoiseTest::UpdateWorld(float elapsedTime)
 {
     const float bumpIncrement = 0.99f;
@@ -439,7 +446,10 @@ void NoiseTest::UpdateWorld(float elapsedTime)
 
             //Convert it to a heightmap array.
             Array2D<float> bumps(noiseSize, noiseSize);
-            bumps.FillFunc([&texColor](Vector2u loc, float* outVal) { *outVal = (float)texColor[loc].z / 255.0f; });
+            bumps.FillFunc([&texColor](Vector2u loc, float* outVal)
+                           {
+                               *outVal = (float)texColor[loc].z / 255.0f;
+                           });
 
             //Convert the heightmap to a normal map.
             Array2D<Vector3f> normals(noiseSize, noiseSize);
@@ -447,7 +457,7 @@ void NoiseTest::UpdateWorld(float elapsedTime)
 
             //Output the normal map to the texture.
             Array2D<Vector4b> normalColors(noiseSize, noiseSize);
-            normalColors.FillFunc([&normals](Vector2u loc, Vector4b * outCol)
+            normalColors.FillFunc([&normals](Vector2u loc, Vector4b* outCol)
             {
                 Vector3f c = normals[loc];
                 *outCol = Vector4b((unsigned char)Mathf::Min(255.0f, c.x * 255.0f),
@@ -462,7 +472,10 @@ void NoiseTest::UpdateWorld(float elapsedTime)
             renderedNoise->setTexture(*renderedNoiseTex);
         }
     }
-    else pressedLast = false;
+    else
+    {
+        pressedLast = false;
+    }
 
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))

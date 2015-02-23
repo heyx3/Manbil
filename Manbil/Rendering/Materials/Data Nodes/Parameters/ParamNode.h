@@ -26,8 +26,8 @@ protected:
 
     virtual void AssertMyInputsValid(void) const override;
 
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
 
 private:
@@ -35,5 +35,5 @@ private:
     std::string pName;
     unsigned int vSize;
 
-    MAKE_NODE_READABLE_H(ParamNode)
+    ADD_NODE_REFLECTION_DATA_H(ParamNode)
 };

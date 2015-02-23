@@ -55,201 +55,15 @@ bool StringToWrappingType(const std::string & inStr, WrappingTypes & outVal)
     else return false;
 }
 
-
-bool TextureSampleSettings2D::WriteData(DataWriter * writer, std::string & outError) const
-{
-    if (!writer->WriteString(FilteringTypeToString(MinFilter),
-                             "Min Filter ('Nearest' or 'Linear')", outError))
-    {
-        outError = "Error writing min filter value: " + outError;
-        return false;
-    }
-    if (!writer->WriteString(FilteringTypeToString(MagFilter),
-                             "Mag Filter ('Nearest' or 'Linear')", outError))
-    {
-        outError = "Error writing mag filter value: " + outError;
-        return false;
-    }
-
-    if (!writer->WriteString(WrappingTypeToString(HorzWrap),
-                             "Horizontal wrapping ('Clamp' or 'Wrap')", outError))
-    {
-        outError = "Error writing horizontal wrapping value: " + outError;
-        return false;
-    }
-    if (!writer->WriteString(WrappingTypeToString(VertWrap),
-                             "Vertical wrapping ('Clamp' or 'Wrap')", outError))
-    {
-        outError = "Error writing vertical wrapping value: " + outError;
-        return false;
-    }
-
-    return true;
-}
-bool TextureSampleSettings2D::ReadData(DataReader * reader, std::string & outError)
-{
-    MaybeValue<std::string> tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading min filter: " + outError;
-        return false;
-    }
-    if (!StringToFilteringType(tryVal.GetValue(), MinFilter))
-    {
-        outError = "Couldn't parse min filter value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading mag filter: " + outError;
-        return false;
-    }
-    if (!StringToFilteringType(tryVal.GetValue(), MagFilter))
-    {
-        outError = "Couldn't parse mag filter value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading horizontal wrapping: " + outError;
-        return false;
-    }
-    if (!StringToWrappingType(tryVal.GetValue(), HorzWrap))
-    {
-        outError = "Couldn't parse horizontal wrapping value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading vertical wrapping: " + outError;
-        return false;
-    }
-    if (!StringToWrappingType(tryVal.GetValue(), VertWrap))
-    {
-        outError = "Couldn't parse vertical wrapping value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-
-    return true;
-}
-
-bool TextureSampleSettings3D::WriteData(DataWriter * writer, std::string & outError) const
-{
-    if (!writer->WriteString(FilteringTypeToString(MinFilter),
-                             "Min Filter ('Nearest' or 'Linear')", outError))
-    {
-        outError = "Error writing min filter value: " + outError;
-        return false;
-    }
-    if (!writer->WriteString(FilteringTypeToString(MagFilter),
-                             "Mag Filter ('Nearest' or 'Linear')", outError))
-    {
-        outError = "Error writing mag filter value: " + outError;
-        return false;
-    }
-
-    if (!writer->WriteString(WrappingTypeToString(XWrap),
-                             "X axis wrapping ('Clamp' or 'Wrap')", outError))
-    {
-        outError = "Error writing X-axis wrapping value: " + outError;
-        return false;
-    }
-    if (!writer->WriteString(WrappingTypeToString(YWrap),
-                             "Y axis wrapping ('Clamp' or 'Wrap')", outError))
-    {
-        outError = "Error writing Y-axis wrapping value: " + outError;
-        return false;
-    }
-    if (!writer->WriteString(WrappingTypeToString(ZWrap),
-                             "Z axis wrapping ('Clamp' or 'Wrap')", outError))
-    {
-        outError = "Error writing Z-axis wrapping value: " + outError;
-        return false;
-    }
-
-
-    return true;
-}
-bool TextureSampleSettings3D::ReadData(DataReader * reader, std::string & outError)
-{
-    MaybeValue<std::string> tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading min filter: " + outError;
-        return false;
-    }
-    if (!StringToFilteringType(tryVal.GetValue(), MinFilter))
-    {
-        outError = "Couldn't parse min filter value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading mag filter: " + outError;
-        return false;
-    }
-    if (!StringToFilteringType(tryVal.GetValue(), MagFilter))
-    {
-        outError = "Couldn't parse mag filter value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading X-axis wrapping: " + outError;
-        return false;
-    }
-    if (!StringToWrappingType(tryVal.GetValue(), XWrap))
-    {
-        outError = "Couldn't parse X-axis wrapping value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading Y-axis wrapping: " + outError;
-        return false;
-    }
-    if (!StringToWrappingType(tryVal.GetValue(), YWrap))
-    {
-        outError = "Couldn't parse Y-axis wrapping value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-    tryVal = reader->ReadString(outError);
-    if (!tryVal.HasValue())
-    {
-        outError = "Error reading Z-axis wrapping: " + outError;
-        return false;
-    }
-    if (!StringToWrappingType(tryVal.GetValue(), ZWrap))
-    {
-        outError = "Couldn't parse Z-axis wrapping value '" + tryVal.GetValue() + "'";
-        return false;
-    }
-
-
-    return true;
-}
-
-
 GLint ToGLInt(FilteringTypes tf, bool minFilter, bool genMips)
 {
     return (tf == FilteringTypes::FT_LINEAR) ?
                 ((minFilter && genMips) ?
-                     GL_LINEAR_MIPMAP_LINEAR :
-                     GL_LINEAR) :
+                    GL_LINEAR_MIPMAP_LINEAR :
+                    GL_LINEAR) :
                 ((minFilter && genMips) ?
-                     GL_NEAREST_MIPMAP_LINEAR :
-                     GL_NEAREST);
+                    GL_NEAREST_MIPMAP_LINEAR :
+                    GL_NEAREST);
 }
 GLint ToGLInt(WrappingTypes twa)
 {
@@ -257,7 +71,6 @@ GLint ToGLInt(WrappingTypes twa)
                 GL_CLAMP_TO_EDGE :
                 GL_REPEAT;
 }
-
 
 
 bool IsPixelSizeColor(PixelSizes pixelSize)
@@ -386,4 +199,167 @@ GLenum ToGLenum(PixelSizes pixelSize)
 
         default: assert(false); return GL_INVALID_ENUM;
     }
+}
+std::string ToString(PixelSizes size)
+{
+    switch (size)
+    {
+        case PS_8U: return "RGBA UInt 8";
+        case PS_16U: return "RGBA UInt 16";
+        case PS_16F: return "RGBA Float 16";
+        case PS_32F: return "RGBA Float 32";
+        case PS_8U_GREYSCALE: return "Greyscale UInt 8";
+        case PS_16U_GREYSCALE: return "Greyscale UInt 16";
+        case PS_32F_GREYSCALE: return "Greyscale Float 32";
+        case PS_16U_DEPTH: return "Depth UInt 16";
+        case PS_24U_DEPTH: return "Depth UInt 24";
+        case PS_32F_DEPTH: return "Depth Float 32";
+
+        default:
+            assert(false);
+            return "INVALID PIXEL SIZE";
+    }
+}
+PixelSizes ToPixelSize(const std::string& sizeStr)
+{
+    if (sizeStr == std::string("RGBA UInt 8"))
+    {
+        return PS_8U;
+    }
+    else if (sizeStr == std::string("RGBA UInt 16"))
+    {
+        return PS_16U;
+    }
+    else if (sizeStr == std::string("RGBA Float 16"))
+    {
+        return PS_16F;
+    }
+    else if (sizeStr == std::string("RGBA Float 32"))
+    {
+        return PS_32F;
+    }
+    else if (sizeStr == std::string("Greyscale UInt 8"))
+    {
+        return PS_8U_GREYSCALE;
+    }
+    else if (sizeStr == std::string("Greyscale UInt 16"))
+    {
+        return PS_16U_GREYSCALE;
+    }
+    else if (sizeStr == std::string("Greyscale Float 32"))
+    {
+        return PS_32F_GREYSCALE;
+    }
+    else if (sizeStr == std::string("Depth UInt 16"))
+    {
+        return PS_16U_DEPTH;
+    }
+    else if (sizeStr == std::string("Depth UInt 24"))
+    {
+        return PS_24U_DEPTH;
+    }
+    else if (sizeStr == std::string("Depth Float 32"))
+    {
+        return PS_32F_DEPTH;
+    }
+    else
+    {
+        assert(false);
+        return PS_8U;
+    }
+}
+
+
+void TextureSampleSettings2D::ApplyMinFilter(bool usesMipmaps) const
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLInt(MinFilter, true, usesMipmaps));
+}
+//Sets the currently-bound 2D texture to use this setting's mag filter.
+void TextureSampleSettings2D::ApplyMagFilter(bool usesMipmaps) const
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLInt(MagFilter, false, usesMipmaps));
+}
+//Sets the currently-bound 2D texture to use this setting's min and mag filters.
+void TextureSampleSettings2D::ApplyFilter(bool usesMipmaps) const
+{
+    ApplyMinFilter(usesMipmaps);
+    ApplyMagFilter(usesMipmaps);
+}
+
+//Sets the currently-bound 2D texture to use this setting's horizontal wrapping behavior.
+void TextureSampleSettings2D::ApplyHorzWrapping(void) const
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLInt(HorzWrap));
+}
+//Sets the currently-bound 2D texture to use this setting's vertical wrapping behavior.
+void TextureSampleSettings2D::ApplyVertWrapping(void) const
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLInt(VertWrap));
+}
+//Sets the currently-bound 2D texture to use this setting's horizontal/vertical wrapping behavior.
+void TextureSampleSettings2D::ApplyWrapping(void) const
+{
+    ApplyHorzWrapping();
+    ApplyVertWrapping();
+}
+
+//Applies all this instance's settings to the currently-bound 2D texture.
+void TextureSampleSettings2D::ApplyAllSettings(bool usesMipmaps) const
+{
+    ApplyFilter(usesMipmaps);
+    ApplyWrapping();
+}
+
+
+void TextureSampleSettings3D::ApplyMinFilter(TextureTypes type, bool usesMipmaps) const
+{
+    assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
+    glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MIN_FILTER,
+                    ToGLInt(MinFilter, true, usesMipmaps));
+}
+//Sets the currently-bound 3D/cubemap texture to use this setting's mag filter.
+void TextureSampleSettings3D::ApplyMagFilter(TextureTypes type, bool usesMipmaps) const
+{
+    assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
+    glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_MAG_FILTER,
+                    ToGLInt(MagFilter, false, usesMipmaps));
+}
+//Sets the currently-bound 3D/cubemap texture to use this setting's min and mag filters.
+void TextureSampleSettings3D::ApplyFilter(TextureTypes type, bool usesMipmaps) const
+{
+    ApplyMinFilter(type, usesMipmaps);
+    ApplyMagFilter(type, usesMipmaps);
+}
+
+//Sets the currently-bound 3D/cubemap texture to use this setting's X wrapping behavior.
+void TextureSampleSettings3D::ApplyXWrapping(TextureTypes type) const
+{
+    assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
+    glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_S, ToGLInt(XWrap));
+}
+//Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
+void TextureSampleSettings3D::ApplyYWrapping(TextureTypes type) const
+{
+    assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
+    glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_T, ToGLInt(YWrap));
+}
+//Sets the currently-bound 3D/cubemap texture to use this setting's Y wrapping behavior.
+void TextureSampleSettings3D::ApplyZWrapping(TextureTypes type) const
+{
+    assert(type == TextureTypes::TT_3D || type == TextureTypes::TT_CUBE);
+    glTexParameteri(TextureTypeToGLEnum(type), GL_TEXTURE_WRAP_R, ToGLInt(ZWrap));
+}
+//Sets the currently-bound 3D/cubemap texture to use this setting's XYZ wrapping behavior.
+void TextureSampleSettings3D::ApplyWrapping(TextureTypes type) const
+{
+    ApplyXWrapping(type);
+    ApplyYWrapping(type);
+    ApplyZWrapping(type);
+}
+
+//Applies all this instance's settings to the currently-bound 3D/cubemap texture.
+void TextureSampleSettings3D::ApplyAllSettings(TextureTypes type, bool usesMipmaps) const
+{
+    ApplyFilter(type, usesMipmaps);
+    ApplyWrapping(type);
 }

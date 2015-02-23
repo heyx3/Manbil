@@ -29,5 +29,5 @@ private:
     const DataLine & GetMaxInput(void) const { return GetInputs()[1]; }
     const DataLine & GetValueInput(void) const { return GetInputs()[2]; }
 
-    MAKE_NODE_READABLE_H(ClampNode)
+    ADD_NODE_REFLECTION_DATA_H(ClampNode)
 };

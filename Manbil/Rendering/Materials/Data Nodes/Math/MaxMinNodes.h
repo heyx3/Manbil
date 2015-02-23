@@ -20,7 +20,7 @@ protected:
 
     virtual void AssertMyInputsValid(void) const override;
 
-    MAKE_NODE_READABLE_H(MaxNode)
+    ADD_NODE_REFLECTION_DATA_H(MaxNode)
 };
 
 //Outputs the min of an input.
@@ -40,5 +40,5 @@ protected:
 
     virtual void AssertMyInputsValid(void) const override;
 
-    MAKE_NODE_READABLE_H(MinNode)
+    ADD_NODE_REFLECTION_DATA_H(MinNode)
 };

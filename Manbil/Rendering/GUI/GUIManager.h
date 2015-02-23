@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GUI Elements/GUIPanel.h"
-#include "GUI Elements/GUIFormattedPanel.h"
+#include "GUIElement.h"
 
 
 //Handles updating, rendering, and mouse input for some "root" GUIElement (usually a panel).
@@ -17,8 +16,8 @@ public:
 
     //Updates the root element and sends it the appropriate mouse input message.
     void Update(float elapsed, Vector2i mousePos, bool clicked);
-    //Returns an error message, or the empty string if everything went fine.
-    std::string Render(float elapsed, const RenderInfo & info);
+    //Renders the root element.
+    void Render(float elapsed, const RenderInfo& info);
 
 
 private:

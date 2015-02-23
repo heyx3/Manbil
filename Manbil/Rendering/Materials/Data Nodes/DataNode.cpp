@@ -21,31 +21,45 @@ int DataNode::EXCEPTION_ASSERT_FAILED = 1352;
 
 MaterialOutputs DataNode::MaterialOuts = MaterialOutputs();
 GeoShaderData DataNode::GeometryShader = GeoShaderData();
-ShaderInOutAttributes DataNode::VertexIns = ShaderInOutAttributes();
+RenderIOAttributes DataNode::VertexIns = RenderIOAttributes();
 
-ShaderHandler::Shaders DataNode::CurrentShader = ShaderHandler::SH_Vertex_Shader;
+Shaders DataNode::CurrentShader = SH_VERTEX;
 
-std::unordered_map<std::string, DataNode*> * DataNode::DataNode_nameToNode = 0;
-std::unordered_map<std::string, DataNode::NodeFactory> * DataNode::DataNode_factoriesByTypename = 0;
+std::unordered_map<std::string, DataNode*>* DataNode::DataNode_nameToNode = 0;
+std::unordered_map<std::string, DataNode::NodeFactory>* DataNode::DataNode_factoriesByTypename = 0;
 
 
+bool DataNode::IsSingletonType(std::string typeName)
+{
+    auto found = DataNode_factoriesByTypename->find(typeName);
+    assert(found != DataNode_factoriesByTypename->end());
+
+    //The node is a singleton if its factory is undefined.
+    return found->second == 0;
+}
 
 DataNode* DataNode::GetNode(std::string name)
 {
     auto found = DataNode_nameToNode->find(name);
-    if (found == DataNode_nameToNode->end()) return 0;
+    if (found == DataNode_nameToNode->end())
+    {
+        return 0;
+    }
     return found->second;
 }
 
-DataNode * DataNode::CreateNode(std::string typeName)
+DataNode* DataNode::CreateNode(std::string typeName)
 {
     auto found = DataNode_factoriesByTypename->find(typeName);
-    if (found == DataNode_factoriesByTypename->end()) return 0;
+    if (found == DataNode_factoriesByTypename->end())
+    {
+        return 0;
+    }
     return found->second();
 }
 
 
-DataNode::DataNode(const std::vector<DataLine> & _inputs, std::string _name)
+DataNode::DataNode(const std::vector<DataLine>& _inputs, std::string _name)
     : inputs(_inputs), name((_name.size() == 0) ? ("node" + std::to_string(GenerateUniqueID())) : _name)
 {
     if (DataNode_nameToNode == 0)
@@ -62,7 +76,7 @@ DataNode::~DataNode(void)
     DataNode_nameToNode->erase(name);
 }
 
-void DataNode::ReplaceInput(unsigned int inputIndex, const DataLine & replacement)
+void DataNode::ReplaceInput(unsigned int inputIndex, const DataLine& replacement)
 {
     assert(inputs.size() > inputIndex);
     inputs[inputIndex] = replacement;
@@ -75,7 +89,7 @@ void DataNode::AssertAllInputsValid(void) const
     {
         if (!inputs[i].IsConstant())
         {
-            std::string * outError;
+            std::string* outError;
             try
             {
                 outError = &errorMsg;
@@ -84,7 +98,8 @@ void DataNode::AssertAllInputsValid(void) const
                        "The input named '" + inputs[i].GetNonConstantValue() + "' doesn't exist!");
                 Assert(inputs[i].GetNonConstantOutputIndex() < found->second->GetNumbOutputs(),
                        "The input named '" + found->second->GetName() + "' only has " +
-                           ToString(found->second->GetNumbOutputs()) + " outputs, but the output index was " +
+                           ToString(found->second->GetNumbOutputs()) +
+                           " outputs, but the output index was " +
                            ToString(inputs[i].GetNonConstantOutputIndex()));
 
                 outError = &found->second->errorMsg;
@@ -103,19 +118,29 @@ void DataNode::AssertAllInputsValid(void) const
     AssertMyInputsValid();
 }
 
-void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const
+void DataNode::Assert(bool toAssert, const std::string& error) const
+{
+    if (!toAssert)
+    {
+        errorMsg = error;
+        throw EXCEPTION_ASSERT_FAILED;
+    }
+}
+
+void DataNode::SetFlags(MaterialUsageFlags& flags, unsigned int outputIndex) const
 {
     for (unsigned int input = 0; input < inputs.size(); ++input)
     {
         if (!inputs[input].IsConstant() && UsesInput(input, outputIndex))
         {
             std::string inName = inputs[input].GetNonConstantValue();
-            const std::string * outError;
+            const std::string* outError;
             try
             {
                 outError = &errorMsg;
                 auto found = DataNode_nameToNode->find(inName);
-                Assert(found != DataNode_nameToNode->end(), "The input named '" + inName + "' doesn't exist!");
+                Assert(found != DataNode_nameToNode->end(),
+                       "The input named '" + inName + "' doesn't exist!");
 
                 outError = &found->second->errorMsg;
                 found->second->SetFlags(flags, inputs[input].GetNonConstantOutputIndex());
@@ -133,7 +158,8 @@ void DataNode::SetFlags(MaterialUsageFlags & flags, unsigned int outputIndex) co
     SetMyFlags(flags, outputIndex);
 }
 
-void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::vector<const DataNode*> & writtenNodes) const
+void DataNode::GetParameterDeclarations(UniformDictionary& outUniforms,
+                                        std::vector<const DataNode*>& writtenNodes) const
 {
     //Exit if this node has already been used.
     if (std::find(writtenNodes.begin(), writtenNodes.end(), this) != writtenNodes.end())
@@ -145,12 +171,13 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
         if (!inputs[i].IsConstant() && UsesInput(i))
         {
             std::string inName = inputs[i].GetNonConstantValue();
-            const std::string * outError;
+            const std::string* outError;
             try
             {
                 outError = &errorMsg;
                 auto found = DataNode_nameToNode->find(inName);
-                Assert(found != DataNode_nameToNode->end(), "The input named '" + inName + "' doesn't exist!");
+                Assert(found != DataNode_nameToNode->end(),
+                       "The input named '" + inName + "' doesn't exist!");
 
                 outError = &found->second->errorMsg;
                 found->second->GetParameterDeclarations(outUniforms, writtenNodes);
@@ -169,7 +196,8 @@ void DataNode::GetParameterDeclarations(UniformDictionary & outUniforms, std::ve
     writtenNodes.insert(writtenNodes.end(), this);
     GetMyParameterDeclarations(outUniforms);
 }
-void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std::vector<const DataNode*> & writtenNodes) const
+void DataNode::GetFunctionDeclarations(std::vector<std::string>& outDecls,
+                                       std::vector<const DataNode*>& writtenNodes) const
 {
     //Exit if this node has already been used.
     if (std::find(writtenNodes.begin(), writtenNodes.end(), this) != writtenNodes.end())
@@ -181,12 +209,13 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
         if (!inputs[i].IsConstant() && UsesInput(i))
         {
             std::string inName = inputs[i].GetNonConstantValue();
-            const std::string * outError;
+            const std::string* outError;
             try
             {
                 outError = &errorMsg;
                 auto found = DataNode_nameToNode->find(inName);
-                Assert(found != DataNode_nameToNode->end(), "The input named '" + inName + "' doesn't exist!");
+                Assert(found != DataNode_nameToNode->end(),
+                       "The input named '" + inName + "' doesn't exist!");
 
                 outError = &found->second->errorMsg;
                 found->second->GetFunctionDeclarations(outDecls, writtenNodes);
@@ -205,7 +234,7 @@ void DataNode::GetFunctionDeclarations(std::vector<std::string> & outDecls, std:
     writtenNodes.insert(writtenNodes.end(), this);
     GetMyFunctionDeclarations(outDecls);
 }
-void DataNode::WriteOutputs(std::string & outCode, std::vector<const DataNode*> & writtenNodes) const
+void DataNode::WriteOutputs(std::string& outCode, std::vector<const DataNode*>& writtenNodes) const
 {
     //Exit if this node has already been used.
     if (std::find(writtenNodes.begin(), writtenNodes.end(), this) != writtenNodes.end())
@@ -217,12 +246,13 @@ void DataNode::WriteOutputs(std::string & outCode, std::vector<const DataNode*> 
         if (!inputs[i].IsConstant() && UsesInput(i))
         {
             std::string inName = inputs[i].GetNonConstantValue();
-            const std::string * outError;
+            const std::string* outError;
             try
             {
                 outError = &errorMsg;
                 auto found = DataNode_nameToNode->find(inName);
-                Assert(found != DataNode_nameToNode->end(), "The input named '" + inName + "' doesn't exist!");
+                Assert(found != DataNode_nameToNode->end(),
+                       "The input named '" + inName + "' doesn't exist!");
 
                 outError = &found->second->errorMsg;
                 found->second->WriteOutputs(outCode, writtenNodes);
@@ -259,85 +289,48 @@ void DataNode::SetName(std::string newName)
 }
 
 
-bool DataNode::WriteData(DataWriter * writer, std::string & outError) const
+void DataNode::WriteData(DataWriter* writer) const
 {
-    //Write the name of this node.
-    if (!writer->WriteString(name, "nodeName", outError))
-    {
-        outError = "Error writing out this node's name, '" + name + "': " + outError;
-        return false;
-    }
+    writer->WriteString(name, "Unique node name");
+    
+    writer->WriteUInt(inputs.size(), "Number of inputs");
 
-    //Write the number of inputs.
-    if (!writer->WriteUInt(inputs.size(), "numberOfInputs", outError))
-    {
-        outError = "Error writing out the number of inputs (" + std::to_string(inputs.size()) + ": " + outError;
-        return false;
-    }
-
-    //Write each input value.
     for (unsigned int i = 0; i < inputs.size(); ++i)
     {
-        std::string desc = GetInputDescription(i);
-        if (!writer->WriteDataStructure(inputs[i], desc, outError))
-        {
-            outError = "Error reading input '" + desc + "': " + outError;
-            return false;
-        }
+        writer->WriteDataStructure(inputs[i], "Input: '" + GetInputDescription(i) + "'");
     }
-
-    //Write any extra data specific to each type of node.
-    if (!WriteExtraData(writer, outError)) return false;
-
-    return true;
+    WriteExtraData(writer);
 }
-bool DataNode::ReadData(DataReader * reader, std::string & outError)
+void DataNode::ReadData(DataReader* reader)
 {
-    //Get the name of this node.
-    MaybeValue<std::string> tryName = reader->ReadString(outError);
-    if (!tryName.HasValue())
-    {
-        outError = "Error reading in this node's name: " + outError;
-        return false;
-    }
+    reader->ReadString(name);
+
     //Make sure the name doesn't already belong to another node.
-    if (DataNode_nameToNode->find(tryName.GetValue()) != DataNode_nameToNode->end())
+    if (DataNode_nameToNode->find(name) != DataNode_nameToNode->end())
     {
-        outError = "A node already exists with the name '" + tryName.GetValue() + "'";
-        return false;
+        reader->ErrorMessage = "A node already exists with the name '" + name + "'";
+        throw DataReader::EXCEPTION_FAILURE;
     }
 
-    SetName(tryName.GetValue());
-
-    //Read in the total number of inputs.
-    MaybeValue<unsigned int> tryNumbIns = reader->ReadUInt(outError);
-    if (!tryNumbIns.HasValue())
-    {
-        outError = "Error reading in the number of inputs: " + outError;
-        return false;
-    }
+    unsigned int nInputs;
+    reader->ReadUInt(nInputs);
 
     //Read in each input.
     inputs.clear();
-    inputs.resize(tryNumbIns.GetValue());
-    for (unsigned int inp = 0; inp < tryNumbIns.GetValue(); ++inp)
+    inputs.resize(nInputs);
+    for (unsigned int inp = 0; inp < nInputs; ++inp)
     {
-        if (!reader->ReadDataStructure(inputs[inp], outError))
-        {
-            outError = "Error reading input '" + GetInputDescription(inp) + "': " + outError;
-            return false;
-        }
+        reader->ReadDataStructure(inputs[inp]);
     }
 
-    if (!ReadExtraData(reader, outError)) return false;
-
-    return true;
+    ReadExtraData(reader);
 }
 
 bool DataNode::UsesInput(unsigned int inputIndex) const
 {
     Assert(inputIndex < inputs.size(),
-           "Input index " + std::to_string(inputIndex) + " is too big! The largest index should be " + std::to_string(inputs.size() - 1));
+           "Input index " + std::to_string(inputIndex) +
+                " is too big! The largest index should be " + std::to_string(inputs.size() - 1));
     return true;
 }
 bool DataNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) const
@@ -350,20 +343,48 @@ bool DataNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) cons
     return true;
 }
 
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat)
+std::string DataNode::GetOutputName(unsigned int outputIndex) const
+{
+    return name + "_out" + std::to_string(outputIndex);
+}
+
+std::string DataNode::GetInputDescription(unsigned int index) const
+{
+    return "in" + ToString(index + 1);
+}
+
+std::string DataNode::ToString(Shaders value)
+{
+    switch (value)
+    {
+        case SH_VERTEX: return "Vertex";
+        case SH_FRAGMENT: return "Fragment";
+        case SH_GEOMETRY: return "Geometry";
+        default:
+            assert(false);
+            return "UNKONWN_SHADER_TYPE";
+    }
+}
+std::string DataNode::ToString(unsigned int value)
+{
+    return std::to_string(value);
+}
+
+std::vector<DataLine> DataNode::MakeVector(const DataLine& dat)
 {
     std::vector<DataLine> dats;
     dats.insert(dats.end(), dat);
     return dats;
 }
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine & dat2)
+std::vector<DataLine> DataNode::MakeVector(const DataLine& dat, const DataLine& dat2)
 {
     std::vector<DataLine> dats;
     dats.insert(dats.end(), dat);
     dats.insert(dats.end(), dat2);
     return dats;
 }
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3)
+std::vector<DataLine> DataNode::MakeVector(const DataLine& dat, const DataLine& dat2,
+                                           const DataLine& dat3)
 {
     std::vector<DataLine> dats;
     dats.insert(dats.end(), dat);
@@ -371,7 +392,8 @@ std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine 
     dats.insert(dats.end(), dat3);
     return dats;
 }
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine & dat2, const DataLine & dat3, const DataLine & dat4)
+std::vector<DataLine> DataNode::MakeVector(const DataLine& dat, const DataLine& dat2,
+                                           const DataLine& dat3, const DataLine& dat4)
 {
     std::vector<DataLine> dats;
     dats.insert(dats.end(), dat);
@@ -380,7 +402,8 @@ std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, const DataLine 
     dats.insert(dats.end(), dat4);
     return dats;
 }
-std::vector<DataLine> DataNode::MakeVector(const DataLine & dat, unsigned int wherePut, const std::vector<DataLine> & moreDats)
+std::vector<DataLine> DataNode::MakeVector(const DataLine& dat, unsigned int wherePut,
+                                           const std::vector<DataLine>& moreDats)
 {
     std::vector<DataLine> cpy = moreDats;
 

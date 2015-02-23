@@ -11,12 +11,12 @@ public:
 
     //A parallel vector to "SubroutineDeclaration.PossibleValues". Provides the full definition of each subroutine option.
     std::vector<std::string> SubroutineImplementations;
-    UniformSubroutineValue SubroutineDeclaration;
+    UniformValueSubroutine SubroutineDeclaration;
 
 
     SubroutineNode(std::vector<std::string> subroutineImplementations,
                    std::vector<DataLine> subroutineInputs,
-                   UniformSubroutineValue subroutineDeclaration = UniformSubroutineValue())
+                   UniformValueSubroutine subroutineDeclaration = UniformValueSubroutine())
                    : DataNode(subroutineInputs, MakeVector(subroutineDeclaration.Definition->ReturnValueSize)),
                      SubroutineDeclaration(subroutineDeclaration)
     {

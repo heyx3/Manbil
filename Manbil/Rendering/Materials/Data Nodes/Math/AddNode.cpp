@@ -1,9 +1,10 @@
 #include "AddNode.h"
 
 
-MAKE_NODE_READABLE_CPP(AddNode, 0.0f, 0.0f)
+ADD_NODE_REFLECTION_DATA_CPP(AddNode, 0.0f, 0.0f)
 
 
+#pragma warning(disable: 4100)
 unsigned int AddNode::GetOutputSize(unsigned int index) const
 {
     return GetInputs()[0].GetSize();
@@ -12,6 +13,7 @@ std::string AddNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_added";
 }
+#pragma warning(default: 4100)
 
 AddNode::AddNode(const std::vector<DataLine> & toAdd, std::string name)
     : DataNode(toAdd, name)
@@ -20,7 +22,7 @@ AddNode::AddNode(const std::vector<DataLine> & toAdd, std::string name)
 
 void AddNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (unsigned int i = 0; i < GetInputs().size(); ++i)

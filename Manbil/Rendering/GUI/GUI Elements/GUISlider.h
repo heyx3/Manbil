@@ -21,27 +21,27 @@ public:
     //If false, this slider is horizontal.
     bool IsVertical;
 
-    void(*OnValueChanged)(GUISlider * changed, Vector2f localMouse, void* pData) = 0;
+    void(*OnValueChanged)(GUISlider* changed, Vector2f localMouse, void* pData) = 0;
     void *OnValueChanged_pData = 0;
 
 
-    GUISlider(const UniformDictionary & params,
+    GUISlider(const UniformDictionary& params,
               const GUITexture& barTex, const GUITexture& nubTex, float startingValLerp,
               bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
-              : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
-                Bar(barTex), Nub(nubTex), Value(startingValLerp) { }
+      : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
+        Bar(barTex), Nub(nubTex), Value(startingValLerp) { }
     GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture(), 0.5f) { }
     
 
-    virtual bool GetDidBoundsChangeDeep(void) const override { return DidBoundsChange || Bar.DidBoundsChange; }
-    virtual void ClearDidBoundsChangeDeep(void) override { DidBoundsChange = false; Bar.DidBoundsChange = false; }
+    virtual bool GetDidBoundsChangeDeep(void) const override;
+    virtual void ClearDidBoundsChangeDeep(void) override;
     virtual Box2D GetBounds(void) const override;
 
-    virtual void ScaleBy(Vector2f scaleAmount) override { SetScale(scaleAmount.ComponentProduct(GetScale())); }
+    virtual void ScaleBy(Vector2f scaleAmount) override;
     virtual void SetScale(Vector2f newScale) override;
 
     virtual void CustomUpdate(float elapsed, Vector2f relativeMousePos) override;
-    virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
+    virtual void Render(float elapsedTime, const RenderInfo & info) override;
 
     virtual void OnMouseClick(Vector2f mouse_centerOffset) override;
     virtual void OnMouseDrag(Vector2f originalPos_centerOffset,
@@ -51,5 +51,5 @@ public:
 private:
 
     float GetNewValue(Vector2f mousePos) const;
-    void RaiseValueChangedEvent(Vector2f localMouse) { if (OnValueChanged != 0) OnValueChanged(this, localMouse, OnValueChanged_pData); }
+    void RaiseValueChangedEvent(Vector2f localMouse);
 };

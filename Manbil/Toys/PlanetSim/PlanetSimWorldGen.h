@@ -15,13 +15,14 @@ struct PlanetVertex
 {
     Vector3f Pos, Normal;
     float Heightmap;
-    PlanetVertex(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f), float heightmap = 0.5f)
+    PlanetVertex(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f),
+                 float heightmap = 0.5f)
         : Pos(pos), Normal(normal), Heightmap(heightmap)
     {
 
     }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 1, false, true, false, "vIn_Pos", "vIn_Normal", "vIn_Heightmap"); }
+    static RenderIOAttributes GetAttributeData(void);
 };
 
 
@@ -38,7 +39,7 @@ public:
 
     WorldData(unsigned int verticesPerSide, float minHeight, float maxHeight);
 
-    void GetMeshes(std::vector<const Mesh*> & outMeshes, Vector3f camPos, Vector3f camForward) const;
+    void GetMeshes(std::vector<const Mesh*>& outMeshes, Vector3f camPos, Vector3f camForward) const;
     float GetHeightAt(Vector3f worldPos) const;
 
 

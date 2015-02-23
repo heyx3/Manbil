@@ -26,5 +26,5 @@ protected:
     virtual void AssertMyInputsValid(void) const override;
 
 
-    MAKE_NODE_READABLE_H(PowNode)
+    ADD_NODE_REFLECTION_DATA_H(PowNode)
 };

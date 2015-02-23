@@ -1,9 +1,10 @@
 #include "CrossNode.h"
 
 
-MAKE_NODE_READABLE_CPP(CrossNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f))
+ADD_NODE_REFLECTION_DATA_CPP(CrossNode, Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f))
 
 
+#pragma warning(disable: 4100)
 unsigned int CrossNode::GetOutputSize(unsigned int index) const
 {
     return 3;
@@ -12,6 +13,7 @@ std::string CrossNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_crossed";
 }
+#pragma warning(default: 4100)
 
 CrossNode::CrossNode(const DataLine & firstL, const DataLine & secondL, std::string name)
     : DataNode(MakeVector(firstL, secondL), name)

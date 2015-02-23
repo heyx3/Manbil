@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Rendering/GUI/GUIMaterials.h"
+#include "../Rendering/GUI/TextRenderer.h"
 
 
 //A set of materials for use in creating editor panels.
@@ -13,7 +14,7 @@ public:
 
     //Generates default data (including textures and materials) for an instance of this class.
     //Returns an error message if something went wrong, or the empty string if everything went fine.
-    static std::string GenerateDefaultInstance(EditorMaterialSet & outSet);
+    static std::string GenerateDefaultInstance(EditorMaterialSet& outSet);
 
 
     //The min/max colors used for animating GUI elements.
@@ -22,8 +23,8 @@ public:
     //The speed of animated GUI elements.
     float AnimateSpeed = 10.0f;
 
-    TextRenderer & TextRender;
-    unsigned int FontID;
+    TextRenderer& TextRender;
+    FreeTypeHandler::FontID FontID;
 
     MTexture2D ButtonTex, SliderBarTex, SliderNubTex,
                TextBoxBackgroundTex, PanelBackgroundTex,
@@ -55,19 +56,23 @@ public:
                       StaticMatTextParams = UniformDictionary();
 
 
-    EditorMaterialSet(const EditorMaterialSet & cpy) = delete;
-    EditorMaterialSet(TextRenderer & renderer);
-
+    EditorMaterialSet(TextRenderer& renderer);
     ~EditorMaterialSet(void);
 
 
     //Gets the animated material in this material set that would be used for the given texture.
-    Material* GetAnimatedMaterial(const MTexture2D * tex) const;
+    Material* GetAnimatedMaterial(const MTexture2D* tex) const;
     //Gets the static material in this material set that would be used for the given texture.
-    Material* GetStaticMaterial(const MTexture2D * tex) const;
+    Material* GetStaticMaterial(const MTexture2D* tex) const;
 
     //Gets the animated material parameters in this material set that would be used for the given texture.
-    const UniformDictionary & GetAnimatedMatParams(const MTexture2D * tex) const;
+    const UniformDictionary& GetAnimatedMatParams(const MTexture2D* tex) const;
     //Gets the static material parameters in this material set that would be used for the given texture.
-    const UniformDictionary & GetStaticMatParams(const MTexture2D * tex) const;
+    const UniformDictionary& GetStaticMatParams(const MTexture2D* tex) const;
+
+
+private:
+
+    EditorMaterialSet(const EditorMaterialSet& cpy) = delete;
+    EditorMaterialSet& operator=(const EditorMaterialSet& cpy) = delete;
 };

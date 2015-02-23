@@ -1,12 +1,12 @@
 #pragma once
 
+/*
 #include "../IO/DataSerialization.h"
 #include "../Rendering/Texture Management/MTexture2D.h"
 #include "../Rendering/Texture Management/MTexture3D.h"
 #include "../Rendering/Texture Management/MTextureCubemap.h"
 #include "../Rendering/Materials/Data Nodes/DataNode.h"
 #include "../Material.h"
-
 
 
 //Represents a standalone collection of textures and material DataNode graphs.
@@ -36,6 +36,8 @@ public:
     //TODO: Make a "float array uniform" DataNode. Then add an unordered map here and update the data serialization stuff.
 
 
-    virtual bool WriteData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadData(DataReader * reader, std::string & outError) override;
+    virtual void WriteData(DataWriter* writer) const override;
+    virtual void ReadData(DataReader* reader) override;
 };
+
+*/

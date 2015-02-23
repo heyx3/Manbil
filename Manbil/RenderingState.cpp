@@ -4,6 +4,27 @@
 #include "OpenGLIncludes.h"
 
 
+GLenum RenderingState::ToEnum(AlphaTests test)
+{
+    switch (test)
+    {
+        case AlphaTests::AT_ALWAYS: return GL_ALWAYS;
+        case AlphaTests::AT_NEVER: return GL_NEVER;
+
+        case AlphaTests::AT_EQUAL: return GL_EQUAL;
+        case AlphaTests::AT_NOT_EQUAL: return GL_NOTEQUAL;
+
+        case AlphaTests::AT_GREATER: return GL_GREATER;
+        case AlphaTests::AT_GREATER_OR_EQUAL: return GL_GEQUAL;
+
+        case AlphaTests::AT_LESS: return GL_LESS;
+        case AlphaTests::AT_LESS_OR_EQUAL: return GL_LEQUAL;
+
+        default: return GL_INVALID_ENUM;
+    }
+}
+
+
 void RenderingState::EnableCullState(void) const
 {
     switch (ToCull)
@@ -27,15 +48,6 @@ void RenderingState::EnableCullState(void) const
         default: assert(false);
     }
 }
-void RenderingState::EnableBlendState(void) const
-{
-    if (UseBlending)
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(ToEnum(SourceBlend), ToEnum(DestBlend));
-    }
-    else glDisable(GL_BLEND);
-}
 void RenderingState::EnableAlphaTestState(void) const
 {
     if (UsesAlphaTesting())
@@ -51,28 +63,30 @@ void RenderingState::EnableAlphaTestState(void) const
 void RenderingState::EnableDepthTestState(void) const
 {
     if (UseDepthTesting)
+    {
         glEnable(GL_DEPTH_TEST);
-    else glDisable(GL_DEPTH_TEST);
+    }
+    else
+    {
+        glDisable(GL_DEPTH_TEST);
+    }
 }
 void RenderingState::EnableDepthWriteState(void) const
 {
     if (WriteToDepthBuffer)
+    {
         glDepthMask(GL_TRUE);
-    else glDepthMask(GL_FALSE);
-}
-void RenderingState::EnableTexturesState(void) const
-{
-    if (UseTextures)
-        glEnable(GL_TEXTURE_2D);
-    else glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glDepthMask(GL_FALSE);
+    }
 }
 
 void RenderingState::EnableState(void) const
 {
     EnableDepthTestState();
     EnableDepthWriteState();
-    EnableBlendState();
-    EnableTexturesState();
     EnableCullState();
     EnableAlphaTestState();
 }

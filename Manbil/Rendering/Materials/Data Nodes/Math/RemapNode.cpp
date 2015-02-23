@@ -1,16 +1,16 @@
 #include "RemapNode.h"
 
 
-MAKE_NODE_READABLE_CPP(RemapNode, 0.0f, -1.0f, 1.0f)
+ADD_NODE_REFLECTION_DATA_CPP(RemapNode, 0.0f, -1.0f, 1.0f)
 
 
 unsigned int RemapNode::GetOutputSize(unsigned int index) const
 {
     return Mathf::Max(GetInputs()[0].GetSize(),
-                          Mathf::Max(GetInputs()[1].GetSize(),
-                          Mathf::Max(GetInputs()[2].GetSize(),
-                          Mathf::Max(GetInputs()[3].GetSize(),
-                          GetInputs()[4].GetSize()))));
+                      GetInputs()[1].GetSize(),
+                      Mathf::Max(GetInputs()[2].GetSize(),
+                                 GetInputs()[3].GetSize(),
+                                 GetInputs()[4].GetSize()));
 }
 
 RemapNode::RemapNode(const DataLine & toRemap, const DataLine & srcMin, const DataLine & srcMax,
@@ -19,14 +19,15 @@ RemapNode::RemapNode(const DataLine & toRemap, const DataLine & srcMin, const Da
 {
 }
 
-void RemapNode::WriteMyOutputs(std::string & outOutputs) const
+void RemapNode::WriteMyOutputs(std::string& outOutputs) const
 {
     std::string val = GetValueInput().GetValue(),
                 sMi = GetSrcMinInput().GetValue(),
                 sMa = GetSrcMaxInput().GetValue(),
                 dMi = GetDestMinInput().GetValue(),
                 dMa = GetDestMaxInput().GetValue();
-    outOutputs += "\t" + VectorF(GetOutputSize(0)).GetGLSLType() + " " + GetOutputName(0) + " = " +
+    std::string outName = GetOutputName(0);
+    outOutputs += "\t" + VectorF::GetGLSLType(GetOutputSize(0)) + " " + outName + " = " +
         dMi + " + ((" + val + " - " + sMi + ") * (" + dMa + " - " + dMi + ") /\n\t\t(" + sMa + " - " + sMi + "));\n";
 }
 

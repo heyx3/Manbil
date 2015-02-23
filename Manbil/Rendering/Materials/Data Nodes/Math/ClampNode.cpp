@@ -1,8 +1,10 @@
 #include "ClampNode.h"
 
 
-MAKE_NODE_READABLE_CPP(ClampNode, 0.0f, 1.0f, 0.5f)
+ADD_NODE_REFLECTION_DATA_CPP(ClampNode, 0.0f, 1.0f, 0.5f)
 
+
+#pragma warning(disable: 4100)
 unsigned int ClampNode::GetOutputSize(unsigned int index) const
 {
     return GetMinInput().GetSize();
@@ -11,6 +13,7 @@ std::string ClampNode::GetOutputName(unsigned int index) const
 {
     return GetName() = "_clamped";
 }
+#pragma warning(default: 4100)
 
 ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine & value, std::string name)
     : DataNode(MakeVector(min, max, value), name)
@@ -19,7 +22,7 @@ ClampNode::ClampNode(const DataLine & min, const DataLine & max, const DataLine 
 
 void ClampNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType();
     outCode += "\t" + vecType + " " + GetOutputName(0) +
                     " = clamp(" + GetValueInput().GetValue() + ", " +
                     GetMinInput().GetValue() + ", " +

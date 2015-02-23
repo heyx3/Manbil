@@ -3,12 +3,12 @@
 #include <string>
 
 #include "RenderInfo.h"
-#include "RenderDataHandler.h"
-#include "ShaderHandler.h"
-#include "Rendering/Materials/MaterialData.h"
+#include "Rendering/Basic Rendering/BlendMode.h"
 #include "Rendering/Texture Management/TextureChannels.h"
+#include "Rendering/Basic Rendering/RenderIOAttributes.h"
 #include "Rendering/Materials/UniformCollections.h"
 #include "RenderTarget.h"
+
 
 
 class Mesh;
@@ -19,50 +19,52 @@ class Material
 {
 public:
 
-    //Gets the vertex data for this material.
-    const ShaderInOutAttributes GetAttributeData(void) const { return attributes; }
+    //An invalid pointer to the location of a uniform in shader code.
+    static const UniformLocation INVALID_UNIFORM_LOCATION;
+
+    //The maximum number of textures that can be bound at once.
+    static unsigned int GetMaxTextureUnits(void);
 
 
-    Material(const Material & cpy); //Intentionally not implemented.
-
-    //Geometry shader is optional.
-    Material(const std::string & vShader, const std::string & fShader, UniformDictionary & uniforms,
-             const ShaderInOutAttributes & attributes, RenderingModes mode,
+    //If an error occurred, outputs the error into the given error message string.
+    //Otherwise, that string will be left alone.
+    Material(const std::string& vShader, const std::string& fShader, UniformDictionary& uniforms,
+             const RenderIOAttributes& attributes, BlendMode mode, std::string& outError,
              std::string geometryShader = "");
-    ~Material(void) { glDeleteProgram(shaderProg); ClearAllRenderingErrors(); }
+    ~Material(void);
 
 
+    const RenderIOAttributes GetExpectedVertexData(void) const { return attributes; }
+    const BlendMode& GetBlendMode(void) const { return mode; }
+    const UniformList& GetUniforms(void) const { return uniforms; }
+
+    //Gets the OpenGL handle to this material's shader program. Should generally never be needed.
     RenderObjHandle GetShaderProgram(void) const { return shaderProg; }
 
-    bool HasError(void) const { return !errorMsg.empty(); }
-    std::string GetErrorMsg(void) const { return errorMsg; }
-    void ClearErrorMsg(void) { errorMsg.clear(); }
+    void SetBlendMode(BlendMode newMode) { mode = newMode; }
 
-    RenderingModes GetMode(void) const { return mode; }
-
-#pragma warning(disable: 4100)
-    const UniformList & GetUniforms(void) const { return uniforms; }
-#pragma warning(default: 4100)
-
-    int GetHashCode(void) const { return shaderProg; }
-
-    //Returns whether the render was successful.
-    bool Render(const RenderInfo & info, const std::vector<const Mesh*> & meshes, const UniformDictionary & unifDict);
+    
+    void Render(const RenderInfo& info, const Mesh* toRender, const UniformDictionary& params);
+    void Render(const RenderInfo& info, const std::vector<const Mesh*>& meshes,
+                const UniformDictionary& params);
+    void Render(const RenderInfo& info, const UniformDictionary& params,
+                const Mesh*const* meshPtrArray, unsigned int nMeshes);
 
 
 private:
 
-    void RenderBaseComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
-    void RenderCombineComponents(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
-    void RenderApplyOcclusion(const RenderInfo & info, const std::vector<const Mesh*> & meshes);
+    void RenderBaseComponents(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
+    void RenderCombineComponents(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
+    void RenderApplyOcclusion(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
 
 
-    std::string errorMsg;
+    Material(const Material& cpy) = delete;
 
-    RenderingModes mode;
+
+    BlendMode mode;
 
     UniformList uniforms;
-    ShaderInOutAttributes attributes;
+    RenderIOAttributes attributes;
 
     RenderObjHandle shaderProg;
 
@@ -71,4 +73,37 @@ private:
                     camOrthoMinL, camOrthoMaxL,
                     wvpMatL, worldMatL, viewMatL, projMatL, viewProjMatL,
                     timeL;
+
+    //All subroutine uniforms in a shader have to be set at once,
+    //    so keep track of the order they will be organized into.
+    std::vector<UniformLocation> vertexShaderSubroutines,
+                                 geometryShaderSubroutines,
+                                 fragmentShaderSubroutines;
+    std::vector<RenderObjHandle> vertexShaderSubroutineValues,
+                                 geometryShaderSubroutineValues,
+                                 fragmentShaderSubroutineValues;
+    
+
+    static RenderObjHandle CreateShader(RenderObjHandle shaderProg, const GLchar* shaderText,
+                                        Shaders shaderType, std::string& outErrorMsg);
+
+    static UniformLocation GetUniformLoc(RenderObjHandle shaderProgram, const GLchar* name),
+                           GetSubroutineUniformLoc(RenderObjHandle shaderProgram, Shaders shaderType,
+                                                   const GLchar* name);
+    static RenderObjHandle GetSubroutineID(RenderObjHandle shaderProgram, Shaders shaderType,
+                                           const GLchar* name);
+
+    static void SetUniformValueF(UniformLocation loc, unsigned int nComponents, const float* components),
+                SetUniformValueArrayF(UniformLocation loc, unsigned int nArrayElements,
+                                      unsigned int nComponents, const float* elements),
+                SetUniformValueI(UniformLocation loc, unsigned int nComponents, const int* components),
+                SetUniformValueArrayI(UniformLocation loc, unsigned int nArrayElements,
+                                      unsigned int nComponents, const int* elements),
+                SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat);
+    //The subroutine function has to be a member function because subroutines are weird as hell.
+    void SetUniformValueSubroutine(Shaders shaderType, RenderObjHandle* valuesForAllSubroutines);
+
+    static void ActivateTextureUnit(unsigned int unitIndex);
+
+    static unsigned int maxTexUnits; 
 };

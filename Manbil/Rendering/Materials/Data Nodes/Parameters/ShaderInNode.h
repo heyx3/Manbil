@@ -24,8 +24,8 @@ protected:
 
     virtual void WriteMyOutputs(std::string & outCode) const;
 
-    virtual bool WriteExtraData(DataWriter * writer, std::string & outError) const override;
-    virtual bool ReadExtraData(DataReader * reader, std::string & outError) override;
+    virtual void WriteExtraData(DataWriter* writer) const override;
+    virtual void ReadExtraData(DataReader* reader) override;
 
 
 private:
@@ -36,5 +36,5 @@ private:
     unsigned int outSize;
 
 
-    MAKE_NODE_READABLE_H(ShaderInNode)
+    ADD_NODE_REFLECTION_DATA_H(ShaderInNode)
 };

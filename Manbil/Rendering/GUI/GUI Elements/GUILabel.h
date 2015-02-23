@@ -24,21 +24,15 @@ public:
     };
 
 
-    Material * RenderMat;
+    Material* RenderMat;
 
     
     //Starts out with no text (an empty string).
-    GUILabel(const UniformDictionary & params,
-             TextRenderer* _textRenderer = 0, TextRenderer::FontSlot textSlot = TextRenderer::FontSlot(),
-             Material * material = 0, float timeSpeed = 1.0f,
-             HorizontalOffsets _offsetH = HO_LEFT, VerticalOffsets _offsetV = VO_TOP)
-        : offsetH(_offsetH), offsetV(_offsetV), textRenderer(_textRenderer),
-          RenderMat(material), textRenderSlot(textSlot), text(_textRenderer->GetString(textSlot)),
-          GUIElement(params, timeSpeed)
-    {
-        if (!text.empty() && textRenderer != 0)
-            dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textSlot));
-    }
+    GUILabel(const UniformDictionary& params,
+             TextRenderer* _textRenderer = 0,
+             TextRenderer::FontSlot textSlot = TextRenderer::FontSlot(),
+             Material* material = 0, float timeSpeed = 1.0f,
+             HorizontalOffsets _offsetH = HO_LEFT, VerticalOffsets _offsetV = VO_TOP);
     GUILabel(void) : GUIElement(UniformDictionary()) { }
 
 
@@ -50,11 +44,11 @@ public:
 
     TextRenderer::FontSlot GetTextRenderSlot(void) const { return textRenderSlot; }
     void SetTextRenderSlot(TextRenderer::FontSlot newSlot);
-
+    
+    //Gets this element's text renderer. Returns 0 if it doesn't have one.
     const TextRenderer* GetTextRenderer(void) const { return textRenderer; }
-    TextRenderer* GetTextRenderer(void) { DidBoundsChange = true; return textRenderer; }
 
-    const std::string & GetText(void) const { return text; }
+    const std::string& GetText(void) const { return text; }
     bool SetText(std::string newText);
 
     //Gets the size of the rendered text (without scaling).
@@ -63,7 +57,7 @@ public:
 
     virtual Box2D GetBounds(void) const override;
 
-    virtual std::string Render(float elapsedTime, const RenderInfo & info) override;
+    virtual void Render(float elapsedTime, const RenderInfo& info) override;
 
 
 private:

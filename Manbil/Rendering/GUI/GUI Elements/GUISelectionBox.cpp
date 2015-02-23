@@ -1,42 +1,48 @@
 #include "GUISelectionBox.h"
 
+#include "../GUIMaterials.h"
 
 
-GUISelectionBox::GUISelectionBox(std::string& outError, TextRenderer* textRenderer,
-                                 const GUITexture& mainBox, const GUITexture& highlight,
-                                 const GUITexture& selectionBackground, bool _extendAbove,
-                                 Vector4f textColor, FreeTypeHandler::FontID font,
-                                 Material* textRenderMat, const UniformDictionary& textRenderParams,
-                                 bool mipmappedText, FilteringTypes textFilterQuality,
-                                 const std::vector<std::string>& _items, Vector2f tScale, float tSpacing,
-                                 void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
-                                                         unsigned int itemIndex, void* pData),
-                                 void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
-                                 void* onOptionSelected_pData, void* onDropdownToggled_pData,
-                                 float textAnimSpeed)
-    : TextRender(textRenderer), MainBox(mainBox), SelectionBackground(selectionBackground),
+typedef GUISelectionBox GSB;
+
+GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, Vector4f textColor,
+                     bool mipmappedText, FilteringTypes textFilterQuality,
+                     Vector2f _textScale, float _textSpacing,
+                     Material* textRenderMat, const UniformDictionary& textRenderParams,
+                     const GUITexture& mainBackground, const GUITexture& highlight,
+                     const GUITexture& selectionBackground,
+                     bool _extendAbove, std::string& outError,
+                     const std::vector<std::string>& _items,
+                     void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
+                                             unsigned int itemIndex, void* pData),
+                     void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                     void* onOptionSelected_pData, void* onDropdownToggled_pData,
+                     float textAnimSpeed)
+    : TextRender(textRenderer), MainBox(mainBackground), SelectionBackground(selectionBackground),
       Highlight(highlight), extendAbove(_extendAbove), isExtended(false), TextColor(textColor),
-      FontID(font), items(_items), itemFontID(font), textScale(tScale), textSpacing(tSpacing),
+      FontID(font), items(_items), itemFontID(font), textScale(_textScale), textSpacing(_textSpacing),
       OnOptionSelected(onOptionSelected), OnOptionSelected_pData(onOptionSelected_pData),
       OnDropdownToggled(onDropdownToggled), OnDropdownToggled_pData(onDropdownToggled_pData),
       GUIElement(UniformDictionary())
 {
     //Give this selection box the time lerp param so that its color is animated.
-    Params.FloatUniforms[GUIMaterials::DynamicQuadDraw_TimeLerp] =
+    Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp] =
         UniformValueF(0.0f, GUIMaterials::DynamicQuadDraw_TimeLerp);
 
 
     //Create one render slot for each item.
     unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
-    bool tryCreate = TextRender->CreateTextRenderSlots(FontID, (unsigned int)mainBox.GetBounds().GetXSize(),
+    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize();
+    TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
+    bool tryCreate = TextRender->CreateTextRenderSlots(FontID, outError,
+                                                       textBackWidth,
                                                        TextRender->GetMaxCharacterSize(FontID).y,
-                                                       mipmappedText,
-                                                       TextureSampleSettings2D(textFilterQuality, WT_CLAMP),
+                                                       mipmappedText, textFiltering,
                                                        items.size());
     if (!tryCreate)
     {
         outError = "Error creating " + std::to_string(items.size()) +
-                       " text render slots: " + TextRender->GetError();
+                       " text render slots: " + outError;
         return;
     }
 
@@ -57,7 +63,7 @@ GUISelectionBox::GUISelectionBox(std::string& outError, TextRenderer* textRender
         //Set the label text.
         if (!itemElements[itemElements.size() - 1].SetText(items[i]))
         {
-            outError = "Error rendering '" + items[i] + "' into a label: " + TextRender->GetError();
+            outError = "Error rendering '" + items[i] + "' into a label: " + outError;
             return;
         }
 
@@ -69,7 +75,7 @@ GUISelectionBox::GUISelectionBox(std::string& outError, TextRenderer* textRender
     }
 }
 
-Box2D GUISelectionBox::GetBounds(void) const
+Box2D GSB::GetBounds(void) const
 {
     if (isExtended)
     {
@@ -84,26 +90,28 @@ Box2D GUISelectionBox::GetBounds(void) const
         return bnds;
     }
 }
-bool GUISelectionBox::GetDidBoundsChangeDeep(void) const
+bool GSB::GetDidBoundsChangeDeep(void) const
 {
     return DidBoundsChange ||
            (isExtended && MainBox.DidBoundsChange) ||
            (!isExtended && SelectionBackground.DidBoundsChange);
 }
-void GUISelectionBox::ClearDidBoundsChangeDeep(void)
+void GSB::ClearDidBoundsChangeDeep(void)
 {
     DidBoundsChange = false;
     MainBox.DidBoundsChange = false;
     SelectionBackground.DidBoundsChange = false;
 }
 
-void GUISelectionBox::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
+void GSB::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
 {
     currentItem = newIndex;
     if (raiseEvent && OnOptionSelected != 0)
+    {
         OnOptionSelected(this, items[currentItem], currentItem, OnOptionSelected_pData);
+    }
 }
-void GUISelectionBox::SetScale(Vector2f newScale)
+void GSB::SetScale(Vector2f newScale)
 {
     Vector2f oldScale = GetScale();
     GUIElement::SetScale(newScale);
@@ -117,9 +125,11 @@ void GUISelectionBox::SetScale(Vector2f newScale)
     Highlight.SetPosition(Highlight.GetPos().ComponentProduct(delta));
 
     for (unsigned int i = 0; i < itemElements.size(); ++i)
+    {
         itemElements[i].ScaleBy(delta);
+    }
 }
-void GUISelectionBox::SetDrawEmptyItems(bool shouldDraw)
+void GSB::SetDrawEmptyItems(bool shouldDraw)
 {
     DidBoundsChange = true;
     drawEmptyItems = shouldDraw;
@@ -132,17 +142,23 @@ void GUISelectionBox::SetDrawEmptyItems(bool shouldDraw)
     {
         nVisibleItems = 0;
         for (unsigned int i = 0; i < items.size(); ++i)
+        {
             if (!itemElements[i].GetText().empty())
+            {
                 nVisibleItems += 1;
+            }
+        }
     }
 }
 
-std::string GUISelectionBox::SetItem(unsigned int index, std::string newVal)
+std::string GSB::SetItem(unsigned int index, std::string newVal)
 {
     std::string oldVal = items[index];
     items[index] = newVal;
     if (!itemElements[index].SetText(newVal))
-        return itemElements[index].GetTextRenderer()->GetError();
+    {
+        return "";
+    }
 
     if (!drawEmptyItems)
     {
@@ -177,12 +193,24 @@ std::string GUISelectionBox::SetItem(unsigned int index, std::string newVal)
     return oldVal;
 }
 
-void GUISelectionBox::SetIsExtended(bool _isExtended, bool raiseEvent)
+void GSB::SetExtendsAbove(bool newVal)
+{
+    extendAbove = newVal;
+    if (isExtended)
+    {
+        DidBoundsChange = true;
+    }
+}
+
+void GSB::SetIsExtended(bool _isExtended, bool raiseEvent)
 {
     DidBoundsChange = true;
     isExtended = _isExtended;
 
-    if (isExtended) PositionSelectionBackground();
+    if (isExtended)
+    {
+        PositionSelectionBackground();
+    }
 
     if (raiseEvent && OnDropdownToggled != 0)
     {
@@ -190,9 +218,12 @@ void GUISelectionBox::SetIsExtended(bool _isExtended, bool raiseEvent)
     }
 }
 
-void GUISelectionBox::PositionSelectionBackground(void)
+void GSB::PositionSelectionBackground(void)
 {
-    if (isExtended) DidBoundsChange = true;
+    if (isExtended)
+    {
+        DidBoundsChange = true;
+    }
 
 
     //Compute the minY and height of the background.
@@ -221,9 +252,12 @@ void GUISelectionBox::PositionSelectionBackground(void)
     Box2D bnds = GetBounds();
 }
 
-void GUISelectionBox::OnMouseClick(Vector2f relativeMousePos)
+void GSB::OnMouseClick(Vector2f relativeMousePos)
 {
-    if (!IsClickable) return;
+    if (!IsClickable)
+    {
+        return;
+    }
 
     //If the dropdown box is open, see if the player clicked on an option.
     if (isExtended)
@@ -252,7 +286,7 @@ void GUISelectionBox::OnMouseClick(Vector2f relativeMousePos)
     }
 }
 
-void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
+void GSB::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     //Update standalone GUI elements.
     MainBox.Update(elapsed, relativeMousePos - MainBox.GetPos());
@@ -267,7 +301,9 @@ void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     {
         itemElements[i].Update(elapsed, relativeMousePos - itemElements[i].GetPos());
         if (drawEmptyItems || !items[i].empty())
+        {
             visibleIndices.insert(visibleIndices.end(), i);
+        }
     }
 
 
@@ -286,6 +322,7 @@ void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
             float ySpace = (extendAbove ? -textSpacing : textSpacing);
             float yIncrement = (extendAbove ? -mainBoxBounds.GetYSize() : mainBoxBounds.GetYSize()) + ySpace;
 
+            //TODO: Figure out where this is supposed to be used.
             const float moveDir = (extendAbove ? -0.5f : 0.5f);
 
             unsigned int closestElement = 0;
@@ -316,7 +353,12 @@ void GUISelectionBox::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     }
 }
 
-std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
+void GSB::ScaleBy(Vector2f scaleAmount)
+{
+    SetScale(GetScale().ComponentProduct(scaleAmount));
+}
+
+void GSB::Render(float elapsedTime, const RenderInfo& info)
 {
     std::string err;
 
@@ -324,20 +366,12 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
     {
         if (MainBox.IsValid())
         {
-            err = RenderChild(&MainBox, elapsedTime, info);
-            if (!err.empty())
-            {
-                return "Error rendering main box: " + err;
-            }
+            RenderChild(&MainBox, elapsedTime, info);
         }
 
         itemElements[currentItem].SetColor(TextColor);
         itemElements[currentItem].SetPosition(Vector2f(MainBox.GetBounds().GetXMin(), 0.0f));
-        err = RenderChild(&itemElements[currentItem], elapsedTime, info);
-        if (!err.empty())
-        {
-            return "Error rendering selected text: " + err;
-        }
+        RenderChild(&itemElements[currentItem], elapsedTime, info);
     }
     else
     {
@@ -349,11 +383,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
         //Calculate the position/size of the background and draw it.
         if (SelectionBackground.IsValid())
         {
-            err = RenderChild(&SelectionBackground, elapsedTime, info);
-            if (!err.empty())
-            {
-                return "Error rendering selection background: " + err;
-            }
+            RenderChild(&SelectionBackground, elapsedTime, info);
         }
 
         //Draw all the visible items.
@@ -362,23 +392,20 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
         for (unsigned int i = 0; i < itemElements.size(); ++i)
         {
             if (!drawEmptyItems && items[i].empty())
+            {
                 continue;
+            }
 
             Box2D bounds = itemElements[i].GetBounds();
 
             float yOffset = yIncrement * (float)visibleItemIndex;
             itemElements[i].SetPosition(Vector2f(backgroundBounds.GetXMin(), yOffset));
 
-
             visibleItemIndex += 1;
 
             itemElements[i].SetColor(TextColor);
 
-            err = RenderChild(&itemElements[i], elapsedTime, info);
-            if (!err.empty())
-            {
-                return "Error rendering text item '" + items[i] + "': " + err;
-            }
+            RenderChild(&itemElements[i], elapsedTime, info);
         }
 
         //Draw the highlight over the moused-over object.
@@ -392,7 +419,7 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
                 unsigned int visibleIndex = 0;
                 for (unsigned int i = 0; i < items.size(); ++i)
                 {
-                    if (i == mousedOverItem)
+                    if (i == (unsigned int)mousedOverItem)
                     {
                         menuIndex = visibleIndex;
                         break;
@@ -405,17 +432,12 @@ std::string GUISelectionBox::Render(float elapsedTime, const RenderInfo& info)
             }
 
             //Get the Y value of the highlighted item.
-            Highlight.SetBounds(Box2D(Vector2f(mainBoxBounds.GetCenterX(), yIncrement * (float)menuIndex),
+            Highlight.SetBounds(Box2D(Vector2f(mainBoxBounds.GetCenterX(),
+                                               yIncrement * (float)menuIndex),
                                       Highlight.GetBounds().GetDimensions()));
             Highlight.Depth = 0.001f;
 
-            err = RenderChild(&Highlight, elapsedTime, info);
-            if (!err.empty())
-            {
-                return "Error rendering highlight: " + err;
-            }
+            RenderChild(&Highlight, elapsedTime, info);
         }
     }
-
-    return "";
 }

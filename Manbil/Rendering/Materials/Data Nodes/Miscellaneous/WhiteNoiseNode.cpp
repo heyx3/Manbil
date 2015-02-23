@@ -1,9 +1,10 @@
 #include "WhiteNoiseNode.h"
 
 
-MAKE_NODE_READABLE_CPP(WhiteNoiseNode, 0.5f)
+ADD_NODE_REFLECTION_DATA_CPP(WhiteNoiseNode, 0.5f)
 
 
+#pragma warning(disable: 4100)
 unsigned int WhiteNoiseNode::GetOutputSize(unsigned int index) const
 {
     return 1;
@@ -12,6 +13,7 @@ std::string WhiteNoiseNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_noiseVal";
 }
+#pragma warning(default: 4100)
 
 WhiteNoiseNode::WhiteNoiseNode(const DataLine & seed, std::string name, DataLine randPeriodMultiplier)
     : DataNode(MakeVector(seed, randPeriodMultiplier), name)
@@ -45,7 +47,7 @@ void WhiteNoiseNode::WriteMyOutputs(std::string & outCode) const
             Assert(false, "Invalid output size " + ToString(GetOutputSize(0)));
     }
 
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType(),
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType(),
                 seed1 = GetInputs()[0].GetValue(),
                 seed2 = GetInputs()[1].GetValue(),
                 output = GetOutputName(0);

@@ -3,7 +3,8 @@
 #include "../../MaterialData.h"
 
 
-MAKE_NODE_READABLE_CPP(CameraDataNode, )
+ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(CameraDataNode)
+
 
 DataNode::Ptr CameraDataNode::instance = Ptr(new CameraDataNode());
 

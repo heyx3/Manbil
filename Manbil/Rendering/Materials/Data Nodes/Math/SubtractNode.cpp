@@ -1,7 +1,7 @@
 #include "SubtractNode.h"
 
 
-MAKE_NODE_READABLE_CPP(SubtractNode, 1.0f, 0.0f)
+ADD_NODE_REFLECTION_DATA_CPP(SubtractNode, 1.0f, 0.0f)
 
 
 SubtractNode::SubtractNode(const DataLine & baseVal, const std::vector<DataLine> & toSubtract, std::string name)
@@ -12,7 +12,7 @@ SubtractNode::SubtractNode(const DataLine & baseVal, const std::vector<DataLine>
 
 void SubtractNode::WriteMyOutputs(std::string & outCode) const
 {
-    std::string vecType = VectorF(GetOutputSize(0)).GetGLSLType();
+    std::string vecType = VectorF(GetOutputSize(0), 0).GetGLSLType();
 
     outCode += "\t" + vecType + " " + GetOutputName(0) + " = ";
     for (unsigned int i = 0; i < GetInputs().size(); ++i)

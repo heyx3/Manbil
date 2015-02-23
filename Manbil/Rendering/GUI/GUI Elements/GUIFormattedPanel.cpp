@@ -2,43 +2,68 @@
 
 
 
-void GUIFormatObject::MoveObject(MovementData & data)
+//A counter indicating where the next element in the layout should be placed.
+//Used in the GUIFormattedPanel's algorithm for laying out a scene.
+struct MovementData
+{
+    Vector2f Pos = Vector2f();
+};
+
+
+GUIFormatObject::GUIFormatObject(GUIElementPtr element,
+                                 bool moveHorz, bool moveVert,
+                                 Vector2f spaceAfter)
+    : Element(element), SpaceAfter(spaceAfter),
+      MoveHorizontal(moveHorz), MoveVertical(moveVert)
+{
+
+}
+
+void GUIFormatObject::MoveObject(MovementData& data)
 {
     Box2D bnds = Element->GetBounds();
-    Vector2f min = data.AutoPosCounter;
+    Vector2f min = data.Pos;
 
     Element->SetBounds(Box2D(min.x, min.x + bnds.GetXSize(),
                              min.y, (min.y + bnds.GetYSize())));
 
     if (MoveHorizontal)
-        data.AutoPosCounter.x += bnds.GetXSize();
+        data.Pos.x += bnds.GetXSize();
     if (MoveVertical)
-        data.AutoPosCounter.y += bnds.GetYSize();
-    data.AutoPosCounter += SpaceAfter;
+        data.Pos.y += bnds.GetYSize();
+    data.Pos += SpaceAfter;
 }
 
+
+GUIFormattedPanel::GUIFormattedPanel(float horizontalBorder, float verticalBorder,
+                                     GUITexture background, float timeLerpSpeed)
+    : HorizontalBorder(horizontalBorder), VerticalBorder(verticalBorder),
+      BackgroundTex(background), GUIElement(UniformDictionary(), timeLerpSpeed)
+{
+
+}
 
 Box2D GUIFormattedPanel::GetBounds(void) const
 {
     return Box2D(Vector2f(), dimensions);
 }
 
-void GUIFormattedPanel::AddObject(const GUIFormatObject & toAdd)
+void GUIFormattedPanel::AddObject(const GUIFormatObject& toAdd)
 {
-    objects.insert(objects.end(), toAdd);
+    objects.push_back(toAdd);
     RePositionElements();
 }
-void GUIFormattedPanel::AddRange(const std::vector<GUIFormatObject> & toAdd)
+void GUIFormattedPanel::AddRange(const std::vector<GUIFormatObject>& toAdd)
 {
     objects.insert(objects.end(), toAdd.begin(), toAdd.end());
     RePositionElements();
 }
-void GUIFormattedPanel::InsertObject(unsigned int index, const GUIFormatObject & toInsert)
+void GUIFormattedPanel::InsertObject(unsigned int index, const GUIFormatObject& toInsert)
 {
     objects.insert(objects.begin() + index, toInsert);
     RePositionElements();
 }
-void GUIFormattedPanel::InsertRange(unsigned int index, const std::vector<GUIFormatObject> & toInsert)
+void GUIFormattedPanel::InsertRange(unsigned int index, const std::vector<GUIFormatObject>& toInsert)
 {
     objects.insert(objects.begin() + index, toInsert.begin(), toInsert.end());
     RePositionElements();
@@ -48,7 +73,7 @@ void GUIFormattedPanel::RemoveObject(unsigned int index)
     objects.erase(objects.begin() + index);
     RePositionElements();
 }
-void GUIFormattedPanel::ReplaceObject(unsigned int index, const GUIFormatObject & toAdd)
+void GUIFormattedPanel::ReplaceObject(unsigned int index, const GUIFormatObject& toAdd)
 {
     objects.erase(objects.begin() + index);
     objects.insert(objects.begin() + index, toAdd);
@@ -67,20 +92,40 @@ bool GUIFormattedPanel::ContainsElement(GUIElement* toFind)
     return false;
 }
 
+const GUIFormatObject& GUIFormattedPanel::GetFormatObject(unsigned int index) const
+{
+    assert(index < objects.size());
+    return objects[index];
+}
+GUIFormatObject& GUIFormattedPanel::GetFormatObject(unsigned int index)
+{
+    assert(index < objects.size());
+    return objects[index];
+}
+
 bool GUIFormattedPanel::GetDidBoundsChangeDeep(void) const
 {
-    if (DidBoundsChange) return true;
+    if (DidBoundsChange)
+    {
+        return true;
+    }
 
     for (unsigned int i = 0; i < objects.size(); ++i)
+    {
         if (objects[i].Element->GetDidBoundsChangeDeep())
+        {
             return true;
+        }
+    }
 
     return false;
 }
 void GUIFormattedPanel::ClearDidBoundsChangeDeep(void)
 {
     for (unsigned int i = 0; i < objects.size(); ++i)
+    {
         objects[i].Element->ClearDidBoundsChangeDeep();
+    }
 }
 
 void GUIFormattedPanel::ScaleBy(Vector2f scaleAmount)
@@ -106,7 +151,9 @@ void GUIFormattedPanel::SetScale(Vector2f newScale)
 void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
     if (BackgroundTex.IsValid())
+    {
         BackgroundTex.Update(elapsed, relativeMousePos);
+    }
 
     bool changed = false;
     for (unsigned int i = 0; i < objects.size(); ++i)
@@ -116,40 +163,26 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
         changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
     }
 
-    if (changed) RePositionElements();
+    if (changed)
+    {
+        RePositionElements();
+    }
 }
-std::string GUIFormattedPanel::Render(float elapsedTime, const RenderInfo & info)
+void GUIFormattedPanel::Render(float elapsedTime, const RenderInfo& info)
 {
-    std::string err = "";
-
-
     //First, render the background.
     if (BackgroundTex.IsValid())
     {
         BackgroundTex.SetBounds(GetBounds());
         BackgroundTex.Depth = -0.001f;
-        err = RenderChild(&BackgroundTex, elapsedTime, info);
-        if (!err.empty()) return "Error rendering background texture: " + err;
+        RenderChild(&BackgroundTex, elapsedTime, info);
     }
 
-    //Instead of returning an error as soon as it is found,
-    //    render all sub-elements and collect any errors into one big error string.
-    unsigned int line = 0;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         GUIElementPtr el = objects[i].Element;
-        std::string tempErr = RenderChild(el.get(), elapsedTime, info);
-        if (!tempErr.empty())
-        {
-            if (line > 0) err += "\n";
-            line += 1;
-
-            err += std::to_string(line) + ") " + tempErr;
-        }
+        RenderChild(objects[i].Element.get(), elapsedTime, info);
     }
-
-
-    return err;
 }
 
 void GUIFormattedPanel::OnMouseClick(Vector2f mouseP)
@@ -187,18 +220,22 @@ void GUIFormattedPanel::RePositionElements()
         Box2D bnds = objects[i].Element->GetBounds();
 
         if (objects[i].MoveHorizontal)
-            max.x = Mathf::Max(max.x, moveDat.AutoPosCounter.x);
+        {
+            max.x = Mathf::Max(max.x, moveDat.Pos.x);
+        }
         else
-            max.x = Mathf::Max(max.x, moveDat.AutoPosCounter.x -
-                                            objects[i].SpaceAfter.x +
-                                            bnds.GetXSize());
+        {
+            max.x = Mathf::Max(max.x, moveDat.Pos.x - objects[i].SpaceAfter.x + bnds.GetXSize());
+        }
 
         if (objects[i].MoveVertical)
-            max.y = Mathf::Max(max.y, moveDat.AutoPosCounter.y);
+        {
+            max.y = Mathf::Max(max.y, moveDat.Pos.y);
+        }
         else
-            max.y = Mathf::Max(max.y, moveDat.AutoPosCounter.y -
-                                            objects[i].SpaceAfter.y +
-                                            bnds.GetYSize());
+        {
+            max.y = Mathf::Max(max.y, moveDat.Pos.y - objects[i].SpaceAfter.y + bnds.GetYSize());
+        }
 
         objects[i].Element->ClearDidBoundsChangeDeep();
     }
@@ -206,9 +243,11 @@ void GUIFormattedPanel::RePositionElements()
     //Calculate the extents and re-center the elements around the origin.
     dimensions = max + Vector2f(HorizontalBorder, VerticalBorder);
     Vector2f delta = dimensions.ComponentProduct(Vector2f(-0.5f, -0.5f)) +
-                     (Vector2f(HorizontalBorder, VerticalBorder) * 0.5f);
+                                                 (Vector2f(HorizontalBorder, VerticalBorder) * 0.5f);
     for (unsigned int i = 0; i < objects.size(); ++i)
+    {
         objects[i].Element->MoveElement(delta);
+    }
 
     DidBoundsChange = true;
 }

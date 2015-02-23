@@ -13,28 +13,37 @@ class XmlWriter : public DataWriter
 {
 public:
 
+    std::string ErrorMsg;
+
+
     XmlWriter(std::string rootNodeName = "root");
 
+    
+    //Saves the written data out to a file at the given path.
+    //Returns an error message, or the empty string if the data was saved successfully.
+    std::string SaveData(const std::string& path);
 
-    virtual std::string SaveData(std::string path) override;
+    virtual void WriteBool(bool value, const std::string& name) override;
+    virtual void WriteByte(unsigned char value, const std::string& name) override;
+    virtual void WriteInt(int value, const std::string& name) override;
+    virtual void WriteUInt(unsigned int value, const std::string& name) override;
+    virtual void WriteFloat(float value, const std::string& name) override;
+    virtual void WriteDouble(double value, const std::string& name) override;
+    virtual void WriteString(const std::string& value, const std::string& name) override;
+    virtual void WriteBytes(const unsigned char* bytes, unsigned int nBytes, const std::string& name) override;
 
-    virtual bool WriteBool(bool value, std::string name, std::string & outError) override;
-    virtual bool WriteByte(unsigned char value, std::string name, std::string & outError) override;
-    virtual bool WriteInt(int value, std::string name, std::string & outError) override;
-    virtual bool WriteUInt(unsigned int value, std::string name, std::string & outError) override;
-    virtual bool WriteFloat(float value, std::string name, std::string & outError) override;
-    virtual bool WriteDouble(double value, std::string name, std::string & outError) override;
-    virtual bool WriteString(const std::string & value, std::string name, std::string & outError) override;
+    virtual void WriteCollection(ElementWriter writerFunc, const std::string& name,
+                                 unsigned int bytesPerElement,
+                                 const void* collection, unsigned int collectionSize,
+                                 void* optionalData = 0) override;
 
-    virtual bool WriteCollection(std::string name, ElementWriter writerFunc, const void* collection,
-                                 unsigned int collectionSize, std::string & outError, void * optionalData = 0) override;
+    virtual void WriteDataStructure(const IWritable& toSerialize, const std::string& name) override;
 
-    virtual bool WriteDataStructure(const ISerializable & toSerialize, std::string name, std::string & outError) override;
 
 private:
 
     tinyxml2::XMLDocument doc;
-    tinyxml2::XMLElement * currentRoot;
+    tinyxml2::XMLElement* currentRoot;
 };
 
 
@@ -43,25 +52,31 @@ class XmlReader : public DataReader
 {
 public:
 
-    XmlReader(std::string filePath, std::string & outErrorMsg);
+    //If there was an error reading the given file,
+    //    an error message is written to this instance's "ErrorMessage".
+    //This constructor will NOT throw an exception.
+    XmlReader(const std::string& filePath);
 
-    virtual MaybeValue<bool> ReadBool(std::string & outError) override;
-    virtual MaybeValue<unsigned char> ReadByte(std::string & outError) override;
-    virtual MaybeValue<int> ReadInt(std::string & outError) override;
-    virtual MaybeValue<unsigned int> ReadUInt(std::string & outError) override;
-    virtual MaybeValue<float> ReadFloat(std::string & outError) override;
-    virtual MaybeValue<double> ReadDouble(std::string & outError) override;
-    virtual MaybeValue<std::string> ReadString(std::string & outError) override;
 
-    virtual bool ReadCollection(ElementReader readerFunc, unsigned int bytesPerElement, std::string & outError,
-                                std::vector<unsigned char> & outData, void * optionalData = 0) override;
+    virtual void ReadBool(bool& outB) override;
+    virtual void ReadByte(unsigned char& outB) override;
+    virtual void ReadInt(int& outI) override;
+    virtual void ReadUInt(unsigned int& outU) override;
+    virtual void ReadFloat(float& outF) override;
+    virtual void ReadDouble(double& outD) override;
+    virtual void ReadString(std::string& outStr) override;
+    virtual void ReadBytes(std::vector<unsigned char>& outBytes) override;
 
-    virtual bool ReadDataStructure(ISerializable & toSerialize, std::string & outError) override;
+    virtual void ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
+                                CollectionResizer resizer, void* pCollection,
+                                void* optionalData = 0) override;
+
+    virtual void ReadDataStructure(IReadable& toSerialize) override;
 
 
 private:
 
     tinyxml2::XMLDocument doc;
-    tinyxml2::XMLElement * currentRoot,
-                         * currentChild;
+    tinyxml2::XMLElement *currentRoot,
+                         *currentChild;
 };

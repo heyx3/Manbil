@@ -1,9 +1,22 @@
 #include "GUILabel.h"
 
 #include "../GUIMaterials.h"
-#include "../../Materials/Data Nodes/DataNodeIncludes.h"
+#include "../../Materials/Data Nodes/DataNodes.hpp"
 
 
+GUILabel::GUILabel(const UniformDictionary& params, TextRenderer* _textRenderer,
+                   TextRenderer::FontSlot textSlot,
+                   Material* material, float timeSpeed,
+                   HorizontalOffsets _offsetH, VerticalOffsets _offsetV)
+    : offsetH(_offsetH), offsetV(_offsetV), textRenderer(_textRenderer),
+      RenderMat(material), textRenderSlot(textSlot), text(_textRenderer->GetString(textSlot)),
+      GUIElement(params, timeSpeed)
+{
+    if (!text.empty() && textRenderer != 0)
+    {
+        dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textSlot));
+    }
+}
 
 Box2D GUILabel::GetBounds(void) const
 {
@@ -91,14 +104,15 @@ Vector2f GUILabel::GetAnchorToRenderCenter(void) const
 
 bool GUILabel::SetText(std::string newText)
 {
-    if (textRenderer->RenderString(textRenderSlot, newText))
+    if (!textRenderer->RenderString(textRenderSlot, newText))
     {
-        text = newText;
-        dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textRenderSlot));
-        DidBoundsChange = true;
-        return true;
+        return false;
     }
-    else return false;
+
+    text = newText;
+    dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textRenderSlot));
+    DidBoundsChange = true;
+    return true;
 }
 void GUILabel::SetTextRenderSlot(TextRenderer::FontSlot newSlot)
 {
@@ -108,19 +122,24 @@ void GUILabel::SetTextRenderSlot(TextRenderer::FontSlot newSlot)
     text = textRenderer->GetString(textRenderSlot);
     dimensions = ToV2f(textRenderer->GetSlotBoundingSize(textRenderSlot));
 }
-std::string GUILabel::Render(float elapsedTime, const RenderInfo & info)
+
+#pragma warning(disable: 4100)
+void GUILabel::Render(float elapsedTime, const RenderInfo& info)
 {
     //Don't bother doing any rendering if there's no text to display.
-    if (text.empty()) return "";
+    if (text.empty())
+    {
+        return;
+    }
 
-
-    SetUpQuad(Box2D(GetPos() + GetAnchorToRenderCenter(),
-                    GetScale().ComponentProduct(ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot)))),
-              Depth);
+    Vector2f labelDrawSize = GetScale();
+    labelDrawSize.MultiplyComponents(ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot)));
+    SetUpQuad(Box2D(GetPos() + GetAnchorToRenderCenter(), labelDrawSize), Depth);
     
-    Params.Texture2DUniforms[GUIMaterials::QuadDraw_Texture2D].Texture =
-        textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
+    RenderObjHandle texHandle = textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
+    Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = texHandle;
 
-    if (GetQuad()->Render(info, Params, *RenderMat)) return "";
-    else return "Error rendering label with text '" + text + "': " + RenderMat->GetErrorMsg();
+    RenderMat->GetBlendMode().EnableMode();
+    GetQuad()->Render(info, Params, *RenderMat);
 }
+#pragma warning(default: 4100)

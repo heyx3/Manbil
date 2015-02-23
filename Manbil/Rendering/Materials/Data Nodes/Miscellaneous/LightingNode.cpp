@@ -1,17 +1,19 @@
 #include "LightingNode.h"
 
 
-MAKE_NODE_READABLE_CPP(LightingNode, Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), "", 0.0f, 0.0f, 0.0f, 0.0f, Vector3f())
+ADD_NODE_REFLECTION_DATA_CPP(LightingNode, Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), "", 0.0f, 0.0f, 0.0f, 0.0f, Vector3f())
 
 
+#pragma warning(disable: 4100)
 unsigned int LightingNode::GetOutputSize(unsigned int index) const
 {
     return 1;
 }
-std::string LightingNode::GetOutputName(unsigned int outputIndex) const
+std::string LightingNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_brightness";
 }
+#pragma warning(default: 4100)
 
 
 LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,

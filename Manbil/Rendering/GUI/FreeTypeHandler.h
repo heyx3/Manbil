@@ -10,6 +10,7 @@
 #include "../../Math/Lower Math/Vectors.h"
 #include "../../Math/Lower Math/Array2D.h"
 
+
 class MTexture2D;
 
 
@@ -25,8 +26,10 @@ public:
     //Otherwise, a value of 0 indicates that the value will match the other field's value.
     unsigned int HorizontalDPI, VerticalDPI;
 
-    FontSizeData(signed long charWidth = 0, signed long charHeight = 0, unsigned int horizontalDPI = 0, unsigned int verticalDPI = 0)
-        : CharWidth(charWidth), CharHeight(charHeight), HorizontalDPI(horizontalDPI), VerticalDPI(verticalDPI)
+    FontSizeData(signed long charWidth = 0, signed long charHeight = 0,
+                 unsigned int horizontalDPI = 0, unsigned int verticalDPI = 0)
+        : CharWidth(charWidth), CharHeight(charHeight),
+          HorizontalDPI(horizontalDPI), VerticalDPI(verticalDPI)
     {
 
     }
@@ -36,7 +39,8 @@ public:
 //Wraps usage of the FreeType library.
 //Generally, any method that returns a boolean is returning whether or not that function succeeded.
 //If a function fails, an error message will be exposed via GetError().
-//This class is a singleton, and it should be checked for an error message before it is used for the first time.
+//This class is a singleton, and it should be checked for an error message
+//    before it is used for the first time.
 class FreeTypeHandler
 {
 public:
@@ -65,13 +69,7 @@ public:
     bool LoadGlyph(FontID id, unsigned int charCode);
     //Gets a bitmap image for the most recently-loaded glyph for the given font.
     //Returns 0 if the given font doesn't exist.
-    const FT_Bitmap * GetGlyph(FontID id) const
-    {
-        FaceMapLoc loc;
-        if (!TryFindID(id, loc)) return 0;
-
-        return &loc->second->glyph->bitmap;
-    }
+    const FT_Bitmap* GetGlyph(FontID id) const;
 
     //Attempts to set the font size for the given font.
     bool SetFontSize(FontID id, FontSizeData dat);
@@ -86,8 +84,7 @@ public:
     bool GetCanBeScaled(FontID id) const;
 
 
-    struct SupportedSizes { public: FT_Bitmap_Size * Sizes; unsigned int NumbSizes; };
-    SupportedSizes GetSupportedSizes(FontID id);
+    std::vector<FT_Bitmap_Size> GetSupportedSizes(FontID id);
 
     //Gets the width/height for the currently-loaded glyph for the given font.
     //Returns a width/height of 0 if the given font doesn't exist.
@@ -111,7 +108,8 @@ public:
         CRT_ERROR,
     };
     //Renders the given character into a private color array that can be accessed through "GetChar()".
-    //Returns the type of color the rendered character uses, or "CRT_ERROR" if there was an error loading the char.
+    //Returns the type of color the rendered character uses,
+    //    or "CRT_ERROR" if there was an error loading the char.
     CharRenderType RenderChar(FontID fontID, unsigned int charToRender);
 
     //Gets whether the most recently-rendered char is greyscale or full RGB color.
@@ -119,14 +117,14 @@ public:
 
     //Gets the most recently-rendered character as a color array.
     //Returns 0 if the currently-rendered character is a greyscale character.
-    const Array2D<Vector4b> * GetColorChar(void) const { if (isGreyscale) return 0; return &renderedTextColor; }
+    const Array2D<Vector4b>* GetColorChar(void) const;
     //Gets the most recently-rendered character as a greyscale color array.
     //Returns 0 if the currently-rendered character is not a greyscale character.
-    const Array2D<unsigned char> * GetGreyscaleChar(void) const { if (!isGreyscale) return 0; return &renderedTextGreyscale; }
+    const Array2D<unsigned char>* GetGreyscaleChar(void) const;
 
     //Gets the most recently-rendered char and stores it into the given texture.
     //Returns whether the given out texture's data was successfully set.
-    bool GetChar(MTexture2D & outTex) const;
+    bool GetChar(MTexture2D& outTex) const;
 
 
 private:
@@ -135,7 +133,7 @@ private:
     std::unordered_map<FontID, FT_Face> faces;
 
     FontID nextID;
-    bool TryFindID(FontID id, FaceMapLoc & outLoc) const;
+    bool TryFindID(FontID id, FaceMapLoc& outLoc) const;
 
     FT_Library ftLib;
 

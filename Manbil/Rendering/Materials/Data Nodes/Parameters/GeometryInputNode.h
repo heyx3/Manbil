@@ -36,5 +36,5 @@ private:
 
     GeometryInputNode(void);
 
-    MAKE_NODE_READABLE_H(GeometryInputNode)
+    ADD_NODE_REFLECTION_DATA_H(GeometryInputNode)
 };

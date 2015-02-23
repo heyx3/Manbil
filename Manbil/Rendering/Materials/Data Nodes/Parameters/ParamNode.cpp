@@ -1,16 +1,17 @@
 #include "ParamNode.h"
 
 
-MAKE_NODE_READABLE_CPP(ParamNode, 1, "badParam")
+ADD_NODE_REFLECTION_DATA_CPP(ParamNode, 1, "badParam")
 
 
 ParamNode::ParamNode(unsigned int vectorSize, std::string paramName, std::string name)
     : vSize(vectorSize), pName(paramName),
-    DataNode(std::vector<DataLine>(), name)
+      DataNode(std::vector<DataLine>(), name)
 {
 
 }
 
+#pragma warning(disable: 4100)
 unsigned int ParamNode::GetOutputSize(unsigned int index) const
 {
     return vSize;
@@ -19,6 +20,7 @@ std::string ParamNode::GetOutputName(unsigned int index) const
 {
     return pName;
 }
+#pragma warning(default: 4100)
 
 void ParamNode::AssertMyInputsValid(void) const
 {
@@ -27,50 +29,25 @@ void ParamNode::AssertMyInputsValid(void) const
             "Parameter name '" + pName + "' isn't a valid GLSL variable name!");
 }
 
-bool ParamNode::WriteExtraData(DataWriter * writer, std::string & outError) const
+void ParamNode::WriteExtraData(DataWriter* writer) const
 {
-    if (!writer->WriteString(pName, "paramName", outError))
-    {
-        outError = "Error writing out param name, '" +pName + "': " + outError;
-        return false;
-    }
-    if (!writer->WriteUInt(vSize, "paramSize", outError))
-    {
-        outError = "Error writing out param size, " + ToString(vSize) + ": " + outError;
-        return false;
-    }
-
-    return true;
+    writer->WriteString(pName, "Param name");
+    writer->WriteUInt(vSize, "Number of components");
 }
-bool ParamNode::ReadExtraData(DataReader * reader, std::string & outError)
+void ParamNode::ReadExtraData(DataReader* reader)
 {
-    MaybeValue<std::string> tryParamName = reader->ReadString(outError);
-    if (!tryParamName.HasValue())
-    {
-        outError = "Error reading param name: " + outError;
-        return false;
-    }
-    pName = tryParamName.GetValue();
-
-    MaybeValue<unsigned int> tryParamSize = reader->ReadUInt(outError);
-    if (!tryParamSize.HasValue())
-    {
-        outError = "Error reading param size for param '" + pName + "': " + outError;
-        return false;
-    }
-    vSize = tryParamSize.GetValue();
-
-    return true;
+    reader->ReadString(pName);
+    reader->ReadUInt(vSize);
 }
 
-void ParamNode::GetMyParameterDeclarations(UniformDictionary & outUniforms) const
+void ParamNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
 {
     float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    outUniforms.FloatUniforms[GetOutputName(0)] = UniformValueF(data, vSize, GetOutputName(0));
+    outUniforms.Floats[GetOutputName(0)] = UniformValueF(data, vSize, GetOutputName(0));
 }
 
 #pragma warning(disable: 4100)
-void ParamNode::WriteMyOutputs(std::string & outCode) const
+void ParamNode::WriteMyOutputs(std::string& outCode) const
 {
     //No need to write any outputs; the uniform variable is the output.
 }

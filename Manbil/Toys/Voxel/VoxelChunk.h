@@ -17,9 +17,17 @@ public:
     //For each of the three axes, whether or not a quad should be made for that face.
     //A value of 0 indicates "no"; a value of 1 indicates "yes".
     Vector3f MinExists, MaxExists;
-    VoxelVertex(Vector3f pos = Vector3f(), Vector3f minExists = Vector3f(1, 1, 1), Vector3f maxExists = Vector3f(1, 1, 1)) : Pos(pos), MinExists(minExists), MaxExists(maxExists) { }
+    VoxelVertex(Vector3f pos = Vector3f(),
+                Vector3f minExists = Vector3f(1, 1, 1),
+                Vector3f maxExists = Vector3f(1, 1, 1))
+        : Pos(pos), MinExists(minExists), MaxExists(maxExists) { }
 
-    static ShaderInOutAttributes GetAttributeData(void) { return ShaderInOutAttributes(3, 3, 3, false, false, false, "vIn_pos", "vIn_minExists", "vIn_maxExists"); }
+    static RenderIOAttributes GetAttributeData(void)
+    {
+        return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_pos"),
+                                  RenderIOAttributes::Attribute(3, false, "vIn_minExists"),
+                                  RenderIOAttributes::Attribute(3, false, "vIn_maxExists"));
+    }
 };
 
 

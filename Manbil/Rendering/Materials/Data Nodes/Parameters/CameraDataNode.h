@@ -10,10 +10,14 @@ public:
 
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
     static std::string GetInstanceName(void) { return "cameraData"; }
+
     static DataLine GetCamPos(void) { return DataLine(instance->GetName(), GetCamPosOutputIndex()); }
     static DataLine GetCamForward(void) { return DataLine(instance->GetName(), GetCamForwardOutputIndex()); }
     static DataLine GetCamUp(void) { return DataLine(instance->GetName(), GetCamUpwardOutputIndex()); }
     static DataLine GetCamSide(void) { return DataLine(instance->GetName(), GetCamSidewaysOutputIndex()); }
+
+
+    //This constructor should not be called; it is only here to satisfy the reflection system.
 
 
     virtual unsigned int GetNumbOutputs(void) const override { return 4; }
@@ -39,5 +43,5 @@ private:
 
     CameraDataNode(void);
 
-    MAKE_NODE_READABLE_H(CameraDataNode)
+    ADD_NODE_REFLECTION_DATA_H(CameraDataNode)
 };
