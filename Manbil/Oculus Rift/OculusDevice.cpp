@@ -35,7 +35,6 @@ OculusDevice::OculusDevice(int deviceIndex, std::string& outErrorMsg,
 void OculusDevice::UpdateDevice(void)
 {
     state = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
-
-
 }
+
 */

@@ -181,6 +181,8 @@ bool RenderTarget::SetColorAttachment(RenderTargetTex newColorTex, bool updateDe
 bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexes,
                                        bool updateDepthSize)
 {
+    EnableDrawingInto();
+
     //Make sure there aren't too many attachments.
     if (newColorTexes.size() > GetMaxNumbColorAttachments())
     {

@@ -7,6 +7,7 @@
 #include "../Rendering/Texture Management/RenderTargetManager.h"
 #include "../MovingCamera.h"
 #include "../Oculus Rift/OculusDevice.h"
+#include <OVR_CAPI_GL.h>
 
 
 //A simple game world that demos the capabilities of the Rift.
@@ -26,6 +27,8 @@ protected:
     virtual void UpdateWorld(float elapsedSeconds) override;
     virtual void RenderOpenGL(float elapsedSeconds) override;
     virtual void OnWorldEnd(void) override;
+
+    virtual void RenderWorld(float elapsedSeconds) override { RenderOpenGL(elapsedSeconds); }
 
     virtual void OnInitializeError(std::string errorMsg) override;
     virtual void OnWindowResized(unsigned int newW, unsigned int newH) override;
@@ -74,4 +77,6 @@ private:
     ovrHmd hmd = 0;
     ovrTrackingState hmdState;
     ovrEyeRenderDesc hmdEyeSettings[2];
+    ovrGLTexture ovrTexes[2];
+    ovrFrameTiming ovrTiming;
 };

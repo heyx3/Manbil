@@ -5,7 +5,14 @@
 #include "../DebugAssist.h"
 #include "../Rendering/Materials/MaterialData.h"
 
+#include <OVR_CAPI_GL.h>
 
+
+bool IsTrackingHeadset(ovrHmd hmd)
+{
+    ovrTrackingState ts = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
+    return (bool)(ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked));
+}
 
 RiftTestWorld::RiftTestWorld(void)
     : objectMat(0), quadMat(0),
@@ -17,8 +24,8 @@ RiftTestWorld::RiftTestWorld(void)
       eyeColorTex2(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false),
       lightCol(1.0f, 1.0f, 1.0f), lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
       ambientLight(0.35f), diffuseLight(0.65f), specLight(1.0f), specIntensity(256.0f),
-      baseCam(Vector3f(1.0f, 1.0f, 5.0f), 2.0f, 0.06f,
-              (-Vector3f(1.0f, 1.0f, 5.0f)).Normalized(), Vector3f(0.0f, 0.0f, 1.0f),
+      baseCam(Vector3f(1.0f, 1.0f, 2.5f), 2.0f, 2.5f,
+              Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f),
               true),
       windowSize(800, 600),
       floorT(Vector3f(0.0f, 0.0f, -1.0f), Vector3f(), Vector3f(10.0f, 10.0f, 1.0f)),
@@ -68,6 +75,8 @@ void RiftTestWorld::InitializeTextures(void)
         return;
     }
     RenderTargets[eyeRendTarget]->SetDepthAttachment(RenderTargetTex(&eyeDepthTex), false);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void RiftTestWorld::InitializeMaterials(void)
 {
@@ -255,6 +264,7 @@ void RiftTestWorld::InitializeWorld(void)
 
 
     //Set up OVR HMD.
+    if (true) {
     if (ovrHmd_Detect() > 0)
     {
         std::cout << "Rift HMD was found!\n";
@@ -264,11 +274,11 @@ void RiftTestWorld::InitializeWorld(void)
                      "Serial number: " << hmd->SerialNumber << "\n" <<
                      "Display device name: " << hmd->DisplayDeviceName << "\n\n";
 
-        if (!(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
-        {
-            ovrHmd_AttachToWindow(hmd, GetWindow()->getSystemHandle(), 0, 0);
-        }
+        ovrHmd_AttachToWindow(hmd, GetWindow()->getSystemHandle(), 0, 0);
         ovrHmd_SetEnabledCaps(hmd, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
+        //if (!(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
+        //{
+        //}
 
         if (!Assert(ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
                                                   ovrTrackingCap_MagYawCorrection |
@@ -278,44 +288,44 @@ void RiftTestWorld::InitializeWorld(void)
             return;
         }
 
-        std::cout << "Tracking initialized.\nTracks orientation: " <<
-                        (bool)(hmd->TrackingCaps & ovrTrackingCap_Orientation) << "\n" <<
-                     "Tracks position: " <<
-                        (bool)(hmd->TrackingCaps & ovrTrackingCap_Position) << "\n" <<
-                     "Corrects yaw: " <<
-                        (bool)(hmd->TrackingCaps & ovrTrackingCap_MagYawCorrection) << "\n\n";
-
-
         for (int eye = 0; eye < 2; ++eye)
         {
             ovrSizei idealSize = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)eye,
                                                           hmd->DefaultEyeFov[eye], 1.0f);
-            (eye == 0 ? eyeColorTex1 : eyeColorTex2).SetColorData(Array2D<Vector4b>((unsigned int)idealSize.w,
-                                                                                    (unsigned int)idealSize.h));
+             MTexture2D& eyeTex = (eye == 0 ? eyeColorTex1 : eyeColorTex2);
+             eyeTex.SetColorData(Array2D<Vector4b>((unsigned int)idealSize.w,
+                                                   (unsigned int)idealSize.h));
 
         }
         assert(eyeColorTex1.GetWidth() == eyeColorTex2.GetWidth());
         assert(eyeColorTex1.GetHeight() == eyeColorTex2.GetHeight());
-        eyeDepthTex.SetDepthData(Array2D<float>(eyeColorTex1.GetWidth(), eyeColorTex1.GetHeight()));
+        if (!Assert(RenderTargets[eyeRendTarget]->UpdateSize(),
+                    "Render targets are too big!", ""))
+        {
+            return;
+        }
 
 
-        //ovrGLConfig config;
-        //config.OGL.Header.API = ovrRenderAPI_OpenGL;
-        //config.OGL.Header.BackBufferSize.w = hmd->Resolution.w;
-        //config.OGL.Header.BackBufferSize.h = hmd->Resolution.h;
-        //config.OGL.Header.Multisample = 0;
+        ovrGLConfig config;
+        config.OGL.Header.API = ovrRenderAPI_OpenGL;
+        config.OGL.Header.BackBufferSize.w = hmd->Resolution.w;
+        config.OGL.Header.BackBufferSize.h = hmd->Resolution.h;
+        config.OGL.Header.Multisample = 1;
+        config.OGL.Window = GetWindow()->getSystemHandle();
+        config.OGL.DC = GetDC(config.OGL.Window);
 
         unsigned int distortionCaps = ovrDistortionCap_Chromatic |
                                       ovrDistortionCap_Overdrive |
                                       ovrDistortionCap_Vignette |
                                       ovrDistortionCap_TimeWarp;
 
-        //if (!Assert(ovrHmd_ConfigureRendering(hmd, &config.Config,
-        //                                      distortionCaps, hmd->DefaultEyeFov, hmdEyeSettings),
-        //            "Error configuring Rift rendering", ovrHmd_GetLastError(hmd)))
-        //{
-        //    return;
-        //}
+        bool b = (bool)ovrHmd_ConfigureRendering(hmd, &config.Config,
+                                                 distortionCaps, hmd->DefaultEyeFov, hmdEyeSettings);
+        if (!b)
+        {
+            Assert(false, "Error configuring Rift rendering", ovrHmd_GetLastError(hmd));
+            return;
+        }
 
         std::cout << "Rendering configured.\nCorrects chromatic issues: " <<
                          (bool)(hmd->DistortionCaps & ovrDistortionCap_Chromatic) << "\n" <<
@@ -326,7 +336,24 @@ void RiftTestWorld::InitializeWorld(void)
                      "Uses overdrive: " <<
                          (bool)(hmd->DistortionCaps & ovrDistortionCap_Overdrive) << "\n\n";
 
-        std::cout << "\n";
+        //Set up textures.
+        ovrTexes[0].OGL.Header.API = ovrRenderAPI_OpenGL;
+        ovrTexes[0].OGL.Header.RenderViewport.Pos.x = 0;
+        ovrTexes[0].OGL.Header.RenderViewport.Pos.y = 0;
+        ovrTexes[0].OGL.Header.RenderViewport.Size = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)0,
+                                                                              hmd->DefaultEyeFov[0], 1.0f);
+        ovrTexes[0].OGL.Header.TextureSize.w = eyeColorTex1.GetWidth();
+        ovrTexes[0].OGL.Header.TextureSize.h = eyeColorTex1.GetHeight();
+        ovrTexes[0].OGL.TexId = eyeColorTex1.GetTextureHandle();
+
+        ovrTexes[1].OGL.Header.API = ovrRenderAPI_OpenGL;
+        ovrTexes[1].OGL.Header.RenderViewport.Pos.x = 0;
+        ovrTexes[1].OGL.Header.RenderViewport.Pos.y = 0;
+        ovrTexes[1].OGL.Header.RenderViewport.Size = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)1,
+                                                                              hmd->DefaultEyeFov[1], 1.0f);
+        ovrTexes[1].OGL.Header.TextureSize.w = eyeColorTex2.GetWidth();
+        ovrTexes[1].OGL.Header.TextureSize.h = eyeColorTex2.GetHeight();
+        ovrTexes[1].OGL.TexId = eyeColorTex2.GetTextureHandle();
     }
     else
     {
@@ -334,8 +361,13 @@ void RiftTestWorld::InitializeWorld(void)
         std::cout << "No Rift HMD was found.\n\n";
     }
 
-
     windowSize = Vector2u((unsigned int)hmd->Resolution.w, (unsigned int)hmd->Resolution.h);
+    }
+    else
+    {
+        windowSize = Vector2u(1920, 1080);
+    }
+
     GetWindow()->setPosition(sf::Vector2i(0, 0));
     GetWindow()->setSize(sf::Vector2u(windowSize.x, windowSize.y));
 
@@ -360,14 +392,17 @@ void RiftTestWorld::OnWorldEnd(void)
     eyeColorTex2.DeleteIfValid();
     eyeDepthTex.DeleteIfValid();
 
-    ovrHmd_Destroy(hmd);
+    if (hmd != 0)
+    {
+        ovrHmd_Destroy(hmd);
+    }
 
     OculusDevice::DestroySystem();
 }
 
 void RiftTestWorld::UpdateWorld(float elapsedSeconds)
 {
-    ovrHmd_BeginFrame(hmd, 0);
+    ovrTiming = ovrHmd_BeginFrame(hmd, 0);
 
 
     baseCam.Update(elapsedSeconds);
@@ -391,8 +426,9 @@ void RiftTestWorld::UpdateWorld(float elapsedSeconds)
 
 void RiftTestWorld::RenderWorldGeometry(const RenderInfo& info)
 {
-    ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
+    ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.2f, 0.0f)).ClearScreen();
+    BlendMode::GetOpaque().EnableMode();
 
     //Floor.
     cube.Transform = floorT;
@@ -429,15 +465,21 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
         ovrEyeType eye = hmd->EyeRenderOrder[eyeIndex];
 
         MTexture2D& rendTex = (eyeIndex == 0 ? eyeColorTex1 : eyeColorTex2);
-        RenderTargets[eyeRendTarget]->SetColorAttachment(RenderTargetTex(&rendTex), true);
+        if (!Assert(RenderTargets[eyeRendTarget]->SetColorAttachment(RenderTargetTex(&rendTex), true),
+                    "Error changing render target attachment", "Unknown"))
+        {
+            return;
+        }
 
         ovrPosef& eyePose = eyeRenderPose[eye];
 
 
         //Set up the camera.
 
-        Quaternion orientation(eyePose.Orientation.x, eyePose.Orientation.y,
-                               eyePose.Orientation.z, eyePose.Orientation.w);
+        Quaternion orientation(eyePose.Orientation.z, -eyePose.Orientation.x,
+                               -eyePose.Orientation.y, eyePose.Orientation.w);
+        orientation = Quaternion(Quaternion(baseCam.GetForward(), Vector3f(1.0f, 0.0f, 0.0f)),
+                                 orientation);
 
         Camera eyeCam(baseCam);
         eyeCam.Rotate(orientation);
@@ -462,19 +504,8 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
 
     //Output rendered eye data to the SDK for display.
-    ovrTexture ovrTexes[2];
-    ovrTexes[0].Header.API = ovrRenderAPI_OpenGL;
-    ovrTexes[0].Header.RenderViewport.Pos.x = 0;
-    ovrTexes[0].Header.RenderViewport.Pos.y = 0;
-    ovrTexes[0].Header.RenderViewport.Size = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)0,
-                                                                      hmd->DefaultEyeFov[0], 1.0f);
-    ovrTexes[1].Header.API = ovrRenderAPI_OpenGL;
-    ovrTexes[2].Header.RenderViewport.Pos.x = 0;
-    ovrTexes[3].Header.RenderViewport.Pos.y = 0;
-    ovrTexes[4].Header.RenderViewport.Size = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)1,
-                                                                      hmd->DefaultEyeFov[1], 1.0f);
-
-    ovrHmd_EndFrame(hmd, eyeRenderPose, ovrTexes);
+    glViewport(0, 0, windowSize.x, windowSize.y);
+    ovrHmd_EndFrame(hmd, eyeRenderPose, &ovrTexes[0].Texture);
 }
 
 void RiftTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
