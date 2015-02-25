@@ -24,8 +24,9 @@ SFMLWorld::~SFMLWorld(void)
 
 void SFMLWorld::RunWorld(void)
 {
-	window = new sf::RenderWindow(sf::VideoMode(windowWidth, windowHeight),
-                                  "World window", sf::Style::Default, contextSettings);
+	window = new sf::RenderWindow(GetModeToUse(windowWidth, windowHeight),
+                                  GetWindowTitle().c_str(),
+                                  GetSFStyleFlags(), contextSettings);
 	Clock cl = Clock();
 
 	totalElapsedSeconds = 0.0f;
