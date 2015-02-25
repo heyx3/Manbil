@@ -23,6 +23,16 @@ public:
 
 protected:
 
+    virtual sf::VideoMode GetModeToUse(unsigned int windowW, unsigned int windowH) override
+    {
+        return sf::VideoMode(windowW, windowH);
+    }
+    virtual sf::Uint32 GetSFStyleFlags(void) override
+    {
+        return sf::Style::None;
+    }
+
+
     virtual void InitializeWorld(void) override;
     virtual void UpdateWorld(float elapsedSeconds) override;
     virtual void RenderOpenGL(float elapsedSeconds) override;
@@ -44,9 +54,11 @@ private:
     bool Assert(bool test, std::string errorIntro, const std::string& error);
 
 
+    void InitializeOculus(void);
     void InitializeTextures(void);
     void InitializeMaterials(void);
     void InitializeObjects(void);
+    void SetUpOculusDevice(void);
 
     //Renders the world geometry using the given rendering info.
     void RenderWorldGeometry(const RenderInfo& info);

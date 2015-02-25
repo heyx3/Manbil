@@ -6,13 +6,8 @@
 #include "../Rendering/Materials/MaterialData.h"
 
 #include <OVR_CAPI_GL.h>
+#include <OVR.h>
 
-
-bool IsTrackingHeadset(ovrHmd hmd)
-{
-    ovrTrackingState ts = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
-    return (bool)(ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked));
-}
 
 RiftTestWorld::RiftTestWorld(void)
     : objectMat(0), quadMat(0),
@@ -24,18 +19,42 @@ RiftTestWorld::RiftTestWorld(void)
       eyeColorTex2(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_32F, false),
       lightCol(1.0f, 1.0f, 1.0f), lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
       ambientLight(0.35f), diffuseLight(0.65f), specLight(1.0f), specIntensity(256.0f),
-      baseCam(Vector3f(1.0f, 1.0f, 2.5f), 2.0f, 2.5f,
-              Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f),
+      baseCam(Vector3f(1.0f, 1.0f, 2.5f), 2.0f, 0.15f,
+              Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f),
               true),
       windowSize(800, 600),
       floorT(Vector3f(0.0f, 0.0f, -1.0f), Vector3f(), Vector3f(10.0f, 10.0f, 1.0f)),
       obj1T(Vector3f(3.0f, 3.0f, 1.5f), Vector3f(), Vector3f(0.25f, 0.25f, 0.25f)),
       obj2T(Vector3f(-2.0f, -2.0f, 1.5f), Vector3f(), Vector3f(0.25f, 0.25f, 0.25f)),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
+      SFMLOpenGLWorld(1920, 1080, sf::ContextSettings(24, 0, 0, 4, 1))
 {
 
 }
 
+
+void RiftTestWorld::InitializeOculus(void)
+{
+    OculusDevice::InitializeSystem();
+
+    //Set up OVR HMD.
+    if (ovrHmd_Detect() > 0)
+    {
+        std::cout << "Rift HMD was found!\n";
+        hmd = ovrHmd_Create(0);
+
+        std::cout << "Manufacturer: " << hmd->Manufacturer << "\n" <<
+                     "Serial number: " << hmd->SerialNumber << "\n" <<
+                     "Display device name: " << hmd->DisplayDeviceName << "\n\n";
+
+        bool b = (bool)ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
+                                                     ovrTrackingCap_MagYawCorrection |
+                                                     ovrTrackingCap_Position, 0);
+        if (!Assert(b, "Error configuring Rift headset for tracking", ovrHmd_GetLastError(hmd)))
+        {
+            return;
+        }
+    }
+}
 void RiftTestWorld::InitializeTextures(void)
 {
     //Object textures.
@@ -231,70 +250,27 @@ void RiftTestWorld::InitializeObjects(void)
     dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
     dat.SetIndexData(indices, MeshData::BUF_STATIC);
 }
-
-void RiftTestWorld::InitializeWorld(void)
+void RiftTestWorld::SetUpOculusDevice(void)
 {
-    SFMLOpenGLWorld::InitializeWorld();
-    if (IsGameOver())
+    if (hmd != NULL)
     {
-        return;
-    }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, windowSize.x, windowSize.y);
 
-    OculusDevice::InitializeSystem();
-
-
-    GetWindow()->setVerticalSyncEnabled(false);
-
-
-    InitializeTextures();
-    InitializeMaterials();
-    InitializeObjects();
-    if (IsGameOver())
-    {
-        return;
-    }
-
-
-    baseCam.Window = GetWindow();
-    baseCam.PerspectiveInfo.zNear = 0.1f;
-    baseCam.PerspectiveInfo.zFar = 1000.0f;
-    baseCam.PerspectiveInfo.Width = windowSize.x;
-    baseCam.PerspectiveInfo.Height = windowSize.y;
-    baseCam.PerspectiveInfo.SetFOVDegrees(55.0f);
-
-
-    //Set up OVR HMD.
-    if (true) {
-    if (ovrHmd_Detect() > 0)
-    {
-        std::cout << "Rift HMD was found!\n";
-        hmd = ovrHmd_Create(0);
-
-        std::cout << "Manufacturer: " << hmd->Manufacturer << "\n" <<
-                     "Serial number: " << hmd->SerialNumber << "\n" <<
-                     "Display device name: " << hmd->DisplayDeviceName << "\n\n";
-
-        ovrHmd_AttachToWindow(hmd, GetWindow()->getSystemHandle(), 0, 0);
-        ovrHmd_SetEnabledCaps(hmd, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
-        //if (!(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
-        //{
-        //}
-
-        if (!Assert(ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
-                                                  ovrTrackingCap_MagYawCorrection |
-                                                  ovrTrackingCap_Position, 0),
-                    "Error configuring Rift headset for tracking", ovrHmd_GetLastError(hmd)))
+        ovrHmd_SetEnabledCaps(hmd, ovrHmd_GetEnabledCaps(hmd) | ovrHmdCap_ExtendDesktop |
+                                   ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
+        if (!(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
         {
-            return;
+            ovrHmd_AttachToWindow(hmd, GetWindow()->getSystemHandle(), 0, 0);
         }
 
         for (int eye = 0; eye < 2; ++eye)
         {
             ovrSizei idealSize = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType)eye,
                                                           hmd->DefaultEyeFov[eye], 1.0f);
-             MTexture2D& eyeTex = (eye == 0 ? eyeColorTex1 : eyeColorTex2);
-             eyeTex.SetColorData(Array2D<Vector4b>((unsigned int)idealSize.w,
-                                                   (unsigned int)idealSize.h));
+            MTexture2D& eyeTex = (eye == 0 ? eyeColorTex1 : eyeColorTex2);
+            eyeTex.SetColorData(Array2D<Vector4b>((unsigned int)idealSize.w,
+                                                  (unsigned int)idealSize.h));
 
         }
         assert(eyeColorTex1.GetWidth() == eyeColorTex2.GetWidth());
@@ -313,12 +289,10 @@ void RiftTestWorld::InitializeWorld(void)
         config.OGL.Header.Multisample = 1;
         config.OGL.Window = GetWindow()->getSystemHandle();
         config.OGL.DC = GetDC(config.OGL.Window);
-
         unsigned int distortionCaps = ovrDistortionCap_Chromatic |
                                       ovrDistortionCap_Overdrive |
                                       ovrDistortionCap_Vignette |
                                       ovrDistortionCap_TimeWarp;
-
         bool b = (bool)ovrHmd_ConfigureRendering(hmd, &config.Config,
                                                  distortionCaps, hmd->DefaultEyeFov, hmdEyeSettings);
         if (!b)
@@ -357,16 +331,52 @@ void RiftTestWorld::InitializeWorld(void)
     }
     else
     {
-        hmd = ovrHmd_CreateDebug(ovrHmdType::ovrHmd_DK2);
         std::cout << "No Rift HMD was found.\n\n";
+        char dummy;
+        std::cin >> dummy;
+
+        EndWorld();
+        return;
     }
 
     windowSize = Vector2u((unsigned int)hmd->Resolution.w, (unsigned int)hmd->Resolution.h);
-    }
-    else
+}
+
+void RiftTestWorld::InitializeWorld(void)
+{
+    InitializeOculus();
+
+
+    SFMLOpenGLWorld::InitializeWorld();
+    if (IsGameOver())
     {
-        windowSize = Vector2u(1920, 1080);
+        return;
     }
+
+    GetWindow()->setVerticalSyncEnabled(false);
+    GetWindow()->setPosition(sf::Vector2i(1920, 0));
+
+
+    InitializeTextures();
+    InitializeMaterials();
+    InitializeObjects();
+    if (IsGameOver())
+    {
+        return;
+    }
+
+
+    SetUpOculusDevice();
+    GetWindow()->setPosition(sf::Vector2i(1920, 0));
+
+
+    baseCam.Window = GetWindow();
+    baseCam.PerspectiveInfo.zNear = 0.1f;
+    baseCam.PerspectiveInfo.zFar = 1000.0f;
+    baseCam.PerspectiveInfo.Width = windowSize.x;
+    baseCam.PerspectiveInfo.Height = windowSize.y;
+    baseCam.PerspectiveInfo.SetFOVDegrees(55.0f);
+    
 
     GetWindow()->setPosition(sf::Vector2i(0, 0));
     GetWindow()->setSize(sf::Vector2u(windowSize.x, windowSize.y));
@@ -404,12 +414,12 @@ void RiftTestWorld::UpdateWorld(float elapsedSeconds)
 {
     ovrTiming = ovrHmd_BeginFrame(hmd, 0);
 
-
     baseCam.Update(elapsedSeconds);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+    {
         EndWorld();
-
+    }
 
     //Update each param list.
     for (int i = 0; i < 3; ++i)
@@ -458,6 +468,13 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
     ovrPosef eyeRenderPose[2];
     ovrHmd_GetEyePoses(hmd, 0, useHmdToEyeViewOffset, eyeRenderPose, 0);
 
+    
+    //Get the base camera's yaw.
+    float yaw = Quaternion(Vector3f(1.0f, 0.0f, 0.0f), baseCam.GetForward()).GetEulerAngles().z;
+    baseCam.SetRotation(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
+    baseCam.AddYaw(yaw);
+
+
     for (unsigned int eyeIndex = 0; eyeIndex < ovrEye_Count; ++eyeIndex)
     {
         //Get eye data.
@@ -475,16 +492,29 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
 
         //Set up the camera.
-
-        Quaternion orientation(eyePose.Orientation.z, -eyePose.Orientation.x,
-                               -eyePose.Orientation.y, eyePose.Orientation.w);
-        orientation = Quaternion(Quaternion(baseCam.GetForward(), Vector3f(1.0f, 0.0f, 0.0f)),
-                                 orientation);
-
         Camera eyeCam(baseCam);
-        eyeCam.Rotate(orientation);
+        baseCam.LockUp = false;
+        OVR::Quatf ovrOrientation = eyePose.Orientation;
 
-        eyeCam.IncrementPosition(orientation.Rotated(*(Vector3f*)&eyePose.Position));
+        //Get the axis/angle of rotation from the headset.
+        Vector3f axisTemp;
+        float angle;
+        ovrOrientation.GetAxisAngle((OVR::Vector3f*)&axisTemp, &angle);
+
+        //Convert it to a rotation in this engine's coordinate system.
+        Vector3f axis(axisTemp.z, -axisTemp.x, -axisTemp.y);
+        Quaternion rotQuat(axis, angle);
+        rotQuat = Quaternion(rotQuat, Quaternion(Vector3f(0.0f, 0.0f, 1.0f), yaw));
+
+        //Rotate the camera.
+        eyeCam.SetRotation(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
+        eyeCam.Rotate(rotQuat);
+
+        //Translate the camera.
+        Vector3f eyePos(-eyePose.Position.z, eyePose.Position.x, eyePose.Position.y);
+        eyeCam.IncrementPosition(eyePos);
+
+        //Set up the camera's projection info.
         float fov = 2.0f * atanf(hmdEyeSettings[eye].Fov.UpTan);
         eyeCam.PerspectiveInfo.FOV = fov;
         eyeCam.PerspectiveInfo.Width = rendTex.GetWidth();
@@ -492,7 +522,6 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
 
         eyeCam.GetViewTransform(viewM);
         eyeCam.GetPerspectiveTransform(projM);
-
 
         //Render the world.
         RenderTargets[eyeRendTarget]->EnableDrawingInto();
@@ -502,10 +531,10 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
         RenderTargets[eyeRendTarget]->DisableDrawingInto();
     }
 
-
     //Output rendered eye data to the SDK for display.
     glViewport(0, 0, windowSize.x, windowSize.y);
     ovrHmd_EndFrame(hmd, eyeRenderPose, &ovrTexes[0].Texture);
+    GetWindow()->setPosition(sf::Vector2i(1920, 0));
 }
 
 void RiftTestWorld::OnWindowResized(unsigned int newW, unsigned int newH)
