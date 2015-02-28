@@ -16,25 +16,9 @@
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
 
-#include <iostream>
-using namespace std;
-void PauseConsole(void)
-{
-    char dummy;
-    cout << "Enter any character to continue.\n";
-    cin >> dummy;
-}
-void WriteToConsole(const std::string& outStr)
-{
-    cout << outStr << "\n";
-}
-
-
-
 //TODO: Add a "Skybox" class in "Rendering/Helper Classes" that simplifies creation/modification/rendering of a cubemapped skybox.
 
 
-#include "DebugAssist.h"
 int main()
 {
     //OpenGLTestWorld().RunWorld();
