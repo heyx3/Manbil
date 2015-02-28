@@ -224,7 +224,9 @@ void Perlin3D::Generate(Array3D<float> & outNoise) const
             smoothStepper = &Mathf::Supersmooth;
             break;
 
-        default: assert(false);
+        default:
+            assert(false);
+            smoothStepper = [](float inF) { return inF; };
     }
 
 
