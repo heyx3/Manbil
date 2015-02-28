@@ -23,7 +23,7 @@ int main()
 {
     //OpenGLTestWorld().RunWorld();
     //RiftTestWorld().RunWorld();
-    //AssImpTestWorld().RunWorld();
+    AssImpTestWorld().RunWorld();
     //TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
@@ -32,6 +32,6 @@ int main()
 
 
     //TwoTrianglesWorld().RunWorld();
-    VoxelWorld().RunWorld();
+    //VoxelWorld().RunWorld();
     //PlanetSimWorld().RunWorld();
 }
