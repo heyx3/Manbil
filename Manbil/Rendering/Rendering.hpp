@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Basic Rendering/Material.h"
+#include "Basic Rendering/MaterialConstants.h"
 #include "Basic Rendering/Mesh.h"
 #include "Basic Rendering/RenderingState.h"
 #include "Basic Rendering/ScreenClearer.h"

@@ -3,7 +3,7 @@
 
 #include "../Rendering/Primitives/PrimitiveGenerator.h"
 #include "../DebugAssist.h"
-#include "../Rendering/Basic Rendering/MaterialData.h"
+#include "../Rendering/Basic Rendering/MaterialConstants.h"
 
 #include <OVR_CAPI_GL.h>
 #include <OVR.h>

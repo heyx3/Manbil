@@ -1,6 +1,6 @@
 #include "Material.h"
 
-#include "../../Rendering/Basic Rendering/MaterialData.h"
+#include "../../Rendering/Basic Rendering/MaterialConstants.h"
 #include "../../Rendering/Basic Rendering/Mesh.h"
 
 

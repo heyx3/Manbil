@@ -5,6 +5,7 @@
 #include "IO/XmlSerialization.h"
 #include "IO/BinarySerialization.h"
 
+#include "Sample Worlds\SimpleRenderWorld.h"
 #include "Sample Worlds/OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
@@ -21,8 +22,9 @@
 
 int main()
 {
+    SimpleRenderWorld().RunWorld();
+
     //OpenGLTestWorld().RunWorld();
-    //RiftTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
     //TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
@@ -33,5 +35,5 @@ int main()
 
     //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
-    PlanetSimWorld().RunWorld();
+    //PlanetSimWorld().RunWorld();
 }

@@ -1,6 +1,6 @@
 #include "CameraDataNode.h"
 
-#include "../../Basic Rendering/MaterialData.h"
+#include "../../Basic Rendering/MaterialConstants.h"
 
 
 ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(CameraDataNode)

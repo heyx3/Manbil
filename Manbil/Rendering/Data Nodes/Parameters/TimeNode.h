@@ -2,7 +2,7 @@
 
 #include "../DataNode.h"
 
-#include "../../Basic Rendering/MaterialData.h"
+#include "../../Basic Rendering/MaterialConstants.h"
 
 
 #pragma warning(disable: 4100)

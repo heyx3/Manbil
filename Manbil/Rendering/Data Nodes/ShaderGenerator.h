@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Basic Rendering/MaterialData.h"
+#include "../Basic Rendering/MaterialConstants.h"
 #include "GeoShaderData.h"
 #include "../Basic Rendering/BlendMode.h"
 #include "DataLine.h"

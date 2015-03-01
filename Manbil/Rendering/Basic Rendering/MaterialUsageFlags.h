@@ -1,7 +1,7 @@
 #pragma once
 
 
-//Different kinds of data about what a material uses.
+//Information about which built-in parameters a material will use.
 struct MaterialUsageFlags
 {
 public:

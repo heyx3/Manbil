@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../DataNode.h"
-#include "../../Basic Rendering/MaterialData.h"
+#include "../../Basic Rendering/MaterialConstants.h"
 
 
 //Represents the value of vertex shader outputs into the geometry shader.

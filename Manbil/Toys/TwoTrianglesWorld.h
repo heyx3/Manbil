@@ -2,7 +2,7 @@
 
 #include "../Game Loop/SFMLOpenGLWorld.h"
 #include "../Rendering/Basic Rendering/Material.h"
-#include "../Rendering/Basic Rendering/MaterialData.h"
+#include "../Rendering/Basic Rendering/MaterialConstants.h"
 #include "../Rendering/Primitives/DrawingQuad.h"
 
 

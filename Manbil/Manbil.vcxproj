@@ -162,7 +162,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\Material.cpp" />
-    <ClCompile Include="Rendering\Basic Rendering\MaterialData.cpp" />
+    <ClCompile Include="Rendering\Basic Rendering\MaterialConstants.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\Mesh.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\MeshData.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\OpenGLIncludes.cpp" />
@@ -246,6 +246,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
     <ClCompile Include="Sample Worlds\NoiseTest.cpp" />
     <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
+    <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
     <ClCompile Include="Tests\AssImpTestWorld.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\RiftTestWorld.cpp" />
@@ -335,7 +336,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h" />
     <ClInclude Include="Rendering\Basic Rendering\GLVectors.h" />
     <ClInclude Include="Rendering\Basic Rendering\Material.h" />
-    <ClInclude Include="Rendering\Basic Rendering\MaterialData.h" />
+    <ClInclude Include="Rendering\Basic Rendering\MaterialConstants.h" />
     <ClInclude Include="Rendering\Basic Rendering\MaterialUsageFlags.h" />
     <ClInclude Include="Rendering\Basic Rendering\Mesh.h" />
     <ClInclude Include="Rendering\Basic Rendering\MeshData.h" />
@@ -426,6 +427,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClInclude Include="Rendering\Water\WaterRendering.h" />
     <ClInclude Include="Sample Worlds\NoiseTest.h" />
     <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
+    <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
     <ClInclude Include="Tests\AssImpTestWorld.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\RiftTestWorld.h" />

@@ -261,9 +261,6 @@
     <ClCompile Include="Rendering\Basic Rendering\ScreenClearer.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Basic Rendering\MaterialData.cpp">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
@@ -437,6 +434,12 @@
     </ClCompile>
     <ClCompile Include="Rendering\Primitives\PrimitiveGenerator.cpp">
       <Filter>Rendering\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\MaterialConstants.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -772,9 +775,6 @@
     <ClInclude Include="Rendering\Basic Rendering\ScreenClearer.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\MaterialData.h">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\MaterialUsageFlags.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
@@ -970,6 +970,12 @@
     <ClInclude Include="Rendering\Primitives\PrimitiveGenerator.h">
       <Filter>Rendering\Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="Sample Worlds\SimpleRenderWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\MaterialConstants.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1088,6 +1094,9 @@
     </Filter>
     <Filter Include="Rendering\Editors\DAG Editor">
       <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sample Worlds">
+      <UniqueIdentifier>{4ab065bd-152d-485c-bdf3-a1e684e0dfe5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

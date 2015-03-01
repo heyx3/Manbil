@@ -1,6 +1,6 @@
 #include "SpaceConverterNode.h"
 
-#include "../../Basic Rendering/MaterialData.h"
+#include "../../Basic Rendering/MaterialConstants.h"
 
 
 ADD_NODE_REFLECTION_DATA_CPP(SpaceConverterNode, Vector3f(1.0f, 0.0f, 0.0f),

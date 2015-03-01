@@ -1,6 +1,6 @@
 #include "ShaderInNode.h"
 
-#include "../../Basic Rendering/MaterialData.h"
+#include "../../Basic Rendering/MaterialConstants.h"
 
 
 ADD_NODE_REFLECTION_DATA_CPP(ShaderInNode, 1)
