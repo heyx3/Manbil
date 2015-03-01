@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
+#include "../Data Nodes/DataNodes.hpp"
 
 
 //Calculates water properties.

@@ -1,6 +1,6 @@
 #include "GUIMaterials.h"
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
+#include "../Data Nodes/DataNodes.hpp"
 
 
 const std::string GUIMaterials::QuadDraw_Color = "u_color",

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../../OpenGLIncludes.h"
+#include "OpenGLIncludes.h"
 #include "RenderIOAttributes.h"
 
 

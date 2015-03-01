@@ -1,6 +1,6 @@
 #include "GPUParticleGenerator.h"
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
+#include "../Data Nodes/DataNodes.hpp"
 #include "../../DebugAssist.h"
 #include "../../Math/Lower Math/Array2D.h"
 

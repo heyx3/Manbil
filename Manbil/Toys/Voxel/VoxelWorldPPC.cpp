@@ -1,7 +1,7 @@
 #include "VoxelWorldPPC.h"
 
-#include "../../Rendering/Materials/Data Nodes/DataNodes.hpp"
-#include "../../ScreenClearer.h"
+#include "../../Rendering/Data Nodes/DataNodes.hpp"
+#include "../../Rendering/Basic Rendering/ScreenClearer.h"
 
 
 //The PPC's render target may have an error on creation.

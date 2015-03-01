@@ -1,10 +1,10 @@
 #pragma once
 
+#include <vector>
 #include "../../Math/Lower Math/Array2D.h"
 #include "../../Math/Lower Math/Array3D.h"
-#include "../../Vertices.h"
-#include "../../Mesh.h"
-#include <vector>
+#include "../../Rendering/Basic Rendering/Vertices.h"
+#include "../../Rendering/Basic Rendering/Mesh.h"
 
 
 //Divide the planet's surface into "subdivisions" (rectangular regions on the surface).

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../LowerMath.hpp"
-#include "../../Vertices.h"
 #include <vector>
+#include "../LowerMath.hpp"
 
 
 //Represents a rectangular terrain with a heightmap of floats.
@@ -16,28 +15,11 @@ public:
     //    for a terrain of the given size.
     //Takes in the LOD (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.).
     //Returns {0, 0} if the given LOD cannot be applied to the given region size.
-    static Vector2u GetNVertices(Vector2u regionSize, unsigned int zoomOut = 0)
-    {
-        Vector2u outSize = regionSize;
-        for (unsigned int i = 0; i < zoomOut; ++i)
-        {
-            if (outSize.x % 2 == 0 || outSize.x < 2 ||
-                outSize.y % 2 == 0 || outSize.y < 2)
-                return Vector2u(0, 0);
-
-            outSize = (outSize / 2) + Vector2u(1, 1);
-        }
-        return outSize;
-    }
+    static Vector2u GetNVertices(Vector2u regionSize, unsigned int zoomOut = 0);
     //Gets the number of indices necessary to generate triangles for a terrain of the given size.
     //Takes in the LOD (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.).
     //Returns 0 if the given LOD cannot be applied to the given region size.
-    static unsigned int GetNIndices(Vector2u regionSize, unsigned int zoomOut = 0)
-    {
-        Vector2u nVerts = GetNVertices(regionSize, zoomOut);
-        if (nVerts.x < 2 || nVerts.y < 2) return 0;
-        return (6 * (nVerts.x - 1) * (nVerts.y - 1));
-    }
+    static unsigned int GetNIndices(Vector2u regionSize, unsigned int zoomOut = 0);
 
 
     Terrain(Vector2u size) : heightmap(size.x, size.y, 0.0f) { }

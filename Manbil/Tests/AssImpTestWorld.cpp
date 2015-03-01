@@ -1,7 +1,7 @@
 #include "AssImpTestWorld.h"
 
 #include "../Math/NoiseGeneration.hpp"
-#include "../Rendering/Materials/Data Nodes/DataNodes.hpp"
+#include "../Rendering/Data Nodes/DataNodes.hpp"
 #include "../Rendering/PrimitiveGenerator.h"
 
 #include "../DebugAssist.h"

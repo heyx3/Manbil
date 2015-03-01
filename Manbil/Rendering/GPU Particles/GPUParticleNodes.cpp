@@ -1,6 +1,6 @@
 #include "GPUParticleNodes.h"
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
+#include "../Data Nodes/DataNodes.hpp"
 
 
 ADD_NODE_REFLECTION_DATA_CPP(PosInSphereNode, 1.0f, 1.0f, 1.0f, Vector3f(), 1.0f)

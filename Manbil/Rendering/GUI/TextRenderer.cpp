@@ -1,10 +1,10 @@
 #include "TextRenderer.h"
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
-#include "../../RenderingState.h"
+#include "../Data Nodes/DataNodes.hpp"
+#include "../../Rendering/Basic Rendering/RenderingState.h"
 #include "../Basic Rendering/BlendMode.h"
-#include "../Materials/Data Nodes/ShaderGenerator.h"
-#include "../../ScreenClearer.h"
+#include "../Data Nodes/ShaderGenerator.h"
+#include "../../Rendering/Basic Rendering/ScreenClearer.h"
 
 
 Material* TextRenderer::textRenderer = 0;

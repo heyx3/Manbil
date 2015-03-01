@@ -2,11 +2,11 @@
 
 #include "WaterRendering.h"
 
-#include "../../Mesh.h"
-#include "../../Material.h"
+#include "../Basic Rendering/Mesh.h"
+#include "../Basic Rendering/Material.h"
 #include "../../Math/HigherMath.hpp"
 #include "../../OptionalValue.h"
-#include "../Texture Management/MTexture2D.h"
+#include "../Textures/MTexture2D.h"
 
 
 //The Vertex type used for this water system. Inputs:

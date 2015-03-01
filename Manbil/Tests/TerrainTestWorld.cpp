@@ -1,7 +1,7 @@
 #include "TerrainTestWorld.h"
 
 #include "../Math/NoiseGeneration.hpp"
-#include "../Rendering/Materials/Data Nodes/DataNodes.hpp"
+#include "../Rendering/Data Nodes/DataNodes.hpp"
 #include "../Math/Higher Math/Terrain.h"
 
 #include "../Input/Input.hpp"

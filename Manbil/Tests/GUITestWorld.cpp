@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <wchar.h>
 
-#include "../Vertices.h"
-#include "../Rendering/Materials/Data Nodes/ShaderGenerator.h"
-#include "../Rendering/Materials/Data Nodes/DataNodes.hpp"
+#include "../Rendering/Basic Rendering/Vertices.h"
+#include "../Rendering/Data Nodes/ShaderGenerator.h"
+#include "../Rendering/Data Nodes/DataNodes.hpp"
 
-#include "../ScreenClearer.h"
-#include "../RenderingState.h"
+#include "../Rendering/Basic Rendering/ScreenClearer.h"
+#include "../Rendering/Basic Rendering/RenderingState.h"
 #include "../Rendering/GUI/GUI Elements/GUIPanel.h"
 #include "../Editor/EditorPanel.h"
 #include "../Editor/EditorObjects.h"

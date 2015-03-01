@@ -1,7 +1,7 @@
 #include "GUILabel.h"
 
 #include "../GUIMaterials.h"
-#include "../../Materials/Data Nodes/DataNodes.hpp"
+#include "../../Data Nodes/DataNodes.hpp"
 
 
 GUILabel::GUILabel(const UniformDictionary& params, TextRenderer* _textRenderer,

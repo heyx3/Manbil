@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../MovingCamera.h"
+#include "../../Input/MovingCamera.h"
 #include "../../Input/LookRotation.h"
 
 

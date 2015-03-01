@@ -1,8 +1,8 @@
 #include "EditorMaterialSet.h"
 
 #include "../Rendering/GUI/TextRenderer.h"
-#include "../Rendering/Materials/Data Nodes/Math/InterpolateNode.h"
-#include "../Rendering/Materials/Data Nodes/Parameters/ParamNode.h"
+#include "../Rendering/Data Nodes/Math/InterpolateNode.h"
+#include "../Rendering/Data Nodes/Parameters/ParamNode.h"
 
 
 EditorMaterialSet::EditorMaterialSet(TextRenderer& renderer)

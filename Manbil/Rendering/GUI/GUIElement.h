@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Helper Classes/DrawingQuad.h"
+#include "../Primitives/DrawingQuad.h"
 #include "../../Math/Shapes/Boxes.h"
 
 

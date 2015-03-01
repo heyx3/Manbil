@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SFMLOpenGLWorld.h"
+#include "../Game Loop/SFMLOpenGLWorld.h"
 #include "../Rendering/GUI/GUIManager.h"
 #include "../Editor/EditorMaterialSet.h"
 #include "../Editor/Editor Panels/ColorEditor.h"

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../SFMLOpenGLWorld.h"
+#include "../Game Loop/SFMLOpenGLWorld.h"
 
 #include "../Rendering/Rendering.hpp"
-#include "../MovingCamera.h"
+#include "../Input/MovingCamera.h"
 
 
 

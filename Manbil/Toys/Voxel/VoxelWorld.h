@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../../SFMLOpenGLWorld.h"
+#include "../../Game Loop/SFMLOpenGLWorld.h"
 #include "VoxelChunkManager.h"
 #include "ChunkMesh.h"
 #include "VoxelPlayer.h"
-#include "../../RenderingState.h"
-#include "../../Material.h"
-#include "../../Mesh.h"
-#include "../../Rendering/Helper Classes/DrawingQuad.h"
-#include "../../Rendering/Texture Management/RenderTargetManager.h"
-#include "../../Rendering/Texture Management/MTexture2D.h"
+#include "../../Rendering/Basic Rendering/RenderingState.h"
+#include "../../Rendering/Basic Rendering/Material.h"
+#include "../../Rendering/Basic Rendering/Mesh.h"
+#include "../../Rendering/Primitives/DrawingQuad.h"
+#include "../../Rendering/Management/RenderTargetManager.h"
+#include "../../Rendering/Textures/MTexture2D.h"
 
 class VoxelWorldPPC;
 

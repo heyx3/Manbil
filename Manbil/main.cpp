@@ -5,13 +5,13 @@
 #include "IO/XmlSerialization.h"
 #include "IO/BinarySerialization.h"
 
-#include "OpenGLTestWorld.h"
+#include "Sample Worlds/OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
 #include "Tests/TerrainTestWorld.h"
 #include "Tests/GUITestWorld.h"
-#include "NoiseTest.h"
-#include "TwoTrianglesWorld.h"
+#include "Sample Worlds/NoiseTest.h"
+#include "Toys/TwoTrianglesWorld.h"
 #include "Toys/Voxel/VoxelWorld.h"
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
@@ -23,7 +23,7 @@ int main()
 {
     //OpenGLTestWorld().RunWorld();
     //RiftTestWorld().RunWorld();
-    AssImpTestWorld().RunWorld();
+    //AssImpTestWorld().RunWorld();
     //TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
@@ -33,5 +33,5 @@ int main()
 
     //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
-    //PlanetSimWorld().RunWorld();
+    PlanetSimWorld().RunWorld();
 }

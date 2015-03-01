@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GUIElement.h"
+#include "../../Textures/MTexture2D.h"
 
 
 //Displays a texture. Can optionally be clicked.

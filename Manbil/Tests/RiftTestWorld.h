@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../SFMLOpenGLWorld.h"
+#include "../Game Loop/SFMLOpenGLWorld.h"
 
 #include "../Rendering/Rendering.hpp"
-#include "../Rendering/Helper Classes/DrawingQuad.h"
-#include "../Rendering/Texture Management/RenderTargetManager.h"
-#include "../MovingCamera.h"
+#include "../Rendering/Primitives/DrawingQuad.h"
+#include "../Rendering/Management/RenderTargetManager.h"
+#include "../Input/MovingCamera.h"
 #include "../Oculus Rift/OculusDevice.h"
 #include <OVR_CAPI_GL.h>
 

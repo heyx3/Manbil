@@ -3,11 +3,11 @@
 #include "DataSerialization.h"
 
 #include "../Math/LowerMath.hpp"
-#include "../Rendering/Materials/Data Nodes/GLVectors.h"
+#include "../Rendering/Basic Rendering/GLVectors.h"
 #include "../Rendering/Basic Rendering/RenderIOAttributes.h"
-#include "../Rendering/Texture Management/MTexture2D.h"
-#include "../Rendering/Texture Management/MTexture3D.h"
-#include "../Rendering/Texture Management/MTextureCubemap.h"
+#include "../Rendering/Textures/MTexture2D.h"
+#include "../Rendering/Textures/MTexture3D.h"
+#include "../Rendering/Textures/MTextureCubemap.h"
 
 
 //Provides ISerializable wrappers for many simple classes.

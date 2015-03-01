@@ -1,8 +1,8 @@
 #include "Water.h"
 
-#include "../../OpenGLIncludes.h"
+#include "../Basic Rendering/OpenGLIncludes.h"
 #include "../../Math/Higher Math/Terrain.h"
-#include "../../Material.h"
+#include "../Basic Rendering/Material.h"
 
 
 

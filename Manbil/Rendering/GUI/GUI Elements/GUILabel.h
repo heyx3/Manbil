@@ -2,7 +2,7 @@
 
 #include "../GUIElement.h"
 #include "../TextRenderer.h"
-#include "../../Materials/Data Nodes/ShaderGenerator.h"
+#include "../../Data Nodes/ShaderGenerator.h"
 
 
 //Represents a simple piece of text.

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Materials/Data Nodes/ShaderGenerator.h"
-#include "../Helper Classes/DrawingQuad.h"
+#include "../Data Nodes/ShaderGenerator.h"
+#include "../Primitives/DrawingQuad.h"
 
 
 //A static class that provides definitions for GUI system materials,

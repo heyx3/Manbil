@@ -1,9 +1,9 @@
 #include "RiftTestWorld.h"
 
 
-#include "../Rendering/PrimitiveGenerator.h"
+#include "../Rendering/Primitives/PrimitiveGenerator.h"
 #include "../DebugAssist.h"
-#include "../Rendering/Materials/MaterialData.h"
+#include "../Rendering/Basic Rendering/MaterialData.h"
 
 #include <OVR_CAPI_GL.h>
 #include <OVR.h>

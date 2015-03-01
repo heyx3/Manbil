@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../SFMLOpenGLWorld.h"
+#include "../../Game Loop/SFMLOpenGLWorld.h"
 #include "../../Rendering/Rendering.hpp"
 #include "PlanetSimCamera.h"
 #include "PlanetSimWorldGen.h"

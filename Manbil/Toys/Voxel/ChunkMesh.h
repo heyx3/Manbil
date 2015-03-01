@@ -4,7 +4,7 @@
 #include <atomic>
 #include "VoxelChunk.h"
 #include "VoxelChunkManager.h"
-#include "../../Mesh.h"
+#include "../../Rendering/Basic Rendering/Mesh.h"
 
 
 //Manages a chunk's mesh. Able to rebuild the chunk's mesh on another thread.

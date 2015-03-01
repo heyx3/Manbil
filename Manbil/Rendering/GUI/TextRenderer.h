@@ -1,9 +1,9 @@
 #pragma once
 
 #include "FreeTypeHandler.h"
-#include "../Texture Management/RenderTargetManager.h"
-#include "../Texture Management/MTexture2D.h"
-#include "../Helper Classes/DrawingQuad.h"
+#include "../Management/RenderTargetManager.h"
+#include "../Textures/MTexture2D.h"
+#include "../Primitives/DrawingQuad.h"
 
 
 

@@ -8,8 +8,8 @@
 #include "Math/Shapes.hpp"
 #include "IO/BinarySerialization.h"
 #include "Rendering/GPU Particles/GPUParticleDefines.h"
-#include "Rendering/Texture Management/TextureSettings.h"
-#include "Rendering/Materials/Data Nodes/GLVectors.h"
+#include "Rendering/Textures/TextureSettings.h"
+#include "Rendering/Basic Rendering/GLVectors.h"
 
 
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GPUParticleDefines.h"
-#include "../../Material.h"
-#include "../Materials/Data Nodes/ShaderGenerator.h"
+#include "../Basic Rendering/Material.h"
+#include "../Data Nodes/ShaderGenerator.h"
 #include "../Basic Rendering/MeshData.h"
 
 
