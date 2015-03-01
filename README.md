@@ -8,7 +8,7 @@ Uses some libraries here and there -- tinyXML for serialization, OVR for Oculus 
 
 ##Documentation##
 
-The task of documenting the engine has only recently begun; the documentation (and a tool for generating it known as "HTMLGenerator" is available in [another Git repo](https://github.com/heyx3/ManbilDocumentation/commits?author=heyx3).
+The task of documenting the engine has only recently begun; the documentation (and a tool for generating parts of it known as "HTMLGenerator") is available in [another Git repo](https://github.com/heyx3/ManbilDocumentation/commits?author=heyx3).
 
 ##Licensing##
 
