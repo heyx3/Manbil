@@ -6,6 +6,8 @@
 #include "BlendMode.h"
 #include "RenderIOAttributes.h"
 #include "UniformCollections.h"
+#include "Mesh.h"
+
 
 
 
@@ -42,18 +44,27 @@ public:
     void SetBlendMode(BlendMode newMode) { mode = newMode; }
 
     
+    //Renders the given mesh.
     void Render(const RenderInfo& info, const Mesh* toRender, const UniformDictionary& params);
+    //Renders the given meshes.
     void Render(const RenderInfo& info, const std::vector<const Mesh*>& meshes,
                 const UniformDictionary& params);
+    //Renders the given meshes.
     void Render(const RenderInfo& info, const UniformDictionary& params,
                 const Mesh*const* meshPtrArray, unsigned int nMeshes);
+
+    //Renders the given vertices with the given world matrix.
+    void Render(const RenderInfo& info, const MeshData& toRender,
+                const Matrix4f& worldMat, const UniformDictionary& params);
+    //Renders the given vertex buffers with the given world matrices.
+    void Render(const RenderInfo& info, const MeshData* toRender, const Matrix4f* worldMats,
+                unsigned int nToRender, const UniformDictionary& params);
 
 
 private:
 
-    void RenderBaseComponents(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
-    void RenderCombineComponents(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
-    void RenderApplyOcclusion(const RenderInfo& info, const std::vector<const Mesh*>& meshes);
+
+    void SetUniforms(const UniformDictionary& params);
 
 
     Material(const Material& cpy) = delete;
@@ -71,6 +82,7 @@ private:
                     camOrthoMinL, camOrthoMaxL,
                     wvpMatL, worldMatL, viewMatL, projMatL, viewProjMatL,
                     timeL;
+
 
     //All subroutine uniforms in a shader have to be set at once,
     //    so keep track of the order they will be organized into.
