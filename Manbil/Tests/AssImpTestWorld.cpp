@@ -2,7 +2,7 @@
 
 #include "../Math/NoiseGeneration.hpp"
 #include "../Rendering/Data Nodes/DataNodes.hpp"
-#include "../Rendering/PrimitiveGenerator.h"
+#include "../Rendering/Primitives/PrimitiveGenerator.h"
 
 #include "../DebugAssist.h"
 
