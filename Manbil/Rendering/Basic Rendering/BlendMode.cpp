@@ -1,6 +1,6 @@
 #include "BlendMode.h"
 
-#include "../../OpenGLIncludes.h"
+#include "OpenGLIncludes.h"
 #include <assert.h>
 
 

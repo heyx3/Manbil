@@ -1,6 +1,6 @@
 #include "BezierCurve.h"
 
-#include "../Materials/Data Nodes/DataNodes.hpp"
+#include "../Data Nodes/DataNodes.hpp"
 
 
 

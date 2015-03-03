@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Materials/Data Nodes/DataNode.h"
+#include "../Data Nodes/DataNode.h"
 #include "CurveVertex.h"
 
 

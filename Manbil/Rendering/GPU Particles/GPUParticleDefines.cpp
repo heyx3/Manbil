@@ -1,6 +1,6 @@
 #include "GPUParticleDefines.h"
 
-#include "../Materials/Data Nodes/DataLine.h"
+#include "../Data Nodes/DataLine.h"
 
 
 bool IsValidGPUPOutput(const DataLine & outputData, GPUPOutputs outputType)

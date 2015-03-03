@@ -1,7 +1,7 @@
 #include "FreeTypeHandler.h"
 
 #include <iostream>
-#include "../Texture Management/MTexture2D.h"
+#include "../Textures/MTexture2D.h"
 
 
 FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
