@@ -21,6 +21,7 @@ class DataNode : public ISerializable
 {
 public:
 
+    #pragma region Macros for defining reflection data
 
     //Use this at the bottom of a DataNode child class's declaration in its .h file (INSIDE the class)
     //  to give it important reflection data. Must be used with ADD_NODE_REFLECTION_DATA_CPP.
@@ -72,12 +73,17 @@ public:
         } \
         nodeClass::_Initializer nodeClass::IGNORE_MEEEE = nodeClass::_Initializer();
 
+    #pragma endregion
 
+
+    //Shared pointers to DataNodes are the standard way to use them.
     typedef std::shared_ptr<DataNode> Ptr;
 
 
     //Thrown when something about this DataNode is found to be invalid when generating shader code.
     static int EXCEPTION_ASSERT_FAILED;
+    //Points to the last DataNode that threw an exception.
+    static const DataNode* ExceptedNode;
 
 
     //The information about the material currently being built.

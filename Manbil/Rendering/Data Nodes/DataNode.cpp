@@ -18,6 +18,8 @@ unsigned int DataNode::lastID = GetDataNodeLastID();
 
 int DataNode::EXCEPTION_ASSERT_FAILED = 1352;
 
+const DataNode* DataNode::ExceptedNode = 0;
+
 
 MaterialOutputs DataNode::MaterialOuts = MaterialOutputs();
 GeoShaderData DataNode::GeometryShader = GeoShaderData();
@@ -123,6 +125,7 @@ void DataNode::Assert(bool toAssert, const std::string& error) const
     if (!toAssert)
     {
         errorMsg = error;
+        ExceptedNode = this;
         throw EXCEPTION_ASSERT_FAILED;
     }
 }
