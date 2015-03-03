@@ -5,7 +5,9 @@
 #include "IO/XmlSerialization.h"
 #include "IO/BinarySerialization.h"
 
-#include "Sample Worlds\SimpleRenderWorld.h"
+#include "Sample Worlds/SimpleRenderWorld.h"
+#include "Sample Worlds/DataNodeRenderWorld.h"
+
 #include "Sample Worlds/OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
@@ -23,6 +25,7 @@
 int main()
 {
     SimpleRenderWorld().RunWorld();
+    //DataNodeRenderWorld().RunWorld();
 
     //OpenGLTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();

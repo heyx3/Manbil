@@ -244,6 +244,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp" />
     <ClCompile Include="Rendering\Water\Water.cpp" />
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
+    <ClCompile Include="Sample Worlds\DataNodeRenderWorld.cpp" />
     <ClCompile Include="Sample Worlds\NoiseTest.cpp" />
     <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
@@ -425,6 +426,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClInclude Include="Rendering\Textures\TextureSettings.h" />
     <ClInclude Include="Rendering\Water\Water.h" />
     <ClInclude Include="Rendering\Water\WaterRendering.h" />
+    <ClInclude Include="Sample Worlds\DataNodeRenderWorld.h" />
     <ClInclude Include="Sample Worlds\NoiseTest.h" />
     <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
