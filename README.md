@@ -1,14 +1,13 @@
 Manbil
 ======
 
-
-My 3D engine in C++/OpenGL. Currently undergoing refactoring and documentation to turn it into an educational resource for anybody who wants to learn how to write a basic game engine.
+A free, open-source 3D game engine in C++/OpenGL. Currently undergoing refactoring and [documentation](https://github.com/heyx3/ManbilDocumentation) to turn it into an educational resource for anybody who wants to learn how to write a basic game engine.
 
 Uses some libraries here and there -- tinyXML for serialization, OVR for Oculus Rift support, SFML for window management and loading textures, FreeType for loading font glyphs, etc. These plugins are in the "Plugins" folder in the repo.
 
 ##Documentation##
 
-The task of documenting the engine has only recently begun; the documentation (and a tool for generating parts of it known as "HTMLGenerator") is available in [another Git repo](https://github.com/heyx3/ManbilDocumentation).
+The documentation is available in [another Git repo](https://github.com/heyx3/ManbilDocumentation).
 
 ##Licensing##
 
