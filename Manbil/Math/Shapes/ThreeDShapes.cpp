@@ -1,14 +1,7 @@
 #include "ThreeDShapes.h"
 
 #include <assert.h>
-
-
-bool Shape::TouchingPolygon(const PolygonSolid& poly) const
-{
-    const Shape* shpe = this;
-    return std::any_of(poly.GetTriangles().begin(), poly.GetTriangles().end(),
-                       [shpe](const Triangle & tri) { return shpe->TouchingTriangle(tri); });
-}
+#include "../Higher Math/Geometryf.h"
 
 
 Vector3f Cube::FarthestPointInDirection(Vector3f dirNormalized) const
@@ -576,7 +569,8 @@ bool Cube::TouchingCapsule(const Capsule& capsule) const
 }
 bool Cube::TouchingPlane(const Plane& plane) const
 {
-    //Taken from http://www.gamasutra.com/view/feature/131790/simple_intersection_tests_for_games.php?print=1, section "A Box-Plane Intersection Test".
+    //Taken from http://www.gamasutra.com/view/feature/131790/simple_intersection_tests_for_games.php?print=1,
+    //    section "A Box-Plane Intersection Test".
 
     //If this function gets remade for a box that isn't axis-aligned, use
     //    "Mathf::Abs(plane.Normal.Dot([normalized axis vector])"
@@ -588,13 +582,6 @@ bool Cube::TouchingPlane(const Plane& plane) const
 
     return Mathf::Abs(plane.GetDistanceToPlane(GetCenter())) <= val;
 }
-
-#pragma warning(disable: 4100)
-bool Cube::TouchingTriangle(const Triangle& tris) const
-{
-    return false;
-}
-#pragma warning(default: 4100)
 
 Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -700,13 +687,6 @@ bool Sphere::TouchingPlane(const Plane& plane) const
 
     return dist >= minDist && dist <= maxDist;
 }
-
-#pragma warning(disable: 4100)
-bool Sphere::TouchingTriangle(const Triangle& tris) const
-{
-    return false;
-}
-#pragma warning(default: 4100)
 
 Sphere::RayTraceResult Sphere::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
@@ -969,13 +949,6 @@ bool Capsule::TouchingPlane(const Plane& plane) const
     return distanceIntvl.IsInside(0.0f);
 }
 
-#pragma warning(disable: 4100)
-bool Capsule::TouchingTriangle(const Triangle& tris) const
-{
-    return false;
-}
-#pragma warning(default: 4100)
-
 Capsule::RayTraceResult Capsule::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
     //TODO: The ray fails if cast through the ends of the capsule.
@@ -1125,13 +1098,6 @@ bool Plane::TouchingPlane(const Plane& plane) const
            (plane.GetCenter().DistanceSquared(GetCenter()) <= MarginOfError);
 }
 
-#pragma warning(disable: 4100)
-bool Plane::TouchingTriangle(const Triangle& tris) const
-{
-    return false;
-}
-#pragma warning(default: 4100)
-
 Plane::RayTraceResult Plane::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
     float denominator = rayDir.Dot(Normal);
@@ -1159,39 +1125,4 @@ Box3D Plane::GetBoundingBox(void) const
     return Box3D(xAligned ? GetCenter().x : min, xAligned ? GetCenter().x : max,
                  yAligned ? GetCenter().y : min, yAligned ? GetCenter().y : max,
                  zAligned ? GetCenter().z : min, zAligned ? GetCenter().z : max);
-}
-
-
-Box3D PolygonSolid::GetBoundingBox(void) const
-{
-    if (triangles.size() == 0) return Box3D();
-
-    Vector3f min = triangles[0].GetVertices()[0],
-             max = triangles[0].GetVertices()[0];
-
-    //TODO: Don't use std::foreach; just use a normal for loop.
-    std::_For_each(triangles.begin(), triangles.end(),
-                   [&min, &max](const Triangle & tri)
-    {
-        const Vector3f * vertices = tri.GetVertices();
-        for (int i = 0; i < 3; ++i)
-        {
-            if (vertices[i].x < min.x)
-                min.x = vertices[i].x;
-            if (vertices[i].x > max.x)
-                max.x = vertices[i].x;
-
-            if (vertices[i].y < min.y)
-                min.y = vertices[i].y;
-            if (vertices[i].y > max.y)
-                max.y = vertices[i].y;
-
-            if (vertices[i].z < min.z)
-                min.z = vertices[i].z;
-            if (vertices[i].z > max.z)
-                max.z = vertices[i].z;
-        }
-    });
-
-    return Box3D(min.x, max.x, min.y, max.y, min.z, max.z);
 }

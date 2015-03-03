@@ -9,15 +9,16 @@
 #include "Boxes.h"
 
 
+//Provides an interface for 3D shape collision detection and related geometric stuff.
+//TODO: Replace this with Bullet physics engine.
+
+
 class Cube;
 class Sphere;
 class Capsule;
 class Plane;
-class Triangle;
-class PolygonSolid;
 
 
-//TODO: Remove triangle and polygon from this system. Integrate Bullet.
 
 //Represents some kind of 3D shape. Uses double dispatch for checking collision against other shapes.
 class Shape
@@ -40,8 +41,6 @@ public:
     virtual bool TouchingSphere(const Sphere& sphere) const = 0;
     virtual bool TouchingCapsule(const Capsule& capsule) const = 0;
     virtual bool TouchingPlane(const Plane& plane) const = 0;
-    virtual bool TouchingTriangle(const Triangle& tri) const = 0;
-    virtual bool TouchingPolygon(const PolygonSolid& poly) const;
 
 
     struct RayTraceResult
@@ -94,7 +93,6 @@ public:
     virtual bool TouchingSphere(const Sphere & sphere) const override;
     virtual bool TouchingCapsule(const Capsule & capsule) const override;
     virtual bool TouchingPlane(const Plane & plane) const override;
-    virtual bool TouchingTriangle(const Triangle & tri) const override;
 
     virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
 
@@ -137,7 +135,6 @@ public:
     virtual bool TouchingSphere(const Sphere & sphere) const override;
     virtual bool TouchingCapsule(const Capsule & capsule) const override;
     virtual bool TouchingPlane(const Plane & plane) const override;
-    virtual bool TouchingTriangle(const Triangle & tri) const override;
 
     virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
 
@@ -169,7 +166,6 @@ public:
     virtual bool TouchingSphere(const Sphere & sphere) const override;
     virtual bool TouchingCapsule(const Capsule & capsule) const override;
     virtual bool TouchingPlane(const Plane & plane) const override;
-    virtual bool TouchingTriangle(const Triangle & tri) const override;
 
     virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
 
@@ -259,7 +255,6 @@ public:
     virtual bool TouchingSphere(const Sphere & sphere) const override;
     virtual bool TouchingCapsule(const Capsule & capsule) const override;
     virtual bool TouchingPlane(const Plane & plane) const override;
-    virtual bool TouchingTriangle(const Triangle & tri) const override;
 
     virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
 
@@ -271,174 +266,4 @@ public:
     virtual ShapePtr GetClone(void) const override { return ShapePtr(new Plane(GetCenter(), Normal)); }
 
     virtual Box3D GetBoundingBox(void) const override;
-};
-
-
-
-
-class Triangle : public Shape
-{
-public:
-
-    Triangle(Vector3f p1, Vector3f p2, Vector3f p3)
-        : Shape((p1 + p2 + p3) * 0.333333f)
-    {
-        vertices[0] = p1;
-        vertices[1] = p2;
-        vertices[2] = p3;
-    }
-    Triangle(const Vector3f _vertices[3])
-        : Shape((_vertices[0] + _vertices[1] + _vertices[2]) * 0.333333f)
-    {
-        vertices[0] = _vertices[0];
-        vertices[1] = _vertices[1];
-        vertices[2] = _vertices[2];
-    }
-
-
-    //TODO: Fix.
-#pragma warning(disable: 4100) //Warning about "dirNormalized" not being used.
-    virtual Vector3f FarthestPointInDirection(Vector3f dirNormalized) const override
-    {
-        return GetCenter();
-    }
-#pragma warning(default: 4100)
-
-    virtual bool TouchingShape(const Shape & shape) const override { return shape.TouchingTriangle(*this); }
-
-    virtual bool TouchingCube(const Cube & cube) const override;
-    virtual bool TouchingSphere(const Sphere & sphere) const override;
-    virtual bool TouchingCapsule(const Capsule & capsule) const override;
-    virtual bool TouchingPlane(const Plane & plane) const override;
-    virtual bool TouchingTriangle(const Triangle & tri) const override;
-
-    virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
-
-    virtual ShapePtr GetClone(void) const override { return ShapePtr(new Triangle(vertices)); }
-
-    virtual bool IsPointInside(Vector3f point) const override;
-
-    virtual void SetCenter(Vector3f newCenter) override
-    {
-        Vector3f delta = newCenter - GetCenter();
-
-        Shape::SetCenter(newCenter);
-        vertices[0] += delta;
-        vertices[1] += delta;
-        vertices[2] += delta;
-    }
-
-    virtual Box3D GetBoundingBox(void) const override
-    {
-        return Box3D(Mathf::Min(vertices[0].x, vertices[1].x, vertices[2].x),
-                     Mathf::Max(vertices[0].x, vertices[1].x, vertices[2].x),
-                     Mathf::Min(vertices[0].y, vertices[1].y, vertices[2].y),
-                     Mathf::Max(vertices[0].y, vertices[1].y, vertices[2].y),
-                     Mathf::Min(vertices[0].z, vertices[1].z, vertices[2].z),
-                     Mathf::Max(vertices[0].z, vertices[1].z, vertices[2].z));
-    }
-
-    //Gets the three vertices that represent this triangle.
-    const Vector3f * GetVertices(void) const { return vertices; }
-
-
-private:
-
-    Vector3f vertices[3];
-};
-
-
-
-//TODO: PolygonSolid stuff currently doesn't take into account the inside of the polygon -- only the surface. Maybe have two polygon classes: SimplePolygon (convex) and ComplexPolygon (concave, made of several SimplePolygons).
-class PolygonSolid : public Shape
-{
-public:
-
-    PolygonSolid(const std::vector<Triangle> & _triangles) : Shape(GetAverage(_triangles)), triangles(_triangles) { }
-
-
-    const std::vector<Triangle> & GetTriangles(void) const { return triangles; }
-
-
-
-#pragma warning(disable: 4100)
-    virtual Vector3f FarthestPointInDirection(Vector3f dirNormalized) const override
-    {
-        return GetCenter();
-    }
-#pragma warning(default: 4100)
-
-
-    virtual bool TouchingShape(const Shape & shape) const override { return shape.TouchingPolygon(*this); }
-
-    virtual bool TouchingCube(const Cube & cube) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&cube](const Triangle & tri) { return cube.TouchingTriangle(tri); });
-    }
-    virtual bool TouchingSphere(const Sphere & sphere) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&sphere](const Triangle & tri) { return sphere.TouchingTriangle(tri); });
-    }
-    virtual bool TouchingCapsule(const Capsule & capsule) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&capsule](const Triangle & tri) { return capsule.TouchingTriangle(tri); });
-    }
-    virtual bool TouchingPlane(const Plane & plane) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&plane](const Triangle & tri) { return plane.TouchingTriangle(tri); });
-    }
-    virtual bool TouchingTriangle(const Triangle & triangle) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&triangle](const Triangle & tri) { return triangle.TouchingTriangle(tri); });
-    }
-    virtual bool TouchingPolygon(const PolygonSolid & poly) const override
-    {
-        return std::any_of(triangles.begin(), triangles.end(),
-                           [&poly](const Triangle & tri)
-        {
-            return std::any_of(poly.triangles.begin(), poly.triangles.end(),
-                               [&tri](const Triangle & tri2)
-            {
-                return tri.TouchingTriangle(tri2);
-            });
-        });
-    }
-
-    virtual RayTraceResult RayHitCheck(Vector3f rayStart, Vector3f rayDir) const override;
-
-    virtual bool IsPointInside(Vector3f point) const override;
-
-    virtual void SetCenter(Vector3f newCenter) override
-    {
-#pragma warning(disable: 4239)
-        Shape::SetCenter(newCenter);
-        std::_For_each(triangles.begin(), triangles.end(),
-                       [&newCenter](Triangle & tri) { tri.SetCenter(newCenter); });
-#pragma warning(default: 4239)
-    }
-
-    virtual ShapePtr GetClone(void) const override { return ShapePtr(new PolygonSolid(triangles)); }
-
-    virtual Box3D GetBoundingBox(void) const override;
-
-
-private:
-
-    static Vector3f GetAverage(const std::vector<Triangle> & tris)
-    {
-        if (tris.size() == 0) return Vector3f(0.0f, 0.0f, 0.0f);
-
-        Vector3f sum = Vector3f(0.0f, 0.0f, 0.0f);
-        for (unsigned int i = 0; i < tris.size(); ++i)
-            sum += tris[i].GetCenter();
-
-        return sum / (float)tris.size();
-    }
-
-    std::vector<Triangle> triangles;
 };
