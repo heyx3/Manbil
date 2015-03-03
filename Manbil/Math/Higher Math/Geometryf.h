@@ -3,6 +3,8 @@
 #include "../Lower Math/Vectors.h"
 
 
+//TODO: Move into Lower Math system.
+
 //Various useful geometric functions. Generalized for a float vector of any number of dimensions.
 class Geometryf
 {
