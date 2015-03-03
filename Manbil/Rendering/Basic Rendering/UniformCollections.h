@@ -390,21 +390,23 @@ struct UniformDictionary
 {
 public:
 
-    #define U_UMAP(Type) (std::unordered_map<std::string, Type>)
+#define UMAP(Type) std::unordered_map<std::string, Type>
+    UMAP(UniformValueF)              Floats;
+    UMAP(UniformValueArrayF)         FloatArrays;
+    UMAP(UniformValueI)              Ints;
+    UMAP(UniformValueArrayI)         IntArrays;
+    UMAP(UniformValueMatrix4f)       Matrices;
+    UMAP(UniformValueSampler2D)      Texture2Ds;
+    UMAP(UniformValueSampler3D)      Texture3Ds;
+    UMAP(UniformValueSamplerCubemap) TextureCubemaps;
+    UMAP(UniformValueSubroutine)     Subroutines;
+#undef UMAP
 
-    U_UMAP(UniformValueF) Floats;
-    U_UMAP(UniformValueArrayF) FloatArrays;
-    U_UMAP(UniformValueI) Ints;
-    U_UMAP(UniformValueArrayI) IntArrays;
-    U_UMAP(UniformValueMatrix4f) Matrices;
-    U_UMAP(UniformValueSampler2D) Texture2Ds;
-    U_UMAP(UniformValueSampler3D) Texture3Ds;
-    U_UMAP(UniformValueSamplerCubemap) TextureCubemaps;
-    U_UMAP(UniformValueSubroutine) Subroutines;
-
-
+    //Adds the given uniforms to this collection, optionally overwriting duplicates.
     void AddUniforms(const UniformDictionary& other, bool overwriteDuplicates);
+    //Clears all uniforms from this collection.
     void ClearUniforms(void);
 
+    //Counts the total number of uniforms in this collection.
     unsigned int GetNumbUniforms(void) const;
 };
