@@ -15,12 +15,12 @@ public:
     //Only affects performance, not functionality.
     enum BufferUsageFrequency
     {
-        //The data will be modified once and used a few times.
-        BUF_STREAM,
-        //The data will be modified once and used many times.
+        //The data will not need to be modified after it's first set.
         BUF_STATIC,
-        //The data will be modified repeatedly and used many times.
+        //The data will be modified occasionally, but not constantly.
         BUF_DYNAMIC,
+        //The data will be modified as often as it is used.
+        BUF_STREAM,
     };
     
 
