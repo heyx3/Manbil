@@ -25,9 +25,9 @@ public:
         //Always use the fragment.
         AT_ALWAYS,
 
-        //Use the fragment if it's alpha is not equal to "AlphaTestValue".
-        AT_EQUAL,
         //Use the fragment if it's alpha is equal to "AlphaTestValue".
+        AT_EQUAL,
+        //Use the fragment if it's alpha is NOT equal to "AlphaTestValue".
         AT_NOT_EQUAL,
 
         //Use the fragment if it's alpha is less than "AlphaTestValue".
