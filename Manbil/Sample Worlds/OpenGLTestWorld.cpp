@@ -625,7 +625,7 @@ void OpenGLTestWorld::RenderOpenGL(float elapsedSeconds)
 
 	Matrix4f viewM, projM;
 	cam.GetViewTransform(viewM);
-	cam.GetPerspectiveTransform(projM);
+	cam.GetPerspectiveProjection(projM);
     //cam.GetOrthoProjection(projM);
 
     RenderInfo info(GetTotalElapsedSeconds(), (Camera*)&cam, &viewM, &projM);

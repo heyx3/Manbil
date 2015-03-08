@@ -332,7 +332,7 @@ void AssImpTestWorld::RenderOpenGL(float elapsedSeconds)
 {
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
-    cam.GetPerspectiveTransform(projM);
+    cam.GetPerspectiveProjection(projM);
 
     RenderWorldGeometry(RenderInfo(GetTotalElapsedSeconds(), &cam, &viewM, &projM));
 }

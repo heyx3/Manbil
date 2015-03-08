@@ -188,7 +188,7 @@ void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
     //Set up the info for rendering stuff.
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
-    gameCam.GetPerspectiveTransform(projM);
+    gameCam.GetPerspectiveProjection(projM);
     RenderInfo info(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
     
     //Render the material.

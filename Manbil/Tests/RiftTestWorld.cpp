@@ -521,7 +521,7 @@ void RiftTestWorld::RenderOpenGL(float elapsedSeconds)
         eyeCam.PerspectiveInfo.Height = rendTex.GetHeight();
 
         eyeCam.GetViewTransform(viewM);
-        eyeCam.GetPerspectiveTransform(projM);
+        eyeCam.GetPerspectiveProjection(projM);
 
         //Render the world.
         RenderTargets[eyeRendTarget]->EnableDrawingInto();

@@ -280,7 +280,7 @@ void PlanetSimWorld::RenderOpenGL(float elapsed)
     //Set up rendering info.
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
-    cam.GetPerspectiveTransform(projM);
+    cam.GetPerspectiveProjection(projM);
     RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
 
     //Set up rendering state.

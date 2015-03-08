@@ -46,9 +46,9 @@ public:
 	void AddYaw(float radians);
 	void AddRoll(float radians);
 
-	void GetViewTransform(Matrix4f & outM) const;
-    void GetPerspectiveTransform(Matrix4f& outM) const;
-    void GetOrthoProjection(Matrix4f & outM) const;
+	void GetViewTransform(Matrix4f& outM) const;
+    void GetPerspectiveProjection(Matrix4f& outM) const;
+    void GetOrthoProjection(Matrix4f& outM) const;
 	
 
 private:

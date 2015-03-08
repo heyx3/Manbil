@@ -249,7 +249,7 @@ void TTW::RenderOpenGL(float elapsedSeconds)
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
-    cam.GetPerspectiveTransform(projM);
+    cam.GetPerspectiveProjection(projM);
 
     RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
     RenderWorldGeometry(info);

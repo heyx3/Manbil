@@ -75,7 +75,7 @@ void Camera::GetViewTransform(Matrix4f& outM) const
 
 	outM.Set(Matrix4f::Multiply(mRot, mPos));
 }
-void Camera::GetPerspectiveTransform(Matrix4f& outM) const
+void Camera::GetPerspectiveProjection(Matrix4f& outM) const
 {
     outM.SetAsPerspProj(PerspectiveInfo.FOV, PerspectiveInfo.Width, PerspectiveInfo.Height,
                         PerspectiveInfo.zNear, PerspectiveInfo.zFar);
