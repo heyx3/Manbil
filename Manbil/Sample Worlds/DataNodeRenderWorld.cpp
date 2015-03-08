@@ -186,7 +186,6 @@ void DNRW::RenderOpenGL(float elapsedSeconds)
     //Set up rendering state.
     glViewport(0, 0, windowSize.x, windowSize.y);
     RenderingState(RenderingState::C_BACK).EnableState();
-    BlendMode::GetOpaque().EnableMode();
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);

@@ -286,7 +286,6 @@ void PlanetSimWorld::RenderOpenGL(float elapsed)
     //Set up rendering state.
     RenderingState(RenderingState::C_NONE).EnableState();
     ScreenClearer().ClearScreen();
-    BlendMode::GetOpaque().EnableMode();
     glViewport(0, 0, windowSize.x, windowSize.y);
 
     //Render the world.
@@ -297,7 +296,6 @@ void PlanetSimWorld::RenderWorld(float elapsed, RenderInfo& camInfo)
 {
     std::vector<const Mesh*> planetMeshList;
     world->GetMeshes(planetMeshList, cam.GetPosition(), cam.GetForward());
-
     planetMat->Render(camInfo, planetMeshList, planetParams);
 }
 

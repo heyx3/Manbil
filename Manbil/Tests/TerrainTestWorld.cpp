@@ -245,7 +245,6 @@ void TTW::RenderOpenGL(float elapsedSeconds)
     glViewport(0, 0, windowSize.x, windowSize.y);
     ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
-    BlendMode::GetOpaque().EnableMode();
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);

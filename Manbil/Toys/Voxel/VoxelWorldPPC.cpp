@@ -106,7 +106,6 @@ void VoxelWorldPPC::RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandl
     rendTarg.EnableDrawingInto();
 
     ScreenClearer().ClearScreen();
-    BlendMode::GetOpaque().EnableMode();
     glViewport(0, 0, colorTex.GetWidth(), colorTex.GetHeight());
 
     DrawingQuad::GetInstance()->Render(info, ppParams, *ppMat);

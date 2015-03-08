@@ -438,7 +438,6 @@ void RiftTestWorld::RenderWorldGeometry(const RenderInfo& info)
 {
     RenderingState(RenderingState::C_NONE).EnableState();
     ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.2f, 0.0f)).ClearScreen();
-    BlendMode::GetOpaque().EnableMode();
 
     //Floor.
     cube.Transform = floorT;

@@ -7,6 +7,7 @@
 
 BlendMode BlendMode::CurrentMode = BlendMode::GetOpaque();
 
+static_assert(std::is_same<unsigned int, GLenum>::value, "GLenum is not an unsigned int now??");
 
 unsigned int BlendMode::ToGLEnum(BlendingExpressions expr)
 {
@@ -32,8 +33,8 @@ unsigned int BlendMode::ToGLEnum(BlendingOps op)
     switch (op)
     {
         case BO_ADD:              return GL_FUNC_ADD;
-        case BO_SUBTRACT:         return GL_FUNC_SUBTRACT;
-        case BO_SUBTRACT_REVERSE: return GL_FUNC_REVERSE_SUBTRACT;
+        case BO_SUBTRACT_DEST:    return GL_FUNC_SUBTRACT;
+        case BO_SUBTRACT_SRC:     return GL_FUNC_REVERSE_SUBTRACT;
         case BO_MIN:              return GL_MIN;
         case BO_MAX:              return GL_MAX;
         default:
@@ -74,7 +75,7 @@ void BlendMode::EnableMode(int bufIndex) const
 bool BlendMode::IsOpaque(void) const
 {
     return SourceBlend == BE_ONE && DestBlend == BE_ZERO &&
-           (Op == BO_ADD || Op == BO_SUBTRACT);
+           (Op == BO_ADD || Op == BO_SUBTRACT_DEST || Op == BO_MAX);
 }
 
 BlendMode& BlendMode::operator=(const BlendMode& cpy)

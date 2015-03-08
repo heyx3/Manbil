@@ -135,7 +135,7 @@ void GUITestWorld::InitializeWorld(void)
     }
     else if (false)
     {
-        //Build out some individual editor elements that just print out their values.
+        //Build out some individual editor elements that just print out their values when changed.
 
         EditorPanel* editor = new EditorPanel(*editorMaterials, 00.0f, 00.0f);
         
@@ -268,7 +268,6 @@ void GUITestWorld::RenderOpenGL(float elapsed)
     ScreenClearer(true, true, false, Vector4f(0.5f, 0.2f, 0.2f, 0.0f)).ClearScreen();
     //TODO: Set culling mode once I can test this world.
     RenderingState(RenderingState::C_NONE, false, true).EnableState();
-    BlendMode::GetTransparent().EnableMode();
 
     //Set up the "render info" struct.
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));

@@ -609,13 +609,8 @@ void OpenGLTestWorld::RenderWorldGeometry(const RenderInfo& info)
     ScreenClearer().ClearScreen();
     worldRenderState.EnableState();
 
-    waterMat->GetBlendMode().EnableMode();
     waterMat->Render(info, &water->MyMesh, water->Params);
-
-    particleMat->GetBlendMode().EnableMode();
     particleMat->Render(info, &particleMesh, particleParams);
-
-    cubemapMat->GetBlendMode().EnableMode();
     cubemapMat->Render(info, &cubemapMesh, cubemapParams);
 }
 

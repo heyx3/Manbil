@@ -324,7 +324,6 @@ void AssImpTestWorld::RenderWorldGeometry(const RenderInfo& info)
     ScreenClearer().ClearScreen();
     //TODO: Set culling state once I can test this world.
     RenderingState(RenderingState::C_NONE).EnableState();
-    objMat->GetBlendMode().EnableMode();
 
     objMat->Render(info, &objMesh, objParams);
 }

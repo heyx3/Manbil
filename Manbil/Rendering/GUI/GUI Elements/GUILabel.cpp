@@ -139,7 +139,6 @@ void GUILabel::Render(float elapsedTime, const RenderInfo& info)
     RenderObjHandle texHandle = textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
     Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = texHandle;
 
-    RenderMat->GetBlendMode().EnableMode();
     GetQuad()->Render(info, Params, *RenderMat);
 }
 #pragma warning(default: 4100)

@@ -25,7 +25,6 @@ void GUITexture::Render(float elapsed, const RenderInfo& info)
 
     SetUpQuad();
     Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
-    Mat->GetBlendMode().EnableMode();
     GetQuad()->Render(info, Params, *Mat);
 }
 #pragma warning(default: 4100)

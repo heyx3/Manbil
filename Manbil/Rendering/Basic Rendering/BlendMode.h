@@ -37,10 +37,15 @@ public:
     //The various possible ways to combine each color's contribution.
     enum BlendingOps
     {
+        //Add the contributions together.
         BO_ADD,
-        BO_SUBTRACT,
-        BO_SUBTRACT_REVERSE,
+        //Subtract the destination contribution from the source contribution.
+        BO_SUBTRACT_DEST,
+        //Subtract the source contribution from the destination contribution.
+        BO_SUBTRACT_SRC,
+        //Get the smallest of the two contributions.
         BO_MIN,
+        //Get the largest of the two contributions.
         BO_MAX,
     };
 
@@ -76,7 +81,7 @@ public:
     //    on the current render target.
     void EnableMode(int bufferIndex = -1) const;
 
-    //Gets whether this mode is opaque.
+    //Gets whether this mode specifies opaque rendering.
     bool IsOpaque(void) const;
 
 

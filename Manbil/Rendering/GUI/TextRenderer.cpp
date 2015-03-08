@@ -301,7 +301,6 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
     //Set up rendering.
     targ->EnableDrawingInto();
     RenderingState(RenderingState::C_BACK, false, false).EnableState();
-    BlendMode::GetTransparent().EnableMode();
     ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
 
 

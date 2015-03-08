@@ -830,7 +830,6 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     worldRenderTarget->EnableDrawingInto();
     renderState.EnableState();
     ScreenClearer().ClearScreen();
-    voxelMat->GetBlendMode().EnableMode();
 
 
     #pragma region Render each face
@@ -901,6 +900,5 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         postProcessing->GetFinalColor().GetTextureHandle();
     ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_NONE, false, false).EnableState();
-    BlendMode::GetOpaque().EnableMode();
     DrawingQuad::GetInstance()->Render(info, finalWorldRenderParams, *finalWorldRenderMat);
 }

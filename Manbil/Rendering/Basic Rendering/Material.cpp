@@ -414,7 +414,7 @@ void Material::Render(const RenderInfo& info, const UniformDictionary& params,
                       const Mesh*const* meshPtrArray, unsigned int nMeshes)
 {
     glUseProgram(shaderProg);
-
+    GetBlendMode().EnableMode();
 
     #pragma region Set basic uniforms
 
@@ -545,6 +545,7 @@ void Material::Render(const RenderInfo& info, const MeshData* toRender, const Ma
                       unsigned int nToRender, const UniformDictionary& params)
 {
     glUseProgram(shaderProg);
+    GetBlendMode().EnableMode();
 
     #pragma region Set basic uniforms
 
