@@ -7,6 +7,8 @@
 
 //A collection of vertices and (optionally) indices for rendering.
 //Can optionally store a copy of the data on RAM for quick CPU access.
+//If any code binds vertex/index buffers without using this class, this class's behavior
+//    is undefined (unless the binds are set back to their old values as soon as they're done being used).
 struct MeshData
 {
 public:
@@ -22,6 +24,10 @@ public:
         //The data will be modified as often as it is used.
         BUF_STREAM,
     };
+
+
+    static RenderObjHandle GetCurrentVHandle(void) { return currentVHandle; }
+    static RenderObjHandle GetCurrentIHandle(void) { return currentIHandle; }
     
 
     PrimitiveTypes PrimType;
@@ -36,14 +42,11 @@ public:
     void MoveTo(MeshData& newData);
 
 
-    //Gets whether this instance stores the mesh data in RAM for quick reading.
+    void SetStoresData(bool newValue);
     bool GetStoresData(void) const { return storesData; }
+
     //Gets whether this mesh data uses indices.
     bool GetUsesIndices(void) const { return indicesHandle != 0; }
-
-    //Tells this instance whether to store a local heap-allocated copy of the mesh data.
-    void SetStoresData(bool newValue);
-
     
     unsigned int GetNVertices(void) const { return nVertices; }
     unsigned int GetNIndices(void) const { return nIndices; }
