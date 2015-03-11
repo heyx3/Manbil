@@ -268,12 +268,12 @@ void VoxelWorld::InitializeWorld(void)
                                      Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
     voxelHighlightMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     voxelHighlightMesh.SubMeshes[0].SetVertexData(vhvs, MeshData::BUF_STATIC,
-                                                  VertexPosUVNormal::GetAttributeData());
+                                                  VertexPosUVNormal::GetVertexAttributes());
     voxelHighlightMesh.SubMeshes[0].SetIndexData(vsis, MeshData::BUF_STATIC);
     
     //Voxel highlight material.
     DataNode::ClearMaterialData();
-    DataNode::VertexIns = VertexPosUVNormal::GetAttributeData();
+    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
     DNP objPosToScreen(new SpaceConverterNode(DataLine(VertexInputNode::GetInstanceName()),
                                               SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
                                               SpaceConverterNode::DT_POSITION, "objtoScreenPos"));
@@ -348,7 +348,7 @@ void VoxelWorld::InitializeWorld(void)
 
     //Definition.
     DataNode::ClearMaterialData();
-    DataNode::VertexIns = VoxelVertex::GetAttributeData();
+    DataNode::VertexIns = VoxelVertex::GetVertexAttributes();
     /* Vertex outputs:
     * 0: Min Existing
     * 1: Max Existing

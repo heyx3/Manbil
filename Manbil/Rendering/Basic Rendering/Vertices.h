@@ -20,7 +20,7 @@ struct VertexPos
 
 	VertexPos(Vector3f pos = Vector3f()) : Pos(pos) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 struct VertexPosColor
@@ -31,7 +31,7 @@ struct VertexPosColor
     VertexPosColor(Vector3f pos = Vector3f(), Vector3f color = Vector3f(1.0f, 1.0f, 1.0f))
         : Pos(pos), Col(color) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 struct VertexPosUV
@@ -42,7 +42,7 @@ struct VertexPosUV
     VertexPosUV(Vector3f pos = Vector3f(), Vector2f uv = Vector2f())
         : Pos(pos), UV(uv) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 struct VertexPosNormal
@@ -52,7 +52,7 @@ struct VertexPosNormal
     VertexPosNormal(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f))
         : Pos(pos), Normal(normal) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 struct VertexPosUVNormal
@@ -65,7 +65,7 @@ struct VertexPosUVNormal
                         Vector3f normal = Vector3f(0, 0, 1))
         : Pos(pos), UV(uv), Normal(normal) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 struct VertexPosUVNormalColor
@@ -80,5 +80,5 @@ struct VertexPosUVNormalColor
                              Vector4f color = Vector4f(0.0f, 0.0f, 0.0f, 1.0f))
         : Pos(pos), UV(uv), Normal(normal), Color(color) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };

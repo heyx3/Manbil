@@ -27,8 +27,9 @@ public:
         Vector3f Normal;
         CubemapVertex(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(1.0f, 0.0f, 0.0f))
             : Pos(pos), Normal(normal) { }
-        static RenderIOAttributes GetAttributeData(void);
+        static RenderIOAttributes GetVertexAttributes(void);
     };
+
     static void GenerateCubemapCube(std::vector<CubemapVertex>& outVertices,
                                     std::vector<unsigned int>& outIndices,
                                     bool smoothNormals, bool faceInward,

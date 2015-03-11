@@ -18,12 +18,9 @@ struct WaterVertex
     Vector2f TexCoord;
 
     WaterVertex(Vector3f pos = Vector3f(), Vector2f texCoord = Vector2f())
-        : Pos(pos), TexCoord(texCoord)
-    {
+        : Pos(pos), TexCoord(texCoord) { }
 
-    }
-
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 

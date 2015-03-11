@@ -4,32 +4,32 @@
 typedef RenderIOAttributes::Attribute RenderAttr;
 
 
-RenderIOAttributes VertexPos::GetAttributeData(void)
+RenderIOAttributes VertexPos::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"));
 }
-RenderIOAttributes VertexPosColor::GetAttributeData(void)
+RenderIOAttributes VertexPosColor::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"),
                               RenderAttr(3, false, "vIn_Color3"));
 }
-RenderIOAttributes VertexPosUV::GetAttributeData(void)
+RenderIOAttributes VertexPosUV::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"),
                               RenderAttr(2, false, "vIn_UV"));
 }
-RenderIOAttributes VertexPosNormal::GetAttributeData(void)
+RenderIOAttributes VertexPosNormal::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"),
                               RenderAttr(3, true, "vIn_Normal"));
 }
-RenderIOAttributes VertexPosUVNormal::GetAttributeData(void)
+RenderIOAttributes VertexPosUVNormal::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"),
                               RenderAttr(2, false, "vIn_UV"),
                               RenderAttr(3, true, "vIn_Normal"));
 }
-RenderIOAttributes VertexPosUVNormalColor::GetAttributeData(void)
+RenderIOAttributes VertexPosUVNormalColor::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderAttr(3, false, "vIn_Pos"),
                               RenderAttr(2, false, "vIn_UV"),

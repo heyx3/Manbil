@@ -15,7 +15,8 @@
 //   cubemap textures are queried with a 3D vector (of any size; magnitude is unimportant).
 //This vector points towards some spot on a certain face of the cube,
 //    corresponding to a pixel on that face's texture.
-//This is very useful for skyboxes and certain lighting effects.
+//This is very useful for skyboxes, reflections, and certain lighting effects.
+//It is also much less distorted than wrapping a 2D texture around a sphere's surface.
 class MTextureCubemap
 {
 public:

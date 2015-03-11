@@ -6,7 +6,7 @@
 
 
 
-RenderIOAttributes WaterVertex::GetAttributeData(void)
+RenderIOAttributes WaterVertex::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
                               RenderIOAttributes::Attribute(2, false, "vIn_TexCoord"));
@@ -37,7 +37,7 @@ void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
     //Upload the mesh data into vertex/index buffers.
     outM.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& mDat = outM.SubMeshes[0];
-    mDat.SetVertexData(verts, MeshData::BUF_STATIC, WaterVertex::GetAttributeData());
+    mDat.SetVertexData(verts, MeshData::BUF_STATIC, WaterVertex::GetVertexAttributes());
     mDat.SetIndexData(indices, MeshData::BUF_STATIC);
 }
 

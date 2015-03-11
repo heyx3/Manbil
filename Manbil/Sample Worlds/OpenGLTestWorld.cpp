@@ -219,7 +219,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
         DataNode::ClearMaterialData();
-        DataNode::VertexIns = WaterVertex::GetAttributeData();
+        DataNode::VertexIns = WaterVertex::GetVertexAttributes();
 
         //Vertex position output.
         DNP waterCalcs(new WaterNode(DataLine(VertexInputNode::GetInstance()),
@@ -391,7 +391,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
 
         DataNode::ClearMaterialData();
-        DataNode::VertexIns = PrimitiveGenerator::CubemapVertex::GetAttributeData();
+        DataNode::VertexIns = PrimitiveGenerator::CubemapVertex::GetVertexAttributes();
 
         //Vertex pos output.
         DataLine worldPos = VertexInputNode::GetInstance();
@@ -508,7 +508,7 @@ void OpenGLTestWorld::InitializeObjects(void)
     cubemapMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& dat = cubemapMesh.SubMeshes[0];
     dat.SetVertexData(cmVertices, MeshData::BUF_STATIC,
-                      PrimitiveGenerator::CubemapVertex::GetAttributeData());
+                      PrimitiveGenerator::CubemapVertex::GetVertexAttributes());
     dat.SetIndexData(cmIndices, MeshData::BUF_STATIC);
 }
 

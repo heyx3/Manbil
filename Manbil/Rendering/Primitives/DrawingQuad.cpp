@@ -61,7 +61,7 @@ void DrawingQuad::InitializeQuad(void)
         instance = new DrawingQuad();
         instance->mesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
         MeshData& dat = instance->mesh.SubMeshes[0];
-        dat.SetVertexData(vertices, 4, MeshData::BUF_STATIC, VertexPosUV::GetAttributeData());
+        dat.SetVertexData(vertices, 4, MeshData::BUF_STATIC, VertexPosUV::GetVertexAttributes());
         dat.SetIndexData(indices, 6, MeshData::BUF_STATIC);
     }
 }
@@ -73,7 +73,7 @@ void DrawingQuad::DestroyQuad(void)
 
 void DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)
 {
-    assert(mat.GetExpectedVertexData() == VertexPosUV::GetAttributeData());
+    assert(mat.GetExpectedVertexData() == VertexPosUV::GetVertexAttributes());
 
     Vector3f scale = mesh.Transform.GetScale();
     Vector2f scale2d(scale.x, scale.y);

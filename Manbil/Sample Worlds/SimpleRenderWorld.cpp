@@ -52,7 +52,7 @@ void SimpleRenderWorld::SetUpMaterial(void)
     std::string vertexShader, fragmentShader;
 
     //The vertex inputs have positions, UVs, and normals, though we only need position for this material.
-    RenderIOAttributes vertexInputs = VertexPosUVNormal::GetAttributeData();
+    RenderIOAttributes vertexInputs = VertexPosUVNormal::GetVertexAttributes();
 
     //First, generate the vertex shader header stuff.
     {
@@ -131,7 +131,7 @@ void SimpleRenderWorld::InitializeWorld(void)
     //Put the generated cube data into the mesh.
     objMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_TRIANGLE_LIST));
     objMesh.SubMeshes[0].SetVertexData(vertices, MeshData::BUF_STATIC,
-                                       VertexPosUVNormal::GetAttributeData());
+                                       VertexPosUVNormal::GetVertexAttributes());
     objMesh.SubMeshes[0].SetIndexData(indices, MeshData::BUF_STATIC);
 
     //Move/size the object so that its vertices stay within about the range [0, 1].

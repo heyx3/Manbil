@@ -219,7 +219,7 @@ void main()            \n\
 
     //Create the material.
     objectMat = new Material(vertShader, fragShader, params,
-                             VertexPosUVNormal::GetAttributeData(),
+                             VertexPosUVNormal::GetVertexAttributes(),
                              BlendMode::GetOpaque(), err);
     if (!Assert(err.empty(), "Error creating object material", err))
     {
@@ -247,7 +247,7 @@ void RiftTestWorld::InitializeObjects(void)
 
     cube.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& dat = cube.SubMeshes[0];
-    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
+    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
     dat.SetIndexData(indices, MeshData::BUF_STATIC);
 }
 void RiftTestWorld::SetUpOculusDevice(void)

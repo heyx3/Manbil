@@ -43,7 +43,7 @@ void TTW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
     
     terrMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& dat = terrMesh.SubMeshes[terrMesh.SubMeshes.size() - 1];
-    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
+    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
     dat.SetIndexData(inds, MeshData::BUF_STATIC);
 }
 
@@ -70,7 +70,7 @@ void TTW::InitializeMaterials(void)
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
 
-    DataNode::VertexIns = VertexPosUVNormal::GetAttributeData();
+    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),

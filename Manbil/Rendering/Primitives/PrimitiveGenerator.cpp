@@ -1,7 +1,7 @@
 #include "PrimitiveGenerator.h"
 
 
-RenderIOAttributes PrimitiveGenerator::CubemapVertex::GetAttributeData(void)
+RenderIOAttributes PrimitiveGenerator::CubemapVertex::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
                               RenderIOAttributes::Attribute(3, true, "vIn_Normal"));

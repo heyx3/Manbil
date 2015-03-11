@@ -31,7 +31,7 @@ PlanetSimWorld::PlanetSimWorld(void)
 ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary& params)
 {
     DataNode::ClearMaterialData();
-    DataNode::VertexIns = PlanetVertex::GetAttributeData();
+    DataNode::VertexIns = PlanetVertex::GetVertexAttributes();
     typedef DataNode::Ptr DNP;
 
     //Vertex shader.

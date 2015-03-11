@@ -22,7 +22,7 @@ public:
     static DrawingQuad* GetInstance(void) { return instance; }
 
     //Gets the vertex attributes that this quad uses.
-    static RenderIOAttributes GetVertexInputData(void) { return VertexPosUV::GetAttributeData(); }
+    static RenderIOAttributes GetVertexInputData(void) { return VertexPosUV::GetVertexAttributes(); }
     
 
     Mesh& GetMesh(void) { return mesh; }

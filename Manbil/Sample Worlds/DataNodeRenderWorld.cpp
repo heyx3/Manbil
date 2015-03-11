@@ -69,7 +69,7 @@ void DNRW::InitializeMaterials(void)
 
     //Define the the vertex data. We are using vertices with position, UV, and normal attributes
     //    (although we don't actually need the normal in this shader).
-    DataNode::VertexIns = VertexPosUVNormal::GetAttributeData();
+    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
 
     //The vertex shader will be a simple object-to-screen-space conversion.
     //It also outputs UVs to the fragment shader.
@@ -118,7 +118,7 @@ void DNRW::InitializeMaterials(void)
 }
 void DNRW::InitializeObjects(void)
 {
-    RenderIOAttributes vertexInfo = VertexPosUVNormal::GetAttributeData();
+    RenderIOAttributes vertexInfo = VertexPosUVNormal::GetVertexAttributes();
 
     std::vector<VertexPosUVNormal> vertices;
     std::vector<unsigned int> indices;

@@ -18,6 +18,6 @@ public:
 
     CurveVertex(Vector2f linePosLerp = Vector2f()) : LinePosLerp(linePosLerp) { }
 
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
     static void GenerateVertices(std::vector<CurveVertex>& outVertices, unsigned int nLineSegments);
 };

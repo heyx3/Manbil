@@ -22,7 +22,7 @@ public:
                 Vector3f maxExists = Vector3f(1, 1, 1))
         : Pos(pos), MinExists(minExists), MaxExists(maxExists) { }
 
-    static RenderIOAttributes GetAttributeData(void)
+    static RenderIOAttributes GetVertexAttributes(void)
     {
         return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_pos"),
                                   RenderIOAttributes::Attribute(3, false, "vIn_minExists"),

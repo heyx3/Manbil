@@ -17,12 +17,9 @@ struct PlanetVertex
     float Heightmap;
     PlanetVertex(Vector3f pos = Vector3f(), Vector3f normal = Vector3f(0.0f, 0.0f, 1.0f),
                  float heightmap = 0.5f)
-        : Pos(pos), Normal(normal), Heightmap(heightmap)
-    {
+        : Pos(pos), Normal(normal), Heightmap(heightmap) { }
 
-    }
-
-    static RenderIOAttributes GetAttributeData(void);
+    static RenderIOAttributes GetVertexAttributes(void);
 };
 
 

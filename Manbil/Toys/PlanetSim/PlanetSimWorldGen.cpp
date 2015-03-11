@@ -7,7 +7,7 @@
 
 
 
-RenderIOAttributes PlanetVertex::GetAttributeData(void)
+RenderIOAttributes PlanetVertex::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
                               RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
@@ -164,7 +164,8 @@ void HeightmapToMesh(const Array2D<float>& noiseGrid, Array2D<PlanetVertex>& out
 
     //Generate buffers.
     outMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    outMesh.SubMeshes[0].SetVertexData(vertList, MeshData::BUF_STATIC, PlanetVertex::GetAttributeData());
+    outMesh.SubMeshes[0].SetVertexData(vertList, MeshData::BUF_STATIC,
+                                       PlanetVertex::GetVertexAttributes());
     outMesh.SubMeshes[0].SetIndexData(indList, MeshData::BUF_STATIC);
 }
 

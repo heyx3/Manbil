@@ -77,7 +77,7 @@ void AssImpTestWorld::InitializeMaterials(void)
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
     
-    DataNode::VertexIns = VertexPosUVNormal::GetAttributeData();
+    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),
@@ -213,7 +213,7 @@ void AssImpTestWorld::InitializeObjects(void)
     //Create the mesh object.
     objMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& dat = objMesh.SubMeshes[0];
-    dat.SetVertexData(vertices, MeshData::BUF_STATIC, VertexPosUVNormal::GetAttributeData());
+    dat.SetVertexData(vertices, MeshData::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
     dat.SetIndexData(indices, MeshData::BUF_STATIC);
 
     //Set up the mesh's transform.
