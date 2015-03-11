@@ -34,10 +34,6 @@ class Water
 {
 public:
 
-    Mesh MyMesh;
-    UniformDictionary Params;
-
-
     //Data about a directional water flow.
     struct DirectionalWaterArgs
     {
@@ -52,6 +48,7 @@ public:
         DirectionalWaterArgs(Vector2f flow, float amplitude, float period)
             : Flow(flow), Amplitude(amplitude), Period(period), TimeSinceCreated(0.0f) { }
     };
+
     //Data about a ripple water flow.
     struct RippleWaterArgs
     {
@@ -74,6 +71,10 @@ public:
     };
 
 
+    Mesh MyMesh;
+    UniformDictionary Params;
+
+
     TransformObject& GetTransform(void) { return MyMesh.Transform; }
     const TransformObject& GetTransform(void) const { return MyMesh.Transform; }
 
@@ -90,14 +91,14 @@ public:
 
 
     //Adds another ripple to the water.
-    //Returns the id for the created ripple, or -1 if it was unsuccessful.
+    //Returns the id for the created ripple so that it can be modified in the future.
     unsigned int AddRipple(const RippleWaterArgs& args);
     //Changes the water ripple with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
     bool ChangeRipple(unsigned int element, const RippleWaterArgs& args);
 
     //Adds a new flow to the water.
-    //Returns the id for the created flow, or -1 if this water isn't Directional water.
+    //Returns the id for the created flow so that it can be modified in the future.
     unsigned int AddFlow(const DirectionalWaterArgs& args);
     //Changes the water flow with the given ID.
     //Returns false if the given id isn't found; returns true otherwise.
