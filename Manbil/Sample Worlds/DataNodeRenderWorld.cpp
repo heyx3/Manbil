@@ -34,8 +34,8 @@ void DNRW::InitializeTextures(void)
 
     //Try to load the texture from a file.
     std::string errorMsg;
-    if (!Assert(objTex.SetDataFromFile("Content/DataNodeRenderWorld Sample/tex.png", errorMsg),
-                "Error loading 'Content/DataNodeRenderWorld Sample/tex.png'",
+    if (!Assert(objTex.SetDataFromFile("Content/Sample Worlds/grass.png", errorMsg),
+                "Error loading 'Content/Sample Worlds/grass.png'",
                 errorMsg))
     {
         return;
