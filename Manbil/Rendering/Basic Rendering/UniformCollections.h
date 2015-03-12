@@ -146,7 +146,7 @@ public:
 
         Values = new ComponentType[NValues * NComponentsPerValue];
         assert(sizeof(Values) == sizeof(cpy.Values));
-        memcpy(Values, cpy.Values, sizeof(Values));
+        memcpy(Values, cpy.Values, sizeof(ComponentType) * sizeof(Values));
 
         return *this;
     }
@@ -202,7 +202,7 @@ public:
         //Now copy the values in.
         NValues = nValues;
         NComponentsPerValue = nComponentsPerValue;
-        memcpy(Values, values, sizeof(ComponentType) * NComponentsPerValue);
+        memcpy(Values, values, sizeof(ComponentType) * NValues * NComponentsPerValue);
     }
 
 
