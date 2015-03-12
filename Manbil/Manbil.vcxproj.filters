@@ -444,6 +444,9 @@
     <ClCompile Include="Sample Worlds\DataNodeRenderWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="Sample Worlds\WaterWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -980,6 +983,9 @@
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Sample Worlds\DataNodeRenderWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\WaterWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
   </ItemGroup>

@@ -248,6 +248,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClCompile Include="Sample Worlds\NoiseTest.cpp" />
     <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
+    <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
     <ClCompile Include="Tests\AssImpTestWorld.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\RiftTestWorld.cpp" />
@@ -430,6 +431,7 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClInclude Include="Sample Worlds\NoiseTest.h" />
     <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
+    <ClInclude Include="Sample Worlds\WaterWorld.h" />
     <ClInclude Include="Tests\AssImpTestWorld.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\RiftTestWorld.h" />

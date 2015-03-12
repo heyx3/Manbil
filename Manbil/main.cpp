@@ -7,6 +7,7 @@
 
 #include "Sample Worlds/SimpleRenderWorld.h"
 #include "Sample Worlds/DataNodeRenderWorld.h"
+#include "Sample Worlds/WaterWorld.h"
 
 #include "Sample Worlds/OpenGLTestWorld.h"
 #include "Tests/RiftTestWorld.h"
@@ -26,6 +27,7 @@ int main()
 {
     SimpleRenderWorld().RunWorld();
     //DataNodeRenderWorld().RunWorld();
+    //WaterWorld().RunWorld();
 
     //OpenGLTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
