@@ -244,7 +244,7 @@ void TTW::RenderOpenGL(float elapsedSeconds)
 {
     glViewport(0, 0, windowSize.x, windowSize.y);
     ScreenClearer().ClearScreen();
-    RenderingState(RenderingState::C_NONE).EnableState();
+    RenderingState(RenderingState::C_BACK).EnableState();
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);

@@ -180,7 +180,7 @@ void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
     //Set up rendering state.
     //Modify these constructors to change various aspects of how rendering is done.
     ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.2f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_NONE).EnableState();
+    RenderingState(RenderingState::C_BACK).EnableState();
 
     glViewport(0, 0, windowSize.x, windowSize.y);
 
