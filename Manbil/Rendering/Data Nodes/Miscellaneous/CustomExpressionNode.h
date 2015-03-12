@@ -18,11 +18,18 @@ public:
     virtual std::string GetOutputName(unsigned int index) const override { return GetName() + "_result"; }
 #pragma warning(default: 4100)
 
-    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, std::string name = "");
-    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, DataLine in1, std::string name = "");
-    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, DataLine in1, DataLine in2, std::string name = "");
-    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, DataLine in1, DataLine in2, DataLine in3, std::string name = "");
-    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, const std::vector<DataLine> & inputs, std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize,
+                         std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize, DataLine in1,
+                         std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize,
+                         DataLine in1, DataLine in2, std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize,
+                         DataLine in1, DataLine in2, DataLine in3, std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize,
+                         DataLine in1, DataLine in2, DataLine in3, DataLine in4, std::string name = "");
+    CustomExpressionNode(std::string _expression, unsigned int expressionOutSize,
+                         const std::vector<DataLine>& inputs, std::string name = "");
 
 
 protected:
