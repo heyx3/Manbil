@@ -163,12 +163,12 @@ public:
                     }
 
                     outIndices.insert(outIndices.end(), vertIndex);
-                    outIndices.insert(outIndices.end(), vertIndex - 1);
                     outIndices.insert(outIndices.end(), vertIndex - 1 - areaSize.x);
+                    outIndices.insert(outIndices.end(), vertIndex - 1);
 
                     outIndices.insert(outIndices.end(), vertIndex);
-                    outIndices.insert(outIndices.end(), vertIndex - 1 - areaSize.x);
                     outIndices.insert(outIndices.end(), vertIndex - areaSize.x);
+                    outIndices.insert(outIndices.end(), vertIndex - 1 - areaSize.x);
                 }
 
                 vertIndex += 1;
