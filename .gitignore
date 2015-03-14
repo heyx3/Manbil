@@ -1,4 +1,7 @@
-*.obj
+Build/**/*.obj
+Plugins/**/*.obj
+*.swatch
+
 *.tlog
 *.idb
 *.pdb
