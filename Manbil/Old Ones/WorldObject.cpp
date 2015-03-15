@@ -339,10 +339,13 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                                                    TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
                                           0.0f, 1.0f, -1.0f, 1.0f, "normalMap"));
 
+    DataNode::Ptr tempNormalCalc;
     DataLine finalNormal = fIn_Normal;
     if (geoInfo.UseNormalMap)
     {
-        //TODO: Implement a "NormalMapping" node.
+        tempNormalCalc = DataNode::Ptr(new ApplyNormalMapNode(fIn_Normal, fIn_Tangent, fIn_Bitangent,
+                                                              normalMap));
+        finalNormal = DataLine(tempNormalCalc);
     }
 
     DataNode::Ptr brightness(new LightingNode(fIn_WorldPos, finalNormal, LightDir,
@@ -352,6 +355,11 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     DataNode::Ptr finalRGB(new MultiplyNode(DataLine(diffuseSampler,
                                                      TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
                                             brightness, "finalRGB"));
+    if (false)
+    {
+        finalRGB.reset();
+        finalRGB = DataNode::Ptr(new RemapNode(fIn_Bitangent, -1.0f, 1.0f, 0.0f, 1.0f));
+    }
     DataNode::Ptr finalColor(new CombineVectorNode(finalRGB, 1.0f, "finalColor"));
 
     DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
