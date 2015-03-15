@@ -3,7 +3,7 @@
         <collection name="Sets">
             <element index="0">
                 <dataStructure name="0">
-                    <string name="Mesh File" value="Sidewalks.fbx"/>
+                    <string name="Mesh File" value="Sidewalks.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
                     <bool name="Use world position as UV?" value="true"/>
@@ -17,40 +17,40 @@
             </element>
             <element index="1">
                 <dataStructure name="1">
-                    <string name="Mesh File" value="Grass.fbx"/>
+                    <string name="Mesh File" value="Grass.obj"/>
                     <float name="Specular" value="0.01" />
                     <float name="Specular Intensity" value="8.0" />
                     <bool name="Use world position as UV?" value="true"/>
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="GrassD.png"/>
                     <dataStructure name="Diffuse Tex Scale">
-                        <float name="x" value="0.250000"/>
-                        <float name="y" value="0.250000"/>
+                        <float name="x" value="1.0"/>
+                        <float name="y" value="1.0"/>
                     </dataStructure>
                 </dataStructure>
             </element>
             <element index="2">
                 <dataStructure name="2">
-                    <string name="Mesh File" value="Asphalt.fbx"/>
+                    <string name="Mesh File" value="Asphalt.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
                     <bool name="Use world position as UV?" value="true"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="AsphaltD.jpg"/>
                     <dataStructure name="Diffuse Tex Scale">
-                        <float name="x" value="0.250000"/>
-                        <float name="y" value="0.250000"/>
+                        <float name="x" value="1.0"/>
+                        <float name="y" value="1.0"/>
                     </dataStructure>
                     <string name="Normal Tex File" value="AsphaltN.jpg"/>
                     <dataStructure name="Normal Tex Scale">
-                        <float name="x" value="0.250000"/>
-                        <float name="y" value="0.250000"/>
+                        <float name="x" value="1.0"/>
+                        <float name="y" value="1.0"/>
                     </dataStructure>
                 </dataStructure>
             </element>
             <element index="3">
                 <dataStructure name="3">
-                    <string name="Mesh File" value="Building1s.fbx"/>
+                    <string name="Mesh File" value="Building1s.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -69,7 +69,7 @@
             </element>
             <element index="4">
                 <dataStructure name="4">
-                    <string name="Mesh File" value="Building2s.fbx"/>
+                    <string name="Mesh File" value="Building2s.obj"/>
                     <float name="Specular" value="0.6" />
                     <float name="Specular Intensity" value="128.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -88,7 +88,7 @@
             </element>
             <element index="5">
                 <dataStructure name="5">
-                    <string name="Mesh File" value="Building3s.fbx"/>
+                    <string name="Mesh File" value="Building3s.obj"/>
                     <float name="Specular" value="0.6" />
                     <float name="Specular Intensity" value="128.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -107,26 +107,21 @@
             </element>
             <element index="6">
                 <dataStructure name="6">
-                    <string name="Mesh File" value="BuildingLarge.fbx"/>
+                    <string name="Mesh File" value="BuildingLarge.obj"/>
                     <float name="Specular" value="1.0" />
                     <float name="Specular Intensity" value="16.0" />
                     <bool name="Use world position as UV?" value="false"/>
-                    <bool name="Uses normal map?" value="true"/>
+                    <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="BuildingLargeD.jpg"/>
                     <dataStructure name="Diffuse Tex Scale">
                         <float name="x" value="1.000000"/>
                         <float name="y" value="1.000000"/>
                     </dataStructure>
-                    <string name="Normal Tex File" value="BuildingLargeN.jpg"/>
-                    <dataStructure name="Normal Tex Scale">
-                        <float name="x" value="15.000000"/>
-                        <float name="y" value="15.000000"/>
-                    </dataStructure>
                 </dataStructure>
             </element>
             <element index="7">
                 <dataStructure name="7">
-                    <string name="Mesh File" value="SmallBuildings.fbx"/>
+                    <string name="Mesh File" value="SmallBuildings.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -145,7 +140,7 @@
             </element>
             <element index="8">
                 <dataStructure name="8">
-                    <string name="Mesh File" value="Benches.fbx"/>
+                    <string name="Mesh File" value="Benches.obj"/>
                     <float name="Specular" value="0.3" />
                     <float name="Specular Intensity" value="8.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -164,7 +159,7 @@
             </element>
             <element index="9">
                 <dataStructure name="9">
-                    <string name="Mesh File" value="TrashCans.fbx"/>
+                    <string name="Mesh File" value="TrashCans.obj"/>
                     <float name="Specular" value="0.9" />
                     <float name="Specular Intensity" value="128.0" />
                     <bool name="Use world position as UV?" value="false"/>
@@ -178,7 +173,7 @@
             </element>
             <element index="10">
                 <dataStructure name="10">
-                    <string name="Mesh File" value="RoadLines.fbx"/>
+                    <string name="Mesh File" value="RoadLines.obj"/>
                     <float name="Specular" value="0.0" />
                     <float name="Specular Intensity" value="128.0" />
                     <bool name="Use world position as UV?" value="false"/>
