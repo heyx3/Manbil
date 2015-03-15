@@ -447,6 +447,12 @@
     <ClCompile Include="Sample Worlds\WaterWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\GeoSet.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\WorldObject.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -988,6 +994,12 @@
     <ClInclude Include="Sample Worlds\WaterWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
+    <ClInclude Include="Old Ones\GeoSet.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\WorldObject.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1109,6 +1121,9 @@
     </Filter>
     <Filter Include="Sample Worlds">
       <UniqueIdentifier>{4ab065bd-152d-485c-bdf3-a1e684e0dfe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old Ones">
+      <UniqueIdentifier>{a1bbde6c-2474-4533-a779-2a28fddee3dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

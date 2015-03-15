@@ -156,6 +156,19 @@ bool MTexture2D::LoadImageFromFile(std::string filePath, Array2D<Vector4b>& outD
 
     return true;
 }
+bool MTexture2D::SaveImageToFile(std::string filePath, const Array2D<Vector4b>& texData)
+{
+    sf::Image img;
+    Array2D<Vector4b> texData2(texData.GetWidth(), texData.GetHeight());
+    texData2.FillFunc([&texData](Vector2u loc, Vector4b* vOut)
+                      {
+                          *vOut = texData[Vector2u(loc.x, texData.GetHeight() - 1 - loc.y)];
+                      });
+    img.create(texData.GetWidth(), texData.GetHeight(),
+               (sf::Uint8*)texData2.GetArray());
+    return img.saveToFile(filePath);
+}
+
 bool MTexture2D::SetDataFromFile(std::string filePath, std::string& outError)
 {
     return SetDataFromFile(filePath, pixelSize, outError);

@@ -13,6 +13,9 @@ public:
     //Automatically resizes the array to fit the image size.
     static bool LoadImageFromFile(std::string filePath, Array2D<Vector4b>& outData);
 
+    //Saves the given texture data into the given array.
+    static bool SaveImageToFile(std::string filePath, const Array2D<Vector4b>& texData);
+
 
     //Constructors/destructors.
 

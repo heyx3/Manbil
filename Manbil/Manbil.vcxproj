@@ -159,6 +159,8 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Oculus Rift\OculusDevice.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Old Ones\GeoSet.cpp" />
+    <ClCompile Include="Old Ones\WorldObject.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\Material.cpp" />
@@ -334,6 +336,8 @@ xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configurat
     <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Oculus Rift\OculusDevice.h" />
+    <ClInclude Include="Old Ones\GeoSet.h" />
+    <ClInclude Include="Old Ones\WorldObject.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h" />
     <ClInclude Include="Rendering\Basic Rendering\GLVectors.h" />
