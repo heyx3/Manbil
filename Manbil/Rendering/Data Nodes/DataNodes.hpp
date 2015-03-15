@@ -19,6 +19,7 @@
 #include "Math/RotateAroundAxisNode.h"
 #include "Math/SubtractNode.h"
 
+#include "Miscellaneous/ApplyNormalMapNode.h"
 #include "Miscellaneous/TangentSpaceNormalsNode.h"
 #include "Miscellaneous/CombineVectorNode.h"
 #include "Miscellaneous/CustomExpressionNode.h"
