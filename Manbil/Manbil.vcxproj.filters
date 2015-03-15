@@ -453,6 +453,9 @@
     <ClCompile Include="Old Ones\WorldObject.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\OldOnesWorld.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -998,6 +1001,9 @@
       <Filter>Old Ones</Filter>
     </ClInclude>
     <ClInclude Include="Old Ones\WorldObject.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\OldOnesWorld.h">
       <Filter>Old Ones</Filter>
     </ClInclude>
   </ItemGroup>

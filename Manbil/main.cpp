@@ -16,6 +16,8 @@
 #include "Toys/Voxel/VoxelWorld.h"
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
+#include "Old Ones/OldOnesWorld.h"
+
 
 //TODO: Add a "Skybox" class in "Rendering/Helper Classes" that simplifies creation/modification/rendering of a cubemapped skybox.
 
@@ -37,4 +39,6 @@ int main()
     //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
     //PlanetSimWorld().RunWorld();
+
+    OldOnesWorld().RunWorld();
 }
