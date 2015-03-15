@@ -195,6 +195,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Data Nodes\Math\RemapNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Math\RotateAroundAxisNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Math\SubtractNode.cpp" />
+    <ClCompile Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Miscellaneous\CombineVectorNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Miscellaneous\CustomExpressionNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Miscellaneous\LightingNode.cpp" />
@@ -377,6 +378,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Data Nodes\Math\RemapNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Math\RotateAroundAxisNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Math\SubtractNode.h" />
+    <ClInclude Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Miscellaneous\CombineVectorNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Miscellaneous\CustomExpressionNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Miscellaneous\LightingNode.h" />
