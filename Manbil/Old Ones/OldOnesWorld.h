@@ -30,8 +30,19 @@ protected:
 
 private:
 
-    Vector2u windowSize;
+    //Potentially render at a different size than the window.
+    Vector2u windowSize, renderSize;
 
     MovingCamera gameCam;
     std::vector<std::shared_ptr<WorldObject>> objs;
+
+
+    RenderTarget* worldRT;
+    MTexture2D worldColor, worldDepth;
+
+    Material* finalRenderMat;
+    UniformDictionary finalRenderParams;
+
+
+    void RenderWorld(RenderInfo& info);
 };

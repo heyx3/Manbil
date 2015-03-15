@@ -2,11 +2,24 @@
 
 #include <iostream>
 #include "../IO/XmlSerialization.h"
+#include "../Rendering/Primitives/DrawingQuad.h"
+#include "../Rendering/Data Nodes/DataNodes.hpp"
+
+
+const float SuperSamplingScale = 1.0f;
+const Vector2u GetWorldRenderSize(Vector2u windowSize)
+{
+    return Vector2u(Mathf::RoundToUInt((float)windowSize.x * SuperSamplingScale),
+                    Mathf::RoundToUInt((float)windowSize.y * SuperSamplingScale));
+}
 
 
 OldOnesWorld::OldOnesWorld(void)
-    : windowSize(800, 600),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings())
+    : windowSize(800, 600), renderSize(GetWorldRenderSize(windowSize)),
+      SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
+      worldRT(0), finalRenderMat(0),
+      worldColor(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_16U, false),
+      worldDepth(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
 }
 
@@ -30,6 +43,8 @@ sf::Uint32 OldOnesWorld::GetSFStyleFlags(void)
 
 void OldOnesWorld::InitializeWorld(void)
 {
+    std::string err;
+
     SFMLOpenGLWorld::InitializeWorld();
     //If there was an error initializing the game, don’t bother with
     //    the rest of initialization.
@@ -39,11 +54,65 @@ void OldOnesWorld::InitializeWorld(void)
     }
 
 
+    DrawingQuad::InitializeQuad();
+
+
+    //Set up world render target.
+    worldColor.Create();
+    worldColor.ClearData(renderSize.x, renderSize.y);
+    worldDepth.Create();
+    worldDepth.ClearData(renderSize.x, renderSize.y);
+    worldRT = new RenderTarget(PixelSizes::PS_16U_DEPTH, err);
+    if (!err.empty())
+    {
+        std::cout << "Error setting up world render target: " << err << "\n";
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+    if (!worldRT->SetColorAttachment(RenderTargetTex(&worldColor), false) ||
+        !worldRT->SetDepthAttachment(RenderTargetTex(&worldDepth), false))
+    {
+        std::cout << "Couldn't set color/depth attachments for world render target\n";
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
+
+    //Set up final render material.
+    DataNode::ClearMaterialData();
+    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
+             vIn_UV(VertexInputNode::GetInstance(), 1);
+    DataNode::Ptr vOutPos(new CombineVectorNode(vIn_Pos, 1.0f, "vOutPos"));
+    DataNode::MaterialOuts.VertexPosOutput = vOutPos;
+    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
+    DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
+    DataNode::Ptr texSampler(new TextureSample2DNode(fIn_UV, "u_tex", "texSampler"));
+    DataLine texRGB(texSampler, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
+    DataNode::Ptr finalColor(new CombineVectorNode(texRGB, 1.0f, "finalColorNode"));
+    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
+    ShaderGenerator::GeneratedMaterial genM =
+        ShaderGenerator::GenerateMaterial(finalRenderParams, BlendMode::GetOpaque());
+    if (!genM.ErrorMessage.empty())
+    {
+        std::cout << "Error generating final render mat: " << genM.ErrorMessage << "\n";
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+    finalRenderMat = genM.Mat;
+    finalRenderParams.Texture2Ds["u_tex"].Texture = worldColor.GetTextureHandle();
+
+
     //Load world objects.
     GeoSets sets;
     XmlReader reader("Content/Old Ones/WorldGeoObjects.xml");
     reader.ReadDataStructure(sets);
-    std::string err;
     for (unsigned int i = 0; i < sets.Sets.size(); ++i)
     {
         objs.push_back(std::shared_ptr<WorldObject>(new WorldObject(sets.Sets[i], err)));
@@ -75,6 +144,20 @@ void OldOnesWorld::InitializeWorld(void)
 void OldOnesWorld::OnWorldEnd(void)
 {
     objs.clear();
+
+    if (finalRenderMat != 0)
+    {
+        delete finalRenderMat;
+    }
+    if (worldRT != 0)
+    {
+        delete worldRT;
+    }
+
+    worldColor.DeleteIfValid();
+    worldDepth.DeleteIfValid();
+
+    DrawingQuad::DestroyQuad();
 }
 
 void OldOnesWorld::UpdateWorld(float elapsedSeconds)
@@ -89,18 +172,31 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
 }
 void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
 {
-    //Set up rendering state.
-    //Modify these constructors to change various aspects of how rendering is done.
-    ScreenClearer(true, true, false, Vector4f(0.4f, 0.4f, 0.4f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_NONE).EnableState();
-    BlendMode::GetOpaque().EnableMode();
-
-    glViewport(0, 0, windowSize.x, windowSize.y);
-
+    //Set up world rendering.
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
     gameCam.GetPerspectiveProjection(projM);
     RenderInfo info(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
+
+    //Draw world geometry.
+    worldRT->EnableDrawingInto();
+    RenderWorld(info);
+    worldRT->DisableDrawingInto(windowSize.x, windowSize.y);
+
+    //Render the final image.
+    ScreenClearer(true, true, false, Vector4f(0.4f, 0.4f, 0.4f, 0.0f)).ClearScreen();
+    RenderingState(RenderingState::C_NONE).EnableState();
+    Matrix4f identity;
+    Camera finalRendCam;
+    info = RenderInfo(GetTotalElapsedSeconds(), &finalRendCam, &identity, &identity);
+    DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
+}
+void OldOnesWorld::RenderWorld(RenderInfo& info)
+{
+    ScreenClearer(true, true, false, Vector4f(0.4f, 0.4f, 0.4f, 0.0f)).ClearScreen();
+    RenderingState(RenderingState::C_NONE).EnableState();
+
+    glViewport(0, 0, renderSize.x, renderSize.y);
 
     for (unsigned int i = 0; i < objs.size(); ++i)
     {
@@ -119,6 +215,11 @@ void OldOnesWorld::OnWindowResized(unsigned int newWidth, unsigned int newHeight
     windowSize.x = newWidth;
     windowSize.y = newHeight;
 
+    renderSize = GetWorldRenderSize(windowSize);
+
     gameCam.PerspectiveInfo.Width = newWidth;
     gameCam.PerspectiveInfo.Height = newHeight;
+
+    worldColor.ClearData(renderSize.x, renderSize.y);
+    worldRT->UpdateSize();
 }
