@@ -38,13 +38,13 @@
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="AsphaltD.jpg"/>
                     <dataStructure name="Diffuse Tex Scale">
-                        <float name="x" value="1.0"/>
-                        <float name="y" value="1.0"/>
+                        <float name="x" value="0.25"/>
+                        <float name="y" value="0.25"/>
                     </dataStructure>
                     <string name="Normal Tex File" value="AsphaltN.jpg"/>
                     <dataStructure name="Normal Tex Scale">
-                        <float name="x" value="1.0"/>
-                        <float name="y" value="1.0"/>
+                        <float name="x" value="0.25"/>
+                        <float name="y" value="0.25"/>
                     </dataStructure>
                 </dataStructure>
             </element>
@@ -89,8 +89,8 @@
             <element index="5">
                 <dataStructure name="5">
                     <string name="Mesh File" value="Building3s.obj"/>
-                    <float name="Specular" value="0.6" />
-                    <float name="Specular Intensity" value="128.0" />
+                    <float name="Specular" value="0.05" />
+                    <float name="Specular Intensity" value="4.0" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="Building3D.jpg"/>
@@ -114,8 +114,8 @@
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="BuildingLargeD.jpg"/>
                     <dataStructure name="Diffuse Tex Scale">
-                        <float name="x" value="1.000000"/>
-                        <float name="y" value="1.000000"/>
+                        <float name="x" value="5.0"/>
+                        <float name="y" value="5.0"/>
                     </dataStructure>
                 </dataStructure>
             </element>
