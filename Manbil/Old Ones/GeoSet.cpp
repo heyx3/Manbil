@@ -53,9 +53,8 @@ void GeoSets::ReadData(DataReader* reader)
 {
     reader->ReadCollection([](void* collection, unsigned int index, void* pData)
                            {
-                               GeoSet* setColl = ((std::vector<GeoSet>*)collection)->data();
-                               GeoSet& set = setColl[index];
-                               set = GeoSet();
+                               std::vector<GeoSet>* setColl = (std::vector<GeoSet>*)collection;
+                               setColl->push_back(GeoSet());
                            },
                            [](DataReader* reader, void* collection, unsigned int index, void* pData)
                            {

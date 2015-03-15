@@ -7,15 +7,20 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-const Vector3f LightDir = Vector3f(1.0f, 1.0f, -1.0f).Normalized();
+const Vector3f LightDir = Vector3f(-1.0f, 1.0f, -1.0f).Normalized();
 const float AmbientLight = 0.5f,
             DiffuseLight = 1.0f - AmbientLight;
+
+Vector3f RemapMayaVert(const aiVector3D& in)
+{
+    return Vector3f(in.x, in.z, in.y);
+}
 
 
 WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
     : Mat(0),
-      DiffTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true),
-      NormalTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PS_8U, true)
+      DiffTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true),
+      NormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true)
 {
     MyMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     outError = LoadMesh(geoInfo.MeshFile, !geoInfo.UseWorldPosUV,
@@ -39,7 +44,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
     {
         return;
     }
-    Params.Texture2Ds["u_diffuseTex"].Location = DiffTex.GetTextureHandle();
+    Params.Texture2Ds["u_diffuseTex"].Texture = DiffTex.GetTextureHandle();
     if (geoInfo.UseNormalMap)
     {
         NormalTex.Create();
@@ -48,7 +53,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
         {
             return;
         }
-        Params.Texture2Ds["u_normalTex"].Location = NormalTex.GetTextureHandle();
+        Params.Texture2Ds["u_normalTex"].Texture = NormalTex.GetTextureHandle();
     }
 }
 WorldObject::~WorldObject(void)
@@ -73,6 +78,11 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
     unsigned int flags = aiProcessPreset_TargetRealtime_MaxQuality;
     const aiScene* scene = importer.ReadFile("Content/Old Ones/Meshes/" + meshFile, flags);
 
+    std::string err = importer.GetErrorString();
+    if (!err.empty())
+    {
+        return "Error reading mesh file '" + meshFile + "': " + err;
+    }
     //Make sure the mesh was loaded properly.
     if (scene == 0)
     {
@@ -80,32 +90,38 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
     }
     if (scene->mNumMeshes != 1)
     {
-        return "There are " + std::to_string(scene->mNumMeshes) +
-               " meshes in the file '" + meshFile + "'!";
+        std::string nMeshes = std::to_string(scene->mNumMeshes);
+        importer.FreeScene();
+        return "There are " + nMeshes + " meshes in the file '" + meshFile + "'!";
     }
 
     //Make sure the mesh is defined properly.
     aiMesh* mesh = scene->mMeshes[0];
     if (!mesh->HasPositions())
     {
+        importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have a 'position' attribute!";
     }
     if (getUVs && !mesh->HasTextureCoords(0))
     {
+        importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have a 'UV' attribute!";
     }
     if (!mesh->HasNormals())
     {
+        importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have a 'normal' attribute!";
     }
     if (!mesh->HasFaces())
     {
+        importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have triangles!";
     }
     if (hasNormalMaps)
     {
         if (!mesh->HasTangentsAndBitangents())
         {
+            importer.FreeScene();
             return "Mesh '" + meshFile + "' doesn't have tangents/bitangents!";
         }
     }
@@ -124,10 +140,10 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
             verts.resize(mesh->mNumVertices);
             for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
             {
-                verts[i].pos = *(Vector3f*)(&mesh->mVertices[i].x);
-                verts[i].normal = *(Vector3f*)(&mesh->mNormals[i].x);
-                verts[i].tangent = *(Vector3f*)(&mesh->mTangents[i].x);
-                verts[i].bitangent = *(Vector3f*)(&mesh->mBitangents[i].x);
+                verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
+                verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
+                verts[i].tangent = RemapMayaVert(mesh->mTangents[i]);
+                verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
             outDat.SetVertexData(verts, MeshData::BUF_STATIC,
@@ -148,8 +164,8 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
             verts.resize(mesh->mNumVertices);
             for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
             {
-                verts[i].pos = *(Vector3f*)(&mesh->mVertices[i].x);
-                verts[i].normal = *(Vector3f*)(&mesh->mNormals[i].x);
+                verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
+                verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
             outDat.SetVertexData(verts, MeshData::BUF_STATIC,
@@ -170,10 +186,10 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
             verts.resize(mesh->mNumVertices);
             for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
             {
-                verts[i].pos = *(Vector3f*)(&mesh->mVertices[i].x);
-                verts[i].normal = *(Vector3f*)(&mesh->mNormals[i].x);
-                verts[i].tangent = *(Vector3f*)(&mesh->mTangents[i].x);
-                verts[i].bitangent = *(Vector3f*)(&mesh->mBitangents[i].x);
+                verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
+                verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
+                verts[i].tangent = RemapMayaVert(mesh->mTangents[i]);
+                verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
             }
             outDat.SetVertexData(verts, MeshData::BUF_STATIC,
                                  RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
@@ -191,8 +207,8 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
             verts.resize(mesh->mNumVertices);
             for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
             {
-                verts[i].pos = *(Vector3f*)(&mesh->mVertices[i].x);
-                verts[i].normal = *(Vector3f*)(&mesh->mNormals[i].x);
+                verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
+                verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
             }
             outDat.SetVertexData(verts, MeshData::BUF_STATIC,
                                  RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
@@ -207,8 +223,11 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
         aiFace& fce = mesh->mFaces[i];
         if (fce.mNumIndices != 3)
         {
+            std::string nIndices = std::to_string(fce.mNumIndices);
+            importer.FreeScene();
+
             return "Mesh '" + meshFile + "'s face #" + std::to_string(i) +
-                   " has " + std::to_string(fce.mNumIndices) + " vertices";
+                   " has " + nIndices + " vertices";
         }
         
         indices.push_back(fce.mIndices[0]);
@@ -217,6 +236,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
     }
     outDat.SetIndexData(indices, MeshData::BUF_STATIC);
 
+    importer.FreeScene();
     return "";
 }
 
@@ -333,6 +353,7 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                                                      TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
                                             brightness, "finalRGB"));
     DataNode::Ptr finalColor(new CombineVectorNode(finalRGB, 1.0f, "finalColor"));
+
     DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
 
     return ShaderGenerator::GenerateMaterial(Params, BlendMode::GetOpaque());
