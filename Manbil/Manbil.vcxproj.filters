@@ -447,6 +447,9 @@
     <ClCompile Include="Sample Worlds\WaterWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.cpp">
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -987,6 +990,9 @@
     </ClInclude>
     <ClInclude Include="Sample Worlds\WaterWorld.h">
       <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.h">
+      <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
