@@ -17,7 +17,7 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 600), renderSize(GetWorldRenderSize(windowSize)),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
-      worldRT(0), finalRenderMat(0),
+      worldRT(0), finalRenderMat(0), ppEffects(0),
       worldColor(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_16U, false),
       worldDepth(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
@@ -56,6 +56,16 @@ void OldOnesWorld::InitializeWorld(void)
 
     DrawingQuad::InitializeQuad();
 
+    ppEffects = new PostProcessing(windowSize, err);
+    if (!err.empty())
+    {
+        std::cout << "Error creating post-process stuff: " << err;
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
 
     //Set up world render target.
     worldColor.Create();
@@ -72,7 +82,7 @@ void OldOnesWorld::InitializeWorld(void)
         return;
     }
     if (!worldRT->SetColorAttachment(RenderTargetTex(&worldColor), false) ||
-        !worldRT->SetDepthAttachment(RenderTargetTex(&worldDepth), false))
+        !worldRT->SetDepthAttachment(RenderTargetTex(&worldDepth), true))
     {
         std::cout << "Couldn't set color/depth attachments for world render target\n";
         char dummy;
@@ -87,7 +97,7 @@ void OldOnesWorld::InitializeWorld(void)
     DataNode::VertexIns = DrawingQuad::GetVertexInputData();
     DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1);
-    DataNode::Ptr vOutPos(new CombineVectorNode(vIn_Pos, 1.0f, "vOutPos"));
+    DataNode::Ptr vOutPos(new CombineVectorNode(vIn_Pos, 1.0f, "vOut_Pos"));
     DataNode::MaterialOuts.VertexPosOutput = vOutPos;
     DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
     DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
@@ -115,6 +125,8 @@ void OldOnesWorld::InitializeWorld(void)
     reader.ReadDataStructure(sets);
     for (unsigned int i = 0; i < sets.Sets.size(); ++i)
     {
+        std::cout << "Loading '" << sets.Sets[i].MeshFile << "'...\n";
+
         objs.push_back(std::shared_ptr<WorldObject>(new WorldObject(sets.Sets[i], err)));
         if (!err.empty())
         {
@@ -138,7 +150,7 @@ void OldOnesWorld::InitializeWorld(void)
     gameCam.PerspectiveInfo.Width = windowSize.x;
     gameCam.PerspectiveInfo.Height = windowSize.y;
     gameCam.PerspectiveInfo.zNear = 0.1f;
-    gameCam.PerspectiveInfo.zFar = 1000.0f;
+    gameCam.PerspectiveInfo.zFar = 700.0f;
     gameCam.Window = GetWindow();
 }
 void OldOnesWorld::OnWorldEnd(void)
@@ -152,6 +164,10 @@ void OldOnesWorld::OnWorldEnd(void)
     if (worldRT != 0)
     {
         delete worldRT;
+    }
+    if (ppEffects != 0)
+    {
+        delete ppEffects;
     }
 
     worldColor.DeleteIfValid();
@@ -183,19 +199,27 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     RenderWorld(info);
     worldRT->DisableDrawingInto(windowSize.x, windowSize.y);
 
+    //Render post-process effects.
+    RenderObjHandle finalCol = ppEffects->Render(GetTotalElapsedSeconds(),
+                                                 gameCam.PerspectiveInfo,
+                                                 worldColor.GetTextureHandle(),
+                                                 worldDepth.GetTextureHandle());
+
     //Render the final image.
-    ScreenClearer(true, true, false, Vector4f(0.4f, 0.4f, 0.4f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_NONE).EnableState();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    ScreenClearer(true, true, false, Vector4f(1.0f, 0.0f, 1.0f, 0.0f)).ClearScreen();
+    RenderingState(RenderingState::C_NONE, false, false).EnableState();
+    glViewport(0, 0, windowSize.x, windowSize.y);
     Matrix4f identity;
     Camera finalRendCam;
     info = RenderInfo(GetTotalElapsedSeconds(), &finalRendCam, &identity, &identity);
+    finalRenderParams.Texture2Ds["u_tex"].Texture = finalCol;
     DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
 }
 void OldOnesWorld::RenderWorld(RenderInfo& info)
 {
-    ScreenClearer(true, true, false, Vector4f(0.4f, 0.4f, 0.4f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
-
+    ScreenClearer(true, true, false, Vector4f(0.65f, 0.65f, 0.65f, 0.0f)).ClearScreen();
     glViewport(0, 0, renderSize.x, renderSize.y);
 
     for (unsigned int i = 0; i < objs.size(); ++i)
@@ -222,4 +246,6 @@ void OldOnesWorld::OnWindowResized(unsigned int newWidth, unsigned int newHeight
 
     worldColor.ClearData(renderSize.x, renderSize.y);
     worldRT->UpdateSize();
+
+    ppEffects->Resize(windowSize);
 }

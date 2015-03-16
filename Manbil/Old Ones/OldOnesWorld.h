@@ -6,6 +6,7 @@
 #include "../Input/MovingCamera.h"
 
 #include "WorldObject.h"
+#include "PostProcessing.h"
 
 
 class OldOnesWorld : public SFMLOpenGLWorld
@@ -36,10 +37,10 @@ private:
     MovingCamera gameCam;
     std::vector<std::shared_ptr<WorldObject>> objs;
 
+    PostProcessing* ppEffects;
 
     RenderTarget* worldRT;
     MTexture2D worldColor, worldDepth;
-
     Material* finalRenderMat;
     UniformDictionary finalRenderParams;
 

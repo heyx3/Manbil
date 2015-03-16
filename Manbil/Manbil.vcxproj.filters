@@ -459,6 +459,9 @@
     <ClCompile Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.cpp">
       <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\PostProcessing.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1011,6 +1014,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.h">
       <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\PostProcessing.h">
+      <Filter>Old Ones</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
