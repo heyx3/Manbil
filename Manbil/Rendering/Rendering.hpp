@@ -9,3 +9,4 @@
 #include "Textures/MTexture2D.h"
 #include "Textures/MTexture3D.h"
 #include "Textures/MTextureCubemap.h"
+#include "Textures/RenderTarget.h"

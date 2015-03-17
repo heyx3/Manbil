@@ -20,6 +20,12 @@
 class MTextureCubemap
 {
 public:
+    
+    //Enables the ability to smoothly blend the seams between texture faces.
+    static void EnableSmoothSeams(void) { glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); }
+    //Disables the ability to smoothly blend the seams between texture faces.
+    static void DisableSmoothSeams(void) { glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS); }
+
 
     //Constructors/destructors.
 
