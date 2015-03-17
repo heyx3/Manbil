@@ -6,7 +6,7 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-const float SuperSamplingScale = 1.0f;
+const float SuperSamplingScale = 2.0f;
 const Vector2u GetWorldRenderSize(Vector2u windowSize)
 {
     return Vector2u(Mathf::RoundToUInt((float)windowSize.x * SuperSamplingScale),
@@ -18,8 +18,8 @@ OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 600), renderSize(GetWorldRenderSize(windowSize)),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
       worldRT(0), finalRenderMat(0), ppEffects(0),
-      worldColor(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_16U, false),
-      worldDepth(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
+      worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
+      worldDepth(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
 }
 
