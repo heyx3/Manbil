@@ -7,6 +7,7 @@
 
 #include "WorldObject.h"
 #include "PostProcessing.h"
+#include "OldOnesSkybox.h"
 
 
 class OldOnesWorld : public SFMLOpenGLWorld
@@ -36,7 +37,8 @@ private:
 
     MovingCamera gameCam;
     std::vector<std::shared_ptr<WorldObject>> objs;
-
+    
+    OldOnesSkybox* skybox;
     PostProcessing* ppEffects;
 
     RenderTarget* worldRT;

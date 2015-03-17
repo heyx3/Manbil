@@ -12,7 +12,7 @@ PostProcessing::PostProcessing(Vector2u windowSize, std::string& err)
       col1(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
       col2(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false)
 {
-    const int nEffectMaterials = 1;
+    const int nEffectMaterials = 0;
 
     for (unsigned int i = 0; i < nEffectMaterials; ++i)
     {

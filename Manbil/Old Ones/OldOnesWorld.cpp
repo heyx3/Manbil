@@ -66,6 +66,16 @@ void OldOnesWorld::InitializeWorld(void)
         return;
     }
 
+    skybox = new OldOnesSkybox(err);
+    if (!err.empty())
+    {
+        std::cout << "Error creating skybox: " << err;
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
 
     //Set up world render target.
     worldColor.Create();
@@ -150,7 +160,7 @@ void OldOnesWorld::InitializeWorld(void)
     gameCam.PerspectiveInfo.Width = windowSize.x;
     gameCam.PerspectiveInfo.Height = windowSize.y;
     gameCam.PerspectiveInfo.zNear = 0.1f;
-    gameCam.PerspectiveInfo.zFar = 700.0f;
+    gameCam.PerspectiveInfo.zFar = 5000.0f;
     gameCam.Window = GetWindow();
 }
 void OldOnesWorld::OnWorldEnd(void)
@@ -226,6 +236,7 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
     {
         objs[i]->Render(info);
     }
+    skybox->Render(info);
 }
 
 void OldOnesWorld::OnInitializeError(std::string errorMsg)
