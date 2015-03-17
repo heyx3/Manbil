@@ -4,14 +4,20 @@
             <element index="0">
                 <dataStructure name="0">
                     <string name="Mesh File" value="Sidewalks.obj"/>
-                    <float name="Specular" value="0.05" />
-                    <float name="Specular Intensity" value="2.0" />
+                    <float name="Specular" value="0.1" />
+                    <float name="Specular Intensity" value="32.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="true"/>
-                    <bool name="Uses normal map?" value="false"/>
+                    <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="SidewalkD.jpg"/>
                     <dataStructure name="Diffuse Tex Scale">
                         <float name="x" value="0.250000"/>
                         <float name="y" value="0.250000"/>
+                    </dataStructure>
+                    <string name="Normal Tex File" value="SidewalkN.jpg"/>
+                    <dataStructure name="Normal Tex Scale">
+                        <float name="x" value="0.05"/>
+                        <float name="y" value="0.05"/>
                     </dataStructure>
                 </dataStructure>
             </element>
@@ -20,6 +26,7 @@
                     <string name="Mesh File" value="Grass.obj"/>
                     <float name="Specular" value="0.01" />
                     <float name="Specular Intensity" value="8.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="true"/>
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="GrassD.png"/>
@@ -32,8 +39,9 @@
             <element index="2">
                 <dataStructure name="2">
                     <string name="Mesh File" value="Asphalt.obj"/>
-                    <float name="Specular" value="0.05" />
-                    <float name="Specular Intensity" value="2.0" />
+                    <float name="Specular" value="0.1" />
+                    <float name="Specular Intensity" value="32.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="true"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="AsphaltD.jpg"/>
@@ -43,8 +51,8 @@
                     </dataStructure>
                     <string name="Normal Tex File" value="AsphaltN.jpg"/>
                     <dataStructure name="Normal Tex Scale">
-                        <float name="x" value="0.25"/>
-                        <float name="y" value="0.25"/>
+                        <float name="x" value="0.05"/>
+                        <float name="y" value="0.05"/>
                     </dataStructure>
                 </dataStructure>
             </element>
@@ -53,6 +61,7 @@
                     <string name="Mesh File" value="Building1s.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="Building1D.jpg"/>
@@ -72,6 +81,7 @@
                     <string name="Mesh File" value="Building2s.obj"/>
                     <float name="Specular" value="0.6" />
                     <float name="Specular Intensity" value="128.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="Building2D.jpg"/>
@@ -91,6 +101,7 @@
                     <string name="Mesh File" value="Building3s.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="4.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="Building3D.jpg"/>
@@ -110,6 +121,7 @@
                     <string name="Mesh File" value="BuildingLarge.obj"/>
                     <float name="Specular" value="1.0" />
                     <float name="Specular Intensity" value="16.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="BuildingLargeD.jpg"/>
@@ -124,6 +136,7 @@
                     <string name="Mesh File" value="SmallBuildings.obj"/>
                     <float name="Specular" value="0.05" />
                     <float name="Specular Intensity" value="2.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="BuildingSmallD.png"/>
@@ -143,6 +156,7 @@
                     <string name="Mesh File" value="Benches.obj"/>
                     <float name="Specular" value="0.3" />
                     <float name="Specular Intensity" value="8.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="true"/>
                     <string name="Diffuse Tex File" value="BenchesD.jpg"/>
@@ -162,6 +176,7 @@
                     <string name="Mesh File" value="TrashCans.obj"/>
                     <float name="Specular" value="0.9" />
                     <float name="Specular Intensity" value="128.0" />
+		    <bool name="Is transparent?" value="false" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="TrashCanD.png"/>
@@ -176,6 +191,7 @@
                     <string name="Mesh File" value="RoadLines.obj"/>
                     <float name="Specular" value="0.0" />
                     <float name="Specular Intensity" value="128.0" />
+		    <bool name="Is transparent?" value="true" />
                     <bool name="Use world position as UV?" value="false"/>
                     <bool name="Uses normal map?" value="false"/>
                     <string name="Diffuse Tex File" value="Road Line.png"/>

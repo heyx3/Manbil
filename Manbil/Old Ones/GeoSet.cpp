@@ -9,6 +9,7 @@ void GeoSet::WriteData(DataWriter* writer) const
     writer->WriteFloat(Specular, "Specular");
     writer->WriteFloat(SpecularIntensity, "Specular Intensity");
 
+    writer->WriteBool(IsTransparent, "Is transparent?");
     writer->WriteBool(UseWorldPosUV, "Use world position as UV?");
     writer->WriteBool(UseNormalMap, "Uses normal map?");
 
@@ -28,6 +29,7 @@ void GeoSet::ReadData(DataReader* reader)
     reader->ReadFloat(Specular);
     reader->ReadFloat(SpecularIntensity);
 
+    reader->ReadBool(IsTransparent);
     reader->ReadBool(UseWorldPosUV);
     reader->ReadBool(UseNormalMap);
 

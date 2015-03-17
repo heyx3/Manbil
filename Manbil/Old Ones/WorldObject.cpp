@@ -7,9 +7,10 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-const Vector3f LightDir = Vector3f(-1.0f, 1.0f, -1.0f).Normalized();
-const float AmbientLight = 0.5f,
-            DiffuseLight = 1.0f - AmbientLight;
+const Vector3f WorldObject::LightDir = Vector3f(-1.0f, 1.0f, -1.0f).Normalized();
+const float WorldObject::AmbientLight = 0.5f,
+            WorldObject::DiffuseLight = 1.0f - AmbientLight;
+
 
 Vector3f RemapMayaVert(const aiVector3D& in)
 {
@@ -43,6 +44,14 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
                                  outError))
     {
         return;
+    }
+    //Add anisotropic filtering, which isn't built-in to the texture system yet.
+    if (glewIsExtensionSupported("GL_EXT_texture_filter_anisotropic"))
+    {
+        DiffTex.Bind();
+        GLfloat largest;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
     }
     Params.Texture2Ds["u_diffuseTex"].Texture = DiffTex.GetTextureHandle();
     if (geoInfo.UseNormalMap)
@@ -352,17 +361,17 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                                               "brightnessCalc", AmbientLight, DiffuseLight,
                                               geoInfo.Specular, geoInfo.SpecularIntensity));
 
-    DataNode::Ptr finalRGB(new MultiplyNode(DataLine(diffuseSampler,
-                                                     TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
-                                            brightness, "finalRGB"));
-    if (false)
-    {
-        finalRGB.reset();
-        finalRGB = DataNode::Ptr(new RemapNode(fIn_Bitangent, -1.0f, 1.0f, 0.0f, 1.0f));
-    }
-    DataNode::Ptr finalColor(new CombineVectorNode(finalRGB, 1.0f, "finalColor"));
+    DataNode::Ptr finalColor(new MultiplyNode(DataLine(diffuseSampler,
+                                                       TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
+                                              brightness,
+                                              "finalColor"));
 
     DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
 
-    return ShaderGenerator::GenerateMaterial(Params, BlendMode::GetOpaque());
+
+    //Use either transparent or opaque blending.
+    return ShaderGenerator::GenerateMaterial(Params,
+                                             geoInfo.IsTransparent ?
+                                                BlendMode::GetTransparent() :
+                                                BlendMode::GetOpaque());
 }

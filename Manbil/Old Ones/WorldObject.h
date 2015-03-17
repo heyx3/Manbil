@@ -6,14 +6,16 @@
 
 
 
-extern const Vector3f LightDir;
-extern const float AmbientLight, DiffuseLight;
 
 
 //A part of the world geometry.
 class WorldObject
 {
 public:
+
+    static const Vector3f LightDir;
+    static const float AmbientLight, DiffuseLight;
+
 
     Mesh MyMesh;
 

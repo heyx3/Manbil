@@ -5,8 +5,8 @@
 #include "../Rendering/Textures/MTexture2D.h"
 
 
-//A set of world geometry that uses the same material/textures.
-//Either uses the mesh's UVs or the horizontal world-space vertex positions as UVs.
+//A mesh of world geometry that uses a material, diffuse texture, and possibly a normal map texture.
+//Either uses the mesh's UVs, or uses the horizontal world-space position as UVs.
 struct GeoSet : public ISerializable
 {
 public:
@@ -18,7 +18,7 @@ public:
 
     float Specular, SpecularIntensity;
 
-    bool UseNormalMap, UseWorldPosUV;
+    bool IsTransparent, UseNormalMap, UseWorldPosUV;
 
 
     GeoSet(void) { }
