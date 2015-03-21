@@ -11,7 +11,7 @@
 //For example, a certain mesh may have vertices with three attributes: position, UV, and normal.
 //The position and normal are size 3 (x, y, and z), while the UV is size 2 (x and y).
 //It is assumed that the attributes are ordered in the same way they were given to this class.
-//TODO: Add the ability for integer vertex attributes (needed for skinned meshes). Either: 1) give each attribute some kind of "Type" enum, or 2) list float attributes and int attributes separately.
+//TODO: Add the ability for integer vertex attributes (needed for skeletal meshes). Either: 1) give each attribute some kind of "Type" enum, or 2) list float attributes and int attributes separately.
 class RenderIOAttributes
 {
 public:
