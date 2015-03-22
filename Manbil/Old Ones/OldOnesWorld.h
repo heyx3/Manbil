@@ -7,6 +7,7 @@
 
 #include "WorldObject.h"
 #include "PostProcessing.h"
+#include "FractalRenderer.h"
 #include "OldOnesSkybox.h"
 
 
@@ -32,17 +33,22 @@ protected:
 
 private:
 
-    //Potentially render at a different size than the window.
+    //Potentially render the world at a different size than the window.
+    //Higher sizes results in a very high-quality Anti-Aliasing (known as Supersampling).
+    //Lower sizes results in better performance (at the cost of quality).
     Vector2u windowSize, renderSize;
 
     MovingCamera gameCam;
+
     std::vector<std::shared_ptr<WorldObject>> objs;
     
     OldOnesSkybox* skybox;
+    FractalRenderer* oldOne;
     PostProcessing* ppEffects;
 
     RenderTarget* worldRT;
     MTexture2D worldColor, worldDepth;
+
     Material* finalRenderMat;
     UniformDictionary finalRenderParams;
 

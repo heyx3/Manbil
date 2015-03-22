@@ -465,6 +465,9 @@
     <ClCompile Include="Old Ones\OldOnesSkybox.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\FractalRenderer.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1024,6 +1027,9 @@
     <ClInclude Include="Old Ones\OldOnesSkybox.h">
       <Filter>Old Ones</Filter>
     </ClInclude>
+    <ClInclude Include="Old Ones\FractalRenderer.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1177,6 +1183,9 @@
     </Text>
     <Text Include="Perlin.txt">
       <Filter>Toys\Two Triangles\Shaders</Filter>
+    </Text>
+    <Text Include="..\Dependencies\Include In Build\Universal\Content\Old Ones\Old One Frag Shader Body.txt">
+      <Filter>Old Ones</Filter>
     </Text>
   </ItemGroup>
 </Project>

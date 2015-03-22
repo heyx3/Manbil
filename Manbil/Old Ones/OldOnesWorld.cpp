@@ -6,7 +6,7 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-const float SuperSamplingScale = 2.0f;
+const float SuperSamplingScale = 1.0f;
 const Vector2u GetWorldRenderSize(Vector2u windowSize)
 {
     return Vector2u(Mathf::RoundToUInt((float)windowSize.x * SuperSamplingScale),
@@ -17,7 +17,7 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 600), renderSize(GetWorldRenderSize(windowSize)),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
-      worldRT(0), finalRenderMat(0), ppEffects(0),
+      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0),
       worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
       worldDepth(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
@@ -70,6 +70,16 @@ void OldOnesWorld::InitializeWorld(void)
     if (!err.empty())
     {
         std::cout << "Error creating skybox: " << err;
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
+    oldOne = new FractalRenderer(err);
+    if (!err.empty())
+    {
+        std::cout << "Error creating old one fractal renderer: " << err;
         char dummy;
         std::cin >> dummy;
         EndWorld();
@@ -179,6 +189,14 @@ void OldOnesWorld::OnWorldEnd(void)
     {
         delete ppEffects;
     }
+    if (skybox != 0)
+    {
+        delete skybox;
+    }
+    if (oldOne != 0)
+    {
+        delete oldOne;
+    }
 
     worldColor.DeleteIfValid();
     worldDepth.DeleteIfValid();
@@ -188,12 +206,30 @@ void OldOnesWorld::OnWorldEnd(void)
 
 void OldOnesWorld::UpdateWorld(float elapsedSeconds)
 {
-    gameCam.Update(elapsedSeconds);
+    if (IsWindowInFocus())
+    {
+        gameCam.Update(elapsedSeconds);
+    }
+
+    oldOne->Update(elapsedSeconds);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {
         EndWorld();
         return;
+    }
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    {
+        std::string err;
+        oldOne->RegenerateMaterial(err);
+        while (!err.empty())
+        {
+            std::cout << "Error generating fragment shader; must be fixed before continuing: " << err <<
+                         "\n\nEnter anything to generate it again...\n";
+            char dummy;
+            std::cin >> dummy;
+            oldOne->RegenerateMaterial(err);
+        }
     }
 }
 void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
@@ -236,6 +272,7 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
     {
         objs[i]->Render(info);
     }
+    oldOne->Render(info);
     skybox->Render(info);
 }
 
