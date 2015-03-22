@@ -7,7 +7,7 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-const Vector3f WorldObject::LightDir = Vector3f(-1.0f, 1.0f, -1.0f).Normalized();
+const Vector3f WorldObject::LightDir = Vector3f(-2.0f, 1.0f, -5.0f).Normalized();
 const float WorldObject::AmbientLight = 0.5f,
             WorldObject::DiffuseLight = 1.0f - AmbientLight;
 

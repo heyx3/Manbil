@@ -76,6 +76,5 @@ OOS::~OldOnesSkybox(void)
 
 void OOS::Render(RenderInfo& worldRendInfo)
 {
-    RenderingState(RenderingState::C_NONE).EnableState();
     cubeMat->Render(worldRendInfo, &cubeMesh, cubeParams);
 }
