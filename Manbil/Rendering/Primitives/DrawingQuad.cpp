@@ -75,8 +75,5 @@ void DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params
 {
     assert(mat.GetExpectedVertexData() == VertexPosUV::GetVertexAttributes());
 
-    Vector3f scale = mesh.Transform.GetScale();
-    Vector2f scale2d(scale.x, scale.y);
-
     mat.Render(info, &mesh, params);
 }

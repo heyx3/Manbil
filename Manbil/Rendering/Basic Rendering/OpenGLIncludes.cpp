@@ -3,6 +3,7 @@
 #include <assert.h>
 
 
+RenderObjHandle INVALID_RENDER_OBJ_HANDLE = 0;
 UniformLocation INVALID_UNIFORM_LOCATION = 0xFFFFFFFF;
 
 
@@ -112,7 +113,6 @@ GLenum TextureTypeToGLEnum(TextureTypes t)
 {
 	switch (t)
 	{
-		case TT_1D: return GL_TEXTURE_1D;
 		case TT_2D: return GL_TEXTURE_2D;
 		case TT_3D: return GL_TEXTURE_3D;
 		case TT_CUBE: return GL_TEXTURE_CUBE_MAP;

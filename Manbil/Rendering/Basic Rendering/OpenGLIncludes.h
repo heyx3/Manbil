@@ -14,6 +14,7 @@ typedef GLuint RenderObjHandle;
 //An OpenGL pointer to the location of a uniform in a shader.
 typedef GLint UniformLocation;
 
+extern RenderObjHandle INVALID_RENDER_OBJ_HANDLE;
 extern UniformLocation INVALID_UNIFORM_LOCATION;
 
 
@@ -44,7 +45,6 @@ unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t);
 
 enum TextureTypes
 {
-	TT_1D,
 	TT_2D,
 	TT_3D,
 	TT_CUBE,

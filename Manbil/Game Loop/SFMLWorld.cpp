@@ -35,6 +35,7 @@ void SFMLWorld::RunWorld(void)
 	sf::Event windowEvent;
 
 	InitializeWorld();
+    windowHasFocus = true;
 
 	cl.restart();
 
@@ -52,6 +53,16 @@ void SFMLWorld::RunWorld(void)
 			{
 				OnWindowResized(windowEvent.size.width, windowEvent.size.height);
 			}
+            else if (windowEvent.type == sf::Event::LostFocus)
+            {
+                windowHasFocus = false;
+                OnWindowLostFocus();
+            }
+            else if (windowEvent.type == sf::Event::GainedFocus)
+            {
+                windowHasFocus = true;
+                OnWindowGainedFocus();
+            }
 			else
 			{
 				OnOtherWindowEvent(windowEvent);

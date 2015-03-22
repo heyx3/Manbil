@@ -41,7 +41,7 @@ const unsigned int INPUT_AddVoxel = 753321,
                    INPUT_UpFov = 112255,
                    INPUT_DownFov = 61;
 bool capMouse = true;
-float fov = 60.0f;
+float fov = 75.0f;
 
 
 VoxelWorld::VoxelWorld(void)
