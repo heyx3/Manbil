@@ -21,6 +21,8 @@ public:
 
     const sf::ContextSettings& GetContextSettings(void) const { return contextSettings; }
 
+    bool IsWindowInFocus(void) const { return windowHasFocus; }
+
 	bool IsGameOver(void) const { return worldOver; }
 	
 	void EndWorld(void) { worldOver = true; }
@@ -64,6 +66,8 @@ protected:
 
 	virtual void OnCloseWindow(void) { worldOver = true; }
 	virtual void OnWindowResized(unsigned int newWidth, unsigned int newHeight) { }
+    virtual void OnWindowLostFocus(void) { }
+    virtual void OnWindowGainedFocus(void) { }
 	virtual void OnOtherWindowEvent(sf::Event& windowEvent) { }
 
 	virtual void OnWorldEnd(void) { }
@@ -80,4 +84,5 @@ private:
     sf::ContextSettings contextSettings;
 
 	bool worldOver;
+    bool windowHasFocus;
 };
