@@ -77,7 +77,7 @@ public:
     }
 
 
-    ThisType operator+(const ThisType& other)
+    ThisType operator+(const ThisType& other) const
     {
         assert(size == other.size);
 
@@ -86,7 +86,7 @@ public:
             retVal.values[i] += values[i];
         return retVal;
     }
-    ThisType operator-(const ThisType& other)
+    ThisType operator-(const ThisType& other) const
     {
         assert(size == other.size);
 
@@ -95,7 +95,7 @@ public:
             retVal.values[i] -= other.values[i];
         return retVal;
     }
-    ThisType operator*(const ThisType& other)
+    ThisType operator*(const ThisType& other) const
     {
         assert(size == other.size);
 
@@ -104,7 +104,7 @@ public:
             retVal.values[i] *= values[i];
         return retVal;
     }
-    ThisType operator/(const ThisType& other)
+    ThisType operator/(const ThisType& other) const
     {
         assert(size == other.size);
 
