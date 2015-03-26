@@ -161,15 +161,6 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
                     std::to_string(matData.VertexPosOutput.GetSize());
     }
     DataNode::CurrentShader = SH_FRAGMENT;
-    for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
-    {
-        if (matData.FragmentOutputs[i].Value.GetSize() != 4)
-        {
-            return "Fragment output index " + std::to_string(i) +
-                        " must be size 4, but it is size " +
-                        std::to_string(matData.FragmentOutputs[i].Value.GetSize());
-        }
-    }
 
     //Now make sure all shader outputs have valid inputs.
     std::string outputInfo = "";
@@ -323,7 +314,8 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
     std::string fragOutput;
     for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
     {
-        fragOutput += "out vec4 " + matData.FragmentOutputs[fragOut].Name + ";\n";
+        fragOutput += "out " + VectorF::GetGLSLType(matData.FragmentOutputs[fragOut].Value.GetSize()) +
+                      " " + matData.FragmentOutputs[fragOut].Name + ";\n";
     }
 
 
