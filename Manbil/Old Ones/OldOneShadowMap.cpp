@@ -3,62 +3,12 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
-ShaderGenerator::GeneratedMaterial GenMatUVNormal(void)
+
+ShaderGenerator::GeneratedMaterial GenMat(bool useUV, bool useNormalMapping)
 {
     DataNode::ClearMaterialData();
 
-    DataNode::VertexIns = WorldObject::GetVertexInputs(true, true);
-
-    DataLine vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
-
-    //Output screen position.
-    DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-
-    DataNode::Ptr depthOut(new CustomExpressionNode("gl_FragCoord.z", 1, "outDepth"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fragmentDepth", depthOut));
-
-    return ShaderGenerator::GenerateMaterial(UniformDictionary(), BlendMode::GetOpaque());
-}
-ShaderGenerator::GeneratedMaterial GenMatUVNoNormal(void)
-{
-    DataNode::ClearMaterialData();
-
-    DataNode::VertexIns = WorldObject::GetVertexInputs(true, false);
-
-    DataLine vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
-
-    //Output screen position.
-    DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-
-    DataNode::Ptr depthOut(new CustomExpressionNode("gl_FragCoord.z", 1, "outDepth"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fragmentDepth", depthOut));
-
-    return ShaderGenerator::GenerateMaterial(UniformDictionary(), BlendMode::GetOpaque());
-}
-ShaderGenerator::GeneratedMaterial GenMatNormalNoUV(void)
-{
-    DataNode::ClearMaterialData();
-
-    DataNode::VertexIns = WorldObject::GetVertexInputs(false, true);
-
-    DataLine vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
-
-    //Output screen position.
-    DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-
-    DataNode::Ptr depthOut(new CustomExpressionNode("gl_FragCoord.z", 1, "outDepth"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fragmentDepth", depthOut));
-
-    return ShaderGenerator::GenerateMaterial(UniformDictionary(), BlendMode::GetOpaque());
-}
-ShaderGenerator::GeneratedMaterial GenMatNoUVNormal(void)
-{
-    DataNode::ClearMaterialData();
-
-    DataNode::VertexIns = WorldObject::GetVertexInputs(false, false);
+    DataNode::VertexIns = WorldObject::GetVertexInputs(useUV, useNormalMapping);
 
     DataLine vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
 
@@ -86,28 +36,28 @@ OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worl
 
     ShaderGenerator::GeneratedMaterial genM("");
 
-    genM = GenMatUVNormal();
+    genM = GenMat(true, true);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating uv-normal: " + genM.ErrorMessage;
         return;
     }
     matUVNormal = genM.Mat;
-    genM = GenMatUVNoNormal();
+    genM = GenMat(true, false);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating uv-noNormal: " + genM.ErrorMessage;
         return;
     }
     matUVNoNormal = genM.Mat;
-    genM = GenMatNormalNoUV();
+    genM = GenMat(false, true);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating noUv-normal: " + genM.ErrorMessage;
         return;
     }
     matNormalNoUV = genM.Mat;
-    genM = GenMatNoUVNormal();
+    genM = GenMat(false, false);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating noUv-noNormal: " + genM.ErrorMessage;
