@@ -16,11 +16,11 @@ std::string GetFramebufferStatusMessage(void)
         case GL_FRAMEBUFFER_COMPLETE:
             return "";
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            return "Bad texture or depth buffer attachment";
+            return "Bad color/depth buffer attachment";
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            return "Nothing is attached!";
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
             return "Texture and depth buffer are different dimensions.";
-		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            return "Nothing is attached";
 		case GL_FRAMEBUFFER_UNSUPPORTED:
             return "This combination of texture and depth buffer is not supported on this platform.";
 
@@ -250,7 +250,14 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
 
     width = newWidth;
     height = newHeight;
-    glDrawBuffers(colAttachments.size(), colAttachments.data());
+    if (colAttachments.size() == 0)
+    {
+        glDrawBuffer(GL_NONE);
+    }
+    else
+    {
+        glDrawBuffers(colAttachments.size(), colAttachments.data());
+    }
     colorTexes = newColorTexes;
 
     if (updateDepthSize)
@@ -275,6 +282,19 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
 bool RenderTarget::SetDepthAttachment(RenderTargetTex newDepthTex, bool changeSize)
 {
     depthTex = newDepthTex;
+    if (width == 0 && height == 0)
+    {
+        width = (depthTex.MTex != 0 ?
+                    depthTex.MTex->GetWidth() :
+                    (depthTex.MTexCube != 0 ?
+                        depthTex.MTexCube->GetWidth() :
+                        0));
+        height = (depthTex.MTex != 0 ?
+                     depthTex.MTex->GetHeight() :
+                     (depthTex.MTexCube != 0 ?
+                         depthTex.MTexCube->GetHeight() :
+                         0));
+    }
 
     if (depthTex.MTex != 0)
     {
@@ -312,8 +332,16 @@ bool RenderTarget::UpdateSize(void)
 {
     unsigned int maxW = GetMaxAttachmentWidth(),
                  maxH = GetMaxAttachmentHeight();
-    width = maxW;
-    height = maxH;
+    width = (depthTex.MTex != 0 ?
+                depthTex.MTex->GetWidth() :
+                (depthTex.MTexCube != 0 ?
+                    depthTex.MTexCube->GetWidth() :
+                    maxW));
+    height = (depthTex.MTex != 0 ?
+                depthTex.MTex->GetHeight() :
+                (depthTex.MTexCube != 0 ?
+                    depthTex.MTexCube->GetHeight() :
+                    maxH));
 
     for (unsigned int i = 0; i < colorTexes.size(); ++i)
     {
