@@ -15,9 +15,9 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 
 
 OldOnesWorld::OldOnesWorld(void)
-    : windowSize(800, 600), renderSize(GetWorldRenderSize(windowSize)),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
-      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0),
+    : windowSize(800, 800), renderSize(GetWorldRenderSize(windowSize)),
+      SFMLOpenGLWorld(800, 800, sf::ContextSettings()),
+      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0), shadowMap(0),
       worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
       worldDepth(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
@@ -52,6 +52,8 @@ void OldOnesWorld::InitializeWorld(void)
     {
         return;
     }
+
+    GetWindow()->setPosition(sf::Vector2i(0, 0));
 
 
     DrawingQuad::InitializeQuad();
@@ -162,6 +164,17 @@ void OldOnesWorld::InitializeWorld(void)
     }
 
 
+    shadowMap = new OldOneShadowMap(objs, err);
+    if (!err.empty())
+    {
+        std::cout << "Error generating shadow map instance: " << err << "\n";
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
+
     //Set up camera.
     gameCam = MovingCamera(Vector3f(150.278f, 3.134f, 7.772f),
                            20.0f, 1.0f,
@@ -180,22 +193,32 @@ void OldOnesWorld::OnWorldEnd(void)
     if (finalRenderMat != 0)
     {
         delete finalRenderMat;
+        finalRenderMat = 0;
     }
     if (worldRT != 0)
     {
         delete worldRT;
+        worldRT = 0;
     }
     if (ppEffects != 0)
     {
         delete ppEffects;
+        ppEffects = 0;
     }
     if (skybox != 0)
     {
         delete skybox;
+        skybox = 0;
     }
     if (oldOne != 0)
     {
         delete oldOne;
+        oldOne = 0;
+    }
+    if (shadowMap != 0)
+    {
+        delete shadowMap;
+        shadowMap = 0;
     }
 
     worldColor.DeleteIfValid();
@@ -244,6 +267,8 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     worldRT->EnableDrawingInto();
     RenderWorld(info);
     worldRT->DisableDrawingInto(windowSize.x, windowSize.y);
+
+    shadowMap->Render(GetTotalElapsedSeconds());
 
     //Render post-process effects.
     RenderObjHandle finalCol = ppEffects->Render(GetTotalElapsedSeconds(),

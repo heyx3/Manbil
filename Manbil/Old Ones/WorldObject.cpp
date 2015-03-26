@@ -19,7 +19,7 @@ Vector3f RemapMayaVert(const aiVector3D& in)
 
 
 WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
-    : Mat(0),
+    : Mat(0), getUVs(!geoInfo.UseWorldPosUV), useNormalMaps(geoInfo.UseNormalMap),
       DiffTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true),
       NormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true)
 {
@@ -74,6 +74,42 @@ WorldObject::~WorldObject(void)
     }
 }
 
+
+RenderIOAttributes WorldObject::GetVertexInputs(bool getUVs, bool hasNormalMaps)
+{
+    if (getUVs)
+    {
+        if (hasNormalMaps)
+        {
+            return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Bitangent"),
+                                      RenderIOAttributes::Attribute(2, false, "vIn_UV"));
+        }
+        else
+        {
+            return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
+                                      RenderIOAttributes::Attribute(2, false, "vIn_UV"));
+        }
+    }
+    else
+    {
+        if (hasNormalMaps)
+        {
+            return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Bitangent"));
+        }
+        else
+        {
+            return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
+                                      RenderIOAttributes::Attribute(3, true, "vIn_Normal"));
+        }
+    }
+}
 void WorldObject::Render(RenderInfo& info)
 {
     Mat->Render(info, &MyMesh, Params);
@@ -84,7 +120,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
 {
     //Load the mesh data.
     Assimp::Importer importer;
-    unsigned int flags = aiProcessPreset_TargetRealtime_MaxQuality;
+    unsigned int flags = aiProcessPreset_TargetRealtime_Fast;
     const aiScene* scene = importer.ReadFile("Content/Old Ones/Meshes/" + meshFile, flags);
 
     std::string err = importer.GetErrorString();
@@ -136,6 +172,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
     }
 
     //Put the vertices into the vertex buffer.
+    RenderIOAttributes attrs = GetVertexInputs(getUVs, hasNormalMaps);
     if (getUVs)
     {
         if (hasNormalMaps)
@@ -155,12 +192,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
                 verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC,
-                                 RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Bitangent"),
-                                                    RenderIOAttributes::Attribute(2, false, "vIn_UV")));
+            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
         }
         else
         {
@@ -177,10 +209,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
                 verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC,
-                                 RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                                    RenderIOAttributes::Attribute(2, false, "vIn_UV")));
+            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
         }
     }
     else
@@ -200,11 +229,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
                 verts[i].tangent = RemapMayaVert(mesh->mTangents[i]);
                 verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC,
-                                 RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Bitangent")));
+            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
         }
         else
         {
@@ -219,9 +244,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
                 verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
                 verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC,
-                                 RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                                    RenderIOAttributes::Attribute(3, true, "vIn_Normal")));
+            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
         }
     }
 
@@ -254,16 +277,12 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     DataNode::ClearMaterialData();
     
     //Figure out what vertex attributes are needed.
-    RenderIOAttributes attrs;
+    RenderIOAttributes attrs = GetVertexInputs(!geoInfo.UseWorldPosUV, geoInfo.UseNormalMap);
     DataLine vIn_Pos, vIn_Normal, vIn_Tangent, vIn_Bitangent, vIn_UV;
     if (geoInfo.UseWorldPosUV)
     {
         if (geoInfo.UseNormalMap)
         {
-            attrs = RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Bitangent"));
             vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
             vIn_Normal = DataLine(VertexInputNode::GetInstance(), 1);
             vIn_Tangent = DataLine(VertexInputNode::GetInstance(), 2);
@@ -271,8 +290,6 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
         }
         else
         {
-            attrs = RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Normal"));
             vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
             vIn_Normal = DataLine(VertexInputNode::GetInstance(), 1);
         }
@@ -281,11 +298,6 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     {
         if (geoInfo.UseNormalMap)
         {
-            attrs = RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Tangent"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Bitangent"),
-                                       RenderIOAttributes::Attribute(2, false, "vIn_UV"));
             vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
             vIn_Normal = DataLine(VertexInputNode::GetInstance(), 1);
             vIn_Tangent = DataLine(VertexInputNode::GetInstance(), 2);
@@ -294,9 +306,6 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
         }
         else
         {
-            attrs = RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
-                                       RenderIOAttributes::Attribute(3, true, "vIn_Normal"),
-                                       RenderIOAttributes::Attribute(2, false, "vIn_UV"));
             vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
             vIn_Normal = DataLine(VertexInputNode::GetInstance(), 1);
             vIn_UV = DataLine(VertexInputNode::GetInstance(), 2);

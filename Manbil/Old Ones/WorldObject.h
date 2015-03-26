@@ -5,9 +5,6 @@
 #include "GeoSet.h"
 
 
-
-
-
 //A part of the world geometry.
 class WorldObject
 {
@@ -15,6 +12,9 @@ public:
 
     static const Vector3f LightDir;
     static const float AmbientLight, DiffuseLight;
+
+    
+    static RenderIOAttributes GetVertexInputs(bool getUVs, bool hasNormalMaps);
 
 
     Mesh MyMesh;
@@ -29,13 +29,19 @@ public:
     ~WorldObject(void);
 
 
+    bool GetUsesVertexUVs(void) const { return getUVs; }
+    bool GetUsesNormalMaps(void) const { return useNormalMaps; }
+
     void Render(RenderInfo& info);
 
 
 private:
 
     //Returns an error message if anything went wrong.
-    static std::string LoadMesh(const std::string& meshFile, bool getUVs,
-                                bool hasNormalMaps, MeshData& outDat);
+    std::string LoadMesh(const std::string& meshFile, bool getUVs,
+                         bool hasNormalMaps, MeshData& outDat);
     ShaderGenerator::GeneratedMaterial LoadMaterial(const GeoSet& geoInfo);
+
+
+    bool getUVs, useNormalMaps;
 };

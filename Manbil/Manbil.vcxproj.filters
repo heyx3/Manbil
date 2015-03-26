@@ -468,6 +468,9 @@
     <ClCompile Include="Old Ones\FractalRenderer.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\OldOneShadowMap.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1028,6 +1031,9 @@
       <Filter>Old Ones</Filter>
     </ClInclude>
     <ClInclude Include="Old Ones\FractalRenderer.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\OldOneShadowMap.h">
       <Filter>Old Ones</Filter>
     </ClInclude>
   </ItemGroup>

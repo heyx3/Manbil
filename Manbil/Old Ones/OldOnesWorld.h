@@ -9,13 +9,16 @@
 #include "PostProcessing.h"
 #include "FractalRenderer.h"
 #include "OldOnesSkybox.h"
+#include "OldOneShadowMap.h"
 
 
 class OldOnesWorld : public SFMLOpenGLWorld
 {
 public:
+
     OldOnesWorld(void);
     
+
 protected:
 
     virtual sf::VideoMode GetModeToUse(unsigned int windowW, unsigned int windowH) override;
@@ -31,6 +34,7 @@ protected:
     virtual void UpdateWorld(float elapsedSeconds) override;
     virtual void RenderOpenGL(float elapsedSeconds) override;
 
+
 private:
 
     //Potentially render the world at a different size than the window.
@@ -45,6 +49,7 @@ private:
     OldOnesSkybox* skybox;
     FractalRenderer* oldOne;
     PostProcessing* ppEffects;
+    OldOneShadowMap* shadowMap;
 
     RenderTarget* worldRT;
     MTexture2D worldColor, worldDepth;
