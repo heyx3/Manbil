@@ -471,6 +471,18 @@
     <ClCompile Include="Old Ones\OldOneShadowMap.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\Parameters\Matrix4fParamNode.cpp">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\Math\StepNode.cpp">
+      <Filter>Rendering\Data Nodes\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\Parameters\FragDepthNode.cpp">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\Parameters\FragCoordNode.cpp">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1035,6 +1047,18 @@
     </ClInclude>
     <ClInclude Include="Old Ones\OldOneShadowMap.h">
       <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\Parameters\Matrix4fParamNode.h">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\Math\StepNode.h">
+      <Filter>Rendering\Data Nodes\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\Parameters\FragDepthNode.h">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\Parameters\FragCoordNode.h">
+      <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
