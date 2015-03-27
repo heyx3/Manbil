@@ -11,6 +11,12 @@ const Vector3f WorldObject::LightDir = Vector3f(-2.0f, 1.0f, -5.0f).Normalized()
 const float WorldObject::AmbientLight = 0.5f,
             WorldObject::DiffuseLight = 1.0f - AmbientLight;
 
+const std::string diffTexName = "u_diffuseTex",
+                  normalTexName = "u_normalTex",
+                  lightVPMatName = "u_lightVPMat",
+                  lightDepthTexName = "u_lightDepthTex";
+
+
 
 Vector3f RemapMayaVert(const aiVector3D& in)
 {
@@ -53,7 +59,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
     }
-    Params.Texture2Ds["u_diffuseTex"].Texture = DiffTex.GetTextureHandle();
+    Params.Texture2Ds[diffTexName].Texture = DiffTex.GetTextureHandle();
     if (geoInfo.UseNormalMap)
     {
         NormalTex.Create();
@@ -325,25 +331,22 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
              fIn_UV(FragmentInputNode::GetInstance(), 1),
              fIn_WorldPos(FragmentInputNode::GetInstance(), 2),
              fIn_Tangent(FragmentInputNode::GetInstance(), 3),
-             fIn_Bitangent(FragmentInputNode::GetInstance(), 4);
+             fIn_Bitangent(FragmentInputNode::GetInstance(), 4),
+             fIn_ScreenDepth(FragDepthNode::GetInstance());
     DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Normal", vIn_Normal));
     if (geoInfo.UseWorldPosUV)
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV",
-                                                                    worldPosHorz));
+        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", worldPosHorz));
     }
     else
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV",
-                                                                    vIn_UV));
+        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
     }
     DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_WorldPos", worldPos));
     if (geoInfo.UseNormalMap)
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Tangent",
-                                                                    vIn_Tangent));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Bitangent",
-                                                                    vIn_Bitangent));
+        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Tangent", vIn_Tangent));
+        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Bitangent", vIn_Bitangent));
     }
 
 
@@ -351,11 +354,12 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
 
     DataNode::Ptr diffuseUV(new MultiplyNode(geoInfo.DiffuseTexScale, fIn_UV, "diffuseUV")),
                   normalUV(new MultiplyNode(geoInfo.NormalTexScale, fIn_UV, "normalUV"));
-    DataNode::Ptr diffuseSampler(new TextureSample2DNode(diffuseUV, "u_diffuseTex", "diffuseSampler")),
+    DataNode::Ptr diffuseSampler(new TextureSample2DNode(diffuseUV, diffTexName, "diffuseSampler")),
                   normalSampler(new TextureSample2DNode(normalUV, "u_normalTex", "normalSampler"));
     DataNode::Ptr normalMap(new RemapNode(DataLine(normalSampler,
                                                    TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
                                           0.0f, 1.0f, -1.0f, 1.0f, "normalMap"));
+
 
     DataNode::Ptr tempNormalCalc;
     DataLine finalNormal = fIn_Normal;
@@ -369,6 +373,24 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     DataNode::Ptr brightness(new LightingNode(fIn_WorldPos, finalNormal, LightDir,
                                               "brightnessCalc", AmbientLight, DiffuseLight,
                                               geoInfo.Specular, geoInfo.SpecularIntensity));
+    
+    //Calculate shadows.
+    DataNode::Ptr fIn_WorldPos4(new CombineVectorNode(fIn_WorldPos, 1.0f, "worldPos4"));
+    DataNode::Ptr lightScreenPos4(new Matrix4fParamNode(lightVPMatName, fIn_WorldPos4, "lightVPMat"));
+    DataNode::Ptr lightScreenXYTemp(new SwizzleNode(lightScreenPos4,
+                                                    SwizzleNode::C_X,
+                                                    SwizzleNode::C_Y,
+                                                    "lightScreenXYTemp"));
+    DataNode::Ptr lightScreenZTemp(new SwizzleNode(lightScreenPos4, SwizzleNode::C_Z,
+                                                   "lightScreenZTemp"));
+    DataNode::Ptr lightScreenW(new SwizzleNode(lightScreenPos4, SwizzleNode::C_W, "lightScreenW"));
+    DataNode::Ptr lightScreenXY(new DivideNode(lightScreenXYTemp, lightScreenW, "lightScreenXY"));
+    DataNode::Ptr lightScreenZ(new DivideNode(lightScreenZTemp, lightScreenW, "lightScreenZ"));
+    DataNode::Ptr camViewTexSample(new TextureSample2DNode(lightScreenXY, lightDepthTexName,
+                                                           "lightDepthTexSample"));
+    DataLine camViewTex(camViewTexSample, TextureSample2DNode::GetOutputIndex(CO_Red));
+    //TODO: Use StepNode and InterpolateNode to get a value between the ambient light and full brightness.
+
 
     DataNode::Ptr finalColor(new MultiplyNode(DataLine(diffuseSampler,
                                                        TextureSample2DNode::GetOutputIndex(CO_AllChannels)),

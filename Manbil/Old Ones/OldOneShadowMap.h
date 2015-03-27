@@ -16,6 +16,8 @@ public:
 
     Matrix4f* GetViewM(void) { return &viewM; }
     Matrix4f* GetProjM(void) { return &projM; }
+    RenderObjHandle GetDepthTex(void) const { return depthTex.GetTextureHandle(); }
+
 
     void Render(float totalElapsedSeconds);
 
