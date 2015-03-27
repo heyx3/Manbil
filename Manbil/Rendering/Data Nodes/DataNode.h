@@ -164,14 +164,15 @@ public:
     void WriteOutputs(std::string& outCode, std::vector<const DataNode*>& writtenNodeIDs) const;
 
 
+    //Gets the number of outputs this node has.
+    //Default behavior: returns 1 -- most nodes have a single output.
+    virtual unsigned int GetNumbOutputs(void) const { return 1; }
+
     //Gets the variable name for this node's given output.
     //Default: returns "_out#", where # is the output index.
     virtual std::string GetOutputName(unsigned int outputIndex) const;
     //Gets the variable size for this node's given output.
     virtual unsigned int GetOutputSize(unsigned int outputIndex) const = 0;
-    //Gets the number of outputs this node has.
-    //Default behavior: returns 1 -- most nodes have a single output.
-    virtual unsigned int GetNumbOutputs(void) const { return 1; }
 
 
     virtual void WriteData(DataWriter* writer) const final;
@@ -246,6 +247,5 @@ private:
     std::string name;
 };
 
-//typedef std::shared_ptr<DataNode> Ptr;
 
 #pragma warning(default: 4100)
