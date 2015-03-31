@@ -9,30 +9,27 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
 {
     std::string outStr = GetInputs()[0].GetValue();
 
-    if (GetOutputSize(0) > 1)
+    outStr += ".";
+
+    for (unsigned int i = 0; i < nComps; ++i)
     {
-        outStr += ".";
-
-        for (unsigned int i = 0; i < nComps; ++i)
+        Components iComp = comps[i];
+        switch (iComp)
         {
-            Components iComp = comps[i];
-            switch (iComp)
-            {
-                case C_X:
-                    outStr += "x";
-                    break;
-                case C_Y:
-                    outStr += "y";
-                    break;
-                case C_Z:
-                    outStr += "z";
-                    break;
-                case C_W:
-                    outStr += "w";
-                    break;
+            case C_X:
+                outStr += "x";
+                break;
+            case C_Y:
+                outStr += "y";
+                break;
+            case C_Z:
+                outStr += "z";
+                break;
+            case C_W:
+                outStr += "w";
+                break;
 
-                default: Assert(false, "Unknown component '" + ToString(comps[i]));
-            }
+            default: Assert(false, "Unknown component '" + ToString(comps[i]));
         }
     }
 
