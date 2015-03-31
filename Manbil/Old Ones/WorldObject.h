@@ -5,6 +5,9 @@
 #include "GeoSet.h"
 
 
+class OldOneShadowMap;
+
+
 //A part of the world geometry.
 class WorldObject
 {
@@ -32,7 +35,7 @@ public:
     bool GetUsesVertexUVs(void) const { return getUVs; }
     bool GetUsesNormalMaps(void) const { return useNormalMaps; }
 
-    void Render(RenderInfo& info);
+    void Render(RenderInfo& info, OldOneShadowMap& shadowMap);
 
 
 private:

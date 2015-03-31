@@ -295,7 +295,7 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
 
     for (unsigned int i = 0; i < objs.size(); ++i)
     {
-        objs[i]->Render(info);
+        objs[i]->Render(info, *shadowMap);
     }
     oldOne->Render(info);
     skybox->Render(info);

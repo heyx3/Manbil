@@ -14,8 +14,8 @@ public:
     ~OldOneShadowMap(void);
 
 
-    Matrix4f* GetViewM(void) { return &viewM; }
-    Matrix4f* GetProjM(void) { return &projM; }
+    Matrix4f& GetViewM(void) { return viewM; }
+    Matrix4f& GetProjM(void) { return projM; }
     RenderObjHandle GetDepthTex(void) const { return depthTex.GetTextureHandle(); }
 
 

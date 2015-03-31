@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 
 #include "../Rendering/Data Nodes/DataNodes.hpp"
+#include "OldOneShadowMap.h"
 
 
 const Vector3f WorldObject::LightDir = Vector3f(-2.0f, 1.0f, -5.0f).Normalized();
@@ -116,8 +117,11 @@ RenderIOAttributes WorldObject::GetVertexInputs(bool getUVs, bool hasNormalMaps)
         }
     }
 }
-void WorldObject::Render(RenderInfo& info)
+void WorldObject::Render(RenderInfo& info, OldOneShadowMap& shadowMap)
 {
+    Params.Matrices[lightVPMatName].Value = Matrix4f::Multiply(shadowMap.GetProjM(),
+                                                               shadowMap.GetViewM());
+    Params.Texture2Ds[lightDepthTexName].Texture = shadowMap.GetDepthTex();
     Mat->Render(info, &MyMesh, Params);
 }
 
@@ -384,17 +388,22 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     DataNode::Ptr lightScreenZTemp(new SwizzleNode(lightScreenPos4, SwizzleNode::C_Z,
                                                    "lightScreenZTemp"));
     DataNode::Ptr lightScreenW(new SwizzleNode(lightScreenPos4, SwizzleNode::C_W, "lightScreenW"));
-    DataNode::Ptr lightScreenXY(new DivideNode(lightScreenXYTemp, lightScreenW, "lightScreenXY"));
-    DataNode::Ptr lightScreenZ(new DivideNode(lightScreenZTemp, lightScreenW, "lightScreenZ"));
+    DataNode::Ptr lightScreenXYRaw(new DivideNode(lightScreenXYTemp, lightScreenW, "lightScreenXYRaw")),
+                  lightScreenXY(new RemapNode(lightScreenXYRaw, -1.0f, 1.0f, 0.0f, 1.0f, "lightScreenXY"));
+    DataNode::Ptr lightScreenZRaw(new DivideNode(lightScreenZTemp, lightScreenW, "lightScreenZRaw")),
+                  lightScreenZ(new RemapNode(lightScreenZRaw, -1.0f, 1.0f, 0.0f, 1.0f, "lightScreenZ"));
     DataNode::Ptr camViewTexSample(new TextureSample2DNode(lightScreenXY, lightDepthTexName,
                                                            "lightDepthTexSample"));
-    DataLine camViewTex(camViewTexSample, TextureSample2DNode::GetOutputIndex(CO_Red));
-    //TODO: Use StepNode and InterpolateNode to get a value between the ambient light and full brightness.
+    DataLine lightViewDepth(camViewTexSample, TextureSample2DNode::GetOutputIndex(CO_Red));
+    DataNode::Ptr depthDiff(new SubtractNode(lightViewDepth, lightScreenZ, "depthDiff")),
+                  shadowOneOrZero(new StepNode(-0.0001f, depthDiff, "shadowOneOrZero")),
+                  shadowMultiplier(new InterpolateNode(1.0f, AmbientLight, shadowOneOrZero,
+                                                       InterpolateNode::IT_Linear, "shadowMultiplier"));
 
 
     DataNode::Ptr finalColor(new MultiplyNode(DataLine(diffuseSampler,
                                                        TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
-                                              brightness,
+                                              shadowMultiplier, brightness,
                                               "finalColor"));
 
     DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));

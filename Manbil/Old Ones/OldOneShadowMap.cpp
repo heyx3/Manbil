@@ -24,9 +24,9 @@ ShaderGenerator::GeneratedMaterial GenMat(bool useUV, bool useNormalMapping)
 
 OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worldObjects,
                                  std::string& err)
-    : objs(worldObjects), rt(PS_16U_DEPTH, err),
+    : objs(worldObjects), rt(PS_32F_DEPTH, err),
       matUVNormal(0), matUVNoNormal(0), matNormalNoUV(0), matNoUVNormal(0),
-      depthTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP), PixelSizes::PS_24U_DEPTH, false)
+      depthTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_24U_DEPTH, false)
 {
     if (!err.empty())
     {
@@ -68,7 +68,7 @@ OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worl
 
     //Set up render target.
     depthTex.Create();
-    depthTex.ClearData(1500, 1500);
+    depthTex.ClearData(2048, 2048);
     if (!rt.SetDepthAttachment(RenderTargetTex(&depthTex)))
     {
         err = "Error setting depth attachment.";
