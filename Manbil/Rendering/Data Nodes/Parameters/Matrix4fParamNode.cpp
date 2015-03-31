@@ -5,28 +5,28 @@ ADD_NODE_REFLECTION_DATA_CPP(Matrix4fParamNode, "", DataLine())
 
 
 Matrix4fParamNode::Matrix4fParamNode(std::string uniformName,
-                                     DataLine toMultiply, std::string name = "")
+                                     DataLine toMultiply, std::string name)
     : UniformName(uniformName), DataNode(MakeVector(toMultiply), name)
 {
 
 }
 Matrix4fParamNode::Matrix4fParamNode(std::string uniformName,
                                      DataLine toMultiply1, DataLine toMultiply2,
-                                     std::string name = "")
+                                     std::string name)
     : UniformName(uniformName), DataNode(MakeVector(toMultiply1, toMultiply2), name)
 {
 
 }
 Matrix4fParamNode::Matrix4fParamNode(std::string uniformName,
                                      DataLine toMultiply1, DataLine toMultiply2, DataLine toMultiply3,
-                                     std::string name = "")
+                                     std::string name)
     : UniformName(uniformName),
       DataNode(MakeVector(toMultiply1, toMultiply2, toMultiply3), name)
 {
 
 }
 Matrix4fParamNode::Matrix4fParamNode(std::string uniformName,
-                                     std::vector<DataLine> toMultiply, std::string name = "")
+                                     std::vector<DataLine> toMultiply, std::string name)
     : UniformName(uniformName), DataNode(toMultiply, name)
 {
 
