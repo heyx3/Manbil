@@ -197,6 +197,7 @@ protected:
 
     static std::string ToString(Shaders shader);
     static std::string ToString(unsigned int value);
+    static std::string ToString(float value) { return std::to_string(value); }
 
 
     mutable std::string errorMsg;

@@ -29,7 +29,7 @@ std::string SwizzleNode::GetOutputName(unsigned int index) const
                 outStr += "w";
                 break;
 
-            default: Assert(false, "Unknown component '" + ToString(comps[i]));
+            default: Assert(false, "Unknown component '" + ToString((unsigned int)comps[i]));
         }
     }
 
@@ -90,7 +90,7 @@ void SwizzleNode::WriteExtraData(DataWriter* writer) const
             case C_Y: outStr = "y"; break;
             case C_Z: outStr = "z"; break;
             case C_W: outStr = "w"; break;
-            default: Assert(false, "Unknown component '" + ToString(comps[i]));
+            default: Assert(false, "Unknown component '" + ToString((unsigned int)comps[i]));
         }
 
         std::string outName;
@@ -100,7 +100,7 @@ void SwizzleNode::WriteExtraData(DataWriter* writer) const
             case 1: outName = "y"; break;
             case 2: outName = "z"; break;
             case 3: outName = "w"; break;
-            default: Assert(false, "Unknown component '" + ToString(comps[i]));
+            default: Assert(false, "Unknown component '" + ToString((unsigned int)comps[i]));
         }
 
         writer->WriteString(outStr, "out" + outName);
@@ -119,7 +119,7 @@ void SwizzleNode::ReadExtraData(DataReader* reader)
             case 1: outName = "y"; break;
             case 2: outName = "z"; break;
             case 3: outName = "w"; break;
-            default: Assert(false, "Unknown component '" + ToString(comps[i]));
+            default: Assert(false, "Unknown component '" + ToString((unsigned int)comps[i]));
         }
 
         std::string component;
