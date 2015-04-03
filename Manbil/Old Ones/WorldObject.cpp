@@ -6,11 +6,12 @@
 
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 #include "OldOneShadowMap.h"
+#include "MultiDepthTestNode.h"
 
 
 const Vector3f WorldObject::LightDir = Vector3f(-2.0f, 1.0f, -5.0f).Normalized();
 const float WorldObject::AmbientLight = 0.5f,
-            WorldObject::DiffuseLight = 1.0f - AmbientLight;
+            WorldObject::DiffuseLight = 0.7;
 
 const std::string diffTexName = "u_diffuseTex",
                   normalTexName = "u_normalTex",
@@ -373,10 +374,6 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                                                               normalMap));
         finalNormal = DataLine(tempNormalCalc);
     }
-
-    DataNode::Ptr brightness(new LightingNode(fIn_WorldPos, finalNormal, LightDir,
-                                              "brightnessCalc", AmbientLight, DiffuseLight,
-                                              geoInfo.Specular, geoInfo.SpecularIntensity));
     
     //Calculate shadows.
     DataNode::Ptr fIn_WorldPos4(new CombineVectorNode(fIn_WorldPos, 1.0f, "worldPos4"));
@@ -397,13 +394,18 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
     DataLine lightViewDepth(camViewTexSample, TextureSample2DNode::GetOutputIndex(CO_Red));
     DataNode::Ptr depthDiff(new SubtractNode(lightViewDepth, lightScreenZ, "depthDiff")),
                   shadowOneOrZero(new StepNode(-0.0001f, depthDiff, "shadowOneOrZero")),
-                  shadowMultiplier(new InterpolateNode(1.0f, AmbientLight, shadowOneOrZero,
-                                                       InterpolateNode::IT_Linear, "shadowMultiplier"));
+                  depthTester(new MultiDepthTestNode(lightDepthTexName, lightScreenXY, lightScreenZ,
+                                                     "depthTester")),
+                  shadowValue(new RemapNode(depthTester, 0.0, 1.0, AmbientLight, 1.0, "shadowValue")),
+
+                  brightness(new LightingNode(fIn_WorldPos, finalNormal, LightDir,
+                                              "brightnessCalc", 0.2, DiffuseLight,
+                                              geoInfo.Specular, geoInfo.SpecularIntensity));
 
 
     DataNode::Ptr finalColor(new MultiplyNode(DataLine(diffuseSampler,
                                                        TextureSample2DNode::GetOutputIndex(CO_AllChannels)),
-                                              shadowMultiplier, brightness,
+                                              brightness, shadowValue,
                                               "finalColor"));
 
     DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
