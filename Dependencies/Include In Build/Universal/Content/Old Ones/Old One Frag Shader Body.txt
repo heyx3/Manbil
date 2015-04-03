@@ -18,15 +18,16 @@
 //    vec3 u_cam_sideways: the world-space sideways vector of the camera.
 //    vec3 u_oldOne_pos: the world-space position of the fractal.
 //    float u_oldOne_size: the world-space scale of the fractal.
+//	  float u_oldOne_power: the power of the fractal. Affects its shape.
 
 //The output of this shader is:
 //   vec4 fOut_Final: the color/alpha of the fractal.
 
 
 //The threshold distance from world geometry for a position to be considered touching it.
-#define DISTANCE_EPSILON 0.01
+#define DISTANCE_EPSILON 0.0001
 //The max number of ray march steps to use before assuming the ray doesn't touch the geometry.
-#define MAX_ITERATIONS 100
+#define MAX_ITERATIONS 50
 
 //The number of iterations of the fractal. More iterations means a higher-quality fractal.
 #define FRACTAL_ITERATIONS 10
@@ -40,7 +41,6 @@ vec2 distanceFunc(vec3 pos)
 	pos /= u_oldOne_size;
 
 	const float bailout = 2.0;
-	const float power = 10.0;
 
 	vec3 z = pos;
 	float dr = 1.0,
@@ -60,16 +60,16 @@ vec2 distanceFunc(vec3 pos)
 		//Mess around with rotation to change the fractal.
 		float theta = acos(z.z / r),
 			  phi = atan(z.y, z.x);
-		dr = 1.0 + (power * (dr * pow(r, power - 1.0)));
-		float zr = pow(r, power);
-		theta *= power;
-		phi *= power;
+		dr = 1.0 + (u_oldOne_power * (dr * pow(r, u_oldOne_power - 1.0)));
+		float zr = pow(r, u_oldOne_power);
+		theta *= u_oldOne_power;
+		phi *= u_oldOne_power;
 		z = zr * vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
 		z += pos;
 	}
 
 	return vec2(0.5 * log(r) * r / dr,
-		    nIterations / float(FRACTAL_ITERATIONS));
+		        nIterations / float(FRACTAL_ITERATIONS));
 }
 
 
@@ -133,7 +133,7 @@ void main()
 	//Note that the material's blending mode is opaque, but it has an alpha test that discards
 	//    fragments with an alpha of 0.0.
 	float outAlpha = 1.0 - dat.nIterations;
-	fOut_Final = vec4(pow(vec3(dat.nFractalIterations), vec3(2.0)), outAlpha);
+	fOut_Final = vec4(pow(vec3(dat.nIterations), vec3(0.55)), outAlpha);
 
 
 	//These are some debug color outputs that were useful during testing; feel free to uncomment one to

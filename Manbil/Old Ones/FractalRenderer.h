@@ -24,9 +24,11 @@ private:
 
     Vector3f GetFractalPos(void) const;
     float GetFractalSize(void) const;
+    float GetFractalPower(void) const;
 
     void SetFractalPos(Vector3f newPos);
     void SetFractalSize(float newSize);
+    void SetFractalPower(float newPow);
 
 
     Material* mat;

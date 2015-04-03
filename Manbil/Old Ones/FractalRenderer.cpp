@@ -19,14 +19,15 @@ FractalRenderer::~FractalRenderer(void)
 
 void FractalRenderer::Update(float seconds)
 {
-
+    SetFractalPower(GetFractalPower() + (seconds * 0.4f));
+    SetFractalSize(GetFractalSize() + (seconds * 0.1f));
 }
 void FractalRenderer::Render(RenderInfo& info)
 {
     //Get a sphere that bounds the fractal.
     //The default fractal spans the unit cube from {0, 0, 0} to {1, 1, 1}.
     Vector3f fractalPos = GetFractalPos();
-    float fractalRadius = 1.0f * GetFractalSize();
+    float fractalRadius = 1.1f * GetFractalSize();
 
     //Now position a quad so that it covers the sphere and points towards the player.
     Vector3f fractalToCam = (info.Cam->GetPosition() - fractalPos).Normalized();
@@ -36,7 +37,8 @@ void FractalRenderer::Render(RenderInfo& info)
     trans.SetRotation(Quaternion(TransformObject::Upward(), fractalToCam));
     
     //Set up the render state.
-    RenderingState(RenderingState::C_NONE, true, true, RenderingState::AT_GREATER, 0.0f).EnableAlphaTestState();
+    RenderingState(RenderingState::C_NONE, true, true,
+                   RenderingState::AT_GREATER, 0.0f).EnableAlphaTestState();
 
     //Finally, render the quad.
     DrawingQuad::GetInstance()->Render(info, params, *mat);
@@ -92,7 +94,7 @@ void FractalRenderer::RegenerateMaterial(std::string& err)
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
     std::string fHeader = MaterialConstants::GetFragmentHeader(fIn, "out vec4 fOut_Final;", fUsage);
-    fHeader += "\nuniform vec3 u_oldOne_pos;\nuniform float u_oldOne_size;\n\n";
+    fHeader += "\nuniform vec3 u_oldOne_pos;\nuniform float u_oldOne_size;\nuniform float u_oldOne_power;\n\n";
 
     
     //Read in the main fragment shader body.
@@ -117,8 +119,12 @@ void FractalRenderer::RegenerateMaterial(std::string& err)
 
 
     //Compile the material.
+    params.Floats["u_oldOne_pos"].Name = "u_oldOne_pos";
+    params.Floats["u_oldOne_size"].Name = "u_oldOne_size";
+    params.Floats["u_oldOne_power"].Name = "u_oldOne_power";
     SetFractalPos(Vector3f(150.278f, 10.134f, 10.772f));
     SetFractalSize(3.0f);
+    SetFractalPower(1.0f);
     mat = new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err);
     if (!err.empty())
     {
@@ -135,6 +141,10 @@ float FractalRenderer::GetFractalSize(void) const
 {
     return params.Floats.find("u_oldOne_size")->second.Value[0];
 }
+float FractalRenderer::GetFractalPower(void) const
+{
+    return params.Floats.find("u_oldOne_power")->second.Value[0];
+}
 
 void FractalRenderer::SetFractalPos(Vector3f newPos)
 {
@@ -143,4 +153,8 @@ void FractalRenderer::SetFractalPos(Vector3f newPos)
 void FractalRenderer::SetFractalSize(float newSize)
 {
     params.Floats["u_oldOne_size"].SetValue(newSize);
+}
+void FractalRenderer::SetFractalPower(float newValue)
+{
+    params.Floats["u_oldOne_power"].SetValue(newValue);
 }
