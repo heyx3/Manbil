@@ -14,7 +14,7 @@ unsigned int SpaceConverterNode::GetNumbOutputs(void) const
         case DT_NORMAL: return 1;
         case DT_POSITION: return 2;
         default:
-            Assert(false, "Unknown coordinate data type '" + ToString(DataType));
+            Assert(false, "Unknown coordinate data type '" + ToString((unsigned int)DataType));
             return 0;
     }
 }
@@ -60,7 +60,7 @@ void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
                 case ST_SCREEN:
                     flags.EnableFlag(MaterialUsageFlags::DNF_USES_WVP_MAT);
                     break;
-                default: Assert(false, "Invalid dest space " + ToString(DestSpace));
+                default: Assert(false, "Invalid dest space " + ToString((unsigned int)DestSpace));
             }
             break;
 
@@ -73,7 +73,7 @@ void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
                 case ST_SCREEN:
                     flags.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
                     break;
-                default: Assert(false, "Invalid dest space " + ToString(DestSpace));
+                default: Assert(false, "Invalid dest space " + ToString((unsigned int)DestSpace));
             }
             break;
 
@@ -82,7 +82,7 @@ void SpaceConverterNode::SetMyFlags(MaterialUsageFlags & flags, unsigned int out
             flags.EnableFlag(MaterialUsageFlags::DNF_USES_PROJ_MAT);
             break;
 
-        default: Assert(false, "Invalid src space " + ToString(SrcSpace));
+        default: Assert(false, "Invalid src space " + ToString((unsigned int)SrcSpace));
     }
 }
 #pragma warning(default: 4100)
@@ -108,7 +108,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string& outCode) const
                 case ST_SCREEN:
                     matName = MaterialConstants::WVPMatName;
                     break;
-                default: Assert(false, "Invalid dest space " + ToString(DestSpace));
+                default: Assert(false, "Invalid dest space " + ToString((unsigned int)DestSpace));
             }
             break;
 
@@ -121,7 +121,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string& outCode) const
                 case ST_SCREEN:
                     matName = MaterialConstants::ViewProjMatName;
                     break;
-                default: Assert(false, "Invalid dest space " + ToString(DestSpace));
+                default: Assert(false, "Invalid dest space " + ToString((unsigned int)DestSpace));
             }
             break;
 
@@ -130,7 +130,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string& outCode) const
             matName = MaterialConstants::ProjMatName;
             break;
 
-        default: Assert(false, "Invalid src space " + ToString(SrcSpace));
+        default: Assert(false, "Invalid src space " + ToString((unsigned int)SrcSpace));
     }
 
     switch (DataType)
@@ -142,7 +142,7 @@ void SpaceConverterNode::WriteMyOutputs(std::string& outCode) const
             outCode += "\tvec4 " + GetOutputName(1) + " = (" + matName + " * vec4(" + GetInputs()[0].GetValue() + ", 1.0f));\n";
             outCode += "\tvec3 " + GetOutputName(0) + " = " + GetOutputName(1) + ".xyz / " + GetOutputName(1) + ".w;\n";
             break;
-        default: Assert(false, "Invalid data type " + ToString(DataType));
+        default: Assert(false, "Invalid data type " + ToString((unsigned int)DataType));
     }
 }
 
@@ -156,7 +156,7 @@ std::string SpaceConverterNode::GetInputDescription(unsigned int index) const
         case DT_POSITION:
             return "Source Position";
         default:
-            Assert(false, "Unknown data type " + ToString(DataType));
+            Assert(false, "Unknown data type " + ToString((unsigned int)DataType));
             return "UNKNOWN_DATA_TYPE";
     }
 }
@@ -241,7 +241,7 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
             return false;
 
         default:
-            errorMsg = "Unknown src space " + ToString(SrcSpace);
+            errorMsg = "Unknown src space " + ToString((unsigned int)SrcSpace);
             return false;
     }
 }
@@ -255,7 +255,7 @@ std::string SpaceConverterNode::ST_ToString(SpaceTypes st) const
         case ST_VIEW: return "View";
         case ST_SCREEN: return "Screen";
         default:
-            Assert(false, "Unknown space type " + ToString(st));
+            Assert(false, "Unknown space type " + ToString((unsigned int)st));
             return "UNKNOWN_SPACE_TYPE";
     }
 }
@@ -266,7 +266,7 @@ std::string SpaceConverterNode::DT_ToString(DataTypes dt) const
         case DT_NORMAL: return "Normal";
         case DT_POSITION: return "Pos";
         default:
-            Assert(false, "Unknown data type " + ToString(dt));
+            Assert(false, "Unknown data type " + ToString((unsigned int)dt));
             return "UNKNOWN_DATA_TYPE";
     }
 }

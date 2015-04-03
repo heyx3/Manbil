@@ -110,7 +110,7 @@ void InterpolateNode::WriteExtraData(DataWriter* writer) const
             break;
 
         default:
-            writer->ErrorMessage = "Unknown interpolation type '" + ToString(intType);
+            writer->ErrorMessage = "Unknown interpolation type '" + ToString((unsigned int)intType);
             throw DataWriter::EXCEPTION_FAILURE;
     }
 
@@ -135,7 +135,7 @@ void InterpolateNode::ReadExtraData(DataReader* reader)
 
         default:
             reader->ErrorMessage = "Smooth level must be between 0 and 2 inclusive; it was " +
-                                        ToString(smoothLevel);
+                                        ToString((unsigned int)smoothLevel);
             throw DataReader::EXCEPTION_FAILURE;
     }
 }
