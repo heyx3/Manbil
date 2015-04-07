@@ -5,6 +5,16 @@
 #include "../../Math/Lower Math/Array2D.h"
 
 
+
+const DataLine GPUParticleGenerator::FragmentShaderParticleID = DataLine(FragmentInputNode::GetInstance(),
+                                                                         0),
+               GPUParticleGenerator::FragmentShaderRandSeeds1 = DataLine(FragmentInputNode::GetInstance(),
+                                                                         1),
+               GPUParticleGenerator::FragmentShaderRandSeeds2 = DataLine(FragmentInputNode::GetInstance(),      
+                                                                         2),
+               GPUParticleGenerator::FragmentShaderUV = DataLine(FragmentInputNode::GetInstance(), 3);
+
+
 unsigned int GPUParticleGenerator::GetNumbParticles(NumberOfParticles number)
 {
     switch (number)
