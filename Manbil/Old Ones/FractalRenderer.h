@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Rendering/Rendering.hpp"
+#include <SFML/Audio.hpp>
 
 
 //Renders the "Old One" fractal using distance-field raymarching.
@@ -36,6 +37,9 @@ private:
 
     Material* mat;
     UniformDictionary params;
+
+    sf::Sound appearSound, ambientSound;
+    sf::SoundBuffer appearSndBuff, ambientSndBuff;
 
     float totalTime = 0.0f;
     bool appeared = false;

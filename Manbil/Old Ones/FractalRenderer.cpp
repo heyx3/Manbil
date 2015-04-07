@@ -10,6 +10,15 @@ const float FractalRenderer::AppearTime = 3.0f;
 FractalRenderer::FractalRenderer(std::string& err)
     : mat(0)
 {
+    if (!appearSndBuff.loadFromFile("Content/Old Ones/Audio/OldOneAppear.wav"))
+    {
+        err = "Unable to load 'OldOneAppear.wav'";
+        return;
+    }
+    appearSound.setBuffer(appearSndBuff);
+    appearSound.setRelativeToListener(true);
+    
+        
     RegenerateMaterial(err);
 }
 FractalRenderer::~FractalRenderer(void)
@@ -28,6 +37,7 @@ void FractalRenderer::Update(float frameSeconds, float totalSeconds)
     if (!appeared && totalTime > AppearTime)
     {
         appeared = true;
+        appearSound.play();
     }
 
     //Animate the fractal power.
