@@ -17,7 +17,7 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 800), renderSize(GetWorldRenderSize(windowSize)),
       SFMLOpenGLWorld(800, 800, sf::ContextSettings()),
-      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0), shadowMap(0),
+      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0), shadowMap(0), particles(0),
       worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
       worldDepth(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
@@ -82,6 +82,16 @@ void OldOnesWorld::InitializeWorld(void)
     if (!err.empty())
     {
         std::cout << "Error creating old one fractal renderer: " << err;
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
+    particles = new DemoParticles(*oldOne, err);
+    if (!err.empty())
+    {
+        std::cout << "Error creating particle effects: " << err;
         char dummy;
         std::cin >> dummy;
         EndWorld();
@@ -210,6 +220,11 @@ void OldOnesWorld::OnWorldEnd(void)
         delete skybox;
         skybox = 0;
     }
+    if (particles != 0)
+    {
+        delete particles;
+        particles = 0;
+    }
     if (oldOne != 0)
     {
         delete oldOne;
@@ -234,7 +249,8 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
         gameCam.Update(elapsedSeconds);
     }
 
-    oldOne->Update(elapsedSeconds);
+    oldOne->Update(elapsedSeconds, GetTotalElapsedSeconds());
+    particles->Update(elapsedSeconds, GetTotalElapsedSeconds());
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {
@@ -299,6 +315,8 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
     }
     oldOne->Render(info);
     skybox->Render(info);
+
+    particles->Render(info);
 }
 
 void OldOnesWorld::OnInitializeError(std::string errorMsg)

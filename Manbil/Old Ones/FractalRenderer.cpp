@@ -4,6 +4,9 @@
 #include <fstream>
 
 
+const float FractalRenderer::AppearTime = 3.0f;
+
+
 FractalRenderer::FractalRenderer(std::string& err)
     : mat(0)
 {
@@ -17,13 +20,48 @@ FractalRenderer::~FractalRenderer(void)
     }
 }
 
-void FractalRenderer::Update(float seconds)
+void FractalRenderer::Update(float frameSeconds, float totalSeconds)
 {
-    SetFractalPower(GetFractalPower() + (seconds * 0.4f));
-    SetFractalSize(GetFractalSize() + (seconds * 0.1f));
+    totalTime = totalSeconds;
+
+    //Update first fractal appearance.
+    if (!appeared && totalTime > AppearTime)
+    {
+        appeared = true;
+    }
+
+    //Animate the fractal power.
+    float power;
+    const float powStartT = 3.0f,
+                powEndT = 15.0f;
+    if (totalSeconds < powStartT)
+    {
+        power = 1.0f;
+    }
+    else if (totalSeconds < powEndT)
+    {
+        power = Mathf::Lerp(1.0f, 10.0f,
+                            Mathf::Supersmooth(Mathf::LerpComponent(powStartT, powEndT,
+                                                                    totalSeconds)));
+    }
+    else
+    {
+        power = 10.0f;
+    }
+    SetFractalPower(power);
+
+
+    //Animate the fractal's size.
+    SetFractalSize(Mathf::Clamp(GetFractalSize() + (frameSeconds * 0.1f), 1.0f, 6.0f));
 }
 void FractalRenderer::Render(RenderInfo& info)
 {
+    if (!appeared)
+    {
+        return;
+    }
+
+
     //Get a sphere that bounds the fractal.
     //The default fractal spans the unit cube from {0, 0, 0} to {1, 1, 1}.
     Vector3f fractalPos = GetFractalPos();
@@ -38,7 +76,7 @@ void FractalRenderer::Render(RenderInfo& info)
     
     //Set up the render state.
     RenderingState(RenderingState::C_NONE, true, true,
-                   RenderingState::AT_GREATER, 0.0f).EnableAlphaTestState();
+                   RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Finally, render the quad.
     DrawingQuad::GetInstance()->Render(info, params, *mat);

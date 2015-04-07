@@ -10,6 +10,7 @@
 #include "FractalRenderer.h"
 #include "OldOnesSkybox.h"
 #include "OldOneShadowMap.h"
+#include "DemoParticles.h"
 
 
 class OldOnesWorld : public SFMLOpenGLWorld
@@ -49,6 +50,7 @@ private:
     OldOnesSkybox* skybox;
     FractalRenderer* oldOne;
     PostProcessing* ppEffects;
+    DemoParticles* particles;
     OldOneShadowMap* shadowMap;
 
     RenderTarget* worldRT;

@@ -159,6 +159,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
     <ClCompile Include="Oculus Rift\OculusDevice.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Old Ones\DemoParticles.cpp" />
     <ClCompile Include="Old Ones\FractalRenderer.cpp" />
     <ClCompile Include="Old Ones\GeoSet.cpp" />
     <ClCompile Include="Old Ones\MultiDepthTestNode.cpp" />
@@ -347,6 +348,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
     <ClInclude Include="Oculus Rift\OculusDevice.h" />
+    <ClInclude Include="Old Ones\DemoParticles.h" />
     <ClInclude Include="Old Ones\FractalRenderer.h" />
     <ClInclude Include="Old Ones\GeoSet.h" />
     <ClInclude Include="Old Ones\MultiDepthTestNode.h" />

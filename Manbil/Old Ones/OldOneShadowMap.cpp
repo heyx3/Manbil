@@ -112,8 +112,8 @@ void OldOneShadowMap::Render(float totalSeconds)
     RenderInfo info(totalSeconds, &cam, &viewM, &projM);
     
     rt.EnableDrawingInto();
-    ScreenClearer(false, true, false).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
+    ScreenClearer(false, true, false).ClearScreen();
     glViewport(0, 0, depthTex.GetWidth(), depthTex.GetHeight());
     for (unsigned int i = 0; i < objs.size(); ++i)
     {

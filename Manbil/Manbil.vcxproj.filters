@@ -486,6 +486,12 @@
     <ClCompile Include="Old Ones\MultiDepthTestNode.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\MultiDepthTestNode.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\DemoParticles.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1064,6 +1070,12 @@
       <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
     <ClInclude Include="Old Ones\MultiDepthTestNode.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\MultiDepthTestNode.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\DemoParticles.h">
       <Filter>Old Ones</Filter>
     </ClInclude>
   </ItemGroup>
