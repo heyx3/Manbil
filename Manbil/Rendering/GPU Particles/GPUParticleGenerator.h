@@ -51,6 +51,10 @@ public:
     static unsigned int GetParticleDataLength(NumberOfParticles number);
 
 
+    static const DataLine FragmentShaderParticleID, FragmentShaderRandSeeds1,
+                          FragmentShaderRandSeeds2, FragmentShaderUV;
+
+
     //Gets whether the given GPUP output type is required for generating particles.
     static bool IsOutputRequired(GPUPOutputs output);
 
