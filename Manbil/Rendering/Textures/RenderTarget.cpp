@@ -332,16 +332,18 @@ bool RenderTarget::UpdateSize(void)
 {
     unsigned int maxW = GetMaxAttachmentWidth(),
                  maxH = GetMaxAttachmentHeight();
-    width = (depthTex.MTex != 0 ?
-                depthTex.MTex->GetWidth() :
-                (depthTex.MTexCube != 0 ?
-                    depthTex.MTexCube->GetWidth() :
-                    maxW));
-    height = (depthTex.MTex != 0 ?
-                depthTex.MTex->GetHeight() :
-                (depthTex.MTexCube != 0 ?
-                    depthTex.MTexCube->GetHeight() :
-                    maxH));
+
+    width = maxW;
+    height = maxH;
+    if (colorTexes.size() == 0)
+    {
+        width = (depthTex.MTex != 0 ?
+                    depthTex.MTex->GetWidth() :
+                    depthTex.MTexCube->GetWidth());
+        height = (depthTex.MTex != 0 ?
+                    depthTex.MTex->GetHeight() :
+                    depthTex.MTexCube->GetHeight());
+    }
 
     for (unsigned int i = 0; i < colorTexes.size(); ++i)
     {
