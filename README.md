@@ -1,3 +1,22 @@
+Old Ones Demo
+======
+
+This branch contains a complex demo called "Old Ones", where a strange alien entity visits a city. This demo contains a substantial amount of features:
+
+* A post-process system allowing for various effects
+* Shadow-casting sunlight, using shadow maps
+* Multiple complex meshes loaded in using the AssImp library, included with Manbil
+* A 3D fractal, rendered using an elegant and fast form of ray-tracing known as "Distance-field Raymarching".
+
+All content is stored in the "Dependencies/Include In Build/Universal/Content/Old Ones" folder.
+
+##Demo Licensing##
+
+* The audio file "OldOneAppear.wav" is a modified form of the following sound file: https://www.freesound.org/people/yottasounds/sounds/176727/
+
+
+
+
 Manbil
 ======
 
