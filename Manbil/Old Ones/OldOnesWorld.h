@@ -11,6 +11,7 @@
 #include "OldOnesSkybox.h"
 #include "OldOneShadowMap.h"
 #include "DemoParticles.h"
+#include "OldOneEditorGUI.h"
 
 
 class OldOnesWorld : public SFMLOpenGLWorld
@@ -52,6 +53,7 @@ private:
     PostProcessing* ppEffects;
     DemoParticles* particles;
     OldOneShadowMap* shadowMap;
+    OldOneEditorGUI* editorGUI;
 
     RenderTarget* worldRT;
     MTexture2D worldColor, worldDepth;

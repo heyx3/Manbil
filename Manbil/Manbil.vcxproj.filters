@@ -492,6 +492,12 @@
     <ClCompile Include="Old Ones\DemoParticles.cpp">
       <Filter>Old Ones</Filter>
     </ClCompile>
+    <ClCompile Include="Old Ones\OldOneEditableData.cpp">
+      <Filter>Old Ones\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\OldOneEditorGUI.cpp">
+      <Filter>Old Ones\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1078,6 +1084,12 @@
     <ClInclude Include="Old Ones\DemoParticles.h">
       <Filter>Old Ones</Filter>
     </ClInclude>
+    <ClInclude Include="Old Ones\OldOneEditableData.h">
+      <Filter>Old Ones\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\OldOneEditorGUI.h">
+      <Filter>Old Ones\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1202,6 +1214,9 @@
     </Filter>
     <Filter Include="Old Ones">
       <UniqueIdentifier>{a1bbde6c-2474-4533-a779-2a28fddee3dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old Ones\GUI">
+      <UniqueIdentifier>{8ef67b48-38cd-4543-8d94-d2896150d64f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,8 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 800), renderSize(GetWorldRenderSize(windowSize)),
       SFMLOpenGLWorld(800, 800, sf::ContextSettings()),
-      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0), shadowMap(0), particles(0),
+      worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0),
+      shadowMap(0), particles(0), editorGUI(0),
       worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
       worldDepth(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
@@ -92,6 +93,17 @@ void OldOnesWorld::InitializeWorld(void)
     if (!err.empty())
     {
         std::cout << "Error creating particle effects: " << err;
+        char dummy;
+        std::cin >> dummy;
+        EndWorld();
+        return;
+    }
+
+    TextRenderer::InitializeSystem();
+    editorGUI = new OldOneEditorGUI(err);
+    if (!err.empty())
+    {
+        std::cout << "Error creating editor GUI: " << err;
         char dummy;
         std::cin >> dummy;
         EndWorld();
@@ -235,10 +247,16 @@ void OldOnesWorld::OnWorldEnd(void)
         delete shadowMap;
         shadowMap = 0;
     }
+    if (editorGUI != 0)
+    {
+        delete editorGUI;
+        editorGUI = 0;
+    }
 
     worldColor.DeleteIfValid();
     worldDepth.DeleteIfValid();
-
+    
+    TextRenderer::DestroySystem();
     DrawingQuad::DestroyQuad();
 }
 
@@ -249,8 +267,18 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
         gameCam.Update(elapsedSeconds);
     }
 
+
     oldOne->Update(elapsedSeconds, GetTotalElapsedSeconds());
     particles->Update(elapsedSeconds, GetTotalElapsedSeconds());
+
+
+    //Compute mouse position in the window given mouse position for the monitor, then update the GUI.
+    sf::Vector2i mPos = sf::Mouse::getPosition();
+    sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
+    mPosFinal.y -= windowSize.y;
+    editorGUI->Update(elapsedSeconds, Vector2i(mPosFinal.x, mPosFinal.y),
+                      sf::Mouse::isButtonPressed(sf::Mouse::Left));
+
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {
@@ -301,7 +329,9 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     Camera finalRendCam;
     info = RenderInfo(GetTotalElapsedSeconds(), &finalRendCam, &identity, &identity);
     finalRenderParams.Texture2Ds["u_tex"].Texture = finalCol;
+    DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
     DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
+    editorGUI->Render(elapsedSeconds, GetTotalElapsedSeconds(), ToV2i(windowSize));
 }
 void OldOnesWorld::RenderWorld(RenderInfo& info)
 {
