@@ -55,8 +55,8 @@ public:
 
 
     //Most of these GUIElement functions just pass through to the encapsulated GUIFormattedPanel.
-    virtual Vector2f GetPos(void) const override { return panel.GetPos(); }
-    virtual Box2D GetBounds(void) const override { return panel.GetBounds(); }
+    virtual Vector2f GetPos(void) const override;
+    virtual Box2D GetBounds(void) const override;
     virtual void MoveElement(Vector2f moveAmount) override;
     virtual void SetPosition(Vector2f newPos) override;
     virtual void ScaleBy(Vector2f scaleAmount) override;
