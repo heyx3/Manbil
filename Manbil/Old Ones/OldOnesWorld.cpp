@@ -268,16 +268,16 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
     }
 
 
-    oldOne->Update(elapsedSeconds, GetTotalElapsedSeconds());
-    particles->Update(elapsedSeconds, GetTotalElapsedSeconds());
-
-
     //Compute mouse position in the window given mouse position for the monitor, then update the GUI.
     sf::Vector2i mPos = sf::Mouse::getPosition();
     sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
     mPosFinal.y -= windowSize.y;
     editorGUI->Update(elapsedSeconds, Vector2i(mPosFinal.x, mPosFinal.y),
                       sf::Mouse::isButtonPressed(sf::Mouse::Left));
+
+
+    oldOne->Update(editorGUI->GetData(), elapsedSeconds, GetTotalElapsedSeconds());
+    particles->Update(elapsedSeconds, GetTotalElapsedSeconds());
 
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
@@ -343,7 +343,7 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
     {
         objs[i]->Render(info, *shadowMap);
     }
-    oldOne->Render(info);
+    oldOne->Render(editorGUI->GetData(), info);
     skybox->Render(info);
 
     particles->Render(info);

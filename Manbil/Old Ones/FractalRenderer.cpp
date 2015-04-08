@@ -29,42 +29,58 @@ FractalRenderer::~FractalRenderer(void)
     }
 }
 
-void FractalRenderer::Update(float frameSeconds, float totalSeconds)
+void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds, float totalSeconds)
 {
     totalTime = totalSeconds;
 
     //Update first fractal appearance.
-    if (!appeared && totalTime > AppearTime)
+    if (totalTime > AppearTime)
     {
-        appeared = true;
-        appearSound.play();
-    }
+        if (!appeared)
+        {
+            appeared = true;
+            appearSound.play();
+        }
 
-    //Animate the fractal power.
-    float power;
-    const float powStartT = 3.0f,
-                powEndT = 15.0f;
-    if (totalSeconds < powStartT)
-    {
-        power = 1.0f;
-    }
-    else if (totalSeconds < powEndT)
-    {
-        power = Mathf::Lerp(1.0f, 10.0f,
-                            Mathf::Supersmooth(Mathf::LerpComponent(powStartT, powEndT,
-                                                                    totalSeconds)));
+        SetFractalPower(data.Shape);
     }
     else
     {
-        power = 10.0f;
+        //Animate the fractal power.
+        float power;
+        const float powStartT = 3.0f,
+                    powEndT = 15.0f;
+        if (totalSeconds < powStartT)
+        {
+            power = 1.0f;
+        }
+        else if (totalSeconds < powEndT)
+        {
+            power = Mathf::Lerp(1.0f, 10.0f,
+                                Mathf::Supersmooth(Mathf::LerpComponent(powStartT, powEndT,
+                                                                        totalSeconds)));
+        }
+        else
+        {
+            power = 10.0f;
+        }
+        SetFractalPower(power);
     }
-    SetFractalPower(power);
 
 
     //Animate the fractal's size.
     SetFractalSize(Mathf::Clamp(GetFractalSize() + (frameSeconds * 0.1f), 1.0f, 6.0f));
+
+
+    //Set the fractal's various bits of data.
+    SetFractalColor(Vector3f::Lerp(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f),
+                                   data.Angriness),
+                    Vector3f::Lerp(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.8f, 0.4f, 0.0f),
+                                   data.Angriness));
+    SetFractalRoundness(data.Roundness);
 }
-void FractalRenderer::Render(RenderInfo& info)
+#include <iostream>
+void FractalRenderer::Render(const OldOneEditableData& data, RenderInfo& info)
 {
     if (!appeared)
     {
@@ -74,13 +90,23 @@ void FractalRenderer::Render(RenderInfo& info)
 
     //Get a sphere that bounds the fractal.
     //The default fractal spans the unit cube from {0, 0, 0} to {1, 1, 1}.
-    Vector3f fractalPos = GetFractalPos();
+    Vector3f oldFractalPos = GetFractalPos();
     float fractalRadius = 1.1f * GetFractalSize();
 
+    //Make the fractal shake a bit based on its angriness.
+    const float minShake = 0.01f,
+                maxShake = 1.0f;
+    Vector3f shakePos = Vector3f(((rand() % 100) * 0.02f) - 1.0f,
+                                 ((rand() % 100) * 0.02f) - 1.0f,
+                                 ((rand() % 100) * 0.02f) - 1.0f).Normalized() *
+                        Mathf::Lerp(minShake, maxShake, data.Angriness);
+    Vector3f finalPos = oldFractalPos + shakePos;
+    SetFractalPos(finalPos);
+
     //Now position a quad so that it covers the sphere and points towards the player.
-    Vector3f fractalToCam = (info.Cam->GetPosition() - fractalPos).Normalized();
+    Vector3f fractalToCam = (info.Cam->GetPosition() - finalPos).Normalized();
     TransformObject& trans = DrawingQuad::GetInstance()->GetMesh().Transform;
-    trans.SetPosition(fractalPos + (fractalToCam * fractalRadius));
+    trans.SetPosition(finalPos + (fractalToCam * fractalRadius));
     trans.SetScale(fractalRadius);
     trans.SetRotation(Quaternion(TransformObject::Upward(), fractalToCam));
     
@@ -89,7 +115,12 @@ void FractalRenderer::Render(RenderInfo& info)
                    RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Finally, render the quad.
+    std::cout << params.Floats.find("u_oldOne_roundness")->second.Value[0] << "\n";
     DrawingQuad::GetInstance()->Render(info, params, *mat);
+    
+
+    //Reset state.
+    SetFractalPos(oldFractalPos);
 }
 
 void FractalRenderer::RegenerateMaterial(std::string& err)
@@ -142,7 +173,13 @@ void FractalRenderer::RegenerateMaterial(std::string& err)
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
     std::string fHeader = MaterialConstants::GetFragmentHeader(fIn, "out vec4 fOut_Final;", fUsage);
-    fHeader += "\nuniform vec3 u_oldOne_pos;\nuniform float u_oldOne_size;\nuniform float u_oldOne_power;\n\n";
+    fHeader +=
+"\nuniform vec3 u_oldOne_pos;\n\
+uniform float u_oldOne_size;\n\
+uniform float u_oldOne_power;\n\
+uniform vec3 u_oldOne_color1;\n\
+uniform vec3 u_oldOne_color2;\n\
+uniform float u_oldOne_roundness;\n\n";
 
     
     //Read in the main fragment shader body.
@@ -170,9 +207,14 @@ void FractalRenderer::RegenerateMaterial(std::string& err)
     params.Floats["u_oldOne_pos"].Name = "u_oldOne_pos";
     params.Floats["u_oldOne_size"].Name = "u_oldOne_size";
     params.Floats["u_oldOne_power"].Name = "u_oldOne_power";
+    params.Floats["u_oldOne_color1"].Name = "u_oldOne_color1";
+    params.Floats["u_oldOne_color2"].Name = "u_oldOne_color2";
+    params.Floats["u_oldOne_roundness"].Name = "u_oldOne_roundness";
     SetFractalPos(Vector3f(150.278f, 10.134f, 10.772f));
     SetFractalSize(3.0f);
     SetFractalPower(1.0f);
+    SetFractalRoundness(1.0f);
+    SetFractalColor(Vector3f(), Vector3f());
     mat = new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err);
     if (!err.empty())
     {
@@ -205,4 +247,13 @@ void FractalRenderer::SetFractalSize(float newSize)
 void FractalRenderer::SetFractalPower(float newValue)
 {
     params.Floats["u_oldOne_power"].SetValue(newValue);
+}
+void FractalRenderer::SetFractalRoundness(float newValue)
+{
+    params.Floats["u_oldOne_roundness"].SetValue(newValue);
+}
+void FractalRenderer::SetFractalColor(Vector3f col1, Vector3f col2)
+{
+    params.Floats["u_oldOne_color1"].SetValue(col1);
+    params.Floats["u_oldOne_color2"].SetValue(col2);
 }

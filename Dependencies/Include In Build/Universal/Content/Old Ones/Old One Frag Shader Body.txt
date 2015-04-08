@@ -19,6 +19,9 @@
 //    vec3 u_oldOne_pos: the world-space position of the fractal.
 //    float u_oldOne_size: the world-space scale of the fractal.
 //	  float u_oldOne_power: the power of the fractal. Affects its shape.
+//	  vec3 u_oldOne_color1: the first color of the fractal.
+//	  vec3 u_oldOne_color2: the second color of the fractal.
+//	  float u_oldOne_roundness: the roundness of the fractal's base.
 
 //The output of this shader is:
 //   vec4 fOut_Final: the color/alpha of the fractal.
@@ -133,11 +136,14 @@ void main()
 	//Note that the material's blending mode is opaque, but it has an alpha test that discards
 	//    fragments with an alpha of 0.0.
 	float outAlpha = 1.0 - dat.nIterations;
-	fOut_Final = vec4(pow(vec3(dat.nIterations), vec3(0.55)), outAlpha);
+	fOut_Final = vec4(mix(u_oldOne_color1, u_oldOne_color2,
+					      pow(vec3(dat.nIterations), vec3(0.55))),
+					  outAlpha);
 
 
 	//These are some debug color outputs that were useful during testing; feel free to uncomment one to
 	//    see what it does.
-	//fOut_Final = vec4(1.0, 1.0, 1.0, 1.0);
-	//fOut_Final = vec4(vec3(dat.nIterations), outAlpha);
+	//fOut_Final *= 0.001;
+	//fOut_Final += vec4(0.0, 1.0, 1.0, 1.0);
+	//fOut_Final += vec4(vec3(dat.nIterations), outAlpha);
 }

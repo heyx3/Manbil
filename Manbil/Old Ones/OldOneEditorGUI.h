@@ -16,6 +16,8 @@ public:
     void Update(float frameSeconds, Vector2i mousePos, bool mouseClicked);
     void Render(float frameSeconds, float totalSeconds, Vector2i windowSize);
 
+    const OldOneEditableData& GetData(void) const { return data; }
+
 
 private:
 

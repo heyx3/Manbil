@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Rendering/Rendering.hpp"
 #include <SFML/Audio.hpp>
+#include "../Rendering/Rendering.hpp"
+#include "OldOneEditableData.h"
 
 
 //Renders the "Old One" fractal using distance-field raymarching.
@@ -20,8 +21,8 @@ public:
     //Recreates the material's fragment shader from the text file.
     void RegenerateMaterial(std::string& outErr);
 
-    void Update(float frameSeconds, float totalSeconds);
-    void Render(RenderInfo& info);
+    void Update(const OldOneEditableData& data, float frameSeconds, float totalSeconds);
+    void Render(const OldOneEditableData& data, RenderInfo& info);
     
     Vector3f GetFractalPos(void) const;
     float GetFractalSize(void) const;
@@ -33,6 +34,8 @@ private:
     void SetFractalPos(Vector3f newPos);
     void SetFractalSize(float newSize);
     void SetFractalPower(float newPow);
+    void SetFractalRoundness(float newVal);
+    void SetFractalColor(Vector3f col1, Vector3f col2);
 
 
     Material* mat;
