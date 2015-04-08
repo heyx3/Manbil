@@ -8,8 +8,9 @@ std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
     {
         editorObjects.insert(editorObjects.begin() + index, toAdd);
         panel.InsertObject(index,
-                           GUIFormatObject(toAdd->GetActiveGUIElement(), toAdd->GetMoveHorizontally(),
-                                           toAdd->GetMoveVertically(), toAdd->Offset));
+                           GUIFormatObject(toAdd->GetActiveGUIElement(),
+                                           toAdd->GetMoveHorizontally(), toAdd->GetMoveVertically(),
+                                           toAdd->Offset));
         return "";
     }
     else
@@ -79,21 +80,36 @@ void EditorPanel::ClearDidBoundsChangeDeep(void)
     panel.ClearDidBoundsChangeDeep();
 }
 
+
+Vector2f EditorPanel::GetPos(void) const
+{
+    return panel.GetPos();
+}
+Box2D EditorPanel::GetBounds(void) const
+{
+    Box2D bounds = panel.GetBounds();
+    bounds.Move(panel.GetPos());
+    return bounds;
+}
 void EditorPanel::MoveElement(Vector2f moveAmount)
 {
-    GUIElement::MoveElement(moveAmount); panel.MoveElement(moveAmount);
+    GUIElement::MoveElement(moveAmount);
+    panel.MoveElement(moveAmount);
 }
 void EditorPanel::SetPosition(Vector2f newPos)
 {
-    GUIElement::SetPosition(newPos); panel.SetPosition(newPos);
+    GUIElement::SetPosition(newPos);
+    panel.SetPosition(newPos);
 }
 void EditorPanel::ScaleBy(Vector2f scaleAmount)
 {
-    GUIElement::ScaleBy(scaleAmount); panel.ScaleBy(scaleAmount);
+    GUIElement::ScaleBy(scaleAmount);
+    panel.ScaleBy(scaleAmount);
 }
 void EditorPanel::SetScale(Vector2f newScale)
 {
-    GUIElement::SetScale(newScale); panel.SetScale(newScale);
+    GUIElement::SetScale(newScale);
+    panel.SetScale(newScale);
 }
 void EditorPanel::OnMouseClick(Vector2f relativeMousePos)
 {
@@ -129,5 +145,8 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
 }
 void EditorPanel::Render(float elapsedTime, const RenderInfo& info)
 {
+    Vector4f col = panel.GetColor();
+    panel.SetColor(col.ComponentProduct(GetColor()));
     panel.Render(elapsedTime, info);
+    panel.SetColor(col);
 }
