@@ -44,6 +44,14 @@ EditorMaterialSet::~EditorMaterialSet(void)
     {
         delete StaticMatGrey;
     }
+    if (AnimatedMatText != 0)
+    {
+        delete AnimatedMatText;
+    }
+    if (StaticMatText != 0)
+    {
+        delete StaticMatText;
+    }
     if (AnimatedMatColor != 0)
     {
         delete AnimatedMatColor;
