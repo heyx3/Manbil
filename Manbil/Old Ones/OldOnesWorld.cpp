@@ -6,6 +6,11 @@
 #include "../Rendering/Data Nodes/DataNodes.hpp"
 
 
+
+//When the mouse isn't captured, constantly turn towards the fractal.
+const float turnSpeed = 0.5f;
+
+
 const float SuperSamplingScale = 1.0f;
 const Vector2u GetWorldRenderSize(Vector2u windowSize)
 {
@@ -186,7 +191,7 @@ void OldOnesWorld::InitializeWorld(void)
     }
 
 
-    shadowMap = new OldOneShadowMap(objs, err);
+    shadowMap = new OldOneShadowMap(objs, *oldOne, editorGUI->GetData(), err);
     if (!err.empty())
     {
         std::cout << "Error generating shadow map instance: " << err << "\n";
@@ -275,11 +280,24 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
     editorGUI->Update(elapsedSeconds, Vector2i(mPosFinal.x, mPosFinal.y),
                       sf::Mouse::isButtonPressed(sf::Mouse::Left));
 
+    //If the mouse isn't captured, automatically rotate towards the fractal.
+    if (!gameCam.IsMouseCapped())
+    {
+        Vector3f targetForward = oldOne->GetFractalPos() - gameCam.GetPosition(),
+                 newForward = Vector3f::Lerp(gameCam.GetForward(), targetForward, 0.001f).Normalized();
+        gameCam.SetRotation(newForward, Vector3f(0.0f, 0.0f, 1.0f));
+    }
 
-    oldOne->Update(editorGUI->GetData(), elapsedSeconds, GetTotalElapsedSeconds());
-    particles->Update(elapsedSeconds, GetTotalElapsedSeconds());
+
+    oldOne->Update(editorGUI->GetData(), elapsedSeconds);
+    particles->Update(elapsedSeconds);
 
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+    {
+        oldOne->Reset();
+        particles->Reset();
+    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {
         EndWorld();
@@ -288,14 +306,29 @@ void OldOnesWorld::UpdateWorld(float elapsedSeconds)
     if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
         std::string err;
-        oldOne->RegenerateMaterial(err);
+
+        oldOne->RegenerateMaterial(err, false);
         while (!err.empty())
         {
-            std::cout << "Error generating fragment shader; must be fixed before continuing: " << err <<
+            std::cout << "Error generating render pass fragment shader; " <<
+                         "must be fixed before continuing: " << err <<
                          "\n\nEnter anything to generate it again...\n";
             char dummy;
             std::cin >> dummy;
-            oldOne->RegenerateMaterial(err);
+            err = "";
+            oldOne->RegenerateMaterial(err, false);
+        }
+        
+        oldOne->RegenerateMaterial(err, true);
+        while (!err.empty())
+        {
+            std::cout << "Error generating shadow pass fragment shader; " <<
+                         "must be fixed before continuing: " << err <<
+                         "\n\nEnter anything to generate it again...\n";
+            char dummy;
+            std::cin >> dummy;
+            err = "";
+            oldOne->RegenerateMaterial(err, true);
         }
     }
 }
@@ -331,7 +364,11 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     finalRenderParams.Texture2Ds["u_tex"].Texture = finalCol;
     DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
     DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
-    editorGUI->Render(elapsedSeconds, GetTotalElapsedSeconds(), ToV2i(windowSize));
+    //If the player can't control the fractal yet, don't show the editor panel.
+    if (oldOne->IsEditable())
+    {
+        editorGUI->Render(elapsedSeconds, GetTotalElapsedSeconds(), ToV2i(windowSize));
+    }
 }
 void OldOnesWorld::RenderWorld(RenderInfo& info)
 {
@@ -343,7 +380,7 @@ void OldOnesWorld::RenderWorld(RenderInfo& info)
     {
         objs[i]->Render(info, *shadowMap);
     }
-    oldOne->Render(editorGUI->GetData(), info);
+    oldOne->Render(editorGUI->GetData(), false, info);
     skybox->Render(info);
 
     particles->Render(info);

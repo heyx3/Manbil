@@ -23,10 +23,11 @@ ShaderGenerator::GeneratedMaterial GenMat(bool useUV, bool useNormalMapping)
 }
 
 OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worldObjects,
+                                 FractalRenderer& _fractalRenderer, const OldOneEditableData& _data,
                                  std::string& err)
-    : objs(worldObjects), rt(PS_32F_DEPTH, err),
+    : objs(worldObjects), rt(PS_32F_DEPTH, err), fractalRenderer(_fractalRenderer), data(_data),
       matUVNormal(0), matUVNoNormal(0), matNormalNoUV(0), matNoUVNormal(0),
-      depthTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_24U_DEPTH, false)
+      depthTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
     if (!err.empty())
     {
@@ -140,5 +141,6 @@ void OldOneShadowMap::Render(float totalSeconds)
             }
         }
     }
+    fractalRenderer.Render(data, true, info);
     rt.DisableDrawingInto();
 }

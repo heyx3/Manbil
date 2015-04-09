@@ -42,12 +42,12 @@ std::string OldOneEditableData::BuildEditorElements(std::vector<EditorObjectPtr>
         \
         outElements.push_back(temp);
 
-    MAKE_FLOAT_BAR(Shape,              1.0f, 8.0f,     1.0f,   1.0f,    "Shape");
-    MAKE_FLOAT_BAR(Roundness,          1.0f, 9.0f,     1.0f,   1.0f,    "Roundness");
-    MAKE_FLOAT_BAR(SpikynessLeftSide, -1.0f, 0.001f,   0.0f,   1.0f,    "Spikyness Left Side");
-    MAKE_FLOAT_BAR(SpikynessRightSide, 1.0f, 0.001f,   1.0f,   1.0f,    "Spikyness Right Side");
-    MAKE_FLOAT_BAR(Quality,            0.0f, 1.0f,     0.5f,   1.0f,    "Quality");
-    MAKE_FLOAT_BAR(Angriness,          0.0f, 1.0f,     0.0f,   1.0f,    "Angriness");
+    MAKE_FLOAT_BAR(Shape,              1.0f, 10.0f,    1.0f,   1.0f,    "Shape");
+    //MAKE_FLOAT_BAR(Roundness,        1.0f, 9.0f,     0.0f,   1.0f,    "Roundness");
+    MAKE_FLOAT_BAR(SpikynessLeftSide, -1.0f, -0.014f,  0.0f,   1.0f,    "Spikyness Left Side");
+    MAKE_FLOAT_BAR(SpikynessRightSide, 1.0f, 0.014f,   0.0f,   1.0f,    "Spikyness Right Side");
+    //MAKE_FLOAT_BAR(Quality,          0.0f, 1.0f,     0.5f,   1.0f,    "Quality");
+    MAKE_FLOAT_BAR(Angriness,          0.0f, 1.0f,     0.0f,   6.0f,    "Angriness");
 
     return "";
 }

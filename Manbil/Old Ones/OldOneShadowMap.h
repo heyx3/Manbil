@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WorldObject.h"
+#include "FractalRenderer.h"
 
 
 //The directional light shadow-mapping system.
@@ -10,6 +11,7 @@ public:
 
     //If there is an error, outputs an error string to the "outError" parameter.
     OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worldObjects,
+                    FractalRenderer& fractalRenderer, const OldOneEditableData& data,
                     std::string& outError);
     ~OldOneShadowMap(void);
 
@@ -24,6 +26,8 @@ public:
 
 private:
 
+    FractalRenderer& fractalRenderer;
+    const OldOneEditableData& data;
     std::vector<std::shared_ptr<WorldObject>>& objs;
 
     RenderTarget rt;

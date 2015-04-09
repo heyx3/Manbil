@@ -4,11 +4,12 @@
 #include <fstream>
 
 
-const float FractalRenderer::AppearTime = 3.0f;
+const float FractalRenderer::AppearTime = 8.0f;
+const float growEndTime = 30.0f;
 
 
 FractalRenderer::FractalRenderer(std::string& err)
-    : mat(0)
+    : mat(0), matShadow(0)
 {
     if (!appearSndBuff.loadFromFile("Content/Old Ones/Audio/OldOneAppear.wav"))
     {
@@ -19,7 +20,8 @@ FractalRenderer::FractalRenderer(std::string& err)
     appearSound.setRelativeToListener(true);
     
         
-    RegenerateMaterial(err);
+    RegenerateMaterial(err, false);
+    RegenerateMaterial(err, true);
 }
 FractalRenderer::~FractalRenderer(void)
 {
@@ -27,38 +29,39 @@ FractalRenderer::~FractalRenderer(void)
     {
         delete mat;
     }
+    if (matShadow != 0)
+    {
+        delete matShadow;
+    }
 }
 
-void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds, float totalSeconds)
+void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds)
 {
-    totalTime = totalSeconds;
+    totalTime += frameSeconds;
 
     //Update first fractal appearance.
-    if (totalTime > AppearTime)
+    if (totalTime > AppearTime && !appeared)
     {
-        if (!appeared)
-        {
-            appeared = true;
-            appearSound.play();
-        }
-
+        appeared = true;
+        appearSound.play();
+    }
+    if (totalTime > growEndTime)
+    {
         SetFractalPower(data.Shape);
     }
     else
     {
         //Animate the fractal power.
         float power;
-        const float powStartT = 3.0f,
-                    powEndT = 15.0f;
-        if (totalSeconds < powStartT)
+        if (totalTime < AppearTime)
         {
             power = 1.0f;
         }
-        else if (totalSeconds < powEndT)
+        else if (totalTime < growEndTime)
         {
             power = Mathf::Lerp(1.0f, 10.0f,
-                                Mathf::Supersmooth(Mathf::LerpComponent(powStartT, powEndT,
-                                                                        totalSeconds)));
+                                Mathf::Supersmooth(Mathf::LerpComponent(AppearTime, growEndTime,
+                                                                        totalTime)));
         }
         else
         {
@@ -73,14 +76,16 @@ void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds,
 
 
     //Set the fractal's various bits of data.
-    SetFractalColor(Vector3f::Lerp(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f),
+    SetFractalColor(Vector3f::Lerp(Vector3f(0.0f, 1.0f, 0.0f), Vector3f(1.0f, 0.2f, 0.0f),
                                    data.Angriness),
-                    Vector3f::Lerp(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.8f, 0.4f, 0.0f),
+                    Vector3f::Lerp(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.2f, 0.2f, 0.0f),
                                    data.Angriness));
+    SetFractalSpikyness(data.SpikynessLeftSide, data.SpikynessRightSide);
     SetFractalRoundness(data.Roundness);
+    SetFractalAngriness(data.Angriness);
 }
 #include <iostream>
-void FractalRenderer::Render(const OldOneEditableData& data, RenderInfo& info)
+void FractalRenderer::Render(const OldOneEditableData& data, bool isShadow, RenderInfo& info)
 {
     if (!appeared)
     {
@@ -91,11 +96,11 @@ void FractalRenderer::Render(const OldOneEditableData& data, RenderInfo& info)
     //Get a sphere that bounds the fractal.
     //The default fractal spans the unit cube from {0, 0, 0} to {1, 1, 1}.
     Vector3f oldFractalPos = GetFractalPos();
-    float fractalRadius = 1.1f * GetFractalSize();
+    float fractalRadius = 1.4f * GetFractalSize();
 
     //Make the fractal shake a bit based on its angriness.
     const float minShake = 0.01f,
-                maxShake = 1.0f;
+                maxShake = 0.65f;
     Vector3f shakePos = Vector3f(((rand() % 100) * 0.02f) - 1.0f,
                                  ((rand() % 100) * 0.02f) - 1.0f,
                                  ((rand() % 100) * 0.02f) - 1.0f).Normalized() *
@@ -108,7 +113,8 @@ void FractalRenderer::Render(const OldOneEditableData& data, RenderInfo& info)
     TransformObject& trans = DrawingQuad::GetInstance()->GetMesh().Transform;
     trans.SetPosition(finalPos + (fractalToCam * fractalRadius));
     trans.SetScale(fractalRadius);
-    trans.SetRotation(Quaternion(TransformObject::Upward(), fractalToCam));
+    trans.SetRotation(Quaternion(TransformObject::Upward(),
+                                 (isShadow ? info.Cam->GetForward() : fractalToCam)));
     
     //Set up the render state.
     RenderingState(RenderingState::C_NONE, true, true,
@@ -116,19 +122,20 @@ void FractalRenderer::Render(const OldOneEditableData& data, RenderInfo& info)
 
     //Finally, render the quad.
     std::cout << params.Floats.find("u_oldOne_roundness")->second.Value[0] << "\n";
-    DrawingQuad::GetInstance()->Render(info, params, *mat);
+    DrawingQuad::GetInstance()->Render(info, params, (isShadow ? *mat : *matShadow));
     
 
     //Reset state.
     SetFractalPos(oldFractalPos);
 }
 
-void FractalRenderer::RegenerateMaterial(std::string& err)
+void FractalRenderer::RegenerateMaterial(std::string& err, bool shadowMat)
 {
-    if (mat != 0)
+    Material** matPtr = (shadowMat ? &mat : &matShadow);
+    if (*matPtr != 0)
     {
-        delete mat;
-        mat = 0;
+        delete *matPtr;
+        *matPtr = 0;
     }
 
 
@@ -172,6 +179,7 @@ void FractalRenderer::RegenerateMaterial(std::string& err)
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_FORWARD);
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
+    fUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
     std::string fHeader = MaterialConstants::GetFragmentHeader(fIn, "out vec4 fOut_Final;", fUsage);
     fHeader +=
 "\nuniform vec3 u_oldOne_pos;\n\
@@ -179,7 +187,12 @@ uniform float u_oldOne_size;\n\
 uniform float u_oldOne_power;\n\
 uniform vec3 u_oldOne_color1;\n\
 uniform vec3 u_oldOne_color2;\n\
-uniform float u_oldOne_roundness;\n\n";
+uniform float u_oldOne_roundness;\n\
+uniform float u_oldOne_angriness;\n\
+uniform float u_oldOne_spikyLeft;\n\
+uniform float u_oldOne_spikyRight;\n\
+\n\
+#define FRACTAL_ITERATIONS " + std::string(shadowMat ? "3" : "5") + "\n\n";
 
     
     //Read in the main fragment shader body.
@@ -209,13 +222,19 @@ uniform float u_oldOne_roundness;\n\n";
     params.Floats["u_oldOne_power"].Name = "u_oldOne_power";
     params.Floats["u_oldOne_color1"].Name = "u_oldOne_color1";
     params.Floats["u_oldOne_color2"].Name = "u_oldOne_color2";
+    params.Floats["u_oldOne_spikyLeft"].Name = "u_oldOne_spikyLeft";
+    params.Floats["u_oldOne_spikyRight"].Name = "u_oldOne_spikyRight";
     params.Floats["u_oldOne_roundness"].Name = "u_oldOne_roundness";
-    SetFractalPos(Vector3f(150.278f, 10.134f, 10.772f));
+    params.Floats["u_oldOne_angriness"].Name = "u_oldOne_angriness";
+    
+    SetFractalPos(Vector3f(140.278f, 20.134f, 20.772f));
     SetFractalSize(3.0f);
     SetFractalPower(1.0f);
     SetFractalRoundness(1.0f);
+    SetFractalAngriness(1.0f);
+    SetFractalSpikyness(-1.0f, 1.0f);
     SetFractalColor(Vector3f(), Vector3f());
-    mat = new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err);
+    *matPtr = new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err);
     if (!err.empty())
     {
         err = "Error creating material: " + err;
@@ -236,6 +255,11 @@ float FractalRenderer::GetFractalPower(void) const
     return params.Floats.find("u_oldOne_power")->second.Value[0];
 }
 
+bool FractalRenderer::IsEditable(void) const
+{
+    return totalTime > growEndTime;
+}
+
 void FractalRenderer::SetFractalPos(Vector3f newPos)
 {
     params.Floats["u_oldOne_pos"].SetValue(newPos);
@@ -251,6 +275,15 @@ void FractalRenderer::SetFractalPower(float newValue)
 void FractalRenderer::SetFractalRoundness(float newValue)
 {
     params.Floats["u_oldOne_roundness"].SetValue(newValue);
+}
+void FractalRenderer::SetFractalAngriness(float newValue)
+{
+    params.Floats["u_oldOne_angriness"].SetValue(newValue);
+}
+void FractalRenderer::SetFractalSpikyness(float left, float right)
+{
+    params.Floats["u_oldOne_spikyLeft"].SetValue(left);
+    params.Floats["u_oldOne_spikyRight"].SetValue(right);
 }
 void FractalRenderer::SetFractalColor(Vector3f col1, Vector3f col2)
 {

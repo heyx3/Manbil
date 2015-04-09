@@ -70,16 +70,12 @@ DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
 
     //Create the "ambient" particles.
     
-    vel = DataNode::Ptr(new MultiplyNode(velNorm, Vector3f(0.25f, 0.25f, 2.0f), "vel2"));
-    pos = DataNode::Ptr(new ConstAccelNode(basePos, vel, Vector3f(0.0f, 0.0f, 1.0f) * -0.15f));
-    DataNode::Ptr posComponents(new VectorComponentsNode(pos));
-    DataLine posZ(posComponents, 2);
-    DataNode::Ptr wrappedPosZ(new ModuloNode(posZ, 10.0f, "wrappedPosZ"));
-    DataNode::Ptr finalPos(new CombineVectorNode(DataLine(posComponents, 0), DataLine(posComponents, 1),
-                                                 wrappedPosZ, "finalPos"));
+    DataNode::Ptr outPos(new CustomExpressionNode("'0' + ('2' * mod('1' * '3' * 10.0, 20.0))", 3,
+                                                  basePos, time, velNorm, GetRandSeedFloat(5),
+                                                  "ambientPos"));
     outputs[GPUP_COLOR] = texRGBA;
-    outputs[GPUP_SIZE] = Vector2f(1.0f, 1.0f) * 0.125f;
-    outputs[GPUP_WORLDPOSITION] = finalPos;
+    outputs[GPUP_SIZE] = Vector2f(1.0f, 1.0f) * 0.025f;
+    outputs[GPUP_WORLDPOSITION] = outPos;
     
     genM = GPUParticleGenerator::GenerateMaterial(outputs, oldOneAmbientParams,
                                                   BlendMode::GetAdditive());
@@ -103,9 +99,9 @@ DemoParticles::~DemoParticles(void)
 }
 
 
-void DemoParticles::Update(float elapsedTime, float _totalTime)
+void DemoParticles::Update(float elapsedTime)
 {
-    totalTime = _totalTime;
+    totalTime += elapsedTime;
 
     SetBasePos(oldOne.GetFractalPos());
     SetElapsedTime(totalTime - FractalRenderer::AppearTime);
@@ -139,4 +135,5 @@ void DemoParticles::SetBasePos(Vector3f newPos)
 void DemoParticles::SetElapsedTime(float newTime)
 {
     oldOneAppearParams.Floats[elapsedTimeUniformName].SetValue(newTime);
+    oldOneAmbientParams.Floats[elapsedTimeUniformName].SetValue(newTime);
 }

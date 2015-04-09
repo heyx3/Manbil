@@ -16,8 +16,10 @@ public:
     ~DemoParticles(void);
 
 
-    void Update(float elapsedTime, float totalTime);
+    void Update(float elapsedTime);
     void Render(const RenderInfo& info);
+
+    void Reset(void) { totalTime = 0.0f; }
 
 
 private:
@@ -33,5 +35,5 @@ private:
     MTexture2D smokeTex;
 
     FractalRenderer& oldOne;
-    float totalTime;
+    float totalTime = 0.0f;
 };
