@@ -34,6 +34,8 @@ public:
 	float GetMoveSpeed(void) const { return moveSpeed; }
 	float GetRotSpeed(void) const { return rotSpeed; }
 
+    bool IsMouseCapped(void) const { return capMouse; }
+
 	void SetMoveSpeed(float newVal) { moveSpeed = newVal; }
 	void SetRotSpeed(float newVal) { rotSpeed = newVal; }
 
