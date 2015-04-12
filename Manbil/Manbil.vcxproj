@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)\Plugins\assimp-3.1.1\include;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Src;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Include;$(SolutionDir)\Plugins\Freetype 2.3.5\include\freetype2;$(SolutionDir)\Plugins\Freetype 2.3.5\include;$(SolutionDir)\Plugins\glew-1.10.0\include;$(SolutionDir)\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
@@ -106,8 +106,8 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <PreBuildEvent>
       <Command>rd /S /Q "$(SolutionDir)\Build\$(Configuration)"
 md "$(SolutionDir)\Build\$(Configuration)"
-xcopy "$(SolutionDir)\Dependencies\$(Configuration)" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y
-xcopy "$(SolutionDir)\Dependencies\Universal" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y</Command>
+xcopy "$(SolutionDir)\Dependencies\Include In Build\$(Configuration)" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y
+xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Move dependencies to the build folder</Message>
