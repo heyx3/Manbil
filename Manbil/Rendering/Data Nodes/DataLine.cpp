@@ -80,7 +80,7 @@ unsigned int DataLine::GetNonConstantOutputIndex(void) const
 
 void DataLine::WriteData(DataWriter* writer) const
 {
-    writer->WriteBool(isConstantValue, "Is a constant VectorF value?");
+    writer->WriteBool(isConstantValue, "Is a constant vector value?");
 
     if (isConstantValue)
     {
@@ -88,7 +88,7 @@ void DataLine::WriteData(DataWriter* writer) const
     }
     else
     {
-        writer->WriteString(nonConstantValue, "nodeName");
+        writer->WriteString(nonConstantValue, "Node name");
         writer->WriteUInt(nonConstantOutputIndex, "Output index");
     }
 }

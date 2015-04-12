@@ -164,9 +164,9 @@ std::string SpaceConverterNode::GetInputDescription(unsigned int index) const
 
 void SpaceConverterNode::WriteExtraData(DataWriter* writer) const
 {
-    writer->WriteString(DT_ToString(DataType), "DataType ('Normal' or 'Pos')");
-    writer->WriteString(ST_ToString(SrcSpace), "Source space ('Obj', 'World', or 'View')");
-    writer->WriteString(ST_ToString(DestSpace), "Destination space ('Obj', 'World', or 'View')");
+    writer->WriteString(DT_ToString(DataType), "DataType (Normal or Pos)");
+    writer->WriteString(ST_ToString(SrcSpace), "Source space (Obj, World', or View)");
+    writer->WriteString(ST_ToString(DestSpace), "Destination space (Obj, World, or View)");
 }
 void SpaceConverterNode::ReadExtraData(DataReader* reader)
 {

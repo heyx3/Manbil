@@ -39,5 +39,4 @@ void GeometryInputNode::WriteMyOutputs(std::string & outCode) const
 #pragma warning(default: 4100)
 
 
-GeometryInputNode::GeometryInputNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName())
-{ }
+GeometryInputNode::GeometryInputNode(void) : DataNode(std::vector<DataLine>(), GetInstanceName()) { }
