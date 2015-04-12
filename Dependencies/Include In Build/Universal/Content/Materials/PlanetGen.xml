@@ -1,49 +1,65 @@
 <planetMaterial>
-    <dataStructure name="Planet Material">
-        <dataStructure name="Vertex Inputs">
-            <uint name="Number of Attributes" value="3"/>
-            <string name="Attribute 1 Name" value="vIn_Pos"/>
-            <uint name="Attribute 1 Size" value="3"/>
-            <string name="Attribute 2 Name" value="vIn_Normal"/>
-            <uint name="Attribute 2 Size" value="3"/>
-            <string name="Attribute 3 Name" value="vIn_Heightmap"/>
-            <uint name="Attribute 3 Size" value="1"/>
+    <dataStructure name="Planet material">
+        <dataStructure name="Vertex inputs">
+            <collection name="Attributes">
+                <element index="0">
+                    <dataStructure name="0">
+                        <string name="Name" value="vIn_Pos"/>
+                        <uint name="Number of components" value="3"/>
+                        <bool name="Needs to be normalized?" value="false"/>
+                    </dataStructure>
+                </element>
+                <element index="1">
+                    <dataStructure name="1">
+                        <string name="Name" value="vIn_Normal"/>
+                        <uint name="Number of components" value="3"/>
+                        <bool name="Needs to be normalized?" value="true"/>
+                    </dataStructure>
+                </element>
+                <element index="2">
+                    <dataStructure name="2">
+                        <string name="Name" value="vIn_Heightmap"/>
+                        <uint name="Number of components" value="1"/>
+                        <bool name="Needs to be normalized?" value="false"/>
+                    </dataStructure>
+                </element>
+            </collection>
         </dataStructure>
-        <uint name="NumbNodes" value="13"/>
-        <dataStructure name="1 Outputs: 2">
-            <string name="Node Type" value="CombineVectorNode"/>
+        <uint name="Number of nodes" value="13"/>
+        <dataStructure name="1 Outputs: 3">
+            <string name="Node Type" value="MultiplyNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="texHeightmapUV"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="2"/>
+                <string name="Unique node name" value="tex3dUV"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="fragmentInputs"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.500000"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="0.020000"/>
                     </dataStructure>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
-        <dataStructure name="1 Outputs: 3">
-            <string name="Node Type" value="MultiplyNode"/>
+        <dataStructure name="1 Outputs: 2">
+            <string name="Node Type" value="CombineVectorNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="tex3dUV"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="texHeightmapUV"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="fragmentInputs"/>
+                    <uint name="Output index" value="2"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.030000"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="0.500000"/>
                     </dataStructure>
                 </dataStructure>
             </dataStructure>
@@ -51,271 +67,310 @@
         <dataStructure name="6 Outputs: 1, 1, 1, 1, 3, 4">
             <string name="Node Type" value="TextureSample3DNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="tex3D"/>
-                <uint name="numberOfInputs" value="1"/>
-                <dataStructure name="Tex Coord 3D">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="tex3dUV"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="tex3D"/>
+                <uint name="Number of inputs" value="1"/>
+                <dataStructure name="Input: &apos;Tex Coord 3D&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="tex3dUV"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <string name="samplerUniformName" value="u_planetTex3D"/>
+                <string name="Sampler uniform name" value="u_planetTex3D"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 1">
             <string name="Node Type" value="DistanceNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="distToPlayer"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="cameraData"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="distToPlayer"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="cameraData"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="fragmentInputs"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
         <dataStructure name="6 Outputs: 1, 1, 1, 1, 3, 4">
             <string name="Node Type" value="TextureSample2DNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="texHeight"/>
-                <uint name="numberOfInputs" value="1"/>
-                <dataStructure name="Tex Coord 2D">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="texHeightmapUV"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="texHeight"/>
+                <uint name="Number of inputs" value="1"/>
+                <dataStructure name="Input: &apos;Tex Coord 2D&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="texHeightmapUV"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <string name="samplerUniformName" value="u_planetHeightTex"/>
+                <string name="Sampler name uniform" value="u_planetHeightTex"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 1">
             <string name="Node Type" value="DivideNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="distToPlayerLerp"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="distToPlayer"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="distToPlayerLerp"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="distToPlayer"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="projectionDataNode"/>
-                    <uint name="nodeOutput" value="3"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="projectionDataNode"/>
+                    <uint name="Output index" value="3"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 3">
             <string name="Node Type" value="MultiplyNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="finalTexColor"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="texHeight"/>
-                    <uint name="nodeOutput" value="4"/>
+                <string name="Unique node name" value="finalTexColor"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="texHeight"/>
+                    <uint name="Output index" value="4"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="tex3D"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="tex3D"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 1">
             <string name="Node Type" value="LightingNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="lightBrightness"/>
-                <uint name="numberOfInputs" value="8"/>
-                <dataStructure name="worldSurfacePos">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="lightBrightness"/>
+                <uint name="Number of inputs" value="8"/>
+                <dataStructure name="Input: &apos;worldSurfacePos&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="fragmentInputs"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="worldSurfaceNormal">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="fragmentInputs"/>
-                    <uint name="nodeOutput" value="1"/>
+                <dataStructure name="Input: &apos;worldSurfaceNormal&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="fragmentInputs"/>
+                    <uint name="Output index" value="1"/>
                 </dataStructure>
-                <dataStructure name="lightDirection">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="3"/>
-                        <float name="x" value="-0.577350"/>
-                        <float name="y" value="-0.577350"/>
-                        <float name="z" value="-0.577350"/>
+                <dataStructure name="Input: &apos;lightDirection&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="3"/>
+                        <float name="0" value="-0.577350"/>
+                        <float name="1" value="-0.577350"/>
+                        <float name="2" value="-0.577350"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="ambientStrength">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.200000"/>
+                <dataStructure name="Input: &apos;ambientStrength&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="0.200000"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="diffuseStrength">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.800000"/>
+                <dataStructure name="Input: &apos;diffuseStrength&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="0.800000"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="specularStrength">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="0.000000"/>
+                <dataStructure name="Input: &apos;specularStrength&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="0.000000"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="specularIntensity">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="128.000000"/>
+                <dataStructure name="Input: &apos;specularIntensity&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="128.000000"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="worldCameraPos">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="cameraData"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;worldCameraPos&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="cameraData"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 1">
             <string name="Node Type" value="CustomExpressionNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="planetFogLerp"/>
-                <uint name="numberOfInputs" value="1"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="distToPlayerLerp"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="planetFogLerp"/>
+                <uint name="Number of inputs" value="1"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="distToPlayerLerp"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <string name="GLSL Expression" value="(1.0f - '0') * pow(clamp(1.0f * '1', 0.0f, 1.0f), 0.1f)"/>
-                <uint name="Output Size" value="1"/>
+                <string name="GLSL expression" value="(1.0f - &apos;0&apos;) * pow(clamp(1.0f * &apos;1&apos;, 0.0f, 1.0f), 0.1f)"/>
+                <uint name="Output size" value="1"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 3">
             <string name="Node Type" value="MultiplyNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="node2"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="lightBrightness"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="node246514488"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="lightBrightness"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="finalTexColor"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="finalTexColor"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
             </dataStructure>
         </dataStructure>
         <dataStructure name="1 Outputs: 3">
             <string name="Node Type" value="InterpolateNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="node3"/>
-                <uint name="numberOfInputs" value="3"/>
-                <dataStructure name="Min">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="3"/>
-                        <float name="x" value="0.6500000"/>
-                        <float name="y" value="0.6500000"/>
-                        <float name="z" value="1.000000"/>
+                <string name="Unique node name" value="node246514489"/>
+                <uint name="Number of inputs" value="3"/>
+                <dataStructure name="Input: &apos;Min&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="3"/>
+                        <float name="0" value="1.000000"/>
+                        <float name="1" value="1.000000"/>
+                        <float name="2" value="1.000000"/>
                     </dataStructure>
                 </dataStructure>
-                <dataStructure name="Max">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="node2"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;Max&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="node246514488"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <dataStructure name="To Interpolate">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="planetFogLerp"/>
-                    <uint name="nodeOutput" value="0"/>
+                <dataStructure name="Input: &apos;To Interpolate&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="planetFogLerp"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
-                <uint name="Smooth Level (0-2)" value="2"/>
-            </dataStructure>
-        </dataStructure>
-        <dataStructure name="1 Outputs: 4">
-            <string name="Node Type" value="CombineVectorNode"/>
-            <dataStructure name="Node Data">
-                <string name="nodeName" value="finalPlanetColor"/>
-                <uint name="numberOfInputs" value="2"/>
-                <dataStructure name="in1">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="node3"/>
-                    <uint name="nodeOutput" value="0"/>
-                </dataStructure>
-                <dataStructure name="in2">
-                    <bool name="isConstant" value="true"/>
-                    <dataStructure name="value">
-                        <uint name="size" value="1"/>
-                        <float name="x" value="1.000000"/>
-                    </dataStructure>
-                </dataStructure>
+                <uint name="Smooth level (0-2)" value="2"/>
             </dataStructure>
         </dataStructure>
         <dataStructure name="2 Outputs: 3, 4">
             <string name="Node Type" value="SpaceConverterNode"/>
             <dataStructure name="Node Data">
-                <string name="nodeName" value="objToScreenPos"/>
-                <uint name="numberOfInputs" value="1"/>
-                <dataStructure name="Source Position">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="vertexInputs"/>
-                    <uint name="nodeOutput" value="0"/>
+                <string name="Unique node name" value="objToScreenPos"/>
+                <uint name="Number of inputs" value="1"/>
+                <dataStructure name="Input: &apos;Source Position&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="vertexInputs"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
                 <string name="DataType (Normal or Pos)" value="Pos"/>
-                <string name="Source space (Obj, World, or View)" value="Obj"/>
-                <string name="Destination space (World, View, or Screen)" value="Screen"/>
+                <string name="Source space (Obj, World&apos;, or View)" value="Obj"/>
+                <string name="Destination space (Obj, World, or View)" value="Screen"/>
             </dataStructure>
         </dataStructure>
-        <dataStructure name="Material Outputs">
-            <dataStructure name="Vertex Position Output">
-                <bool name="isConstant" value="false"/>
-                <string name="nodeName" value="objToScreenPos"/>
-                <uint name="nodeOutput" value="1"/>
-            </dataStructure>
-            <uint name="Numb Vertex Outputs" value="3"/>
-            <dataStructure name="Vertex Output #1">
-                <string name="Output Name" value="vOut_Pos"/>
-                <dataStructure name="Output Value">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="vertexInputs"/>
-                    <uint name="nodeOutput" value="0"/>
+        <dataStructure name="1 Outputs: 4">
+            <string name="Node Type" value="CombineVectorNode"/>
+            <dataStructure name="Node Data">
+                <string name="Unique node name" value="finalPlanetColor"/>
+                <uint name="Number of inputs" value="2"/>
+                <dataStructure name="Input: &apos;in1&apos;">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="node246514489"/>
+                    <uint name="Output index" value="0"/>
+                </dataStructure>
+                <dataStructure name="Input: &apos;in2&apos;">
+                    <bool name="Is a constant vector value?" value="true"/>
+                    <dataStructure name="Value">
+                        <uint name="NComponents" value="1"/>
+                        <float name="0" value="1.000000"/>
+                    </dataStructure>
                 </dataStructure>
             </dataStructure>
-            <dataStructure name="Vertex Output #2">
-                <string name="Output Name" value="vOut_Normal"/>
-                <dataStructure name="Output Value">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="vertexInputs"/>
-                    <uint name="nodeOutput" value="1"/>
+        </dataStructure>
+        <dataStructure name="Material outputs">
+            <dataStructure name="Vertex position output">
+                <bool name="Is a constant vector value?" value="false"/>
+                <string name="Node name" value="objToScreenPos"/>
+                <uint name="Output index" value="1"/>
+            </dataStructure>
+            <uint name="Number of vertex outputs" value="3"/>
+            <dataStructure name="Vertex output #1">
+                <string name="Output name" value="vOut_Pos"/>
+                <dataStructure name="Output value">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="vertexInputs"/>
+                    <uint name="Output index" value="0"/>
                 </dataStructure>
             </dataStructure>
-            <dataStructure name="Vertex Output #3">
-                <string name="Output Name" value="vOut_Height"/>
-                <dataStructure name="Output Value">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="vertexInputs"/>
-                    <uint name="nodeOutput" value="2"/>
+            <dataStructure name="Vertex output #2">
+                <string name="Output name" value="vOut_Normal"/>
+                <dataStructure name="Output value">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="vertexInputs"/>
+                    <uint name="Output index" value="1"/>
                 </dataStructure>
             </dataStructure>
-            <uint name="Numb Fragment Outputs" value="1"/>
-            <dataStructure name="Fragment Output #1">
-                <string name="Output Name" value="fOut_FinalColor"/>
-                <dataStructure name="Output Value">
-                    <bool name="isConstant" value="false"/>
-                    <string name="nodeName" value="finalPlanetColor"/>
-                    <uint name="nodeOutput" value="0"/>
+            <dataStructure name="Vertex output #3">
+                <string name="Output name" value="vOut_Height"/>
+                <dataStructure name="Output value">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="vertexInputs"/>
+                    <uint name="Output index" value="2"/>
                 </dataStructure>
             </dataStructure>
+            <uint name="Number of fragment outputs" value="1"/>
+            <dataStructure name="Fragment output #1">
+                <string name="Output name" value="fOut_FinalColor"/>
+                <dataStructure name="Output value">
+                    <bool name="Is a constant vector value?" value="false"/>
+                    <string name="Node name" value="finalPlanetColor"/>
+                    <uint name="Output index" value="0"/>
+                </dataStructure>
+            </dataStructure>
+        </dataStructure>
+        <dataStructure name="Geometry shader">
+            <string name="Input primitive" value="Points"/>
+            <string name="Output primitive" value="Triangle Strip"/>
+            <uint name="Max output vertices" value="4"/>
+            <dataStructure name="Output attributes to fragment shader">
+                <collection name="Attributes"/>
+            </dataStructure>
+            <uint name="Built-in uniforms usage bitmask" value="0"/>
+            <dataStructure name="Custom uniform params">
+                <dataStructure name="Floats">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="Ints">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="FloatArrays">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="IntArrays">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="Matrices">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="Texture2Ds">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="Texture3Ds">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="TextureCubemaps">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+                <dataStructure name="Subroutines">
+                    <uint name="Number of elements" value="0"/>
+                </dataStructure>
+            </dataStructure>
+            <string name="Shader code" value=""/>
         </dataStructure>
     </dataStructure>
 </planetMaterial>
