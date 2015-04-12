@@ -93,12 +93,6 @@
     <ClCompile Include="Rendering\Water\WaterRendering.cpp">
       <Filter>Rendering\Water</Filter>
     </ClCompile>
-    <ClCompile Include="IO\XmlSerialization.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="IO\BinarySerialization.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp">
       <Filter>Toys\PlanetSim</Filter>
     </ClCompile>
@@ -259,9 +253,6 @@
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\ScreenClearer.cpp">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\Vertices.cpp">
@@ -465,6 +456,24 @@
     <ClCompile Include="Sample Worlds\GUIWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\MaterialOutputs.cpp">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\GeoShaderData.cpp">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\UniformValueSubroutine.cpp">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\BinarySerialization.cpp">
+      <Filter>IO\Serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\XmlSerialization.cpp">
+      <Filter>IO\Serializers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -610,13 +619,7 @@
     <ClInclude Include="Rendering\Water\WaterRendering.h">
       <Filter>Rendering\Water</Filter>
     </ClInclude>
-    <ClInclude Include="IO\XmlSerialization.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="IO\DataSerialization.h">
-      <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="IO\BinarySerialization.h">
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h">
@@ -800,9 +803,6 @@
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\MaterialUsageFlags.h">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h">
@@ -1039,6 +1039,36 @@
     <ClInclude Include="Sample Worlds\GUIWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\MaterialOutputs.h">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueVector.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueMatrix4f.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueSamplers.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueSubroutine.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\BinarySerialization.h">
+      <Filter>IO\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\XmlSerialization.h">
+      <Filter>IO\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\SerializationWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1163,6 +1193,12 @@
     </Filter>
     <Filter Include="Graph">
       <UniqueIdentifier>{a8c5d9ce-e6a4-4586-ba36-d7608a67ba8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Basic Rendering\Uniform Definitions">
+      <UniqueIdentifier>{ccb2b682-ebe2-45ce-a0df-82d34f9290d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\Serializers">
+      <UniqueIdentifier>{952e8ef2-61c0-4da5-9ffc-de31d8f4f3cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

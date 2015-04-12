@@ -111,29 +111,29 @@ void WaterWorld::InitializeMaterials(void)
     {
         #pragma region Skybox material
 
-        DataNode::ClearMaterialData();
+        SerializedMaterial matData;
 
         RenderIOAttributes cubemapVertIns = PrimitiveGenerator::CubemapVertex::GetVertexAttributes();
-        DataNode::VertexIns = cubemapVertIns;
+        matData.VertexInputs = cubemapVertIns;
 
         //The vertex shader is a standard shader that uses the WVP matrix.
         //It outputs the object-space position (from {-1, -1, -1} to {1, 1, 1}) to the fragment shader.
         DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
                  vIn_Normal(VertexInputNode::GetInstance(), 1);
         DataNode::Ptr objPosToScreenSpacePtr = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreenSpacePtr, 1);
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_Pos));
+        matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreenSpacePtr, 1);
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_Pos));
 
         //The fragment shader just outputs the cubemap's color.
         DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
         DataNode::Ptr cubemapTex(new TextureSampleCubemapNode(fIn_UV, "u_skyboxTex", "cubemapTexNode"));
         DataLine cubemapTexRGB(cubemapTex, TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
         DataNode::Ptr finalColor(new CombineVectorNode(cubemapTexRGB, 1.0f, "finalColorNode"));
-        DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
 
         //Compile the material.
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(skyboxParams, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, skyboxParams, BlendMode::GetOpaque());
         if (!genM.ErrorMessage.empty())
         {
             std::cout << "Error compiling skybox material: " << genM.ErrorMessage <<
@@ -156,10 +156,10 @@ void WaterWorld::InitializeMaterials(void)
     {
         #pragma region Water material
          
-        DataNode::ClearMaterialData();
+        SerializedMaterial matData;
 
         RenderIOAttributes waterVertIns = WaterVertex::GetVertexAttributes();
-        DataNode::VertexIns = waterVertIns;
+        matData.VertexInputs = waterVertIns;
 
         //Unlike previous materials, we are going to use a certain specific node in BOTH shaders:
         //    the "WaterNode" handles all the aspects of water simulation.
@@ -185,11 +185,11 @@ void WaterWorld::InitializeMaterials(void)
         //Now make the vertex shader.
         DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(waterObjPos, "screenPosNode"),
                       worldPos = SpaceConverterNode::ObjPosToWorldPos(waterObjPos, "worldPosNode");
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", waterObjPos));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_WorldPos",
+        matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", waterObjPos));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_WorldPos",
                                                                     DataLine(worldPos, 0)));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
 
 
         //The fragment shader is more complicated.
@@ -255,12 +255,12 @@ void WaterWorld::InitializeMaterials(void)
         DataNode::Ptr litSurfaceColor(new MultiplyNode(surfaceColor, brightnessCalc));
 
         DataNode::Ptr outputColor(new CombineVectorNode(litSurfaceColor, 1.0f, "addAlphaNode"));
-        DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", outputColor));
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", outputColor));
 
 
         //Compile the material.
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(waterObj->Params, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, waterObj->Params, BlendMode::GetOpaque());
         if (!genM.ErrorMessage.empty())
         {
             std::cout << "Error creating water material: " << genM.ErrorMessage <<

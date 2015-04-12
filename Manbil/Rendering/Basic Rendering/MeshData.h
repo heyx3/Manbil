@@ -54,6 +54,8 @@ public:
     RenderObjHandle GetVerticesHandle(void) const { return verticesHandle; }
     RenderObjHandle GetIndicesHandle(void) const { return indicesHandle; }
 
+    RenderIOAttributes GetVertexAttribute(void) const { return vertexAttributes; }
+
 
     //The type of vertex this instance is storing.
     template<typename VertexType>

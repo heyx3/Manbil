@@ -260,9 +260,8 @@ void BinaryReader::ReadSimpleData(unsigned int sizeofType, BinaryDataTypes expec
     }
 }
 
-void BinaryReader::ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
-                                  CollectionResizer resizer, void* pCollection,
-                                  void* optionalData)
+void BinaryReader::ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
+                                  void* pCollection, void* optionalData)
 {
     //Check the header describing the data type.
     if (EnsureTypeSafety)
@@ -291,7 +290,6 @@ void BinaryReader::ReadCollection(ElementCreator creatorFunc, ElementReader read
     //Read each collection element.
     for (unsigned int i = 0; i < readSize; ++i)
     {
-        creatorFunc(pCollection, i, optionalData);
         readerFunc(this, pCollection, i, optionalData);
     }
 

@@ -50,14 +50,14 @@ public:
 
     bool GetFlag(Flags flag) const { return (value & (unsigned int)flag) > 0; }
 
-    void EnableFlag(Flags flag)
-    {
-        value |= (unsigned int)flag;
-    }
+    void EnableFlag(Flags flag) { value |= (unsigned int)flag; }
     void DisableFlag(Flags flag) { value &= ~((unsigned int)flag); }
 
     void EnableAllFlags(void) { value = 0xffffffff; }
     void ClearAllFlags(void) { value = 0; }
+
+    unsigned int GetBitmaskValue(void) const { return value; }
+    unsigned int& GetBitmaskValue(void) { return value; }
 
 
 private:

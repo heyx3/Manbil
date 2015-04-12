@@ -65,11 +65,11 @@ void DNRW::InitializeMaterials(void)
     //There are also singletons that output shader inputs: "VertexInputNode" and "FragmentInputNode".
 
     //This example just uses simple, vanilla DataNodes with low-level outputs.
-    DataNode::ClearMaterialData();
+    SerializedMaterial matData;
 
     //Define the the vertex data. We are using vertices with position, UV, and normal attributes
     //    (although we don't actually need the normal in this shader).
-    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
+    matData.VertexInputs = VertexPosUVNormal::GetVertexAttributes();
 
     //The vertex shader will be a simple object-to-screen-space conversion.
     //It also outputs UVs to the fragment shader.
@@ -82,9 +82,9 @@ void DNRW::InitializeMaterials(void)
     //Compute and output screen-space position.
     DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos,
                                                                          "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
+    matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
     //Pass the UVs into the fragment shader.
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
 
 
     //The fragment shader just displays a texture.
@@ -99,11 +99,11 @@ void DNRW::InitializeMaterials(void)
     //Combine the texture RGB with an alpha of 1.0.
     DataNode::Ptr finalColor(new CombineVectorNode(textureRGB, 1.0f, "finalColorNode"));
     //Output the color to the screen.
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
     
 
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, matParams,
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(),
                "Error generating terrain shaders",

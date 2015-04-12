@@ -207,9 +207,6 @@ void VoxelWorld::InitializeWorld(void)
     DrawingQuad::InitializeQuad();
 
 
-    DataNode::ClearMaterialData();
-
-
     //Input.
     Input.AddBoolInput(INPUT_RemoveVoxel,
                        BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left,
@@ -272,18 +269,18 @@ void VoxelWorld::InitializeWorld(void)
     voxelHighlightMesh.SubMeshes[0].SetIndexData(vsis, MeshData::BUF_STATIC);
     
     //Voxel highlight material.
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
+    SerializedMaterial matData;
+    matData.VertexInputs = VertexPosUVNormal::GetVertexAttributes();
     DNP objPosToScreen(new SpaceConverterNode(DataLine(VertexInputNode::GetInstanceName()),
                                               SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
                                               SpaceConverterNode::DT_POSITION, "objtoScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor",
-                                                               Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
+    matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
+    matData.MaterialOuts.FragmentOutputs.insert(matData.MaterialOuts.FragmentOutputs.end(),
+                                                ShaderOutput("fOut_FinalColor",
+                                                             Vector4f(1.0f, 1.0f, 1.0f, 1.0f)));
     UniformDictionary vhvUD;
     ShaderGenerator::GeneratedMaterial genVHM =
-        ShaderGenerator::GenerateMaterial(vhvUD, BlendMode::GetOpaque());
+        ShaderGenerator::GenerateMaterial(matData, vhvUD, BlendMode::GetOpaque());
     if (!genVHM.ErrorMessage.empty())
     {
         PrintError("Error generating voxel highlight mesh", genVHM.ErrorMessage);
@@ -309,15 +306,15 @@ void VoxelWorld::InitializeWorld(void)
     worldRenderTarget->SetColorAttachment(RenderTargetTex(&worldRenderTargetColorTex), true);
 
     //Vertex shader.
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    matData = SerializedMaterial();
+    matData.VertexInputs = DrawingQuad::GetVertexInputData();
     std::vector<DataLine> toCombine;
     toCombine.insert(toCombine.end(), DataLine(VertexInputNode::GetInstanceName()));
     toCombine.insert(toCombine.end(), DataLine(1.0f));
     DNP vertPosOut(new CombineVectorNode(toCombine, "vertPosOut"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(vertPosOut->GetName());
+    matData.MaterialOuts.VertexPosOutput = DataLine(vertPosOut->GetName());
 
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_pos",
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_pos",
                                                                 DataLine(VertexInputNode::GetInstanceName(),
                                                                          1)));
     //Fragment shader.
@@ -326,12 +323,12 @@ void VoxelWorld::InitializeWorld(void)
     DataLine worldRenderTex(worldRenderTexPtr->GetName(),
                             TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     DNP finalWorldRenderCol(new CombineVectorNode(worldRenderTex, 1.0f, "finalWorldRender"));
-    DataNode::MaterialOuts.FragmentOutputs.insert(DataNode::MaterialOuts.FragmentOutputs.end(),
-                                                  ShaderOutput("fOut_FinalColor", finalWorldRenderCol));
+    matData.MaterialOuts.FragmentOutputs.insert(matData.MaterialOuts.FragmentOutputs.end(),
+                                                ShaderOutput("fOut_FinalColor", finalWorldRenderCol));
     //Material generation.
     UniformDictionary dict;
     ShaderGenerator::GeneratedMaterial fGenM =
-        ShaderGenerator::GenerateMaterial(dict, BlendMode::GetOpaque());
+        ShaderGenerator::GenerateMaterial(matData, dict, BlendMode::GetOpaque());
     if (!fGenM.ErrorMessage.empty())
     {
         PrintError("Error generating shader code for final render material", fGenM.ErrorMessage);
@@ -347,8 +344,8 @@ void VoxelWorld::InitializeWorld(void)
     #pragma region Voxel material
 
     //Definition.
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = VoxelVertex::GetVertexAttributes();
+    matData = SerializedMaterial();
+    matData.VertexInputs = VoxelVertex::GetVertexAttributes();
     /* Vertex outputs:
     * 0: Min Existing
     * 1: Max Existing
@@ -357,13 +354,13 @@ void VoxelWorld::InitializeWorld(void)
                                         SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_WORLD,
                                         SpaceConverterNode::DT_POSITION, "worldPos"));
     DNP worldPosHomg(new CombineVectorNode(worldPos, DataLine(1.0f), "worldPosHomogenous"));
-    DataNode::MaterialOuts.VertexPosOutput = worldPosHomg;
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_MinExists",
-                                                                DataLine(VertexInputNode::GetInstanceName(),
-                                                                         1)));
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_MaxExists",
-                                                                DataLine(VertexInputNode::GetInstanceName(),
-                                                                         2)));
+    matData.MaterialOuts.VertexPosOutput = worldPosHomg;
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_MinExists",
+                                                              DataLine(VertexInputNode::GetInstanceName(),
+                                                                       1)));
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_MaxExists",
+                                                              DataLine(VertexInputNode::GetInstanceName(),
+                                                                       2)));
     /* Geometry outputs:
     * 0: World pos
     * 1: UV
@@ -381,8 +378,7 @@ void VoxelWorld::InitializeWorld(void)
     subroutines.push_back("sub_getQuadDecider_maxX");
     subroutines.push_back("sub_getQuadDecider_maxY");
     subroutines.push_back("sub_getQuadDecider_maxZ");
-    std::shared_ptr<SubroutineDefinition> subDef(new SubroutineDefinition(SH_GEOMETRY, 1,
-                                                                         "subroutine_getQuadDecider"));
+    SubroutineDefinition subDef(SH_GEOMETRY, 1, "subroutine_getQuadDecider");
     voxelParams.Subroutines["u_getQuadDecider"] = UniformValueSubroutine(subDef, subroutines, 0,
                                                                          "u_getQuadDecider");
 
@@ -391,9 +387,9 @@ void VoxelWorld::InitializeWorld(void)
     std::string worldToScreen = MaterialConstants::ViewProjMatName + " * vec4(gsOut_worldPos, 1.0)";
     RenderIOAttributes geoShaderAttrs(RenderIOAttributes::Attribute(3, false, "gsOut_worldPos"),
                                       RenderIOAttributes::Attribute(2, false, "gsOut_uv"));
-    DataNode::GeometryShader = GeoShaderData(geoShaderAttrs, gsFlags, 4,
-                                             PT_POINTS, PT_TRIANGLE_STRIP, voxelParams,
-                                             std::string() +
+    matData.GeoShader = GeoShaderData(geoShaderAttrs, gsFlags, 4,
+                                      PT_POINTS, PT_TRIANGLE_STRIP, voxelParams,
+                                      std::string() +
 "subroutine(subroutine_getQuadDecider)                                                         \n\
 float sub_getQuadDecider_minX() { return vOut_MinExists[0].x; } \n\
 subroutine(subroutine_getQuadDecider)                                                          \n\
@@ -446,11 +442,11 @@ void main()                                                                     
     DataLine diffuseTex(diffuseTexPtr->GetName(), TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
     DNP finalColorRGB(new MultiplyNode(DataLine(lightCalc->GetName()), diffuseTex, "finalColorRGB"));
     DNP finalColor(new CombineVectorNode(finalColorRGB, 1.0f, "finalColor"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
 
     //Generation.
     ShaderGenerator::GeneratedMaterial genM =
-        ShaderGenerator::GenerateMaterial(voxelParams, BlendMode::GetOpaque());
+        ShaderGenerator::GenerateMaterial(matData, voxelParams, BlendMode::GetOpaque());
     if (!genM.ErrorMessage.empty())
     {
         PrintError("Error generating voxel material's shaders", genM.ErrorMessage);

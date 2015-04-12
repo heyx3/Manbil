@@ -16,18 +16,17 @@ GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, Tex
                                                   RenderIOAttributes vertexAttrs,
                                                   unsigned int posIndex, unsigned int uvIndex)
 {
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    SerializedMaterial matData(vertexAttrs);
 
     //For the vertex shader, output screen position and UVs.
     DNP vertexPosOut(new SpaceConverterNode(DataLine(VertexInputNode::GetInstance(), posIndex),
                                             SpaceConverterNode::ST_OBJECT, SpaceConverterNode::ST_SCREEN,
                                             SpaceConverterNode::DT_POSITION,
                                             "GUIMat_objToScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(vertexPosOut, 1);
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV",
-                                                                DataLine(VertexInputNode::GetInstance(),
-                                                                         uvIndex)));
+    matData.MaterialOuts.VertexPosOutput = DataLine(vertexPosOut, 1);
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV",
+                                                              DataLine(VertexInputNode::GetInstance(),
+                                                                       uvIndex)));
 
     //For the fragment shader, multiply the texture parameter by the color parameter and output that.
     DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
@@ -63,10 +62,10 @@ GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, Tex
     }
     DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
     DNP finalColor(new MultiplyNode(finalTexCol, paramColor, "GUIMat_finalColor"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
 
     //Try to generate the material.
-    GenM genM = ShaderGenerator::GenerateMaterial(params, BlendMode::GetTransparent());
+    GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
     params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     return genM;
 }
@@ -84,9 +83,8 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
     {
         return GenM("'endColor' parameter isn't size 4");
     }
-
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = vertIns;
+    
+    SerializedMaterial matData(vertIns);
 
     //For the vertex shader, scale up the element based on the time lerp
     //    and output screen position and UVs.
@@ -97,11 +95,11 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
                                             SpaceConverterNode::ST_OBJECT,
                                             SpaceConverterNode::ST_SCREEN,
                                             SpaceConverterNode::DT_POSITION, "GUIMat_objToScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(vertexPosOut, 1);
-    DataNode::MaterialOuts.VertexOutputs.insert(DataNode::MaterialOuts.VertexOutputs.end(),
-                                                ShaderOutput("vOut_UV",
-                                                             DataLine(VertexInputNode::GetInstance(),
-                                                                      uvIndex)));
+    matData.MaterialOuts.VertexPosOutput = DataLine(vertexPosOut, 1);
+    matData.MaterialOuts.VertexOutputs.insert(matData.MaterialOuts.VertexOutputs.end(),
+                                              ShaderOutput("vOut_UV",
+                                                           DataLine(VertexInputNode::GetInstance(),
+                                                                    uvIndex)));
     
     //For the fragment shader, combine the color parameter, texture parameter, and animated color.
     DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
@@ -137,9 +135,9 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
             return GenM("Unknown texture type");
     }
     DNP finalColor(new MultiplyNode(finalTexCol, paramColor, endColor, "GUIMat_finalColor"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
 
-    GenM genM = ShaderGenerator::GenerateMaterial(params, BlendMode::GetTransparent());
+    GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
     params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     return genM;
 }

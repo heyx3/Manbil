@@ -91,17 +91,17 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
     }
 
     //Prepare material data to be created.
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = ParticleVertex::GetVertexInputData();
-    std::vector<ShaderOutput> &vertexOuts = DataNode::MaterialOuts.VertexOutputs,
-                              &fragmentOuts = DataNode::MaterialOuts.FragmentOutputs;
+    SerializedMaterial matData;
+    matData.VertexInputs = ParticleVertex::GetVertexInputData();
+    std::vector<ShaderOutput> &vertexOuts = matData.MaterialOuts.VertexOutputs,
+                              &fragmentOuts = matData.MaterialOuts.FragmentOutputs;
 
 
     //First, convert the particle inputs into vertex shader outputs.
     DataNode::CurrentShader = SH_VERTEX;
     DataNode::Ptr worldPos(new CombineVectorNode(outputs[GPUPOutputs::GPUP_WORLDPOSITION],
                                                  DataLine(VectorF(1.0f)), "worldPos"));
-    DataNode::MaterialOuts.VertexPosOutput = std::string("worldPos");
+    matData.MaterialOuts.VertexPosOutput = std::string("worldPos");
     vertexOuts.insert(vertexOuts.end(),
                       ShaderOutput("vOut_ParticleID",
                                    DataLine(VertexInputNode::GetInstanceName(), 0)));
@@ -123,8 +123,8 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
     geoUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_SIDEWAYS);
     geoUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     geoUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
-    DataNode::GeometryShader = GeoShaderData(geoOuts, geoUsage, 4, PT_POINTS, PT_TRIANGLE_STRIP,
-                                             UniformDictionary(), " ");
+    matData.GeoShader = GeoShaderData(geoOuts, geoUsage, 4, PT_POINTS, PT_TRIANGLE_STRIP,
+                                      UniformDictionary(), " ");
 
     std::vector<std::string> functionDecls;
     std::string finalOutputs;
@@ -167,9 +167,9 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
             action = "Invalid input chain";
             pNode->AssertAllInputsValid();
             action = "Error setting flags";
-            pNode->SetFlags(DataNode::GeometryShader.UsageFlags, dat.GetNonConstantOutputIndex());
+            pNode->SetFlags(matData.GeoShader.UsageFlags, dat.GetNonConstantOutputIndex());
             action = "Error getting params";
-            pNode->GetParameterDeclarations(DataNode::GeometryShader.Params, usedNodesParams);
+            pNode->GetParameterDeclarations(matData.GeoShader.Params, usedNodesParams);
             action = "Error writing functions";
             pNode->GetFunctionDeclarations(functionDecls, usedNodesFuncs);
             action = "Error writing outputs";
@@ -184,16 +184,16 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
     }
 #pragma warning(default: 4101)
     
-    DataNode::GeometryShader.ShaderCode += "\n\n//Helper functions.\n";
+    matData.GeoShader.ShaderCode += "\n\n//Helper functions.\n";
     for (unsigned int i = 0; i < functionDecls.size(); ++i)
     {
-        DataNode::GeometryShader.ShaderCode += functionDecls[i];
+        matData.GeoShader.ShaderCode += functionDecls[i];
     }
     
     //Define quaternion rotation.
     if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant(0.0f))
     {
-        DataNode::GeometryShader.ShaderCode += "                                 \n\
+        matData.GeoShader.ShaderCode += "                                 \n\
 vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
 {                                                         \n\
     return pos + (2.0 * cross(cross(pos, rot.xyz) + (rot.w * pos),\n\
@@ -205,7 +205,7 @@ vec3 rotateByQuaternion_geoShader(vec3 pos, vec4 rot)     \n\
                 sizeX = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".x",
                 sizeY = outputs[GPUPOutputs::GPUP_SIZE].GetValue() + ".y",
                 rotByQuat = "";
-    DataNode::GeometryShader.ShaderCode += std::string() +
+    matData.GeoShader.ShaderCode += std::string() +
 "                                                                               \n\
                                                                                 \n\
 void main()                                                                     \n\
@@ -222,7 +222,7 @@ void main()                                                                     
 ";
     if (!outputs[GPUPOutputs::GPUP_QUADROTATION].IsConstant(0.0f))
     {
-        DataNode::GeometryShader.ShaderCode += std::string() +
+        matData.GeoShader.ShaderCode += std::string() +
 "    //Rotation calculations.                                                   \n\
     float halfRot = 0.5f * " +
                     outputs[GPUPOutputs::GPUP_QUADROTATION].GetValue() + ";     \n\
@@ -232,42 +232,42 @@ void main()                                                                     
         rotByQuat = "    cornerPos = rotateByQuaternion_geoShader(cornerPos, rotQuat);\n";
     }
     
-    DataNode::GeometryShader.ShaderCode += std::string() +
+    matData.GeoShader.ShaderCode += std::string() +
 "                                                                               \n\
     vec3 cornerPos = (up * " + sizeY + ") + (side * " + sizeX + ");             \n\
 " + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     gOut_UV = vec2(1.0, 1.0);                                                   \n\
-    gOut_ParticleID = " + DataNode::MaterialOuts.VertexOutputs[0].Name + "[0];  \n\
-    gOut_RandSeeds1 = " + DataNode::MaterialOuts.VertexOutputs[1].Name + "[0];  \n\
-    gOut_RandSeeds2 = " + DataNode::MaterialOuts.VertexOutputs[2].Name + "[0];  \n\
+    gOut_ParticleID = " + matData.MaterialOuts.VertexOutputs[0].Name + "[0];    \n\
+    gOut_RandSeeds1 = " + matData.MaterialOuts.VertexOutputs[1].Name + "[0];    \n\
+    gOut_RandSeeds2 = " + matData.MaterialOuts.VertexOutputs[2].Name + "[0];    \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (-up * " + sizeY + ") + (side * " + sizeX + ");                 \n\
 " + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     gOut_UV = vec2(1.0, 0.0);                                                   \n\
-    gOut_ParticleID = " + DataNode::MaterialOuts.VertexOutputs[0].Name + "[0];  \n\
-    gOut_RandSeeds1 = " + DataNode::MaterialOuts.VertexOutputs[1].Name + "[0];  \n\
-    gOut_RandSeeds2 = " + DataNode::MaterialOuts.VertexOutputs[2].Name + "[0];  \n\
+    gOut_ParticleID = " + matData.MaterialOuts.VertexOutputs[0].Name + "[0];    \n\
+    gOut_RandSeeds1 = " + matData.MaterialOuts.VertexOutputs[1].Name + "[0];    \n\
+    gOut_RandSeeds2 = " + matData.MaterialOuts.VertexOutputs[2].Name + "[0];    \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = (up * " + sizeY + ") - (side * " + sizeX + ");                  \n\
 " + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     gOut_UV = vec2(0.0, 1.0);                                                   \n\
-    gOut_ParticleID = " + DataNode::MaterialOuts.VertexOutputs[0].Name + "[0];  \n\
-    gOut_RandSeeds1 = " + DataNode::MaterialOuts.VertexOutputs[1].Name + "[0];  \n\
-    gOut_RandSeeds2 = " + DataNode::MaterialOuts.VertexOutputs[2].Name + "[0];  \n\
+    gOut_ParticleID = " + matData.MaterialOuts.VertexOutputs[0].Name + "[0];    \n\
+    gOut_RandSeeds1 = " + matData.MaterialOuts.VertexOutputs[1].Name + "[0];    \n\
+    gOut_RandSeeds2 = " + matData.MaterialOuts.VertexOutputs[2].Name + "[0];    \n\
     EmitVertex();                                                               \n\
                                                                                 \n\
     cornerPos = -((up * " + sizeY + ") + (side * " + sizeX + "));               \n\
 " + rotByQuat + "                                                               \n\
     gl_Position = " + vpTransf + "pos + cornerPos, 1.0));                       \n\
     gOut_UV = vec2(0.0, 0.0);                                                   \n\
-    gOut_ParticleID = " + DataNode::MaterialOuts.VertexOutputs[0].Name + "[0];  \n\
-    gOut_RandSeeds1 = " + DataNode::MaterialOuts.VertexOutputs[1].Name + "[0];  \n\
-    gOut_RandSeeds2 = " + DataNode::MaterialOuts.VertexOutputs[2].Name + "[0];  \n\
+    gOut_ParticleID = " + matData.MaterialOuts.VertexOutputs[0].Name + "[0];    \n\
+    gOut_RandSeeds1 = " + matData.MaterialOuts.VertexOutputs[1].Name + "[0];    \n\
+    gOut_RandSeeds2 = " + matData.MaterialOuts.VertexOutputs[2].Name + "[0];    \n\
     EmitVertex();                                                               \n\
 }";
 
@@ -278,7 +278,7 @@ void main()                                                                     
                                      outputs[GPUPOutputs::GPUP_COLOR]));
 
 
-    return ShaderGenerator::GenerateMaterial(outUniforms, mode);
+    return ShaderGenerator::GenerateMaterial(matData, outUniforms, mode);
 }
 
 typedef GPUParticleGenerator GPUPG;

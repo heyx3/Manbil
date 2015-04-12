@@ -8,22 +8,22 @@ std::shared_ptr<DataNode> FragmentInputNode::instance = std::shared_ptr<DataNode
 
 unsigned int FragmentInputNode::GetNumbOutputs(void) const
 {
-    if (GeometryShader.IsValidData())
-        return GeometryShader.OutputTypes.GetNumbAttributes();
-    else return MaterialOuts.VertexOutputs.size();
+    if (GetMatData()->GeoShader.IsValidData())
+        return GetMatData()->GeoShader.OutputTypes.GetNumbAttributes();
+    else return GetMatData()->MaterialOuts.VertexOutputs.size();
 }
 
 unsigned int FragmentInputNode::GetOutputSize(unsigned int index) const
 {
-    return GeometryShader.IsValidData() ?
-               GeometryShader.OutputTypes.GetAttribute(index).Size :
-               MaterialOuts.VertexOutputs[index].Value.GetSize();
+    return GetMatData()->GeoShader.IsValidData() ?
+               GetMatData()->GeoShader.OutputTypes.GetAttribute(index).Size :
+               GetMatData()->MaterialOuts.VertexOutputs[index].Value.GetSize();
 }
 std::string FragmentInputNode::GetOutputName(unsigned int index) const
 {
-    return GeometryShader.IsValidData() ?
-               GeometryShader.OutputTypes.GetAttribute(index).Name :
-               MaterialOuts.VertexOutputs[index].Name;
+    return GetMatData()->GeoShader.IsValidData() ?
+               GetMatData()->GeoShader.OutputTypes.GetAttribute(index).Name :
+               GetMatData()->MaterialOuts.VertexOutputs[index].Name;
 }
 
 #pragma warning(disable: 4100)

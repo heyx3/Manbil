@@ -67,9 +67,8 @@ public:
     virtual void ReadString(std::string& outStr) override;
     virtual void ReadBytes(std::vector<unsigned char>& outBytes) override;
 
-    virtual void ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
-                                CollectionResizer resizer, void* pCollection,
-                                void* optionalData = 0) override;
+    virtual void ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
+                                void* pCollection, void* optionalData = 0) override;
 
     virtual void ReadDataStructure(IReadable& toSerialize) override;
 

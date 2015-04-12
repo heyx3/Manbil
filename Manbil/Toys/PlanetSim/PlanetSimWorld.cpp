@@ -30,8 +30,7 @@ PlanetSimWorld::PlanetSimWorld(void)
 
 ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary& params)
 {
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = PlanetVertex::GetVertexAttributes();
+    SerializedMaterial matData(PlanetVertex::GetVertexAttributes());
     typedef DataNode::Ptr DNP;
 
     //Vertex shader.
@@ -40,8 +39,8 @@ ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary& params)
                                               SpaceConverterNode::ST_SCREEN,
                                               SpaceConverterNode::DT_POSITION,
                                               "objToScreenPos"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
-    std::vector<ShaderOutput> * vertOuts = &DataNode::MaterialOuts.VertexOutputs;
+    matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen->GetName(), 1);
+    std::vector<ShaderOutput>* vertOuts = &matData.MaterialOuts.VertexOutputs;
     vertOuts->push_back(ShaderOutput("vOut_Pos", DataLine(VertexInputNode::GetInstanceName())));
     vertOuts->push_back(ShaderOutput("vOut_Normal", DataLine(VertexInputNode::GetInstanceName(), 1)));
     vertOuts->push_back(ShaderOutput("vOut_Height", DataLine(VertexInputNode::GetInstanceName(), 2)));
@@ -89,13 +88,12 @@ ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary& params)
     DNP finalPlanetColor(new CombineVectorNode(finalPlanetFog, 1.0f, "finalPlanetColor"));
 
     //Color output.
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalPlanetColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalPlanetColor));
 
 
     //Write out the material to the file.
-    SerializedMaterial ser(DataNode::VertexIns, DataNode::MaterialOuts);
     XmlWriter xWriter("planetMaterial");
-    xWriter.WriteDataStructure(ser, "Planet material");
+    xWriter.WriteDataStructure(matData, "Planet material");
     std::string error = xWriter.SaveData("Content/Materials/PlanetGen.xml");
     if (!error.empty())
     {
@@ -103,7 +101,7 @@ ShaderGenerator::GeneratedMaterial GenerateMaterial(UniformDictionary& params)
     }
 
 
-    return ShaderGenerator::GenerateMaterial(params, BlendMode::GetOpaque());
+    return ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetOpaque());
 }
 ShaderGenerator::GeneratedMaterial LoadMaterial(UniformDictionary& params)
 {
@@ -112,7 +110,7 @@ ShaderGenerator::GeneratedMaterial LoadMaterial(UniformDictionary& params)
     XmlReader reader("Content/Materials/PlanetGen.xml");
     if (!reader.ErrorMessage.empty())
     {
-        genM.ErrorMessage = "Error loading file 'Content/Materials/PlanetGen.xml': " +
+        genM.ErrorMessage = "Error loading file '../../Dependencies/Include In Build/Universal/Content/Materials/PlanetGen.xml': " +
                                 reader.ErrorMessage;
         return genM;
     }
@@ -130,11 +128,7 @@ ShaderGenerator::GeneratedMaterial LoadMaterial(UniformDictionary& params)
                                                   reader.ErrorMessage);
     }
 
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = ser.VertexInputs;
-    DataNode::MaterialOuts = ser.MaterialOuts;
-
-    return ShaderGenerator::GenerateMaterial(params, BlendMode::GetOpaque());
+    return ShaderGenerator::GenerateMaterial(ser, params, BlendMode::GetOpaque());
 }
 
 
@@ -203,8 +197,8 @@ void PlanetSimWorld::InitializeWorld(void)
     #pragma region Materials
 
 
-    ShaderGenerator::GeneratedMaterial genM = GenerateMaterial(planetParams);
-    //ShaderGenerator::GeneratedMaterial genM = LoadMaterial(planetParams);
+    //ShaderGenerator::GeneratedMaterial genM = GenerateMaterial(planetParams);
+    ShaderGenerator::GeneratedMaterial genM = LoadMaterial(planetParams);
     if (!genM.ErrorMessage.empty())
     {
         PrintError("Error generating planet terrain material: " + genM.ErrorMessage);

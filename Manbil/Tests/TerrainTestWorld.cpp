@@ -62,15 +62,13 @@ void TTW::InitializeTextures(void)
 }
 void TTW::InitializeMaterials(void)
 {
-    DataNode::ClearMaterialData();
+    SerializedMaterial matData(VertexPosUVNormal::GetVertexAttributes());
 
-    std::vector<ShaderOutput> &vertOuts = DataNode::MaterialOuts.VertexOutputs,
-                              &fragOuts = DataNode::MaterialOuts.FragmentOutputs;
+    std::vector<ShaderOutput> &vertOuts = matData.MaterialOuts.VertexOutputs,
+                              &fragOuts = matData.MaterialOuts.FragmentOutputs;
 
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
-
-    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),
@@ -90,7 +88,7 @@ void TTW::InitializeMaterials(void)
 
     DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos,
                                                                          "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
+    matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
 
 
     //Fragment shader combines the grass texture with ambient+diffuse lighting.
@@ -121,7 +119,7 @@ void TTW::InitializeMaterials(void)
 
 
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(terrParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, terrParams,
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(), "Error generating terrain shaders", genM.ErrorMessage))
     {

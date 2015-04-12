@@ -69,15 +69,15 @@ void AssImpTestWorld::InitializeTextures(void)
 }
 void AssImpTestWorld::InitializeMaterials(void)
 {
-    DataNode::ClearMaterialData();
+    SerializedMaterial matData;
 
-    std::vector<ShaderOutput> &vertOuts = DataNode::MaterialOuts.VertexOutputs,
-                              &fragOuts = DataNode::MaterialOuts.FragmentOutputs;
+    std::vector<ShaderOutput> &vertOuts = matData.MaterialOuts.VertexOutputs,
+                              &fragOuts = matData.MaterialOuts.FragmentOutputs;
 
     //Vertex shader is a simple object-to-screen-space conversion.
     //It outputs world position, UV, and world normal to the fragment shader.
     
-    DataNode::VertexIns = VertexPosUVNormal::GetVertexAttributes();
+    matData.VertexInputs = VertexPosUVNormal::GetVertexAttributes();
 
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),
@@ -95,7 +95,7 @@ void AssImpTestWorld::InitializeMaterials(void)
     vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_WorldNormal", vOut_WorldNormal));
 
     DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos, "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
+    matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
 
 
     //Fragment shader multiplies the 2D texture (using UV coordinates)
@@ -128,11 +128,11 @@ void AssImpTestWorld::InitializeMaterials(void)
                                               objTex3Sample, "finalColor3")),
                   finalColor4(new CombineVectorNode(finalColor3, 1.0f, "finalColor4"));
 
-    fragOuts.insert(fragOuts.end(), ShaderOutput("fOut_FinalColor4", finalColor4));
+    fragOuts.push_back(ShaderOutput("fOut_FinalColor4", finalColor4));
 
     
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(objParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, objParams,
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(), "Error generating material shaders", genM.ErrorMessage))
     {

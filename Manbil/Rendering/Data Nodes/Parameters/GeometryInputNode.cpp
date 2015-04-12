@@ -10,16 +10,16 @@ std::shared_ptr<DataNode> GeometryInputNode::instance = std::shared_ptr<DataNode
 unsigned int GeometryInputNode::GetNumbOutputs(void) const
 {
     AssertGeoShader();
-    return MaterialOuts.VertexOutputs.size();
+    return GetMatData()->MaterialOuts.VertexOutputs.size();
 }
 
 unsigned int GeometryInputNode::GetOutputSize(unsigned int outputIndex) const
 {
-    return MaterialOuts.VertexOutputs[outputIndex].Value.GetSize();
+    return GetMatData()->MaterialOuts.VertexOutputs[outputIndex].Value.GetSize();
 }
 std::string GeometryInputNode::GetOutputName(unsigned int outputIndex) const
 {
-    return MaterialOuts.VertexOutputs[outputIndex].Name;
+    return GetMatData()->MaterialOuts.VertexOutputs[outputIndex].Name;
 }
 
 

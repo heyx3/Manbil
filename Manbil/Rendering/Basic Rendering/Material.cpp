@@ -338,7 +338,7 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
     //Subroutines are a bit more complex to set up.
     for (auto it = dict.Subroutines.begin(); it != dict.Subroutines.end(); ++it)
     {
-        tempLoc = GetSubroutineUniformLoc(shaderProg, it->second.Definition->Shader, it->first.c_str());
+        tempLoc = GetSubroutineUniformLoc(shaderProg, it->second.Definition.Shader, it->first.c_str());
         if (tempLoc != INVALID_UNIFORM_LOCATION)
         {
             uniforms.Subroutines.insert(uniforms.Subroutines.end(),
@@ -350,12 +350,12 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
             //Get the ID of each subroutine function.
             for (unsigned int i = 0; i < sb.PossibleValueIDs.size(); ++i)
             {
-                sb.PossibleValueIDs[i] = GetSubroutineID(shaderProg, sb.Definition->Shader,
+                sb.PossibleValueIDs[i] = GetSubroutineID(shaderProg, sb.Definition.Shader,
                                                          sb.PossibleValues[i].c_str());
             }
 
             //Insert the subroutine into the correct subroutine list.
-            Shaders shader = sb.Definition->Shader;
+            Shaders shader = sb.Definition.Shader;
             std::vector<UniformLocation>& putInto = (shader == SH_VERTEX ?
                                                         vertexShaderSubroutines :
                                                         (shader == SH_GEOMETRY ?
@@ -750,7 +750,7 @@ void Material::SetUniforms(const UniformDictionary& params)
         std::vector<UniformLocation>* subroutineOrder = 0;
         std::vector<RenderObjHandle>* subroutineValue = 0;
 
-        switch (iterator->second.Definition->Shader)
+        switch (iterator->second.Definition.Shader)
         {
             case SH_VERTEX:
                 subroutineOrder = &vertexShaderSubroutines;

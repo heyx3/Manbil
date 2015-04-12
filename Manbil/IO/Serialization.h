@@ -5,13 +5,30 @@
 #include "../Math/LowerMath.hpp"
 #include "../Rendering/Basic Rendering/GLVectors.h"
 #include "../Rendering/Basic Rendering/RenderIOAttributes.h"
+#include "../Rendering/Basic Rendering/UniformCollections.h"
 #include "../Rendering/Textures/MTexture2D.h"
 #include "../Rendering/Textures/MTexture3D.h"
 #include "../Rendering/Textures/MTextureCubemap.h"
 
 
-//Provides ISerializable wrappers for many simple classes.
+//Provides ISerializable wrappers for many simple data structures.
+//Use the following convention to serialize these data structures:
+/*
+    Vector2f myVec;
+    Matrix4f myMat;
+    ...
+    writer->WriteDataStructure(Vector2f_Writable(myVec), "MyVec");
+    writer->WriteDataStructure(Matrix4f_Writable(myMat), "My Matrix");
+    ...
+    reader->ReadDataStructure(Vector2f_Readable(myVec));
+    reader->ReadDataStructure(Matrix4f_Readable(myMat));
+*/
 
+
+
+//In the interest of efficiency, there's quite a bit of macro use in here.
+
+#define MAKE_SERIALIZABLE(typeName) MAKE_SERIALIZABLE_FULL(typeName, typeName)
 
 #define MAKE_SERIALIZABLE_FULL(typeName, className) \
     struct className ## _Writable : public IWritable \
@@ -32,8 +49,6 @@
     private: \
         className ## _Readable(const className ## _Readable& cpy) = delete; \
     };
-
-#define MAKE_SERIALIZABLE(typeName) MAKE_SERIALIZABLE_FULL(typeName, typeName)
 
 
 MAKE_SERIALIZABLE(Vector2f)
@@ -59,6 +74,26 @@ MAKE_SERIALIZABLE(VectorI)
 MAKE_SERIALIZABLE_FULL(RenderIOAttributes::Attribute, RenderIOAttributes_Attribute)
 
 MAKE_SERIALIZABLE(RenderIOAttributes)
+
+
+//IMPORTANT: Uniform values do NOT serialize their GLSL shader locations.
+//Additionally, Uniform texture samplers do NOT serialize the texture handle being used.
+
+MAKE_SERIALIZABLE(UniformValueF)
+MAKE_SERIALIZABLE(UniformValueI)
+MAKE_SERIALIZABLE(UniformValueArrayF)
+MAKE_SERIALIZABLE(UniformValueArrayI)
+MAKE_SERIALIZABLE(UniformValueMatrix4f)
+MAKE_SERIALIZABLE(UniformValueSampler2D)
+MAKE_SERIALIZABLE(UniformValueSampler3D)
+MAKE_SERIALIZABLE(UniformValueSamplerCubemap)
+
+MAKE_SERIALIZABLE_FULL(SubroutineDefinition::Parameter, SubroutineDefinition_Parameter)
+MAKE_SERIALIZABLE(SubroutineDefinition)
+MAKE_SERIALIZABLE(UniformValueSubroutine)
+
+MAKE_SERIALIZABLE(UniformDictionary)
+
 
 MAKE_SERIALIZABLE(TextureSampleSettings2D);
 MAKE_SERIALIZABLE(TextureSampleSettings3D);

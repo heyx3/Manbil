@@ -206,8 +206,9 @@ void OpenGLTestWorld::InitializeMaterials(void)
 {
     typedef DataNode::Ptr DNP;
 
-    std::vector<ShaderOutput> &vertOuts = DataNode::MaterialOuts.VertexOutputs,
-                              &fragOuts = DataNode::MaterialOuts.FragmentOutputs;
+    SerializedMaterial matData;
+    std::vector<ShaderOutput> &vertOuts = matData.MaterialOuts.VertexOutputs,
+                              &fragOuts = matData.MaterialOuts.FragmentOutputs;
 
     {
         #pragma region Water
@@ -218,8 +219,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         //Vertex output 2: world-space position.
 
 
-        DataNode::ClearMaterialData();
-        DataNode::VertexIns = WaterVertex::GetVertexAttributes();
+        matData.VertexInputs = WaterVertex::GetVertexAttributes();
 
         //Vertex position output.
         DNP waterCalcs(new WaterNode(DataLine(VertexInputNode::GetInstance()),
@@ -230,7 +230,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                              SpaceConverterNode::ST_SCREEN,
                                              SpaceConverterNode::DT_POSITION,
                                              "objToScreenPos"));
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+        matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
 
         //Vertex shader outputs.
         DNP worldPos(new SpaceConverterNode(DataLine(waterCalcs, WaterNode::GetVertexPosOutputIndex()),
@@ -323,7 +323,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         UniformDictionary unDict;
         ShaderGenerator::GeneratedMaterial wM =
-            ShaderGenerator::GenerateMaterial(unDict, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, unDict, BlendMode::GetOpaque());
         if (!wM.ErrorMessage.empty())
         {
             std::cout << "Error generating water material: " << wM.ErrorMessage << "\n";
@@ -390,8 +390,8 @@ void OpenGLTestWorld::InitializeMaterials(void)
         #pragma region Cubemap
 
 
-        DataNode::ClearMaterialData();
-        DataNode::VertexIns = PrimitiveGenerator::CubemapVertex::GetVertexAttributes();
+        matData = SerializedMaterial();
+        matData.VertexInputs = PrimitiveGenerator::CubemapVertex::GetVertexAttributes();
 
         //Vertex pos output.
         DataLine worldPos = VertexInputNode::GetInstance();
@@ -403,7 +403,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
                                              SpaceConverterNode::ST_WORLD, SpaceConverterNode::ST_SCREEN,
                                              SpaceConverterNode::DT_POSITION,
                                              "worldPosToScreenPos"));
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+        matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
 
         //Vertex shader outputs.
         vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_worldPos", worldPos));
@@ -418,7 +418,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
         fragOuts.insert(fragOuts.end(), ShaderOutput("vOut_FinalColor", finalCubeColor));
 
         ShaderGenerator::GeneratedMaterial cmGen =
-            ShaderGenerator::GenerateMaterial(cubemapParams, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, cubemapParams, BlendMode::GetOpaque());
         if (!cmGen.ErrorMessage.empty())
         {
             std::cout << "Error generating shaders for cubemap material: " << cmGen.ErrorMessage << "\n";
@@ -439,15 +439,15 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         //Final render.
 
-        DataNode::ClearMaterialData();
-        DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+        matData = SerializedMaterial();
+        matData.VertexInputs = DrawingQuad::GetVertexInputData();
 
         DNP objToScreenPos(new SpaceConverterNode(VertexInputNode::GetInstance(),
                                                   SpaceConverterNode::ST_OBJECT,
                                                   SpaceConverterNode::ST_WORLD,
                                                   SpaceConverterNode::DT_POSITION,
                                                   "objToScreenPos"));
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(objToScreenPos, 1);
+        matData.MaterialOuts.VertexPosOutput = DataLine(objToScreenPos, 1);
 
         vertOuts.push_back(ShaderOutput("vOut_UV", DataLine(VertexInputNode::GetInstance(), 1)));
 
@@ -459,7 +459,7 @@ void OpenGLTestWorld::InitializeMaterials(void)
 
         UniformDictionary uniformDict;
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(uniformDict, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, uniformDict, BlendMode::GetOpaque());
         if (!genM.ErrorMessage.empty())
         {
             std::cout << "Error generating shaders for final screen material: " <<

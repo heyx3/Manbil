@@ -42,8 +42,7 @@ std::string TextRenderer::InitializeSystem(void)
     //Material.
 
     textRendererParams.ClearUniforms();
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    SerializedMaterial matData(DrawingQuad::GetVertexInputData());
 
     //Use a simple vertex shader that just uses world position -- in other words,
     //    the visible range in world space is just the volume from {-1, -1, -1} to {1, 1, 1}.
@@ -57,11 +56,11 @@ std::string TextRenderer::InitializeSystem(void)
                                                        "objPosToWorld"));
     DataNode::Ptr vertexPosOut(new CombineVectorNode(DataLine(objPosToWorld->GetName()),
                                                      DataLine(1.0f)));
-    DataNode::MaterialOuts.VertexPosOutput = vertexPosOut;
+    matData.MaterialOuts.VertexPosOutput = vertexPosOut;
 
     //The fragment shader just samples from the texture containing the text char
     //    and uses its "red" value because it's a grayscale texture.
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
     DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
     DataNode::Ptr textSampler(new TextureSample2DNode(fIn_UV, textSamplerName, "textSampler"));
     DataLine textSamplerRGBA(textSampler, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
@@ -69,10 +68,11 @@ std::string TextRenderer::InitializeSystem(void)
                                             SwizzleNode::C_X, SwizzleNode::C_X,
                                             SwizzleNode::C_X, SwizzleNode::C_X,
                                             "swizzleTextSample"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", textColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", textColor));
 
     BlendMode blending = BlendMode::GetTransparent();
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(textRendererParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData,
+                                                                                textRendererParams,
                                                                                 blending);
     if (!genM.ErrorMessage.empty())
     {

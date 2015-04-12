@@ -27,9 +27,8 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld& _world, std::string& outError)
     rendTarg.SetColorAttachment(RenderTargetTex(&colorTex), true);
 
     //Set up the post-process material.
-
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    
+    SerializedMaterial matData(DrawingQuad::GetVertexInputData());
     
 
     //Vertex shader.
@@ -39,8 +38,8 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld& _world, std::string& outError)
 
     //Just pass-through position and UV.
     DataNode::Ptr pos4(new CombineVectorNode(vIn_Pos, 1.0f, "vertPos4"));
-    DataNode::MaterialOuts.VertexPosOutput = pos4;
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
+    matData.MaterialOuts.VertexPosOutput = pos4;
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
 
 
     //Fragment shader.
@@ -63,9 +62,9 @@ VoxelWorldPPC::VoxelWorldPPC(VoxelWorld& _world, std::string& outError)
                                                   InterpolateNode::IT_Linear, "foggedColor"));
 
     DataNode::Ptr finalColor(new CombineVectorNode(foggedColor, 1.0f, "finalColor"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
 
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(ppParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, ppParams,
                                                                                 BlendMode::GetOpaque());
     if (!genM.ErrorMessage.empty())
     {

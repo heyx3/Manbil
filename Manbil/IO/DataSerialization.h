@@ -3,13 +3,31 @@
 #include <assert.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 
 
-//An interface for data that provides behavior for serialization.
-struct IReadable;
-//An interface for data that provides behavior for serialization.
-struct IWritable;
+class DataReader;
+class DataWriter;
+
+
+//A data structure that can read its data from a DataReader.
+struct IReadable
+{
+public:
+    virtual void ReadData(DataReader* data) = 0;
+};
+
+//A data structure that can write its data to a DataWriter.
+struct IWritable
+{
+public:
+    virtual void WriteData(DataWriter* data) const = 0;
+};
+
+//A data structure that can both read and write its data.
+struct ISerializable : public IReadable, IWritable { };
+
 
 
 //Writes data to some kind of stream. Classes inherit from this class to provide specific behavior,
@@ -37,19 +55,67 @@ public:
     virtual void WriteString(const std::string& value, const std::string& name) = 0;
     virtual void WriteBytes(const unsigned char* bytes, unsigned int nBytes, const std::string& name) = 0;
 
+    //Writes a data structure that implements the IWritable interface.
+    virtual void WriteDataStructure(const IWritable& toSerialize, const std::string& name) = 0;
+
+
     //A function that writes the given element of a collection using the given DataWriter,
     //   with optional data passed in.
     typedef void(*ElementWriter)(DataWriter* writer, const void* elementToWrite,
-                                 unsigned int elementIndex, void* optionalData);
+                                 unsigned int elementIndex, void* userData);
     //Writes a collection of some kind of data.
     virtual void WriteCollection(ElementWriter writerFunc, const std::string& name,
                                  unsigned int bytesPerElement,
                                  const void* collection, unsigned int collectionSize,
-                                 void* optionalData = 0) = 0;
+                                 void* userData = 0) = 0;
 
-    //Writes a complex object that implements the IWritable interface.
-    virtual void WriteDataStructure(const IWritable& toSerialize, const std::string& name) = 0;
+
+    template<typename Key, typename Value>
+    //Writes a key and value pair.
+    using DictElementWriter = void(*)(DataWriter* writer, const Key* k, const Value* v, void* userData);
+
+    template<typename Key, typename Value>
+    //Writes a set of key-value pairs.
+    void WriteDictionary(const std::unordered_map<Key, Value>& toWrite,
+                         DictElementWriter<Key, Value> pairWriter,
+                         const std::string& name, void* userData = 0)
+    {
+        KVPDict_Write<Key, Value> helper(toWrite, pairWriter, userData);
+        WriteDataStructure(helper, name);
+    }
+
+private:
+
+    #pragma region Helper data structure for "WriteDictionary()"
+
+    template<typename Key, typename Value>
+    //Used for "WriteDictionary()", because C++ doesn't like data structures inside a templated function.
+    struct KVPDict_Write : public IWritable
+    {
+        const std::unordered_map<Key, Value>& Dict;
+        DictElementWriter<Key, Value> WriterFunc;
+        void* pData;
+
+        KVPDict_Write(const std::unordered_map<Key, Value>& dict,
+                      DictElementWriter<Key, Value> writerFunc,
+                      void* _pData)
+                : Dict(dict), WriterFunc(writerFunc), pData(_pData)
+        { }
+
+        virtual void WriteData(DataWriter* writer) const override
+        {
+            writer->WriteUInt(Dict.size(), "Number of elements");
+            for (auto i = Dict.begin(); i != Dict.end(); ++i)
+            {
+                WriterFunc(writer, &i->first, &i->second, pData);
+            }
+        }
+    };
+
+    #pragma endregion
 };
+
+
 
 //Reads data from some kind of stream. Classes inherit from this class to provide specific behavior,
 //    e.x. XML files or binary files.
@@ -75,38 +141,69 @@ public:
     virtual void ReadString(std::string& outStr) = 0;
     virtual void ReadBytes(std::vector<unsigned char>& outBytes) = 0;
 
-    //A function that prepares a collection to store the given number of elements.
-    typedef void(*CollectionResizer)(void* pCollection, unsigned int newElement);
-    //A function that adds a default value to the end of the given collection.
-    typedef void(*ElementCreator)(void* pCollection, unsigned int newElementIndex, void* optionalData);
+    //Reads a data structurethat implements the IReadable interface.
+    virtual void ReadDataStructure(IReadable& toSerialize) = 0;
+
+
+    //A function that resizes a collection to store at least the given number of elements.
+    typedef void(*CollectionResizer)(void* pCollection, unsigned int nElements);
     //A function that reads the given element of a collection using the given DataReader,
     //   with optional data passed in.
     typedef void(*ElementReader)(DataReader* reader, void* pCollection,
-                                 unsigned int elementIndex, void* optionalData);
+                                 unsigned int elementIndex, void* userData);
+
     //Reads a collection of some kind of data into "outData".
-    virtual void ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
-                                CollectionResizer resizer, void* pCollection,
-                                void* optionalData = 0) = 0;
+    virtual void ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
+                                void* pCollection, void* userData = 0) = 0;
 
-    //Reads a complex object that implements the IReadable interface.
-    virtual void ReadDataStructure(IReadable& toSerialize) = 0;
+
+    template<typename Key, typename Value>
+    //Reads a key and value pair.
+    using DictElementReader = void(*)(DataReader* reader, Key* k, Value* v, void* userData);
+
+    template<typename Key, typename Value>
+    //Reads a set of key-value pairs.
+    void ReadDictionary(std::unordered_map<Key, Value>& toRead,
+                        DictElementReader<Key, Value> pairReader,
+                        void* userData = 0)
+    {
+        KVPDict_Read<Key, Value> helper(toRead, pairReader, userData);
+        ReadDataStructure(helper);
+    }
+
+private:
+
+    #pragma region Helper data structure for "ReadDictionary()"
+
+    template<typename Key, typename Value>
+    //Used for "ReadDictionary()", because C++ doesn't like data structures inside a templated function.
+    struct KVPDict_Read : public IReadable
+    {
+        std::unordered_map<Key, Value>& Dict;
+        DictElementReader<Key, Value> ReaderFunc;
+        void* pData;
+
+        KVPDict_Read(std::unordered_map<Key, Value>& dict,
+                     DictElementReader<Key, Value> readerFunc,
+                     void* _pData)
+            : Dict(dict), ReaderFunc(readerFunc), pData(_pData) { }
+
+        virtual void ReadData(DataReader* reader) override
+        {
+            unsigned int nElements;
+            reader->ReadUInt(nElements);
+
+            Dict.reserve(nElements);
+
+            Key k;
+            Value v;
+            for (unsigned int i = 0; i < nElements; ++i)
+            {
+                ReaderFunc(reader, &k, &v, pData);
+                Dict[k] = v;
+            }
+        }
+    };
+
+    #pragma endregion
 };
-
-
-
-//A data structure that can read its data from DataReader instances.
-struct IReadable
-{
-public:
-    virtual void ReadData(DataReader* data) = 0;
-};
-
-//A data structure that can write its data to DataWriter instances.
-struct IWritable
-{
-public:
-    virtual void WriteData(DataWriter* data) const = 0;
-};
-
-//A data structure that can both read and write its data from/to DataReader/DataWriter instances.
-struct ISerializable : public IReadable, IWritable { };

@@ -13,19 +13,19 @@ unsigned int ShaderInNode::GetOutputSize(unsigned int outputIndex) const
     {
         case SH_VERTEX:
             Assert(HasVertexInput(), "Attempted to get value of a vertex input that doesn't exist!");
-            return VertexIns.GetAttribute(vInputIndex).Size;
+            return GetMatData()->VertexInputs.GetAttribute(vInputIndex).Size;
 
         case SH_FRAGMENT:
             Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(GeometryShader.IsValidData(),
+            Assert(GetMatData()->GeoShader.IsValidData(),
                    "Attempted to get value of a geometry input when there is no geometry shader!");
-            return MaterialOuts.VertexOutputs[gInputIndex].Value.GetSize();
+            return GetMatData()->MaterialOuts.VertexOutputs[gInputIndex].Value.GetSize();
 
         case SH_GEOMETRY:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
-            if (GeometryShader.IsValidData())
-                return GeometryShader.OutputTypes.GetAttribute(fInputIndex).Size;
-            else return MaterialOuts.VertexOutputs[fInputIndex].Value.GetSize();
+            if (GetMatData()->GeoShader.IsValidData())
+                return GetMatData()->GeoShader.OutputTypes.GetAttribute(fInputIndex).Size;
+            else return GetMatData()->MaterialOuts.VertexOutputs[fInputIndex].Value.GetSize();
 
         default:
             Assert(false, std::string("Unknown shader type ") + ToString(CurrentShader));
@@ -38,19 +38,19 @@ std::string ShaderInNode::GetOutputName(unsigned int outputIndex) const
     {
         case SH_VERTEX:
             Assert(HasVertexInput(), "Attempted to get value of a vertex input that doesn't exist!");
-            return VertexIns.GetAttribute(vInputIndex).Name;
+            return GetMatData()->VertexInputs.GetAttribute(vInputIndex).Name;
 
         case SH_FRAGMENT:
             Assert(HasFragmentInput(), "Attempted to get value of a fragment input that doesn't exist!");
-            if (GeometryShader.IsValidData())
-                return GeometryShader.OutputTypes.GetAttribute(fInputIndex).Name;
-            else return MaterialOuts.VertexOutputs[fInputIndex].Name;
+            if (GetMatData()->GeoShader.IsValidData())
+                return GetMatData()->GeoShader.OutputTypes.GetAttribute(fInputIndex).Name;
+            else return GetMatData()->MaterialOuts.VertexOutputs[fInputIndex].Name;
 
         case SH_GEOMETRY:
             Assert(HasGeometryInput(), "Attempted to get value of a geometry input that doesn't exist!");
-            Assert(GeometryShader.IsValidData(),
+            Assert(GetMatData()->GeoShader.IsValidData(),
                    "Attempted to get value of a geometry input when there is no geometry shader!");
-            return MaterialOuts.VertexOutputs[gInputIndex].Name + "[" + ToString(gInputArrayIndex) + "]";
+            return GetMatData()->MaterialOuts.VertexOutputs[gInputIndex].Name + "[" + ToString(gInputArrayIndex) + "]";
 
         default:
             Assert(false, std::string() + "Unknown shader type " + ToString(CurrentShader));

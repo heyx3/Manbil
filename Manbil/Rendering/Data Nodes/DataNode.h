@@ -1,4 +1,4 @@
-#pragma once
+  #pragma once
 
 #include "../Basic Rendering/UniformCollections.h"
 #include "../Basic Rendering/MaterialUsageFlags.h"
@@ -85,26 +85,13 @@ public:
     //Points to the last DataNode that threw an exception.
     static const DataNode* ExceptedNode;
 
-
-    //The information about the material currently being built.
-    static MaterialOutputs MaterialOuts;
-    //The geometry shader being used.
-    static GeoShaderData GeometryShader;
-    //The vertex inputs.
-    static RenderIOAttributes VertexIns;
-
     //The shader currently being generated.
     static Shaders CurrentShader;
 
-
-    //Clears out the static data about the material currently being generated.
-    static void ClearMaterialData(void)
-    {
-        MaterialOuts.ClearData();
-        GeometryShader.MaxVertices = 0;
-        GeometryShader.ShaderCode = "";
-    }
-
+    //Sets the given material as the one currently being generated.
+    //This is needed for certain node types to work correctly.
+    static void SetCurrentMaterial(const SerializedMaterial* mat) { currentMat = mat; }
+    
 
     //Creates an unmanaged, heap-allocated node of the given class.
     //This node is not necessarily in a valid state yet; it has not been given any inputs.
@@ -195,9 +182,22 @@ protected:
     static std::vector<DataLine> MakeVector(const DataLine& dat, unsigned int wherePut,
                                             const std::vector<DataLine>& moreDats);
 
+    static const SerializedMaterial* GetMatData(void) { return currentMat; }
+
+
+    //Functions that convert data to a string to facilitate error logging.
+
     static std::string ToString(Shaders shader);
     static std::string ToString(unsigned int value);
     static std::string ToString(float value) { return std::to_string(value); }
+
+
+    static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
+
+    //Keeps track of what names correspond with what nodes.
+    static std::unordered_map<std::string, DataNode*> * DataNode_nameToNode;
+    //Holds how to create each kind of DataNode.
+    static std::unordered_map<std::string, DataNode::NodeFactory>* DataNode_factoriesByTypename;
 
 
     mutable std::string errorMsg;
@@ -231,17 +231,10 @@ protected:
     virtual std::string GetInputDescription(unsigned int index) const;
 
 
-    static unsigned int GenerateUniqueID(void) { lastID += 1; return lastID; }
-
-    //Keeps track of what names correspond with what nodes.
-    static std::unordered_map<std::string, DataNode*> * DataNode_nameToNode;
-    //Holds how to create each kind of DataNode.
-    static std::unordered_map<std::string, DataNode::NodeFactory> * DataNode_factoriesByTypename;
-
-
 private:
 
     static unsigned int lastID;
+    static const SerializedMaterial* currentMat;
 
 
     std::vector<DataLine> inputs;

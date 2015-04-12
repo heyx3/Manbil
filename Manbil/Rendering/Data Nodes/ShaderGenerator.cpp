@@ -16,16 +16,16 @@ std::string SG::GenerateUniformDeclarations(const UniformDictionary& dict)
     //First define any subroutines so that they are separate from actual uniform declarations.
     if (dict.Subroutines.size() > 0)
     {
-        std::vector<SubroutineDefinition*> usedDefinitions;
+        std::vector<SubroutineDefinition> usedDefinitions;
 
         decls += "//Subroutine definitions.\n";
         for (auto iterator = dict.Subroutines.begin(); iterator != dict.Subroutines.end(); ++iterator)
         {
             if (std::find(usedDefinitions.begin(), usedDefinitions.end(),
-                          iterator->second.Definition.get()) == usedDefinitions.end())
+                          iterator->second.Definition) == usedDefinitions.end())
             {
-                decls += iterator->second.Definition->GetDefinition() + "\n";
-                usedDefinitions.insert(usedDefinitions.end(), iterator->second.Definition.get());
+                decls += iterator->second.Definition.GetDefinition() + "\n";
+                usedDefinitions.push_back(iterator->second.Definition);
             }
         }
         decls += "\n";
@@ -56,31 +56,37 @@ std::string SG::GenerateUniformDeclarations(const UniformDictionary& dict)
 }
 
 
-SG::GeneratedMaterial SG::GenerateMaterial(UniformDictionary& outUniforms, BlendMode blendMode)
+SG::GeneratedMaterial SG::GenerateMaterial(const SerializedMaterial& matData,
+                                           UniformDictionary& outUniforms, BlendMode blendMode)
 {
-    const RenderIOAttributes& vertexIns = DataNode::VertexIns;
-    GeoShaderData& geometryShader = DataNode::GeometryShader;
-
     std::string vs, fs;
-    std::string error = GenerateVertFragShaders(vs, fs, outUniforms);
+    std::string error = GenerateVertFragShaders(vs, fs, matData, outUniforms);
 
     std::string geo = "";
-    if (geometryShader.IsValidData())
-        geo = GenerateGeometryShader();
+    if (matData.GeoShader.IsValidData())
+    {
+        geo = GenerateGeometryShader(matData);
+    }
 
     //Make sure the shaders were generated successfully.
     if (!error.empty())
+    {
         return GeneratedMaterial(std::string("Error generating vertex/fragment shaders: ") + error);
+    }
     if (geo.find("ERROR:") != std::string::npos)
+    {
         return GeneratedMaterial(std::string("Error generating geometry shader: '") + geo + "'");
+    }
 
-    if (geometryShader.IsValidData())
-        outUniforms.AddUniforms(geometryShader.Params, true);
+    if (matData.GeoShader.IsValidData())
+    {
+        outUniforms.AddUniforms(matData.GeoShader.Params, true);
+    }
 
 
     //Attempt to create the material.
 
-    Material* mat = new Material(vs, fs, outUniforms, vertexIns, blendMode, error, geo);
+    Material* mat = new Material(vs, fs, outUniforms, matData.VertexInputs, blendMode, error, geo);
     GeneratedMaterial genMat(error);
 
     if (genMat.ErrorMessage.empty())
@@ -95,12 +101,16 @@ SG::GeneratedMaterial SG::GenerateMaterial(UniformDictionary& outUniforms, Blend
     return genMat;
 }
 
-std::string SG::GenerateGeometryShader(void)
+std::string SG::GenerateGeometryShader(const SerializedMaterial& matData)
 {
-    const std::vector<ShaderOutput>& vertexOutputs = DataNode::MaterialOuts.VertexOutputs;
-    const GeoShaderData& data = DataNode::GeometryShader;
+    DataNode::SetCurrentMaterial(&matData);
+    const std::vector<ShaderOutput>& vertexOutputs = matData.MaterialOuts.VertexOutputs;
+    const GeoShaderData& data = matData.GeoShader;
 
-    if (!data.IsValidData()) return "ERROR: Invalid GeoShaderData instance.";
+    if (!data.IsValidData())
+    {
+        return "ERROR: Invalid GeoShaderData instance.";
+    }
 
 
     //First generate the vertex inputs.
@@ -144,21 +154,24 @@ std::string SG::GenerateGeometryShader(void)
 }
 
 std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& outFShader,
+                                        const SerializedMaterial& matData,
                                         UniformDictionary& outUniforms)
 {
-    const RenderIOAttributes& vertexIns = DataNode::VertexIns;
-    const MaterialOutputs& matData = DataNode::MaterialOuts;
-    const GeoShaderData& geoShaderData = DataNode::GeometryShader;
+    DataNode::SetCurrentMaterial(&matData);
+
+    const RenderIOAttributes& vertexIns = matData.VertexInputs;
+    const MaterialOutputs& matOuts = matData.MaterialOuts;
+    const GeoShaderData& geoShaderData = matData.GeoShader;
 
 
     bool useGeoShader = geoShaderData.IsValidData();
 
     //First make sure all shader outputs are valid sizes.
     //Note that vertex outputs can be any size, so they don't need to be tested.
-    if (matData.VertexPosOutput.GetSize() != 4)
+    if (matOuts.VertexPosOutput.GetSize() != 4)
     {
         return "Vertex pos output value must be size 4, but it is size " +
-                    std::to_string(matData.VertexPosOutput.GetSize());
+                    std::to_string(matOuts.VertexPosOutput.GetSize());
     }
     DataNode::CurrentShader = SH_FRAGMENT;
 
@@ -168,27 +181,27 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
     try
     {
         DataNode::CurrentShader = SH_VERTEX;
-        if (!matData.VertexPosOutput.IsConstant())
+        if (!matOuts.VertexPosOutput.IsConstant())
         {
             outputInfo = "vertex pos output node";
-            currentNode = matData.VertexPosOutput.GetNode();
+            currentNode = matOuts.VertexPosOutput.GetNode();
             if (currentNode == 0)
             {
-                return "Vertex position output node '" + matData.VertexPosOutput.GetNonConstantValue() +
+                return "Vertex position output node '" + matOuts.VertexPosOutput.GetNonConstantValue() +
                             "' doesn't exist!";
             }
             currentNode->AssertAllInputsValid();
 
-            for (unsigned int i = 0; i < matData.VertexOutputs.size(); ++i)
+            for (unsigned int i = 0; i < matOuts.VertexOutputs.size(); ++i)
             {
-                if (!matData.VertexOutputs[i].Value.IsConstant())
+                if (!matOuts.VertexOutputs[i].Value.IsConstant())
                 {
                     outputInfo = "vertex shader output #" + std::to_string(i + 1);
-                    currentNode = matData.VertexOutputs[i].Value.GetNode();
+                    currentNode = matOuts.VertexOutputs[i].Value.GetNode();
                     if (currentNode == 0)
                     {
                         return "Vertex shader output node '" +
-                                    matData.VertexOutputs[i].Value.GetNonConstantValue() +
+                                    matOuts.VertexOutputs[i].Value.GetNonConstantValue() +
                                     "' doesn't exist!";
                     }
                     currentNode->AssertAllInputsValid();
@@ -196,16 +209,16 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
             }
 
             DataNode::CurrentShader = SH_FRAGMENT;
-            for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
+            for (unsigned int i = 0; i < matOuts.FragmentOutputs.size(); ++i)
             {
-                if (!matData.FragmentOutputs[i].Value.IsConstant())
+                if (!matOuts.FragmentOutputs[i].Value.IsConstant())
                 {
                     outputInfo = "fragment shader output #" + std::to_string(i + 1);
-                    currentNode = matData.FragmentOutputs[i].Value.GetNode();
+                    currentNode = matOuts.FragmentOutputs[i].Value.GetNode();
                     if (currentNode == 0)
                     {
                         return "Fragment shader output node '" +
-                                    matData.FragmentOutputs[i].Value.GetNonConstantValue() +
+                                    matOuts.FragmentOutputs[i].Value.GetNonConstantValue() +
                                     "' doesn't exist!";
                     }
                     currentNode->AssertAllInputsValid();
@@ -225,22 +238,25 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
     DataNode::CurrentShader = SH_VERTEX;
     try
     {
-        matData.VertexPosOutput.GetNode()->SetFlags(vertFlags,
-                                                    matData.VertexPosOutput.GetNonConstantOutputIndex());
+        matOuts.VertexPosOutput.GetNode()->SetFlags(vertFlags,
+                                                    matOuts.VertexPosOutput.GetNonConstantOutputIndex());
     }
     catch (int ex)
     {
         if (ex != DataNode::EXCEPTION_ASSERT_FAILED)
         {
             return "Unexpected exception writing usage flags for vertex pos output node '" +
-                       matData.VertexPosOutput.GetNonConstantValue() + ": " + std::to_string(ex);
+                       matOuts.VertexPosOutput.GetNonConstantValue() + ": " + std::to_string(ex);
         }
     }
-    for (unsigned int i = 0; i < matData.VertexOutputs.size(); ++i)
+    for (unsigned int i = 0; i < matOuts.VertexOutputs.size(); ++i)
     {
-        if (matData.VertexOutputs[i].Value.IsConstant()) continue;
+        if (matOuts.VertexOutputs[i].Value.IsConstant())
+        {
+            continue;
+        }
 
-        const ShaderOutput& vertOut = matData.VertexOutputs[i];
+        const ShaderOutput& vertOut = matOuts.VertexOutputs[i];
 
         try
         {
@@ -259,11 +275,11 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
     }
     MaterialUsageFlags fragFlags;
     DataNode::CurrentShader = SH_FRAGMENT;
-    for (unsigned int i = 0; i < matData.FragmentOutputs.size(); ++i)
+    for (unsigned int i = 0; i < matOuts.FragmentOutputs.size(); ++i)
     {
-        if (matData.FragmentOutputs[i].Value.IsConstant()) continue;
+        if (matOuts.FragmentOutputs[i].Value.IsConstant()) continue;
 
-        const ShaderOutput& fragOut = matData.FragmentOutputs[i];
+        const ShaderOutput& fragOut = matOuts.FragmentOutputs[i];
 
         try
         {
@@ -286,16 +302,16 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
 
     //Generate the vertex output/fragment input declarations.
     std::string vertOutput, fragInput;
-    for (unsigned int vertOut = 0; vertOut < matData.VertexOutputs.size(); ++vertOut)
+    for (unsigned int vertOut = 0; vertOut < matOuts.VertexOutputs.size(); ++vertOut)
     {
-        vertOutput += "out " + VectorF(matData.VertexOutputs[vertOut].Value.GetSize(), 0).GetGLSLType() +
-                           " " + matData.VertexOutputs[vertOut].Name + ";\n";
+        vertOutput += "out " + VectorF(matOuts.VertexOutputs[vertOut].Value.GetSize(), 0).GetGLSLType() +
+                           " " + matOuts.VertexOutputs[vertOut].Name + ";\n";
 
         //If not using a geometry shader, the fragment inputs are the same as the vertex outputs.
         if (!useGeoShader)
         {
-            fragInput += "in " + VectorF(matData.VertexOutputs[vertOut].Value.GetSize(), 0).GetGLSLType() +
-                             " " + matData.VertexOutputs[vertOut].Name + ";\n";
+            fragInput += "in " + VectorF(matOuts.VertexOutputs[vertOut].Value.GetSize(), 0).GetGLSLType() +
+                             " " + matOuts.VertexOutputs[vertOut].Name + ";\n";
         }
     }
 
@@ -312,10 +328,10 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
 
     //Generate the fragment outputs.
     std::string fragOutput;
-    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+    for (unsigned int fragOut = 0; fragOut < matOuts.FragmentOutputs.size(); ++fragOut)
     {
-        fragOutput += "out " + VectorF::GetGLSLType(matData.FragmentOutputs[fragOut].Value.GetSize()) +
-                      " " + matData.FragmentOutputs[fragOut].Name + ";\n";
+        fragOutput += "out " + VectorF::GetGLSLType(matOuts.FragmentOutputs[fragOut].Value.GetSize()) +
+                      " " + matOuts.FragmentOutputs[fragOut].Name + ";\n";
     }
 
 
@@ -334,11 +350,11 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
                            vertexCodes, fragmentCodes;
 
     DataNode::CurrentShader = SH_VERTEX;
-    for (int vertOut = -1; vertOut < (int)matData.VertexOutputs.size(); ++vertOut)
+    for (int vertOut = -1; vertOut < (int)matOuts.VertexOutputs.size(); ++vertOut)
     {
         const DataLine& inDat = (vertOut < 0 ?
-                                     matData.VertexPosOutput :
-                                     matData.VertexOutputs[(unsigned int)vertOut].Value);
+                                     matOuts.VertexPosOutput :
+                                     matOuts.VertexOutputs[(unsigned int)vertOut].Value);
         if (!inDat.IsConstant())
         {
             DataNode* node = inDat.GetNode();
@@ -372,9 +388,9 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
         }
     }
     DataNode::CurrentShader = SH_FRAGMENT;
-    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+    for (unsigned int fragOut = 0; fragOut < matOuts.FragmentOutputs.size(); ++fragOut)
     {
-        const DataLine& inDat = matData.FragmentOutputs[fragOut].Value;
+        const DataLine& inDat = matOuts.FragmentOutputs[fragOut].Value;
 
         if (!inDat.IsConstant())
         {
@@ -447,14 +463,14 @@ void main()                                                                     
     " + vertexCode + "                                                                                  \n\
                                                                                                         \n\
 ";
-    for (unsigned int vertOut = 0; vertOut < matData.VertexOutputs.size(); ++vertOut)
+    for (unsigned int vertOut = 0; vertOut < matOuts.VertexOutputs.size(); ++vertOut)
     {
-        vertShader += "\t" + matData.VertexOutputs[vertOut].Name + " = " +
-                           matData.VertexOutputs[vertOut].Value.GetValue() + ";\n";
+        vertShader += "\t" + matOuts.VertexOutputs[vertOut].Name + " = " +
+                           matOuts.VertexOutputs[vertOut].Value.GetValue() + ";\n";
     }
     vertShader +=
 "                                                                                                        \n\
-    gl_Position = " + matData.VertexPosOutput.GetValue() + ";              \n\
+    gl_Position = " + matOuts.VertexPosOutput.GetValue() + ";              \n\
 }";
 
     DataNode::CurrentShader = SH_FRAGMENT;
@@ -466,10 +482,10 @@ void main()                                                                     
                                                                                                         \n";
 
     //Now output the final color(s).
-    for (unsigned int fragOut = 0; fragOut < matData.FragmentOutputs.size(); ++fragOut)
+    for (unsigned int fragOut = 0; fragOut < matOuts.FragmentOutputs.size(); ++fragOut)
     {
-        fragShader += "\t" + matData.FragmentOutputs[fragOut].Name + " = " +
-                        matData.FragmentOutputs[fragOut].Value.GetValue() + ";\n";
+        fragShader += "\t" + matOuts.FragmentOutputs[fragOut].Name + " = " +
+                        matOuts.FragmentOutputs[fragOut].Value.GetValue() + ";\n";
     }
     fragShader += "}";
 

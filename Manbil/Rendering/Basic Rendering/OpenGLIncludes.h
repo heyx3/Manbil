@@ -41,6 +41,11 @@ std::string PrimitiveTypeToGSInput(PrimitiveTypes t);
 std::string PrimitiveTypeToGSOutput(PrimitiveTypes t);
 //Gets the number of vertices per a single instance of the given primitive.
 unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t);
+//Converts the given primitive type into a descriptive string.
+std::string PrimitiveTypeToString(PrimitiveTypes primType);
+//Converts the result of "PrimitiveTypeToString" back into a PrimitiveTypes value.
+//Returns PT_POINTS if the string isn't valid.
+PrimitiveTypes PrimitiveTypeFromString(std::string primType);
 
 
 enum TextureTypes
@@ -72,3 +77,6 @@ enum Shaders
     SH_GEOMETRY,
 };
 GLenum ShaderTypeToGLEnum(Shaders sh);
+std::string ShaderTypeToString(Shaders sh);
+//Returns SH_GEOMETRY if the given string couldn't be parsed.
+Shaders ShaderTypeFromString(std::string sh);
