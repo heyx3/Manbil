@@ -474,6 +474,9 @@
     <ClCompile Include="IO\XmlSerialization.cpp">
       <Filter>IO\Serializers</Filter>
     </ClCompile>
+    <ClCompile Include="Sample Worlds\SerializationWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">

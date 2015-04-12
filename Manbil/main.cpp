@@ -12,6 +12,7 @@
 #include "Sample Worlds/GUIWorld.h"
 
 #include "Sample Worlds/OpenGLTestWorld.h"
+#include "Sample Worlds/SerializationWorld.h"
 #include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
 #include "Tests/TerrainTestWorld.h"
@@ -30,6 +31,7 @@ int main()
     SimpleRenderWorld().RunWorld();
     //DataNodeRenderWorld().RunWorld();
     //WaterWorld().RunWorld();
+    //SerializationWorld().RunWorld();
 
     //GUIWorld().RunWorld();
     //OpenGLTestWorld().RunWorld();
