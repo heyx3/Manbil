@@ -462,6 +462,9 @@
     <ClCompile Include="Rendering\Data Nodes\Parameters\FragCoordNode.cpp">
       <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
+    <ClCompile Include="Sample Worlds\GUIWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -1032,6 +1035,9 @@
     </ClInclude>
     <ClInclude Include="Graph\GraphSearchGoal.h">
       <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\GUIWorld.h">
+      <Filter>Sample Worlds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
