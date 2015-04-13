@@ -19,7 +19,7 @@ std::string CheckboxValue::InitGUIElement(EditorMaterialSet& materialSet)
                         materialSet.GetAnimatedMaterial(boxTex), true, materialSet.AnimateSpeed),
               checkGUITex(materialSet.GetAnimatedMatParams(checkTex), checkTex,
                           materialSet.GetAnimatedMaterial(checkTex), false, materialSet.AnimateSpeed);
-    GUICheckbox* box = new GUICheckbox(materialSet.StaticMatGreyParams, boxGUITex, checkGUITex);
+    GUICheckbox* box = new GUICheckbox(boxGUITex, checkGUITex);
 
     box->SetChecked(DefaultValue, false);
     box->OnClicked = OnBoxClicked;

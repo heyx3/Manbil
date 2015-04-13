@@ -20,8 +20,8 @@ public:
     void* OnClicked_Data = 0;
 
 
-    GUICheckbox(void) : GUICheckbox(UniformDictionary(), GUITexture(), GUITexture()) { }
-    GUICheckbox(const UniformDictionary& params, const GUITexture& box, const GUITexture& check,
+    GUICheckbox(void) : GUICheckbox(GUITexture(), GUITexture()) { }
+    GUICheckbox(const GUITexture& box, const GUITexture& check,
                 bool hideBoxIfChecked = false, float timeLerpSpeed = 1.0f);
 
 

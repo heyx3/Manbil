@@ -1,10 +1,10 @@
 #include "GUICheckbox.h"
 
 
-GUICheckbox::GUICheckbox(const UniformDictionary& params, const GUITexture& box, const GUITexture& check,
+GUICheckbox::GUICheckbox(const GUITexture& box, const GUITexture& check,
                          bool hideBoxIfChecked, float timeLerpSpeed)
     : Box(box), Check(check), HideBoxIfChecked(hideBoxIfChecked),
-      GUIElement(params, timeLerpSpeed)
+      GUIElement(UniformDictionary(), timeLerpSpeed)
 {
     Box.Depth = 0.0f;
     Check.Depth = 0.01f;

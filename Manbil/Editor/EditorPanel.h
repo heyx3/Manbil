@@ -7,8 +7,7 @@
 //TODO: Create a new system on top of this one that implements a DataReader/DataWriter to create an editor panel for serialized data.
 
 
-//Provides a high-level system for creating editor panels for some data.
-//An auto-formatted editor for some kind of basic data.
+//Provides a high-level method for creating editor panels for some data.
 class EditorPanel : public GUIElement
 {
 public:

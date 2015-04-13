@@ -1,6 +1,14 @@
 #include "GUISlider.h"
 
 
+GUISlider::GUISlider(const UniformDictionary& params,
+                     const GUITexture& barTex, const GUITexture& nubTex, float startingValLerp,
+                     bool isClickable, bool isVertical, float timeLerpSpeed)
+    : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
+      Bar(barTex), Nub(nubTex), Value(startingValLerp)
+{
+}
+
 bool GUISlider::GetDidBoundsChangeDeep(void) const
 {
     return DidBoundsChange || Bar.DidBoundsChange;
@@ -72,8 +80,8 @@ float GUISlider::GetNewValue(Vector2f mousePos) const
 
 void GUISlider::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 {
-    Bar.Update(elapsed, relativeMousePos);
-    Nub.Update(elapsed, relativeMousePos);
+    Bar.Update(elapsed, relativeMousePos - Bar.GetPos());
+    Nub.Update(elapsed, relativeMousePos - Nub.GetPos());
 }
 void GUISlider::Render(float elapsedTime, const RenderInfo & info)
 {
