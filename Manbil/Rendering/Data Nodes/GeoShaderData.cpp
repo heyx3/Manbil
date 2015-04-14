@@ -35,6 +35,4 @@ void GeoShaderData::ReadData(DataReader* reader)
     reader->ReadUInt(UsageFlags.GetBitmaskValue());
     reader->ReadDataStructure(UniformDictionary_Readable(Params));
     reader->ReadString(ShaderCode);
-
-    //PRIORITY: Test the reading-in of shader code -- make sure escaped chars work properly!
 }
