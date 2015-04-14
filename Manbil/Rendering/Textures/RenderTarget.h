@@ -76,6 +76,9 @@ public:
     //Equal to the smallest height of the attached color textures.
     unsigned int GetHeight(void) const { return height; }
 
+    //Gets whether this render target is currently bound.
+    bool IsBound(void) const { return currentTarget == this; }
+
 
     //Render target operations.
 
