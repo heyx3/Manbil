@@ -258,11 +258,11 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
     <ClCompile Include="Sample Worlds\SerializationWorld.cpp" />
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
+    <ClCompile Include="Sample Worlds\TerrainWorld.cpp" />
     <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
     <ClCompile Include="Tests\AssImpTestWorld.cpp" />
     <ClCompile Include="Tests\GUITestWorld.cpp" />
     <ClCompile Include="Tests\RiftTestWorld.cpp" />
-    <ClCompile Include="Tests\TerrainTestWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
@@ -459,11 +459,11 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
     <ClInclude Include="Sample Worlds\SerializationWorld.h" />
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
+    <ClInclude Include="Sample Worlds\TerrainWorld.h" />
     <ClInclude Include="Sample Worlds\WaterWorld.h" />
     <ClInclude Include="Tests\AssImpTestWorld.h" />
     <ClInclude Include="Tests\GUITestWorld.h" />
     <ClInclude Include="Tests\RiftTestWorld.h" />
-    <ClInclude Include="Tests\TerrainTestWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />

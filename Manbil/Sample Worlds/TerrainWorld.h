@@ -8,13 +8,17 @@
 
 class Terrain;
 
-//A simple world that tests the Terrain class.
-class TerrainTestWorld : public SFMLOpenGLWorld
+
+//A sample world that shows off the Terrain class.
+//Displays different levels of detail in the terrain that you can cycle through
+//    with the left/right arrow keys.
+//The terrain's heightmap is created with the Noise Generation system.
+class TerrainWorld : public SFMLOpenGLWorld
 {
 public:
 
-    TerrainTestWorld(void);
-    virtual ~TerrainTestWorld(void);
+    TerrainWorld(void);
+    virtual ~TerrainWorld(void);
 
 
 protected:
@@ -37,7 +41,7 @@ private:
     //Otherwise, returns true.
     bool Assert(bool test, std::string errorIntro, const std::string& error);
 
-
+    //Generates the terrain submesh for the given detail level.
     void GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel);
 
     void InitializeTextures(void);
@@ -47,9 +51,12 @@ private:
     //Renders the world geometry using the given rendering info.
     void RenderWorldGeometry(const RenderInfo& info);
 
+    
+    //Each Level of Detail of the terrain is stored as a different MeshData instance
+    //    inside a single mesh instance.
+    Mesh terrMesh;
 
     Material* terrMat;
-    Mesh terrMesh;
     UniformDictionary terrParams;
     MTexture2D terrTex;
 

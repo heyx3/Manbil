@@ -204,9 +204,6 @@
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\TerrainTestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
@@ -475,6 +472,9 @@
       <Filter>IO\Serializers</Filter>
     </ClCompile>
     <ClCompile Include="Sample Worlds\SerializationWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\TerrainWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
   </ItemGroup>
@@ -756,9 +756,6 @@
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Geometryf.h">
       <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\TerrainTestWorld.h">
-      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -1070,6 +1067,9 @@
       <Filter>IO\Serializers</Filter>
     </ClInclude>
     <ClInclude Include="Sample Worlds\SerializationWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\TerrainWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
   </ItemGroup>

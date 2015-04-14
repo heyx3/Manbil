@@ -218,13 +218,14 @@ void GUIWorld::InitializeGUI(void)
 
     GUITexture sliderBar(simpleGUIMatParams, &texSliderBar, simpleGUIMat),
                sliderNub(animatedGUIMatParams, &texSliderNub, animatedGUIMat, true, 1.0f);
+    sliderNub.ScaleBy(Vector2f(0.5f, 0.5f));
     sliderNub.Depth = 0.001f;
     GUISlider* slider = new GUISlider(UniformDictionary(), sliderBar, sliderNub, 0.5f);
     slider->OnValueChanged = [](GUISlider* slider, Vector2f mousePos, void* userData)
     {
         std::cout << "Slider: " << slider->Value << "\n";
     };
-    slider->ScaleBy(Vector2f(3.0f, 3.0f));
+    slider->ScaleBy(Vector2f(6.0f, 5.0f));
     slider->Depth = 0.001f;
 
     GUITexture checkboxBackground(animatedGUIMatParams, &texBackground, animatedGUIMat, true, 2.0f),

@@ -244,10 +244,10 @@ void SerializationWorld::InitializeWorld(void)
         //    an XML file DataWriter.
         XmlWriter infoWriter;
         infoWriter.WriteDataStructure(info, "World info");
-        std::string error = infoWriter.SaveData("../../Dependencies/Include In Build/Universal/" + filePath);
-        if (!error.empty())
+        std::string err = infoWriter.SaveData("../../Dependencies/Include In Build/Universal/" + filePath);
+        if (!err.empty())
         {
-            std::cout << "Error writing out world info: " << error << "\n";
+            std::cout << "Error writing out world info: " << err << "\n";
 
             char dummy;
             std::cin >> dummy;
@@ -365,4 +365,7 @@ void SerializationWorld::OnWindowResized(unsigned int newWidth, unsigned int new
 {
     windowSize.x = newWidth;
     windowSize.y = newHeight;
+
+    gameCam.PerspectiveInfo.Width = newWidth;
+    gameCam.PerspectiveInfo.Height = newHeight;
 }

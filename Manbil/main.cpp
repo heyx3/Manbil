@@ -1,21 +1,12 @@
-#include "SFML/Graphics.hpp"
-
-#include "Math/Lower Math/Array3D.h"
-
-#include "IO/XmlSerialization.h"
-#include "IO/BinarySerialization.h"
-
 #include "Sample Worlds/SimpleRenderWorld.h"
 #include "Sample Worlds/DataNodeRenderWorld.h"
 #include "Sample Worlds/WaterWorld.h"
-
+#include "Sample Worlds/TerrainWorld.h"
+#include "Sample Worlds/SerializationWorld.h"
 #include "Sample Worlds/GUIWorld.h"
 
 #include "Sample Worlds/OpenGLTestWorld.h"
-#include "Sample Worlds/SerializationWorld.h"
-#include "Tests/RiftTestWorld.h"
 #include "Tests/AssImpTestWorld.h"
-#include "Tests/TerrainTestWorld.h"
 #include "Tests/GUITestWorld.h"
 #include "Sample Worlds/NoiseTest.h"
 #include "Toys/TwoTrianglesWorld.h"
@@ -31,12 +22,12 @@ int main()
     SimpleRenderWorld().RunWorld();
     DataNodeRenderWorld().RunWorld();
     WaterWorld().RunWorld();
+    TerrainWorld().RunWorld();
     SerializationWorld().RunWorld();
     GUIWorld().RunWorld();
 
     //OpenGLTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
-    //TerrainTestWorld().RunWorld();
     //GUITestWorld().RunWorld();
     
 

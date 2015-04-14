@@ -1,4 +1,4 @@
-#include "TerrainTestWorld.h"
+#include "TerrainWorld.h"
 
 #include "../Math/NoiseGeneration.hpp"
 #include "../Rendering/Data Nodes/DataNodes.hpp"
@@ -11,27 +11,28 @@
 #include <iostream>
 
 
-typedef TerrainTestWorld TTW;
+typedef TerrainWorld TW;
 
+//Use the Input system to track when a key was just pressed.
 const unsigned int INPUT_NextLOD = 1,
                    INPUT_PrevLOD = 2;
 
 
-TTW::TerrainTestWorld(void)
+TW::TerrainWorld(void)
     : terrMat(0), windowSize(800, 600),
       terrTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP),
               PixelSizes::PS_32F, true),
-      cam(Vector3f(0.0f, 0.0f, 25.0f), 40.0f, 0.16f),
+      cam(Vector3f(0.0f, 0.0f, 50.0f), 40.0f, 0.16f, Vector3f(1.0f, 1.0f, 0.0f).Normalized()),
       SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
 {
 
 }
-TTW::~TerrainTestWorld(void)
+TW::~TerrainWorld(void)
 {
 
 }
 
-void TTW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
+void TW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
 {
     std::vector<VertexPosUVNormal> verts;
     std::vector<unsigned int> inds;
@@ -41,26 +42,28 @@ void TTW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
                                                   [](VertexPosUVNormal& v) { return &v.Normal; },
                                                   100.0f, lodLevel);
     
+    //Insert a submesh for the terrain with this level of detail.
     terrMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     MeshData& dat = terrMesh.SubMeshes[terrMesh.SubMeshes.size() - 1];
-    dat.SetVertexData(verts, MeshData::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
+    dat.SetVertexData(verts, MeshData::BUF_STATIC,
+                      VertexPosUVNormal::GetVertexAttributes());
     dat.SetIndexData(inds, MeshData::BUF_STATIC);
 }
 
-void TTW::InitializeTextures(void)
+void TW::InitializeTextures(void)
 {
     terrTex.Create();
 
     //Try to load it from a file.
     std::string errorMsg;
-    if (!Assert(terrTex.SetDataFromFile("Content/Textures/Grass.png", errorMsg),
-                "Error loading 'Content/Textures/Grass.png'",
+    if (!Assert(terrTex.SetDataFromFile("Content/Sample Worlds/grass.png", errorMsg),
+                "Error loading 'Content/Sample Worlds/grass.png'",
                 errorMsg))
     {
         return;
     }
 }
-void TTW::InitializeMaterials(void)
+void TW::InitializeMaterials(void)
 {
     SerializedMaterial matData(VertexPosUVNormal::GetVertexAttributes());
 
@@ -91,17 +94,20 @@ void TTW::InitializeMaterials(void)
     matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
 
 
-    //Fragment shader combines the grass texture with ambient+diffuse lighting.
+    //Fragment shader combines the grass texture with ambient + diffuse lighting.
 
     DataLine fIn_WorldPos(FragmentInputNode::GetInstance(), 0),
              fIn_UV(FragmentInputNode::GetInstance(), 1),
              fIn_WorldNormal(FragmentInputNode::GetInstance(), 2);
+
     DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal, "normalizedNormal"));
+
     DataLine lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
-             ambientLight(0.5f),
+             ambientLight(0.8f),
              diffuseLight(0.5f),
              specLight(0.0f),
              specIntensity(256.0f);
+
     DataLine texScaleDown(513.0f);
     
     DataNode::Ptr finalUV(new MultiplyNode(fIn_UV, texScaleDown, "finalUV"));
@@ -130,10 +136,12 @@ void TTW::InitializeMaterials(void)
     //Set up parameters.
     terrParams.Texture2Ds["u_tex"].Texture = terrTex.GetTextureHandle();
 }
-void TTW::InitializeObjects(void)
+void TW::InitializeObjects(void)
 {
     //Generate the terrain heightmap using layers of perlin noise.
 
+    //Create Perlin noise at different scales and sum them together with different weights.
+    const unsigned int nLevels = 8;
     Perlin2D pers[] =
     {
         Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), 166234, true),
@@ -145,7 +153,7 @@ void TTW::InitializeObjects(void)
         Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
         Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
     };
-    Generator2D* const gens[] = 
+    Generator2D* const generatorPointers[] = 
     {
         &pers[0],
         &pers[1],
@@ -158,12 +166,12 @@ void TTW::InitializeObjects(void)
     };
 
     std::vector<float> weights;
-    for (unsigned int i = 0; i < (sizeof(pers) / sizeof(Perlin2D)); ++i)
+    for (unsigned int i = 0; i < nLevels; ++i)
     {
         weights.insert(weights.end(), 1.0f / powf(2.0f, (float)(i + 1)));
     }
 
-    LayeredOctave2D layeredPerlin(sizeof(pers) / sizeof(Perlin2D), weights.data(), gens);
+    LayeredOctave2D layeredPerlin(nLevels, weights.data(), generatorPointers);
 
     Noise2D outNoise(513, 513);
     layeredPerlin.Generate(outNoise);
@@ -174,6 +182,7 @@ void TTW::InitializeObjects(void)
     Terrain terr(outNoise.GetDimensions());
     terr.SetHeightmap(outNoise);
     
+    //Use six levels of detail.
     GenerateTerrainLOD(terr, 0);
     GenerateTerrainLOD(terr, 1);
     GenerateTerrainLOD(terr, 2);
@@ -181,10 +190,8 @@ void TTW::InitializeObjects(void)
     GenerateTerrainLOD(terr, 4);
     GenerateTerrainLOD(terr, 5);
     GenerateTerrainLOD(terr, 6);
-
-    terrMesh.Transform.SetScale(1.0f);
 }
-void TTW::InitializeWorld(void)
+void TW::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
     if (IsGameOver())
@@ -196,6 +203,7 @@ void TTW::InitializeWorld(void)
     InitializeMaterials();
     InitializeObjects();
     
+    //Set up the inputs.
     Input.AddBoolInput(INPUT_NextLOD,
                        BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Right,
                                                                       BoolInput::JustPressed)));
@@ -203,18 +211,21 @@ void TTW::InitializeWorld(void)
                        BoolInputPtr((BoolInput*)new KeyboardBoolInput(sf::Keyboard::Left,
                                                                       BoolInput::JustPressed)));
 
+
+    //Set up the camera.
     cam.Window = GetWindow();
     cam.PerspectiveInfo.SetFOVDegrees(55.0f);
     cam.PerspectiveInfo.zFar = 4000.0f;
 }
 
-void TTW::OnWorldEnd(void)
+void TW::OnWorldEnd(void)
 {
     delete terrMat;
+    terrMesh.SubMeshes.clear();
     terrTex.DeleteIfValid();
 }
 
-void TTW::UpdateWorld(float elapsedSeconds)
+void TW::UpdateWorld(float elapsedSeconds)
 {
     if (cam.Update(elapsedSeconds))
     {
@@ -222,6 +233,7 @@ void TTW::UpdateWorld(float elapsedSeconds)
         return;
     }
 
+    //Update input.
     if (Input.GetBoolInputValue(INPUT_NextLOD) &&
         terrMesh.CurrentSubMesh < terrMesh.SubMeshes.size() - 1)
     {
@@ -234,25 +246,29 @@ void TTW::UpdateWorld(float elapsedSeconds)
     }
 }
 
-void TTW::RenderWorldGeometry(const RenderInfo& info)
+void TW::RenderWorldGeometry(const RenderInfo& info)
 {
+    //Render the current terrain submesh.
     terrMat->Render(info, &terrMesh, terrParams);
 }
-void TTW::RenderOpenGL(float elapsedSeconds)
+void TW::RenderOpenGL(float elapsedSeconds)
 {
+    //Set up rendering state.
     glViewport(0, 0, windowSize.x, windowSize.y);
     ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_BACK).EnableState();
 
+    //Calculate transforms.
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
     cam.GetPerspectiveProjection(projM);
 
+    //Render the world.
     RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
     RenderWorldGeometry(info);
 }
 
-void TTW::OnInitializeError(std::string errorMsg)
+void TW::OnInitializeError(std::string errorMsg)
 {
 	EndWorld();
 
@@ -263,7 +279,7 @@ void TTW::OnInitializeError(std::string errorMsg)
     std::cin >> dummy;
 }
 
-void TTW::OnWindowResized(unsigned int newW, unsigned int newH)
+void TW::OnWindowResized(unsigned int newW, unsigned int newH)
 {
     cam.PerspectiveInfo.Width = newW;
     cam.PerspectiveInfo.Height = newH;
@@ -274,7 +290,7 @@ void TTW::OnWindowResized(unsigned int newW, unsigned int newH)
     windowSize.y = newH;
 }
 
-bool TTW::Assert(bool test, std::string errorIntro, const std::string& error)
+bool TW::Assert(bool test, std::string errorIntro, const std::string& error)
 {
     if (!test)
     {

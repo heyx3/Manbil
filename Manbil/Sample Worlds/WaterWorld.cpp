@@ -120,7 +120,8 @@ void WaterWorld::InitializeMaterials(void)
         //It outputs the object-space position (from {-1, -1, -1} to {1, 1, 1}) to the fragment shader.
         DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
                  vIn_Normal(VertexInputNode::GetInstance(), 1);
-        DataNode::Ptr objPosToScreenSpacePtr = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
+        DataNode::Ptr objPosToScreenSpacePtr = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos,
+                                                                                     "objPosToScreen");
         matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreenSpacePtr, 1);
         matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_Pos));
 
@@ -180,7 +181,8 @@ void WaterWorld::InitializeMaterials(void)
         //Create the water node.
         DataNode::Ptr waterPtr(new WaterNode(vIn_ObjPos, fIn_ObjPos, maxRipples, nFlows, "waterNode"));
         DataLine waterObjPos(waterPtr, 0),
-                 waterSurfaceNormal(waterPtr, 1);
+                 waterSurfaceNormal(waterPtr, 1),
+                 water;
 
         //Now make the vertex shader.
         DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(waterObjPos, "screenPosNode"),
@@ -222,17 +224,20 @@ void WaterWorld::InitializeMaterials(void)
                       normal1Final(new MultiplyNode(normal1, normalMap1Severity, "finalNormal1")),
                       normal2(new RemapNode(normalMap2RGB, 0.0f, 1.0f, -1.0f, 1.0f, "remapNormal2RGB")),
                       normal2Final(new MultiplyNode(normal2, normalMap2Severity, "finalNormal2"));
-        //TODO: The following normal computation isn't exactly right; we need the tangent/bitangent vectors from the water node.
-        DataNode::Ptr combinedNormal(new TangentSpaceNormalsNode(normal1Final, normal2Final,
-                                                                 waterSurfaceNormal,
-                                                                 "combineNormalsNode"));
+        DataNode::Ptr tangentNormal(new TangentSpaceNormalsNode(normal1Final, normal2Final,
+                                                                        waterSurfaceNormal,
+                                                                        "tangentNormal"));
+        //TODO: Get WaterNode to also output tangent/bitangent and then use ApplyNormalMapNode.
+        //DataNode::Ptr combinedNormal(new ApplyNormalMapNode(waterSurfaceNormal, waterSurfaceTangent,
+        //                                                    waterSurfaceBitangent, tangentNormal,
+        //                                                    "finalNormal"));
 
         //Now, split the water into two parts: the water itself and the reflected image of the skybox.
         const float waterReflectivity = 0.5;
         const Vector3f waterColor(0.1f, 0.15f, 1.0f);
         DataNode::Ptr camToPos(new SubtractNode(fIn_WorldPos, CameraDataNode::GetCamPos(),
                                                 "camToPosNode"));
-        DataNode::Ptr reflectEye(new ReflectNode(camToPos, combinedNormal, "reflectedEyeNode"));
+        DataNode::Ptr reflectEye(new ReflectNode(camToPos, tangentNormal, "reflectedEyeNode"));
         DataNode::Ptr skyboxPtr(new TextureSampleCubemapNode(reflectEye, "u_skyboxCubeTex",
                                                              "skyboxTexNode"));
         DataLine reflectedColor(skyboxPtr,
@@ -248,7 +253,7 @@ void WaterWorld::InitializeMaterials(void)
                     diffuseLight = 1.0f - ambientLight,
                     specularLight = 1.0f,
                     specularIntensity = 64.0f;
-        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, combinedNormal, lightDir,
+        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, tangentNormal, lightDir,
                                                       "lightCalcNode",
                                                       ambientLight, diffuseLight, specularLight,
                                                       specularIntensity));
