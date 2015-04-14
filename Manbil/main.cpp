@@ -29,11 +29,11 @@
 int main()
 {
     SimpleRenderWorld().RunWorld();
-    //DataNodeRenderWorld().RunWorld();
-    //WaterWorld().RunWorld();
-    //SerializationWorld().RunWorld();
+    DataNodeRenderWorld().RunWorld();
+    WaterWorld().RunWorld();
+    SerializationWorld().RunWorld();
+    GUIWorld().RunWorld();
 
-    //GUIWorld().RunWorld();
     //OpenGLTestWorld().RunWorld();
     //AssImpTestWorld().RunWorld();
     //TerrainTestWorld().RunWorld();
