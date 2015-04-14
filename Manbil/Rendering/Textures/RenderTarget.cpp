@@ -139,6 +139,12 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& other)
 
 RenderTarget::~RenderTarget(void)
 {
+    if (currentTarget == this)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        currentTarget = 0;
+    }
+
 	glDeleteFramebuffers(1, &frameBuffer);
     if (depthRenderBuffer != 0)
     {
