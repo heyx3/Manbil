@@ -1018,6 +1018,21 @@
     <ClInclude Include="Rendering\Data Nodes\Parameters\FragCoordNode.h">
       <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
+    <ClInclude Include="Graph\IndexedPriorityQueue.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\Graph.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\Edge.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\AStarSearch.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\GraphSearchGoal.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1139,6 +1154,9 @@
     </Filter>
     <Filter Include="Sample Worlds">
       <UniqueIdentifier>{4ab065bd-152d-485c-bdf3-a1e684e0dfe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graph">
+      <UniqueIdentifier>{a8c5d9ce-e6a4-4586-ba36-d7608a67ba8d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

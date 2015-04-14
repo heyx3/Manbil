@@ -285,6 +285,11 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Game Loop\SFMLOpenGLWorld.h" />
     <ClInclude Include="Game Loop\SFMLWorld.h" />
+    <ClInclude Include="Graph\AStarSearch.h" />
+    <ClInclude Include="Graph\Edge.h" />
+    <ClInclude Include="Graph\GraphSearchGoal.h" />
+    <ClInclude Include="Graph\IndexedPriorityQueue.h" />
+    <ClInclude Include="Graph\Graph.h" />
     <ClInclude Include="Input\BoolInput.h" />
     <ClInclude Include="Input\FloatInput.h" />
     <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h" />
