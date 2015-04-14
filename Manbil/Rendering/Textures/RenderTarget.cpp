@@ -139,6 +139,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& other)
 
 RenderTarget::~RenderTarget(void)
 {
+    //Unbind this render target if it's currently bound.
     if (currentTarget == this)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
