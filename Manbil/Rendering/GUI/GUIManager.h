@@ -22,6 +22,6 @@ public:
 
 private:
 
-    bool wasMouseClicked;
+    bool wasMouseClicked = true;
     Vector2f originalClickPos;
 };
