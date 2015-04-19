@@ -103,6 +103,8 @@ public:
     Interval GetXInterval(void) const { return Interval(GetXMin(), GetXMax(), 0.001f, true, true); }
     Interval GetYInterval(void) const { return Interval(GetYMin(), GetYMax(), 0.001f, true, true); }
 
+    bool CastRay(Vector2f start, Vector2f dir, Vector2f& outHitPos, float& outHitT) const;
+
 private:
 
     float x, y, width, height;
