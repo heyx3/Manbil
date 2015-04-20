@@ -151,6 +151,128 @@ bool Box2D::CastRay(Vector2f start, Vector2f dir, Vector2f& outHitPos, float& ou
     }
 }
 
+unsigned int Box2D::CastRay(Vector2f start, Vector2f dir,
+                            Vector2f& outPos1, float& outT1, Vector2f& outPos2, float& outT2) const
+{
+    Vector2f min = GetMinCorner(),
+             max = GetMaxCorner();
+
+    //Exit early if the ray has no chance of hitting.
+    if ((dir.x < 0.0f && start.x < min.x) || (dir.x > 0.0f && start.x > max.x) ||
+        (dir.y < 0.0f && start.y < min.y) || (dir.y > 0.0f && start.y > max.y))
+    {
+        return false;
+    }
+
+
+    //TODO: remove these lines.
+    assert(std::numeric_limits<float>::infinity() > 99999.0f);
+    assert(std::numeric_limits<float>::infinity() > -99999.0f);
+
+    //Find up to 4 different intersections.
+    const float infinity = std::numeric_limits<float>::infinity();
+    float smallestT[4] = { infinity, infinity, infinity, infinity };
+    Vector2f smallestPos[4] = { Vector2f(), Vector2f(), Vector2f(), Vector2f() };
+
+    Interval xInt = GetXInterval(),
+             yInt = GetYInterval();
+    
+    //For reference:
+    // X' = Vt + X
+    // t = (X' - X) / V
+
+    //X faces.
+    if (dir.x != 0)
+    {
+        //Min X face.
+        float tempT = (min.x - start.x) / dir.x;
+        float y = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(y))
+        {
+            smallestT[0] = tempT;
+            smallestPos[0] = Vector2f(min.x, y);
+        }
+
+        //Max X face.
+        tempT = (max.x - start.x) / dir.x;
+        y = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(y))
+        {
+            smallestT[1] = tempT;
+            smallestPos[1] = Vector2f(max.x, y);
+        }
+    }
+    if (dir.y != 0)
+    {
+        //Min Y face.
+        float tempT = (min.y - start.y) / dir.y;
+        float x = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(x))
+        {
+            smallestT[2] = tempT;
+            smallestPos[2] = Vector2f(x, min.y);
+        }
+
+        //Max Y face.
+        tempT = (max.y - start.y) / dir.y;
+        x = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(x))
+        {
+            smallestT[3] = tempT;
+            smallestPos[3] = Vector2f(x, max.y);
+        }
+    }
+
+
+    //Assume that there's either 0, 1, or 2 intersections.
+    //Find the intersections.
+    unsigned int first = 4, second = 4;
+    for (unsigned int i = 0; i < 4; ++i)
+    {
+        if (smallestT[i] != infinity)
+        {
+            if (first == 4)
+            {
+                first = i;
+            }
+            else
+            {
+                assert(second == 4);
+
+                if (smallestT[i] < smallestT[first])
+                {
+                    second = first;
+                    first = i;
+                }
+                else
+                {
+                    second = i;
+                }
+            }
+        }
+    }
+
+    //Figure out what to return.
+    if (first == 4)
+    {
+        return 0;
+    }
+    else if (second == 4)
+    {
+        outT1 = smallestT[first];
+        outPos1 = smallestPos[first];
+        return 1;
+    }
+    else
+    {
+        outT1 = smallestT[first];
+        outPos1 = smallestPos[first];
+        outT2 = smallestT[second];
+        outPos2 = smallestPos[second];
+        return 2;
+    }
+}
+
 
 
 
