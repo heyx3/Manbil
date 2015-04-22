@@ -53,9 +53,8 @@ public:
 
     //Calculates whether this element's bounds have changed since the last Update() call,
     //    including any child elements changing.
-    //Default behavior: just returns "DidBoundsChange".
-    //TODO: Why is this always returning "true"??
-    virtual bool GetDidBoundsChangeDeep(void) const { return true; }
+    //Default behavior: returns "DidBoundsChange".
+    virtual bool GetDidBoundsChangeDeep(void) const { return DidBoundsChange; }
     //Resets this element's "DidBoundsChange" and any childrens' "DidBoundsChange".
     //Default behavior: just sets "DidBoundsChange" to false.
     virtual void ClearDidBoundsChangeDeep(void) { DidBoundsChange = false; }

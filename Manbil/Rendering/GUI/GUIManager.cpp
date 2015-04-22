@@ -30,6 +30,7 @@ void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
         }
     }
 
+    RootElement->DidBoundsChange = false;
     wasMouseClicked = clicked;
 }
 

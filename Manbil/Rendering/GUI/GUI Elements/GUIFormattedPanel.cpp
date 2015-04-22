@@ -126,6 +126,7 @@ bool GUIFormattedPanel::GetDidBoundsChangeDeep(void) const
 }
 void GUIFormattedPanel::ClearDidBoundsChangeDeep(void)
 {
+    DidBoundsChange = false;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].Element->ClearDidBoundsChangeDeep();
@@ -240,8 +241,6 @@ void GUIFormattedPanel::RePositionElements()
         {
             max.y = Mathf::Max(max.y, moveDat.Pos.y - objects[i].SpaceAfter.y + dims.y);
         }
-
-        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     //Calculate the extents and re-center the elements around the origin.
@@ -251,6 +250,7 @@ void GUIFormattedPanel::RePositionElements()
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].Element->MoveElement(delta);
+        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     DidBoundsChange = true;

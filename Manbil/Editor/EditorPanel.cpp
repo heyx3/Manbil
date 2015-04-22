@@ -1,13 +1,12 @@
 #include "EditorPanel.h"
 
 
-
 EditorPanel::EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder)
     : MaterialSet(set),
         panel(horizontalBorder, verticalBorder,
-            GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
-                        &set.PanelBackgroundTex,
-                        set.GetStaticMaterial(&set.PanelBackgroundTex))),
+              GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
+                         &set.PanelBackgroundTex,
+                         set.GetStaticMaterial(&set.PanelBackgroundTex))),
         GUIElement(UniformDictionary()) { }
 
 
@@ -98,7 +97,7 @@ Vector2f EditorPanel::GetPos(void) const
 Box2D EditorPanel::GetBounds(void) const
 {
     Box2D bounds = panel.GetBounds();
-    bounds.Move(panel.GetPos());
+    //bounds.Move(panel.GetPos());
     return bounds;
 }
 void EditorPanel::MoveElement(Vector2f moveAmount)
@@ -152,6 +151,11 @@ void EditorPanel::CustomUpdate(float elapsedTime, Vector2f relMousePos)
 
     //Now update the GUI objects.
     panel.Update(elapsedTime, relMousePos);
+    if (panel.GetDidBoundsChangeDeep())
+    {
+        DidBoundsChange = true;
+        panel.ClearDidBoundsChangeDeep();
+    }
 }
 void EditorPanel::Render(float elapsedTime, const RenderInfo& info)
 {

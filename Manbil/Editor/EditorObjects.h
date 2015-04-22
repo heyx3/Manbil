@@ -346,6 +346,9 @@ public:
     //The render target height of each dropdown menu item's text.
     unsigned int TextRenderHeight = 0;
 
+    //A scale for the background that the items are rendered on.
+    Vector2f ItemBackgroundScale = Vector2f(1.0f, 1.0f);
+
     //The initial items in the dropdown menu.
     std::vector<std::string> Items;
 
@@ -412,7 +415,7 @@ public:
 
     //Raised when this button is clicked.
     void(*OnClick)(GUITexture* clicked, Vector2f localMouse, UserDataType pData) = 0;
-    UserDataType OnClick_Data = DefaultValue;
+    UserDataType OnClick_Data;
 
 
     //Creates an instance with no callback.
@@ -487,7 +490,10 @@ public:
         buttonTexPtr->OnClicked = [](GUITexture* clicked, Vector2f mouse, void* pData)
         {
             EditorButton& butt = *(EditorButton*)pData;
-            butt.OnClick(clicked, mouse, butt.OnClick_Data);
+            if (butt.OnClick != 0)
+            {
+                butt.OnClick(clicked, mouse, butt.OnClick_Data);
+            }
         };
         buttonTexPtr->OnClicked_pData = this;
 

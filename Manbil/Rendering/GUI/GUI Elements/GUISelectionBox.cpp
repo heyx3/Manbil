@@ -37,7 +37,7 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
 
     //Create one render slot for each item.
     unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
-    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize();
+    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize() / _textScale.x;
     TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
     bool tryCreate = TextRender->CreateTextRenderSlots(FontID, outError,
                                                        textBackWidth, textRenderHeight,

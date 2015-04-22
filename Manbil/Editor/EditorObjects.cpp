@@ -59,11 +59,13 @@ std::string DropdownValues::InitGUIElement(EditorMaterialSet& materialSet)
                                   &materialSet.SelectionBoxBackgroundTex,
                                   materialSet.GetStaticMaterial(&materialSet.SelectionBoxBackgroundTex),
                                   false, materialSet.AnimateSpeed);
+    itemListBackground.ScaleBy(ItemBackgroundScale);
     GUITexture highlight;
     GUITexture selectedItemBox(materialSet.GetAnimatedMatParams(&materialSet.SelectionBoxBoxTex),
                                &materialSet.SelectionBoxBoxTex,
                                materialSet.GetAnimatedMaterial(&materialSet.SelectionBoxBoxTex),
                                false, materialSet.AnimateSpeed);
+    selectedItemBox.ScaleBy(ItemBackgroundScale);
     //GUISelectionBox* box = new GUISelectionBox(err, &materialSet.TextRender,
     //                                           selectedItemBox, materialSet.FontID,
     //                                           Vector2u(selectedItemBox.Tex->GetWidth(),
@@ -83,6 +85,8 @@ std::string DropdownValues::InitGUIElement(EditorMaterialSet& materialSet)
                                                OnSelected, 0,
                                                TextRenderHeight,
                                                OnSelected_Data, 0, materialSet.AnimateSpeed);
+    box->MainBox.ScaleBy(ItemBackgroundScale);
+    box->SelectionBackground.ScaleBy(ItemBackgroundScale);
     if (!err.empty())
     {
         delete box;
@@ -173,7 +177,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
         buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
                                                  materialSet.GetAnimatedMaterial(tex),
                                                  true, materialSet.AnimateSpeed));
-        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(-buttonSize.x, buttonSize.y)));
+        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(buttonSize.x, buttonSize.y)));
         GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
         buttonTexPtr->OnClicked = dat.OnClick;
         buttonTexPtr->OnClicked_pData = dat.OnClick_pData;
@@ -187,6 +191,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
         }
         else
         {
+            buttonLabel->Depth = 0.01f;
             GUIPanel* panel = new GUIPanel();
             panel->AddElement(buttonTex);
             panel->AddElement(buttonLabel);
@@ -257,7 +262,10 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
     activeGUIElement->OnUpdate = [](GUIElement* el, float elapsed, Vector2f mouse, void* pData)
     {
         EditorLabel* label = (EditorLabel*)pData;
-        label->OnUpdate((GUILabel*)el, elapsed, label->OnUpdate_pData);
+        if (label->OnUpdate != 0)
+        {
+            label->OnUpdate((GUILabel*)el, elapsed, label->OnUpdate_pData);
+        }
     };
     activeGUIElement->OnUpdate_Data = this;
 
