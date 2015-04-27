@@ -15,6 +15,7 @@ class DataWriter;
 struct IReadable
 {
 public:
+    virtual ~IReadable(void) { }
     virtual void ReadData(DataReader* data) = 0;
 };
 
@@ -22,6 +23,7 @@ public:
 struct IWritable
 {
 public:
+    virtual ~IWritable(void) { }
     virtual void WriteData(DataWriter* data) const = 0;
 };
 

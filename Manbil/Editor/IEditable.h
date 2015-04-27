@@ -8,6 +8,9 @@ class IEditable
 {
 public:
 
+    virtual ~IEditable(void) { }
+
+
     //Builds a collection of editor GUI objects to edit this instance's data.
     //Returns an error message, or the empty string if everything went fine.
     virtual std::string BuildEditorElements(std::vector<EditorObjectPtr>& outElements,

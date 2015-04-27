@@ -131,7 +131,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //Panel background texture.
-    greyData.Fill(0.95f);
+    greyData.Fill(0.8f);
     outSet.PanelBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                      false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.PanelBackgroundTex.SetGreyscaleData(greyData))
@@ -140,7 +140,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //SelectionBox background texture.
-    greyData.Fill(0.8f);
+    greyData.Fill(0.875f);
     outSet.SelectionBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                             false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SelectionBoxBackgroundTex.SetGreyscaleData(greyData))
@@ -149,7 +149,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //SelectionBox box texture.
-    greyData.Reset(512, 64, 0.8f);
+    greyData.Reset(512, 64, 0.875f);
     for (unsigned int x = 0; x < greyData.GetWidth(); ++x)
     {
         greyData[Vector2u(x, 0)] = 0.1f;

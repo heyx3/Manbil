@@ -24,7 +24,7 @@ public:
 
 		arrayVals = new ArrayType[width * height * depth];
 	}
-    Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType & defaultValue)
+    Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType& defaultValue)
 	{
 		width = aWidth;
         height = aHeight;
@@ -44,7 +44,7 @@ public:
     {
         if (arrayVals != 0)
         {
-            delete arrayVals;
+            delete[] arrayVals;
         }
 
         width = toMove.width;
@@ -91,6 +91,7 @@ public:
 	{
         if ((width * height * depth) != (_width * _height * _depth))
         {
+            assert(arrayVals != 0);
             delete[] arrayVals;
             arrayVals = new ArrayType[_width * _height * _depth];
         }
@@ -101,10 +102,10 @@ public:
 	}
     //Resets this array to the given size, and initializes all elements to the given value.
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth,
-               const ArrayType& defaultValue)
+               const ArrayType& newValues)
 	{
 		Reset(_width, _height, _depth);
-        Fill(defaultValue)
+        Fill(newValues)
 	}
     
 

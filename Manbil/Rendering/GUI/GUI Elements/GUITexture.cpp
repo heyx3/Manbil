@@ -5,7 +5,7 @@
 
 Box2D GUITexture::GetBounds(void) const
 {
-    Vector2f dims;
+    Vector2f dims = GetScale();
     if (tex != 0)
     {
         if (rotation == 0.0f)
