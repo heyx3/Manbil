@@ -202,6 +202,9 @@ class _SlidingBarValue : public EditorObject
 {
 public:
 
+    typedef _SlidingBarValue<DataType, InterpretValue, UserDataType, DefaultValue> ThisType;
+
+
     //The range of the slider.
     DataType MinValue, MaxValue;
     //The default lerp value of the slider.
@@ -212,6 +215,9 @@ public:
 
     void(*OnValueChanged)(GUISlider * slider, DataType newVal, UserDataType pData) = 0;
     UserDataType OnValueChanged_Data = 0;
+
+    void(*OnUpdate)(GUISlider* slider, float elapsed, Vector2f mPos, UserDataType pData) = 0;
+    UserDataType OnUpdate_Data = 0;
 
 
     _SlidingBarValue(DataType min, DataType max, Vector2f offset = Vector2f(0.0f, 0.0f),
@@ -233,6 +239,7 @@ public:
                           materialSet.GetAnimatedMaterial(nubTex), true);
         guiBar.ScaleBy(materialSet.SliderBarScale);
         guiNub.ScaleBy(materialSet.SliderNubScale);
+        guiNub.Depth = 0.01f;
         GUISlider* slider = new GUISlider(materialSet.StaticMatGreyParams, guiBar, guiNub,
                                           DefaultLerpValue, true, false,
                                           materialSet.AnimateSpeed);
@@ -252,9 +259,23 @@ public:
                                       thisP->OnValueChanged_Data);
             }
         };
-#pragma warning(default: 4100)
 
         slider->OnValueChanged_pData = this;
+
+#pragma warning(default: 4100)
+
+        if (OnUpdate != 0)
+        {
+            slider->OnUpdate = [](GUIElement* el, float elapsed, Vector2f mPos, void* pData)
+            {
+                ThisType* t = (ThisType*)pData;
+                if (t->OnUpdate != 0)
+                {
+                    t->OnUpdate((GUISlider*)el, elapsed, mPos, t->OnUpdate_Data);
+                }
+            };
+            slider->OnUpdate_Data = this;
+        }
 
         if (DescriptionLabel.Text.empty())
         {
