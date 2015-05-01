@@ -13,9 +13,6 @@ class XmlWriter : public DataWriter
 {
 public:
 
-    std::string ErrorMsg;
-
-
     XmlWriter(std::string rootNodeName = "root");
 
     
