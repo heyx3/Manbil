@@ -58,6 +58,7 @@ public:
                     unsigned int textRenderHeight = 0,
                     void* onOptionSelected_pData = 0, void* onDropdownToggled_pData = 0,
                     float textAnimSpeed = 1.0f);
+    virtual ~GUISelectionBox(void);
 
 
     //Gets the number of visible items (items with an empty string are not visible

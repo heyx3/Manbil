@@ -6,7 +6,6 @@
 #include "../Primitives/DrawingQuad.h"
 
 
-
 //Handles rendering of strings into a render target using FreeType.
 //The rendered string textures only have a greyscale (i.e. red) component,
 //    storing the transparency of each pixel.
@@ -14,17 +13,16 @@
 //Then, create at least one render slot with "CreateTextRenderSlots()".
 //Finally, render a string into a slot by calling "RenderString()",
 //    and get the result with "GetRenderedString()".
-//TODO: Support deleting of fonts and change the interface a bit so that all uses of this system are caught and can be fixed to ensure font deletion after use.
 class TextRenderer
 {
 public:
 
     struct FontSlot
     {
-        unsigned int FontID, SlotIndex;
+        FreeTypeHandler::FontID FontID, SlotID;
         FontSlot(FreeTypeHandler::FontID fontID = FreeTypeHandler::ERROR_ID,
-                 unsigned int slotIndex = 0)
-            : FontID(fontID), SlotIndex(slotIndex) { }
+                 unsigned int slotID = 0)
+            : FontID(fontID), SlotID(slotID) { }
     };
 
 
@@ -46,12 +44,13 @@ public:
     //    or "FreeTypeHandler::ERROR_ID" if there was an error.
     unsigned int CreateAFont(std::string fontPath, std::string& outErrorMsg,
                              unsigned int pixelWidth = 50, unsigned int pixelHeight = 0);
-    //Creates the given number of render slots, all with the given width/height space.
-    //Returns whether or not this function succeeded.
-    bool CreateTextRenderSlots(FreeTypeHandler::FontID fontID, std::string& outErrorMsg,
-                               unsigned int finalRenderWidth, unsigned int finalRenderHeight,
-                               bool useMipmapping, const TextureSampleSettings2D& finalRenderSettings,
-                               unsigned int numbSlots = 1);
+    //Creates a slot for rendering text in the given font.
+    //Returns the slot. If an error occurred, outputs text into the given "error message" string.
+    FontSlot CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::string& outErrorMsg,
+                                  unsigned int finalRenderWidth, unsigned int finalRenderHeight,
+                                  bool useMipmapping, TextureSampleSettings2D finalRenderSettings);
+    //Returns whether the given slot was found and deleted.
+    bool DeleteTextRenderSlot(FontSlot slot);
 
     //Gets whether the given slot exists.
     bool DoesSlotExist(FontSlot slot) const;
@@ -96,39 +95,12 @@ private:
         std::string String;
         unsigned int TextWidth, TextHeight;
     };
-    typedef std::unordered_map<FreeTypeHandler::FontID, std::vector<Slot>> FontCollection;
-    typedef FontCollection::const_iterator SlotCollection;
+    typedef std::unordered_map<FreeTypeHandler::FontID,
+                               std::unordered_map<unsigned int, Slot>> FontCollection;
+    typedef FontCollection::mapped_type SlotCollection;
 
-    std::unordered_map<FreeTypeHandler::FontID, std::vector<Slot>> fonts;
-
-
-    //The following helper functions handle searching through the collection of fonts and slots.
-
-    //Tries to find the slots for the given font ID. If it is found, sets "outLoc" and returns true.
-    //If it isn't, returns false.
-    bool TryFindSlotCollection(FreeTypeHandler::FontID fontID, SlotCollection& outCollection) const;
-    //Tries to find the given slot in the given collection of slots.
-    //If it is found, sets "outSlot" to point to the found slot and returns true.
-    //Otherwise, returns false.
-    bool TryFindSlot(unsigned int slotIndex, const std::vector<Slot>& slots, const Slot*& outSlot) const;
-    //Tries to find the given slot in the given vector of slots.
-    //If it is found, sets "outSlot" and returns true.
-    //Otherwise, returns false.
-    bool TryFindSlot(unsigned int slotNumb, std::vector<Slot>& slots, Slot*& outSlot);
-
-    //Tries to find the given slot in the given font. If it is found, sets "outSlot" and returns true.
-    //Otherwise, returns false.
-    bool TryFindFontSlot(FontSlot slot, const Slot*& outSlot) const;
-    //Tries to find the given font/slot. If it is found, sets "outSlot" and returns true.
-    //Otherwise, returns false.
-    bool TryFindFontSlot(FontSlot slot, Slot*& outSlot);
-
-
-    //Renders the given string into the given render target, using the given font.
-    bool RenderString(std::string string, FreeTypeHandler::FontID fontID, RenderTarget* finalRender,
-                      unsigned int& outTextWidth, unsigned int& outTextHeight,
-                      unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
-
+    
+    static FreeTypeHandler& GetHandler(void) { return FreeTypeHandler::Instance; }
 
 
     static MTexture2D tempTex;
@@ -138,5 +110,35 @@ private:
     static Camera textRendererCam;
     static Matrix4f viewMat, projMat;
 
-    static FreeTypeHandler& GetHandler(void) { return FreeTypeHandler::Instance; }
+
+    FontCollection fonts;
+
+
+    //Renders the given string into the given render target, using the given font.
+    //Returns whether the operation was a success.
+    bool RenderString(std::string string, FreeTypeHandler::FontID fontID, RenderTarget* finalRender,
+                      unsigned int& outTextWidth, unsigned int& outTextHeight,
+                      unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
+
+
+    //The following helper functions search through the various fonts and slots.
+    //Each function has a const and non-const version.
+    
+    //Tries to find the slots for the given font ID.
+    //Returns the found slot collection, or 0 if it wasn't found.
+    const SlotCollection* TryFindSlotCollection(FreeTypeHandler::FontID fontID) const;
+    //Tries to find the given slot in the given collection of slots.
+    //Returns the found slot, or 0 if it wasn't found.
+    const Slot* TryFindSlot(unsigned int slotID, const SlotCollection* slots) const;
+    //Tries to find the given font/slot. Returns the found slot, or 0 if it wasn't found.
+    const Slot* TryFindFontSlot(FontSlot slot) const;
+    
+    //Tries to find the slots for the given font ID.
+    //Returns the found slot collection, or 0 if it wasn't found.
+    SlotCollection* TryFindSlotCollection(FreeTypeHandler::FontID fontID);
+    //Tries to find the given slot in the given collection of slots.
+    //Returns the found slot, or 0 if it wasn't found.
+    Slot* TryFindSlot(unsigned int slotIndex, SlotCollection* slots);
+    //Tries to find the given font/slot. Returns the found slot, or 0 if it wasn't found.
+    Slot* TryFindFontSlot(FontSlot slot);
 };

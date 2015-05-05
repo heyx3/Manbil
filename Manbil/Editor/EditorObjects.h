@@ -468,24 +468,20 @@ public:
 
         if (!Text.empty())
         {
-            //First try to create the font slot to render the label.
+            //First try to create the "font slot" to render the label.
             std::string err;
             unsigned int finalRenderWidth = (unsigned int)(ButtonSize.x / materialSet.TextScale.x);
-            if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err,
-                                                              finalRenderWidth,
-                                                              materialSet.TextRenderSpaceHeight,
-                                                              false,
-                                                              TextureSampleSettings2D(FT_LINEAR,
-                                                                                      WT_CLAMP)))
+            TextRenderer::FontSlot labelSlot = materialSet.CreateSlot(finalRenderWidth, err,
+                                                                      FT_LINEAR, false);
+            if (!err.empty())
             {
                 activeGUIElement = GUIElementPtr(0);
                 return "Error creating text render slot for button '" + Text + "'s label: " + err;
             }
-            TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                             materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
             //Next try to render the text.
             if (!materialSet.TextRender.RenderString(labelSlot, Text))
             {
+                materialSet.DeleteSlot(labelSlot);
                 return "Error render '" + Text + "' into the button's GUILabel";
             }
 
@@ -495,6 +491,7 @@ public:
                                                      labelSlot, materialSet.StaticMatText,
                                                      materialSet.AnimateSpeed,
                                                      GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+            ((GUILabel*)buttonLabel.get())->DeleteSlotWhenDeleted = true;
             buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
             buttonLabel->Depth = 0.01f;
             buttonLabel->ScaleBy(materialSet.TextScale);

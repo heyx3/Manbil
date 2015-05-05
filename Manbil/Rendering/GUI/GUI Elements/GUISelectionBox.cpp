@@ -35,30 +35,26 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
         textRenderHeight = TextRender->GetMaxCharacterSize(FontID).y;
     }
 
-    //Create one render slot for each item.
-    unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
-    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize() / _textScale.x;
-    TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
-    bool tryCreate = TextRender->CreateTextRenderSlots(FontID, outError,
-                                                       textBackWidth, textRenderHeight,
-                                                       mipmappedText, textFiltering,
-                                                       items.size());
-    if (!tryCreate)
-    {
-        outError = "Error creating " + std::to_string(items.size()) +
-                       " text render slots: " + outError;
-        return;
-    }
-
 
     //Set up the items.
+    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize() / _textScale.x;
+    TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
     nVisibleItems = 0;
     for (unsigned int i = 0; i < items.size(); ++i)
     {
+        //Try to create the font slot.
+        TextRenderer::FontSlot slot = TextRender->CreateTextRenderSlot(FontID, outError,
+                                                                       textBackWidth, textRenderHeight,
+                                                                       mipmappedText, textFiltering);
+        if (!outError.empty())
+        {
+            outError = "Error creating text render slot for '" + items[i] + "': " + outError;
+            return;
+        }
+
         //Create the label.
         itemElements.insert(itemElements.end(),
-                            GUILabel(textRenderParams, TextRender,
-                                     TextRenderer::FontSlot(FontID, firstSlotIndex + i),
+                            GUILabel(textRenderParams, TextRender, slot,
                                      textRenderMat, textAnimSpeed,
                                      GUILabel::HO_LEFT, GUILabel::VO_CENTER));
         itemElements[itemElements.size() - 1].Depth = 0.0001f;
@@ -76,6 +72,14 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
         {
             nVisibleItems += 1;
         }
+    }
+}
+GSB::~GUISelectionBox(void)
+{
+    for (unsigned int i = 0; i < items.size(); ++i)
+    {
+        bool tryD = TextRender->DeleteTextRenderSlot(itemElements[i].GetTextRenderSlot());
+        assert(tryD);
     }
 }
 

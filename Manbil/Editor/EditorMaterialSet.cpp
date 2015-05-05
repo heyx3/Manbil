@@ -280,6 +280,12 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     return "";
 }
 
+TextRenderer::FontSlot EditorMaterialSet::CreateSlot(unsigned int rendSpaceWidth, std::string& err,
+                                                     FilteringTypes texQuality, bool mipmaps)
+{
+    return TextRender.CreateTextRenderSlot(FontID, err, rendSpaceWidth, TextRenderSpaceHeight,
+                                           mipmaps, TextureSampleSettings2D(texQuality, WT_CLAMP));
+}
 
 Material* EditorMaterialSet::GetAnimatedMaterial(const MTexture2D* tex) const
 {

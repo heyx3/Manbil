@@ -145,20 +145,17 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
             //First try to create the font slot to render the label.
             unsigned int textRenderWidth = (unsigned int)(buttonSize.x / materialSet.TextScale.x);
             std::string err;
-            if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err, textRenderWidth,
-                                                              materialSet.TextRenderSpaceHeight,
-                                                              false,
-                                                              TextureSampleSettings2D(FT_LINEAR,
-                                                                                      WT_CLAMP)))
+            TextRenderer::FontSlot labelSlot = materialSet.CreateSlot(textRenderWidth, err,
+                                                                      FT_LINEAR, false);
+            if (!err.empty())
             {
                 activeGUIElement = GUIElementPtr(0);
                 return "Error creating text render slot for button '" + dat.Text + "'s label: " + err;
             }
-            TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                             materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
             //Next try to render the text.
             if (!materialSet.TextRender.RenderString(labelSlot, dat.Text))
             {
+                materialSet.DeleteSlot(labelSlot);
                 return "Error render '" + dat.Text + "' into the button's GUILabel";
             }
 
@@ -168,6 +165,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
                                                      labelSlot, materialSet.StaticMatText,
                                                      materialSet.AnimateSpeed,
                                                      GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+            ((GUILabel*)buttonLabel.get())->DeleteSlotWhenDeleted = true;
             buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
             buttonLabel->ScaleBy(materialSet.TextScale);
         }
@@ -235,20 +233,19 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
 {
     //First try to create the font slot to render the label.
     std::string err;
-    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err, TextRenderSpaceWidth,
-                                                      materialSet.TextRenderSpaceHeight, false,
-                                                      TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+    TextRenderer::FontSlot labelSlot = materialSet.CreateSlot(TextRenderSpaceWidth, err,
+                                                              FT_LINEAR, false);
+    if (!err.empty())
     {
         activeGUIElement = GUIElementPtr(0);
         return "Error creating text render slot for label '" + Text + "': " + err;
     }
-    TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                     materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
 
     //Next try to render the text into the slot.
     if (!materialSet.TextRender.RenderString(labelSlot, Text))
     {
         activeGUIElement = GUIElementPtr(0);
+        materialSet.DeleteSlot(labelSlot);
         return "Error rendering text '" + Text + "' into label slot";
     }
 
@@ -256,6 +253,7 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
                                                   &materialSet.TextRender, labelSlot,
                                                   materialSet.StaticMatText, materialSet.AnimateSpeed,
                                                   GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+    ((GUILabel*)activeGUIElement.get())->DeleteSlotWhenDeleted = true;
     activeGUIElement->SetColor(materialSet.TextColor);
     activeGUIElement->ScaleBy(materialSet.TextScale);
     
@@ -335,23 +333,23 @@ std::string EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet& set)
         //First try to create the font slot to render the label.
         std::string err;
         unsigned int renderSpaceWidth = (unsigned int)((float)titleTex->GetWidth() / set.TextScale.x);
-        if (!set.TextRender.CreateTextRenderSlots(set.FontID, err, renderSpaceWidth,
-                                                  set.TextRenderSpaceHeight, false,
-                                                  TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        TextRenderer::FontSlot labelSlot = set.CreateSlot(renderSpaceWidth, err, FT_LINEAR, false);
+        if (!err.empty())
         {
             return "Error creating text render slot for description '" +
                         DescriptionLabel.Text + "': " + err;
         }
-        TextRenderer::FontSlot labelSlot(set.FontID, set.TextRender.GetNumbSlots(set.FontID) - 1);
         //Next try to render the text.
         if (!set.TextRender.RenderString(labelSlot, DescriptionLabel.Text))
         {
+            set.DeleteSlot(labelSlot);
             return "Error rendering '" + DescriptionLabel.Text + "' into the description label: " + err;
         }
         //Make the label.
         GUIElementPtr label(new GUILabel(set.StaticMatTextParams, &set.TextRender,
                                          labelSlot, set.StaticMatText, set.AnimateSpeed,
                                          GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+        ((GUILabel*)label.get())->DeleteSlotWhenDeleted = true;
         label->SetColor(set.CollapsibleEditorTitleTextCol);
         label->ScaleBy(set.TextScale);
         label->Depth += 0.001f;

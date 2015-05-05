@@ -160,7 +160,7 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
         BackgroundTex.Update(elapsed, relativeMousePos);
     }
 
-    bool changed = false;
+    bool changed = DidBoundsChange;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         changed = changed || objects[i].Element->GetDidBoundsChangeDeep();

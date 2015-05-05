@@ -7,19 +7,22 @@
 #include "../../Rendering/Basic Rendering/ScreenClearer.h"
 
 
-Material* TextRenderer::textRenderer = 0;
-UniformDictionary TextRenderer::textRendererParams = UniformDictionary();
-RenderInfo TextRenderer::textRendererInfo = RenderInfo(0, 0, 0, 0);
-Camera TextRenderer::textRendererCam = Camera();
-Matrix4f TextRenderer::viewMat = Matrix4f(),
-         TextRenderer::projMat = Matrix4f();
-MTexture2D TextRenderer::tempTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
-                                 PS_8U_GREYSCALE, false);
+typedef TextRenderer TR;
+
+
+Material* TR::textRenderer = 0;
+UniformDictionary TR::textRendererParams = UniformDictionary();
+RenderInfo TR::textRendererInfo = RenderInfo(0, 0, 0, 0);
+Camera TR::textRendererCam = Camera();
+Matrix4f TR::viewMat = Matrix4f(),
+         TR::projMat = Matrix4f();
+MTexture2D TR::tempTex(TextureSampleSettings2D(FT_NEAREST, WT_CLAMP),
+                       PS_8U_GREYSCALE, false);
 
 const char* textSamplerName = "u_charSampler";
 
 
-std::string TextRenderer::InitializeSystem(void)
+std::string TR::InitializeSystem(void)
 {
     if (textRenderer != 0)
     {
@@ -82,7 +85,7 @@ std::string TextRenderer::InitializeSystem(void)
 
     return "";
 }
-void TextRenderer::DestroySystem(void)
+void TR::DestroySystem(void)
 {
     if (textRenderer == 0)
     {
@@ -96,7 +99,7 @@ void TextRenderer::DestroySystem(void)
 }
 
 
-TextRenderer::~TextRenderer(void)
+TR::~TR(void)
 {
     //Delete every font and every slot's render target.
     for (auto font = fonts.begin(); font != fonts.end(); ++font)
@@ -105,15 +108,15 @@ TextRenderer::~TextRenderer(void)
 
         for (auto slot = font->second.begin(); slot != font->second.end(); ++slot)
         {
-            RTManager.DeleteRenderTarget(slot->RenderTargetID);
-            delete slot->ColorTex;
+            RTManager.DeleteRenderTarget(slot->second.RenderTargetID);
+            delete slot->second.ColorTex;
         }
     }
 }
 
 
-unsigned int TextRenderer::CreateAFont(std::string fontPath, std::string& errorMsg,
-                                       unsigned int pixelWidth, unsigned int pixelHeight)
+unsigned int TR::CreateAFont(std::string fontPath, std::string& errorMsg,
+                             unsigned int pixelWidth, unsigned int pixelHeight)
 {
     //Try to create the font.
     unsigned int fontID = GetHandler().LoadFont(fontPath, FontSizeData(1, 0, 0, 0), 0);
@@ -131,102 +134,116 @@ unsigned int TextRenderer::CreateAFont(std::string fontPath, std::string& errorM
     }
 
     //Create the entry in the "slots" map.
-    fonts[fontID] = std::vector<Slot>();
+    fonts[fontID] = std::unordered_map<unsigned int, Slot>();
     return fontID;
 }
-bool TextRenderer::CreateTextRenderSlots(unsigned int fontID, std::string& errorMsg,
-                                         unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
-                                         bool useMipmaps, const TextureSampleSettings2D& settings,
-                                         unsigned int numbSlots)
+TR::FontSlot TR::CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::string& errorMsg,
+                                      unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
+                                      bool useMipmaps, TextureSampleSettings2D settings)
 {
-    SlotCollection loc;
-    if (!TryFindSlotCollection(fontID, loc))
+    //Make sure the font exists.
+    SlotCollection* slots = TryFindSlotCollection(fontID);
+    if (slots == 0)
+    {
+        errorMsg = "Couldn't find font ID " + std::to_string(fontID);
+        return TR::FontSlot();
+    }
+
+    //Create render target.
+    unsigned int rendTargetID = RTManager.CreateRenderTarget(PS_16U_DEPTH, errorMsg);
+    if (rendTargetID == RenderTargetManager::ERROR_ID)
+    {
+        errorMsg = "Error creating render target: " + errorMsg;
+        return TR::FontSlot();
+    }
+
+    //Find the first unused slot ID.
+    unsigned int slotID = 0;
+    while (slots->find(slotID) != slots->end())
+    {
+        slotID += 1;
+    }
+    //Add the slot to the collection.
+    Slot& slot = slots->operator[](slotID);
+    slot.RenderTargetID = rendTargetID;
+    slot.ColorTex = new MTexture2D(settings, PS_8U_GREYSCALE, true);
+    slot.String = "";
+    slot.TextWidth = 0;
+    slot.TextHeight = 0;
+
+    //Update the render target to use the color texture.
+    slot.ColorTex->Create(settings, useMipmaps, PS_8U_GREYSCALE);
+    slot.ColorTex->ClearData(renderSpaceWidth, renderSpaceHeight);
+    if (!RTManager[rendTargetID]->SetColorAttachment(RenderTargetTex(slot.ColorTex), true))
+    {
+        errorMsg = "Error attaching color texture to render target; it may be too big.";
+        slots->erase(slotID);
+        delete slot.ColorTex;
+        return TR::FontSlot();
+    }
+
+    //Check that the render target is good.
+    std::string err;
+    if (!RTManager[rendTargetID]->IsUseable(err))
+    {
+        errorMsg = "Render target is not usable: " + err;
+        slots->erase(slotID);
+        delete slot.ColorTex;
+        return TR::FontSlot();
+    }
+
+    return TR::FontSlot(fontID, slotID);
+}
+bool TR::DeleteTextRenderSlot(FontSlot slot)
+{
+    if (DoesSlotExist(slot))
+    {
+        Slot* slt = TryFindSlot(slot.SlotID, TryFindSlotCollection(slot.FontID));
+
+        delete slt->ColorTex;
+        RTManager.DeleteRenderTarget(slt->RenderTargetID);
+
+        fonts[slot.FontID].erase(slot.SlotID);
+        return true;
+    }
+    return false;
+}
+
+bool TR::DoesSlotExist(FontSlot slot) const
+{
+    auto slotCollection = fonts.find(slot.FontID);
+    if (slotCollection == fonts.end())
     {
         return false;
     }
-    std::vector<Slot>& slotCollection = fonts[fontID];
 
-    //Create the given number of slots.
-    for (unsigned int i = 0; i < numbSlots; ++i)
-    {
-        //Create render target.
-        unsigned int rendTargetID = RTManager.CreateRenderTarget(PS_16U_DEPTH, errorMsg);
-        if (rendTargetID == RenderTargetManager::ERROR_ID)
-        {
-            errorMsg = "Error creating render target: " + errorMsg;
-            return false;
-        }
-
-        //Add the slot to the collection.
-        Slot slot;
-        slot.RenderTargetID = rendTargetID;
-        slot.ColorTex = new MTexture2D(settings, PS_8U_GREYSCALE, true);
-        slot.String = "";
-        slot.TextWidth = 0;
-        slot.TextHeight = 0;
-        slotCollection.insert(slotCollection.end(), slot);
-
-        //Update the render target to use the color texture.
-        slot.ColorTex->Create(settings, useMipmaps, PS_8U_GREYSCALE);
-        slot.ColorTex->ClearData(renderSpaceWidth, renderSpaceHeight);
-        if (!RTManager[rendTargetID]->SetColorAttachment(RenderTargetTex(slot.ColorTex), true))
-        {
-            errorMsg = "Error attaching color texture to render target; it may be too big.";
-            slotCollection.erase(slotCollection.end() - 1);
-            delete slot.ColorTex;
-            return false;
-        }
-
-        //Check that the render target is good.
-        std::string err;
-        if (!RTManager[rendTargetID]->IsUseable(err))
-        {
-            errorMsg = "Render target is not usable: " + err;
-            slotCollection.erase(slotCollection.end() - 1);
-            delete slot.ColorTex;
-            return false;
-        }
-    }
-
-    return true;
+    return slotCollection->second.find(slot.SlotID) != slotCollection->second.end();
 }
 
-bool TextRenderer::DoesSlotExist(FontSlot slot) const
+int TR::GetNumbSlots(FreeTypeHandler::FontID fontID) const
 {
-    SlotCollection collLoc = fonts.find(slot.FontID);
-    if (collLoc == fonts.end())
-    {
-        return false;
-    }
-
-    //PRIORITY: Shouldn't this be "slot.SlotIndex < collLoc->second.size()"?
-    return (collLoc != fonts.end() && collLoc->second.size() < slot.SlotIndex);
-}
-
-int TextRenderer::GetNumbSlots(FreeTypeHandler::FontID fontID) const
-{
-    SlotCollection loc;
-    if (!TryFindSlotCollection(fontID, loc))
+    const SlotCollection* slots = TryFindSlotCollection(fontID);
+    if (slots == 0)
     {
         return -1;
     }
 
-    return (int)loc->second.size();
+    return (int)slots->size();
 }
-Vector2i TextRenderer::GetSlotRenderSize(FontSlot slot) const
+Vector2i TR::GetSlotRenderSize(FontSlot slot) const
 {
-    const Slot* slotP;
-    if (!TryFindFontSlot(slot, slotP))
+    const Slot* slotP = TryFindFontSlot(slot);
+    if (slotP == 0)
     {
         return Vector2i();
     }
 
     return Vector2i((int)slotP->ColorTex->GetWidth(), (int)slotP->ColorTex->GetHeight());
 }
-Vector2i TextRenderer::GetSlotBoundingSize(FontSlot slot) const
+Vector2i TR::GetSlotBoundingSize(FontSlot slot) const
 {
-    const Slot* slotP;
-    if (!TryFindFontSlot(slot, slotP))
+    const Slot* slotP = TryFindFontSlot(slot);
+    if (slotP == 0)
     {
         return Vector2i();
     }
@@ -234,24 +251,24 @@ Vector2i TextRenderer::GetSlotBoundingSize(FontSlot slot) const
     return Vector2i((int)slotP->TextWidth, (int)slotP->TextHeight);
 }
 
-Vector2u TextRenderer::GetMaxCharacterSize(FreeTypeHandler::FontID id) const
+Vector2u TR::GetMaxCharacterSize(FreeTypeHandler::FontID id) const
 {
     return FreeTypeHandler::Instance.GetGlyphMaxSize(id);
 }
-std::string TextRenderer::GetString(FontSlot slot) const
+std::string TR::GetString(FontSlot slot) const
 {
-    const Slot* slotP;
-    if (!TryFindFontSlot(slot, slotP))
+    const Slot* slotP = TryFindFontSlot(slot);
+    if (slotP == 0)
     {
         return 0;
     }
 
     return slotP->String;
 }
-MTexture2D* TextRenderer::GetRenderedString(FontSlot slot) const
+MTexture2D* TR::GetRenderedString(FontSlot slot) const
 {
-    const Slot* slotP;
-    if (!TryFindFontSlot(slot, slotP))
+    const Slot* slotP = TryFindFontSlot(slot);
+    if (slotP == 0)
     {
         return 0;
     }
@@ -261,17 +278,17 @@ MTexture2D* TextRenderer::GetRenderedString(FontSlot slot) const
 
 
 
-bool TextRenderer::RenderString(FontSlot slot, std::string textToRender,
-                                unsigned int backBufferWidth, unsigned int backBufferHeight)
+bool TR::RenderString(FontSlot slot, std::string textToRender,
+                      unsigned int backBufferWidth, unsigned int backBufferHeight)
 {
     //Find the slot to use.
-    SlotCollection loc;
-    if (!TryFindSlotCollection(slot.FontID, loc))
+    SlotCollection* slots = TryFindSlotCollection(slot.FontID);
+    if (slots == 0)
     {
         return false;
     }
-    Slot* slotP;
-    if (!TryFindSlot(slot.SlotIndex, fonts[slot.FontID], slotP))
+    Slot* slotP = TryFindSlot(slot.SlotID, slots);
+    if (slotP == 0)
     {
         return false;
     }
@@ -287,9 +304,9 @@ bool TextRenderer::RenderString(FontSlot slot, std::string textToRender,
     return false;
 }
 
-bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, RenderTarget* targ,
-                                unsigned int& outTextWidth, unsigned int& outTextHeight,
-                                unsigned int bbWidth, unsigned int bbHeight)
+bool TR::RenderString(std::string textToRender, unsigned int fontID, RenderTarget* targ,
+                      unsigned int& outTextWidth, unsigned int& outTextHeight,
+                      unsigned int bbWidth, unsigned int bbHeight)
 {
     //Get texture/render target.
     if (targ == 0)
@@ -365,53 +382,64 @@ bool TextRenderer::RenderString(std::string textToRender, unsigned int fontID, R
 }
 
 
-bool TextRenderer::TryFindSlotCollection(unsigned int fontID, SlotCollection& outCollection) const
+const TR::SlotCollection* TR::TryFindSlotCollection(FreeTypeHandler::FontID fontID) const
 {
-    outCollection = fonts.find(fontID);
-    if (outCollection == fonts.end())
+    auto tryFind = fonts.find(fontID);
+    if (tryFind == fonts.end())
     {
-        return false;
+        return 0;
     }
 
-    return true;
+    return &tryFind->second;
 }
-bool TextRenderer::TryFindSlot(unsigned int slotNumb, const std::vector<Slot>& slots,
-                               const Slot*& outSlot) const
+const TR::Slot* TR::TryFindSlot(unsigned int slotID, const SlotCollection* slots) const
 {
-    if (slotNumb >= slots.size())
+    auto tryFind = slots->find(slotID);
+    if (tryFind == slots->end())
     {
-        return false;
+        return 0;
     }
 
-    outSlot = &slots[slotNumb];
-    return true;
+    return &tryFind->second;
 }
-bool TextRenderer::TryFindSlot(unsigned int slotNumb, std::vector<Slot>& slots, Slot*& outSlot)
+const TR::Slot* TR::TryFindFontSlot(FontSlot slot) const
 {
-    if (slotNumb >= slots.size())
+    const TR::SlotCollection* slots = TryFindSlotCollection(slot.FontID);
+    if (slots == 0)
     {
-        return false;
+        return 0;
     }
 
-    outSlot = &slots[slotNumb];
-    return true;
+    return TryFindSlot(slot.SlotID, slots);
 }
-bool TextRenderer::TryFindFontSlot(FontSlot slot, const Slot*& outSlot) const
+
+TR::SlotCollection* TR::TryFindSlotCollection(FreeTypeHandler::FontID fontID)
 {
-    TextRenderer::SlotCollection collLoc;
-    if (!TryFindSlotCollection(slot.FontID, collLoc))
+    auto tryFind = fonts.find(fontID);
+    if (tryFind == fonts.end())
     {
-        return false;
+        return 0;
     }
 
-    return TryFindSlot(slot.SlotIndex, collLoc->second, outSlot);
+    return &tryFind->second;
 }
-bool TextRenderer::TryFindFontSlot(FontSlot slot, Slot*& outSlot)
+TR::Slot* TR::TryFindSlot(unsigned int slotID, SlotCollection* slots)
 {
-    TextRenderer::SlotCollection collLoc;
-    if (!TryFindSlotCollection(slot.FontID, collLoc))
+    auto tryFind = slots->find(slotID);
+    if (tryFind == slots->end())
     {
-        return false;
+        return 0;
     }
-    return TryFindSlot(slot.SlotIndex, fonts[slot.FontID], outSlot);
+
+    return &tryFind->second;
+}
+TR::Slot* TR::TryFindFontSlot(FontSlot slot)
+{
+    TR::SlotCollection* slots = TryFindSlotCollection(slot.FontID);
+    if (slots == 0)
+    {
+        return 0;
+    }
+
+    return TryFindSlot(slot.SlotID, slots);
 }
