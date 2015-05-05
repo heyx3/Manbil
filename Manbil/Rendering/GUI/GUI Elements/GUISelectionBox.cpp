@@ -21,7 +21,7 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
                      float textAnimSpeed)
     : TextRender(textRenderer), MainBox(mainBackground), SelectionBackground(selectionBackground),
       Highlight(highlight), extendAbove(_extendAbove), isExtended(false), TextColor(textColor),
-      FontID(font), items(_items), itemFontID(font), textScale(_textScale), textSpacing(_textSpacing),
+      FontID(font), itemFontID(font), textScale(_textScale), textSpacing(_textSpacing),
       OnOptionSelected(onOptionSelected), OnOptionSelected_pData(onOptionSelected_pData),
       OnDropdownToggled(onDropdownToggled), OnDropdownToggled_pData(onDropdownToggled_pData),
       GUIElement(UniformDictionary())
@@ -36,43 +36,14 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
     }
 
 
-    //Set up the items.
-    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize() / _textScale.x;
-    TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
-    nVisibleItems = 0;
-    for (unsigned int i = 0; i < items.size(); ++i)
-    {
-        //Try to create the font slot.
-        TextRenderer::FontSlot slot = TextRender->CreateTextRenderSlot(FontID, outError,
-                                                                       textBackWidth, textRenderHeight,
-                                                                       mipmappedText, textFiltering);
-        if (!outError.empty())
-        {
-            outError = "Error creating text render slot for '" + items[i] + "': " + outError;
-            return;
-        }
+    constructorData.textSettings = TextureSampleSettings2D(textFilterQuality, WT_CLAMP);
+    constructorData.useMips = mipmappedText;
+    constructorData.renderHeight = textRenderHeight;
+    constructorData.labelRenderParams = textRenderParams;
+    constructorData.labelRenderMat = textRenderMat;
+    constructorData.textAnimSpeed = textAnimSpeed;
 
-        //Create the label.
-        itemElements.insert(itemElements.end(),
-                            GUILabel(textRenderParams, TextRender, slot,
-                                     textRenderMat, textAnimSpeed,
-                                     GUILabel::HO_LEFT, GUILabel::VO_CENTER));
-        itemElements[itemElements.size() - 1].Depth = 0.0001f;
-        itemElements[itemElements.size() - 1].ScaleBy(textScale);
-
-        //Set the label text.
-        if (!itemElements[itemElements.size() - 1].SetText(items[i]))
-        {
-            outError = "Error rendering '" + items[i] + "' into a label: " + outError;
-            return;
-        }
-
-        //Calculate whether the element will be rendered in the dropdown box.
-        if (drawEmptyItems || !items[itemElements.size() - 1].empty())
-        {
-            nVisibleItems += 1;
-        }
-    }
+    ResetItems(_items, outError);
 }
 GSB::~GUISelectionBox(void)
 {
@@ -223,6 +194,57 @@ void GSB::SetIsExtended(bool _isExtended, bool raiseEvent)
     if (raiseEvent && OnDropdownToggled != 0)
     {
         OnDropdownToggled(this, OnDropdownToggled_pData);
+    }
+}
+
+void GSB::ResetItems(const std::vector<std::string>& newItems, std::string& err)
+{
+    //Clear out the current stuff.
+    for (unsigned int i = 0; i < items.size(); ++i)
+    {
+        bool tryD = TextRender->DeleteTextRenderSlot(itemElements[i].GetTextRenderSlot());
+        assert(tryD);
+    }
+    items = newItems;
+    itemElements.clear();
+
+
+    unsigned int textBackWidth = (unsigned int)MainBox.GetBounds().GetXSize() / textScale.x;
+    nVisibleItems = 0;
+    for (unsigned int i = 0; i < items.size(); ++i)
+    {
+        //Try to create the font slot.
+        TextRenderer::FontSlot slot = TextRender->CreateTextRenderSlot(FontID, err,
+                                                                       textBackWidth,
+                                                                       constructorData.renderHeight,
+                                                                       constructorData.useMips,
+                                                                       constructorData.textSettings);
+        if (!err.empty())
+        {
+            err = "Error creating text render slot for '" + items[i] + "': " + err;
+            return;
+        }
+
+        //Create the label.
+        itemElements.insert(itemElements.end(),
+                            GUILabel(constructorData.labelRenderParams, TextRender, slot,
+                                     constructorData.labelRenderMat, constructorData.textAnimSpeed,
+                                     GUILabel::HO_LEFT, GUILabel::VO_CENTER));
+        itemElements[itemElements.size() - 1].Depth = 0.0001f;
+        itemElements[itemElements.size() - 1].ScaleBy(textScale);
+
+        //Set the label text.
+        if (!itemElements[itemElements.size() - 1].SetText(items[i]))
+        {
+            err = "Error rendering '" + items[i] + "' into a label: " + err;
+            return;
+        }
+
+        //Calculate whether the element will be rendered in the dropdown box.
+        if (drawEmptyItems || !items[itemElements.size() - 1].empty())
+        {
+            nVisibleItems += 1;
+        }
     }
 }
 

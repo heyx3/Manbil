@@ -9,6 +9,7 @@
 //A dropdown menu of string items to choose from.
 //Note that instances currently have a fixed number of items, set in the constuctor
 //    (although items can be hidden with "SetDrawEmptyItems(false)").
+//A new list of items can be created from scratch by calling "ResetItems()".
 class GUISelectionBox : public GUIElement
 {
 public:
@@ -82,6 +83,9 @@ public:
     //Returns an empty string if the given item index didn't exist.
     std::string SetItem(unsigned int index, std::string newVal);
 
+    //Creates a whole new set of items. Returns whether the operation succeeded.
+    void ResetItems(const std::vector<std::string>& newItems, std::string& outErrorMsg);
+
 
     //Gets whether the dropdown menu extends above or below this element.
     bool GetExtendsAbove(void) const { return extendAbove; }
@@ -118,6 +122,20 @@ protected:
 
 
 private:
+
+    //Some particular data needed to create a new GUISelectionBox.
+    struct GSBData
+    {
+        TextureSampleSettings2D textSettings;
+        bool useMips;
+        unsigned int renderHeight;
+        UniformDictionary labelRenderParams;
+        Material* labelRenderMat;
+        float textAnimSpeed;
+    };
+
+    GSBData constructorData;
+
 
     //Whether to display the options above or below this box.
     bool extendAbove;
