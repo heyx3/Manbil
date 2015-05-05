@@ -15,6 +15,7 @@ public:
 
 
     //Constructors/destructors.
+    //TODO: Implement move constructors for all textures and RenderTarget. Then stop using heap-allocated textures in TextRenderer's slots.
 
     MTexture2D(const TextureSampleSettings2D& _settings, PixelSizes _pixelSize, bool useMipmapping)
         : texHandle(0), width(0), height(0), settings(_settings),
