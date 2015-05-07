@@ -101,16 +101,11 @@ void TR::DestroySystem(void)
 
 TR::~TR(void)
 {
-    //Delete every font and every slot's render target.
+    //Delete every font.
     for (auto font = fonts.begin(); font != fonts.end(); ++font)
     {
-        FreeTypeHandler::Instance.DeleteFont(font->first);
-
-        for (auto slot = font->second.begin(); slot != font->second.end(); ++slot)
-        {
-            RTManager.DeleteRenderTarget(slot->second.RenderTargetID);
-            delete slot->second.ColorTex;
-        }
+        bool tryDelete = DeleteFont(font->first);
+        assert(tryDelete);
     }
 }
 
@@ -137,6 +132,29 @@ unsigned int TR::CreateAFont(std::string fontPath, std::string& errorMsg,
     fonts[fontID] = std::unordered_map<unsigned int, Slot>();
     return fontID;
 }
+bool TR::DeleteFont(FreeTypeHandler::FontID font)
+{
+    auto found = fonts.find(font);
+    if (found != fonts.end())
+    {
+        //Delete the render slots.
+        SlotCollection& slots = found->second;
+        while (!slots.empty())
+        {
+            bool b = DeleteTextRenderSlot(FontSlot(font, slots.begin()->first));
+            assert(b);
+        }
+
+        //Remove the font from this instance and from FreeType.
+        fonts.erase(found);
+        bool b = FreeTypeHandler::Instance.DeleteFont(font);
+        assert(b);
+
+        return true;
+    }
+    return false;
+}
+
 TR::FontSlot TR::CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::string& errorMsg,
                                       unsigned int renderSpaceWidth, unsigned int renderSpaceHeight,
                                       bool useMipmaps, TextureSampleSettings2D settings)

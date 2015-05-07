@@ -44,6 +44,10 @@ public:
     //    or "FreeTypeHandler::ERROR_ID" if there was an error.
     unsigned int CreateAFont(std::string fontPath, std::string& outErrorMsg,
                              unsigned int pixelWidth = 50, unsigned int pixelHeight = 0);
+    //returns whether the given font was found and deleted.
+    //Note that all associated slots will be deleted as well.
+    bool DeleteFont(FreeTypeHandler::FontID font);
+
     //Creates a slot for rendering text in the given font.
     //Returns the slot. If an error occurred, outputs text into the given "error message" string.
     FontSlot CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::string& outErrorMsg,
