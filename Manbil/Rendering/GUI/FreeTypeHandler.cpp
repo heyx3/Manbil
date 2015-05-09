@@ -386,6 +386,11 @@ bool FreeTypeHandler::GetChar(MTexture2D& outTex) const
 
 bool FreeTypeHandler::TryFindID(FontID id, FaceMapLoc& outLoc) const
 {
+    if (faces.size() == 0)
+    {
+        errorMsg = std::string("No fonts are even loaded!");
+        return false;
+    }
     outLoc = faces.find(id);
     if (outLoc == faces.end())
     {

@@ -39,6 +39,8 @@ public:
     TextRenderer(void) : RTManager() { }
     ~TextRenderer(void);
 
+    TextRenderer(const TextRenderer& cpy) = delete;
+
 
     //Returns the FreeTypeHandler font ID to use when referencing this font,
     //    or "FreeTypeHandler::ERROR_ID" if there was an error.
