@@ -226,22 +226,21 @@ void GSB::ResetItems(const std::vector<std::string>& newItems, std::string& err)
         }
 
         //Create the label.
-        itemElements.insert(itemElements.end(),
-                            GUILabel(constructorData.labelRenderParams, TextRender, slot,
-                                     constructorData.labelRenderMat, constructorData.textAnimSpeed,
-                                     GUILabel::HO_LEFT, GUILabel::VO_CENTER));
-        itemElements[itemElements.size() - 1].Depth = 0.0001f;
-        itemElements[itemElements.size() - 1].ScaleBy(textScale);
+        itemElements.push_back(GUILabel(constructorData.labelRenderParams, TextRender, slot,
+                                        constructorData.labelRenderMat, constructorData.textAnimSpeed,
+                                        GUILabel::HO_LEFT, GUILabel::VO_CENTER));
+        itemElements[i].Depth = 0.001f;
+        itemElements[i].ScaleBy(textScale);
 
         //Set the label text.
-        if (!itemElements[itemElements.size() - 1].SetText(items[i]))
+        if (!itemElements[i].SetText(items[i]))
         {
             err = "Error rendering '" + items[i] + "' into a label: " + err;
             return;
         }
 
         //Calculate whether the element will be rendered in the dropdown box.
-        if (drawEmptyItems || !items[itemElements.size() - 1].empty())
+        if (drawEmptyItems || !items[i].empty())
         {
             nVisibleItems += 1;
         }
@@ -413,6 +412,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
         //Calculate the position/size of the background and draw it.
         if (SelectionBackground.IsValid())
         {
+            SelectionBackground.Depth = -0.001f;
             RenderChild(&SelectionBackground, elapsedTime, info);
         }
 
@@ -434,6 +434,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
             visibleItemIndex += 1;
 
             itemElements[i].SetColor(TextColor);
+            itemElements[i].Depth = 0.001f * (float)i;
 
             RenderChild(&itemElements[i], elapsedTime, info);
         }
@@ -465,7 +466,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
             Highlight.SetBounds(Box2D(Vector2f(mainBoxBounds.GetCenterX(),
                                                yIncrement * (float)menuIndex),
                                       Highlight.GetBounds().GetDimensions()));
-            Highlight.Depth = 0.001f;
+            Highlight.Depth = 0.02f;
 
             RenderChild(&Highlight, elapsedTime, info);
         }
