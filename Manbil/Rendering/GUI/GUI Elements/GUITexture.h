@@ -28,7 +28,8 @@ public:
     GUITexture(void) : GUITexture(UniformDictionary()) { }
 
 
-    //Gets whether this GUITexture is renderable (i.e. it has a material and texture).
+    //Gets whether this GUITexture has a material and texture.
+    //Note that it can still be rendered without a texture (it will have an unscaled size of 1x1).
     bool IsValid(void) const { return Mat != 0 && tex != 0; }
 
     //Gets this element's texture. Returns 0 if it doesn't have a texture.
