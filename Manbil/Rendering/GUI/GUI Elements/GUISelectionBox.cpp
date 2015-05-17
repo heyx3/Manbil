@@ -82,6 +82,25 @@ void GSB::ClearDidBoundsChangeDeep(void)
     SelectionBackground.DidBoundsChange = false;
 }
 
+bool GSB::GetIsItemHidden(unsigned int i) const
+{
+    assert(i < itemsHidden.size());
+    return itemsHidden[i] || (!drawEmptyItems && items[i].empty());
+}
+void GSB::SetIsItemHidden(unsigned int i, bool hide)
+{
+    bool wasAlreadyHidden = GetIsItemHidden(i);
+    itemsHidden[i] = hide;
+    if (hide && !wasAlreadyHidden)
+    {
+        nVisibleItems += 1;
+    }
+    else if (!hide && wasAlreadyHidden && (drawEmptyItems || !items[i].empty()))
+    {
+        nVisibleItems -= 1;
+    }
+}
+
 void GSB::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
 {
     currentItem = newIndex;
@@ -113,42 +132,45 @@ void GSB::SetDrawEmptyItems(bool shouldDraw)
     DidBoundsChange = true;
     drawEmptyItems = shouldDraw;
 
-    if (drawEmptyItems)
+    nVisibleItems = 0;
+    for (unsigned int i = 0; i < items.size(); ++i)
     {
-        nVisibleItems = items.size();
-    }
-    else
-    {
-        nVisibleItems = 0;
-        for (unsigned int i = 0; i < items.size(); ++i)
+        if (GetIsItemHidden(i))
         {
-            if (!itemElements[i].GetText().empty())
-            {
-                nVisibleItems += 1;
-            }
+            nVisibleItems += 1;
         }
     }
 }
 
 std::string GSB::SetItem(unsigned int index, std::string newVal)
 {
+    bool hiddenByList = itemsHidden[index],
+         hiddenByEmpty = items[index].empty();
     std::string oldVal = items[index];
-    items[index] = newVal;
+
     if (!itemElements[index].SetText(newVal))
     {
         return "";
     }
 
-    if (!drawEmptyItems)
+    items[index] = newVal;
+
+    //See if this text change just added/removed the element from being rendered.
+    if (!drawEmptyItems && !hiddenByList)
     {
         //If the text went from empty to non-empty, we gained a visible element.
-        if (oldVal.empty() && !newVal.empty())
+        if (hiddenByEmpty && !newVal.empty())
         {
             nVisibleItems += 1;
             assert(nVisibleItems < items.size());
+
+            if (isExtended)
+            {
+                PositionSelectionBackground();
+            }
         }
         //Otherwise, if the text went from non-empty to empty, we lost a visible element.
-        else if (!oldVal.empty() && newVal.empty())
+        else if (!hiddenByEmpty && newVal.empty())
         {
             assert(nVisibleItems > 0);
             nVisibleItems -= 1;
@@ -159,14 +181,12 @@ std::string GSB::SetItem(unsigned int index, std::string newVal)
                     currentItem = (currentItem + 1) % items.size();
                 }
             }
-        }
-    }
 
-    //If one value is empty and the other not empty, and empty items aren't drawn,
-    //    then the dropdown background just changed.
-    if (isExtended && !drawEmptyItems && (oldVal.empty() != newVal.empty()))
-    {
-        PositionSelectionBackground();
+            if (isExtended)
+            {
+                PositionSelectionBackground();
+            }
+        }
     }
 
     return oldVal;
@@ -207,12 +227,16 @@ void GSB::ResetItems(const std::vector<std::string>& newItems, std::string& err)
     }
     items = newItems;
     itemElements.clear();
+    itemElements.reserve(newItems.size());
+    itemsHidden.resize(newItems.size());
 
 
     unsigned int textBackWidth = (unsigned int)MainBox.GetBounds().GetXSize() / textScale.x;
     nVisibleItems = 0;
     for (unsigned int i = 0; i < items.size(); ++i)
     {
+        itemsHidden[i] = false;
+
         //Try to create the font slot.
         TextRenderer::FontSlot slot = TextRender->CreateTextRenderSlot(FontID, err,
                                                                        textBackWidth,
@@ -329,7 +353,7 @@ void GSB::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     for (unsigned int i = 0; i < itemElements.size(); ++i)
     {
         itemElements[i].Update(elapsed, relativeMousePos - itemElements[i].GetPos());
-        if (drawEmptyItems || !items[i].empty())
+        if (!GetIsItemHidden(i))
         {
             visibleIndices.insert(visibleIndices.end(), i);
         }
@@ -400,6 +424,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
 
         itemElements[currentItem].SetColor(TextColor);
         itemElements[currentItem].SetPosition(Vector2f(MainBox.GetBounds().GetXMin(), 0.0f));
+        itemElements[currentItem].Depth = 0.0005f;
         RenderChild(&itemElements[currentItem], elapsedTime, info);
     }
     else
@@ -421,7 +446,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
         float yIncrement = (extendAbove ? -mainBoxBounds.GetYSize() : mainBoxBounds.GetYSize()) + ySpace;
         for (unsigned int i = 0; i < itemElements.size(); ++i)
         {
-            if (!drawEmptyItems && items[i].empty())
+            if (GetIsItemHidden(i))
             {
                 continue;
             }
@@ -441,24 +466,21 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
 
         //Draw the highlight over the moused-over object.
         if (mousedOverItem >= 0 && Highlight.IsValid() &&
-            (drawEmptyItems || !items[mousedOverItem].empty()))
+            !GetIsItemHidden(mousedOverItem))
         {
             //Get which item in the menu it is.
             unsigned int menuIndex = (int)mousedOverItem;
-            if (!drawEmptyItems)
+            unsigned int visibleIndex = 0;
+            for (unsigned int i = 0; i < items.size(); ++i)
             {
-                unsigned int visibleIndex = 0;
-                for (unsigned int i = 0; i < items.size(); ++i)
+                if (i == (unsigned int)mousedOverItem)
                 {
-                    if (i == (unsigned int)mousedOverItem)
-                    {
-                        menuIndex = visibleIndex;
-                        break;
-                    }
-                    if (!items[i].empty())
-                    {
-                        visibleIndex += 1;
-                    }
+                    menuIndex = visibleIndex;
+                    break;
+                }
+                if (!GetIsItemHidden(i))
+                {
+                    visibleIndex += 1;
                 }
             }
 

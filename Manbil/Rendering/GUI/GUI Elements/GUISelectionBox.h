@@ -10,6 +10,7 @@
 //Note that instances currently have a fixed number of items, set in the constuctor
 //    (although items can be hidden with "SetDrawEmptyItems(false)").
 //A new list of items can be created from scratch by calling "ResetItems()".
+//TODO: Now that we can add/delete slots, allow for adding/deleting items.
 class GUISelectionBox : public GUIElement
 {
 public:
@@ -86,6 +87,12 @@ public:
     //Creates a whole new set of items. Returns whether the operation succeeded.
     void ResetItems(const std::vector<std::string>& newItems, std::string& outErrorMsg);
 
+    //Returns whether the given item is hidden.
+    bool GetIsItemHidden(unsigned int index) const;
+    //Sets the given item to be hidden.
+    //You can also hide it by setting it to an empty string and calling "SetDrawEmptyItems(true)".
+    void SetIsItemHidden(unsigned int index, bool hide);
+
 
     //Gets whether the dropdown menu extends above or below this element.
     bool GetExtendsAbove(void) const { return extendAbove; }
@@ -141,8 +148,7 @@ private:
     bool extendAbove;
     //Whether this box is currently open.
     bool isExtended;
-    //Whether to ignore any items that don't have any text.
-    //This can be used to "delete" an item from the collection.
+    //Whether to draw a space in the popup list for items that don't have any text.
     bool drawEmptyItems = false;
 
     //The scale of the text.
@@ -162,6 +168,8 @@ private:
     std::vector<std::string> items;
     //The labels for the text options.
     std::vector<GUILabel> itemElements;
+    //Which items should be hidden.
+    std::vector<bool> itemsHidden;
 
     //The font being used to render all the items.
     FreeTypeHandler::FontID itemFontID;
