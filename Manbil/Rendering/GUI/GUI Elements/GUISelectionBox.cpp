@@ -93,11 +93,11 @@ void GSB::SetIsItemHidden(unsigned int i, bool hide)
     itemsHidden[i] = hide;
     if (hide && !wasAlreadyHidden)
     {
-        nVisibleItems += 1;
+        nVisibleItems -= 1;
     }
     else if (!hide && wasAlreadyHidden && (drawEmptyItems || !items[i].empty()))
     {
-        nVisibleItems -= 1;
+        nVisibleItems += 1;
     }
 }
 
