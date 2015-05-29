@@ -26,17 +26,17 @@ public:
     UniformValueVector(MyVec2 value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(2)
     {
-        memcpy(Value, &value.x, sizeof(MyVec2));
+        memcpy(Value, &value, sizeof(MyVec2));
     }
     UniformValueVector(MyVec3 value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(3)
     {
-        memcpy(Value, &value.y, sizeof(MyVec3));
+        memcpy(Value, &value, sizeof(MyVec3));
     }
     UniformValueVector(MyVec4 value, std::string name, UniformLocation loc = -1)
         : Name(name), Location(loc), NData(4)
     {
-        memcpy(Value, &value.z, sizeof(MyVec4));
+        memcpy(Value, &value, sizeof(MyVec4));
     }
     UniformValueVector(const MyComponent* value = 0, unsigned int nData = 0,
                        std::string name = "", UniformLocation loc = -1)
