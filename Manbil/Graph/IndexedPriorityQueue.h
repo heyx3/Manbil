@@ -16,7 +16,7 @@ public:
 
 
     //If "sortAscending" is true, the front of the queue will always contain the SMALLEST-cost item.
-    IndexedPriorityQueue(bool sortAscending) : isAscending(sortAscending) { }
+    IndexedPriorityQueue(bool sortAscending = true) : isAscending(sortAscending) { }
 
 
     //Returns whether the front of the queue contains the SMALLEST-cost item (as opposed to

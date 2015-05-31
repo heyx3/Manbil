@@ -4,6 +4,7 @@
 
 #include "Graph.h"
 #include "IndexedPriorityQueue.h"
+#include "GraphSearchGoal.h"
 
 
 
@@ -23,24 +24,24 @@ class AStarSearch
 {
 public:
 
-    typedef Graph<NodeType, EdgeType>* GraphPtr;
+    typedef Graph<NodeType, EdgeType>* GraphPtrRaw;
     
     
     //User-specified data that will get passed into edges' cost-calculation methods.
     ExtraData UserData;
 
     //The graph being searched.
-    GraphPtr GraphToSearch;
+    GraphPtrRaw GraphToSearch;
 
 
-    AStarSearch(GraphPtr graph) : GraphToSearch(graph) { }
-    AStarSearch(GraphPtr graph, ExtraData userData) : GraphToSearch(graph), UserData(userData) { }
+    AStarSearch(GraphPtrRaw graph) : GraphToSearch(graph) { }
+    AStarSearch(GraphPtrRaw graph, ExtraData userData) : GraphToSearch(graph), UserData(userData) { }
 
 
     //Gets the shortest path from the given start to the given end.
     //Optionally takes in a limit to the max search cost of the path.
     //Returns whether the search was cut off by the search limit before finding an end to the path.
-    bool Search(NodeType start, SearchGoalType endGoal, std::vector<NodeType>& outPath,
+    bool Search(NodeType start, const SearchGoalType& endGoal, std::vector<NodeType>& outPath,
                 float maxSearchCost = -1.0f) const
     {
         //Each node will be indexed to the connecting node that takes you back towards the start node.
@@ -49,9 +50,6 @@ public:
         std::unordered_map<NodeType, float> costToTraverseToNode;
         //Each node will be indexed by the cost to search to it from the start node.
         std::unordered_map<NodeType, float> costToSearchToNode;
-
-        //The actual end of the path.
-        OptionalValue<NodeType> finalDestination;
 
         //All nodes that have been searched already.
         std::vector<NodeType> consideredNodes;
@@ -64,7 +62,7 @@ public:
 
 
         //Initialize the search loop.
-        edgesToSearch.Enqueue(EdgeType(start, start), 0.0f);
+        edgesToSearch.Enqueue(EdgeType(start, start, UserData), 0.0f);
         pathTree[start] = start;
         costToTraverseToNode[start] = 0.0f;
         costToSearchToNode[start] = 0.0f;
@@ -91,8 +89,7 @@ public:
                 (endGoal.EndNodeCriteria != 0 &&
                  endGoal.EndNodeCriteria(edgeToSearch.End)))
             {
-                finalDestination = edgeToSearch.End;
-                BuildPath(start, finalDestination.GetValue(), pathTree, outPath);
+                BuildPath(start, edgeToSearch.End, pathTree, outPath);
                 return true;
             }
 
@@ -105,7 +102,7 @@ public:
 
             //Get all connections and mark them to be searched.
             tempConnections.clear();
-            GraphToSearch.GetConnectedEdges(edgeToSearch.End, tempConnections);
+            GraphToSearch->GetConnectedEdges(edgeToSearch.End, tempConnections);
             for (unsigned int i = 0; i < tempConnections.size(); ++i)
             {
                 const EdgeType& tempConn = tempConnections[i];
@@ -148,9 +145,11 @@ public:
 
 
         //We couldn't find any end nodes, so get an estimation of the right way to go.
-        if (pathTree.size() == 0)
+        NodeType actualEnd;
+
+        if (pathTree.size() == 0 || !endGoal.SpecificEnd.HasValue())
         {
-            finalDestination = start;
+            actualEnd = start;
         }
         else
         {
@@ -159,9 +158,20 @@ public:
 
             for (auto iterator = pathTree.begin(); iterator != pathTree.end(); ++iterator)
             {
-                tempDist = EdgeType(iterator->second, )
+                tempDist = EdgeType(iterator->second,
+                                    endGoal.SpecificEnd.GetValue(),
+                                    UserData).GetTraversalCost(endGoal);
+                if (tempDist < bestDist)
+                {
+                    bestDist = tempDist;
+                    actualEnd = iterator->second;
+                }
             }
         }
+
+        BuildPath(start, actualEnd, pathTree, outPath);
+
+        return false;
     }
 
 
@@ -173,6 +183,23 @@ private:
                    const std::unordered_map<NodeType, NodeType>& pathTree,
                    std::vector<NodeType> outPath) const
     {
+        //The path tree is used to traverse the path in reverse.
 
+        auto nodeCounter = pathTree.find(end);
+        assert(nodeCounter != pathTree.end());
+
+        while (*nodeCounter != start)
+        {
+            outPath.push_back(*nodeCounter);
+
+            nodeCounter = pathTree.find(*nodeCounter);
+            assert(nodeCounter != pathTree.end());
+        }
+
+        //Push the last "start" node.
+        outPath.push_back(*nodeCounter);
+
+        //Put the path back into order.
+        std::reverse(outPath.begin(), outPath.end());
     }
 };

@@ -14,5 +14,5 @@ class Graph
 public:
 
     //Gets all edges connecting the given node to another node.
-    virtual void GetConnectedEdges(NodeType startNode, std::vector<EdgeType>& outConnections) = 0;
+    virtual void GetConnectedEdges(NodeType startNode, std::vector<EdgeType>& outConnections) const = 0;
 };
