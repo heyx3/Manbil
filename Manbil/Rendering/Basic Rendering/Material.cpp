@@ -712,7 +712,8 @@ void Material::SetUniforms(const UniformDictionary& params)
     int texUnit = 0;
     for (auto it = params.Texture2Ds.begin(); it != params.Texture2Ds.end(); ++it)
     {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
+        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
+            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
         {
             SetUniformValueI(it->second.Location, 1, &texUnit);
             ActivateTextureUnit(texUnit);
@@ -723,7 +724,8 @@ void Material::SetUniforms(const UniformDictionary& params)
     }
     for (auto it = params.Texture3Ds.begin(); it != params.Texture3Ds.end(); ++it)
     {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
+        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
+            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
         {
             SetUniformValueI(it->second.Location, 1, &texUnit);
             ActivateTextureUnit(texUnit);
@@ -734,7 +736,8 @@ void Material::SetUniforms(const UniformDictionary& params)
     }
     for (auto it = params.TextureCubemaps.begin(); it != params.TextureCubemaps.end(); ++it)
     {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
+        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
+            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
         {
             SetUniformValueI(it->second.Location, 1, &texUnit);
             ActivateTextureUnit(texUnit);

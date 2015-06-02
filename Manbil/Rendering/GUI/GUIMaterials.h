@@ -41,7 +41,8 @@ public:
                                                  RenderIOAttributes vertexAttrs =
                                                     DrawingQuad::GetVertexInputData(),
                                                  unsigned int vertexPosIndex = 0,
-                                                 unsigned int vertexUVIndex = 1);
+                                                 unsigned int vertexUVIndex = 1,
+                                                 bool useTex = true);
 
     //Generates a material that dynamically changes its properties based on a time lerp uniform.
     static GenMat GenerateDynamicQuadDrawMaterial(UniformDictionary& params, TextureTypes texType,
@@ -50,5 +51,6 @@ public:
                                                   RenderIOAttributes vertexAttrs =
                                                     DrawingQuad::GetVertexInputData(),
                                                   unsigned int vertexPosIndex = 0,
-                                                  unsigned int vertexUVIndex = 1);
+                                                  unsigned int vertexUVIndex = 1,
+                                                  bool useTex = true);
 };

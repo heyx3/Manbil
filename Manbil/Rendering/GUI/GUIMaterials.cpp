@@ -14,7 +14,8 @@ typedef DataNode::Ptr DNP;
 typedef GUIMaterials::GenMat GenM;
 GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, TextureTypes texType,
                                                   RenderIOAttributes vertexAttrs,
-                                                  unsigned int posIndex, unsigned int uvIndex)
+                                                  unsigned int posIndex, unsigned int uvIndex,
+                                                  bool useTex)
 {
     SerializedMaterial matData(vertexAttrs);
 
@@ -29,51 +30,67 @@ GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, Tex
                                                                        uvIndex)));
 
     //For the fragment shader, multiply the texture parameter by the color parameter and output that.
-    DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
-                                          QuadDraw_Texture2D, "GUIMat_texSampler"));
-    DataLine texRGBA(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
-    //Depending on the type of thing being rendered (color, greyscale, or text),
-    //    change how the texture is sampled.
-    DataLine finalTexCol;
-    DNP extraNode1, extraNode2;
-    switch (texType)
+    if (useTex)
     {
-        case TT_COLOR:
-            finalTexCol = texRGBA;
-            break;
-        case TT_GREYSCALE:
-            extraNode1 = DNP(new SwizzleNode(texRGBA,
-                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                             "GUIMat_swizzleTex"));
-            extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
-            finalTexCol = extraNode2;
-            break;
-        case TT_TEXT:
-            extraNode1 = DNP(new SwizzleNode(texRGBA,
-                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                             SwizzleNode::C_X,
-                                             "GUIMat_swizzleTex"));
-            finalTexCol = extraNode1;
-            break;
+        DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
+                                              QuadDraw_Texture2D, "GUIMat_texSampler"));
+        DataLine texRGBA(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+        //Depending on the type of thing being rendered (color, greyscale, or text),
+        //    change how the texture is sampled.
+        DataLine finalTexCol;
+        DNP extraNode1, extraNode2;
+        switch (texType)
+        {
+            case TT_COLOR:
+                finalTexCol = texRGBA;
+                break;
+            case TT_GREYSCALE:
+                extraNode1 = DNP(new SwizzleNode(texRGBA,
+                                                 SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                                 "GUIMat_swizzleTex"));
+                extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
+                finalTexCol = extraNode2;
+                break;
+            case TT_TEXT:
+                extraNode1 = DNP(new SwizzleNode(texRGBA,
+                                                 SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                                 SwizzleNode::C_X,
+                                                 "GUIMat_swizzleTex"));
+                finalTexCol = extraNode1;
+                break;
 
-        default:
-            assert(false);
-            return GenM("Unknown texture type");
+            default:
+                assert(false);
+                return GenM("Unknown texture type");
+        }
+        DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
+        DNP finalColor(new MultiplyNode(finalTexCol, paramColor, "GUIMat_finalColor"));
+        
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+
+        //Try to generate the material.
+        GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
+        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        return genM;
     }
-    DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
-    DNP finalColor(new MultiplyNode(finalTexCol, paramColor, "GUIMat_finalColor"));
-    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+    else
+    {
+        DNP finalColor(new ParamNode(4, QuadDraw_Color, "GUIMat_color"));
+        
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
 
-    //Try to generate the material.
-    GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
-    params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    return genM;
+        //Try to generate the material.
+        GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
+        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        return genM;
+    }
 }
 
 GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, TextureTypes texType,
                                                    DataLine endScale, DataLine endColor,
                                                    RenderIOAttributes vertIns,
-                                                   unsigned int posIndex, unsigned int uvIndex)
+                                                   unsigned int posIndex, unsigned int uvIndex,
+                                                   bool useTex)
 {
     if (endScale.GetSize() != 2)
     {
@@ -102,42 +119,56 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
                                                                     uvIndex)));
     
     //For the fragment shader, combine the color parameter, texture parameter, and animated color.
-    DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
-    DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
-                                          QuadDraw_Texture2D, "GUIMat_texSamplerNode"));
-    DataLine texRGBA(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
-    //Depending on the type of thing being rendered (color, greyscale, or text),
-    //    change how the texture is sampled.
-    DataLine finalTexCol;
-    DNP extraNode1, extraNode2;
-    switch (texType)
+    if (useTex)
     {
-        case TT_COLOR:
-            finalTexCol = texRGBA;
-            break;
-        case TT_GREYSCALE:
-            extraNode1 = DNP(new SwizzleNode(texRGBA,
-                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                             "GUIMat_swizzleTex_Grey"));
-            extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
-            finalTexCol = extraNode2;
-            break;
-        case TT_TEXT:
-            extraNode1 = DNP(new SwizzleNode(texRGBA,
-                                             SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
-                                             SwizzleNode::C_X,
-                                             "GUIMat_swizzleTex_Text"));
-            finalTexCol = extraNode1;
-            break;
+        DNP texSample(new TextureSample2DNode(FragmentInputNode::GetInstance(),
+                                              QuadDraw_Texture2D, "GUIMat_texSamplerNode"));
+        DataLine texRGBA(texSample, TextureSample2DNode::GetOutputIndex(CO_AllChannels));
+        //Depending on the type of thing being rendered (color, greyscale, or text),
+        //    change how the texture is sampled.
+        DataLine finalTexCol;
+        DNP extraNode1, extraNode2;
+        switch (texType)
+        {
+            case TT_COLOR:
+                finalTexCol = texRGBA;
+                break;
+            case TT_GREYSCALE:
+                extraNode1 = DNP(new SwizzleNode(texRGBA,
+                                                 SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                                 "GUIMat_swizzleTex_Grey"));
+                extraNode2 = DNP(new CombineVectorNode(extraNode1, 1.0f, "GUIMat_finalTexColor"));
+                finalTexCol = extraNode2;
+                break;
+            case TT_TEXT:
+                extraNode1 = DNP(new SwizzleNode(texRGBA,
+                                                 SwizzleNode::C_X, SwizzleNode::C_X, SwizzleNode::C_X,
+                                                 SwizzleNode::C_X,
+                                                 "GUIMat_swizzleTex_Text"));
+                finalTexCol = extraNode1;
+                break;
 
-        default:
-            assert(false);
-            return GenM("Unknown texture type");
+            default:
+                assert(false);
+                return GenM("Unknown texture type");
+        }
+        DNP paramColor(new ParamNode(4, QuadDraw_Color, "GUIMat_texColor"));
+        DNP finalColor(new MultiplyNode(finalTexCol, paramColor, endColor, "GUIMat_finalColor"));
+        
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
+
+        GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
+        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        return genM;
     }
-    DNP finalColor(new MultiplyNode(finalTexCol, paramColor, endColor, "GUIMat_finalColor"));
-    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
+    else
+    {
+        DNP finalColor(new ParamNode(4, QuadDraw_Color, "GUIMat_color"));
+        
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
 
-    GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
-    params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-    return genM;
+        GenM genM = ShaderGenerator::GenerateMaterial(matData, params, BlendMode::GetTransparent());
+        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        return genM;
+    }
 }
