@@ -4,7 +4,9 @@
 
 
 //"NodeType" is the type of data used to represent a single spot on a graph;
-//    it should have == and != operators.
+//    it should have == and != operators, as well as a hash operator
+//    (signature "size_t operator()(const NodeType& n) const").
+//    It should also have a default constructor.
 //"ExtraData" is the type of any extra data that the user may need for computations.
 template<typename NodeType, typename ExtraData = void*>
 //An abstract class that computes the cost of going straight from one node to another.

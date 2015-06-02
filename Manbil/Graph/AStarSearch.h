@@ -18,7 +18,8 @@
 //    that can be passed into edges' cost-calculation functions.
 template<typename NodeType, typename EdgeType,
          typename SearchGoalType = GraphSearchGoal<NodeType>,
-         typename ExtraData = void*>
+         typename ExtraData = void*,
+         typename NodeHasher = std::hash<NodeType>>
 //Searches a graph for the shortest path from a start node to some end node.
 class AStarSearch
 {
@@ -45,11 +46,11 @@ public:
                 float maxSearchCost = -1.0f) const
     {
         //Each node will be indexed to the connecting node that takes you back towards the start node.
-        std::unordered_map<NodeType, NodeType> pathTree;
+        std::unordered_map<NodeType, NodeType, NodeHasher> pathTree;
         //Each node will be indexed by the cost to traverse to it from the start node.
-        std::unordered_map<NodeType, float> costToTraverseToNode;
+        std::unordered_map<NodeType, float, NodeHasher> costToTraverseToNode;
         //Each node will be indexed by the cost to search to it from the start node.
-        std::unordered_map<NodeType, float> costToSearchToNode;
+        std::unordered_map<NodeType, float, NodeHasher> costToSearchToNode;
 
         //All nodes that have been searched already.
         std::vector<NodeType> consideredNodes;
@@ -180,7 +181,7 @@ private:
     //Builds a path between the given start/end nodes using the given "path tree" (a dictionary which
     //    associates each node key with the next node to travel to in order to get back to the start). 
     void BuildPath(NodeType start, NodeType end,
-                   const std::unordered_map<NodeType, NodeType>& pathTree,
+                   const std::unordered_map<NodeType, NodeType, NodeHasher>& pathTree,
                    std::vector<NodeType> outPath) const
     {
         //The path tree is used to traverse the path in reverse.
@@ -188,16 +189,16 @@ private:
         auto nodeCounter = pathTree.find(end);
         assert(nodeCounter != pathTree.end());
 
-        while (*nodeCounter != start)
+        while (nodeCounter->second != start)
         {
-            outPath.push_back(*nodeCounter);
+            outPath.push_back(nodeCounter->second);
 
-            nodeCounter = pathTree.find(*nodeCounter);
+            nodeCounter = pathTree.find(nodeCounter->second);
             assert(nodeCounter != pathTree.end());
         }
 
         //Push the last "start" node.
-        outPath.push_back(*nodeCounter);
+        outPath.push_back(nodeCounter->second);
 
         //Put the path back into order.
         std::reverse(outPath.begin(), outPath.end());

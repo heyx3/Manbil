@@ -12,7 +12,7 @@ class IndexedPriorityQueue
 {
 public:
 
-    struct ItemAndCost { T Item; float Cost; };
+    struct ItemAndCost { T Item; float Cost; ItemAndCost(void) { } };
 
 
     //If "sortAscending" is true, the front of the queue will always contain the SMALLEST-cost item.
