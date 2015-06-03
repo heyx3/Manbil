@@ -254,7 +254,7 @@ namespace MVectors
         Vector4u(Vector3u v3, unsigned int _w) : x(v3.x), y(v3.y), z(v3.z), w(_w) { }
         Vector4u(const Vector4u& cpy) { x = cpy.x; y = cpy.y; z = cpy.z; w = cpy.w; }
 
-        Vector4u& operator=(Vector4u& cpy) { x = cpy.x; y = cpy.y; z = cpy.z; w = cpy.w; }
+        Vector4u& operator=(Vector4u& cpy) { x = cpy.x; y = cpy.y; z = cpy.z; w = cpy.w; return *this; }
 
 
         //Access the X, Y, Z, or W component with 0, 1, 2, or 3, respectively.

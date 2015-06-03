@@ -200,14 +200,14 @@ public:
 
             if (offsetLoc.y < 0)
                 continue;
-            if (offsetLoc.y >= height)
+            if (offsetLoc.y >= (int)height)
                 break;
 
             for (loc.x = 0; loc.x < toCopy.width; ++loc.x)
             {
                 offsetLoc.x = (int)loc.x + copyOffset.x;
 
-                if (offsetLoc.x >= width)
+                if (offsetLoc.x >= (int)width)
                     break;
 
                 if (offsetLoc.x >= 0)
