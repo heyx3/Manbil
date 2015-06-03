@@ -41,7 +41,7 @@ public:
 
     //Gets the shortest path from the given start to the given end.
     //Optionally takes in a limit to the max search cost of the path.
-    //Returns whether the search was cut off by the search limit before finding an end to the path.
+    //Returns whether the search successfully found a valid end.
     bool Search(NodeType start, const SearchGoalType& endGoal, std::vector<NodeType>& outPath,
                 float maxSearchCost = -1.0f) const
     {
@@ -154,7 +154,7 @@ public:
         }
         else
         {
-            float bestDist = std::numeric_limits<float>::max();
+            float bestDist = Mathf::NaN;
             float tempDist;
 
             for (auto iterator = pathTree.begin(); iterator != pathTree.end(); ++iterator)
@@ -162,7 +162,7 @@ public:
                 tempDist = EdgeType(iterator->second,
                                     endGoal.SpecificEnd.GetValue(),
                                     UserData).GetTraversalCost(endGoal);
-                if (tempDist < bestDist)
+                if (Mathf::IsNaN(bestDist) || tempDist < bestDist)
                 {
                     bestDist = tempDist;
                     actualEnd = iterator->second;
@@ -182,7 +182,7 @@ private:
     //    associates each node key with the next node to travel to in order to get back to the start). 
     void BuildPath(NodeType start, NodeType end,
                    const std::unordered_map<NodeType, NodeType, NodeHasher>& pathTree,
-                   std::vector<NodeType> outPath) const
+                   std::vector<NodeType>& outPath) const
     {
         //The path tree is used to traverse the path in reverse.
 
