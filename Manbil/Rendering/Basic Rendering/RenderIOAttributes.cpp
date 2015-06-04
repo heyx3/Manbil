@@ -8,7 +8,7 @@
 unsigned int GetIOSize(const std::vector<RenderIOAttributes::Attribute>& attrs)
 {
     unsigned int size = 0;
-    for (int i = 0; i < attrs.size(); ++i)
+    for (unsigned int i = 0; i < attrs.size(); ++i)
         size += sizeof(float) * attrs[i].Size;
     return size;
 }
@@ -77,7 +77,7 @@ bool RenderIOAttributes::operator==(const RenderIOAttributes& other) const
         return false;
     }
 
-    for (int i = 0; i < attributes.size(); ++i)
+    for (unsigned int i = 0; i < attributes.size(); ++i)
     {
         if (attributes[i].Size != other.attributes[i].Size ||
             attributes[i].IsNormalized != other.attributes[i].IsNormalized ||

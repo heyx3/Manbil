@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>OVR_OS_WIN32;OVR_BUILD_DEBUG;WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -90,7 +90,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>OVR_OS_WIN32;WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
