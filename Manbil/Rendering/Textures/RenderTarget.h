@@ -108,7 +108,7 @@ public:
                             bool changeToCorrectSize = true);
 
     //Should be called whenever a color attachment's size is changed.
-    //Updates the effective size of this render target
+    //Updates the effective size of this render target and its depth buffer.
     //Returns whether the operation succeeded.
     //This operation fails if the size of the depth buffer would be too big for OpenGL.
     bool UpdateSize(void);
