@@ -38,6 +38,10 @@ public:
     MeshData(MeshData&& other) { *this = std::move(other); }
     ~MeshData(void);
 
+    MeshData(const MeshData& cpy) = delete;
+    MeshData& operator=(const MeshData& cpy) = delete;
+
+
     MeshData& operator=(MeshData&& other);
     void MoveTo(MeshData& newData);
 
@@ -148,10 +152,6 @@ private:
     bool storesData;
     std::vector<unsigned char> verticesData;
     std::vector<unsigned int> indicesData;
-
-
-    MeshData(const MeshData& cpy) = delete;
-    MeshData& operator=(const MeshData& cpy) = delete;
 
 
     //The currently-bound data handles.

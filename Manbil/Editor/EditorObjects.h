@@ -52,18 +52,19 @@ public:
     {
         activeGUIElement = GUIElementPtr(0);
 
+        //Try creating the text render slot.
         std::string errMsg;
         unsigned int finalRenderWidth = (unsigned int)(BoxWidth / materialSet.TextScale.x);
-        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, errMsg,
-                                                          finalRenderWidth,
-                                                          materialSet.TextRenderSpaceHeight, false,
-                                                          TextureSampleSettings2D(FT_NEAREST, WT_CLAMP)))
+        TextRenderer::FontSlot slot =
+            materialSet.TextRender.CreateTextRenderSlot(materialSet.FontID, errMsg, finalRenderWidth,
+                                                        materialSet.TextRenderSpaceHeight, false,
+                                                        TextureSampleSettings2D(FT_NEAREST, WT_CLAMP));
+        if (!errMsg.empty())
         {
             return "Error creating text render slot: " + errMsg;
         }
 
-        TextRenderer::FontSlot slot(materialSet.FontID,
-                                    materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+        //Set up the background.
         GUITexture boxBackground(materialSet.GetStaticMatParams(&materialSet.TextBoxBackgroundTex),
                                  &materialSet.TextBoxBackgroundTex,
                                  materialSet.GetStaticMaterial(&materialSet.TextBoxBackgroundTex),
@@ -72,6 +73,7 @@ public:
                                         materialSet.TextRenderSpaceHeight * materialSet.TextScale.y /
                                             (float)boxBackground.GetTex()->GetHeight()));
         
+        //Set up the cursor.
         GUITexture boxCursor(boxBackground);
         boxCursor.SetScale(Vector2f(materialSet.TextBoxCursorWidth,
                                     boxBackground.GetBounds().GetYSize() /
@@ -84,6 +86,7 @@ public:
         GUITextBox * box = new GUITextBox(boxBackground, boxCursor, boxContents,
                                           true, materialSet.AnimateSpeed);
         box->Cursor.SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+
         //Try setting the initial value of the box.
         errMsg = box->SetText(DataTypeToString()(StartingValue));
         if (!errMsg.empty())

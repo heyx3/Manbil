@@ -114,7 +114,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Asset Packaging\AssetPackage.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp" />
     <ClCompile Include="Editor\EditorMaterialSet.cpp" />
@@ -130,7 +129,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Input\LookRotation.cpp" />
     <ClCompile Include="Input\MovingCamera.cpp" />
     <ClCompile Include="IO\BinarySerialization.cpp" />
-    <ClCompile Include="IO\Serialization.cpp" />
+    <ClCompile Include="IO\SerializationWrappers.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
     <ClCompile Include="IO\XmlSerialization.cpp" />
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
@@ -274,7 +273,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Asset Packaging\AssetPackage.h" />
     <ClInclude Include="DebugAssist.h" />
     <ClInclude Include="Editor\DAG Editor\DAGInput.h" />
     <ClInclude Include="Editor\DAG Editor\DAGNode.h" />
@@ -309,7 +307,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\BinarySerialization.h" />
     <ClInclude Include="IO\DataSerialization.h" />
-    <ClInclude Include="IO\Serialization.h" />
+    <ClInclude Include="IO\SerializationWrappers.h" />
     <ClInclude Include="IO\tinyxml2.h" />
     <ClInclude Include="IO\XmlSerialization.h" />
     <ClInclude Include="Math\Lower Math/Array2D.h" />

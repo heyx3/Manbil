@@ -1,7 +1,7 @@
 #include "SerializedMaterial.h"
 
 #include "DataNodes.hpp"
-#include "../../IO/Serialization.h"
+#include "../../IO/SerializationWrappers.h"
 #include <stack>
 
 

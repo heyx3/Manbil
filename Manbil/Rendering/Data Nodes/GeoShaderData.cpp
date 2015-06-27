@@ -1,6 +1,6 @@
 #include "GeoShaderData.h"
 
-#include "../../IO/Serialization.h"
+#include "../../IO/SerializationWrappers.h"
 
 
 void GeoShaderData::WriteData(DataWriter* writer) const

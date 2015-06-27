@@ -145,7 +145,7 @@ public:
     virtual void ReadBytes(std::vector<unsigned char>& outBytes) = 0;
 
     //Reads a data structurethat implements the IReadable interface.
-    virtual void ReadDataStructure(IReadable& toSerialize) = 0;
+    virtual void ReadDataStructure(IReadable& outData) = 0;
 
 
     //A function that resizes a collection to store at least the given number of elements.

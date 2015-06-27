@@ -9,7 +9,7 @@
       <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="IO\tinyxml2.cpp">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>IO\Serializers\tinyxml Library</Filter>
     </ClCompile>
     <ClCompile Include="Math\Higher Math\Camera.cpp">
       <Filter>Math\Higher Math</Filter>
@@ -144,9 +144,6 @@
     <ClCompile Include="Rendering\GUI\GUIManager.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Asset Packaging\AssetPackage.cpp">
-      <Filter>Asset Packaging</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClCompile>
@@ -203,9 +200,6 @@
     </ClCompile>
     <ClCompile Include="Rendering\GPU Particles\GPUParticleNodes.cpp">
       <Filter>Rendering\GPU Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="IO\Serialization.cpp">
-      <Filter>IO</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -471,6 +465,9 @@
     <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="IO\SerializationWrappers.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -498,7 +495,7 @@
       <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="IO\tinyxml2.h">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>IO\Serializers\tinyxml Library</Filter>
     </ClInclude>
     <ClInclude Include="Input\InputManager.h">
       <Filter>Input</Filter>
@@ -670,9 +667,6 @@
     <ClInclude Include="Rendering\GUI\GUIManager.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Asset Packaging\AssetPackage.h">
-      <Filter>Asset Packaging</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
     </ClInclude>
@@ -750,9 +744,6 @@
     </ClInclude>
     <ClInclude Include="Rendering\GPU Particles\GPUParticleNodes.h">
       <Filter>Rendering\GPU Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="IO\Serialization.h">
-      <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="Game Loop\SFMLOpenGLWorld.h">
       <Filter>Game Loop</Filter>
@@ -1060,6 +1051,9 @@
     <ClInclude Include="Sample Worlds\EditorGUIWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
+    <ClInclude Include="IO\SerializationWrappers.h">
+      <Filter>IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1113,9 +1107,6 @@
     <Filter Include="IO">
       <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IO\tinyxml Library">
-      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Toys">
       <UniqueIdentifier>{052fb4db-3157-48e3-806e-100b8c831aa1}</UniqueIdentifier>
     </Filter>
@@ -1127,9 +1118,6 @@
     </Filter>
     <Filter Include="Rendering\GUI\GUI Elements">
       <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset Packaging">
-      <UniqueIdentifier>{6ac83a61-b2e1-4f2a-bf8f-d1eb1e9ae1cf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math\Lower Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
@@ -1217,5 +1205,8 @@
     <Text Include="Perlin.txt">
       <Filter>Toys\Two Triangles\Shaders</Filter>
     </Text>
+    <Filter Include="IO\Serializers\tinyxml Library">
+      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

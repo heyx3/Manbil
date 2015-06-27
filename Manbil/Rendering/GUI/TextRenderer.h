@@ -20,6 +20,7 @@ public:
     struct FontSlot
     {
         FreeTypeHandler::FontID FontID, SlotID;
+
         FontSlot(FreeTypeHandler::FontID fontID = FreeTypeHandler::ERROR_ID,
                  unsigned int slotID = 0)
             : FontID(fontID), SlotID(slotID) { }

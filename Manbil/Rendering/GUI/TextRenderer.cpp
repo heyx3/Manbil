@@ -102,9 +102,9 @@ void TR::DestroySystem(void)
 TR::~TR(void)
 {
     //Delete every font.
-    for (auto font = fonts.begin(); font != fonts.end(); ++font)
+    while (!fonts.empty())
     {
-        bool tryDelete = DeleteFont(font->first);
+        bool tryDelete = DeleteFont(fonts.begin()->first);
         assert(tryDelete);
     }
 }
