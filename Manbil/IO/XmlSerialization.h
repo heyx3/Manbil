@@ -54,6 +54,9 @@ public:
     //This constructor will NOT throw an exception.
     XmlReader(const std::string& filePath);
 
+    //Loads in new XML data, resetting this reader.
+    void Reload(const std::string& filePath, std::string& outErrorMsg);
+
 
     virtual void ReadBool(bool& outB) override;
     virtual void ReadByte(unsigned char& outB) override;

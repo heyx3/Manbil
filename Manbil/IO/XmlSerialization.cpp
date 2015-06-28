@@ -224,12 +224,18 @@ void XmlWriter::WriteDataStructure(const IWritable& toSerialize, const std::stri
 
 XmlReader::XmlReader(const std::string& filePath)
 {
-    ErrorMessage = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
+    Reload(filePath, ErrorMessage);
+}
+void XmlReader::Reload(const std::string& filePath, std::string& err)
+{
+    doc.Clear();
+
+    err = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
 
     currentRoot = 0;
     currentChild = 0;
 
-    if (ErrorMessage.empty())
+    if (err.empty())
     {
         //Find the root element.
         for (XMLNode* child = doc.FirstChild(); child != 0; child = child->NextSibling())
@@ -244,7 +250,7 @@ XmlReader::XmlReader(const std::string& filePath)
         //If no element was found, error.
         if (currentRoot == 0)
         {
-            ErrorMessage = "Couldn't find a root XML element in the document";
+            err = "Couldn't find a root XML element in the document";
             return;
         }
 
