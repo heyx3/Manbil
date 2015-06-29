@@ -42,7 +42,8 @@ public:
     //Gets the shortest path from the given start to the given end.
     //Optionally takes in a limit to the max search cost of the path.
     //Returns whether the search successfully found a valid end.
-    bool Search(NodeType start, const SearchGoalType& endGoal, std::vector<NodeType>& outPath,
+    bool Search(NodeType start, const SearchGoalType& endGoal,
+                float& outTravelCost, float& outSearchCost, std::vector<NodeType>& outPath,
                 float maxSearchCost = -1.0f) const
     {
         //Each node will be indexed to the connecting node that takes you back towards the start node.
@@ -90,6 +91,8 @@ public:
                 (endGoal.EndNodeCriteria != 0 &&
                  endGoal.EndNodeCriteria(edgeToSearch.End)))
             {
+                outSearchCost = costToSearchToNode.find(edgeToSearch.End)->second;
+                outTravelCost = costToTraverseToNode.find(edgeToSearch.End)->second;
                 BuildPath(start, edgeToSearch.End, pathTree, outPath);
                 return true;
             }
@@ -170,6 +173,8 @@ public:
             }
         }
 
+        outTravelCost = costToTraverseToNode[actualEnd];
+        outSearchCost = costToSearchToNode[actualEnd];
         BuildPath(start, actualEnd, pathTree, outPath);
 
         return false;
