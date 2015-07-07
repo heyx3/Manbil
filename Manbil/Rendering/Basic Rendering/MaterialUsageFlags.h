@@ -48,6 +48,33 @@ public:
         DNF_USES_ORTHO_MAX = 0x10000,
     };
 
+
+    MaterialUsageFlags(void) { }
+    MaterialUsageFlags(Flags flag) { EnableFlag(flag); }
+    MaterialUsageFlags(Flags flag1, Flags flag2) { EnableFlag(flag1); EnableFlag(flag2); }
+    MaterialUsageFlags(Flags flag1, Flags flag2, Flags flag3)
+    {
+        EnableFlag(flag1);
+        EnableFlag(flag2);
+        EnableFlag(flag3);
+    }
+    MaterialUsageFlags(Flags flag1, Flags flag2, Flags flag3, Flags flag4)
+    {
+        EnableFlag(flag1);
+        EnableFlag(flag2);
+        EnableFlag(flag3);
+        EnableFlag(flag4);
+    }
+    MaterialUsageFlags(Flags flag1, Flags flag2, Flags flag3, Flags flag4, Flags flag5)
+    {
+        EnableFlag(flag1);
+        EnableFlag(flag2);
+        EnableFlag(flag3);
+        EnableFlag(flag4);
+        EnableFlag(flag5);
+    }
+
+
     bool GetFlag(Flags flag) const { return (value & (unsigned int)flag) > 0; }
 
     void EnableFlag(Flags flag) { value |= (unsigned int)flag; }
