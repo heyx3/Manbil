@@ -185,13 +185,13 @@ bool RenderTarget::SetColorAttachment(RenderTargetTex newColorTex, bool updateDe
     rtts.insert(rtts.end(), newColorTex);
     return SetColorAttachments(rtts, updateDepthSize);
 }
-bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexes,
+bool RenderTarget::SetColorAttachments(RenderTargetTex* newColTexes, unsigned int nTexes,
                                        bool updateDepthSize)
 {
     EnableDrawingInto();
 
     //Make sure there aren't too many attachments.
-    if (newColorTexes.size() > GetMaxNumbColorAttachments())
+    if (nTexes > GetMaxNumbColorAttachments())
     {
         return false;
     }
@@ -201,10 +201,10 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
 
     //Set up each attachment.
     std::vector<GLenum> colAttachments;
-    colAttachments.reserve(newColorTexes.size());
+    colAttachments.reserve(nTexes);
     for (unsigned int i = 0; i < maxColorAttachments; ++i)
     {
-        if (i >= newColorTexes.size())
+        if (i >= nTexes)
         {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0);
         }
@@ -212,7 +212,7 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
         {
             colAttachments.insert(colAttachments.end(), GL_COLOR_ATTACHMENT0 + i);
 
-            const RenderTargetTex & tex = newColorTexes[i];
+            const RenderTargetTex& tex = newColTexes[i];
 
             if ((tex.MTex == 0 && tex.MTexCube == 0) || (tex.MTex != 0 && tex.MTexCube != 0))
             {
@@ -265,7 +265,8 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
     {
         glDrawBuffers(colAttachments.size(), colAttachments.data());
     }
-    colorTexes = newColorTexes;
+    colorTexes.resize(nTexes);
+    memcpy(colorTexes.data(), newColTexes, sizeof(RenderTargetTex) * nTexes);
 
     if (updateDepthSize)
     {

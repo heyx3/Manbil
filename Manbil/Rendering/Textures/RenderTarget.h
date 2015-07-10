@@ -96,7 +96,18 @@ public:
     //This operation fails if the size of the attachment is too big for OpenGL,
     //    or if too many attachments were passed in,
     //    or if any of the RenderTargetTex data structures are malformed.
-    bool SetColorAttachments(std::vector<RenderTargetTex> newColorTexes, bool updateDepthSize);
+    bool SetColorAttachments(RenderTargetTex* newColorTexes, unsigned int nElements, bool updateDepthSize);
+    //Replaces the current color attachments with the given ones.
+    //If "updateDepthSize" is true, the currently-attached depth texture is resized
+    //    to this render target's new width/height.
+    //Returns whether the operation succeeded.
+    //This operation fails if the size of the attachment is too big for OpenGL,
+    //    or if too many attachments were passed in,
+    //    or if any of the RenderTargetTex data structures are malformed.
+    bool SetColorAttachments(std::vector<RenderTargetTex> newColorTexes, bool updateDepthSize)
+    {
+        return SetColorAttachments(newColorTexes.data(), newColorTexes.size(), updateDepthSize);
+    }
     //Replaces the current depth attachment with the given attachment.
     //If the default value is supplied, the current depth texture will just be removed.
     //"changeToCorrectSize" indicates whether to resize the depth texture
