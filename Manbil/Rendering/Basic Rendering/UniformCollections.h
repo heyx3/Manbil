@@ -13,7 +13,22 @@
 //This file provides a way to store collections of them.
 
 
+enum UniformTypes
+{
+    UT_VALUE_F,
+    UT_VALUE_I,
+    UT_VALUE_F_ARRAY,
+    UT_VALUE_I_ARRAY,
+    UT_VALUE_MAT4,
+    UT_VALUE_SAMPLER2D,
+    UT_VALUE_SAMPLER3D,
+    UT_VALUE_SAMPLERCUBE,
+    UT_VALUE_SUBROUTINE,
+};
+
+
 //A collection of uniforms --just their names and locations in a GLSL shader program.
+//PRIORITY: Store a single list, and in the "Uniform" struct add a "UniformTypes" entry.
 struct UniformList
 {
 public:
@@ -35,6 +50,7 @@ public:
 
 
 //Maps each uniform to its current value and location in a GLSL shader program.
+//PRIORITY: Use a union of the different uniform types and store them all in one list/dictionary.
 //TODO: Change it so that the DataNodes write to UniformLists instead of UniformDictionaries.
 struct UniformDictionary
 {
