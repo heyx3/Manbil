@@ -523,12 +523,13 @@ void Material::Render(const RenderInfo& info, const UniformDictionary& params,
         if (data.GetUsesIndices())
         {
             glDrawElements(PrimitiveTypeToGLEnum(data.PrimType),
-                           data.GetNIndices(), GL_UNSIGNED_INT, 0);
+                           data.GetRangeSize(), GL_UNSIGNED_INT,
+                           (GLvoid*)data.GetRangeStart());
         }
         else
         {
             glDrawArrays(PrimitiveTypeToGLEnum(data.PrimType),
-                         0, data.GetNVertices());
+                         data.GetRangeStart(), data.GetRangeSize());
         }
 
         attributes.DisableAttributes();

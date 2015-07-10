@@ -120,6 +120,9 @@ void MeshData::SetIndexData(const unsigned int* newIndices, unsigned int _nIndic
         memcpy(indicesData.data(), newIndices, nIndices * sizeof(unsigned int));
     }
 
+    start = 0;
+    range = nIndices;
+
     currentIHandle = indicesHandle;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesHandle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, nIndices * sizeof(unsigned int),
@@ -141,6 +144,9 @@ bool MeshData::RemoveIndexData(void)
         nIndices = 0;
         indicesHandle = 0;
         indicesData.clear();
+
+        start = 0;
+        range = nVertices;
 
         return true;
     }
