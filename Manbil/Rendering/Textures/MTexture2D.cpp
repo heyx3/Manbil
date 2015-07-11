@@ -6,6 +6,27 @@
 
 
 
+
+MTexture2D::MTexture2D(MTexture2D&& movedFrom)
+{
+    *this = std::move(movedFrom);
+}
+MTexture2D& MTexture2D::operator=(MTexture2D&& moveFrom)
+{
+    texHandle = moveFrom.texHandle;
+    moveFrom.texHandle = 0;
+
+    width = moveFrom.width;
+    height = moveFrom.height;
+
+    settings = moveFrom.settings;
+    pixelSize = moveFrom.pixelSize;
+    usesMipmaps = moveFrom.usesMipmaps;
+
+    return *this;
+}
+
+
 void MTexture2D::SetSettings(const TextureSampleSettings2D& newSettings)
 {
     settings = newSettings;
