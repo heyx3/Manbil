@@ -64,7 +64,7 @@ public:
     //Sets the range of indices to use (or vertices, if not using indices).
     //Defaults to the entire range of available vertices/indices.
     //Every time the vertex or index buffer is changed, this range will reset to cover all elements.
-    void SetUseRange(unsigned int start, unsigned int count);
+    void SetUseRange(unsigned int _start, unsigned int _range) { start = _start; range = _range; }
 
     unsigned int GetRangeStart(void) const { return start; }
     unsigned int GetRangeSize(void) const { return range; }
