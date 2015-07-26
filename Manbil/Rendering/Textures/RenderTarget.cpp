@@ -397,10 +397,10 @@ bool RenderTarget::UpdateSize(void)
     return true;
 }
 
-void RenderTarget::EnableDrawingInto(void) const
+void RenderTarget::EnableDrawingInto(Viewport v) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glViewport(0, 0, width, height);
+    v.SetAsViewport();
     currentTarget = this;
 }
 void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updateMipmaps) const

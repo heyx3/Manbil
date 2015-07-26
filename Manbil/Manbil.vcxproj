@@ -364,6 +364,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Basic Rendering\UniformValueVector.h" />
     <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h" />
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h" />
+    <ClInclude Include="Rendering\Basic Rendering\Viewport.h" />
     <ClInclude Include="Rendering\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Data Nodes\DataNodes.hpp" />
