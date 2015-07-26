@@ -5,7 +5,7 @@
 
 
 //A static class that provides definitions for GUI system materials,
-//    as well as methods to easily generate useful GUI materials.
+//    as well as methods to easily generate common GUI materials.
 class GUIMaterials : public ShaderGenerator
 {
 public:
@@ -42,7 +42,7 @@ public:
                                                     DrawingQuad::GetVertexInputData(),
                                                  unsigned int vertexPosIndex = 0,
                                                  unsigned int vertexUVIndex = 1,
-                                                 bool useTex = true);
+                                                 bool useTex = true, bool isOpaque = false);
 
     //Generates a material that dynamically changes its properties based on a time lerp uniform.
     static GenMat GenerateDynamicQuadDrawMaterial(UniformDictionary& params, TextureTypes texType,
@@ -52,5 +52,5 @@ public:
                                                     DrawingQuad::GetVertexInputData(),
                                                   unsigned int vertexPosIndex = 0,
                                                   unsigned int vertexUVIndex = 1,
-                                                  bool useTex = true);
+                                                  bool useTex = true, bool isOpaque = false);
 };
