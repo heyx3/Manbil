@@ -535,7 +535,6 @@ void Material::Render(const RenderInfo& info, const UniformDictionary& params,
         attributes.DisableAttributes();
     }
 }
-
 void Material::Render(const RenderInfo& info, const MeshData& toRender,
                       const Matrix4f& worldMat, const UniformDictionary& params)
 
@@ -652,12 +651,12 @@ void Material::Render(const RenderInfo& info, const MeshData* toRender, const Ma
         if (meshDat.GetUsesIndices())
         {
             glDrawElements(PrimitiveTypeToGLEnum(meshDat.PrimType),
-                           meshDat.GetNIndices(), GL_UNSIGNED_INT, 0);
+                           meshDat.GetRangeSize(), GL_UNSIGNED_INT, (GLvoid*)meshDat.GetRangeStart());
         }
         else
         {
             glDrawArrays(PrimitiveTypeToGLEnum(meshDat.PrimType),
-                         0, meshDat.GetNVertices());
+                         meshDat.GetRangeStart(), meshDat.GetRangeSize());
         }
 
         attributes.DisableAttributes();
