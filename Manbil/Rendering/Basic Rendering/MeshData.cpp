@@ -39,11 +39,15 @@ MeshData& MeshData::operator=(MeshData&& other)
         verticesData = std::move(other.verticesData);
         indicesData = std::move(other.indicesData);
         PrimType = other.PrimType;
+        start = other.start;
+        range = other.range;
 
         other.verticesHandle = 0;
         other.indicesHandle = 0;
         other.nVertices = 0;
         other.nIndices = 0;
+        other.start = 0;
+        other.range = 0;
     }
 
     return *this;
