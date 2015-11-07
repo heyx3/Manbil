@@ -23,7 +23,7 @@ struct MyData : public IEditable
 {
 public:
 
-    unsigned int Int = 4;
+    int Int = 4;
     std::string String = "Hello World";
 
 
@@ -33,28 +33,30 @@ public:
     {
         //Many different editor widgets are defined in "EditorObjects.h".
 
-        //Use a slider for the Int field.
-        SlidingBarInt* intSliderPtr =
-            new SlidingBarInt(0, 100, Vector2f(), EditorObject::DescriptionData("Int"),
-                              [](GUISlider* slider, int nextVal, void* pData)
-                              {
-                                  //*(int*)pData = nextVal;
-                                  std::cout << "Int changed to " << nextVal << "\n";
-                              },
-                              Mathf::LerpComponent(0.0f, 100.0f, Int), 1.0f,
-                              &Int);
+        //Use a slider for the Int field, ranging from 0 to 100.
+        //The slider is set up to pass a pointer to our "Int" field into the callback so that we can set it.
+        SlidingBarInt<int*>* intSliderPtr =
+            new SlidingBarInt<int*>(0, 100, Vector2f(), EditorObject::DescriptionData("Int"),
+                                    [](GUISlider* slider, int nextVal, int* pData)
+                                    {
+                                        //*pData = nextVal;
+                                        std::cout << "Int changed to " << nextVal << "\n";
+                                    },
+                                    Mathf::LerpComponent(0.0f, 100.0f, Int), 1.0f,
+                                    &Int);
         outElements.push_back(EditorObjectPtr(intSliderPtr));
 
         //Use a text box for the String field.
-        TextBoxString* stringBoxPtr =
-            new TextBoxString(String, 600.0f, Vector2f(),
-                              EditorObject::DescriptionData("String"),
-                              [](GUITextBox* box, std::string newVal, void* pData)
-                              {
-                                  //*(std::string*)pData = newVal;
-                                  std::cout << "String changed to '" << newVal << "'\n";
-                              },
-                              &String);
+        //Like the slider, it is set up to pass a pointer to our "String" field into the callback.
+        TextBoxString<std::string*>* stringBoxPtr =
+            new TextBoxString<std::string*>(String, 600.0f, Vector2f(),
+                                            EditorObject::DescriptionData("String"),
+                                            [](GUITextBox* box, std::string newVal, std::string* pData)
+                                            {
+                                                //*pData = newVal;
+                                                std::cout << "String changed to '" << newVal << "'\n";
+                                            },
+                                            &String);
         outElements.push_back(EditorObjectPtr(stringBoxPtr));
 
         //This function should return an error message if anything went wrong.
@@ -182,6 +184,9 @@ void EditorGUIWorld::InitializeWorld(void)
 
 void EditorGUIWorld::OnWorldEnd(void)
 {
+    //First delete the root GUI element; this must be done before cleaning up the text-rendering system.
+    guiManager.SetRoot(0);
+
     delete editorMaterials;
     delete TextRender;
 

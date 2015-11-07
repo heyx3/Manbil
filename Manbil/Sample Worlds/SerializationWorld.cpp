@@ -4,7 +4,7 @@
 #include "../Rendering/Primitives/PrimitiveGenerator.h"
 
 #include "../IO/DataSerialization.h"
-#include "../IO/Serialization.h"
+#include "../IO/SerializationWrappers.h"
 #include "../IO/XmlSerialization.h"
 
 
@@ -30,8 +30,9 @@ public:
             writer->WriteFloat(Value.Normal.y, "Normal.x");
             writer->WriteFloat(Value.Normal.z, "Normal.x");
         }
-        //An easier way to do this is to let the vectors serialize themselves, but they don't implement ISerializable.
-        //Fortunately, helper classes for simple data structures are defined in "Serialization.h".
+        //An easier way to do this is to let the vectors serialize themselves,
+        //    but they don't implement IWritable or ISerializable.
+        //Fortunately, serializers for many data structures are defined in "SerializationWrappers.h".
         else
         {
             writer->WriteDataStructure(Vector3f_Writable(Value.Pos), "Pos");

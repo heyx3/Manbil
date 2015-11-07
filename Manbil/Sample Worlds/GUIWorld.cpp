@@ -184,21 +184,24 @@ void GUIWorld::InitializeGUI(void)
     }
 
     //Next, create a "font slot" to render text into.
+    //The texture that holds the rendered text will be 1024x256, use high-quality "linear" blending,
+    //    and will NOT use mipmaps.
     TextureSampleSettings2D fontRenderSettings(FT_LINEAR, WT_CLAMP);
-    if (!textRenderer->CreateTextRenderSlots(textFont, errorMsg, 1024, 256,
-                                             false, fontRenderSettings))
+    TextRenderer::FontSlot textSlot = textRenderer->CreateTextRenderSlot(textFont, errorMsg, 1024, 256,
+                                                                         false, fontRenderSettings);
+    if (!errorMsg.empty())
     {
         std::cout << "Error creating text render slot: " << errorMsg << "\n\n";
         PauseConsole();
         EndWorld();
         return;
     }
-    //Font slots are numbered in order starting at 0, and we're only using one slot.
-    TextRenderer::FontSlot textSlot(textFont, 0);
 
 
-    //Next, create the GUI items.
+    //Next, create the GUI elements.
+    //Allocate them on the heap; they'll be stored in a smart pointer that manages their memory.
 
+    //The header label on top of the GUI panel.
     GUILabel* title = new GUILabel(guiTextMatParams, textRenderer, textSlot, guiTextMat);
     if (!title->SetText("WASD:Move  EQ:Zoom"))
     {
@@ -211,6 +214,7 @@ void GUIWorld::InitializeGUI(void)
     title->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
     title->Depth = 0.001f;
 
+    //A slider bar.
     GUITexture sliderBar(simpleGUIMatParams, &texSliderBar, simpleGUIMat),
                sliderNub(animatedGUIMatParams, &texSliderNub, animatedGUIMat, true, 1.0f);
     sliderNub.ScaleBy(Vector2f(0.5f, 0.5f));
@@ -223,6 +227,7 @@ void GUIWorld::InitializeGUI(void)
     slider->ScaleBy(Vector2f(6.0f, 5.0f));
     slider->Depth = 0.001f;
 
+    //A checkbox.
     GUITexture checkboxBackground(animatedGUIMatParams, &texBackground, animatedGUIMat, true, 2.0f),
                checkboxForeground(simpleGUIMatParams, &texCheck, simpleGUIMat);
     GUICheckbox* checkbox = new GUICheckbox(checkboxBackground, checkboxForeground, false);
@@ -230,7 +235,7 @@ void GUIWorld::InitializeGUI(void)
 
     
     //Create a "GUIFormattedPanel", which is just a GUIElement that holds other GUIElements.
-    //Unlike the "GUIPanel", "GUIFormattedPanel" will automatically fit the elements together.
+    //Unlike the "GUIPanel", "GUIFormattedPanel" will automatically fit the elements together nicely.
     GUITexture panelBackground(simpleGUIMatParams, &texBackground, simpleGUIMat);
     GUIFormattedPanel* panel = new GUIFormattedPanel(40.0f, 40.0f, panelBackground);
     panel->AddObject(GUIFormatObject(GUIElementPtr(title), false, true, Vector2f(10.0f, 20.0f)));
@@ -239,6 +244,7 @@ void GUIWorld::InitializeGUI(void)
     guiManager.RootElement = GUIElementPtr(panel);
 
     //Finally, position the panel so it's at the bottom-left corner of the screen.
+    //The way the GUI camera is set up, the Y position will need to be negative.
     Box2D bounds = guiManager.RootElement->GetBounds();
     guiManager.RootElement->SetBounds(Box2D(0.0f, bounds.GetXSize(),
                                             -bounds.GetYSize(), 0.0f));
@@ -258,6 +264,7 @@ void GUIWorld::InitializeWorld(void)
 
     DrawingQuad::InitializeQuad();
 
+    //Initialize the text-rendering system.
     std::string err;
     err = TextRenderer::InitializeSystem();
     if (!err.empty())
@@ -268,29 +275,35 @@ void GUIWorld::InitializeWorld(void)
         return;
     }
 
-
+    //Initialize stuff for this game world.
     InitializeTextures();
     InitializeMaterials();
     InitializeGUI();
 }
 void GUIWorld::OnWorldEnd(void)
 {
-    guiManager.RootElement.reset();
+    //First delete the GUI system; this must be done before cleaning up the text-rendering system.
+    guiManager.SetRoot(0);
 
     delete textRenderer;
+    textRenderer = 0;
+
     textFont = 0;
 
     if (simpleGUIMat != 0)
     {
         delete simpleGUIMat;
+        simpleGUIMat = 0;
     }
     if (animatedGUIMat != 0)
     {
         delete animatedGUIMat;
+        animatedGUIMat = 0;
     }
     if (guiTextMat != 0)
     {
         delete guiTextMat;
+        guiTextMat = 0;
     }
     
     texBackground.DeleteIfValid();
@@ -352,8 +365,9 @@ void GUIWorld::UpdateWorld(float elapsedSeconds)
 void GUIWorld::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
-    ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.3f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_BACK, false, true).EnableState();
+    ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.3f, 0.0f)).ClearScreen();
+    RenderingState(RenderingState::C_NONE, true, true,
+                   RenderingState::AT_GREATER, 0.0f).EnableState();
     glViewport(0, 0, windowSize.x, windowSize.y);
 
     //Set up the render camera.
