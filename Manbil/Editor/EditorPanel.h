@@ -15,13 +15,7 @@ public:
     EditorMaterialSet& MaterialSet;
 
 
-    EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder)
-        : MaterialSet(set),
-          panel(horizontalBorder, verticalBorder,
-                GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
-                           &set.PanelBackgroundTex,
-                           set.GetStaticMaterial(&set.PanelBackgroundTex))),
-          GUIElement(UniformDictionary()) { }
+    EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder);
     
 
     const GUIFormattedPanel& GetPanel(void) const { return panel; }
