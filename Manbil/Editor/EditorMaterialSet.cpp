@@ -149,7 +149,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //SelectionBox box texture.
-    greyData.Reset(256, 64, 0.8f);
+    greyData.Reset(512, 64, 0.8f);
     for (unsigned int x = 0; x < greyData.GetWidth(); ++x)
     {
         greyData[Vector2u(x, 0)] = 0.1f;

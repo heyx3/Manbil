@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Rendering/GUI/GUIMaterials.h"
+#include "../Rendering/GUI/GUI Elements/GUIPanel.h"
 #include "../Rendering/GUI/GUI Elements/GUIFormattedPanel.h"
 #include "../Rendering/GUI/GUI Elements/GUITextBox.h"
 #include "../Rendering/GUI/GUI Elements/GUISlider.h"
@@ -17,11 +18,14 @@
 
 #pragma region Definitions for parsed text boxes
 
-//The three template arguments are:
+//The five template arguments are:
 //1) The type of (simple) data being parsed from the text box,
-//2) The std function to parse it (like std::stof), and
-//3) The function to convert the data to a string.
-template<typename DataType, typename std_StringToDataType, typename DataTypeToString>
+//2) The std function to parse it (like std::stof),
+//3) The function to convert the data to a string,
+//4) The type of custom user data that gets passed into callback functions, and
+//5) The default value for the custom user data.
+template<typename DataType, typename std_StringToDataType, typename DataTypeToString,
+         typename UserDataType = void*, UserDataType DefaultValue = 0>
 //A value entered into a text box and parsed as a data type.
 struct _TextBoxValue : public EditorObject
 {
@@ -32,14 +36,14 @@ public:
 
     float BoxWidth;
 
-    void(*OnValueChanged)(GUITextBox* textBox, DataType newVal, void* pData) = 0;
-    void* OnValueChanged_Data = 0;
+    void(*OnValueChanged)(GUITextBox* textBox, DataType newVal, UserDataType pData) = 0;
+    UserDataType OnValueChanged_Data = DefaultValue;
 
 
     _TextBoxValue(DataType startingValue, float boxWidth, Vector2f offset = Vector2f(0.0f, 0.0f),
                   EditorObject::DescriptionData description = EditorObject::DescriptionData(),
-                  void(*onValueChanged)(GUITextBox* textBox, DataType newVal, void* pData) = 0,
-                  void* onValueChanged_pData = 0)
+                  void(*onValueChanged)(GUITextBox* textBox, DataType newVal, UserDataType pData) = 0,
+                  UserDataType onValueChanged_pData = DefaultValue)
         : StartingValue(startingValue), OnValueChanged(onValueChanged),
           BoxWidth(boxWidth), OnValueChanged_Data(onValueChanged_pData),
           EditorObject(description, offset) { }
@@ -166,20 +170,33 @@ public: std::string operator()(const std::string& str) { return str; }
 
 #pragma endregion
 
-//A text box for entering floats.
-typedef _TextBoxValue<float, std_StrToFl, PrimitiveToStr<float>> TextBoxFloat;
-//A text box for entering signed ints.
-typedef _TextBoxValue<int, std_StrToInt, PrimitiveToStr<int>> TextBoxInt;
-//A text box for entering unsigned ints.
-typedef _TextBoxValue<unsigned int, std_StrToUInt, PrimitiveToStr<unsigned int>> TextBoxUInt;
-typedef _TextBoxValue<std::string, StrToStr, StrToStr> TextBoxString;
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using TextBoxFloat = _TextBoxValue<float, std_StrToFl, PrimitiveToStr<float>,
+                                   UserDataType, DefaultDataValue>;
+
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using TextBoxInt = _TextBoxValue<int, std_StrToInt, PrimitiveToStr<int>,
+                                 UserDataType, DefaultDataValue>;
+
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using TextBoxUInt = _TextBoxValue<unsigned int, std_StrToUInt, PrimitiveToStr<unsigned int>,
+                                  UserDataType, DefaultDataValue>;
+
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using TextBoxString = _TextBoxValue<std::string, StrToStr, StrToStr, UserDataType, DefaultDataValue>;
 
 
 #pragma region Definitions for sliding bars
 
-//The data type being interpolated,
-//   and a function of signature "DataType Lerp(DataType min, DataType max, float t)".
-template<typename DataType, typename InterpretValue>
+
+//The four template arguments are:
+//1) The data type being interpolated,
+//2) A function of signature "DataType Lerp(DataType min, DataType max, float t)"
+//     to filter the float data,
+//3) The type of custom user data that gets passed into callback functions.
+//4) The default value for the custom user data.
+template<typename DataType, typename InterpretValue,
+         typename UserDataType = void*, UserDataType DefaultValue = 0>
 //A sliding bar that interpolates between two values.
 class _SlidingBarValue : public EditorObject
 {
@@ -193,14 +210,15 @@ public:
     //The lerp value between 0 and 1 is raised to this power.
     float LerpPow;
 
-    void(*OnValueChanged)(GUISlider * slider, DataType newVal, void* pData) = 0;
-    void* OnValueChanged_Data = 0;
+    void(*OnValueChanged)(GUISlider * slider, DataType newVal, UserDataType pData) = 0;
+    UserDataType OnValueChanged_Data = 0;
 
 
     _SlidingBarValue(DataType min, DataType max, Vector2f offset = Vector2f(0.0f, 0.0f),
                      EditorObject::DescriptionData description = EditorObject::DescriptionData(),
-                     void(*onValChanged)(GUISlider* slider, DataType newVal, void* pData) = 0,
-                     float defaultValue = 0.5f, float lerpPow = 1.0f, void* onValChanged_Data = 0)
+                     void(*onValChanged)(GUISlider* slider, DataType newVal, UserDataType pData) = 0,
+                     float defaultValue = 0.5f, float lerpPow = 1.0f,
+                     UserDataType onValChanged_Data = DefaultValue)
         : MinValue(min), MaxValue(max), DefaultLerpValue(defaultValue), LerpPow(lerpPow),
           OnValueChanged(onValChanged), OnValueChanged_Data(onValChanged_Data),
           EditorObject(description, offset) { }
@@ -219,6 +237,7 @@ public:
                                           DefaultLerpValue, true, false,
                                           materialSet.AnimateSpeed);
         slider->Value = DefaultLerpValue;
+
 #pragma warning(disable: 4100)
         slider->OnValueChanged = [](GUISlider* slid, Vector2f mouse, void* pData)
         {
@@ -234,6 +253,7 @@ public:
             }
         };
 #pragma warning(default: 4100)
+
         slider->OnValueChanged_pData = this;
 
         if (DescriptionLabel.Text.empty())
@@ -288,12 +308,14 @@ public:
 
 #pragma endregion
 
-//A sliding bar for a floating-point range.
-typedef _SlidingBarValue<float, InterpretValue_Float> SlidingBarFloat;
-//A sliding bar for a signed integer range.
-typedef _SlidingBarValue<int, InterpretValue_Int> SlidingBarInt;
-//A sliding bar for an unsigned integer range.
-typedef _SlidingBarValue<unsigned int, InterpretValue_UInt> SlidingBarUInt;
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using SlidingBarFloat = _SlidingBarValue<float, InterpretValue_Float, UserDataType, DefaultDataValue>;
+
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using SlidingBarInt = _SlidingBarValue<int, InterpretValue_Int, UserDataType, DefaultDataValue>;
+
+template<typename UserDataType = void*, UserDataType DefaultDataValue = 0>
+using SlidingBarUInt = _SlidingBarValue<unsigned int, InterpretValue_UInt, UserDataType, DefaultDataValue>;
 
 
 //A value that can be toggled on or off.
@@ -321,6 +343,9 @@ struct DropdownValues : public EditorObject
 {
 public:
 
+    //The render target height of each dropdown menu item's text.
+    unsigned int TextRenderHeight = 0;
+
     //The initial items in the dropdown menu.
     std::vector<std::string> Items;
 
@@ -338,6 +363,7 @@ public:
 
     DropdownValues(const std::vector<std::string>& items, Vector2f offset = Vector2f(0.0f, 0.0f),
                    EditorObject::DescriptionData description = EditorObject::DescriptionData(),
+                   unsigned int textRenderHeight = 0,
                    void(*onSelected)(GUISelectionBox* dropdownBox, const std::string& item,
                                      unsigned int index, void* pData) = 0,
                    void* onSelected_Data = 0,
@@ -369,6 +395,10 @@ public:
                      void* onClick_pData = 0);
 };
 
+//The template arguments are:
+// 1) The custom user data that gets passed into callbacks.
+// 2) The default value for the custom user data.
+template<typename UserDataType = void*>
 //A clickable button with optional text.
 //If the button texture is set to 0, the default button texture in the EditorMaterialSet will be used.
 struct EditorButton : public EditorObject
@@ -380,18 +410,120 @@ public:
 
     Vector2f ButtonSize;
 
-    //Raised when this button is clicked. "pData" is equal to this instance's "OnClick_Data" field.
-    void(*OnClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0;
-    void* OnClick_Data = 0;
+    //Raised when this button is clicked.
+    void(*OnClick)(GUITexture* clicked, Vector2f localMouse, UserDataType pData) = 0;
+    UserDataType OnClick_Data = DefaultValue;
 
 
+    //Creates an instance with no callback.
     EditorButton(std::string text, Vector2f size,
                  MTexture2D* buttonTex = 0, Vector2f offset = Vector2f(),
-                 EditorObject::DescriptionData description = EditorObject::DescriptionData(),
-                 void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData) = 0,
-                 void* onClick_Data = 0);
+                 EditorObject::DescriptionData description = EditorObject::DescriptionData())
+        : Text(text), ButtonSize(size), TexToUse(buttonTex),
+          EditorObject(description, offset)
+    {
 
-    virtual std::string InitGUIElement(EditorMaterialSet& materialSet) override;
+    }
+    //Creates an instance with a callback.
+    EditorButton(std::string text, Vector2f size,
+                 void(*onClick)(GUITexture* clicked, Vector2f localMouse, UserDataType pData),
+                 UserDataType onClick_Data,
+                 MTexture2D* buttonTex = 0, Vector2f offset = Vector2f(),
+                 EditorObject::DescriptionData description = EditorObject::DescriptionData())
+        : Text(text), ButtonSize(size), TexToUse(buttonTex),
+          OnClick(onClick), OnClick_Data(onClick_Data),
+          EditorObject(description, offset)
+    {
+
+    }
+
+    virtual std::string InitGUIElement(EditorMaterialSet& materialSet) override
+    {
+        GUIElementPtr buttonTex(0),
+                      buttonLabel(0);
+
+        if (!Text.empty())
+        {
+            //First try to create the font slot to render the label.
+            std::string err;
+            unsigned int finalRenderWidth = (unsigned int)(ButtonSize.x / materialSet.TextScale.x);
+            if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err,
+                                                              finalRenderWidth,
+                                                              materialSet.TextRenderSpaceHeight,
+                                                              false,
+                                                              TextureSampleSettings2D(FT_LINEAR,
+                                                                                      WT_CLAMP)))
+            {
+                activeGUIElement = GUIElementPtr(0);
+                return "Error creating text render slot for button '" + Text + "'s label: " + err;
+            }
+            TextRenderer::FontSlot labelSlot(materialSet.FontID,
+                                             materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
+            //Next try to render the text.
+            if (!materialSet.TextRender.RenderString(labelSlot, Text))
+            {
+                return "Error render '" + Text + "' into the button's GUILabel";
+            }
+
+            //Create the label.
+            buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams,
+                                                     &materialSet.TextRender,
+                                                     labelSlot, materialSet.StaticMatText,
+                                                     materialSet.AnimateSpeed,
+                                                     GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+            buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+            buttonLabel->Depth = 0.01f;
+            buttonLabel->ScaleBy(materialSet.TextScale);
+        }
+    
+
+        //Create the button.
+        MTexture2D* tex = (TexToUse == 0 ? &materialSet.ButtonTex : TexToUse);
+        buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
+                                                 materialSet.GetAnimatedMaterial(tex),
+                                                 true, materialSet.AnimateSpeed));
+        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, ButtonSize.y)));
+        GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
+        buttonTexPtr->OnClicked = [](GUITexture* clicked, Vector2f mouse, void* pData)
+        {
+            EditorButton& butt = *(EditorButton*)pData;
+            butt.OnClick(clicked, mouse, butt.OnClick_Data);
+        };
+        buttonTexPtr->OnClicked_pData = this;
+
+
+        //If the button has a label, create a panel to combine the label and button.
+        GUIElementPtr finalButton;
+        if (buttonLabel.get() == 0)
+        {
+            finalButton = buttonTex;
+        }
+        else
+        {
+            GUIPanel* panel = new GUIPanel();
+            panel->AddElement(buttonTex);
+            panel->AddElement(buttonLabel);
+
+            finalButton = GUIElementPtr(panel);
+        }
+
+        //If the button has a description next to it, create a panel
+        //    to combine the final button and description.
+        if (DescriptionLabel.Text.empty())
+        {
+            activeGUIElement = finalButton;
+        }
+        else
+        {
+            std::string err;
+            activeGUIElement = AddDescription(materialSet, finalButton, err);
+            if (activeGUIElement.get() == 0)
+            {
+                return "Error creating description label: " + err;
+            }
+        }
+        return "";
+    }
 };
 
 
@@ -427,9 +559,13 @@ public:
     std::string Text;
     unsigned int TextRenderSpaceWidth;
 
+    void(*OnUpdate)(GUILabel* label, float elapsed, void* pData) = 0;
+    void* OnUpdate_pData = 0;
+
     EditorLabel(const std::string& text, unsigned int textRenderSpaceWidth,
-                EditorObject::DescriptionData description = EditorObject::DescriptionData(),
-                Vector2f offset = Vector2f());
+                Vector2f offset = Vector2f(),
+                void(*onUpdate)(GUILabel* label, float elapsed, void* pData) = 0,
+                void* onUpdate_pData = 0);
 
     virtual std::string InitGUIElement(EditorMaterialSet& materialSet) override;
 };

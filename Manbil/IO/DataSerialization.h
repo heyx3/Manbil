@@ -64,6 +64,7 @@ public:
     typedef void(*ElementWriter)(DataWriter* writer, const void* elementToWrite,
                                  unsigned int elementIndex, void* userData);
     //Writes a collection of some kind of data.
+    //TODO: Implement this using templates in the same way that "WriteDictionary" is implemented.
     virtual void WriteCollection(ElementWriter writerFunc, const std::string& name,
                                  unsigned int bytesPerElement,
                                  const void* collection, unsigned int collectionSize,
@@ -153,6 +154,7 @@ public:
                                  unsigned int elementIndex, void* userData);
 
     //Reads a collection of some kind of data into "outData".
+    //TODO: Implement this using templates in the same way that "ReadDictionary" is implemented.
     virtual void ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
                                 void* pCollection, void* userData = 0) = 0;
 

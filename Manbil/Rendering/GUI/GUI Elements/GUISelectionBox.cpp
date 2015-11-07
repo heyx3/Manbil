@@ -16,6 +16,7 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
                      void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
                                              unsigned int itemIndex, void* pData),
                      void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                     unsigned int textRenderHeight,
                      void* onOptionSelected_pData, void* onDropdownToggled_pData,
                      float textAnimSpeed)
     : TextRender(textRenderer), MainBox(mainBackground), SelectionBackground(selectionBackground),
@@ -28,15 +29,18 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
     //Give this selection box the time lerp param so that its color is animated.
     Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp] =
         UniformValueF(0.0f, GUIMaterials::DynamicQuadDraw_TimeLerp);
-
+    
+    if (textRenderHeight == 0)
+    {
+        textRenderHeight = TextRender->GetMaxCharacterSize(FontID).y;
+    }
 
     //Create one render slot for each item.
     unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
     unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize();
     TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
     bool tryCreate = TextRender->CreateTextRenderSlots(FontID, outError,
-                                                       textBackWidth,
-                                                       TextRender->GetMaxCharacterSize(FontID).y,
+                                                       textBackWidth, textRenderHeight,
                                                        mipmappedText, textFiltering,
                                                        items.size());
     if (!tryCreate)

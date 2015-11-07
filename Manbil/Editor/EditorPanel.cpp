@@ -1,6 +1,16 @@
 #include "EditorPanel.h"
 
 
+
+EditorPanel::EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder)
+    : MaterialSet(set),
+        panel(horizontalBorder, verticalBorder,
+            GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
+                        &set.PanelBackgroundTex,
+                        set.GetStaticMaterial(&set.PanelBackgroundTex))),
+        GUIElement(UniformDictionary()) { }
+
+
 std::string EditorPanel::AddObject(EditorObjectPtr toAdd, unsigned int index)
 {
     std::string err = toAdd->InitGUIElement(MaterialSet);

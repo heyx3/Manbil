@@ -40,6 +40,9 @@ public:
     //Sets this element's texture.
     void SetTex(MTexture2D* newTex) { DidBoundsChange = true; tex = newTex; }
 
+    float GetRotation(void) const { return rotation; }
+    void SetRotation(float r);
+
 
     virtual Box2D GetBounds(void) const override;
 
@@ -50,7 +53,8 @@ public:
 
     
 private:
-
+    
+    float rotation = 0.0f;
     bool isBeingClicked;
     MTexture2D* tex;
 };

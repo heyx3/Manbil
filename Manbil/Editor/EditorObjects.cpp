@@ -1,7 +1,5 @@
 #include "EditorObjects.h"
 
-#include "../Rendering/GUI/GUI Elements/GUIPanel.h"
-
 
 
 CheckboxValue::CheckboxValue(EditorObject::DescriptionData description,
@@ -43,13 +41,14 @@ std::string CheckboxValue::InitGUIElement(EditorMaterialSet& materialSet)
 
 DropdownValues::DropdownValues(const std::vector<std::string>& items, Vector2f offset,
                                EditorObject::DescriptionData description,
+                               unsigned int textRenderHeight,
                                void(*onSelected)(GUISelectionBox* dropdownBox, const std::string& item,
                                                  unsigned int index, void* pData),
                                void* onSelected_Data,
                                void(*onUpdate)(GUISelectionBox* dropdownBox, void* pData),
                                void* onUpdate_Data)
     : Items(items), OnUpdate(onUpdate), OnUpdate_Data(onUpdate_Data),
-      OnSelected(onSelected), OnSelected_Data(onSelected_Data),
+    OnSelected(onSelected), OnSelected_Data(onSelected_Data), TextRenderHeight(textRenderHeight),
       EditorObject(description, offset)
 {
 
@@ -82,6 +81,7 @@ std::string DropdownValues::InitGUIElement(EditorMaterialSet& materialSet)
                                                true, err,
                                                Items,
                                                OnSelected, 0,
+                                               TextRenderHeight,
                                                OnSelected_Data, 0, materialSet.AnimateSpeed);
     if (!err.empty())
     {
@@ -112,99 +112,6 @@ EditorButtonData::EditorButtonData(std::string text, MTexture2D* tex, Vector2f b
       OnClick(onClick), OnClick_pData(onClick_pData)
 {
 
-}
-EditorButton::EditorButton(std::string text, Vector2f size,
-                           MTexture2D* buttonTex, Vector2f offset,
-                           EditorObject::DescriptionData description,
-                           void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData),
-                           void* onClick_Data)
-    : Text(text), ButtonSize(size), TexToUse(buttonTex),
-      OnClick(onClick), OnClick_Data(onClick_Data),
-      EditorObject(description, offset)
-{
-
-}
-std::string EditorButton::InitGUIElement(EditorMaterialSet& materialSet)
-{
-    GUIElementPtr buttonTex(0),
-                  buttonLabel(0);
-
-    if (!Text.empty())
-    {
-        //First try to create the font slot to render the label.
-        std::string err;
-        unsigned int finalRenderWidth = (unsigned int)(ButtonSize.x / materialSet.TextScale.x);
-        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err,
-                                                          finalRenderWidth,
-                                                          materialSet.TextRenderSpaceHeight,
-                                                          false,
-                                                          TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
-        {
-            activeGUIElement = GUIElementPtr(0);
-            return "Error creating text render slot for button '" + Text + "'s label: " + err;
-        }
-        TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                         materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
-        //Next try to render the text.
-        if (!materialSet.TextRender.RenderString(labelSlot, Text))
-        {
-            return "Error render '" + Text + "' into the button's GUILabel";
-        }
-
-        //Create the label.
-        buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams,
-                                                 &materialSet.TextRender,
-                                                 labelSlot, materialSet.StaticMatText,
-                                                 materialSet.AnimateSpeed,
-                                                 GUILabel::HO_CENTER, GUILabel::VO_CENTER));
-        buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-        buttonLabel->Depth = 0.01f;
-        buttonLabel->ScaleBy(materialSet.TextScale);
-    }
-    
-
-    //Create the button.
-    MTexture2D* tex = (TexToUse == 0 ? &materialSet.ButtonTex : TexToUse);
-    buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
-                                             materialSet.GetAnimatedMaterial(tex),
-                                             true, materialSet.AnimateSpeed));
-    buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, ButtonSize.y)));
-    GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
-    buttonTexPtr->OnClicked = OnClick;
-    buttonTexPtr->OnClicked_pData = OnClick_Data;
-
-
-    //If the button has a label, create a panel to combine the label and button.
-    GUIElementPtr finalButton;
-    if (buttonLabel.get() == 0)
-    {
-        finalButton = buttonTex;
-    }
-    else
-    {
-        GUIPanel* panel = new GUIPanel();
-        panel->AddElement(buttonTex);
-        panel->AddElement(buttonLabel);
-
-        finalButton = GUIElementPtr(panel);
-    }
-
-    //If the button has a description next to it, create a panel
-    //    to combine the final button and description.
-    if (DescriptionLabel.Text.empty())
-    {
-        activeGUIElement = finalButton;
-    }
-    else
-    {
-        std::string err;
-        activeGUIElement = AddDescription(materialSet, finalButton, err);
-        if (activeGUIElement.get() == 0)
-        {
-            return "Error creating description label: " + err;
-        }
-    }
-    return "";
 }
 
 EditorButtonList::EditorButtonList(const std::vector<EditorButtonData>& buttons,
@@ -310,9 +217,12 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
 }
 
 
-EditorLabel::EditorLabel(const std::string& text, unsigned int textRenderSpaceWidth,
-                         EditorObject::DescriptionData description, Vector2f offset)
-    : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(description, offset)
+EditorLabel::EditorLabel(const std::string& text, unsigned int textRenderSpaceWidth, Vector2f offset,
+                         void(*onUpdate)(GUILabel* label, float elapsed, void* pData),
+                         void* onUpdate_pData)
+    : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth),
+      OnUpdate(onUpdate), OnUpdate_pData(onUpdate_pData),
+      EditorObject(DescriptionData(), offset)
 {
 
 }
@@ -343,6 +253,13 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
                                                   GUILabel::HO_CENTER, GUILabel::VO_CENTER));
     activeGUIElement->SetColor(materialSet.TextColor);
     activeGUIElement->ScaleBy(materialSet.TextScale);
+    
+    activeGUIElement->OnUpdate = [](GUIElement* el, float elapsed, Vector2f mouse, void* pData)
+    {
+        EditorLabel* label = (EditorLabel*)pData;
+        label->OnUpdate((GUILabel*)el, elapsed, label->OnUpdate_pData);
+    };
+    activeGUIElement->OnUpdate_Data = this;
 
     return "";
 }

@@ -55,6 +55,7 @@ public:
                     void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
                                             unsigned int itemIndex, void* pData),
                     void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                    unsigned int textRenderHeight = 0,
                     void* onOptionSelected_pData = 0, void* onDropdownToggled_pData = 0,
                     float textAnimSpeed = 1.0f);
 

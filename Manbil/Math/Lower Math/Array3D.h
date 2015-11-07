@@ -38,8 +38,8 @@ public:
 		}
 	}
 
-    //Move semantics.
-    Array3D(Array3D&& toMove) { *this = std::move(toMove); }
+    //Move semantics
+    Array3D(Array3D&& toMove) : arrayVals(0) { *this = std::move(toMove); }
     Array3D& operator=(Array3D&& toMove)
     {
         if (arrayVals != 0)

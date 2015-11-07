@@ -30,7 +30,7 @@ public:
 
     //Raised every update step, before anything is updated.
     //"pData" is the value of this instance's "OnUpdate_Data" field.
-    void(*OnUpdate)(GUIElement* thisEl, Vector2f localMouse, void* pData) = 0;
+    void(*OnUpdate)(GUIElement* thisEl, float elapsed, Vector2f localMouse, void* pData) = 0;
     void* OnUpdate_Data = 0;
 
 

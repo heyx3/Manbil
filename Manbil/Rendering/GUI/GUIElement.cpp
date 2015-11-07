@@ -72,7 +72,7 @@ void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 
     if (OnUpdate != 0)
     {
-        OnUpdate(this, relativeMouse, OnUpdate_Data);
+        OnUpdate(this, elapsed, relativeMouse, OnUpdate_Data);
     }
 
     this->CustomUpdate(elapsed, relativeMouse);
