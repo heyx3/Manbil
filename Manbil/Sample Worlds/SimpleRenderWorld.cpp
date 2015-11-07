@@ -22,7 +22,7 @@ std::string SimpleRenderWorld::GetWindowTitle(void)
 {
     //Change this to change the string on the window's title-bar
     //    (assuming it has a title-bar).
-    return "World window";
+    return "SimpleRenderWorld";
 }
 sf::Uint32 SimpleRenderWorld::GetSFStyleFlags(void)
 {

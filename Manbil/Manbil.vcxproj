@@ -157,7 +157,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
     <ClCompile Include="Math\Shapes\Circle.cpp" />
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
-    <ClCompile Include="Oculus Rift\OculusDevice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp" />
@@ -252,7 +251,9 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp" />
     <ClCompile Include="Rendering\Water\Water.cpp" />
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
+    <ClCompile Include="Sample Worlds\AssetImporterWorld.cpp" />
     <ClCompile Include="Sample Worlds\DataNodeRenderWorld.cpp" />
+    <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp" />
     <ClCompile Include="Sample Worlds\GUIWorld.cpp" />
     <ClCompile Include="Sample Worlds\NoiseTest.cpp" />
     <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
@@ -260,9 +261,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
     <ClCompile Include="Sample Worlds\TerrainWorld.cpp" />
     <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
-    <ClCompile Include="Tests\AssImpTestWorld.cpp" />
-    <ClCompile Include="Tests\GUITestWorld.cpp" />
-    <ClCompile Include="Tests\RiftTestWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
     <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
@@ -348,7 +346,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Math\Shapes\Boxes.h" />
     <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
-    <ClInclude Include="Oculus Rift\OculusDevice.h" />
     <ClInclude Include="OptionalValue.h" />
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h" />
     <ClInclude Include="Rendering\Basic Rendering\GLVectors.h" />
@@ -453,7 +450,9 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Textures\TextureSettings.h" />
     <ClInclude Include="Rendering\Water\Water.h" />
     <ClInclude Include="Rendering\Water\WaterRendering.h" />
+    <ClInclude Include="Sample Worlds\AssetImporterWorld.h" />
     <ClInclude Include="Sample Worlds\DataNodeRenderWorld.h" />
+    <ClInclude Include="Sample Worlds\EditorGUIWorld.h" />
     <ClInclude Include="Sample Worlds\GUIWorld.h" />
     <ClInclude Include="Sample Worlds\NoiseTest.h" />
     <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
@@ -461,9 +460,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
     <ClInclude Include="Sample Worlds\TerrainWorld.h" />
     <ClInclude Include="Sample Worlds\WaterWorld.h" />
-    <ClInclude Include="Tests\AssImpTestWorld.h" />
-    <ClInclude Include="Tests\GUITestWorld.h" />
-    <ClInclude Include="Tests\RiftTestWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
     <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />

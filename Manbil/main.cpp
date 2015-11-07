@@ -4,10 +4,9 @@
 #include "Sample Worlds/TerrainWorld.h"
 #include "Sample Worlds/SerializationWorld.h"
 #include "Sample Worlds/GUIWorld.h"
+#include "Sample Worlds/EditorGUIWorld.h"
+#include "Sample Worlds/AssetImporterWorld.h"
 
-#include "Sample Worlds/OpenGLTestWorld.h"
-#include "Tests/AssImpTestWorld.h"
-#include "Tests/GUITestWorld.h"
 #include "Sample Worlds/NoiseTest.h"
 #include "Toys/TwoTrianglesWorld.h"
 #include "Toys/Voxel/VoxelWorld.h"
@@ -25,10 +24,8 @@ int main()
     TerrainWorld().RunWorld();
     SerializationWorld().RunWorld();
     GUIWorld().RunWorld();
-
-    //OpenGLTestWorld().RunWorld();
-    //AssImpTestWorld().RunWorld();
-    //GUITestWorld().RunWorld();
+    EditorGUIWorld().RunWorld();
+    AssetImporterWorld().RunWorld();
     
 
     //NoiseTest().RunWorld();
@@ -37,4 +34,6 @@ int main()
     //TwoTrianglesWorld().RunWorld();
     //VoxelWorld().RunWorld();
     //PlanetSimWorld().RunWorld();
+
+    return 0;
 }

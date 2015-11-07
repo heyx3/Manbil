@@ -46,19 +46,14 @@ GUIWorld::GUIWorld(void)
 
 sf::VideoMode GUIWorld::GetModeToUse(unsigned int windowW, unsigned int windowH)
 {
-    //Change this return value to change the window resolution mode.
-    //To use native fullscreen, return "sf::VideoMode::getFullscreenModes()[0];".
     return sf::VideoMode(windowW, windowH);
 }
 std::string GUIWorld::GetWindowTitle(void)
 {
-    //Change this to change the string on the window's title-bar
-    //    (assuming it has a title-bar).
-    return "World window";
+    return "GUIWorld";
 }
 sf::Uint32 GUIWorld::GetSFStyleFlags(void)
 {
-    //Change this to change the properties of the window.
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
 }
 
@@ -358,14 +353,11 @@ void GUIWorld::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
     ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.3f, 0.0f)).ClearScreen();
-    RenderingState(RenderingState::C_NONE, true, true,
-                   RenderingState::AT_GREATER, 0.0f).EnableState();
+    RenderingState(RenderingState::C_BACK, false, true).EnableState();
     glViewport(0, 0, windowSize.x, windowSize.y);
 
     //Set up the render camera.
     Camera cam = GetGUICam(windowSize);
-    cam.PerspectiveInfo.Width = windowSize.x;
-    cam.PerspectiveInfo.Height = windowSize.y;
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
     cam.GetOrthoProjection(projM);

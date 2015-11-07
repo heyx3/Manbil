@@ -8,7 +8,7 @@
 
 class DataNode;
 
-//Represents an input into a DataNode. Its value is either a constant or the output of a DataNode.
+//Represents an input into a DataNode. Its value is either a constant or the output of another DataNode.
 struct DataLine : public ISerializable
 {
 public:

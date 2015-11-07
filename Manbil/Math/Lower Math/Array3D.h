@@ -38,6 +38,27 @@ public:
 		}
 	}
 
+    //Move semantics.
+    Array3D(Array3D&& toMove) { *this = std::move(toMove); }
+    Array3D& operator=(Array3D&& toMove)
+    {
+        if (arrayVals != 0)
+        {
+            delete arrayVals;
+        }
+
+        width = toMove.width;
+        height = toMove.height;
+        depth = toMove.depth;
+        arrayVals = toMove.arrayVals;
+
+        toMove.width = 0;
+        toMove.height = 0;
+        toMove.depth = 0;
+        toMove.arrayVals = 0;
+
+        return *this;
+    }
 
     Array3D(void) = delete;
     Array3D(const Array3D<ArrayType>& cpy) = delete;

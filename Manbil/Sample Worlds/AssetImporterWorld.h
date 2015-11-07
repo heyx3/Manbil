@@ -6,24 +6,22 @@
 #include "../Input/MovingCamera.h"
 
 
-class Terrain;
 
-
-//A sample world that shows off the Terrain class.
-//Displays different levels of detail in the terrain that you can cycle through
-//    with the left/right arrow keys.
-//The terrain's heightmap is created with the Noise Generation system.
-class TerrainWorld : public SFMLOpenGLWorld
+//A simple world that shows how to use the AssImp library.
+//Use WASD/EQ and the mouse to move the camera.
+//Use the arrow keys and right shift/ctrl to rotate the mesh.
+//Use RFCV to move the mesh.
+class AssetImporterWorld : public SFMLOpenGLWorld
 {
 public:
 
-    TerrainWorld(void);
-    virtual ~TerrainWorld(void);
+    AssetImporterWorld(void);
+    virtual ~AssetImporterWorld(void);
 
 
 protected:
     
-    virtual std::string GetWindowTitle(void) { return "TerrainWorld"; }
+    virtual std::string GetWindowTitle(void) { return "AssetImporterWorld"; }
 
     virtual void InitializeWorld(void) override;
     virtual void UpdateWorld(float elapsedSeconds) override;
@@ -43,24 +41,21 @@ private:
     //Otherwise, returns true.
     bool Assert(bool test, std::string errorIntro, const std::string& error);
 
-    //Generates the terrain submesh for the given detail level.
-    void GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel);
 
     void InitializeTextures(void);
     void InitializeMaterials(void);
     void InitializeObjects(void);
 
     //Renders the world geometry using the given rendering info.
+    //Returns whether there was an error rendering.
     void RenderWorldGeometry(const RenderInfo& info);
 
-    
-    //Each Level of Detail of the terrain is stored as a different MeshData instance
-    //    inside a single mesh instance.
-    Mesh terrMesh;
 
-    Material* terrMat;
-    UniformDictionary terrParams;
-    MTexture2D terrTex;
+    Material* objMat;
+    Mesh objMesh;
+    UniformDictionary objParams;
+    MTexture2D objTex2;
+    MTexture3D objTex3;
 
     Vector2u windowSize;
 

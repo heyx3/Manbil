@@ -84,9 +84,6 @@
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\GUITestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Water\Water.cpp">
       <Filter>Rendering\Water</Filter>
     </ClCompile>
@@ -191,15 +188,6 @@
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Vectors.cpp">
       <Filter>Math\Lower Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Oculus Rift\OculusDevice.cpp">
-      <Filter>Oculus Rift</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\RiftTestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\AssImpTestWorld.cpp">
-      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
@@ -477,6 +465,12 @@
     <ClCompile Include="Sample Worlds\TerrainWorld.cpp">
       <Filter>Sample Worlds</Filter>
     </ClCompile>
+    <ClCompile Include="Sample Worlds\AssetImporterWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -613,9 +607,6 @@
     <ClInclude Include="Rendering\GUI\TextRenderer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\GUITestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Water\Water.h">
       <Filter>Rendering\Water</Filter>
     </ClInclude>
@@ -741,15 +732,6 @@
     </ClInclude>
     <ClInclude Include="Math\Lower Math/Array2D.h">
       <Filter>Math\Lower Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Oculus Rift\OculusDevice.h">
-      <Filter>Oculus Rift</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\RiftTestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\AssImpTestWorld.h">
-      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Math\Lower Math\Mathf.h">
       <Filter>Math\Lower Math</Filter>
@@ -1072,6 +1054,12 @@
     <ClInclude Include="Sample Worlds\TerrainWorld.h">
       <Filter>Sample Worlds</Filter>
     </ClInclude>
+    <ClInclude Include="Sample Worlds\AssetImporterWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\EditorGUIWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1145,9 +1133,6 @@
     </Filter>
     <Filter Include="Math\Lower Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Oculus Rift">
-      <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Toys\Two Triangles">
       <UniqueIdentifier>{3508bde8-92db-4455-83bd-8647a08958b7}</UniqueIdentifier>

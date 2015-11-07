@@ -4,7 +4,7 @@
 #include "../../Math/Lower Math/Array2D.h"
 
 
-//Represents a texture.
+//Represents a 2D texture.
 class MTexture2D
 {
 public:

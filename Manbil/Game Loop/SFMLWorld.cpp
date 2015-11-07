@@ -88,4 +88,7 @@ void SFMLWorld::RunWorld(void)
 	}
 
 	OnWorldEnd();
+
+    delete window;
+    window = 0;
 }

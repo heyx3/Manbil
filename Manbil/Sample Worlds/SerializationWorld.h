@@ -5,6 +5,8 @@
 #include "../Rendering/Rendering.hpp"
 
 
+//Shows an example of serializing/deserializing data to/from a file.
+//The file contains vertex data for the world geometry and the shaders used to render it.
 class SerializationWorld : public SFMLOpenGLWorld
 {
 public:

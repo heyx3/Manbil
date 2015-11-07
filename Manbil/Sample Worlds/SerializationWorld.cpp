@@ -41,28 +41,28 @@ public:
     }
     virtual void ReadData(DataReader* reader) override
     {
-        //As mentioned in WriteData() above, we can use helper classes to serialize the vectors.
+        //As mentioned in WriteData() above, we can use helper classes to serialize vectors.
         reader->ReadDataStructure(Vector3f_Readable(Value.Pos));
         reader->ReadDataStructure(Vector2f_Readable(Value.UV));
         reader->ReadDataStructure(Vector3f_Readable(Value.Normal));
     }
 };
 
-//Next, define a data structure that contains world info.
-//Like "WorldVertex", it is also serializable.
+//A data structure that contains world info.
+//Like "WorldVertex", it is marked as serializable.
 struct WorldInfo : public ISerializable
 {
 public:
 
-    //The vertex attributes.
+    //The data contained in each vertex of the world geometry.
     RenderIOAttributes VertexInputs;
 
-    //The material's shaders.
+    //The shaders for the material used to render world geometry.
     std::string VertexShader, FragmentShader;
 
-    //The vertices of the mesh.
+    //The vertices of the world geometry mesh.
     std::vector<WorldVertex> Vertices;
-    //The indices of the mesh.
+    //The indices of the world geometry mesh.
     std::vector<unsigned int> Indices;
 
 
@@ -100,35 +100,35 @@ public:
         reader->ReadString(FragmentShader);
 
         //Just like with writing a collection, we need to define callbacks when reading a collection.
-        //One callback for reading an element, and another for resizing the collection.
+        //One callback for deserializing an element, and another for resizing the collection.
+        DataReader::CollectionResizer vertexResizer = [](void* pCollection, unsigned int newSize)
+            {
+                std::vector<WorldVertex>& vertices = *(std::vector<WorldVertex>*)pCollection;
+                vertices.resize(newSize);
+            };
         DataReader::ElementReader vertexReader = [](DataReader* reader, void* pCollection,
                                                     unsigned int elIndex, void* pData)
             {
-                std::vector<WorldVertex>* vertices = (std::vector<WorldVertex>*)pCollection;
-                reader->ReadDataStructure((*vertices)[elIndex]);
+                std::vector<WorldVertex>& vertices = *(std::vector<WorldVertex>*)pCollection;
+                reader->ReadDataStructure(vertices[elIndex]);
             };
-        DataReader::CollectionResizer vertexResizer = [](void* pCollection, unsigned int newSize)
+        DataReader::CollectionResizer indexResizer = [](void* pCollection, unsigned int newSize)
             {
-                std::vector<WorldVertex>* vertices = (std::vector<WorldVertex>*)pCollection;
-                vertices->resize(newSize);
+                std::vector<unsigned int>& indices = *(std::vector<unsigned int>*)pCollection;
+                indices.resize(newSize);
             };
         DataReader::ElementReader indexReader = [](DataReader* reader, void* pCollection,
                                                    unsigned int elIndex, void* pData)
             {
-                std::vector<unsigned int>* indices = (std::vector<unsigned int>*)pCollection;
-                reader->ReadUInt((*indices)[elIndex]);
-            };
-        DataReader::CollectionResizer indexResizer = [](void* pCollection, unsigned int newSize)
-            {
-                std::vector<unsigned int>* indices = (std::vector<unsigned int>*)pCollection;
-                indices->resize(newSize);
+                std::vector<unsigned int>& indices = *(std::vector<unsigned int>*)pCollection;
+                reader->ReadUInt(indices[elIndex]);
             };
         reader->ReadCollection(vertexReader, vertexResizer, &Vertices);
         reader->ReadCollection(indexReader, indexResizer, &Indices);
     }
 
 
-    //Generates the world information from scratch.
+    //Generates sample world information from scratch.
     void GenerateInfo(void)
     {
         VertexInputs = VertexPosUVNormal::GetVertexAttributes();
@@ -193,19 +193,14 @@ SerializationWorld::SerializationWorld(void)
 
 sf::VideoMode SerializationWorld::GetModeToUse(unsigned int windowW, unsigned int windowH)
 {
-    //Change this return value to change the window resolution mode.
-    //To use native fullscreen, return "sf::VideoMode::getFullscreenModes()[0];".
     return sf::VideoMode(windowW, windowH);
 }
 std::string SerializationWorld::GetWindowTitle(void)
 {
-    //Change this to change the string on the window's title-bar
-    //    (assuming it has a title-bar).
-    return "World window";
+    return "SerializationWorld";
 }
 sf::Uint32 SerializationWorld::GetSFStyleFlags(void)
 {
-    //Change this to change the properties of the window.
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
 }
 
@@ -338,10 +333,8 @@ void SerializationWorld::UpdateWorld(float elapsedSeconds)
 void SerializationWorld::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
-    //Modify these constructors to change various aspects of how rendering is done.
     ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
-
     glViewport(0, 0, windowSize.x, windowSize.y);
 
     //Set up the matrix transforms.

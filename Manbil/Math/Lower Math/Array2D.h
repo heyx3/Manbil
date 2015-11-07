@@ -36,6 +36,26 @@ public:
 		}
 	}
 
+    //Move semantics.
+    Array2D(Array2D&& toMove) { *this = std::move(toMove); }
+    Array2D& operator=(Array2D&& toMove)
+    {
+        if (arrayVals != 0)
+        {
+            delete arrayVals;
+        }
+
+        width = toMove.width;
+        height = toMove.height;
+        arrayVals = toMove.arrayVals;
+
+        toMove.width = 0;
+        toMove.height = 0;
+        toMove.arrayVals = 0;
+
+        return *this;
+    }
+
     Array2D(void) = delete;
     Array2D(const Array2D<ArrayType>& cpy) = delete;
     Array2D & operator=(const Array2D<ArrayType>& other) = delete;

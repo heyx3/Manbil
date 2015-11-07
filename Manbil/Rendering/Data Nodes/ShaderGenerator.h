@@ -6,7 +6,7 @@
 #include "DataLine.h"
 
 class Material;
-class SerializedMaterial;
+struct SerializedMaterial;
 
 
 

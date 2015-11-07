@@ -48,7 +48,7 @@ std::string WaterWorld::GetWindowTitle(void)
 {
     //Change this to change the string on the window's title-bar
     //    (assuming it has a title-bar).
-    return "World window";
+    return "Water World";
 }
 sf::Uint32 WaterWorld::GetSFStyleFlags(void)
 {

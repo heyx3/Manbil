@@ -1,8 +1,8 @@
 #include "DrawingQuad.h"
 
 
-
 DrawingQuad* DrawingQuad::instance = 0;
+
 
 void DrawingQuad::SetBounds(Vector2f min, Vector2f max)
 {
@@ -69,6 +69,7 @@ void DrawingQuad::DestroyQuad(void)
 {
     assert(instance != 0);
     delete instance;
+    instance = 0;
 }
 
 void DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)

@@ -82,6 +82,7 @@ public:
     //Takes in the width and height to reset the back buffer to
     //    after rendering the text into the render target.
     //Returns whether it was successful.
+    //TODO: remove "backBufferWidth/Height" vars.
     bool RenderString(FontSlot slot, std::string textToRender,
                       unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
 

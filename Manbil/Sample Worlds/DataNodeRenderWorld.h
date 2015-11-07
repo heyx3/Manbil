@@ -16,6 +16,8 @@ public:
 
 protected:
 
+    virtual std::string GetWindowTitle(void) { return "DataNodeRenderWorld"; }
+
     virtual void InitializeWorld(void) override;
     virtual void OnWorldEnd(void) override;
 
