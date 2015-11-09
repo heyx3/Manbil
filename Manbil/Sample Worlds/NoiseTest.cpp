@@ -15,6 +15,11 @@ const int noiseSize = 513,
           pixelArrayWidth = noiseSize * 4,
           pixelArrayHeight = noiseSize;
 
+sf::ContextSettings NoiseTest::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
+}
+
 void NoiseTest::InitializeWorld(void)
 {
 	guiFont = sf::Font();

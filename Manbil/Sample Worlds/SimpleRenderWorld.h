@@ -17,6 +17,7 @@ protected:
     virtual sf::VideoMode GetModeToUse(unsigned int windowW, unsigned int windowH) override;
     virtual std::string GetWindowTitle(void) override;
     virtual sf::Uint32 GetSFStyleFlags(void) override;
+    virtual sf::ContextSettings GenerateContext(void) override;
 
 
     virtual void InitializeWorld(void) override;

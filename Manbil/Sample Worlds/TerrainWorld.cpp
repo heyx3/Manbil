@@ -23,13 +23,18 @@ TW::TerrainWorld(void)
       terrTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP),
               PixelSizes::PS_32F, true),
       cam(Vector3f(0.0f, 0.0f, 50.0f), 40.0f, 0.16f, Vector3f(1.0f, 1.0f, 0.0f).Normalized()),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
+      SFMLOpenGLWorld(800, 600)
 {
 
 }
 TW::~TerrainWorld(void)
 {
 
+}
+
+sf::ContextSettings TerrainWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 void TW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)

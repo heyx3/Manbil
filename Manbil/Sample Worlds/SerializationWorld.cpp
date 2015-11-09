@@ -188,7 +188,7 @@ void main()                                                    \n\
 
 SerializationWorld::SerializationWorld(void)
     : windowSize(800, 600),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings())
+      SFMLOpenGLWorld(800, 600)
 {
 }
 
@@ -203,6 +203,10 @@ std::string SerializationWorld::GetWindowTitle(void)
 sf::Uint32 SerializationWorld::GetSFStyleFlags(void)
 {
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
+}
+sf::ContextSettings SerializationWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 

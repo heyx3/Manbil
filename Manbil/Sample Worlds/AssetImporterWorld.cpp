@@ -19,7 +19,7 @@ AssetImporterWorld::AssetImporterWorld(void)
       objTex2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, true),
       objTex3(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_32F, true),
       cam(Vector3f(), 10.0f, 0.18f),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
+      SFMLOpenGLWorld(800, 600)
 {
 
 }
@@ -27,6 +27,13 @@ AssetImporterWorld::~AssetImporterWorld(void)
 {
 
 }
+
+
+sf::ContextSettings AssetImporterWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
+}
+
 
 void AssetImporterWorld::InitializeTextures(void)
 {
@@ -230,12 +237,14 @@ void AssetImporterWorld::InitializeWorld(void)
     cam.PerspectiveInfo.SetFOVDegrees(55.0f);
 }
 
+
 void AssetImporterWorld::OnWorldEnd(void)
 {
     delete objMat;
     objTex2.DeleteIfValid();
     objTex3.DeleteIfValid();
 }
+
 
 void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 {
@@ -313,6 +322,7 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
     }
 }
 
+
 void AssetImporterWorld::RenderWorldGeometry(const RenderInfo& info)
 {
     glViewport(0, 0, windowSize.x, windowSize.y);
@@ -331,6 +341,7 @@ void AssetImporterWorld::RenderOpenGL(float elapsedSeconds)
 
     RenderWorldGeometry(RenderInfo(GetTotalElapsedSeconds(), &cam, &viewM, &projM));
 }
+
 
 void AssetImporterWorld::OnInitializeError(std::string errorMsg)
 {
@@ -352,6 +363,7 @@ void AssetImporterWorld::OnWindowResized(unsigned int newW, unsigned int newH)
     windowSize.x = newW;
     windowSize.y = newH;
 }
+
 
 bool AssetImporterWorld::Assert(bool test, std::string errorIntro, const std::string& error)
 {

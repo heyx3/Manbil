@@ -31,11 +31,16 @@ WaterWorld::WaterWorld(void)
       normalMap1(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       normalMap2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       skyboxTex(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings())
+      SFMLOpenGLWorld(800, 600)
 {
     Input.AddBoolInput(INPUT_ADD_RIPPLE,
                        BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left,
                                                                    BoolInput::JustPressed)));
+}
+
+sf::ContextSettings WaterWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 sf::VideoMode WaterWorld::GetModeToUse(unsigned int windowW, unsigned int windowH)

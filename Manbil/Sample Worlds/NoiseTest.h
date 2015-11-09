@@ -11,10 +11,12 @@ class NoiseTest : public SFMLWorld
 public:
 
 	NoiseTest(void)
-        : SFMLWorld(500, 500, sf::ContextSettings(24, 0, 0, 4, 1)),
+        : SFMLWorld(500, 500),
           renderedNoise(0), renderedNoiseTex(0) { }
 
 protected:
+    
+    virtual sf::ContextSettings GenerateContext(void) override;
 
 	virtual void InitializeWorld(void) override;
 

@@ -22,6 +22,7 @@ public:
 protected:
     
     virtual std::string GetWindowTitle(void) override { return "EditorGUIWorld"; }
+    virtual sf::ContextSettings GenerateContext(void) override;
 
     virtual void OnInitializeError(std::string errorMsg) override;
     virtual void OnWindowResized(unsigned int newWidth, unsigned int newHeight) override;

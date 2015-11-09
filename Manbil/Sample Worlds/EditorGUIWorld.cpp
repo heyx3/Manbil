@@ -17,7 +17,6 @@
 
 
 
-
 //First define a data structure that will be "edited".
 struct MyData : public IEditable
 {
@@ -66,10 +65,15 @@ public:
 
 
 
-
 EditorGUIWorld::EditorGUIWorld(void)
-    : SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
+    : SFMLOpenGLWorld(800, 600)
 {
+}
+
+
+sf::ContextSettings EditorGUIWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 

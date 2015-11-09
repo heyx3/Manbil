@@ -24,6 +24,7 @@ public:
 protected:
     
     virtual std::string GetWindowTitle(void) { return "TerrainWorld"; }
+    virtual sf::ContextSettings GenerateContext(void) override;
 
     virtual void InitializeWorld(void) override;
     virtual void UpdateWorld(float elapsedSeconds) override;

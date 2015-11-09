@@ -22,10 +22,17 @@ DNRW::DataNodeRenderWorld(void)
           10.0f, 0.16f,
           Vector3f(1.0f, 1.0f, -1.0f).Normalized(),
           Vector3f(0.0f, 0.0f, 1.0f)),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings(24, 0, 0, 4, 1))
+      SFMLOpenGLWorld(800, 600)
 {
 
 }
+
+
+sf::ContextSettings DNRW::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
+}
+
 
 void DNRW::InitializeTextures(void)
 {

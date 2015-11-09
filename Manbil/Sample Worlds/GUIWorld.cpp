@@ -33,7 +33,7 @@ Camera GetGUICam(Vector2u windowSize)
 
 
 GUIWorld::GUIWorld(void)
-    : windowSize(800, 600), SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
+    : windowSize(800, 600), SFMLOpenGLWorld(800, 600),
       texBackground(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
       texCheck(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
       texSliderBar(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
@@ -55,6 +55,10 @@ std::string GUIWorld::GetWindowTitle(void)
 sf::Uint32 GUIWorld::GetSFStyleFlags(void)
 {
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
+}
+sf::ContextSettings GUIWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 
