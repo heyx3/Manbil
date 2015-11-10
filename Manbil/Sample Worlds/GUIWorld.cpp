@@ -358,9 +358,7 @@ void GUIWorld::UpdateWorld(float elapsedSeconds)
     }
 
     //Calculate the mouse position relative to the window.
-    sf::Vector2i mPos = sf::Mouse::getPosition();
-    sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
-    mPosFinal.y -= windowSize.y;
+    sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
 
     //Update the GUI manager.
     guiManager.Update(elapsedSeconds, Vector2i(mPosFinal.x, mPosFinal.y),

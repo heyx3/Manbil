@@ -206,9 +206,7 @@ void EditorGUIWorld::UpdateWorld(float elapsed)
     }
 
     //Get the mouse position offset relative to the window screen.
-    sf::Vector2i mPos = sf::Mouse::getPosition();
-    sf::Vector2i mPosFinal = mPos - GetWindow()->getPosition() - sf::Vector2i(5, 30);
-    mPosFinal.y -= WindowSize.y;
+    sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
 
     //Update the GUI elements.
     guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y),
