@@ -6,45 +6,45 @@
 #include "../Math/Higher Math/Camera.h"
 
 
-//TODO: Pull out mouse position calculation and mouse capturing into SFMLWorld.
 //TODO: Pull out "escape" key detection into individual worlds.
-//A Camera that is controlled with WASD/EQ and mouse.
+//A simple Camera that is controlled with WASD/EQ and mouse.
 //Spacebar toggles mouse capture/input.
 class MovingCamera : public Camera
 {
 public:
 
-	sf::Window * Window;
+    //The key that toggles mouse capture.
+    sf::Keyboard::Key ToggleMouseCapKey = sf::Keyboard::Space;
+
+    //If set to a non-null value, this camera will read the mouse position
+    //    and rotate itself accordingly.
+	sf::Window* Window = 0;
+
+    //The movement speed of this camera.
+    float MoveSpeed;
+    //The rotation speed of this camera.
+    float RotSpeed;
+
 
 	MovingCamera(float moveSpd = 10.0f, float rSpeed = 0.03f)
-        : pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
-    {
-        Window = 0;
-        mouseTarget = Vector2i(100, 100);
-    }
+        : pressedSpace(false), MoveSpeed(moveSpd), RotSpeed(rSpeed),
+          mouseTarget(100, 100) { }
 	MovingCamera(Vector3f pos, float moveSpd = 10.0f, float rSpeed = 0.03f,
 				 Vector3f forward = Vector3f(1, 0, 0), Vector3f up = Vector3f(0, 0, 1),
                  bool lockUp = true)
-				 : Camera(pos, forward, up, lockUp), pressedSpace(false), moveSpeed(moveSpd), rotSpeed(rSpeed)
-    {
-        Window = 0;
-        mouseTarget = Vector2i(100, 100);
-    }
+		: Camera(pos, forward, up, lockUp), pressedSpace(false),
+          MoveSpeed(moveSpd), RotSpeed(rSpeed),
+          mouseTarget(100, 100) { }
 
-	float GetMoveSpeed(void) const { return moveSpeed; }
-	float GetRotSpeed(void) const { return rotSpeed; }
 
     bool IsMouseCapped(void) const { return capMouse; }
 
-	void SetMoveSpeed(float newVal) { moveSpeed = newVal; }
-	void SetRotSpeed(float newVal) { rotSpeed = newVal; }
 
     //Updates this camera and returns whether the user pressed escape.
 	virtual bool Update(float elapsedTime);
 
 private:
 
-	float moveSpeed, rotSpeed;
 	Vector2i mouseTarget;
 
 	bool pressedSpace, capMouse;

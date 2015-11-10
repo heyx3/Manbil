@@ -8,8 +8,9 @@
 //Has two modes, indicated by the "LockUp" flag:
 //   - If "LockUp" is true, the camera's Up vector will not be affected by pitching,
 //        and the Forward vector can only get so close to it (specified by "ClosestDotVariance").
-//        Rolling the camera or rotating it with a Quaternion will still change the Up vector like normal.
 //   - If "LockUp" is false, the camera's Up vector is not locked in any way.
+//Note that rolling this camera or rotating it with a Quaternion will change the Up vector
+//    regardless of "LockUp".
 class Camera
 {
 public:
