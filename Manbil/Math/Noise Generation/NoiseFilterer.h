@@ -5,6 +5,9 @@
 #include "NoiseFilterVolume.h"
 
 
+//TODO: Add a "CustomFunc" function.
+
+
 #pragma region TwoD Noise
 
 //Filters 2D floating-point noise using different algorithms.

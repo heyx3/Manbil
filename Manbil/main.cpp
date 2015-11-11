@@ -6,8 +6,8 @@
 #include "Sample Worlds/GUIWorld.h"
 #include "Sample Worlds/EditorGUIWorld.h"
 #include "Sample Worlds/AssetImporterWorld.h"
+#include "Sample Worlds/NoiseGenWorld.h"
 
-#include "Sample Worlds/NoiseTest.h"
 #include "Toys/TwoTrianglesWorld.h"
 #include "Toys/Voxel/VoxelWorld.h"
 #include "Toys/PlanetSim/PlanetSimWorld.h"
@@ -26,9 +26,7 @@ int main()
     GUIWorld().RunWorld();
     EditorGUIWorld().RunWorld();
     AssetImporterWorld().RunWorld();
-    
-
-    //NoiseTest().RunWorld();
+    NoiseGenWorld().RunWorld();
 
 
     //TwoTrianglesWorld().RunWorld();

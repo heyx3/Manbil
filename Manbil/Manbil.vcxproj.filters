@@ -255,9 +255,6 @@
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp">
       <Filter>Rendering\Textures</Filter>
     </ClCompile>
-    <ClCompile Include="Sample Worlds\NoiseTest.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Input\MovingCamera.cpp">
       <Filter>Input</Filter>
     </ClCompile>
@@ -467,6 +464,9 @@
     </ClCompile>
     <ClCompile Include="IO\SerializationWrappers.cpp">
       <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\NoiseGenWorld.cpp">
+      <Filter>Sample Worlds</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -796,9 +796,6 @@
     <ClInclude Include="Rendering\Textures\TextureSettings.h">
       <Filter>Rendering\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="Sample Worlds\NoiseTest.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Input\MovingCamera.h">
       <Filter>Input</Filter>
     </ClInclude>
@@ -1050,6 +1047,9 @@
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\Viewport.h">
       <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\NoiseGenWorld.h">
+      <Filter>Sample Worlds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
