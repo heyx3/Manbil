@@ -361,7 +361,7 @@ void GUIWorld::UpdateWorld(float elapsedSeconds)
     sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
 
     //Update the GUI manager.
-    guiManager.Update(elapsedSeconds, Vector2i(mPosFinal.x, mPosFinal.y),
+    guiManager.Update(elapsedSeconds, Vector2i(mPos.x, mPos.y),
                       sf::Mouse::isButtonPressed(sf::Mouse::Left));
 }
 void GUIWorld::RenderOpenGL(float elapsedSeconds)

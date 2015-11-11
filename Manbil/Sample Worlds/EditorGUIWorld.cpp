@@ -209,7 +209,7 @@ void EditorGUIWorld::UpdateWorld(float elapsed)
     sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
 
     //Update the GUI elements.
-    guiManager.Update(elapsed, Vector2i(mPosFinal.x, mPosFinal.y),
+    guiManager.Update(elapsed, Vector2i(mPos.x, mPos.y),
                       sf::Mouse::isButtonPressed(sf::Mouse::Left));
 }
 
