@@ -546,27 +546,27 @@ bool MTexture2D::GetColorData(Array2D<Vector4f>& outData) const
 
 bool MTexture2D::GetGreyscaleData(Array2D<unsigned char>& outData) const
 {
-    if (!IsValidTexture() || !IsColorTexture() ||
+    if (!IsValidTexture() || !IsGreyscaleTexture() ||
         outData.GetWidth() != width || outData.GetHeight() != height)
     {
         return false;
     }
 
     Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, outData.GetArray());
 
     return true;
 }
 bool MTexture2D::GetGreyscaleData(Array2D<float>& outData) const
 {
-    if (!IsValidTexture() || !IsColorTexture() ||
+    if (!IsValidTexture() || !IsGreyscaleTexture() ||
         outData.GetWidth() != width || outData.GetHeight() != height)
     {
         return false;
     }
 
     Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, outData.GetArray());
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, outData.GetArray());
 
     return true;
 }

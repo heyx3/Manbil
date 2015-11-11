@@ -478,27 +478,27 @@ bool MTexture3D::GetColorData(Array3D<Vector4f>& outData) const
 
 bool MTexture3D::GetGreyscaleData(Array3D<unsigned char>& outData) const
 {
-    if (!IsValidTexture() || !IsColorTexture() ||
+    if (!IsValidTexture() || !IsGreyscaleTexture() ||
         outData.GetWidth() != width || outData.GetHeight() != height || outData.GetDepth() != depth)
     {
         return false;
     }
 
     Bind();
-    glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_UNSIGNED_BYTE, outData.GetArray());
+    glGetTexImage(GL_TEXTURE_3D, 0, GL_RED, GL_UNSIGNED_BYTE, outData.GetArray());
 
     return true;
 }
 bool MTexture3D::GetGreyscaleData(Array3D<float>& outData) const
 {
-    if (!IsValidTexture() || !IsColorTexture() ||
+    if (!IsValidTexture() || !IsGreyscaleTexture() ||
         outData.GetWidth() != width || outData.GetHeight() != height || outData.GetDepth() != depth)
     {
         return false;
     }
 
     Bind();
-    glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, outData.GetArray());
+    glGetTexImage(GL_TEXTURE_3D, 0, GL_RED, GL_FLOAT, outData.GetArray());
 
     return true;
 }
