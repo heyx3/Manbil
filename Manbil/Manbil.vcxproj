@@ -274,8 +274,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugAssist.h" />
-    <ClInclude Include="Editor\DAG Editor\DAGInput.h" />
-    <ClInclude Include="Editor\DAG Editor\DAGNode.h" />
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h" />
     <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorObject.h" />

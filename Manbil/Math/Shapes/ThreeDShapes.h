@@ -10,7 +10,8 @@
 
 
 //Provides an interface for 3D shape collision detection and related geometric stuff.
-//TODO: Replace this with Bullet physics engine.
+
+//TODO: Consider integrating Bullet physics engine as a replacement for this bare-bones stuff.
 
 
 class Cube;

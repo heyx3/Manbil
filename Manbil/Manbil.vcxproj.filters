@@ -697,12 +697,6 @@
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h">
       <Filter>Rendering\Editors\Editor Panels</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\DAG Editor\DAGNode.h">
-      <Filter>Rendering\Editors\DAG Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\DAG Editor\DAGInput.h">
-      <Filter>Rendering\Editors\DAG Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Shapes\Circle.h">
       <Filter>Math\Shapes</Filter>
     </ClInclude>
@@ -1163,9 +1157,6 @@
     </Filter>
     <Filter Include="Rendering\Editors\Editor Panels">
       <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Editors\DAG Editor">
-      <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Sample Worlds">
       <UniqueIdentifier>{4ab065bd-152d-485c-bdf3-a1e684e0dfe5}</UniqueIdentifier>

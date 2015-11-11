@@ -80,11 +80,6 @@ bool Box2D::CastRay(Vector2f start, Vector2f dir, Vector2f& outHitPos, float& ou
         return false;
     }
 
-
-    //TODO: remove these lines.
-    assert(std::numeric_limits<float>::infinity() > 99999.0f);
-    assert(std::numeric_limits<float>::infinity() > -99999.0f);
-
     //Find up to 4 different intersections -- one for each face.
     float smallestT = std::numeric_limits<float>::infinity();
     Vector2f smallestPos;
@@ -163,11 +158,6 @@ unsigned int Box2D::CastRay(Vector2f start, Vector2f dir,
     {
         return false;
     }
-
-
-    //TODO: remove these lines.
-    assert(std::numeric_limits<float>::infinity() > 99999.0f);
-    assert(std::numeric_limits<float>::infinity() > -99999.0f);
 
     //Find up to 4 different intersections.
     const float infinity = std::numeric_limits<float>::infinity();

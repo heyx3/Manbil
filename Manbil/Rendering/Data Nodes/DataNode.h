@@ -15,8 +15,6 @@
 //Some macros are provided for child classes to expose some simple reflection data
 //    for serialization purposes; this macro is mandatory.
 //All DataNodes have unique names. Specific nodes can be accessed globally by name through "GetNode()".
-//TODO: Get all child nodes that are only used once, and for those nodes directly use the output instead of writing it to a temp variable.
-//TODO: Pull out static data into a "DataNodeMaterialData" struct and have the DataNode contain an instance of it.
 class DataNode : public ISerializable
 {
 public:
