@@ -111,31 +111,18 @@ void GUIWorld::InitializeMaterials(void)
     //Just like with ShaderGenerator, we are responsible for managing a material's memory
     //    after generating it using this class.
 
-    //If you wish to create your own GUI material from scratch, just make sure to do the following:
-    //    1) Use the DrawingQuad's vertex attributes -- all GUIElements use DrawingQuad to render.
-    //    2) Expose the vec4 color uniform "GUIMaterials::QuadDraw_Color" as a color blend value.
-    //    3) Expose the texture uniform "GUIMaterials::QuadDraw_Texture2D" as a base texture value
-    //         (and multiply it by "GUIMaterials::QuadDraw_Color").
-    //    4) If you want to animate your material, also expose the float uniform
-    //         "GUIMaterials::DynamicQuadDraw_TimeLerp", which ranges between 0 (untouched) and 1
-    //         (fully tweened).
-    //    5) Keep in mind that text rendering is done with greyscale textures, which store their
-    //         values in the Red component.
+    //If you ever wish to create your own GUI material from scratch instead, just do the following:
+    //  * Use the DrawingQuad's vertex attributes -- all GUIElements use DrawingQuad to render.
+    //  * Use the texture uniform "GUIMaterials::QuadDraw_Texture2D" as a base texture value.
+    //  * Consider using a vec4 color uniform "GUIMaterials::QuadDraw_Color" to modify the color.
+    //  * If you want to animate your material, also expose the float uniform
+    //       "GUIMaterials::DynamicQuadDraw_TimeLerp", which ranges between 0 (inactive) and 1 (selected).
+    //  * Keep in mind that text/label rendering is done with greyscale textures, which store their
+    //       values in the Red component of the texture.
     
     GUIMaterials::GenMat tryMat("");
 
-    //First, create the simple unanimated material.
-    tryMat = GUIMaterials::GenerateStaticQuadDrawMaterial(simpleGUIMatParams, GUIMaterials::TT_COLOR);
-    if (!tryMat.ErrorMessage.empty())
-    {
-        std::cout << "Error creating simple GUI material: " << tryMat.ErrorMessage << "\n\n";
-        PauseConsole();
-        EndWorld();
-        return;
-    }
-    simpleGUIMat = tryMat.Mat;
-
-    //Next, create the text material.
+    //First, create the text-rendering material.
     tryMat = GUIMaterials::GenerateStaticQuadDrawMaterial(guiTextMatParams, GUIMaterials::TT_TEXT);
     if (!tryMat.ErrorMessage.empty())
     {
@@ -146,10 +133,24 @@ void GUIWorld::InitializeMaterials(void)
     }
     guiTextMat = tryMat.Mat;
 
+    //Next, create a simple unanimated material for static textures.
+    tryMat = GUIMaterials::GenerateStaticQuadDrawMaterial(simpleGUIMatParams, GUIMaterials::TT_COLOR);
+    if (!tryMat.ErrorMessage.empty())
+    {
+        std::cout << "Error creating simple GUI material: " << tryMat.ErrorMessage << "\n\n";
+        PauseConsole();
+        EndWorld();
+        return;
+    }
+    simpleGUIMat = tryMat.Mat;
 
-    //Finally, set up the animated material.
+
+    //Finally, set up the animated material for textures that change size/color when moused over.
+
     //The animation is controlled by a single parameter that moves between 0 and 1.
     DataNode::Ptr lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp));
+
+    //Animate the color and size by interpolating between max and min values based on the animation param.
     DataNode::Ptr animatedColor(new InterpolateNode(Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
                                                     Vector4f(0.5f, 0.5f, 0.5f, 1.0f),
                                                     lerpParam, InterpolateNode::IT_Linear,
@@ -158,6 +159,9 @@ void GUIWorld::InitializeMaterials(void)
                                                    InterpolateNode::IT_VerySmooth,
                                                    "animatedSize"));
     DataNode::Ptr animatedSize2D(new CombineVectorNode(animatedSize, animatedSize, "animatedSize2D"));
+    
+    //"GenerateDynamicQuadDrawMaterial" is like "GenerateStaticQuadDrawMaterial",
+    //    but it takes custom outputs for the color and size.
     tryMat = GUIMaterials::GenerateDynamicQuadDrawMaterial(animatedGUIMatParams,
                                                            GUIMaterials::TT_COLOR,
                                                            animatedSize2D, animatedColor);
@@ -359,6 +363,7 @@ void GUIWorld::UpdateWorld(float elapsedSeconds)
 
     //Calculate the mouse position relative to the window.
     sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
+    mPos.y -= windowSize.y;
 
     //Update the GUI manager.
     guiManager.Update(elapsedSeconds, Vector2i(mPos.x, mPos.y),
@@ -370,7 +375,7 @@ void GUIWorld::RenderOpenGL(float elapsedSeconds)
     ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.3f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, true, true,
                    RenderingState::AT_GREATER, 0.0f).EnableState();
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     //Set up the render camera.
     Camera cam = GetGUICam(windowSize);

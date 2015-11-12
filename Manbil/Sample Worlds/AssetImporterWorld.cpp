@@ -323,23 +323,18 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 }
 
 
-void AssetImporterWorld::RenderWorldGeometry(const RenderInfo& info)
-{
-    glViewport(0, 0, windowSize.x, windowSize.y);
-
-    ScreenClearer().ClearScreen();
-    //TODO: Set culling state once I can test this world.
-    RenderingState(RenderingState::C_NONE).EnableState();
-
-    objMat->Render(info, &objMesh, objParams);
-}
 void AssetImporterWorld::RenderOpenGL(float elapsedSeconds)
 {
+    ScreenClearer().ClearScreen();
+    RenderingState(RenderingState::C_NONE).EnableState();
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
+
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);
     cam.GetPerspectiveProjection(projM);
 
-    RenderWorldGeometry(RenderInfo(GetTotalElapsedSeconds(), &cam, &viewM, &projM));
+    RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
+    objMat->Render(info, &objMesh, objParams);
 }
 
 
@@ -357,8 +352,6 @@ void AssetImporterWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 {
     cam.PerspectiveInfo.Width = newW;
     cam.PerspectiveInfo.Height = newH;
-
-    glViewport(0, 0, newW, newH);
 
     windowSize.x = newW;
     windowSize.y = newH;

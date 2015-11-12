@@ -191,8 +191,9 @@ void DNRW::RenderWorldGeometry(const RenderInfo& info)
 void DNRW::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_BACK).EnableState();
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);

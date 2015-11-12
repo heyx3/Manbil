@@ -154,9 +154,9 @@ void TW::InitializeObjects(void)
         Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), 666778, true),
         Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), 44, true),
         Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
-        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
-        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
-        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 3356, true),
+        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), 5765, true),
+        Perlin2D(2.0f, Perlin2D::Quintic, Vector2i(), 2353732, true),
+        Perlin2D(1.0f, Perlin2D::Quintic, Vector2i(), 34532, true),
     };
     Generator2D* const generatorPointers[] = 
     {
@@ -259,9 +259,9 @@ void TW::RenderWorldGeometry(const RenderInfo& info)
 void TW::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
-    glViewport(0, 0, windowSize.x, windowSize.y);
     ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_BACK).EnableState();
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     //Calculate transforms.
     Matrix4f viewM, projM;
@@ -288,8 +288,6 @@ void TW::OnWindowResized(unsigned int newW, unsigned int newH)
 {
     cam.PerspectiveInfo.Width = newW;
     cam.PerspectiveInfo.Height = newH;
-
-    glViewport(0, 0, newW, newH);
 
     windowSize.x = newW;
     windowSize.y = newH;

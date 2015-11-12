@@ -207,6 +207,7 @@ void EditorGUIWorld::UpdateWorld(float elapsed)
 
     //Get the mouse position offset relative to the window screen.
     sf::Vector2i mPos = sf::Mouse::getPosition(*GetWindow());
+    mPos.y -= WindowSize.y;
 
     //Update the GUI elements.
     guiManager.Update(elapsed, Vector2i(mPos.x, mPos.y),
@@ -219,7 +220,7 @@ void EditorGUIWorld::RenderOpenGL(float elapsed)
     //TODO: Try enabling culling once I can run this world successfully.
     ScreenClearer(true, true, false, Vector4f(0.5f, 0.2f, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, false, true).EnableState();
-    glViewport(0, 0, WindowSize.x, WindowSize.y);
+    Viewport(0, 0, WindowSize.x, WindowSize.y).Use();
 
     //Set up the rendering info.
     Camera cam(Vector3f(), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));

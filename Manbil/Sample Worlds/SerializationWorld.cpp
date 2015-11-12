@@ -340,7 +340,7 @@ void SerializationWorld::RenderOpenGL(float elapsedSeconds)
     //Set up rendering state.
     ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     //Set up the matrix transforms.
     Matrix4f viewMat, projMat;

@@ -113,7 +113,7 @@ void NoiseGenWorld::GenerateNoise(MTexture2D& tex)
 
     //Run the generator and put the result into the texture.
     rootGenerator->Generate(noiseMap);
-    tex.SetGreyscaleData(noiseMap, PS_8U_GREYSCALE);
+    tex.SetGreyscaleData(noiseMap, PS_32F_GREYSCALE);
 }
 void NoiseGenWorld::GenerateBumpMap(MTexture2D& noiseTex)
 {
@@ -131,7 +131,7 @@ void NoiseGenWorld::GenerateBumpMap(MTexture2D& noiseTex)
     {
         *outVal = Vector4f(normals[loc], 1.0f);
     });
-    noiseTex.SetColorData(texCols, PS_8U);
+    noiseTex.SetColorData(texCols, PS_32F);
 }
 
 void NoiseGenWorld::InitializeWorld(void)
@@ -244,7 +244,7 @@ void NoiseGenWorld::RenderOpenGL(float elapsedSeconds)
     ScreenClearer(true, true, false, Vector4f(0.2f, 0.2f, 0.3f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE, true, true,
                    RenderingState::AT_GREATER, 0.0f).EnableState();
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     Matrix4f viewM, projM;
     cam.GetViewTransform(viewM);

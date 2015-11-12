@@ -8,14 +8,15 @@
 #include "../Rendering/Water/Water.h"
 
 
-//A sample world that demonstrates the Water system, which is an example of how to take advantage of
-//    the "DataNode" system.
-//The Water class has two types of ripples: "directional flow" (waves along a horizontal direction),
-//    and "circular ripples" (ripples moving outward from a point).
+//A sample world that demonstrates the Water system,
+//    which is an example of how to extend the "DataNode" system.
+//The Water class has two types of ripples:
+//   "Directional flow" (waves along a horizontal direction)
+//   "Circular ripples" (ripples moving outward from a point)
 //The exact number of flows and ripples is specified when the water is created (although you can
-//    effectively destroy a wave or ripple by setting its amplitude to 0).
-//In this world, the directional ripples are set when the water is created, and the circular ripples
-//    are created by the player when he left-clicks.
+//    effectively destroy one by setting its amplitude to 0).
+//In this world, the directional ripples are already set when the water is created,
+//    and the circular ripples are created by the player whenever he left-clicks.
 class WaterWorld : public SFMLOpenGLWorld
 {
 public:
@@ -42,18 +43,19 @@ private:
     Vector2u windowSize;
     MovingCamera gameCam;
 
-    //Used for generating random water ripples.
+    //Used for generating randomized ripples.
     FastRand fastRand;
 
 
     //This "Water" object contains its own mesh and uniform collection,
     //    so we don't need to manage that ourselves.
     Water* waterObj;
+
     Material* waterMat;
     MTexture2D normalMap1, normalMap2;
 
 
-    //Display a static skybox so that the water has something to reflect.
+    //Display a skybox so that the water has something to reflect.
 
     Material* skyboxMat;
     UniformDictionary skyboxParams;
