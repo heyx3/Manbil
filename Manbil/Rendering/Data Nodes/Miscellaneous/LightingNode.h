@@ -13,9 +13,9 @@ public:
     virtual std::string GetOutputName(unsigned int outputIndex) const override;
 
     LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
-                 std::string name = "", DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
+                 DataLine ambient = DataLine(0.2f), DataLine diffuse = DataLine(0.8f),
                  DataLine specular = DataLine(1.5f), DataLine specIntensity = DataLine(128.0f),
-                 DataLine camPos = CameraDataNode::GetCamPos());
+                 DataLine camPos = CameraDataNode::GetCamPos(), std::string name = "");
 
 
 protected:

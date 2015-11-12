@@ -55,10 +55,6 @@ void DNRW::InitializeMaterials(void)
     //    essentially a lower-level version of that -- instead of setting high-level outputs like "Diffuse",
     //    "Normal", "Roughness", etc., you manually set the actual outputs of the vertex and fragment
     //    shaders.
-    //However, the system does provide a way of defining your own higher-level outputs to simplify
-    //    material creation for a project -- you could have a set of outputs for creating a 3D material,
-    //    another set of outputs for creating a post-process effect, another set of outputs for creating
-    //    GPU particle effects, and so on.
     //Each "DataNode" instance represents a single atomic operation that takes some number of inputs
     //    and has at least one output.
     //Each input and output is a float vector of size 1 (float), 2 (vec2), 3 (vec3), or 4 (vec4).
@@ -67,44 +63,51 @@ void DNRW::InitializeMaterials(void)
     //Inputs to Data Nodes are called "DataLines"; a DataLine is either a constant value or
     //    the output of another Data Node.
     //Some DataNodes represent more complex things such as "uniforms", which are shader parameters
-    //    that can be changed during the game. The universal built-in uniforms such as elapsed time
-    //    or camera/projection data are outputs of singleton Data Nodes like TimeNode and CameraDataNode.
-    //There are also singletons that output shader inputs: "VertexInputNode" and "FragmentInputNode".
+    //    that can be changed at run-time. The universal built-in uniforms such as elapsed time
+    //    or camera/projection data are outputs of singleton DataNodes like TimeNode and CameraDataNode.
+    //There are also two singleton DataNodes that output shader inputs: "VertexInputNode" and "FragmentInputNode".
+    //Note that a few nodes (like VertexInputNode and FragmentInputNode) are only applicable in one type of shader.
 
-    //This example just uses simple, vanilla DataNodes with low-level outputs.
+    //The material is defined by various outputs:
+    //  * The vertex shader's position output
+    //  * The other vertex shader outputs, which become inputs for the fragment shader
+    //  * The fragment shader's color output(s)
     SerializedMaterial matData;
 
-    //Define the the vertex data. We are using vertices with position, UV, and normal attributes
-    //    (although we don't actually need the normal in this shader).
+    //We also need to specify the vertex data.
+    //In this case, we are using vertices with position, UV, and normal attributes
+    //    (although we don't actually use the normal in this shader).
     matData.VertexInputs = VertexPosUVNormal::GetVertexAttributes();
 
     //The vertex shader will be a simple object-to-screen-space conversion.
     //It also outputs UVs to the fragment shader.
 
-    //Define the vertex inputs for convenience.
+    //Define the vertex inputs for easy access.
+    //Each one is an outupt from the singleton "VertexInputNode".
     DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1),
              vIn_ObjNormal(VertexInputNode::GetInstance(), 2);
 
-    //Compute and output screen-space position.
-    DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos,
-                                                                         "objPosToScreen");
+    //Compute and output screen-space position using "SpaceConverterNode".
+    //We want the second outupt of the node (index 1) for the shader's position output.
+    DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos);
     matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
-    //Pass the UVs into the fragment shader.
+
+    //Pass the UVs straight into the fragment shader.
     matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
 
 
-    //The fragment shader just displays a texture.
+    //The fragment shader just outputs a texture.
 
-    //Define the fragment input for convenience.
+    //Define the UV input for convenience.
     DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
     //Sample the texture at the UV coordinate.
-    DataNode::Ptr textureSample(new TextureSample2DNode(fIn_UV, "u_texSampler", "texSamplerNode"));
+    DataNode::Ptr textureSample(new TextureSample2DNode(fIn_UV, "u_texSampler"));
     //Get the RGB values out of the texture.
     DataLine textureRGB(textureSample,
                         TextureSample2DNode::GetOutputIndex(ChannelsOut::CO_AllColorChannels));
     //Combine the texture RGB with an alpha of 1.0.
-    DataNode::Ptr finalColor(new CombineVectorNode(textureRGB, 1.0f, "finalColorNode"));
+    DataNode::Ptr finalColor(new CombineVectorNode(textureRGB, 1.0f));
     //Output the color to the screen.
     matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
     

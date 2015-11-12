@@ -258,7 +258,6 @@ void WaterWorld::InitializeMaterials(void)
                     specularLight = 0.0f,
                     specularIntensity = 64.0f;
         DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, tangentNormal, lightDir,
-                                                      "lightCalcNode",
                                                       ambientLight, diffuseLight, specularLight,
                                                       specularIntensity));
         DataNode::Ptr litSurfaceColor(new MultiplyNode(surfaceColor, brightnessCalc));

@@ -153,12 +153,10 @@ void GUIWorld::InitializeMaterials(void)
     //Animate the color and size by interpolating between max and min values based on the animation param.
     DataNode::Ptr animatedColor(new InterpolateNode(Vector4f(1.0f, 1.0f, 1.0f, 1.0f),
                                                     Vector4f(0.5f, 0.5f, 0.5f, 1.0f),
-                                                    lerpParam, InterpolateNode::IT_Linear,
-                                                    "animatedColor")),
+                                                    lerpParam, InterpolateNode::IT_Linear)),
                   animatedSize(new InterpolateNode(1.0f, 1.2f, lerpParam,
-                                                   InterpolateNode::IT_VerySmooth,
-                                                   "animatedSize"));
-    DataNode::Ptr animatedSize2D(new CombineVectorNode(animatedSize, animatedSize, "animatedSize2D"));
+                                                   InterpolateNode::IT_VerySmooth));
+    DataNode::Ptr animatedSize2D(new CombineVectorNode(animatedSize, animatedSize));
     
     //"GenerateDynamicQuadDrawMaterial" is like "GenerateStaticQuadDrawMaterial",
     //    but it takes custom outputs for the color and size.

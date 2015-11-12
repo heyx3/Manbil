@@ -90,18 +90,14 @@ void AssetImporterWorld::InitializeMaterials(void)
              vIn_UV(VertexInputNode::GetInstance(), 1),
              vIn_ObjNormal(VertexInputNode::GetInstance(), 2);
     
-    DataNode::Ptr objPosToWorld = SpaceConverterNode::ObjPosToWorldPos(vIn_ObjPos, "objPosToWorld");
+    DataNode::Ptr objPosToWorld = SpaceConverterNode::ObjPosToWorldPos(vIn_ObjPos);
     DataLine vOut_WorldPos(objPosToWorld);
-    DataNode::Ptr vOut_WorldNormal(new SpaceConverterNode(vIn_ObjNormal,
-                                                          SpaceConverterNode::ST_OBJECT,
-                                                          SpaceConverterNode::ST_WORLD,
-                                                          SpaceConverterNode::DT_NORMAL,
-                                                          "objNormalToWorld"));
+    DataNode::Ptr vOut_WorldNormal = SpaceConverterNode::ObjNormalToWorldNormal(vIn_ObjNormal);
     vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_WorldPos", vOut_WorldPos));
     vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_UV", vIn_UV));
     vertOuts.insert(vertOuts.end(), ShaderOutput("vOut_WorldNormal", vOut_WorldNormal));
 
-    DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos, "objPosToScreen");
+    DataNode::Ptr objPosToScreen = SpaceConverterNode::ObjPosToScreenPos(vIn_ObjPos);
     matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreen, 1);
 
 
@@ -112,28 +108,27 @@ void AssetImporterWorld::InitializeMaterials(void)
     DataLine fIn_WorldPos(FragmentInputNode::GetInstance(), 0),
              fIn_UV(FragmentInputNode::GetInstance(), 1),
              fIn_WorldNormal(FragmentInputNode::GetInstance(), 2);
-    DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal, "NormalizedNormal"));
+    DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal));
     DataLine lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
              ambientLight(0.35f),
              diffuseLight(0.65f),
              specLight(1.0f),
              specIntensity(64.0f);
 
-    DataNode::Ptr tex3Coords(new MultiplyNode(0.25f, fIn_WorldPos, "tex3Coords"));
+    DataNode::Ptr tex3Coords(new MultiplyNode(0.25f, fIn_WorldPos));
 
-    DataNode::Ptr objTex2SamplePtr(new TextureSample2DNode(fIn_UV, "u_tex2", "tex2Sampler"));
-    DataNode::Ptr objTex3SamplePtr(new TextureSample3DNode(tex3Coords, "u_tex3", "tex3Sampler"));
+    DataNode::Ptr objTex2SamplePtr(new TextureSample2DNode(fIn_UV, "u_tex2"));
+    DataNode::Ptr objTex3SamplePtr(new TextureSample3DNode(tex3Coords, "u_tex3"));
     DataLine objTex2Sample(objTex2SamplePtr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
              objTex3Sample(objTex3SamplePtr, TextureSample3DNode::GetOutputIndex(CO_AllColorChannels));
 
     DataNode::Ptr lightCalc(new LightingNode(fIn_WorldPos, normalizedNormal, lightDir,
-                                             "lightCalc", ambientLight, diffuseLight,
+                                             ambientLight, diffuseLight,
                                              specLight, specIntensity));
     DataLine lightBrightness(lightCalc);
 
-    DataNode::Ptr finalColor3(new MultiplyNode(lightBrightness, objTex2Sample,
-                                              objTex3Sample, "finalColor3")),
-                  finalColor4(new CombineVectorNode(finalColor3, 1.0f, "finalColor4"));
+    DataNode::Ptr finalColor3(new MultiplyNode(lightBrightness, objTex2Sample, objTex3Sample)),
+                  finalColor4(new CombineVectorNode(finalColor3, 1.0f));
 
     fragOuts.push_back(ShaderOutput("fOut_FinalColor4", finalColor4));
 
