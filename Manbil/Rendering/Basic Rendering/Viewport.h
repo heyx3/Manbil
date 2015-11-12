@@ -29,4 +29,8 @@ public:
     void SetAsViewport(void) const { glViewport(XMin, YMin, XSize, YSize); }
     //Sets OpenGL to only allow draw calls affect this range in the framebuffer.
     void SetAsScissor(void) const { glScissor(XMin, YMin, XSize, YSize); }
+
+    //Sets OpenGL to map screen coordinates to this region on the framebuffer
+    //    and only allow draw calls inside of it.
+    void Use(void) const { SetAsViewport(); SetAsScissor(); }
 };

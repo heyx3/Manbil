@@ -403,15 +403,10 @@ void RenderTarget::EnableDrawingInto(Viewport v) const
     v.SetAsViewport();
     currentTarget = this;
 }
-void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updateMipmaps) const
+void RenderTarget::DisableDrawingInto(bool updateMipmaps) const
 {
     currentTarget = 0;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    if (w != 0 && h != 0)
-    {
-        glViewport(0, 0, w, h);
-    }
 
     if (updateMipmaps)
     {

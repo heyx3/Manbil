@@ -85,12 +85,8 @@ public:
     MTexture2D* GetRenderedString(FontSlot slot) const;
 
     //Renders the given string into the given slot.
-    //Takes in the width and height to reset the back buffer to
-    //    after rendering the text into the render target.
     //Returns whether it was successful.
-    //TODO: remove "backBufferWidth/Height" vars.
-    bool RenderString(FontSlot slot, std::string textToRender,
-                      unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
+    bool RenderString(FontSlot slot, std::string textToRender);
 
 
 private:
@@ -124,8 +120,7 @@ private:
     //Renders the given string into the given render target, using the given font.
     //Returns whether the operation was a success.
     bool RenderString(std::string string, FreeTypeHandler::FontID fontID, RenderTarget* finalRender,
-                      unsigned int& outTextWidth, unsigned int& outTextHeight,
-                      unsigned int backBufferWidth = 0, unsigned int backBufferHeight = 0);
+                      unsigned int& outTextWidth, unsigned int& outTextHeight);
 
 
     //The following helper functions search through the various fonts and slots.

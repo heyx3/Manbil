@@ -141,11 +141,8 @@ public:
     //Sets the OpenGL state so that any rendering will go the given portion of this render target.
     void EnableDrawingInto(Viewport viewport) const;
 	//Sets the OpenGL state so that any rendering will go into the back buffer instead of a texture.
-    //Takes in the size of the default buffer and whether to update mipmaps
-    //    for all textures attached to this buffer.
-    //If 0 is passed in for the width and height, the back buffer will not be reset.
-	void DisableDrawingInto(unsigned int width = 0, unsigned int height = 0,
-                            bool updateMipmaps = true) const;
+    //Takes in whether to update mipmaps for all textures attached to this buffer.
+	void DisableDrawingInto(bool updateMipmaps = true) const;
 
 
 private:
