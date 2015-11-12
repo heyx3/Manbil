@@ -13,20 +13,20 @@
 #include "Toys/PlanetSim/PlanetSimWorld.h"
 
 
-//TODO: Add a "Skybox" class in "Rendering/Helper Classes" that simplifies creation/modification/rendering of a cubemapped skybox.
+//TODO: Add a "Skybox" class in "Rendering/Primitives".
 
 
 int main()
 {
-    SimpleRenderWorld().RunWorld();
-    DataNodeRenderWorld().RunWorld();
-    WaterWorld().RunWorld();
-    TerrainWorld().RunWorld();
-    SerializationWorld().RunWorld();
-    GUIWorld().RunWorld();
-    EditorGUIWorld().RunWorld();
-    AssetImporterWorld().RunWorld();
-    NoiseGenWorld().RunWorld();
+    //SimpleRenderWorld().RunWorld();
+    //DataNodeRenderWorld().RunWorld();
+    //WaterWorld().RunWorld();
+    //TerrainWorld().RunWorld();
+    //SerializationWorld().RunWorld();
+    //GUIWorld().RunWorld();
+    //EditorGUIWorld().RunWorld();
+    //AssetImporterWorld().RunWorld();
+    //NoiseGenWorld().RunWorld();
 
 
     //TwoTrianglesWorld().RunWorld();

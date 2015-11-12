@@ -6,7 +6,7 @@
 
 //TODO: Decouple "mouse pointer" and "is selected", so that the element can optionally have NO mouse pos input.
 //TODO: Remove "mouse click" from "update" cycle and create some kind of generic "Activated()" event for mouse button/keyboard/gamepad/etc.
-//PRIORITY: Fix this system so that scale is relative to parent like everything else, and the position offset scales in "RenderChild()".
+//TODO: Fix this system so that scale is relative to parent like everything else, and the position offset scales in "RenderChild()".
 
 //Represents a single element in a UI.
 //Keeps track of whether its size/position has changed since the last frame.
