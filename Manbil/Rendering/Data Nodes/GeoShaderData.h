@@ -28,7 +28,7 @@ public:
     MaterialUsageFlags UsageFlags;
 
     //The custom parameters this shader uses.
-    UniformDictionary Params;
+    UniformList Params;
 
     //The body of the shader code, including the entry point "main()" function.
     std::string ShaderCode;
@@ -40,7 +40,8 @@ public:
                   unsigned int maxVerts = 4,
                   PrimitiveTypes inPrimitive = PT_POINTS,
                   PrimitiveTypes outPrimitive = PT_TRIANGLE_STRIP,
-                  UniformDictionary params = UniformDictionary(), std::string shaderCode = "")
+                  UniformList params = UniformList(),
+                  std::string shaderCode = "")
         : OutputTypes(outputTypes), InputPrimitive(inPrimitive), OutputPrimitive(outPrimitive),
           MaxVertices(maxVerts), UsageFlags(flags), Params(params), ShaderCode(shaderCode) { }
 

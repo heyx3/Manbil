@@ -40,11 +40,11 @@ void GUITexture::Render(float elapsed, const RenderInfo& info)
 
     if (tex == 0)
     {
-        Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = INVALID_RENDER_OBJ_HANDLE;
+        Params[GUIMaterials::QuadDraw_Texture2D].Tex() = INVALID_RENDER_OBJ_HANDLE;
     }
     else
     {
-        Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
+        Params[GUIMaterials::QuadDraw_Texture2D].Tex() = tex->GetTextureHandle();
     }
 
     SetUpQuad();

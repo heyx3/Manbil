@@ -78,16 +78,11 @@ public:
     //The definition of the subroutine.
     SubroutineDefinition Definition;
 
-    //The name of the uniform parameter.
-    std::string Name;
-
     //The values (i.e. function names) this subroutine uniform can have.
     std::vector<std::string> PossibleValues;
     //The index in the "PossibleValues" collection corresponding to the current value of the subroutine.
     unsigned int ValueIndex = 0;
 
-    //The location of the uniform in the GLSL program.
-    UniformLocation Location;
     //The ID of each uniform value in the GLSL program.
     std::vector<RenderObjHandle> PossibleValueIDs;
 
@@ -95,17 +90,5 @@ public:
     //Creates a new instance. Fills in the "PossibleValueIDs" vector with default values of 0.
     UniformValueSubroutine(SubroutineDefinition definition = SubroutineDefinition(),
                            std::vector<std::string> possibleValues = std::vector<std::string>(),
-                           unsigned int currentValueIndex = 0, std::string name = "",
-                           UniformLocation location = 0);
-
-
-    std::string GetDeclaration(void) const;
-
-
-    bool operator==(const UniformValueSubroutine& other) const
-    {
-        return Definition == other.Definition && Name == other.Name &&
-               PossibleValues == other.PossibleValues && ValueIndex == other.ValueIndex &&
-               Location == other.Location && PossibleValueIDs == other.PossibleValueIDs;
-    }
+                           unsigned int currentValueIndex = 0);
 };

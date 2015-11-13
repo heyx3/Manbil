@@ -43,9 +43,9 @@ void Matrix4fParamNode::AssertMyInputsValid(void) const
     }
 }
 
-void Matrix4fParamNode::GetMyParameterDeclarations(UniformDictionary& outParams) const
+void Matrix4fParamNode::GetMyParameterDeclarations(UniformList& outParams) const
 {
-    outParams.Matrices[UniformName] = UniformValueMatrix4f(Matrix4f(), UniformName);
+    outParams.push_back(Uniform(UniformName, UT_VALUE_MAT4));
 }
 void Matrix4fParamNode::WriteMyOutputs(std::string& outCode) const
 {

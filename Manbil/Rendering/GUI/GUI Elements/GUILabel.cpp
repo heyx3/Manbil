@@ -137,7 +137,7 @@ void GUILabel::Render(float elapsedTime, const RenderInfo& info)
     SetUpQuad(Box2D(GetPos() + GetAnchorToRenderCenter(), labelDrawSize), Depth);
     
     RenderObjHandle texHandle = textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
-    Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = texHandle;
+    Params[GUIMaterials::QuadDraw_Texture2D].Tex() = texHandle;
 
     GetQuad()->Render(info, Params, *RenderMat);
 }

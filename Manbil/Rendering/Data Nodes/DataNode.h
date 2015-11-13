@@ -141,7 +141,7 @@ public:
     //Functions to traverse down this node and its inputs.
     void AssertAllInputsValid(void) const;
     void SetFlags(MaterialUsageFlags& flags, unsigned int outputIndex) const;
-    void GetParameterDeclarations(UniformDictionary& outUniforms,
+    void GetParameterDeclarations(UniformList& outUniforms,
                                   std::vector<const DataNode*>& writtenNodes) const;
     void GetFunctionDeclarations(std::vector<std::string>& outDecls,
                                  std::vector<const DataNode*>& writtenNodes) const;
@@ -217,7 +217,7 @@ protected:
     virtual void AssertMyInputsValid(void) const { }
 
     virtual void SetMyFlags(MaterialUsageFlags & flags, unsigned int outputIndex) const { }
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const { }
+    virtual void GetMyParameterDeclarations(UniformList & outUniforms) const { }
     virtual void GetMyFunctionDeclarations(std::vector<std::string> & outDecls) const { }
     virtual void WriteMyOutputs(std::string & outCode) const = 0;
 

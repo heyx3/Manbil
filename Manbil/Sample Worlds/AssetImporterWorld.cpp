@@ -143,8 +143,8 @@ void AssetImporterWorld::InitializeMaterials(void)
 
 
     //Set up the parameters.
-    objParams.Texture2Ds["u_tex2"].Texture = objTex2.GetTextureHandle();
-    objParams.Texture3Ds["u_tex3"].Texture = objTex3.GetTextureHandle();
+    objParams["u_tex2"].Tex() = objTex2.GetTextureHandle();
+    objParams["u_tex3"].Tex() = objTex3.GetTextureHandle();
 }
 void AssetImporterWorld::InitializeObjects(void)
 {

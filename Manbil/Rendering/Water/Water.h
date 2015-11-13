@@ -24,7 +24,7 @@ struct WaterVertex
 };
 
 
-//TODO: Create static strings that store the uniform names.
+//TODO: Add move semantics.
 
 //Represents a flowing body of water.
 //Contains two kinds of water flows:

@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    virtual void GetMyParameterDeclarations(UniformDictionary & outUniforms) const override;
+    virtual void GetMyParameterDeclarations(UniformList& outUniforms) const override;
 
     virtual void WriteMyOutputs(std::string & outCode) const override;
 

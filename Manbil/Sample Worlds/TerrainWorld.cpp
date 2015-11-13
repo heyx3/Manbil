@@ -136,7 +136,7 @@ void TW::InitializeMaterials(void)
 
 
     //Set up parameters.
-    terrParams.Texture2Ds["u_tex"].Texture = terrTex.GetTextureHandle();
+    terrParams["u_tex"].Tex() = terrTex.GetTextureHandle();
 }
 void TW::InitializeObjects(void)
 {

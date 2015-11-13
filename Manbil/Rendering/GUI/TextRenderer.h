@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FreeTypeHandler.h"
-#include "../Management/RenderTargetManager.h"
+#include "../Textures/RenderTargetManager.h"
 #include "../Textures/MTexture2D.h"
 #include "../Primitives/DrawingQuad.h"
 

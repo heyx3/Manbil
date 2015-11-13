@@ -18,15 +18,11 @@ public:
 
     ComponentType* Values;
     unsigned int NValues, NComponentsPerValue;
-    std::string Name;
-    UniformLocation Location;
 
 
     UniformValueVectorArray(const ComponentType* values = 0, unsigned int nValues = 0,
-                            unsigned int nComponentsPerValue = 0, std::string name = "",
-                            UniformLocation loc = -1)
-        : Name(name), Location(loc), Values(0),
-          NValues(nValues), NComponentsPerValue(nComponentsPerValue)
+                            unsigned int nComponentsPerValue = 0)
+        : Values(0), NValues(nValues), NComponentsPerValue(nComponentsPerValue)
     {
         if (values != 0)
         {
@@ -43,8 +39,6 @@ public:
 
     ThisType& operator=(const ThisType& cpy)
     {
-        Name = cpy.Name;
-        Location = cpy.Location;
         NValues = cpy.NValues;
         NComponentsPerValue = cpy.NComponentsPerValue;
 
@@ -56,17 +50,13 @@ public:
     }
     ThisType& operator=(ThisType&& other)
     {
-        Name = other.Name;
-        Location = other.Location;
         Values = other.Values;
         NValues = other.NValues;
         NComponentsPerValue = other.NComponentsPerValue;
         
         other.Values = 0;
-        other.Location = -1;
         other.NValues = 0;
         other.NComponentsPerValue = 0;
-        other.Name.clear();
 
         return *this;
     }
@@ -83,7 +73,7 @@ public:
     //Copies this value's data to the given instance.
     void CopyTo(ThisType& other) const
     {
-        other = ThisType(Values, NValues, NComponentsPerValue, Name, Location);
+        other = ThisType(Values, NValues, NComponentsPerValue);
     }
 
     void SetData(const ComponentType* values = 0, unsigned int nValues = 0,

@@ -9,8 +9,6 @@
 #include "Mesh.h"
 
 
-
-
 class Mesh;
 
 
@@ -110,8 +108,8 @@ private:
                 SetUniformValueArrayI(UniformLocation loc, unsigned int nArrayElements,
                                       unsigned int nComponents, const int* elements),
                 SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat);
-    //The subroutine function has to be a member function because subroutines are weird as hell.
-    void SetUniformValueSubroutine(Shaders shaderType, RenderObjHandle* valuesForAllSubroutines);
+    static void SetUniformValueSubroutine(Shaders shaderType, unsigned int nValues,
+                                          RenderObjHandle* valuesForAllSubroutines);
 
     static void ActivateTextureUnit(unsigned int unitIndex);
 

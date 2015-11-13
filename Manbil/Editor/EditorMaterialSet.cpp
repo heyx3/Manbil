@@ -213,12 +213,12 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
 
     //Materials.
 
-    outSet.AnimatedMatGreyParams.ClearUniforms();
-    outSet.StaticMatGreyParams.ClearUniforms();
-    outSet.AnimatedMatColParams.ClearUniforms();
-    outSet.StaticMatColParams.ClearUniforms();
-    outSet.AnimatedMatTextParams.ClearUniforms();
-    outSet.StaticMatTextParams.ClearUniforms();
+    outSet.AnimatedMatGreyParams.clear();
+    outSet.StaticMatGreyParams.clear();
+    outSet.AnimatedMatColParams.clear();
+    outSet.StaticMatColParams.clear();
+    outSet.AnimatedMatTextParams.clear();
+    outSet.StaticMatTextParams.clear();
 
     ShaderGenerator::GeneratedMaterial genM =
         GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatGreyParams,

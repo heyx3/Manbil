@@ -44,7 +44,7 @@ std::string TR::InitializeSystem(void)
 
     //Material.
 
-    textRendererParams.ClearUniforms();
+    textRendererParams.clear();
     SerializedMaterial matData(DrawingQuad::GetVertexInputData());
 
     //Use a simple vertex shader that just uses world position -- in other words,
@@ -94,7 +94,7 @@ void TR::DestroySystem(void)
 
     delete textRenderer;
     textRenderer = 0;
-    textRendererParams.ClearUniforms();
+    textRendererParams.clear();
     tempTex.DeleteIfValid();
 }
 
@@ -329,7 +329,7 @@ bool TR::RenderString(std::string textToRender, unsigned int fontID, RenderTarge
     {
         return false;
     }
-    textRendererParams.Texture2Ds[textSamplerName].Texture = tempTex.GetTextureHandle();
+    textRendererParams[textSamplerName].Tex() = tempTex.GetTextureHandle();
 
     //Set up rendering.
     targ->EnableDrawingInto();

@@ -237,9 +237,6 @@
     <ClCompile Include="Rendering\Basic Rendering\Vertices.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Management\RenderTargetManager.cpp">
-      <Filter>Rendering\Management</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Textures\MTexture2D.cpp">
       <Filter>Rendering\Textures</Filter>
     </ClCompile>
@@ -467,6 +464,9 @@
     </ClCompile>
     <ClCompile Include="Sample Worlds\NoiseGenWorld.cpp">
       <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Textures\RenderTargetManager.cpp">
+      <Filter>Rendering\Textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -775,9 +775,6 @@
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Management\RenderTargetManager.h">
-      <Filter>Rendering\Management</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Textures\MTexture2D.h">
       <Filter>Rendering\Textures</Filter>
     </ClInclude>
@@ -1009,16 +1006,7 @@
     <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h">
       <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueVector.h">
-      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h">
-      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueMatrix4f.h">
-      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueSamplers.h">
       <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\UniformValueSubroutine.h">
@@ -1050,6 +1038,9 @@
     </ClInclude>
     <ClInclude Include="Sample Worlds\NoiseGenWorld.h">
       <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Textures\RenderTargetManager.h">
+      <Filter>Rendering\Textures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

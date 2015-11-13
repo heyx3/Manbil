@@ -155,7 +155,7 @@ void WaterWorld::InitializeMaterials(void)
         skyboxMat = genM.Mat;
 
         //Set the skybox texture.
-        skyboxParams.TextureCubemaps["u_skyboxTex"].Texture = skyboxTex.GetTextureHandle();
+        skyboxParams["u_skyboxTex"].Tex() = skyboxTex.GetTextureHandle();
 
         #pragma endregion
     }
@@ -283,9 +283,9 @@ void WaterWorld::InitializeMaterials(void)
         waterMat = genM.Mat;
 
         //Set the parameters.
-        waterObj->Params.Texture2Ds["u_normalMap1"].Texture = normalMap1.GetTextureHandle();
-        waterObj->Params.Texture2Ds["u_normalMap2"].Texture = normalMap2.GetTextureHandle();
-        waterObj->Params.TextureCubemaps["u_skyboxCubeTex"].Texture = skyboxTex.GetTextureHandle();
+        waterObj->Params["u_normalMap1"].Tex() = normalMap1.GetTextureHandle();
+        waterObj->Params["u_normalMap2"].Tex() = normalMap2.GetTextureHandle();
+        waterObj->Params["u_skyboxCubeTex"].Tex() = skyboxTex.GetTextureHandle();
 
 
         #pragma endregion

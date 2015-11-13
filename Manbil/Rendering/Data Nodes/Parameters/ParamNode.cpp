@@ -40,10 +40,12 @@ void ParamNode::ReadExtraData(DataReader* reader)
     reader->ReadUInt(vSize);
 }
 
-void ParamNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
+void ParamNode::GetMyParameterDeclarations(UniformList& outUniforms) const
 {
-    float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    outUniforms.Floats[GetOutputName(0)] = UniformValueF(data, vSize, GetOutputName(0));
+    outUniforms.push_back(Uniform(GetOutputName(0), UT_VALUE_F));
+
+    float vals[] = { 0.0f, 0.0f, 0.0f, 0.0f};
+    outUniforms[outUniforms.size() - 1].Float().SetValue(vSize, vals);
 }
 
 #pragma warning(disable: 4100)

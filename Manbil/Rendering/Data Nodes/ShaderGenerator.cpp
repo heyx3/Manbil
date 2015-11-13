@@ -9,50 +9,15 @@
 typedef ShaderGenerator SG;
 
 
-std::string SG::GenerateUniformDeclarations(const UniformDictionary& dict)
+std::string SG::GenerateUniformDeclarations(const UniformList& dict)
 {
-    std::string decls;
-
-    //First define any subroutines so that they are separate from actual uniform declarations.
-    if (dict.Subroutines.size() > 0)
+    std::string decls = "";
+    for (auto it = dict.begin(); it != dict.end(); ++it)
     {
-        std::vector<SubroutineDefinition> usedDefinitions;
-
-        decls += "//Subroutine definitions.\n";
-        for (auto iterator = dict.Subroutines.begin(); iterator != dict.Subroutines.end(); ++iterator)
-        {
-            if (std::find(usedDefinitions.begin(), usedDefinitions.end(),
-                          iterator->second.Definition) == usedDefinitions.end())
-            {
-                decls += iterator->second.Definition.GetDefinition() + "\n";
-                usedDefinitions.push_back(iterator->second.Definition);
-            }
-        }
+        it->GetDeclaration(decls);
         decls += "\n";
     }
-
-    //Now handle the rest of the uniform types.
-    decls += "//Uniform declarations.\n";
-    for (auto iterator = dict.Floats.begin(); iterator != dict.Floats.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.FloatArrays.begin(); iterator != dict.FloatArrays.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.Ints.begin(); iterator != dict.Ints.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.IntArrays.begin(); iterator != dict.IntArrays.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.Matrices.begin(); iterator != dict.Matrices.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.Texture2Ds.begin(); iterator != dict.Texture2Ds.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.Texture3Ds.begin(); iterator != dict.Texture3Ds.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.TextureCubemaps.begin(); iterator != dict.TextureCubemaps.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-    for (auto iterator = dict.Subroutines.begin(); iterator != dict.Subroutines.end(); ++iterator)
-        decls += iterator->second.GetDeclaration() + "\n";
-
-    return decls + "\n";
+    return decls;
 }
 
 
@@ -60,27 +25,33 @@ SG::GeneratedMaterial SG::GenerateMaterial(const SerializedMaterial& matData,
                                            UniformDictionary& outUniforms, BlendMode blendMode)
 {
     std::string vs, fs;
-    std::string error = GenerateVertFragShaders(vs, fs, matData, outUniforms);
-
-    std::string geo = "";
-    if (matData.GeoShader.IsValidData())
-    {
-        geo = GenerateGeometryShader(matData);
-    }
+    UniformList uList;
+    std::string error = GenerateVertFragShaders(vs, fs, matData, uList);
 
     //Make sure the shaders were generated successfully.
     if (!error.empty())
     {
         return GeneratedMaterial(std::string("Error generating vertex/fragment shaders: ") + error);
     }
+
+    for (unsigned int i = 0; i < uList.size(); ++i)
+        outUniforms[uList[i].Name] = uList[i];
+
+
+    std::string geo = "";
+    if (matData.GeoShader.IsValidData())
+    {
+        geo = GenerateGeometryShader(matData);
+    }
     if (geo.find("ERROR:") != std::string::npos)
     {
         return GeneratedMaterial(std::string("Error generating geometry shader: '") + geo + "'");
     }
 
+    //Add the geometry shader uniforms to the collection of all uniforms.
     if (matData.GeoShader.IsValidData())
     {
-        outUniforms.AddUniforms(matData.GeoShader.Params, true);
+        Uniform::AddUniforms(matData.GeoShader.Params, outUniforms, true);
     }
 
 
@@ -155,7 +126,7 @@ std::string SG::GenerateGeometryShader(const SerializedMaterial& matData)
 
 std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& outFShader,
                                         const SerializedMaterial& matData,
-                                        UniformDictionary& outUniforms)
+                                        UniformList& outUniforms)
 {
     DataNode::SetCurrentMaterial(&matData);
 
@@ -342,7 +313,7 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
 
     //Generate uniforms, functions, and output calculations.
 
-    UniformDictionary vertexUniformDict, fragmentUniformDict;
+    UniformList vertexUniformDict, fragmentUniformDict;
     std::vector<std::string> vertexFunctionDecls, fragmentFunctionDecls;
     std::string vertexCode, fragmentCode;
     std::vector<const DataNode*> vertexUniforms, fragmentUniforms,
@@ -427,11 +398,11 @@ std::string SG::GenerateVertFragShaders(std::string& outVShader, std::string& ou
 
 
     //Add in the uniforms to the shader code.
-    if (vertexUniformDict.GetNumbUniforms() > 0)
+    if (vertexUniformDict.size() > 0)
     {
         vertShader += GenerateUniformDeclarations(vertexUniformDict);
     }
-    if (fragmentUniformDict.GetNumbUniforms() > 0)
+    if (fragmentUniformDict.size() > 0)
     {
         fragShader += GenerateUniformDeclarations(fragmentUniformDict);
     }
@@ -495,9 +466,41 @@ void main()                                                                     
     outFShader += fragShader;
 
 
-    //Finalize the uniforms.
-    outUniforms.AddUniforms(fragmentUniformDict, true);
-    outUniforms.AddUniforms(vertexUniformDict, true);
+    //Add all params to the output list, making sure there are no duplicates.
+    for (unsigned int i = 0; i < vertexUniformDict.size(); ++i)
+    {
+        bool existsAlready = false;
+        for (unsigned int j = 0; j < outUniforms.size(); ++j)
+        {
+            if (outUniforms[j].Name == vertexUniformDict[i].Name)
+            {
+                existsAlready = true;
+                break;
+            }
+        }
+
+        if (!existsAlready)
+        {
+            outUniforms.push_back(vertexUniformDict[i]);
+        }
+    }
+    for (unsigned int i = 0; i < fragmentUniformDict.size(); ++i)
+    {
+        bool existsAlready = false;
+        for (unsigned int j = 0; j < outUniforms.size(); ++j)
+        {
+            if (outUniforms[j].Name == fragmentUniformDict[i].Name)
+            {
+                existsAlready = true;
+                break;
+            }
+        }
+
+        if (!existsAlready)
+        {
+            outUniforms.push_back(fragmentUniformDict[i]);
+        }
+    }
 
 
     return "";

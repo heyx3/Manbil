@@ -76,23 +76,16 @@ MAKE_SERIALIZABLE_FULL(RenderIOAttributes::Attribute, RenderIOAttributes_Attribu
 MAKE_SERIALIZABLE(RenderIOAttributes)
 
 
-//IMPORTANT: Uniform values do NOT serialize their GLSL shader locations.
-//Additionally, Uniform texture samplers do NOT serialize the texture handle being used.
-
-MAKE_SERIALIZABLE(UniformValueF)
-MAKE_SERIALIZABLE(UniformValueI)
 MAKE_SERIALIZABLE(UniformValueArrayF)
 MAKE_SERIALIZABLE(UniformValueArrayI)
-MAKE_SERIALIZABLE(UniformValueMatrix4f)
-MAKE_SERIALIZABLE(UniformValueSampler2D)
-MAKE_SERIALIZABLE(UniformValueSampler3D)
-MAKE_SERIALIZABLE(UniformValueSamplerCubemap)
 
 MAKE_SERIALIZABLE_FULL(SubroutineDefinition::Parameter, SubroutineDefinition_Parameter)
 MAKE_SERIALIZABLE(SubroutineDefinition)
 MAKE_SERIALIZABLE(UniformValueSubroutine)
 
-MAKE_SERIALIZABLE(UniformDictionary)
+
+//Uniforms DO NOT serialize their current value or the location of the uniform in the shader.
+MAKE_SERIALIZABLE(Uniform)
 
 
 MAKE_SERIALIZABLE(TextureSampleSettings2D);

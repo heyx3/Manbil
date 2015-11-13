@@ -157,7 +157,7 @@ void DataNode::SetFlags(MaterialUsageFlags& flags, unsigned int outputIndex) con
     SetMyFlags(flags, outputIndex);
 }
 
-void DataNode::GetParameterDeclarations(UniformDictionary& outUniforms,
+void DataNode::GetParameterDeclarations(UniformList& outUniforms,
                                         std::vector<const DataNode*>& writtenNodes) const
 {
     //Exit if this node has already been used.

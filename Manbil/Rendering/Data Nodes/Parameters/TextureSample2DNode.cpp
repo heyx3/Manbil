@@ -64,9 +64,9 @@ TextureSample2DNode::TextureSample2DNode(const DataLine & uvs, std::string sampl
 }
 
 
-void TextureSample2DNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
+void TextureSample2DNode::GetMyParameterDeclarations(UniformList& uniforms) const
 {
-    uniforms.Texture2Ds[SamplerName] = UniformValueSampler2D(SamplerName);
+    uniforms.push_back(Uniform(SamplerName, UT_VALUE_SAMPLER2D));
 }
 void TextureSample2DNode::WriteMyOutputs(std::string & outCode) const
 {

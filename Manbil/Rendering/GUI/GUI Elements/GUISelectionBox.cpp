@@ -27,8 +27,9 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
       GUIElement(UniformDictionary())
 {
     //Give this selection box the time lerp param so that its color is animated.
-    Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp] =
-        UniformValueF(0.0f, GUIMaterials::DynamicQuadDraw_TimeLerp);
+    Params[GUIMaterials::DynamicQuadDraw_TimeLerp] = Uniform(GUIMaterials::DynamicQuadDraw_TimeLerp,
+                                                             UT_VALUE_F);
+    Params[GUIMaterials::DynamicQuadDraw_TimeLerp].Float().SetValue(0.0f);
     
     if (textRenderHeight == 0)
     {

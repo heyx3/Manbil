@@ -7,7 +7,9 @@
 #include "Basic Rendering/ScreenClearer.h"
 #include "Basic Rendering/Viewport.h"
 #include "Basic Rendering/Vertices.h"
+
 #include "Textures/MTexture2D.h"
 #include "Textures/MTexture3D.h"
 #include "Textures/MTextureCubemap.h"
 #include "Textures/RenderTarget.h"
+#include "Textures/RenderTargetManager.h"

@@ -72,7 +72,7 @@ GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, Tex
 
         //Try to generate the material.
         GenM genM = ShaderGenerator::GenerateMaterial(matData, params, blendMode);
-        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        params[QuadDraw_Color].Float().SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
         return genM;
     }
     else
@@ -83,7 +83,7 @@ GenM GUIMaterials::GenerateStaticQuadDrawMaterial(UniformDictionary& params, Tex
 
         //Try to generate the material.
         GenM genM = ShaderGenerator::GenerateMaterial(matData, params, blendMode);
-        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        params[QuadDraw_Color].Float().SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
         return genM;
     }
 }
@@ -162,7 +162,7 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
         matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
 
         GenM genM = ShaderGenerator::GenerateMaterial(matData, params, blendMode);
-        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        params[QuadDraw_Color].Float().SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
         return genM;
     }
     else
@@ -172,7 +172,7 @@ GenM GUIMaterials::GenerateDynamicQuadDrawMaterial(UniformDictionary& params, Te
         matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color4", finalColor));
 
         GenM genM = ShaderGenerator::GenerateMaterial(matData, params, blendMode);
-        params.Floats[QuadDraw_Color].SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        params[QuadDraw_Color].Float().SetValue(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
         return genM;
     }
 }

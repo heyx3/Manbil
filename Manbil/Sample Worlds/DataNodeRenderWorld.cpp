@@ -124,7 +124,7 @@ void DNRW::InitializeMaterials(void)
 
 
     //Set up the custom material parameters.
-    matParams.Texture2Ds["u_texSampler"].Texture = objTex.GetTextureHandle();
+    matParams["u_texSampler"].Tex() = objTex.GetTextureHandle();
 }
 void DNRW::InitializeObjects(void)
 {

@@ -239,49 +239,10 @@ IMPL_READ(RenderIOAttributes)
 #pragma region Uniform serializers
 
 //Note that the "Location" values (and texture handle values) are not serialized;
-//    they are dependent on the GLSL shader and compiler.
+//    they are dependent on the GLSL shader which is compiled at run-time.
 
-IMPL_WRITE(UniformValueF)
-{
-    writer->WriteString(Value.Name, "Name");
-    writer->WriteUInt(Value.NData, "Number of floats");
-    for (unsigned int i = 0; i < Value.NData; ++i)
-    {
-        writer->WriteFloat(Value.Value[i],
-                           (i == 0 ? "X" : (i == 1 ? "Y" : (i == 2 ? "Z" : "W"))));
-    }
-}
-IMPL_READ(UniformValueF)
-{
-    reader->ReadString(Value.Name);
-    reader->ReadUInt(Value.NData);
-    for (unsigned int i = 0; i < Value.NData; ++i)
-    {
-        reader->ReadFloat(Value.Value[i]);
-    }
-}
-IMPL_WRITE(UniformValueI)
-{
-    writer->WriteString(Value.Name, "Name");
-    writer->WriteUInt(Value.NData, "Number of ints");
-    for (unsigned int i = 0; i < Value.NData; ++i)
-    {
-        writer->WriteInt(Value.Value[i],
-                         (i == 0 ? "X" : (i == 1 ? "Y" : (i == 2 ? "Z" : "W"))));
-    }
-}
-IMPL_READ(UniformValueI)
-{
-    reader->ReadString(Value.Name);
-    reader->ReadUInt(Value.NData);
-    for (unsigned int i = 0; i < Value.NData; ++i)
-    {
-        reader->ReadInt(Value.Value[i]);
-    }
-}
 IMPL_WRITE(UniformValueArrayF)
 {
-    writer->WriteString(Value.Name, "Name");
     writer->WriteUInt(Value.NComponentsPerValue, "Number of floats per vector");
     writer->WriteUInt(Value.NValues, "Number of vectors");
     for (unsigned int i = 0; i < Value.NValues; ++i)
@@ -312,10 +273,9 @@ IMPL_READ(UniformValueArrayF)
     if (Value.Values != 0)
     {
         delete Value.Values;
+        Value.Values = 0;
     }
-    Value.Location = -1;
 
-    reader->ReadString(Value.Name);
     reader->ReadUInt(Value.NComponentsPerValue);
     reader->ReadUInt(Value.NValues);
 
@@ -346,7 +306,6 @@ IMPL_READ(UniformValueArrayF)
 }
 IMPL_WRITE(UniformValueArrayI)
 {
-    writer->WriteString(Value.Name, "Name");
     writer->WriteUInt(Value.NComponentsPerValue, "Number of ints per vector");
     writer->WriteUInt(Value.NValues, "Number of vectors");
     for (unsigned int i = 0; i < Value.NValues; ++i)
@@ -377,10 +336,9 @@ IMPL_READ(UniformValueArrayI)
     if (Value.Values != 0)
     {
         delete Value.Values;
+        Value.Values = 0;
     }
-    Value.Location = -1;
 
-    reader->ReadString(Value.Name);
     reader->ReadUInt(Value.NComponentsPerValue);
     reader->ReadUInt(Value.NValues);
 
@@ -408,51 +366,6 @@ IMPL_READ(UniformValueArrayI)
                 assert(false);
         }
     }
-}
-IMPL_WRITE(UniformValueMatrix4f)
-{
-    writer->WriteString(Value.Name, "Name");
-    writer->WriteDataStructure(Matrix4f_Writable(Value.Value), "Matrix");
-}
-IMPL_READ(UniformValueMatrix4f)
-{
-    Value.Location = -1;
-
-    reader->ReadString(Value.Name);
-    reader->ReadDataStructure(Matrix4f_Readable(Value.Value));
-}
-IMPL_WRITE(UniformValueSampler2D)
-{
-    writer->WriteString(Value.Name, "Name");
-}
-IMPL_READ(UniformValueSampler2D)
-{
-    Value.Location = -1;
-    Value.Texture = 0;
-
-    reader->ReadString(Value.Name);
-}
-IMPL_WRITE(UniformValueSampler3D)
-{
-    writer->WriteString(Value.Name, "Name");
-}
-IMPL_READ(UniformValueSampler3D)
-{
-    Value.Location = -1;
-    Value.Texture = 0;
-
-    reader->ReadString(Value.Name);
-}
-IMPL_WRITE(UniformValueSamplerCubemap)
-{
-    writer->WriteString(Value.Name, "Name");
-}
-IMPL_READ(UniformValueSamplerCubemap)
-{
-    Value.Location = -1;
-    Value.Texture = 0;
-
-    reader->ReadString(Value.Name);
 }
 
 IMPL_WRITE(SubroutineDefinition_Parameter)
@@ -507,7 +420,6 @@ IMPL_READ(SubroutineDefinition)
 }
 IMPL_WRITE(UniformValueSubroutine)
 {
-    writer->WriteString(Value.Name, "Name");
     writer->WriteDataStructure(SubroutineDefinition_Writable(Value.Definition), "Signature definition");
     writer->WriteCollection([](DataWriter* writer, const void* elementToWrite,
                                unsigned int elIndex, void* pData)
@@ -520,7 +432,6 @@ IMPL_WRITE(UniformValueSubroutine)
 }
 IMPL_READ(UniformValueSubroutine)
 {
-    reader->ReadString(Value.Name);
     reader->ReadDataStructure(SubroutineDefinition_Readable(Value.Definition));
     reader->ReadCollection([](DataReader* reader, void* pCollection, unsigned int elIndex, void* pData)
                            {
@@ -535,60 +446,120 @@ IMPL_READ(UniformValueSubroutine)
                            },
                            &Value.PossibleValues);
 
-    Value.Location = -1;
     Value.PossibleValueIDs = std::vector<RenderObjHandle>();
     Value.PossibleValueIDs.resize(Value.PossibleValues.size());
     Value.ValueIndex = 0;
 }
 
-IMPL_WRITE(UniformDictionary)
+IMPL_WRITE(Uniform)
 {
-#define WRITE_UNIF_DICT(Name, ValueType) \
-    writer->WriteDictionary<std::string, ValueType>( \
-                Value.Name, \
-                [](DataWriter* write, const std::string* k, const ValueType* val, void* pDat) \
-                { \
-                    write->WriteString(*k, "Name"); \
-                    write->WriteDataStructure(ValueType ## _Writable(*val), "Value"); \
-                }, \
-                #Name);
+    writer->WriteString(Value.Name, "Name");
+    writer->WriteString(Uniform::ToString(Value.Type), "Type");
+    
+    //Some types of uniforms require extra data to be written out.
+    const UniformValueSubroutine* sb = 0;
+    switch (Value.Type)
+    {
+        case UT_VALUE_F:
+            writer->WriteUInt(Value.Float().GetSize(), "NComponents");
+            break;
+        case UT_VALUE_I:
+            writer->WriteUInt(Value.Int().GetSize(), "NComponents");
+            break;
+        case UT_VALUE_F_ARRAY:
+            writer->WriteUInt(Value.FloatArray().NComponentsPerValue, "NComponents");
+            writer->WriteUInt(Value.FloatArray().NValues, "NValues");
+            break;
+        case UT_VALUE_I_ARRAY:
+            writer->WriteUInt(Value.IntArray().NComponentsPerValue, "NComponents");
+            writer->WriteUInt(Value.IntArray().NValues, "NValues");
+            break;
 
-    WRITE_UNIF_DICT(Floats, UniformValueF);
-    WRITE_UNIF_DICT(Ints, UniformValueI);
-    WRITE_UNIF_DICT(FloatArrays, UniformValueArrayF);
-    WRITE_UNIF_DICT(IntArrays, UniformValueArrayI);
-    WRITE_UNIF_DICT(Matrices, UniformValueMatrix4f);
-    WRITE_UNIF_DICT(Texture2Ds, UniformValueSampler2D);
-    WRITE_UNIF_DICT(Texture3Ds, UniformValueSampler3D);
-    WRITE_UNIF_DICT(TextureCubemaps, UniformValueSamplerCubemap);
-    WRITE_UNIF_DICT(Subroutines, UniformValueSubroutine);
+        case UT_VALUE_SUBROUTINE:
+            sb = &Value.Subroutine();
+            writer->WriteDataStructure(UniformValueSubroutine_Writable(*sb), "Subroutine Data");
+            break;
 
-#undef WRITE_UNIF_DICT
+        case UT_VALUE_MAT4:
+        case UT_VALUE_SAMPLER2D:
+        case UT_VALUE_SAMPLER3D:
+        case UT_VALUE_SAMPLERCUBE:
+            break;
+
+        default: assert(false);
+    }
 }
-IMPL_READ(UniformDictionary)
+IMPL_READ(Uniform)
 {
-#define READ_UNIF_DICT(Name, ValueType) \
-    reader->ReadDictionary<std::string, ValueType>( \
-                Value.Name, \
-                [](DataReader* reader, std::string* k, ValueType* val, void* pDat) \
-                { \
-                    reader->ReadString(*k); \
-                    reader->ReadDataStructure(ValueType ## _Readable(*val)); \
-                });
+    reader->ReadString(Value.Name);
 
-    READ_UNIF_DICT(Floats, UniformValueF);
-    READ_UNIF_DICT(Ints, UniformValueI);
-    READ_UNIF_DICT(FloatArrays, UniformValueArrayF);
-    READ_UNIF_DICT(IntArrays, UniformValueArrayI);
-    READ_UNIF_DICT(Matrices, UniformValueMatrix4f);
-    READ_UNIF_DICT(Texture2Ds, UniformValueSampler2D);
-    READ_UNIF_DICT(Texture3Ds, UniformValueSampler3D);
-    READ_UNIF_DICT(TextureCubemaps, UniformValueSamplerCubemap);
-    READ_UNIF_DICT(Subroutines, UniformValueSubroutine);
+    std::string typeStr;
+    reader->ReadString(typeStr);
+    Value.Type = Uniform::FromString(typeStr);
+    
+    //Some types of uniforms require extra data to be read in.
+    float valsF[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    int valsI[] = { 0, 0, 0, 0 };
+    float* valsFA = 0;
+    int* valsIA = 0;
+    unsigned int nComponents, nValues;
+    switch (Value.Type)
+    {
+        case UT_VALUE_F:
 
-#undef READ_UNIF_DICT
+            reader->ReadUInt(nComponents);
+
+            Value.Float() = VectorF(nComponents, valsF);
+            break;
+
+        case UT_VALUE_I:
+
+            reader->ReadUInt(nComponents);
+
+            Value.Int() = VectorI(nComponents, valsI);
+            break;
+
+        case UT_VALUE_F_ARRAY:
+            
+            reader->ReadUInt(nComponents);
+            reader->ReadUInt(nValues);
+
+            valsFA = new float[nComponents * nValues];
+            for (unsigned int i = 0; i < (nComponents * nValues); ++i)
+                valsFA[i] = 0.0f;
+
+            Value.FloatArray() = UniformValueArrayF(valsFA, nValues, nComponents);
+            break;
+
+        case UT_VALUE_I_ARRAY:
+            
+            reader->ReadUInt(nComponents);
+            reader->ReadUInt(nValues);
+
+            valsIA = new int[nComponents * nValues];
+            for (unsigned int i = 0; i < (nComponents * nValues); ++i)
+                valsIA[i] = 0;
+
+            Value.IntArray() = UniformValueArrayI(valsIA, nValues, nComponents);
+            break;
+
+        case UT_VALUE_SUBROUTINE:
+            Value.Subroutine() = UniformValueSubroutine();
+            reader->ReadDataStructure(UniformValueSubroutine_Readable(Value.Subroutine()));
+            break;
+
+        case UT_VALUE_MAT4:
+            Value.Matrix() = Matrix4f();
+            break;
+        case UT_VALUE_SAMPLER2D:
+        case UT_VALUE_SAMPLER3D:
+        case UT_VALUE_SAMPLERCUBE:
+            Value.Tex() = INVALID_RENDER_OBJ_HANDLE;
+            break;
+
+        default: assert(false);
+    }
 }
-
 
 #pragma endregion
 

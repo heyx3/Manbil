@@ -163,10 +163,10 @@ void Material::SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat)
     glUniformMatrix4fv(loc, 1, GL_TRUE, (const GLfloat*)(&mat));
 }
 
-void Material::SetUniformValueSubroutine(Shaders shaderType, RenderObjHandle* valuesForAllSubroutines)
+void Material::SetUniformValueSubroutine(Shaders shaderType, unsigned int nValues,
+                                         RenderObjHandle* valuesForAllSubroutines)
 {
-    glUniformSubroutinesuiv(ShaderTypeToGLEnum(shaderType),
-                            uniforms.Subroutines.size(), valuesForAllSubroutines);
+    glUniformSubroutinesuiv(ShaderTypeToGLEnum(shaderType), nValues, valuesForAllSubroutines);
 }
 
 void Material::ActivateTextureUnit(unsigned int unitIndex)
@@ -253,129 +253,67 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
     }
 
 
-    //Get node uniforms.
+    //Get uniforms.
     UniformLocation tempLoc;
-    for (auto it = dict.Floats.begin(); it != dict.Floats.end(); ++it)
+    for (auto it = dict.begin(); it != dict.end(); ++it)
     {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
+        //Subroutines are a bit more complex to setup than other uniform types.
+        if (it->second.Type == UT_VALUE_SUBROUTINE)
         {
-            uniforms.Floats.insert(uniforms.Floats.end(),
-                                   UniformList::Uniform(it->first, tempLoc));
-            dict.Floats[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.FloatArrays.begin(); it != dict.FloatArrays.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.FloatArrays.insert(uniforms.FloatArrays.end(),
-                                        UniformList::Uniform(it->first, tempLoc));
-            dict.FloatArrays[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.Ints.begin(); it != dict.Ints.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.Ints.insert(uniforms.Ints.end(),
-                                 UniformList::Uniform(it->first, tempLoc));
-            dict.Ints[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.IntArrays.begin(); it != dict.IntArrays.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.IntArrays.insert(uniforms.IntArrays.end(),
-                                      UniformList::Uniform(it->first, tempLoc));
-            dict.IntArrays[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.Matrices.begin(); it != dict.Matrices.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.Matrices.insert(uniforms.Matrices.end(),
-                                     UniformList::Uniform(it->first, tempLoc));
-            dict.Matrices[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.Texture2Ds.begin(); it != dict.Texture2Ds.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.Texture2Ds.insert(uniforms.Texture2Ds.end(),
-                                       UniformList::Uniform(it->first, tempLoc));
-            dict.Texture2Ds[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.Texture3Ds.begin(); it != dict.Texture3Ds.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.Texture3Ds.insert(uniforms.Texture3Ds.end(),
-                                       UniformList::Uniform(it->first, tempLoc));
-            dict.Texture3Ds[it->first].Location = tempLoc;
-        }
-    }
-    for (auto it = dict.TextureCubemaps.begin(); it != dict.TextureCubemaps.end(); ++it)
-    {
-        tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.TextureCubemaps.insert(uniforms.TextureCubemaps.end(),
-                                            UniformList::Uniform(it->first, tempLoc));
-            dict.TextureCubemaps[it->first].Location = tempLoc;
-        }
-    }
-    //Subroutines are a bit more complex to set up.
-    for (auto it = dict.Subroutines.begin(); it != dict.Subroutines.end(); ++it)
-    {
-        tempLoc = GetSubroutineUniformLoc(shaderProg, it->second.Definition.Shader, it->first.c_str());
-        if (tempLoc != INVALID_UNIFORM_LOCATION)
-        {
-            uniforms.Subroutines.insert(uniforms.Subroutines.end(),
-                                        UniformList::Uniform(it->first, tempLoc));
-
-            UniformValueSubroutine& sb = dict.Subroutines[it->first];
-            sb.Location = tempLoc;
-
-            //Get the ID of each subroutine function.
-            for (unsigned int i = 0; i < sb.PossibleValueIDs.size(); ++i)
+            UniformValueSubroutine& uvs = it->second.Subroutine();
+            tempLoc = GetSubroutineUniformLoc(shaderProg, uvs.Definition.Shader, it->first.c_str());
+            if (tempLoc != INVALID_UNIFORM_LOCATION)
             {
-                sb.PossibleValueIDs[i] = GetSubroutineID(shaderProg, sb.Definition.Shader,
-                                                         sb.PossibleValues[i].c_str());
-            }
+                uniforms.push_back(it->second);
+                Uniform& u = uniforms[uniforms.size() - 1];
+                UniformValueSubroutine& sb = u.Subroutine();
 
-            //Insert the subroutine into the correct subroutine list.
-            Shaders shader = sb.Definition.Shader;
-            std::vector<UniformLocation>& putInto = (shader == SH_VERTEX ?
-                                                        vertexShaderSubroutines :
-                                                        (shader == SH_GEOMETRY ?
-                                                            geometryShaderSubroutines :
-                                                            fragmentShaderSubroutines));
-            unsigned int i;
-            for (i = 0; i < putInto.size(); ++i)
-            {
-                if (putInto[i] > sb.Location)
+                u.Loc = tempLoc;
+
+                //Get the ID of each subroutine function.
+                for (unsigned int i = 0; i < sb.PossibleValueIDs.size(); ++i)
                 {
-                    break;
+                    sb.PossibleValueIDs[i] = GetSubroutineID(shaderProg, sb.Definition.Shader,
+                                                             sb.PossibleValues[i].c_str());
                 }
+
+                //Insert the subroutine into the correct subroutine list.
+                Shaders shader = sb.Definition.Shader;
+                std::vector<UniformLocation>& putInto = (shader == SH_VERTEX ?
+                                                            vertexShaderSubroutines :
+                                                            (shader == SH_GEOMETRY ?
+                                                                geometryShaderSubroutines :
+                                                                fragmentShaderSubroutines));
+                unsigned int i;
+                for (i = 0; i < putInto.size(); ++i)
+                {
+                    if (putInto[i] > u.Loc)
+                    {
+                        break;
+                    }
+                }
+                putInto.insert(putInto.begin() + i, u.Loc);
             }
-            putInto.insert(putInto.begin() + i, sb.Location);
+        }
+        else
+        {
+            tempLoc = GetUniformLoc(shaderProg, it->first.c_str());
+            if (tempLoc != INVALID_UNIFORM_LOCATION)
+            {
+                uniforms.push_back(it->second);
+                uniforms[uniforms.size() - 1].Loc = tempLoc;
+
+            }
         }
     }
+    //Finalize subroutine values.
     vertexShaderSubroutineValues.resize(vertexShaderSubroutines.size());
     geometryShaderSubroutineValues.resize(geometryShaderSubroutines.size());
     fragmentShaderSubroutineValues.resize(fragmentShaderSubroutines.size());
 
+    //Now that custom uniforms are figured out, put the uniform locations into the original dictionary.
+    for (unsigned int i = 0; i < uniforms.size(); ++i)
+        dict[uniforms[i].Name].Loc = uniforms[i].Loc;
 
     //Get built-in uniforms.
     timeL = GetUniformLoc(shaderProg, MaterialConstants::ElapsedTimeName.c_str());
@@ -665,135 +603,112 @@ void Material::Render(const RenderInfo& info, const MeshData* toRender, const Ma
 
 void Material::SetUniforms(const UniformDictionary& params)
 {
-    //Floats.
-    for (auto it = params.Floats.begin(); it != params.Floats.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueF(it->second.Location, it->second.NData, it->second.Value);
-        }
-    }
-    //Float arrays.
-    for (auto it = params.FloatArrays.begin(); it != params.FloatArrays.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueArrayF(it->second.Location, it->second.NValues,
-                                  it->second.NComponentsPerValue, it->second.Values);
-        }
-    }
-    //Ints.
-    for (auto it = params.Ints.begin(); it != params.Ints.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueI(it->second.Location, it->second.NData, it->second.Value);
-        }
-    }
-    //Int arrays.
-    for (auto it = params.IntArrays.begin(); it != params.IntArrays.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueArrayI(it->second.Location, it->second.NValues,
-                                  it->second.NComponentsPerValue, it->second.Values);
-        }
-    }
-    //Matrices.
-    for (auto it = params.Matrices.begin(); it != params.Matrices.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueMatrix4f(it->second.Location, it->second.Value);
-        }
-    }
-
-    //Textures are a bit more complicated to set.
     int texUnit = 0;
-    for (auto it = params.Texture2Ds.begin(); it != params.Texture2Ds.end(); ++it)
+
+    for (auto it = params.begin(); it != params.end(); ++it)
     {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
-            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
+        if (it->second.Loc == INVALID_UNIFORM_LOCATION)
+            continue;
+
+        switch (it->second.Type)
         {
-            SetUniformValueI(it->second.Location, 1, &texUnit);
-            ActivateTextureUnit(texUnit);
-            texUnit += 1;
-
-            glBindTexture(GL_TEXTURE_2D, it->second.Texture);
-        }
-    }
-    for (auto it = params.Texture3Ds.begin(); it != params.Texture3Ds.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
-            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
-        {
-            SetUniformValueI(it->second.Location, 1, &texUnit);
-            ActivateTextureUnit(texUnit);
-            texUnit += 1;
-
-            glBindTexture(GL_TEXTURE_3D, it->second.Texture);
-        }
-    }
-    for (auto it = params.TextureCubemaps.begin(); it != params.TextureCubemaps.end(); ++it)
-    {
-        if (it->second.Location != INVALID_UNIFORM_LOCATION &&
-            it->second.Texture != INVALID_RENDER_OBJ_HANDLE)
-        {
-            SetUniformValueI(it->second.Location, 1, &texUnit);
-            ActivateTextureUnit(texUnit);
-            texUnit += 1;
-
-            glBindTexture(GL_TEXTURE_CUBE_MAP, it->second.Texture);
-        }
-    }
-
-    //Subroutines are a LOT more complicated to set, because they all have to be set at once.
-    for (auto iterator = params.Subroutines.begin(); iterator != params.Subroutines.end(); ++iterator)
-    {
-        std::vector<UniformLocation>* subroutineOrder = 0;
-        std::vector<RenderObjHandle>* subroutineValue = 0;
-
-        switch (iterator->second.Definition.Shader)
-        {
-            case SH_VERTEX:
-                subroutineOrder = &vertexShaderSubroutines;
-                subroutineValue = &vertexShaderSubroutineValues;
+            case UT_VALUE_F:
+                SetUniformValueF(it->second.Loc, it->second.Float().GetSize(),
+                                 it->second.Float().GetValue());
                 break;
-            case SH_FRAGMENT:
-                subroutineOrder = &fragmentShaderSubroutines;
-                subroutineValue = &fragmentShaderSubroutineValues;
+            case UT_VALUE_I:
+                SetUniformValueI(it->second.Loc, it->second.Int().GetSize(),
+                                 it->second.Int().GetValue());
                 break;
-            case SH_GEOMETRY:
-                subroutineOrder = &geometryShaderSubroutines;
-                subroutineValue = &geometryShaderSubroutineValues;
+            case UT_VALUE_F_ARRAY:
+                SetUniformValueArrayF(it->second.Loc, it->second.FloatArray().NValues,
+                                      it->second.FloatArray().NComponentsPerValue,
+                                      it->second.FloatArray().Values);
+                break;
+            case UT_VALUE_I_ARRAY:
+                SetUniformValueArrayI(it->second.Loc, it->second.IntArray().NValues,
+                                      it->second.IntArray().NComponentsPerValue,
+                                      it->second.IntArray().Values);
+                break;
+            case UT_VALUE_MAT4:
+                SetUniformValueMatrix4f(it->second.Loc, it->second.Matrix());
                 break;
 
-            default: assert(false);
-        }
+            //Textures are a bit more involved to enable.
+            case UT_VALUE_SAMPLER2D:
+            case UT_VALUE_SAMPLER3D:
+            case UT_VALUE_SAMPLERCUBE:
+                if (it->second.Tex() != INVALID_RENDER_OBJ_HANDLE)
+                {
+                    SetUniformValueI(it->second.Loc, 1, &texUnit);
+                    ActivateTextureUnit(texUnit);
+                    texUnit += 1;
 
-        //Find where to insert the subroutine value.
-        bool inserted = false;
-        for (unsigned int i = 0; i < subroutineOrder->size(); ++i)
-        {
-            if (subroutineOrder->operator[](i) == iterator->second.Location)
-            {
-                subroutineValue->operator[](i) = iterator->second.PossibleValueIDs[iterator->second.ValueIndex];
-                inserted = true;
+                    GLenum enm = (it->second.Type == UT_VALUE_SAMPLER2D) ?
+                                    GL_TEXTURE_2D :
+                                    ((it->second.Type == UT_VALUE_SAMPLER3D) ?
+                                        GL_TEXTURE_3D :
+                                        GL_TEXTURE_CUBE_MAP);
+                    glBindTexture(enm, it->second.Tex());
+                }
                 break;
-            }
+
+            //Subroutines are even MORE complicated to set up, because they all have to be set at once.
+            case UT_VALUE_SUBROUTINE:
+
+                const UniformValueSubroutine& uvs = it->second.Subroutine();
+
+                std::vector<UniformLocation>* subroutineOrder = 0;
+                std::vector<RenderObjHandle>* subroutineValue = 0;
+
+                switch (uvs.Definition.Shader)
+                {
+                    case SH_VERTEX:
+                        subroutineOrder = &vertexShaderSubroutines;
+                        subroutineValue = &vertexShaderSubroutineValues;
+                        break;
+                    case SH_GEOMETRY:
+                        subroutineOrder = &geometryShaderSubroutines;
+                        subroutineValue = &geometryShaderSubroutineValues;
+                        break;
+                    case SH_FRAGMENT:
+                        subroutineOrder = &fragmentShaderSubroutines;
+                        subroutineValue = &fragmentShaderSubroutineValues;
+                        break;
+
+                    default: assert(false);
+                }
+
+                //Find where to insert the subroutine value.
+                bool inserted = false;
+                for (unsigned int i = 0; i < subroutineOrder->size(); ++i)
+                {
+                    if (subroutineOrder->operator[](i) == it->second.Loc)
+                    {
+                        subroutineValue->operator[](i) = uvs.PossibleValueIDs[uvs.ValueIndex];
+                        inserted = true;
+                        break;
+                    }
+                }
+                assert(inserted);
+
+                break;
         }
-        assert(inserted);
     }
+    //Finish setting subroutine values.
     if (vertexShaderSubroutineValues.size() > 0)
     {
-        SetUniformValueSubroutine(SH_VERTEX, vertexShaderSubroutineValues.data());
+        SetUniformValueSubroutine(SH_VERTEX, vertexShaderSubroutineValues.size(),
+                                  vertexShaderSubroutineValues.data());
     }
     if (fragmentShaderSubroutineValues.size() > 0)
     {
-        SetUniformValueSubroutine(SH_FRAGMENT, fragmentShaderSubroutineValues.data());
+        SetUniformValueSubroutine(SH_FRAGMENT, fragmentShaderSubroutineValues.size(),
+                                  fragmentShaderSubroutineValues.data());
     }
     if (geometryShaderSubroutineValues.size() > 0)
     {
-        SetUniformValueSubroutine(SH_GEOMETRY, geometryShaderSubroutineValues.data());
+        SetUniformValueSubroutine(SH_GEOMETRY, geometryShaderSubroutineValues.size(),
+                                  geometryShaderSubroutineValues.data());
     }
 }

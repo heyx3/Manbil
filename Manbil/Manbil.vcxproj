@@ -237,7 +237,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\GUI\GUIManager.cpp" />
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
-    <ClCompile Include="Rendering\Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\NoiseToTexture.cpp" />
     <ClCompile Include="Rendering\Primitives\BezierCurve.cpp" />
     <ClCompile Include="Rendering\Primitives\CurveVertex.cpp" />
@@ -247,6 +246,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Textures\MTexture3D.cpp" />
     <ClCompile Include="Rendering\Textures\MTextureCubemap.cpp" />
     <ClCompile Include="Rendering\Textures\RenderTarget.cpp" />
+    <ClCompile Include="Rendering\Textures\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp" />
     <ClCompile Include="Rendering\Water\Water.cpp" />
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
@@ -356,10 +356,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Basic Rendering\RenderIOAttributes.h" />
     <ClInclude Include="Rendering\Basic Rendering\ScreenClearer.h" />
     <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h" />
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueMatrix4f.h" />
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueSamplers.h" />
     <ClInclude Include="Rendering\Basic Rendering\UniformValueSubroutine.h" />
-    <ClInclude Include="Rendering\Basic Rendering\UniformValueVector.h" />
     <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h" />
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h" />
     <ClInclude Include="Rendering\Basic Rendering\Viewport.h" />
@@ -431,7 +428,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\GUI\GUIManager.h" />
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
-    <ClInclude Include="Rendering\Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\NoiseToTexture.h" />
     <ClInclude Include="Rendering\Primitives\BezierCurve.h" />
     <ClInclude Include="Rendering\Primitives\CurveVertex.h" />
@@ -443,6 +439,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Textures\MTexture3D.h" />
     <ClInclude Include="Rendering\Textures\MTextureCubemap.h" />
     <ClInclude Include="Rendering\Textures\RenderTarget.h" />
+    <ClInclude Include="Rendering\Textures\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Textures\TextureChannels.h" />
     <ClInclude Include="Rendering\Textures\TextureSettings.h" />
     <ClInclude Include="Rendering\Water\Water.h" />

@@ -124,7 +124,7 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
     geoUsage.EnableFlag(MaterialUsageFlags::DNF_USES_CAM_UPWARDS);
     geoUsage.EnableFlag(MaterialUsageFlags::DNF_USES_VIEWPROJ_MAT);
     matData.GeoShader = GeoShaderData(geoOuts, geoUsage, 4, PT_POINTS, PT_TRIANGLE_STRIP,
-                                      UniformDictionary(), " ");
+                                      UniformList(), " ");
 
     std::vector<std::string> functionDecls;
     std::string finalOutputs;
