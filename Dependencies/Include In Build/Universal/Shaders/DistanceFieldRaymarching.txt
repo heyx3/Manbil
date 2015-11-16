@@ -1,0 +1,453 @@
+//Written by Billy Manning.
+//A  ray-marcher using a distance function.
+//With help from http://www.geeks3d.com/20130524/building-worlds-with-distance-functions-in-glsl-raymarching-glslhacker-tutorial-opengl/2/
+
+//TODO: Animate the sphere and box.
+
+
+//This shader uses Distance-field Raymarching.
+//Raymarching is a form of ray-tracing where rays are emitted from the camera
+//    and stepped forward in increments until they "hit" something.
+//"Distance fields" are functions that take in world position and output the distance to the nearest surface.
+//This algorithm steps the ray forward until the distance field returns a value less than some threshold,
+//    which counts as "hitting" a surface.
+
+
+
+
+
+//--------------------------------------------------------------------
+//---------------------World geometry----------------------------
+//-----------------------------------------------------------------
+
+
+//First define some basic functions that more complex stuff can be built from.
+
+//Gets the distance from any given position to the surface of a given sphere.
+float distanceToSphere(vec3 sphereCenter, float sphereRadius, vec3 outsidePos)
+{
+	return abs(sphereRadius - distance(sphereCenter, outsidePos));
+}
+//Gets the distance from any given position to the surface of a given AABB.
+float distanceToAABB(vec3 boxCenter, vec3 boxHalfDimensions, vec3 outsidePos)
+{
+	//Get which face in each direction is closest.
+	vec3 faces = sign(outsidePos - boxCenter);
+	vec3 faceValues = boxCenter + (faces * boxHalfDimensions);
+
+	vec3 corner1 = boxCenter - boxHalfDimensions,
+		 corner2 = boxCenter + boxHalfDimensions;
+
+	//Get the closest point on each face to the outside point.
+	vec3 clampedPos = clamp(outsidePos, corner1, corner2);
+	vec3 closestPointXZ = vec3(clampedPos.x, faceValues.y, clampedPos.z),
+		 closestPointXY = vec3(clampedPos.x, clampedPos.y, faceValues.z),
+		 closestPointYZ = vec3(faceValues.x, clampedPos.y, clampedPos.z);
+
+	return min(distance(closestPointXZ, outsidePos),
+			   min(distance(closestPointXY, outsidePos),
+			       distance(closestPointYZ, outsidePos)));
+}
+vec3 getAABBNormal(vec3 boxCenter, vec3 boxHalfDimensions, vec3 pos)
+{
+	//Get which face in each direction is closest.
+	vec3 faces = sign(pos - boxCenter);
+	vec3 faceValues = boxCenter + (faces * boxHalfDimensions);
+
+	vec3 corner1 = boxCenter - boxHalfDimensions,
+		 corner2 = boxCenter + boxHalfDimensions;
+
+	//Get the closest point on each face to the outside point.
+	vec3 clampedPos = clamp(pos, corner1, corner2);
+	vec3 closestPointXZ = vec3(clampedPos.x, faceValues.y, clampedPos.z),
+		 closestPointXY = vec3(clampedPos.x, clampedPos.y, faceValues.z),
+		 closestPointYZ = vec3(faceValues.x, clampedPos.y, clampedPos.z);
+
+	float distanceXZ = distance(closestPointXZ, pos),
+		  distanceXY = distance(closestPointXY, pos),
+		  distanceYZ = distance(closestPointYZ, pos);
+
+
+	if (distanceXZ < distanceXY)
+	{
+		if (distanceXZ < distanceYZ)
+		{
+			return vec3(0.0, faces.y, 0.0);
+		}
+
+		return vec3(faces.x, 0.0, 0.0);
+	}
+	else
+	{
+		if (distanceXY < distanceYZ)
+		{
+			return vec3(0.0, 0.0, faces.z);
+		}
+
+		return vec3(faces.x, 0.0, 0.0);
+	}
+}
+
+
+//Right now, the world geometry is just a static sphere, box, and floor.
+	
+vec3 getSpherePos() { return vec3(2.0, 0.0, 0.0); }
+float getSphereRadius() { return 1.5; }
+float getFloorHeight() { return 0.0; }
+vec3 getBoxPos() { return vec3(-4.0, 4.0, 0.0); }
+vec3 getBoxHalfDims() { return vec3(1.0, 1.0, 1.0); }
+
+//Each object has a specific value that marks its "material".
+const float SPHERE_FLAG = 0.0,
+			BOX_FLAG = 0.5,
+			FLOOR_FLAG = 1.0;
+
+
+//This is the actual Distance Field.
+//Gets the distance from any given position to the nearest surface of the world geometry.
+//The X component of the return value is the distance, and the Y component is a flag representing
+//    which object in the world is closest to the given position.
+vec2 distanceToWorldGeometry(vec3 pos)
+{
+	float sphereDist = distanceToSphere(getSpherePos(), getSphereRadius(), pos);
+	float boxDist = distanceToAABB(getBoxPos(), getBoxHalfDims(), pos);
+	float floorDist = abs(pos.y - getFloorHeight());
+
+	if (sphereDist < floorDist)
+	{
+		if (sphereDist < boxDist)
+		{
+			return vec2(sphereDist, SPHERE_FLAG);
+		}
+		
+		return vec2(boxDist, BOX_FLAG);
+	}
+	if (boxDist < floorDist)
+	{
+		return vec2(boxDist, BOX_FLAG);
+	}
+	
+	return vec2(floorDist, FLOOR_FLAG);
+}
+
+
+const float floorTileSpacing_2 = 2.0;
+
+//The floor has a checkered tile pattern.
+//This function takes the position along the plane of the floor,
+//    and returns the color of the tile that position is in.
+vec3 getTileColor(vec2 posAlongFloor)
+{
+	const vec2 floorTileSpacing = vec2(1.5, 1.5);
+
+	vec2 floorPos = mod(abs(posAlongFloor), floorTileSpacing_2);
+
+	bool xGreater = (floorPos.x > floorTileSpacing.x),
+		 yGreater = (floorPos.y > floorTileSpacing.y);
+
+	if ((xGreater && !yGreater) || (!xGreater && yGreater))
+	{
+		return vec3(1.0, 0.0, 0.0);
+	}
+	else
+	{
+		return vec3(0.0, 0.0, 2.0);
+	}
+}
+
+
+//Gets the surface normal for a position already known to be part of the world geometry.
+vec3 getNormal(vec3 pos, float objectFlag)
+{
+	//Sphere.
+	if (objectFlag == SPHERE_FLAG)
+		return normalize(pos - getSpherePos());
+
+	//Box.
+	if (objectFlag == BOX_FLAG)
+	{
+		return getAABBNormal(getBoxPos(), getBoxHalfDims(), pos);
+
+		vec3 boxCenter = getBoxPos(),
+			 boxHalfDimensions = getBoxHalfDims();
+
+
+		//Get which face in each direction is closest.
+		vec3 faces = sign(pos - boxCenter);
+		vec3 faceValues = boxCenter + (faces * boxHalfDimensions);
+
+		vec3 corner1 = boxCenter - boxHalfDimensions,
+			 corner2 = boxCenter + boxHalfDimensions;
+
+		//Get the closest point on each face to the outside point.
+		vec3 clampedPos = clamp(pos, corner1, corner2);
+		vec3 closestPointXZ = vec3(clampedPos.x, faceValues.y, clampedPos.z),
+			 closestPointXY = vec3(clampedPos.x, clampedPos.y, faceValues.z),
+			 closestPointYZ = vec3(faceValues.x, clampedPos.y, clampedPos.z);
+
+		float distanceXZ = distance(closestPointXZ, pos),
+			  distanceXY = distance(closestPointXY, pos),
+			  distanceYZ = distance(closestPointYZ, pos);
+
+
+		if (distanceXZ < distanceXY)
+		{
+			if (distanceXZ < distanceYZ)
+			{
+				return vec3(0.0, faces.y, 0.0);
+			}
+			return vec3(faces.x, 0.0, 0.0);
+		}
+		else
+		{
+			if (distanceXY < distanceYZ)
+			{
+				return vec3(0.0, 0.0, faces.z);
+			}
+			return vec3(faces.x, 0.0, 0.0);
+		}
+
+		//Normal is pointing straight along one of the axes.
+		//GPUs can handle branching poorly, to the point where it is sometimes better
+		//     to do some extra math instead of branching.
+		float smallest = min(distanceXZ, min(distanceXY, distanceYZ));
+		vec3 normal = vec3(-0.001 + max(-0.001, smallest - distanceYZ),
+						   -0.001 + max(-0.001, smallest - distanceXZ),
+						   -0.001 + max(-0.001, smallest - distanceXY));
+		return normalize(normal);
+	}
+
+	//Floor.
+	return vec3(0.0, 1.0, 0.0);
+}
+
+
+//Gets the base color for a position already known to be part of the world geometry.
+//The second argument should be the Y component of the return result of "distanceToWorldGeometry()"
+vec3 getDiffuse(vec3 pos, float objectFlag)
+{
+	if (objectFlag == SPHERE_FLAG)
+		return vec3(1.0, 1.0, 1.0);
+		
+	if (objectFlag == BOX_FLAG)
+		return vec3(0.1, 0.5, 0.8);
+
+	//The only other object is the floor.
+	return getTileColor(pos.xz);
+}
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------
+//-------------------------------Lighting--------------------------------
+//----------------------------------------------------------------------
+
+
+
+//Functions for rotating vectors are needed to make the sun move across the sky.
+
+//Creates a quaternion for rotating vectors around the given axis for the given amount of radians.
+vec4 getQuaternion(vec3 axis, float angle)
+{
+	return vec4(sin(0.5 * angle) * axis,
+				cos(0.5 * angle));
+}
+//Uses a quaternion to rotate a vector.
+vec3 rotateVector(vec3 v, vec4 quaternion)
+{
+	return v + (2.0 * cross(cross(v, quaternion.xyz) + (quaternion.w * v),
+							quaternion.xyz));
+}
+
+
+//Uses ambient/diffuse shading, and incorporating a shadow value.
+
+const vec3 baseLightDir = normalize(vec3(1.5, -1.2, 1.0)),
+		   lightRotDir = normalize(vec3(1.0, 0.0, -1.0));
+const float lightRotSpeed = 0.00;
+const float ambientStrength = 0.4,
+			diffuseStrength = 0.6,
+			specularStrength = 0.5;
+const float specularPower = 32.0;
+
+//Gets the direction of sunlight.
+vec3 getLightDir()
+{
+	vec3 dir = rotateVector(baseLightDir,
+							getQuaternion(lightRotDir, lightRotSpeed * u_elapsed_seconds));
+
+	//The light should always face downwards.
+	return dir * -sign(dir.y + 0.00001);
+	if (dir.y > 0.0)
+		return -dir;
+	return dir;
+}
+			
+//Gets a value between 0 and 1 indicating how bright the given surface is.
+float getBrightness(vec3 surfacePos, vec3 surfaceNormal, vec3 lightDir, vec3 rayStart)
+{
+	float dotted = max(dot(surfaceNormal, -lightDir), 0.0);
+
+	vec3 vertexToEye = normalize(rayStart - surfacePos);
+	vec3 lightReflect = normalize(reflect(lightDir, surfaceNormal));
+
+	float specFactor = max(0.0, dot(vertexToEye, lightReflect));
+	specFactor = pow(specFactor, specularPower);
+
+	float finalLight = ambientStrength + (diffuseStrength * dotted) + (specularStrength * specFactor);
+
+	return finalLight;
+}
+
+//Returns a value between 0 and 1 based on how close this ray is to pointing at the sun.
+float getSun(vec3 rayDir, vec3 lightDir)
+{
+	return smoothstep(0.0, 1.0, pow(0.5 + (0.5 * dot(-lightDir, rayDir)), 128.0));
+}
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------
+//--------------------------Fog---------------------------
+//-----------------------------------------------------------------
+
+const float fogDropoff = 1.0;
+const vec3 fogColor = vec3(0.8, 0.8, 0.8);
+
+//0 means "no fog", and 1 means "completely obscured by fog".
+float getFog(float distance, float maxPossibleDistance)
+{
+	return pow((distance / maxPossibleDistance), fogDropoff);
+}
+	
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------
+//---------------------Ray-marching algorithm----------------------------
+//-----------------------------------------------------------------
+
+const int maxIterations = 300;
+const float distanceEpsilon = 0.01;
+const float maxDist = 100.0;
+
+//Calculates the final output color for a surface,
+//    accounting for things like lighting and fog.
+vec3 getFinalColor(vec3 baseColor, vec3 rayStart, vec3 rayDir, vec3 pos, vec3 surfaceNormal, vec3 lightDir)
+{
+	return mix(baseColor * getBrightness(pos, surfaceNormal, lightDir, rayStart),
+			   fogColor,
+			   getFog(distance(pos.xz, rayStart.xz),
+					  dot(rayDir * maxDist,
+						  normalize(vec3(pos.x - rayStart.x, 0.0, pos.z - rayStart.z)))));
+}
+
+//Finds where the given ray hits using raymarching and returns the resulting color.
+//Assumes "rayDir" is normalized.
+vec3 marchRay(vec3 rayStart, vec3 rayDir, vec3 camPos)
+{
+	vec3 posCounter = rayStart;
+	vec2 tempDist;
+	float totalDistTraveled = 0.0;
+	vec3 lightDir = getLightDir();
+	
+	for (int i = 0; i < maxIterations; ++i)
+	{
+		posCounter = rayStart + (rayDir * totalDistTraveled);
+	
+		tempDist = distanceToWorldGeometry(posCounter);
+
+		if (tempDist.x <= distanceEpsilon)
+		{
+			return getFinalColor(getDiffuse(posCounter, tempDist.y),
+								 rayStart, rayDir,
+								 posCounter, getNormal(posCounter, tempDist.y),
+								 lightDir);
+		}
+		
+		totalDistTraveled += tempDist.x;
+		if (totalDistTraveled > maxDist) break;
+	}
+	
+	return fogColor;
+}
+
+
+
+
+
+
+//--------------------------------------------------------------------
+//---------------------Camera data----------------------------
+//-----------------------------------------------------------------
+
+struct CameraData { vec3 pos, up, forward, sideways; };
+
+//The Two Triangles program locks the camera's "up" vector to {0, 0, 1} to prevent rolling.
+//This function gets the user camera, but with the "up" vector exactly perpendicular.
+CameraData getCamera()
+{
+	CameraData dat;
+
+	dat.pos = u_cam_pos;
+	dat.forward = u_cam_forward;
+	dat.up = u_cam_upward;
+	dat.sideways = u_cam_sideways;
+	dat.up = normalize(cross(dat.forward, dat.sideways));
+	return dat;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------
+//------------------------Entry point-------------------------------
+//-----------------------------------------------------------------
+
+const float FOVScale = 5.0;
+
+void main(void)
+{
+	//Map the UV coords to the range {-1, -1} - {1, 1}.
+	vec2 uv = -1.0 + (2.0 * in_UV);
+	uv *= 2.0;
+	uv -= vec2(1.0, 1.0);
+	
+	//Scale the Y value of the UV to account for aspect ratio.
+	uv.y *= u_cam_height / u_cam_width;
+	
+	//Get camera.
+	CameraData camDat = getCamera();
+	//Figure out the world position of this pixel given the uv, cam pos, and cam direction.
+	vec3 fragStart = camDat.pos +
+					 (FOVScale * camDat.forward) +
+                     (uv.x * camDat.sideways) +
+		             (uv.y * camDat.up);
+	vec3 fragDir = normalize(fragStart - camDat.pos);
+	
+	
+	out_FinalColor = vec4(marchRay(fragStart, fragDir, camDat.pos), 1.0);
+}

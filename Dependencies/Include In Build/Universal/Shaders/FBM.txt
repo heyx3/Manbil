@@ -1,0 +1,111 @@
+//2D Fractional Brownian Noise generator.
+//Generates a 2D image of cloudy noise that smoothly changes over time.
+//This is done by actually generating 3D noise, and using time as the 3rd axis.
+
+
+
+
+//------------------------------------------------------------------
+//--------------------------Noise Generation---------------------------
+//-----------------------------------------------------------------
+
+//Generates a pseudo-random float based on a 3D seed.
+float rand3(vec3 seed)
+{
+	return texture2D(u_noiseSampler, 0.1 * seed.xy * seed.z).r;
+}
+
+//Generates a single layer of Fractional Brownian Motion noise.
+//Works by generating noise values for each point on a grid and interpolating between them.
+float fbm3d(vec3 loc, float gridScale)
+{
+	//Get the 8 points on the grid defining the cube that contains the given location.
+	vec3 minXYZ =       floor(loc / gridScale) * gridScale,
+		 maxXYZ =       minXYZ + vec3(gridScale),
+		 minXYMaxZ =    vec3(minXYZ.x, minXYZ.y, maxXYZ.z),
+		 maxXminYZ =    vec3(maxXYZ.x, minXYZ.y, minXYZ.z),
+		 maxXminYmaxZ = vec3(maxXYZ.x, minXYZ.y, maxXYZ.z),
+		 minXMaxYMinZ = vec3(minXYZ.x, maxXYZ.y, minXYZ.z),
+		 minXmaxYZ =    vec3(minXYZ.x, maxXYZ.y, maxXYZ.z),
+		 maxXYminZ =    vec3(maxXYZ.x, maxXYZ.y, minXYZ.z);
+	
+	//Get the noise value at each of those corners.
+	float minXYZN =       rand3(minXYZ),
+	      minXYMaxZN =    rand3(minXYMaxZ),
+		  maxXminYZN =    rand3(maxXminYZ),
+		  maxXminYmaxZN = rand3(maxXminYmaxZ),
+		  minXMaxYMinZN = rand3(minXMaxYMinZ),
+		  minXmaxYZN =    rand3(minXmaxYZ),
+		  maxXYminZN =    rand3(maxXYminZ),
+		  maxXYZN =       rand3(maxXYZ);
+
+
+	//Lerp between those values based on the position's distance from each side of the cube.
+	vec3 lerpComponents = (loc - minXYZ) / gridScale;
+	//Skewing the interpolants away from the center makes the final result less grid-like.
+	//lerpComponents = smoothstep(0.0, 1.0, lerpComponents);
+
+	//Interpolate along the X axis.
+	float averageAlongMinYZ =    mix(minXYZN,              maxXminYZN,           lerpComponents.x),
+		  averageAlongMinYMaxZ = mix(minXYMaxZN,           maxXminYmaxZN,        lerpComponents.x),
+		  averageAlongMaxYMinZ = mix(minXMaxYMinZN,        maxXYminZN,           lerpComponents.x),
+		  averageAlongMaxYZ =    mix(minXmaxYZN,           maxXYZN,              lerpComponents.x),
+	//Now interpolate along the Y axis.
+		  averageAlongMinZ =     mix(averageAlongMinYZ,    averageAlongMaxYMinZ, lerpComponents.y),
+		  averageAlongMaxZ =     mix(averageAlongMinYMaxZ, averageAlongMaxYZ,    lerpComponents.y),
+	//Now interpolate along the Z axis.
+		  finalAverage =         mix(averageAlongMinZ,     averageAlongMaxZ,     lerpComponents.z);
+
+	return finalAverage;
+}
+
+
+
+const int intervals = 8;
+const float startingSize = 300.0,
+			startingWeight = 0.5;
+const float weightCounterScale = 0.5,
+			sizeCounterScale = 0.5;
+const float timeScale = 30.0;
+
+//Generates coherent noise consisting of multiple layers of fractional brownian motion noise.
+float layeredFBMNoise(vec2 loc)
+{
+	float noise = 0.0,
+		  sizeCounter = startingSize,
+		  weightCounter = startingWeight;
+
+	vec3 loc3 = vec3(loc.x, loc.y, timeScale * u_shader_seconds);
+
+	for (int i = 0; i < intervals; ++i)
+	{
+		noise += weightCounter * fbm3d(loc3, sizeCounter);
+
+		weightCounter *= weightCounterScale;
+		sizeCounter *= sizeCounterScale;
+	}
+
+	return noise;
+}
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------
+//--------------------------Entry point---------------------------
+//-----------------------------------------------------------------
+
+void main(void)
+{
+	float noise = layeredFBMNoise(in_UV * vec2(u_cam_width, u_cam_height));
+	
+	//Darken the noise a bit.
+	noise = pow(noise, 2.0);
+
+	out_FinalColor = vec4(noise, noise, noise, 1.0);
+}
