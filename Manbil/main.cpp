@@ -8,10 +8,6 @@
 #include "Sample Worlds/AssetImporterWorld.h"
 #include "Sample Worlds/NoiseGenWorld.h"
 
-#include "Toys/TwoTrianglesWorld.h"
-#include "Toys/Voxel/VoxelWorld.h"
-#include "Toys/PlanetSim/PlanetSimWorld.h"
-
 
 //TODO: Add a "Skybox" class in "Rendering/Primitives".
 
@@ -27,11 +23,6 @@ int main()
     //EditorGUIWorld().RunWorld();
     //AssetImporterWorld().RunWorld();
     //NoiseGenWorld().RunWorld();
-
-
-    //TwoTrianglesWorld().RunWorld();
-    //VoxelWorld().RunWorld();
-    //PlanetSimWorld().RunWorld();
 
     return 0;
 }

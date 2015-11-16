@@ -255,22 +255,10 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp" />
     <ClCompile Include="Sample Worlds\GUIWorld.cpp" />
     <ClCompile Include="Sample Worlds\NoiseGenWorld.cpp" />
-    <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
     <ClCompile Include="Sample Worlds\SerializationWorld.cpp" />
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
     <ClCompile Include="Sample Worlds\TerrainWorld.cpp" />
     <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
-    <ClCompile Include="Toys\TwoTrianglesWorld.cpp" />
-    <ClCompile Include="Toys\Voxel\ChunkMesh.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelCamera.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelChunk.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelChunkManager.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelPlayer.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelWorld.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugAssist.h" />
@@ -449,33 +437,10 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Sample Worlds\EditorGUIWorld.h" />
     <ClInclude Include="Sample Worlds\GUIWorld.h" />
     <ClInclude Include="Sample Worlds\NoiseGenWorld.h" />
-    <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
     <ClInclude Include="Sample Worlds\SerializationWorld.h" />
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
     <ClInclude Include="Sample Worlds\TerrainWorld.h" />
     <ClInclude Include="Sample Worlds\WaterWorld.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />
-    <ClInclude Include="Toys\TwoTrianglesWorld.h" />
-    <ClInclude Include="Toys\Voxel\ChunkMesh.h" />
-    <ClInclude Include="Toys\Voxel\VoxelCamera.h" />
-    <ClInclude Include="Toys\Voxel\VoxelChunk.h" />
-    <ClInclude Include="Toys\Voxel\VoxelChunkManager.h" />
-    <ClInclude Include="Toys\Voxel\VoxelPlayer.h" />
-    <ClInclude Include="Toys\Voxel\VoxelWorld.h" />
-    <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="fbm.txt" />
-    <Text Include="mandlebrot.txt" />
-    <Text Include="Perlin.txt" />
-    <Text Include="raymarcheddistancefunc.txt" />
-    <Text Include="raymarchedterrain.txt" />
-    <Text Include="RMDFFun.txt" />
-    <Text Include="t.txt" />
-    <Text Include="Test.txt" />
-    <Text Include="water2d.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
