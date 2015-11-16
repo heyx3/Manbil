@@ -14,7 +14,7 @@
 
 int main()
 {
-    //SimpleRenderWorld().RunWorld();
+    SimpleRenderWorld().RunWorld();
     //DataNodeRenderWorld().RunWorld();
     //WaterWorld().RunWorld();
     //TerrainWorld().RunWorld();
