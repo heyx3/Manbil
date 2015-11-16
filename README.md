@@ -1,3 +1,9 @@
+Voxel Toy
+======
+
+This branch of Manbil contains a small demo of a Voxel world, a la Minecraft. Blocks can be added or destroyed by pointing at them with the camera and using the left or right mouse button.
+
+
 Manbil
 ======
 

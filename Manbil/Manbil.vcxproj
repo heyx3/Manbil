@@ -259,6 +259,13 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
     <ClCompile Include="Sample Worlds\TerrainWorld.cpp" />
     <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
+    <ClCompile Include="Voxel Toy\ChunkMesh.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelCamera.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelChunk.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelChunkManager.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelPlayer.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelWorld.cpp" />
+    <ClCompile Include="Voxel Toy\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugAssist.h" />
@@ -441,6 +448,13 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
     <ClInclude Include="Sample Worlds\TerrainWorld.h" />
     <ClInclude Include="Sample Worlds\WaterWorld.h" />
+    <ClInclude Include="Voxel Toy\ChunkMesh.h" />
+    <ClInclude Include="Voxel Toy\VoxelCamera.h" />
+    <ClInclude Include="Voxel Toy\VoxelChunk.h" />
+    <ClInclude Include="Voxel Toy\VoxelChunkManager.h" />
+    <ClInclude Include="Voxel Toy\VoxelPlayer.h" />
+    <ClInclude Include="Voxel Toy\VoxelWorld.h" />
+    <ClInclude Include="Voxel Toy\VoxelWorldPPC.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

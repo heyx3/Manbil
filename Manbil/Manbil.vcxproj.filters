@@ -432,6 +432,27 @@
     <ClCompile Include="Rendering\Textures\RenderTargetManager.cpp">
       <Filter>Rendering\Textures</Filter>
     </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelChunkManager.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelPlayer.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelWorld.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelWorldPPC.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\ChunkMesh.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelCamera.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
+    <ClCompile Include="Voxel Toy\VoxelChunk.cpp">
+      <Filter>Voxel Toy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -970,6 +991,27 @@
     <ClInclude Include="Rendering\Textures\RenderTargetManager.h">
       <Filter>Rendering\Textures</Filter>
     </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelChunk.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelChunkManager.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelPlayer.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelWorld.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelWorldPPC.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\ChunkMesh.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Voxel Toy\VoxelCamera.h">
+      <Filter>Voxel Toy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -1070,6 +1112,9 @@
     </Filter>
     <Filter Include="IO\Serializers">
       <UniqueIdentifier>{952e8ef2-61c0-4da5-9ffc-de31d8f4f3cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Voxel Toy">
+      <UniqueIdentifier>{3b559ad5-7691-4296-bc5d-600c54e584e4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -8,13 +8,15 @@
 #include "Sample Worlds/AssetImporterWorld.h"
 #include "Sample Worlds/NoiseGenWorld.h"
 
+#include "Voxel Toy/VoxelWorld.h"
+
 
 //TODO: Add a "Skybox" class in "Rendering/Primitives".
 
 
 int main()
 {
-    SimpleRenderWorld().RunWorld();
+    //SimpleRenderWorld().RunWorld();
     //DataNodeRenderWorld().RunWorld();
     //WaterWorld().RunWorld();
     //TerrainWorld().RunWorld();
@@ -23,6 +25,8 @@ int main()
     //EditorGUIWorld().RunWorld();
     //AssetImporterWorld().RunWorld();
     //NoiseGenWorld().RunWorld();
+
+    VoxelWorld().RunWorld();
 
     return 0;
 }
