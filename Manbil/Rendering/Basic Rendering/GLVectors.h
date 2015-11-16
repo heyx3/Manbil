@@ -160,7 +160,7 @@ public:
     {
         assert(nComponents <= 4);
         size = nComponents;
-        memcpy(values, newVal, sizeof(ComponentType) * nComponents);
+        memcpy(values, &newVal, sizeof(ComponentType) * nComponents);
     }
 
     std::string GetGLSLType(void) const { return GetGLSLType(size); }
