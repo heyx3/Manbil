@@ -313,20 +313,21 @@ public:
     const ArrayType* GetArray(void) const { return arrayVals; }
     //Gets a pointer to the first element in this array.
     ArrayType* GetArray(void) { return arrayVals; }
-
-    //Copies this array into the given one using the assignment operator for each value.
-    //Assumes the given array is the same size as this one.
-	void CopyInto(ArrayType* outValues) const
-	{
-        for (unsigned int i = 0; i < width * height; ++i)
-			outValues[i] = arrayVals[i];
-	}
+    
     //Copies this array into the given one using "memcpy", which is as fast as possible.
     //Assumes the given array is the same size as this one.
     void MemCopyInto(ArrayType* outValues) const
     {
         memcpy(outValues, arrayVals, width * height * sizeof(ArrayType));
     }
+    //Copies this array into the given one using the assignment operator for each value.
+    //Assumes it is the same size as this array.
+    //Use this instead of "MemCopyInto" if the items are too complex to just copy their byte-data over.
+	void CopyInto(ArrayType* outValues) const
+	{
+        for (unsigned int i = 0; i < width * height; ++i)
+			outValues[i] = arrayVals[i];
+	}
 
 
 private:

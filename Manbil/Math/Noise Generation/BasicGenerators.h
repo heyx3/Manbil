@@ -29,6 +29,9 @@ namespace NoiseAnalysis2D
 struct Generator2D
 {
 public:
+
+    virtual ~Generator2D(void) { }
+
 	//The "generate noise" function. Given the coordinates of the noise, gives a noise value.
 	virtual void Generate(Noise2D & outNoise) const = 0;
 };
@@ -44,19 +47,21 @@ public:
 };
 
 
-
 //Generates random noise using a fast PRNG.
 struct WhiteNoise2D : public Generator2D
 {
 public:
+    Vector2i SeedOffset;
 	int Seed;
-	WhiteNoise2D(int seed = 12345) : Seed(seed) { }
+	WhiteNoise2D(int seed = 12345, Vector2i seedOffset = Vector2i()) : Seed(seed), SeedOffset(seedOffset) { }
 	virtual void Generate(Noise2D & outNoise) const override
     {
-        int s = Seed;
-        outNoise.FillFunc([s](Vector2u loc, float * fOut)
+        int seed = Seed;
+        Vector2i offset = SeedOffset;
+        outNoise.FillFunc([seed, offset](Vector2u loc, float * fOut)
         {
-           *fOut = FastRand(Vector3u(loc, s).GetHashCode()).GetZeroToOne();
+            Vector3i seed(ToV2i(loc) + offset, seed);
+           *fOut = FastRand(seed.GetHashCode()).GetZeroToOne();
         });
     }
 };
@@ -82,6 +87,9 @@ namespace NoiseAnalysis3D
 struct Generator3D
 {
 public:
+    
+    virtual ~Generator3D(void) { }
+
     //The "generate noise" function. Given the coordinates of the noise, gives a noise value.
     virtual void Generate(Noise3D & outNoise) const = 0;
 };
@@ -97,22 +105,22 @@ public:
 };
 
 
-
 //Generates random noise using a fast PRNG.
 struct WhiteNoise3D : public Generator3D
 {
 public:
-    int Seed;
-    WhiteNoise3D(int seed = 12345) : Seed(seed) { }
-    virtual void Generate(Noise3D & outNoise) const override
+    Vector3i SeedOffset;
+	int Seed;
+	WhiteNoise3D(int seed = 12345, Vector3i seedOffset = Vector3i()) : Seed(seed), SeedOffset(seedOffset) { }
+	virtual void Generate(Noise3D & outNoise) const override
     {
-        FastRand fr;
-        int s = Seed;
-        outNoise.FillFunc([&fr, s](Vector3u loc, float * fOut)
+        int seed = Seed;
+        Vector3i offset = SeedOffset;
+        outNoise.FillFunc([seed, offset](Vector3u loc, float * fOut)
         {
-            fr.Seed = Vector4u(loc, s).GetHashCode();
-            *fOut = fr.GetZeroToOne();
-        }); 
+            Vector4i seed(ToV3i(loc) + offset, seed);
+           *fOut = FastRand(seed.GetHashCode()).GetZeroToOne();
+        });
     }
 };
 

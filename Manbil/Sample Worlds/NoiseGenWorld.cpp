@@ -57,62 +57,131 @@ void NoiseGenWorld::GenerateNoise(MTexture2D& tex)
     //The base generator type is defined in Math/Noise Generation/BasicGenerators.h.
     //The system can do both 2D and 3D noise generation.
 
+    //The type "Array2D<float>" is helpfully typedef-ed as "Noise2D".
+    Noise2D noiseMap(windowSize.x, windowSize.y);
 
-    //Start with several layers of Perlin noise at different scales to create a cloudy effect.
-
-    Array2D<float> noiseMap(windowSize.x, windowSize.y);
-
-    Perlin2D layers[] =
+    //Several types of noise are provided below; pick whichever one you want to try.
+    const int method = 2;
+    switch (method)
     {
-        Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 128, windowSize.y / 128)),
-        Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 64, windowSize.y / 64)),
-        Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 32, windowSize.y / 32)),
-        Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 16, windowSize.y / 16)),
-        Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 8, windowSize.y / 8)),
-        Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
-                 Vector2u(windowSize.x / 4, windowSize.y / 4)),
-    };
-    Generator2D* generatorPtrs[] =
-    {
-        &layers[0],
-        &layers[1],
-        &layers[2],
-        &layers[3],
-        &layers[4],
-        &layers[5],
-    };
-    float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f };
+        case 0:
+        {
+            //Use standard Worley noise.
+            Worley2D worley;
 
-    LayeredOctave2D layerNoise(6, weights, generatorPtrs);
+            worley.Seed = rng.GetRandInt();
+            worley.Generate(noiseMap);
+        }
+        break;
+
+        case 1:
+        {
+            //Use Worley noise with special settings.
+            Worley2D worley;
+            worley.CellSize = 23;
+            worley.Variability = Vector2f(1.0f, 1.0f);
+            worley.DistFunc = &Worley2D::StraightLineDistance;
+            worley.ValueGenerator = [](Worley2D::DistanceValues dists)
+            {
+                //Use the distance to the second-closest point.
+                return dists.Values[0];
+            };
+
+            worley.Seed = rng.GetRandInt();
+            worley.Generate(noiseMap);
+        }
+        break;
+
+        case 2:
+        {
+            //Use a 2D slice of 3D Worley noise.
+            //This creates essentially the same effect as 2D worley noise (although more bias towards 1.0),
+            //    but this extra step helps illustrate the relationship between 2D and 3D noise.
+
+            Worley3D worley;
+            worley.CellSize = 32;
+            worley.CellOffset.z = (unsigned int)(GetTotalElapsedSeconds() * 1.0f);
+
+            //Use a 3D array with a depth of 1, in order to get a small slice of the full 3D noise.
+            Noise3D noiseMap3(noiseMap.GetWidth(), noiseMap.GetHeight(), 1);
+            worley.Generate(noiseMap3);
+
+            //Because our 3D noise array has a depth of 1, it is identical to a 2D array.
+            assert(noiseMap.GetNumbElements() == noiseMap3.GetNumbElements());
+            noiseMap3.CopyInto(noiseMap.GetArray());
+        }
+        break;
+
+        case 3:
+        {
+            //Start with several layers of Perlin noise at different scales to create a cloudy effect.
+
+            Perlin2D layers[] =
+            {
+                Perlin2D(128.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 128, windowSize.y / 128)),
+                Perlin2D(64.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 64, windowSize.y / 64)),
+                Perlin2D(32.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 32, windowSize.y / 32)),
+                Perlin2D(16.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 16, windowSize.y / 16)),
+                Perlin2D(8.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 8, windowSize.y / 8)),
+                Perlin2D(4.0f, Perlin2D::Quintic, Vector2i(), rng.GetRandInt(), true,
+                            Vector2u(windowSize.x / 4, windowSize.y / 4)),
+            };
+            float weights[] = { 0.5f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f };
+
+            Generator2D* generatorPtrs[] =
+            {
+                &layers[0],
+                &layers[1],
+                &layers[2],
+                &layers[3],
+                &layers[4],
+                &layers[5],
+            };
+            LayeredOctave2D layerNoise(6, weights, generatorPtrs);
 
 
-    //Filter the layered noise to increase contrast.
+            //Filter the layered noise to increase contrast.
 
-    NoiseFilterer2D noiseFilter;
+            NoiseFilterer2D noiseFilter;
 
-    noiseFilter.NoiseToFilter = &layerNoise;
+            noiseFilter.NoiseToFilter = &layerNoise;
 
-    //We can selectively set what part of the noise gets filtered,
-    //    but in this case we want to filter the whole thing.
-    MaxFilterRegion fullArea;
-    noiseFilter.FillRegion = &fullArea;
+            //We can selectively set what part of the noise gets filtered,
+            //    but in this case we want to filter the whole thing.
+            MaxFilterRegion fullArea;
+            noiseFilter.FillRegion = &fullArea;
 
-    //One of the filter functions provided is "UpContrast", which does exactly what we want.
-    noiseFilter.FilterFunc = &NoiseFilterer2D::UpContrast;
-    noiseFilter.UpContrast_Power = NoiseFilterer2D::QUINTIC;
-    noiseFilter.UpContrast_Passes = 2;
+            //One of the filter functions provided is "UpContrast", which does exactly what we want.
+            noiseFilter.FilterFunc = &NoiseFilterer2D::UpContrast;
+            noiseFilter.UpContrast_Power = NoiseFilterer2D::QUINTIC;
+            noiseFilter.UpContrast_Passes = 2;
 
+            //Run the generator.
+            Generator2D* rootGenerator = &noiseFilter;
+            rootGenerator->Generate(noiseMap);
+        }
+        break;
 
-    Generator2D* rootGenerator = &noiseFilter;
+        case 4:
+        {
+            //Generate white noise on a grid and interpolate between those grid values.
+            //This produces a result similar to Perlin noise, but much less expensive.
+            WhiteNoise2D whiteNoise(rng.GetRandInt());
+            Interpolator2D interpNoise(&whiteNoise, Interpolator2D::I2S_QUINTIC, 50.0f);
+            interpNoise.Generate(noiseMap);
+        }
+        break;
 
+        default:
+            Assert(false, "Unknown generation method", std::to_string(method));
+    }
 
-    //Run the generator and put the result into the texture.
-    rootGenerator->Generate(noiseMap);
+    //Put the result into the texture.
     tex.SetGreyscaleData(noiseMap, PS_32F_GREYSCALE);
 }
 void NoiseGenWorld::GenerateBumpMap(MTexture2D& noiseTex)

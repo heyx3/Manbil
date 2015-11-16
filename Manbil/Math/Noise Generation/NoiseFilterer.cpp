@@ -13,7 +13,7 @@ typedef NoiseFilterer2D NF2;
 const float sqrt2 = sqrt(2.0f),
 	        sqrt2Inv = 1.0f / sqrt2;
 
-void NF2::ReflectValues(Noise2D * nse) const
+void NF2::ReflectValues(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
@@ -21,32 +21,32 @@ void NF2::ReflectValues(Noise2D * nse) const
 	RefValuesStruct rvs;
 	rvs.i = Interval::GetZeroToOne();
 
-	SetAtEveryPoint((void*)&rvs, [](void *pData, Vector2u loc, Noise2D * nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
+	SetAtEveryPoint((void*)&rvs, [](void *pData, Vector2u loc, Noise2D* nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
 }
 
-void NF2::RemapValues(Noise2D * nse) const
+void NF2::RemapValues(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
 	Interval newVals = RemapValues_NewVals;
 	Interval oldVals = RemapValues_OldVals;
 
-	struct RemapValuesStruct { Interval oldVs, newVs; Noise2D * nse; };
+	struct RemapValuesStruct { Interval oldVs, newVs; Noise2D* nse; };
 	RemapValuesStruct rvs;
 	rvs.oldVs = oldVals;
 	rvs.newVs = newVals;
 	rvs.nse = noise;
 
-    FillRegion->DoToEveryPoint((void*)&rvs, [](void * pDat, Vector2u loc, float strength)
+    FillRegion->DoToEveryPoint((void*)&rvs, [](void* pDat, Vector2u loc, float strength)
 	{
-		RemapValuesStruct * rvS = (RemapValuesStruct*)pDat;
-		float * fOut = &(*(rvS->nse))[loc];
+		RemapValuesStruct* rvS = (RemapValuesStruct*)pDat;
+		float* fOut = &(*(rvS->nse))[loc];
 		*fOut = rvS->oldVs.MapValue(rvS->newVs, *fOut);
 	},
 	*noise, Vector2u(noise->GetWidth(), noise->GetHeight()));
 }
 
-void NF2::UpContrast(Noise2D * nse) const
+void NF2::UpContrast(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
@@ -73,7 +73,7 @@ void NF2::UpContrast(Noise2D * nse) const
 	}
     
 
-    SetAtEveryPoint((void*)(&args), [](void * pDat, Vector2u loc, Noise2D * noise)
+    SetAtEveryPoint((void*)(&args), [](void* pDat, Vector2u loc, Noise2D* noise)
 	{
         UpContrastArgs rgs = *(UpContrastArgs*)pDat;
         float val = (*noise)[loc];
@@ -85,17 +85,17 @@ void NF2::UpContrast(Noise2D * nse) const
 	});
 }
 
-void NF2::Average(Noise2D * nse) const
+void NF2::Average(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-	struct AverageStruct { float average; int count; Noise2D * nse; AverageStruct(void) : average(0.0f), count(0) { } };
+	struct AverageStruct { float average; int count; Noise2D* nse; AverageStruct(void) : average(0.0f), count(0) { } };
 	AverageStruct avs;
 	avs.nse = noise;
 
     FillRegion->DoToEveryPoint((void*)&avs, [](void* pData, Vector2u loc, float str)
 	{
-		AverageStruct * avS = (AverageStruct*)pData;
+		AverageStruct* avS = (AverageStruct*)pData;
 
 		avS->average += (*(avS->nse))[loc];
 		avS->count += 1;
@@ -106,21 +106,21 @@ void NF2::Average(Noise2D * nse) const
 		avs.average /= (float)avs.count;
 	}
 
-	SetAtEveryPoint((void*)&avs.average, [](void * pData, Vector2u loc, Noise2D * noise) { return *(float*)pData; });
+	SetAtEveryPoint((void*)&avs.average, [](void* pData, Vector2u loc, Noise2D* noise) { return *(float*)pData; });
 }
 
-void NF2::Flatten(Noise2D * nse) const
+void NF2::Flatten(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-	SetAtEveryPoint((void*)&Flatten_FlatValue, [](void *pData, Vector2u loc, Noise2D * noise) { return *(float*)pData; });
+	SetAtEveryPoint((void*)&Flatten_FlatValue, [](void *pData, Vector2u loc, Noise2D* noise) { return *(float*)pData; });
 }
 
-void NF2::Smooth(Noise2D * nse) const
+void NF2::Smooth(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-	SetAtEveryPoint((void*)0, [](void *pData, Vector2u loc, Noise2D * noise)
+	SetAtEveryPoint((void*)0, [](void *pData, Vector2u loc, Noise2D* noise)
 	{
 		int x, y, lX, lY;
 
@@ -159,46 +159,46 @@ void NF2::Smooth(Noise2D * nse) const
 	});
 }
 
-void NF2::Increase(Noise2D * nse) const
+void NF2::Increase(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-	SetAtEveryPoint((void*)&Increase_Amount, [](void *pData, Vector2u loc, Noise2D * noise)
+	SetAtEveryPoint((void*)&Increase_Amount, [](void *pData, Vector2u loc, Noise2D* noise)
 	{
 		return (*noise)[loc] + *(float*)pData;
 	});
 }
 
-void NF2::Min(Noise2D * nse) const
+void NF2::Min(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-    SetAtEveryPoint((void*)&Min_Value, [](void *pData, Vector2u loc, Noise2D * noise)
+    SetAtEveryPoint((void*)&Min_Value, [](void *pData, Vector2u loc, Noise2D* noise)
     {
         return Mathf::Min((*noise)[loc], *(float*)pData);
     });
 }
-void NF2::Max(Noise2D * nse) const
+void NF2::Max(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
-    SetAtEveryPoint((void*)&Max_Value, [](void *pData, Vector2u loc, Noise2D * noise)
+    SetAtEveryPoint((void*)&Max_Value, [](void *pData, Vector2u loc, Noise2D* noise)
     {
         return Mathf::Max((*noise)[loc], *(float*)pData);
     });
 }
-void NF2::Clamp(Noise2D * nse) const
+void NF2::Clamp(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
     float fs[2] = { Min_Value, Max_Value };
-    SetAtEveryPoint((void*)fs, [](void *pData, Vector2u loc, Noise2D * noise)
+    SetAtEveryPoint((void*)fs, [](void *pData, Vector2u loc, Noise2D* noise)
     {
         return Mathf::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
     });
 }
 
-void NF2::Noise(Noise2D * nse) const
+void NF2::Noise(Noise2D* nse) const
 {
     if (nse != 0) noise = nse;
 
@@ -208,18 +208,36 @@ void NF2::Noise(Noise2D * nse) const
 	ns.seed = Noise_Seed;
 	ns.fr = FastRand(Noise_Seed);
 
-	SetAtEveryPoint((void*)&ns, [](void *pData, Vector2u loc, Noise2D * noise)
+	SetAtEveryPoint((void*)&ns, [](void* pData, Vector2u loc, Noise2D* noise)
 	{
-		NoiseStruct * nS = (NoiseStruct*)pData;
+		NoiseStruct* nS = (NoiseStruct*)pData;
 
 		nS->fr.Seed = Vector3i((int)loc.x, (int)loc.y, nS->seed).GetHashCode();
 		return (*noise)[loc] + (nS->amount * nS->fr.GetZeroToOne());
 	});
 }
 
-void NF2::Generate(Noise2D & dat) const
+void NF2::CustomFunc(Noise2D* nse) const
 {
-	if (NoiseToFilter == 0 || FillRegion == 0 || FilterFunc == 0) return;
+    if (nse != 0)
+        noise = nse;
+
+    struct CustomFuncStruct { float(*F)(Vector2u pos, float f, void* p); void* P; };
+    CustomFuncStruct cfs;
+    cfs.F = CustomFunc_Function;
+    cfs.P = CustomFunc_CustomData;
+
+    SetAtEveryPoint((void*)&cfs, [](void* pData, Vector2u loc, Noise2D* noise)
+    {
+        CustomFuncStruct* cfS = (CustomFuncStruct*)pData;
+
+        return cfS->F(loc, (*noise)[loc], cfS->P);
+    });
+}
+
+void NF2::Generate(Noise2D& dat) const
+{
+	assert(NoiseToFilter != 0 && FillRegion != 0 && FilterFunc != 0);
 
 	NoiseToFilter->Generate(dat);
 
@@ -227,10 +245,10 @@ void NF2::Generate(Noise2D & dat) const
 	((*this).*FilterFunc)(0);
 }
 
-void NF2::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2u loc, Noise2D * noise)) const
+void NF2::SetAtEveryPoint(void* pData, float (*GetValue)(void* pData, Vector2u loc, Noise2D* noise)) const
 {
 	//Package necessary information into a struct.
-	struct SAEPData { void * PData; bool Invert; Noise2D * Noise; float(*PGetValue)(void * pData, Vector2u loc, Noise2D * noise); };
+	struct SAEPData { void* PData; bool Invert; Noise2D* Noise; float(*PGetValue)(void* pData, Vector2u loc, Noise2D* noise); };
 	SAEPData d;
 	d.PData = pData;
 	d.PGetValue = GetValue;
@@ -241,9 +259,9 @@ void NF2::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2u
 	FillRegion->DoToEveryPoint((void*)(&d), [](void *pData, Vector2u loc, float strength)
 	{
 		//Unpack the information.
-		SAEPData * dt = (SAEPData*)pData;
+		SAEPData* dt = (SAEPData*)pData;
 		void *PD = dt->PData;
-		float (*pGV)(void * pData, Vector2u loc, Noise2D * pNoise) = dt->PGetValue;
+		float (*pGV)(void* pData, Vector2u loc, Noise2D* pNoise) = dt->PGetValue;
 
 		//Get the original and new value.
 		float preVal = pGV(PD, loc, dt->Noise),
@@ -269,36 +287,45 @@ void NF2::SetAtEveryPoint(void * pData, float (*GetValue)(void * pData, Vector2u
 typedef NoiseFilterer3D NF3;
 
 
-void NF3::ReflectValues(Noise3D * nse) const
+void NF3::ReflectValues(Noise3D* nse) const
 {
+    if (nse != 0)
+        noise = nse;
+
     struct RefValuesStruct { Interval i; };
     RefValuesStruct rvs;
     rvs.i = Interval::GetZeroToOne();
 
-    SetAtEveryPoint(nse, (void*)&rvs, [](void *pData, Vector3u loc, Noise3D * nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
+    SetAtEveryPoint((void*)&rvs, [](void *pData, Vector3u loc, Noise3D* nse) { return (*(RefValuesStruct*)pData).i.Reflect((*nse)[loc]); });
 }
 
-void NF3::RemapValues(Noise3D * nse) const
+void NF3::RemapValues(Noise3D* nse) const
 {
+    if (nse != 0)
+        noise = nse;
+
     Interval newVals = RemapValues_NewVals;
     Interval oldVals = RemapValues_OldVals;
 
-    struct RemapValuesStruct { Interval oldVs, newVs; Noise3D * nse; };
+    struct RemapValuesStruct { Interval oldVs, newVs; Noise3D* nse; };
     RemapValuesStruct rvs;
     rvs.oldVs = oldVals;
     rvs.newVs = newVals;
     rvs.nse = nse;
 
-    FillVolume->DoToEveryPoint((void*)&rvs, [](void * pDat, Vector3u loc, float strength)
+    FillVolume->DoToEveryPoint((void*)&rvs, [](void* pDat, Vector3u loc, float strength)
     {
-        RemapValuesStruct * rvS = (RemapValuesStruct*)pDat;
-        float * fOut = &(*(rvS->nse))[loc];
+        RemapValuesStruct* rvS = (RemapValuesStruct*)pDat;
+        float* fOut = &(*(rvS->nse))[loc];
         *fOut = rvS->oldVs.MapValue(rvS->newVs, *fOut);
     }, *nse, nse->GetDimensions());
 }
 
-void NF3::UpContrast(Noise3D * nse) const
+void NF3::UpContrast(Noise3D* nse) const
 {
+    if (nse != 0)
+        noise = nse;
+
     //Struct to pass into the lambda.
     struct UpContrastArgs
     {
@@ -322,7 +349,7 @@ void NF3::UpContrast(Noise3D * nse) const
     }
 
 
-    SetAtEveryPoint(nse, (void*)(&args), [](void * pDat, Vector3u loc, Noise3D * noise)
+    SetAtEveryPoint((void*)(&args), [](void* pDat, Vector3u loc, Noise3D* noise)
     {
         UpContrastArgs rgs = *(UpContrastArgs*)pDat;
         float val = (*noise)[loc];
@@ -334,15 +361,18 @@ void NF3::UpContrast(Noise3D * nse) const
     });
 }
 
-void NF3::Average(Noise3D * nse) const
+void NF3::Average(Noise3D* nse) const
 {
-    struct AverageStruct { float average; int count; Noise3D * nse; AverageStruct(void) : average(0.0f), count(0) { } };
+    if (nse != 0)
+        noise = nse;
+
+    struct AverageStruct { float average; int count; Noise3D* nse; AverageStruct(void) : average(0.0f), count(0) { } };
     AverageStruct avs;
     avs.nse = nse;
 
     FillVolume->DoToEveryPoint((void*)&avs, [](void* pData, Vector3u loc, float str)
     {
-        AverageStruct * avS = (AverageStruct*)pData;
+        AverageStruct* avS = (AverageStruct*)pData;
 
         avS->average += (*(avS->nse))[loc];
         avS->count += 1;
@@ -353,17 +383,23 @@ void NF3::Average(Noise3D * nse) const
         avs.average /= (float)avs.count;
     }
 
-    SetAtEveryPoint(nse, (void*)&avs.average, [](void * pData, Vector3u loc, Noise3D * noise) { return *(float*)pData; });
+    SetAtEveryPoint((void*)&avs.average, [](void* pData, Vector3u loc, Noise3D* noise) { return *(float*)pData; });
 }
 
-void NF3::Set(Noise3D * nse) const
+void NF3::Set(Noise3D* nse) const
 {
-    SetAtEveryPoint(nse, (void*)&Set_Value, [](void *pData, Vector3u loc, Noise3D * noise) { return *(float*)pData; });
+    if (nse != 0)
+        noise = nse;
+
+    SetAtEveryPoint((void*)&Set_Value, [](void *pData, Vector3u loc, Noise3D* noise) { return *(float*)pData; });
 }
 
-void NF3::Smooth(Noise3D * nse) const
+void NF3::Smooth(Noise3D* nse) const
 {
-    SetAtEveryPoint(nse, (void*)0, [](void *pData, Vector3u lc, Noise3D * noise)
+    if (nse != 0)
+        noise = nse;
+
+    SetAtEveryPoint((void*)0, [](void *pData, Vector3u lc, Noise3D* noise)
     {
         //Average the surrounding values.
         Vector3i noiseLoc;
@@ -405,48 +441,63 @@ void NF3::Smooth(Noise3D * nse) const
     });
 }
 
-void NF3::Increase(Noise3D * nse) const
+void NF3::Increase(Noise3D* nse) const
 {
-    SetAtEveryPoint(nse, (void*)&Increase_Amount, [](void *pData, Vector3u loc, Noise3D * noise)
+    if (nse != 0)
+        noise = nse;
+
+    SetAtEveryPoint((void*)&Increase_Amount, [](void *pData, Vector3u loc, Noise3D* noise)
     {
         return (*noise)[loc] + *(float*)pData;
     });
 }
 
-void NF3::Min(Noise3D * nse) const
+void NF3::Min(Noise3D* nse) const
 {
-    SetAtEveryPoint(nse, (void*)&Min_Value, [](void *pData, Vector3u loc, Noise3D * noise)
+    if (nse != 0)
+        noise = nse;
+
+    SetAtEveryPoint((void*)&Min_Value, [](void *pData, Vector3u loc, Noise3D* noise)
     {
         return Mathf::Min((*noise)[loc], *(float*)pData);
     });
 }
-void NF3::Max(Noise3D * nse) const
+void NF3::Max(Noise3D* nse) const
 {
-    SetAtEveryPoint(nse, (void*)&Max_Value, [](void *pData, Vector3u loc, Noise3D * noise)
+    if (nse != 0)
+        noise = nse;
+
+    SetAtEveryPoint((void*)&Max_Value, [](void *pData, Vector3u loc, Noise3D* noise)
     {
         return Mathf::Max((*noise)[loc], *(float*)pData);
     });
 }
-void NF3::Clamp(Noise3D * nse) const
+void NF3::Clamp(Noise3D* nse) const
 {
+    if (nse != 0)
+        noise = nse;
+
     float fs[2] = { Min_Value, Max_Value };
-    SetAtEveryPoint(nse, (void*)fs, [](void *pData, Vector3u loc, Noise3D * noise)
+    SetAtEveryPoint((void*)fs, [](void *pData, Vector3u loc, Noise3D* noise)
     {
         return Mathf::Clamp((*noise)[loc], ((float*)pData)[0], ((float*)pData)[1]);
     });
 }
 
-void NF3::Noise(Noise3D * nse) const
+void NF3::Noise(Noise3D* nse) const
 {
+    if (nse != 0)
+        noise = nse;
+
     struct NoiseStruct { float amount; int seed; FastRand fr; };
     NoiseStruct ns;
     ns.amount = Noise_Amount;
     ns.seed = Noise_Seed;
     ns.fr = FastRand(Noise_Seed);
 
-    SetAtEveryPoint(nse, (void*)&ns, [](void *pData, Vector3u loc, Noise3D * noise)
+    SetAtEveryPoint((void*)&ns, [](void *pData, Vector3u loc, Noise3D* noise)
     {
-        NoiseStruct * nS = (NoiseStruct*)pData;
+        NoiseStruct* nS = (NoiseStruct*)pData;
 
         nS->fr.Seed = Vector4i(loc.x, loc.y, loc.z, nS->seed).GetHashCode();
 
@@ -454,23 +505,51 @@ void NF3::Noise(Noise3D * nse) const
     });
 }
 
-void NF3::SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * pData, Vector3u loc, Noise3D * noise)) const
+void NF3::CustomFunc(Noise3D* nse) const
+{
+    if (nse != 0)
+        noise = nse;
+
+    struct CustomFuncStruct { float(*F)(Vector3u pos, float f, void* p); void* P; };
+    CustomFuncStruct cfs;
+    cfs.F = CustomFunc_Function;
+    cfs.P = CustomFunc_CustomData;
+
+    SetAtEveryPoint((void*)&cfs, [](void* pData, Vector3u loc, Noise3D* noise)
+    {
+        CustomFuncStruct* cfS = (CustomFuncStruct*)pData;
+
+        return cfS->F(loc, (*noise)[loc], cfS->P);
+    });
+}
+
+void NF3::Generate(Noise3D& dat) const
+{
+	assert(NoiseToFilter != 0 && FillVolume != 0 && FilterFunc != 0);
+
+	NoiseToFilter->Generate(dat);
+
+	noise = &dat;
+	((*this).*FilterFunc)(0);
+}
+
+void NF3::SetAtEveryPoint(void* pData, float(*GetValue)(void* pData, Vector3u loc, Noise3D* noise)) const
 {
     //Package necessary information into a struct.
-    struct SAEPData { void * PData; bool Invert; Noise3D * Noise; float(*PGetValue)(void * pData, Vector3u loc, Noise3D * noise); };
+    struct SAEPData { void* PData; bool Invert; Noise3D* Noise; float(*PGetValue)(void* pData, Vector3u loc, Noise3D* noise); };
     SAEPData d;
     d.PData = pData;
     d.PGetValue = GetValue;
-    d.Noise = nse;
+    d.Noise = noise;
     d.Invert = InvertFunc;
 
     //Fill the noise.
     FillVolume->DoToEveryPoint((void*)(&d), [](void *pData, Vector3u loc, float strength)
     {
         //Unpack the information.
-        SAEPData * dt = (SAEPData*)pData;
+        SAEPData* dt = (SAEPData*)pData;
         void *PD = dt->PData;
-        float(*pGV)(void * pData, Vector3u loc, Noise3D * pNoise) = dt->PGetValue;
+        float(*pGV)(void* pData, Vector3u loc, Noise3D* pNoise) = dt->PGetValue;
 
         //Get the original and new value.
         float preVal = pGV(PD, loc, dt->Noise),
@@ -484,7 +563,7 @@ void NF3::SetAtEveryPoint(Noise3D * nse, void * pData, float(*GetValue)(void * p
 
         //Lerp between the old and new value using the strength value.
         dt->Noise->operator[](loc) = Mathf::Clamp(Mathf::Lerp(orgVal, preVal, strength), 0.0f, 1.0f);
-    }, *nse, nse->GetDimensions());
+    }, *noise, noise->GetDimensions());
 }
 
 #pragma endregion

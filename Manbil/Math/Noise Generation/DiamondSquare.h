@@ -2,6 +2,7 @@
 
 #include "BasicGenerators.h"
 
+
 //Represents the random noise range for one or more diamond-square iterations.
 struct DiamondSquareStep
 {
@@ -10,44 +11,39 @@ struct DiamondSquareStep
 	//The number of iterations to use this random value range for.
 	unsigned int Iterations;
 
-	DiamondSquareStep(Interval varianceValueRange, unsigned int iterations = 1) : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
+	DiamondSquareStep(Interval varianceValueRange, unsigned int iterations = 1)
+        : VarianceValueRange(varianceValueRange), Iterations(iterations) { }
 };
 
+
 //Generates random 2D noise using the Diamond-Square algorithm.
-//Any noise values not set to NaN will be untouched by the algorithm, allowing the user to seed values.
+//The noise array should be pre-filled with NaN; any values that aren't NaN will be left alone.
+//This allows the user to seed values to effect the this algorithm.
+//The noise array that uses this generator must be a square whose sides are one more than a power of two.
 class DiamondSquare : Generator2D
 {
 public:
 
-	static int NOISE_IS_BAD_SIZE_EXCEPTION;
-
-
 	int Seed;
 
+	DiamondSquareStep* Variances;
+	unsigned int NumbVariances;
+    
 	Interval DefaultVariance;
-	DiamondSquareStep * ForcedVariances;
-	unsigned int NumbForcedVariances;
+
 	float StartingCornerValues;
 
 
-	DiamondSquare(int seed, Interval defaultVariance, DiamondSquareStep * forcedVariances,
-                  unsigned int nForcedVariances, float startingCornerValues)
-		: Seed(seed), DefaultVariance(defaultVariance), ForcedVariances(forcedVariances),
-          NumbForcedVariances(nForcedVariances), StartingCornerValues(startingCornerValues)
-    {
-
-    }
+	DiamondSquare(int seed, DiamondSquareStep* forcedVariances, unsigned int nForcedVariances,
+                  Interval defaultVariance, float startingCornerValues)
+		: Seed(seed), DefaultVariance(defaultVariance), Variances(forcedVariances),
+          NumbVariances(nForcedVariances), StartingCornerValues(startingCornerValues) { }
 
 
-	//If the given noise array is not M x M, where M is (2^n) + 1,
-	//    an exception of type NOISE_IS_BAD_SIZE_EXCEPTION will be thrown.
-	//The noise is assumed to be pre-filled with NaN values; if some value other than NaN is in
-	//   the noise, it will be left alone -- NOT filled in with a generated value.
-	//This can be used to "seed" the noise with values for the first few iterations.
-	virtual void Generate(Noise2D & noise) const override;
+	virtual void Generate(Noise2D& noise) const override;
 	
 
 private:
 
-	void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval * variances, Array2D<float> & noise) const;
+	void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval* variances, Array2D<float>& noise) const;
 };
