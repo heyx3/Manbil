@@ -100,7 +100,6 @@ void NoiseGenWorld::GenerateNoise(MTexture2D& tex)
 
             Worley3D worley;
             worley.CellSize = 32;
-            worley.CellOffset.z = (unsigned int)(GetTotalElapsedSeconds() * 1.0f);
 
             //Use a 3D array with a depth of 1, in order to get a small slice of the full 3D noise.
             Noise3D noiseMap3(noiseMap.GetWidth(), noiseMap.GetHeight(), 1);

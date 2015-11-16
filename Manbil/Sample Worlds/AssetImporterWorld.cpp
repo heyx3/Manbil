@@ -43,8 +43,8 @@ void AssetImporterWorld::InitializeTextures(void)
 
     //Load a 2D texture from a file.
     std::string errorMsg;
-    if (!Assert(objTex2.SetDataFromFile("Content/Textures/Brick.png", errorMsg),
-                "Error loading 'Content/Textures/Brick.png'",
+    if (!Assert(objTex2.SetDataFromFile("Content/Sample Worlds/grass.png", errorMsg),
+                "Error loading 'Content/Sample Worlds/grass.png'",
                 errorMsg))
     {
         return;
@@ -155,11 +155,11 @@ void AssetImporterWorld::InitializeObjects(void)
     //Load a mesh using AssImp. Note that the "Importer"s destructor will clean up all meshes it loaded.
     Assimp::Importer importer;
     unsigned int flags = aiProcessPreset_TargetRealtime_MaxQuality;
-    const aiScene* scene = importer.ReadFile("Content/Meshes/TestRectPrism.fbx", flags);
+    const aiScene* scene = importer.ReadFile("Content/Sample Worlds/Meshes/TestRectPrism.fbx", flags);
 
     //Make sure the file/mesh was loaded properly.
     if (!Assert(scene != 0,
-                "Error importing mesh 'Content/Meshes/TestRectPrism.fbx'",
+                "Error importing mesh 'Content/Sample Worlds/Meshes/TestRectPrism.fbx'",
                 importer.GetErrorString()))
     {
         return;
