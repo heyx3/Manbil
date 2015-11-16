@@ -242,6 +242,7 @@ void SerializationWorld::InitializeWorld(void)
 
         //Write the info into "Dependencies/Include In Build/Universal/Content" using
         //    an XML file DataWriter.
+        //This executable runs in the "Builds/[Debug or Release]" folder.
         XmlWriter infoWriter;
         infoWriter.WriteDataStructure(info, "World info");
         std::string err = infoWriter.SaveData("../../Dependencies/Include In Build/Universal/" + filePath);
