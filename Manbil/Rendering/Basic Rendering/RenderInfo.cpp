@@ -13,3 +13,8 @@ RenderInfo::RenderInfo(float totalElapsedSeconds, Camera* camera, Matrix4f* view
         mVP.SetAsIdentity();
     }
 }
+
+RenderInfo::RenderInfo(float totalElapsedSeconds, Camera* camera,
+                       Matrix4f* viewM, Matrix4f* projM, const Matrix4f& viewProjM)
+    : TotalElapsedSeconds(totalElapsedSeconds), Cam(camera),
+      mView(viewM), mProj(projM), mVP(viewProjM) { }

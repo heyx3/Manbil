@@ -178,7 +178,7 @@ void EditorGUIWorld::InitializeWorld(void)
     //Now that the editor is set up, resize the window to fit the editor panel.
     Vector2f size = guiManager.RootElement->GetBounds().GetDimensions();
     WindowSize = ToV2i(size);
-    glViewport(0, 0, WindowSize.x, WindowSize.y);
+    Viewport(0, 0, WindowSize.x, WindowSize.y).SetAsViewport();
     GetWindow()->setSize(sf::Vector2u(WindowSize.x, WindowSize.y));
 
     //Move the panel to be centered in the window.

@@ -15,6 +15,8 @@ public:
     //Disables viewport scissor (saves performance when not using it).
     static void DisableScissor(void) { glDisable(GL_SCISSOR_TEST); }
 
+    static bool IsScissorEnabled(void) { return glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE; }
+
 
     unsigned int XMin, YMin,
                  XSize, YSize;
