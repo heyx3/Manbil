@@ -3,7 +3,7 @@
 #include "SFMLWorld.h"
 
 
-//A world that uses SFML and OpenGL.
+//An SFML world that uses native OpenGL.
 class SFMLOpenGLWorld : public SFMLWorld
 {
 public:
