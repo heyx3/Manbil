@@ -7,7 +7,7 @@
 
 
 
-//A basic world using SFML. Also initializes the SFGUI library upon creation.
+//A game loop using the SFML library for input and window management.
 class SFMLWorld
 {
 public:
