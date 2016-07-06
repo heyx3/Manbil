@@ -43,8 +43,7 @@ void GUIElement::SetColor(Vector4f newCol)
     auto found = Params.find(GUIMaterials::QuadDraw_Color);
     if (found == Params.end())
     {
-        Params[GUIMaterials::QuadDraw_Color] = Uniform(GUIMaterials::QuadDraw_Color, UT_VALUE_F);
-        Params[GUIMaterials::QuadDraw_Color].Float().SetValue(newCol);
+        Params[GUIMaterials::QuadDraw_Color] = Uniform::MakeF(GUIMaterials::QuadDraw_Color, 4, &newCol.x);
     }
     else
     {

@@ -278,7 +278,7 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
     }
 
 
-    //Each of the following code blocks performs the exact same rotation.
+    //Both of the following code blocks perform the exact same rotation.
     if (false)
     {
         objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), eulerRots.z));

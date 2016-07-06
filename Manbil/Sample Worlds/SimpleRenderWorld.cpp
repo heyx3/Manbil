@@ -190,7 +190,7 @@ void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
     RenderingState(RenderingState::C_BACK).EnableState();
     Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
-    //Set up the info for rendering stuff.
+    //Set up the info for rendering the cube.
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
     gameCam.GetPerspectiveProjection(projM);

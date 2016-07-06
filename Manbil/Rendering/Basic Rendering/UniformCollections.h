@@ -93,8 +93,18 @@ public:
     const UniformValueSubroutine& Subroutine(void) const { ASSERT_TYPE(SUBROUTINE); return *(UniformValueSubroutine*)ByteData; }
 #undef ASSERT_TYPE
 #undef ASSERT_TEX
+    
 
-    Uniform(void) : Uniform("", UT_VALUE_F) { }
+    //Makes a VectorF uniform.
+    static Uniform MakeF(const std::string& name, size_t size, const float* vals,
+                         UniformLocation loc = -1);
+    //Makes a VectorI uniform.
+    static Uniform MakeI(const std::string& name, size_t size, const int* vals,
+                         UniformLocation loc = -1);
+
+    //Makes an empty Matrix4f uniform.
+    Uniform(void) : Uniform("", UT_VALUE_MAT4) { }
+    //Makes any uniform except the VectorF or VectorI types.
     Uniform(std::string name, UniformTypes t, UniformLocation loc = -1);
 
 
