@@ -60,8 +60,8 @@ public:
         Vector2i offset = SeedOffset;
         outNoise.FillFunc([seed, offset](Vector2u loc, float * fOut)
         {
-            Vector3i seed(ToV2i(loc) + offset, seed);
-           *fOut = FastRand(seed.GetHashCode()).GetZeroToOne();
+            Vector3i seed3(ToV2i(loc) + offset, seed);
+           *fOut = FastRand(seed3.GetHashCode()).GetZeroToOne();
         });
     }
 };
@@ -118,8 +118,8 @@ public:
         Vector3i offset = SeedOffset;
         outNoise.FillFunc([seed, offset](Vector3u loc, float * fOut)
         {
-            Vector4i seed(ToV3i(loc) + offset, seed);
-           *fOut = FastRand(seed.GetHashCode()).GetZeroToOne();
+            Vector4i seed4(ToV3i(loc) + offset, seed);
+           *fOut = FastRand(seed4.GetHashCode()).GetZeroToOne();
         });
     }
 };

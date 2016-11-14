@@ -90,5 +90,5 @@ private:
     void RaiseOnEnterKey(void) { if (OnEnterKey != 0) OnEnterKey(this, OnEnterKey_Data); }
     void RaiseOnCursorMoved(int moveAmount) { if (OnCursorMoved != 0) OnCursorMoved(this, moveAmount, OnCursorMoved_Data); }
 
-    unsigned int GetClampedCursor(void) const { return Mathf::Min(text.size(), CursorPos); }
+    unsigned int GetClampedCursor(void) const { return Mathf::Min(text.size(), (size_t)CursorPos); }
 };

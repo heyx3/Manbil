@@ -49,7 +49,7 @@ public:
     const std::vector<Attribute>& GetAttributes(void) const { return attributes; }
 
     void SetAttributes(const std::vector<Attribute>& newAttributes);
-    
+
     unsigned int GetNumbAttributes(void) const { return attributes.size(); }
     const Attribute& GetAttribute(unsigned int index) const { return attributes[index]; }
 

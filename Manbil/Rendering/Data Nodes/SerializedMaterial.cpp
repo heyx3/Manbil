@@ -71,7 +71,7 @@ void SerializedMaterial::WriteData(DataWriter* writer) const
     //Sort all nodes by their max depth.
     std::unordered_map<DataNode*, unsigned int> nodesAndDepth;
     unsigned int maxDepth = 0;
-    for (unsigned int i = 0; i < rootNodes.size(); ++i)
+    for (unsigned int rootNodeI = 0; rootNodeI < rootNodes.size(); ++rootNodeI)
     {
         //Graph search starting at the root.
         struct NodeAndDepth
@@ -81,7 +81,7 @@ void SerializedMaterial::WriteData(DataWriter* writer) const
             NodeAndDepth(DataNode* n = 0, unsigned int d = 0) : Node(n), Depth(d) { }
         };
         std::stack<NodeAndDepth> searchSpace;
-        searchSpace.push(NodeAndDepth(rootNodes[i], 0));
+        searchSpace.push(NodeAndDepth(rootNodes[rootNodeI], 0));
 
         //Prevent infinite loops by tracking which edges have already been traversed.
         //Note that two nodes can be connected along more than one line,
@@ -130,17 +130,17 @@ void SerializedMaterial::WriteData(DataWriter* writer) const
 
             //Add the node's DataNode children (not its constant VectorF children)
             //    to the search space.
-            for (unsigned int i = 0; i < toSearch.Node->GetInputs().size(); ++i)
+            for (unsigned int childI = 0; childI < toSearch.Node->GetInputs().size(); ++childI)
             {
-                if (!toSearch.Node->GetInputs()[i].IsConstant())
+                if (!toSearch.Node->GetInputs()[childI].IsConstant())
                 {
-                    DataNode* child = toSearch.Node->GetInputs()[i].GetNode();
+                    DataNode* child = toSearch.Node->GetInputs()[childI].GetNode();
 
                     //Make sure the input actually exists.
                     if (child == 0)
                     {
                         writer->ErrorMessage = "Input node '" +
-                                                    toSearch.Node->GetInputs()[i].GetNonConstantValue() +
+                                                    toSearch.Node->GetInputs()[childI].GetNonConstantValue() +
                                                     "' of node '" + toSearch.Node->GetName() +
                                                     "' doens't exist!";
                         throw DataWriter::EXCEPTION_FAILURE;

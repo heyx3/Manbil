@@ -110,7 +110,7 @@ void AssetImporterWorld::InitializeMaterials(void)
              fIn_WorldNormal(FragmentInputNode::GetInstance(), 2);
     DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal));
     DataLine lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
-             ambientLight(0.35f),
+             ambientLight(0.65f),
              diffuseLight(0.65f),
              specLight(1.0f),
              specIntensity(64.0f);
@@ -322,7 +322,7 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 
 void AssetImporterWorld::RenderOpenGL(float elapsedSeconds)
 {
-    ScreenClearer().ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
     Viewport(0, 0, windowSize.x, windowSize.y).Use();
 

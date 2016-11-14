@@ -96,40 +96,40 @@ bool Box2D::CastRay(Vector2f start, Vector2f dir, Vector2f& outHitPos, float& ou
     {
         //Min X face.
         float tempT = (min.x - start.x) / dir.x;
-        float y = (dir.y * tempT) + start.y;
-        if (tempT >= 0.0f && yInt.IsInside(y))
+        float tempY = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(tempY))
         {
             smallestT = tempT;
-            smallestPos = Vector2f(min.x, y);
+            smallestPos = Vector2f(min.x, tempY);
         }
 
         //Max X face.
         tempT = (max.x - start.x) / dir.x;
-        y = (dir.y * tempT) + start.y;
-        if (tempT >= 0.0f && yInt.IsInside(y) && smallestT > tempT)
+        tempY = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(tempY) && smallestT > tempT)
         {
             smallestT = tempT;
-            smallestPos = Vector2f(max.x, y);
+            smallestPos = Vector2f(max.x, tempY);
         }
     }
     if (dir.y != 0)
     {
         //Min Y face.
         float tempT = (min.y - start.y) / dir.y;
-        float x = (dir.x * tempT) + start.x;
-        if (tempT >= 0.0f && xInt.IsInside(x) && smallestT > tempT)
+        float tempX = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(tempX) && smallestT > tempT)
         {
             smallestT = tempT;
-            smallestPos = Vector2f(x, min.y);
+            smallestPos = Vector2f(tempX, min.y);
         }
 
         //Max Y face.
         tempT = (max.y - start.y) / dir.y;
-        x = (dir.x * tempT) + start.x;
-        if (tempT >= 0.0f && xInt.IsInside(x) && smallestT > tempT)
+        tempX = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(tempX) && smallestT > tempT)
         {
             smallestT = tempT;
-            smallestPos = Vector2f(x, max.y);
+            smallestPos = Vector2f(tempX, max.y);
         }
     }
 
@@ -176,40 +176,40 @@ unsigned int Box2D::CastRay(Vector2f start, Vector2f dir,
     {
         //Min X face.
         float tempT = (min.x - start.x) / dir.x;
-        float y = (dir.y * tempT) + start.y;
-        if (tempT >= 0.0f && yInt.IsInside(y))
+        float tempY = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(tempY))
         {
             smallestT[0] = tempT;
-            smallestPos[0] = Vector2f(min.x, y);
+            smallestPos[0] = Vector2f(min.x, tempY);
         }
 
         //Max X face.
         tempT = (max.x - start.x) / dir.x;
-        y = (dir.y * tempT) + start.y;
-        if (tempT >= 0.0f && yInt.IsInside(y))
+        tempY = (dir.y * tempT) + start.y;
+        if (tempT >= 0.0f && yInt.IsInside(tempY))
         {
             smallestT[1] = tempT;
-            smallestPos[1] = Vector2f(max.x, y);
+            smallestPos[1] = Vector2f(max.x, tempY);
         }
     }
     if (dir.y != 0)
     {
         //Min Y face.
         float tempT = (min.y - start.y) / dir.y;
-        float x = (dir.x * tempT) + start.x;
-        if (tempT >= 0.0f && xInt.IsInside(x))
+        float tempX = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(tempX))
         {
             smallestT[2] = tempT;
-            smallestPos[2] = Vector2f(x, min.y);
+            smallestPos[2] = Vector2f(tempX, min.y);
         }
 
         //Max Y face.
         tempT = (max.y - start.y) / dir.y;
-        x = (dir.x * tempT) + start.x;
-        if (tempT >= 0.0f && xInt.IsInside(x))
+        tempX = (dir.x * tempT) + start.x;
+        if (tempT >= 0.0f && xInt.IsInside(tempX))
         {
             smallestT[3] = tempT;
-            smallestPos[3] = Vector2f(x, max.y);
+            smallestPos[3] = Vector2f(tempX, max.y);
         }
     }
 

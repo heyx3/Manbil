@@ -1,9 +1,9 @@
 Manbil
 ======
 
-A free, open-source 3D game engine in C++/OpenGL. Currently undergoing refactoring and [documentation](https://github.com/heyx3/ManbilDocumentation) to turn it into an educational resource for anybody who wants to learn how to write a basic game engine.
+A free, open-source 3D game framework in C++/OpenGL built for Visual Studio 2015. Documentation is [here](https://github.com/heyx3/ManbilDocumentation).
 
-Uses some libraries here and there -- tinyXML for serialization, SFML for window management and loading textures, FreeType for loading font glyphs, etc. These plugins are in the "Plugins" folder in the repo.
+Uses some libraries here and there -- tinyXML for serialization, SFML for window management and loading textures, FreeType for loading font glyphs, etc.
 
 ##Documentation##
 

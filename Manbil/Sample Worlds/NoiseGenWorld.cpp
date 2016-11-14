@@ -184,23 +184,23 @@ void NoiseGenWorld::GenerateNoise(MTexture2D& tex)
     //Put the result into the texture.
     tex.SetGreyscaleData(noiseMap, PS_32F_GREYSCALE);
 }
-void NoiseGenWorld::GenerateBumpMap(MTexture2D& noiseTex)
+void NoiseGenWorld::GenerateBumpMap(MTexture2D& outBumpTex)
 {
     //Get the noise.
-    Array2D<float> noise(noiseTex.GetWidth(), noiseTex.GetHeight());
-    noiseTex.GetGreyscaleData(noise);
+    Array2D<float> noise(outBumpTex.GetWidth(), outBumpTex.GetHeight());
+    outBumpTex.GetGreyscaleData(noise);
 
     //Treat it as a bumpmap and convert to a normalmap.
-    Array2D<Vector3f> normals(noiseTex.GetWidth(), noiseTex.GetHeight());
+    Array2D<Vector3f> normals(outBumpTex.GetWidth(), outBumpTex.GetHeight());
     BumpmapToNormalmap::Convert(noise, bumpmapHeight, true, normals);
 
     //Put the normalmap into the texture.
-    Array2D<Vector4f> texCols(noiseTex.GetWidth(), noiseTex.GetHeight());
+    Array2D<Vector4f> texCols(outBumpTex.GetWidth(), outBumpTex.GetHeight());
     texCols.FillFunc([&normals](Vector2u loc, Vector4f* outVal)
     {
         *outVal = Vector4f(normals[loc], 1.0f);
     });
-    noiseTex.SetColorData(texCols, PS_32F);
+    outBumpTex.SetColorData(texCols, PS_32F);
 }
 
 void NoiseGenWorld::InitializeWorld(void)
