@@ -99,6 +99,7 @@ void NoiseGenWorld::GenerateNoise(MTexture2D& tex)
             //    but this extra step helps illustrate the relationship between 2D and 3D noise.
 
             Worley3D worley;
+            worley.Seed = rng.GetRandInt();
             worley.CellSize = 32;
 
             //Use a 3D array with a depth of 1, in order to get a small slice of the full 3D noise.

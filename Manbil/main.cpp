@@ -15,14 +15,14 @@
 int main()
 {
     SimpleRenderWorld().RunWorld();
-    //DataNodeRenderWorld().RunWorld();
-    //WaterWorld().RunWorld();
-    //TerrainWorld().RunWorld();
-    //SerializationWorld().RunWorld();
-    //GUIWorld().RunWorld();
-    //EditorGUIWorld().RunWorld();
-    //AssetImporterWorld().RunWorld();
-    //NoiseGenWorld().RunWorld();
+    DataNodeRenderWorld().RunWorld();
+    WaterWorld().RunWorld();
+    TerrainWorld().RunWorld();
+    SerializationWorld().RunWorld();
+    GUIWorld().RunWorld();
+    EditorGUIWorld().RunWorld();
+    AssetImporterWorld().RunWorld();
+    NoiseGenWorld().RunWorld();
 
     return 0;
 }

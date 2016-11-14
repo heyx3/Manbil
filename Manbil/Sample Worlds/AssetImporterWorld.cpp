@@ -243,7 +243,9 @@ void AssetImporterWorld::OnWorldEnd(void)
 
 void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 {
-    if (cam.Update(elapsedSeconds))
+    cam.Update(elapsedSeconds);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
     {
         EndWorld();
         return;

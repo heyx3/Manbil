@@ -12,7 +12,7 @@
 
 
 //Provides ISerializable wrappers for many simple data structures.
-//Use the following convention to serialize these data structures:
+//Use the following convention to serialize these kinds of data structures:
 /*
     Vector2f myVec;
     Matrix4f myMat;

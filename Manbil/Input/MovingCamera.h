@@ -6,7 +6,6 @@
 #include "../Math/Higher Math/Camera.h"
 
 
-//TODO: Pull out "escape" key detection into individual worlds.
 //A simple Camera that is controlled with WASD/EQ and mouse.
 //Spacebar toggles mouse capture/input.
 class MovingCamera : public Camera
@@ -40,8 +39,8 @@ public:
     bool IsMouseCapped(void) const { return capMouse; }
 
 
-    //Updates this camera and returns whether the user pressed escape.
-	virtual bool Update(float elapsedTime);
+    //Updates this camera.
+	virtual void Update(float elapsedTime);
 
 private:
 

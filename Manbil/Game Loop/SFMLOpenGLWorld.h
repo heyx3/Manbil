@@ -8,9 +8,6 @@ class SFMLOpenGLWorld : public SFMLWorld
 {
 public:
 
-    //TextRenderer * TextRender;
-    //RenderTargetManager * RenderTargets;
-
     SFMLOpenGLWorld(int windowWidth, int windowHeight);
     virtual ~SFMLOpenGLWorld(void);
 

@@ -16,14 +16,14 @@ typedef std::shared_ptr<Deadzone> DeadzonePtr;
 
 
 //Doesn't filter the input at all.
-class EmptyDeadzone : Deadzone
+class EmptyDeadzone : public Deadzone
 {
 public:
 	virtual Vector2f Filter(Vector2f inV) override { return inV; }
 };
 
 //Any input with magnitude less than "Radius" is zeroed out.
-class CircleDeadzone : Deadzone
+class CircleDeadzone : public Deadzone
 {
 public:
 
@@ -37,7 +37,7 @@ public:
 };
 
 //Any Y values smaller than "Cutoff" are zeroed out.
-class HorizontalDeadzone : Deadzone
+class HorizontalDeadzone : public Deadzone
 {
 public:
 	float Cutoff;
@@ -54,7 +54,7 @@ public:
 	}
 };
 //Any X values smaller than "Cutoff" are zeroed out.
-class VerticalDeadzone : Deadzone
+class VerticalDeadzone : public Deadzone
 {
 public:
 	float Cutoff;
@@ -74,7 +74,7 @@ public:
 
 //Any Y values smaller than a calculated value are zeroed out.
 //The calculated value is proportional to the magnitude of the X value.
-class HorizontalCrossDeadzone : Deadzone
+class HorizontalCrossDeadzone : public Deadzone
 {
 public:
 
@@ -95,7 +95,7 @@ public:
 };
 //Any X values smaller than a calculated value are zeroed out.
 //The calculated value is proportional to the magnitude of the X value.
-class VerticalCrossDeadzone : Deadzone
+class VerticalCrossDeadzone : public Deadzone
 {
 public:
 
@@ -117,7 +117,7 @@ public:
 
 
 //Applies an arbitrary amount of deadzone filters to the input.
-class MultiDeadzone : Deadzone
+class MultiDeadzone : public Deadzone
 {
 public:
 

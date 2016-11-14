@@ -1,7 +1,7 @@
 #include "MovingCamera.h"
 
 
-bool MovingCamera::Update(float elapsedTime)
+void MovingCamera::Update(float elapsedTime)
 {
 	#pragma region WASD EQ
 
@@ -32,19 +32,12 @@ bool MovingCamera::Update(float elapsedTime)
 		IncrementPosition(GetUpward() * -MoveSpeed * elapsedTime);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-	{
-		return true;
-	}
-
 	#pragma endregion
 
 	#pragma region Mouse
 
 	if (Window == 0)
-	{
-		return false;
-	}
+		return;
 
 	Window->setMouseCursorVisible(!capMouse);
 	if (sf::Keyboard::isKeyPressed(ToggleMouseCapKey))
@@ -64,9 +57,7 @@ bool MovingCamera::Update(float elapsedTime)
     }
 
 	if (!capMouse)
-    {
-        return false;
-    }
+        return;
 
 	Vector2i mousePos = Conv(sf::Mouse::getPosition(*Window));
 	Vector2i delta = mousePos - mouseTarget;
@@ -79,6 +70,4 @@ bool MovingCamera::Update(float elapsedTime)
 	AddYaw(rotAmount.x);
 
 	#pragma endregion
-
-	return false;
 }

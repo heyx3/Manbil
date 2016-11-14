@@ -22,7 +22,7 @@ public:
         unsigned int Size;
         bool IsNormalized;
         std::string Name;
-        Attribute(unsigned int size, bool isNormalized, std::string name)
+        Attribute(unsigned int size, bool isNormalized, std::string name = "")
             : Size(size), IsNormalized(isNormalized), Name(name) { }
         Attribute(void) { }
     };
