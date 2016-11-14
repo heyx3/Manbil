@@ -38,15 +38,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)\Plugins\assimp-3.1.1\include;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Src;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Include;$(SolutionDir)\Plugins\Freetype 2.3.5\include\freetype2;$(SolutionDir)\Plugins\Freetype 2.3.5\include;$(SolutionDir)\Plugins\glew-1.10.0\include;$(SolutionDir)\Plugins\SFML\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Git Repos\D Drive\Manbil\Dependencies\Headers;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)\Plugins\assimp-3.1.1\include;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Src;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Include;$(SolutionDir)\Plugins\Freetype 2.3.5\include\freetype2;$(SolutionDir)\Plugins\Freetype 2.3.5\include;$(SolutionDir)\Plugins\glew-1.10.0\include;$(SolutionDir)\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(SolutionDir)\Dependencies\Libraries\Universal\;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Git Repos\D Drive\Manbil\Dependencies\Headers;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
@@ -55,7 +55,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>OVR_OS_WIN32;OVR_BUILD_DEBUG;WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
@@ -64,9 +64,9 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glu32.lib;assimpd.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glu32.lib;assimp.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>libovrd.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -89,7 +89,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OVR_OS_WIN32;WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -101,7 +101,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>glew32.lib;glu32.lib;assimp.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>libovr.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>rd /S /Q "$(SolutionDir)\Build\$(Configuration)"

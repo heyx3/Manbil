@@ -6,9 +6,9 @@
 
 #include "../DebugAssist.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <AssImp\Importer.hpp>
+#include <AssImp\scene.h>
+#include <AssImp\postprocess.h>
 
 #include <iostream>
 
