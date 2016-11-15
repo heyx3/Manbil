@@ -9,7 +9,7 @@ typedef std::shared_ptr<FloatInput> FloatInputPtr;
 
 //Takes "up", "down", "left", and "right" buttons and combines them into a Vector2f
 //    in the range { -1, -1 }, { 1, 1 }.
-class FourButtonVector2Input : Vector2Input
+class FourButtonVector2Input : public Vector2Input
 {
 public:
 
@@ -29,7 +29,7 @@ protected:
 
 
 //Takes "X" and "Y" float inputs and combines them into a Vector2f in the range { -1, -1 }, { 1, 1 }.
-class TwoAxisVector2Input : Vector2Input
+class TwoAxisVector2Input : public Vector2Input
 {
 public:
 

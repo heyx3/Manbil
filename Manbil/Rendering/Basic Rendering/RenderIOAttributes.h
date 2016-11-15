@@ -22,7 +22,7 @@ public:
         unsigned int Size;
         bool IsNormalized;
         std::string Name;
-        Attribute(unsigned int size, bool isNormalized, std::string name)
+        Attribute(unsigned int size, bool isNormalized, std::string name = "")
             : Size(size), IsNormalized(isNormalized), Name(name) { }
         Attribute(void) { }
     };
@@ -49,7 +49,7 @@ public:
     const std::vector<Attribute>& GetAttributes(void) const { return attributes; }
 
     void SetAttributes(const std::vector<Attribute>& newAttributes);
-    
+
     unsigned int GetNumbAttributes(void) const { return attributes.size(); }
     const Attribute& GetAttribute(unsigned int index) const { return attributes[index]; }
 

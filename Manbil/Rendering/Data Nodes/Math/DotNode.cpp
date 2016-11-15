@@ -5,10 +5,6 @@ ADD_NODE_REFLECTION_DATA_CPP(DotNode, Vector3f(), Vector3f())
 
 
 #pragma warning(disable: 4100)
-unsigned int DotNode::GetOutputSize(unsigned int index) const
-{
-    return GetInputs()[0].GetSize();
-}
 std::string DotNode::GetOutputName(unsigned int index) const
 {
     return GetName() + "_dotted";
@@ -25,7 +21,7 @@ void DotNode::WriteMyOutputs(std::string & outCode) const
 {
     std::string vecType = VectorF(GetInputs()[0].GetSize(), 0).GetGLSLType();
 
-    outCode += "\t" + vecType + " " + GetOutputName(0) +
+    outCode += "\tfloat " + GetOutputName(0) +
                 " = dot(" + GetInputs()[0].GetValue() + ", " +
                 GetInputs()[1].GetValue() + ");\n";
 }

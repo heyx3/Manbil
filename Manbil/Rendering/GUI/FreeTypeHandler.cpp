@@ -4,7 +4,7 @@
 #include "../Textures/MTexture2D.h"
 
 
-FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
+FreeTypeHandler FreeTypeHandler::Instance;
 
 
 FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData dat,

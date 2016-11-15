@@ -144,7 +144,9 @@ private:
     mutable std::string errorMsg;
 
 
-    //Singleton constructor/destructor.
+    //This class is a singleton.
     FreeTypeHandler(void);
     ~FreeTypeHandler(void);
+    FreeTypeHandler(const FreeTypeHandler& cpy) = delete;
+    FreeTypeHandler(FreeTypeHandler&& cpy) = delete;
 };

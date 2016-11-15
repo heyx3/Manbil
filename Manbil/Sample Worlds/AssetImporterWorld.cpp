@@ -6,9 +6,9 @@
 
 #include "../DebugAssist.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <AssImp\Importer.hpp>
+#include <AssImp\scene.h>
+#include <AssImp\postprocess.h>
 
 #include <iostream>
 
@@ -110,7 +110,7 @@ void AssetImporterWorld::InitializeMaterials(void)
              fIn_WorldNormal(FragmentInputNode::GetInstance(), 2);
     DataNode::Ptr normalizedNormal(new NormalizeNode(fIn_WorldNormal));
     DataLine lightDir(Vector3f(-1.0f, -1.0f, -1.0f).Normalized()),
-             ambientLight(0.35f),
+             ambientLight(0.65f),
              diffuseLight(0.65f),
              specLight(1.0f),
              specIntensity(64.0f);
@@ -243,7 +243,9 @@ void AssetImporterWorld::OnWorldEnd(void)
 
 void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 {
-    if (cam.Update(elapsedSeconds))
+    cam.Update(elapsedSeconds);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
     {
         EndWorld();
         return;
@@ -278,7 +280,7 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
     }
 
 
-    //Each of the following code blocks performs the exact same rotation.
+    //Both of the following code blocks perform the exact same rotation.
     if (false)
     {
         objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), eulerRots.z));
@@ -320,7 +322,7 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
 
 void AssetImporterWorld::RenderOpenGL(float elapsedSeconds)
 {
-    ScreenClearer().ClearScreen();
+    ScreenClearer(true, true, false, Vector4f(1.0f, 1.0f, 1.0f, 1.0f)).ClearScreen();
     RenderingState(RenderingState::C_NONE).EnableState();
     Viewport(0, 0, windowSize.x, windowSize.y).Use();
 

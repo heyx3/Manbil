@@ -92,6 +92,7 @@ GenM GPUParticleGenerator::GenerateMaterial(GPUParticleGenerator::GPUPOuts outpu
 
     //Prepare material data to be created.
     SerializedMaterial matData;
+    DataNode::SetCurrentMaterial(&matData);
     matData.VertexInputs = ParticleVertex::GetVertexInputData();
     std::vector<ShaderOutput> &vertexOuts = matData.MaterialOuts.VertexOutputs,
                               &fragmentOuts = matData.MaterialOuts.FragmentOutputs;

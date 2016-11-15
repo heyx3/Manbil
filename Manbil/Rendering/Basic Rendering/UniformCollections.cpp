@@ -1,6 +1,6 @@
 #include "UniformCollections.h"
 
-
+#include <iostream>
 
 std::string Uniform::ToString(UniformTypes t)
 {
@@ -96,9 +96,43 @@ UniformDictionary Uniform::MakeDict(const UniformList& list)
 }
 
 
+Uniform Uniform::MakeF(const std::string& name, size_t size, const float* vals, UniformLocation loc)
+{
+    Uniform u;
+    u.Name = name;
+    u.Type = UT_VALUE_F;
+    u.Loc = loc;
+
+    memset(u.ByteData, 0, sizeof(u.ByteData));
+    switch (size)
+    {
+    case 1: u.Float().SetValue(vals[0]); break;
+    case 2: u.Float().SetValue(Vector2f(vals[0], vals[1])); break;
+    case 3: u.Float().SetValue(Vector3f(vals[0], vals[1], vals[2])); break;
+    case 4: u.Float().SetValue(Vector4f(vals[0], vals[1], vals[2], vals[3])); break;
+    default: std::cout << "ERROR: " << size << "\n";
+    }
+    //u.Float().SetValue(size, vals);
+
+    return u;
+}
+Uniform Uniform::MakeI(const std::string& name, size_t size, const int* vals, UniformLocation loc)
+{
+    Uniform u;
+    u.Name = name;
+    u.Type = UT_VALUE_I;
+    u.Loc = loc;
+
+    memset(u.ByteData, 0, sizeof(u.ByteData));
+    u.Int().SetValue(size, vals);
+
+    return u;
+}
 Uniform::Uniform(std::string name, UniformTypes t, UniformLocation loc)
     : Name(name), Type(t), Loc(loc)
 {
+    assert(Type != UT_VALUE_F && Type != UT_VALUE_I);
+
     memset(ByteData, 0, sizeof(ByteData));
 
     switch (Type)

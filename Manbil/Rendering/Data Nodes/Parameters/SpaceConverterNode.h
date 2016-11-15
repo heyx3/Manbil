@@ -88,7 +88,7 @@ private:
 
     //Asserts that the src space is "closer" to object-space than the dest space.
     //If the assert fails, sets the error message and returns false.
-    bool AssertValidSrcDestSpaces(std::string& outError) const;
+    bool AssertValidSrcDestSpaces(std::string& outErrorMsg) const;
 
     std::string ST_ToString(SpaceTypes st) const;
     std::string DT_ToString(DataTypes dt) const;

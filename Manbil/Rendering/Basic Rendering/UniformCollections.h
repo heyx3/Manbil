@@ -25,6 +25,11 @@ enum UniformTypes
 };
 
 
+struct Uniform;
+typedef std::vector<Uniform> UniformList;
+typedef std::unordered_map<std::string, Uniform> UniformDictionary;
+
+
 //A shader parameter.
 struct Uniform
 {
@@ -34,23 +39,21 @@ public:
     static UniformTypes FromString(const std::string& str);
 
     //Returns 0 if the given uniform isn't found.
-    static const Uniform* Find(const std::vector<Uniform>& uniforms, const std::string& name);
+    static const Uniform* Find(const UniformList& uniforms, const std::string& name);
     //Returns 0 if the given uniform isn't found.
-    static Uniform* Find(std::vector<Uniform>& uniforms, const std::string& name);
+    static Uniform* Find(UniformList& uniforms, const std::string& name);
     
     //Adds the uniforms in "src" to the "dest" collection.
     //Optionally overwrites uniforms that already exist.
-    static void AddUniforms(const std::unordered_map<std::string, Uniform>& src,
-                            std::unordered_map<std::string, Uniform>& dest,
+    static void AddUniforms(const UniformDictionary& src, UniformDictionary& dest,
                             bool overwriteDuplicates);
     //Adds the uniforms in "src" to the "dest" collection.
     //Optionally overwrites uniforms that already exist.
-    static void AddUniforms(const std::vector<Uniform>& src,
-                            std::unordered_map<std::string, Uniform>& dest,
+    static void AddUniforms(const UniformList& src, UniformDictionary& dest,
                             bool overwriteDuplicates);
 
-    static std::vector<Uniform> MakeList(const std::unordered_map<std::string, Uniform>& dict);
-    static std::unordered_map<std::string, Uniform> MakeDict(const std::vector<Uniform>& list);
+    static UniformList MakeList(const UniformDictionary& dict);
+    static UniformDictionary MakeDict(const UniformList& list);
 
 
     std::string Name;
@@ -74,6 +77,7 @@ public:
                    sizeof(UniformValueSubroutine) > sizeof(RenderObjHandle),
                   "UniformValueSubroutine isn't the biggest uniform value type anymore");
     
+    //Provides a reference to this uniform's byte data, casted to the expected type.
 #define ASSERT_TYPE(t) assert(Type == UT_VALUE_ ## t);
 #define ASSERT_TEX assert(Type == UT_VALUE_SAMPLER2D || Type == UT_VALUE_SAMPLER3D || Type == UT_VALUE_SAMPLERCUBE);
     VectorF& Float(void)                     { ASSERT_TYPE(F);          return *(VectorF*)ByteData; }
@@ -93,16 +97,20 @@ public:
     const UniformValueSubroutine& Subroutine(void) const { ASSERT_TYPE(SUBROUTINE); return *(UniformValueSubroutine*)ByteData; }
 #undef ASSERT_TYPE
 #undef ASSERT_TEX
+    
 
-    Uniform(void) : Uniform("", UT_VALUE_F) { }
+    //Makes a VectorF uniform.
+    static Uniform MakeF(const std::string& name, size_t size, const float* vals,
+                         UniformLocation loc = -1);
+    //Makes a VectorI uniform.
+    static Uniform MakeI(const std::string& name, size_t size, const int* vals,
+                         UniformLocation loc = -1);
+
+    //Makes an empty Matrix4f uniform.
+    Uniform(void) : Uniform("", UT_VALUE_MAT4) { }
+    //Makes any uniform except the VectorF or VectorI types.
     Uniform(std::string name, UniformTypes t, UniformLocation loc = -1);
 
 
     void GetDeclaration(std::string& outDecl) const;
 };
-
-
-typedef std::vector<Uniform> UniformList;
-
-//Uniforms indexed by their name.
-typedef std::unordered_map<std::string, Uniform> UniformDictionary;

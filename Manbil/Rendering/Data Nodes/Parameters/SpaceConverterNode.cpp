@@ -199,14 +199,14 @@ void SpaceConverterNode::ReadExtraData(DataReader* reader)
 }
 
 
-bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
+bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& outErrorMsg) const
 {
     switch (SrcSpace)
     {
         case ST_OBJECT:
             if (DestSpace == ST_OBJECT)
             {
-                errorMsg = "SrcSpace is 'object', but dest space is also 'object'!";
+                outErrorMsg = "SrcSpace is 'object', but dest space is also 'object'!";
                 return false;
             }
             else
@@ -217,7 +217,7 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
         case ST_WORLD:
             if (DestSpace != ST_SCREEN && DestSpace != ST_VIEW)
             {
-                errorMsg = "SrcSpace is 'world', but dest space isn't 'view' or 'screen'!";
+                outErrorMsg = "SrcSpace is 'world', but dest space isn't 'view' or 'screen'!";
                 return false;
             }
             else
@@ -228,7 +228,7 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
         case ST_VIEW:
             if (DestSpace != ST_SCREEN)
             {
-                errorMsg = "SrcSpace is 'view', but dest space isn't 'screen'!";
+                outErrorMsg = "SrcSpace is 'view', but dest space isn't 'screen'!";
                 return false;
             }
             else
@@ -237,11 +237,11 @@ bool SpaceConverterNode::AssertValidSrcDestSpaces(std::string& errorMsg) const
             }
 
         case ST_SCREEN:
-            errorMsg = "SrcSpace cannot be 'screen'!";
+            outErrorMsg = "SrcSpace cannot be 'screen'!";
             return false;
 
         default:
-            errorMsg = "Unknown src space " + ToString((unsigned int)SrcSpace);
+            outErrorMsg = "Unknown src space " + ToString((unsigned int)SrcSpace);
             return false;
     }
 }

@@ -27,8 +27,11 @@ CombineVectorNode::CombineVectorNode(const std::vector<DataLine> & inputs, std::
 
 void CombineVectorNode::AssertMyInputsValid(void) const
 {
-    Assert(GetInputs().size() > 0, "There aren't any elements in the output vector!");
-    Assert(GetInputs().size() < 5, "Too many elements in the output vector! Can only have up to 4, but there are " + ToString(GetInputs().size()));
+    Assert(GetInputs().size() > 0,
+           "There aren't any elements in the output vector!");
+    Assert(GetInputs().size() < 5,
+           "Too many elements in the output vector! Can only have up to 4, but there are " +
+               ToString((unsigned int)GetInputs().size()));
 }
 
 

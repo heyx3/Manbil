@@ -156,11 +156,11 @@ public:
         size = 4;
         memcpy(values, &newVal.x, sizeof(Vec4));
     }
-    void SetValue(unsigned int nComponents, ComponentType* newVal)
+    void SetValue(unsigned int nComponents, const ComponentType* newVal)
     {
         assert(nComponents <= 4);
         size = nComponents;
-        memcpy(values, &newVal, sizeof(ComponentType) * nComponents);
+        memcpy(values, newVal, sizeof(ComponentType) * nComponents);
     }
 
     std::string GetGLSLType(void) const { return GetGLSLType(size); }

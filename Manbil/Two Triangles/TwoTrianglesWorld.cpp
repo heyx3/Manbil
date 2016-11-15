@@ -84,8 +84,8 @@ void main()                              \n\
     in_UV = " + vertIns.GetAttribute(1).Name + ";\n\
 }";
     //Add any custom QuadWorld uniforms.
-    uniforms[TTW::ShaderElapsedName] = Uniform(TTW::ShaderElapsedName, UT_VALUE_F);
-    uniforms[TTW::ShaderElapsedName].Float().SetValue(0.0f);
+    float initialTimeVal = 0.0f;
+    uniforms[TTW::ShaderElapsedName] = Uniform::MakeF(TTW::ShaderElapsedName, 1, &initialTimeVal);
     uniforms[TTW::CustomSamplerName] = Uniform(TTW::CustomSamplerName, UT_VALUE_SAMPLER2D);
     uniforms[TTW::NoiseSamplerName] = Uniform(TTW::NoiseSamplerName, UT_VALUE_SAMPLER2D);
 
