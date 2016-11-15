@@ -17,7 +17,7 @@ public:
     static std::shared_ptr<DataNode> GetInstance(void) { return instance; }
 
 
-    virtual unsigned int GetNumbOutputs(void) const override { return VertexIns.GetNumbAttributes(); }
+    virtual unsigned int GetNumbOutputs(void) const override;
 
     virtual unsigned int GetOutputSize(unsigned int index) const override;
     virtual std::string GetOutputName(unsigned int index) const override;

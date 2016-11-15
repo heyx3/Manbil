@@ -38,6 +38,10 @@ public:
     MeshData(MeshData&& other) { *this = std::move(other); }
     ~MeshData(void);
 
+    MeshData(const MeshData& cpy) = delete;
+    MeshData& operator=(const MeshData& cpy) = delete;
+
+
     MeshData& operator=(MeshData&& other);
     void MoveTo(MeshData& newData);
 
@@ -53,6 +57,17 @@ public:
     
     RenderObjHandle GetVerticesHandle(void) const { return verticesHandle; }
     RenderObjHandle GetIndicesHandle(void) const { return indicesHandle; }
+
+    RenderIOAttributes GetVertexAttribute(void) const { return vertexAttributes; }
+
+
+    //Sets the range of indices to use (or vertices, if not using indices).
+    //Defaults to the entire range of available vertices/indices.
+    //Every time the vertex or index buffer is changed, this range will reset to cover all elements.
+    void SetUseRange(unsigned int _start, unsigned int _range) { start = _start; range = _range; }
+
+    unsigned int GetRangeStart(void) const { return start; }
+    unsigned int GetRangeSize(void) const { return range; }
 
 
     //The type of vertex this instance is storing.
@@ -115,6 +130,11 @@ public:
             verticesData.resize(nVertices * sizeof(VertexType));
             memcpy(verticesData.data(), newVertices, verticesData.size());
         }
+        if (!GetUsesIndices())
+        {
+            start = 0;
+            range = nVertices;
+        }
 
         currentVHandle = verticesHandle;
         glBindBuffer(GL_ARRAY_BUFFER, verticesHandle);
@@ -125,6 +145,7 @@ public:
     void SetIndexData(const std::vector<unsigned int>& newIndices, BufferUsageFrequency usage);
     //Sets this instance's index data to a new set of indices.
     void SetIndexData(const unsigned int* newIndices, unsigned int _nIndices, BufferUsageFrequency usage);
+
 
     //Removes this data's indices if they exist. Returns whether they existed.
     bool RemoveIndexData(void);
@@ -143,13 +164,12 @@ private:
 
     RenderIOAttributes vertexAttributes;
 
+    unsigned int start = 0,
+                 range = 0;
+
     bool storesData;
     std::vector<unsigned char> verticesData;
     std::vector<unsigned int> indicesData;
-
-
-    MeshData(const MeshData& cpy) = delete;
-    MeshData& operator=(const MeshData& cpy) = delete;
 
 
     //The currently-bound data handles.

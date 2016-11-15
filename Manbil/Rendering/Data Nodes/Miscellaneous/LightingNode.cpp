@@ -1,7 +1,7 @@
 #include "LightingNode.h"
 
 
-ADD_NODE_REFLECTION_DATA_CPP(LightingNode, Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), "", 0.0f, 0.0f, 0.0f, 0.0f, Vector3f())
+ADD_NODE_REFLECTION_DATA_CPP(LightingNode, Vector3f(), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, -1.0f), 0.0f, 0.0f, 0.0f, 0.0f, Vector3f())
 
 
 #pragma warning(disable: 4100)
@@ -16,9 +16,11 @@ std::string LightingNode::GetOutputName(unsigned int index) const
 #pragma warning(default: 4100)
 
 
-LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal, const DataLine & lightDir,
-                           std::string name, DataLine ambient, DataLine diffuse,
-                           DataLine specular, DataLine specIntensity, DataLine camPos)
+LightingNode::LightingNode(const DataLine & surfaceWorldPos, const DataLine & surfaceWorldNormal,
+                           const DataLine & lightDir,
+                           DataLine ambient, DataLine diffuse,
+                           DataLine specular, DataLine specIntensity,
+                           DataLine camPos, std::string name)
     : DataNode(MakeInputVector(ambient, diffuse, specular, specIntensity,
                                camPos, surfaceWorldPos, surfaceWorldNormal, lightDir), name)
 {

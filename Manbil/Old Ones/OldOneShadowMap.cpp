@@ -6,20 +6,20 @@
 
 ShaderGenerator::GeneratedMaterial GenMat(bool useUV, bool useNormalMapping)
 {
-    DataNode::ClearMaterialData();
+    SerializedMaterial matData;
 
-    DataNode::VertexIns = WorldObject::GetVertexInputs(useUV, useNormalMapping);
+    matData.VertexInputs = WorldObject::GetVertexInputs(useUV, useNormalMapping);
 
     DataLine vIn_Pos = DataLine(VertexInputNode::GetInstance(), 0);
 
     //Output screen position.
     DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+    matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
 
     DataNode::Ptr depthOut(new CustomExpressionNode("gl_FragCoord.z", 1, "outDepth"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fragmentDepth", depthOut));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fragmentDepth", depthOut));
 
-    return ShaderGenerator::GenerateMaterial(UniformDictionary(), BlendMode::GetOpaque());
+    return ShaderGenerator::GenerateMaterial(matData, UniformDictionary(), BlendMode::GetOpaque());
 }
 
 OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worldObjects,

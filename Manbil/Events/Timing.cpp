@@ -11,7 +11,7 @@ bool Timer::Update(float timeElapsed)
 
     if (TimeLeft <= 0.0f)
     {
-        for (int i = 0; i < ToNotify.size(); ++i)
+        for (unsigned int i = 0; i < ToNotify.size(); ++i)
             ToNotify[i]->OnTimerEvent(EventID, pArgs);
         return true;
     }
@@ -22,7 +22,8 @@ unsigned int TimerManager::UpdateTimers(float elapsedTime)
 {
     //Update timers.
     unsigned int count = 0;
-    for (int i = 0; i < timers.size(); ++i)
+    int nTimers = (int)timers.size();
+    for (int i = 0; i < nTimers; ++i)
     {
         if (timers[i].T.Update(elapsedTime))
         {

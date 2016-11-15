@@ -66,12 +66,18 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
             dp_tsc_h_p[i].x = 0.001f;
             sXY_sp[i].z = 0.001f;
         }
-        Params.FloatArrays[WaterNode::UniformName_DP_TSC_H_P] =
-                    UniformValueArrayF(&(dp_tsc_h_p[0][0]), maxRipples, 4,
-                                       WaterNode::UniformName_DP_TSC_H_P);
-        Params.FloatArrays[WaterNode::UniformName_sXY_SP] =
-                    UniformValueArrayF(&(sXY_sp[0][0]), maxRipples, 3,
-                                       WaterNode::UniformName_sXY_SP);
+
+        //Set up both params for ripple simulation with their default values.
+
+        Params[WaterNode::UniformName_DP_TSC_H_P] = Uniform(WaterNode::UniformName_DP_TSC_H_P,
+                                                            UT_VALUE_F_ARRAY);
+        Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray() =
+            UniformValueArrayF(&(dp_tsc_h_p[0][0]), maxRipples, 4);
+
+        Params[WaterNode::UniformName_sXY_SP] = Uniform(WaterNode::UniformName_sXY_SP,
+                                                        UT_VALUE_F_ARRAY);
+        Params[WaterNode::UniformName_sXY_SP].FloatArray() =
+            UniformValueArrayF(&(sXY_sp[0][0]), maxRipples, 3);
     }
 
     //Set up flows.
@@ -85,10 +91,15 @@ Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
             f_a_p[i] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
             tsc[i] = 0.0f;
         }
-        Params.FloatArrays[WaterNode::UniformName_F_A_P] =
-                    UniformValueArrayF(&f_a_p[0][0], maxFlows, 4, WaterNode::UniformName_F_A_P);
-        Params.FloatArrays[WaterNode::UniformName_TSC] =
-                    UniformValueArrayF(tsc, maxFlows, 1, WaterNode::UniformName_TSC);
+
+        //Set up both params for flow simulation with their default values.
+
+        Params[WaterNode::UniformName_F_A_P] = Uniform(WaterNode::UniformName_F_A_P, UT_VALUE_F_ARRAY);
+        Params[WaterNode::UniformName_F_A_P].FloatArray() = UniformValueArrayF(&f_a_p[0][0],
+                                                                                   maxFlows, 4);
+
+        Params[WaterNode::UniformName_TSC] = Uniform(WaterNode::UniformName_TSC, UT_VALUE_F_ARRAY);
+        Params[WaterNode::UniformName_TSC].FloatArray() = UniformValueArrayF(tsc, maxFlows, 1);
     }
 }
 Water::~Water(void)
@@ -229,17 +240,17 @@ void Water::SetMaterial(Material* mat)
     const UniformList& matArr = mat->GetUniforms();
     if (maxRipples > 0)
     {
-        Params.FloatArrays[WaterNode::UniformName_DP_TSC_H_P].Location =
-            matArr.FindUniform(WaterNode::UniformName_DP_TSC_H_P).Loc;
-        Params.FloatArrays[WaterNode::UniformName_sXY_SP].Location =
-            matArr.FindUniform(WaterNode::UniformName_sXY_SP).Loc;
+        Params[WaterNode::UniformName_DP_TSC_H_P].Loc =
+            Uniform::Find(matArr, WaterNode::UniformName_DP_TSC_H_P)->Loc;
+        Params[WaterNode::UniformName_sXY_SP].Loc =
+            Uniform::Find(matArr, WaterNode::UniformName_sXY_SP)->Loc;
     }
     if (maxFlows > 0)
     {
-        Params.FloatArrays[WaterNode::UniformName_F_A_P].Location =
-            matArr.FindUniform(WaterNode::UniformName_F_A_P).Loc;
-        Params.FloatArrays[WaterNode::UniformName_TSC].Location =
-            matArr.FindUniform(WaterNode::UniformName_TSC).Loc;
+        Params[WaterNode::UniformName_F_A_P].Loc =
+            Uniform::Find(matArr, WaterNode::UniformName_F_A_P)->Loc;
+        Params[WaterNode::UniformName_TSC].Loc =
+            Uniform::Find(matArr, WaterNode::UniformName_TSC)->Loc;
     }
 }
 
@@ -289,14 +300,12 @@ void Water::UpdateMeshUniforms(void)
 {
     if (maxRipples > 0)
     {
-        Params.FloatArrays[WaterNode::UniformName_DP_TSC_H_P].SetData(&(dp_tsc_h_p[0][0]),
-                                                                      maxRipples, 4);
-        Params.FloatArrays[WaterNode::UniformName_sXY_SP].SetData(&(sXY_sp[0][0]),
-                                                                  maxRipples, 3);
+        Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray().SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
+        Params[WaterNode::UniformName_sXY_SP].FloatArray().SetData(&(sXY_sp[0][0]), maxRipples, 3);
     }
     if (maxFlows > 0)
     {
-        Params.FloatArrays[WaterNode::UniformName_F_A_P].SetData(&f_a_p[0][0], maxFlows, 4);
-        Params.FloatArrays[WaterNode::UniformName_TSC].SetData(tsc, maxFlows, 1);
+        Params[WaterNode::UniformName_F_A_P].FloatArray().SetData(&(f_a_p[0][0]), maxFlows, 4);
+        Params[WaterNode::UniformName_TSC].FloatArray().SetData(tsc, maxFlows, 1);
     }
 }

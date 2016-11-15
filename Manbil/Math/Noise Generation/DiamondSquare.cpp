@@ -1,14 +1,11 @@
 #include "DiamondSquare.h"
 
-#include <queue>
-#include <math.h>
+#include <vector>
 #include <assert.h>
 
 
-int DiamondSquare::NOISE_IS_BAD_SIZE_EXCEPTION = 1;
-
-
-void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interval * variances, Noise2D & noise) const
+void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft,
+                                     Interval* variances, Noise2D& noise) const
 {
     assert(size > 0);
 
@@ -85,41 +82,20 @@ void DiamondSquare::IterateAlgorithm(unsigned int size, Vector2u topLeft, Interv
 		IterateAlgorithm(size, m, variances, noise);
 	}
 }
-void DiamondSquare::Generate(Noise2D & noise) const
+void DiamondSquare::Generate(Noise2D& noise) const
 {
+    assert(noise.GetWidth() == noise.GetHeight());
+
 	unsigned int noiseSize = noise.GetWidth();
 
 
-	//Make sure the noise array is a square.
-	if (noise.GetWidth() != noise.GetHeight())
-	{
-		throw NOISE_IS_BAD_SIZE_EXCEPTION;
-	}
-	//Make sure the noise array is of size (2^n) + 1.
-	unsigned int pow2 = 0;
-    unsigned int powValue;
-	for (pow2 = 0; ; ++pow2)
-	{
-		powValue = Mathf::IntPow(2, pow2);
-
-		if (noiseSize == (powValue + 1))
-		{
-			break;
-		}
-		if (noiseSize < (powValue + 1))
-		{
-			throw NOISE_IS_BAD_SIZE_EXCEPTION;
-		}
-	}
-
-
-	//Create an array representing the random variances.
+	//Create the step sizes for each level.
 	std::vector<Interval> variances;
 	unsigned int uses = 0;
-	DiamondSquareStep * temp = 0;
-	for (unsigned int i = 0; i < NumbForcedVariances; ++i)
+	DiamondSquareStep* temp = 0;
+	for (unsigned int i = 0; i < NumbVariances; ++i)
 	{
-		temp = &ForcedVariances[i];
+		temp = &Variances[i];
 		uses = 0;
 
 		while (uses < temp->Iterations)
@@ -128,7 +104,7 @@ void DiamondSquare::Generate(Noise2D & noise) const
 			uses += 1;
 		}
 	}
-	//If there aren't enough variances, add the default variance.
+	//If there aren't enough hard-coded variances, add the default variance.
 	unsigned int steps = (unsigned int)Mathf::RoundToInt(Mathf::Log(noiseSize, 2.0f)) + 1;
 	for (unsigned int i = steps - variances.size(); i > 0; --i)
 		variances.insert(variances.end(), DefaultVariance);

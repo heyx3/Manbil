@@ -19,14 +19,14 @@ PostProcessing::PostProcessing(Vector2u windowSize, std::string& err)
         //Vertex shader and beginning of fragment shader will generally be the same
         //    for every post-process pass.
 
-        DataNode::ClearMaterialData();
-        DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+        SerializedMaterial serMat;
+        serMat.VertexInputs = DrawingQuad::GetVertexInputData();
 
         DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
                  vIn_UV(VertexInputNode::GetInstance(), 1);
         DataNode::Ptr vOut_Pos(new CombineVectorNode(vIn_Pos, 1.0f, "vOutPos"));
-        DataNode::MaterialOuts.VertexPosOutput = vOut_Pos;
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
+        serMat.MaterialOuts.VertexPosOutput = vOut_Pos;
+        serMat.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
 
         DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
         DataNode::Ptr colSampler(new TextureSample2DNode(fIn_UV, colTexUniformName, "colTex")),
@@ -58,12 +58,12 @@ PostProcessing::PostProcessing(Vector2u windowSize, std::string& err)
 
         //Finalize the material.
         DataNode::Ptr finalRGBA(new CombineVectorNode(finalColor, 1.0f, "finalColor"));
-        DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalRGBA));
+        serMat.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalRGBA));
 
         //Compile the material.
         ppParams.push_back(UniformDictionary());
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(ppParams[i], BlendMode::GetTransparent());
+            ShaderGenerator::GenerateMaterial(serMat, ppParams[i], BlendMode::GetTransparent());
         if (!genM.ErrorMessage.empty())
         {
             err = genM.ErrorMessage;
@@ -124,22 +124,22 @@ RenderObjHandle PostProcessing::Render(float seconds, ProjectionInfo projInfo,
     for (unsigned int i = 0; i < ppMats.size(); ++i)
     {
         //Set up the render target to use and textures to read from.
-        ppParams[i].Texture2Ds[depthTexUniformName].Texture = depth;
+        ppParams[i][depthTexUniformName].Tex() = depth;
         if (toUse == 0)
         {
             toUse = rt1;
-            ppParams[i].Texture2Ds[colTexUniformName].Texture = col;
+            ppParams[i][colTexUniformName].Tex() = col;
         }
         else if (toUse == rt1)
         {
             toUse = rt2;
-            ppParams[i].Texture2Ds[colTexUniformName].Texture =
+            ppParams[i][colTexUniformName].Tex() =
                 rt1->GetColorTextures()[0].MTex->GetTextureHandle();
         }
         else
         {
             toUse = rt1;
-            ppParams[i].Texture2Ds[colTexUniformName].Texture =
+            ppParams[i][colTexUniformName].Tex() =
                 rt2->GetColorTextures()[0].MTex->GetTextureHandle();
         }
 

@@ -5,27 +5,56 @@
 
 Box2D GUITexture::GetBounds(void) const
 {
-    Vector2f dims;
+    Vector2f dims = GetScale();
     if (tex != 0)
     {
-        dims = ToV2f(Vector2u(tex->GetWidth(), tex->GetHeight()));
-        dims.MultiplyComponents(GetScale());
+        if (rotation == 0.0f)
+        {
+            dims = ToV2f(Vector2u(tex->GetWidth(), tex->GetHeight()));
+            dims.MultiplyComponents(GetScale());
+        }
+        else
+        {
+            float diameter = 2.0f * ToV2f(Vector2u(tex->GetWidth(), tex->GetHeight())).Length();
+            dims = Vector2f(diameter, diameter);
+        }
     }
 
     return Box2D(Vector2f(), dims);
 }
 
+
+void GUITexture::SetRotation(float r)
+{
+    DidBoundsChange = DidBoundsChange || ((r == 0.0f) != (rotation == 0.0f));
+    rotation = r;
+}
+
 #pragma warning(disable: 4100)
 void GUITexture::Render(float elapsed, const RenderInfo& info)
 {
-    if (tex == 0 || Mat == 0)
+    if (Mat == 0)
     {
         return;
     }
 
+    if (tex == 0)
+    {
+        auto findParam = Params.find(GUIMaterials::QuadDraw_Texture2D);
+        if (findParam != Params.end())
+        {
+            findParam->second.Tex() = INVALID_RENDER_OBJ_HANDLE;
+        }
+    }
+    else
+    {
+        Params[GUIMaterials::QuadDraw_Texture2D].Tex() = tex->GetTextureHandle();
+    }
+
     SetUpQuad();
-    Params.Texture2Ds[GUIMaterials::QuadDraw_Texture2D].Texture = tex->GetTextureHandle();
+    DrawingQuad::GetInstance()->Rotate(rotation);
     GetQuad()->Render(info, Params, *Mat);
+    DrawingQuad::GetInstance()->SetRotation(0.0f);
 }
 #pragma warning(default: 4100)
 

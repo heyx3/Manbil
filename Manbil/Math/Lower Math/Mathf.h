@@ -25,7 +25,7 @@ public:
     //   1) Can be constructed with a given initial value of 0.
     //   2) Defines operators "<" and "-".
     template <typename T>
-    //Computes the sign (-1, 0, or 1) of a value without any branching.
+    //Computes the sign (-1, 0, or 1) of a value.
     static int Sign(T val) { return (T(0) < val) - (val < T(0)); }
 
     //Computes the absolute value of the given integer.

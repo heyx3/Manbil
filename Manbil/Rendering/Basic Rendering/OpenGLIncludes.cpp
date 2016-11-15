@@ -108,6 +108,47 @@ unsigned int PrimitiveTypeToNVertices(PrimitiveTypes t)
             return 0;
     }
 }
+std::string PrimitiveTypeToString(PrimitiveTypes primType)
+{
+    switch (primType)
+    {
+        case PT_POINTS: return "Points";
+        case PT_LINE_LIST: return "Line List";
+        case PT_LINE_STRIP: return "Line Strip";
+        case PT_TRIANGLE_LIST: return "Triangle List";
+        case PT_TRIANGLE_STRIP: return "Triangle Strip";
+        default:
+            assert(false);
+            return "";
+    }
+}
+PrimitiveTypes PrimitiveTypeFromString(std::string primType)
+{
+    if (primType == "Points")
+    {
+        return PT_POINTS;
+    }
+    else if (primType == "Line List")
+    {
+        return PT_LINE_LIST;
+    }
+    else if (primType == "Line Strip")
+    {
+        return PT_LINE_STRIP;
+    }
+    else if (primType == "Triangle List")
+    {
+        return PT_TRIANGLE_LIST;
+    }
+    else if (primType == "Triangle Strip")
+    {
+        return PT_TRIANGLE_STRIP;
+    }
+    else
+    {
+        return PT_POINTS;
+    }
+}
 
 GLenum TextureTypeToGLEnum(TextureTypes t)
 {
@@ -150,5 +191,36 @@ GLenum ShaderTypeToGLEnum(Shaders sh)
         default:
             assert(false);
             return GL_INVALID_ENUM;
+    }
+}
+
+std::string ShaderTypeToString(Shaders sh)
+{
+    switch (sh)
+    {
+        case SH_VERTEX: return "Vertex";
+        case SH_FRAGMENT: return "Fragment";
+        case SH_GEOMETRY: return "Geometry";
+        default: assert(false); return "";
+    }
+}
+Shaders ShaderTypeFromString(std::string sh)
+{
+    if (sh == "Vertex")
+    {
+        return SH_VERTEX;
+    }
+    else if (sh == "Fragment")
+    {
+        return SH_FRAGMENT;
+    }
+    else if (sh == "Geometry")
+    {
+        return SH_GEOMETRY;
+    }
+    else
+    {
+        assert(false);
+        return SH_GEOMETRY;
     }
 }

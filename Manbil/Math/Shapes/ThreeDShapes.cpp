@@ -587,7 +587,6 @@ Cube::RayTraceResult Cube::RayHitCheck(Vector3f rayStart, Vector3f rayDir) const
 {
     typedef Geometryf::PointOnLineAtValueResult<Vector3f> PointOnFaces;
 
-    Vector3f center = Bounds.GetCenter();
     Interval dInts[3] = { Bounds.GetXInterval(), Bounds.GetYInterval(), Bounds.GetZInterval() };
 
     //Get the closest x, y, and z faces. If the vector is pointing parallel to a face,

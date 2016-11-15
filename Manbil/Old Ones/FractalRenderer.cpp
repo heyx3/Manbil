@@ -121,7 +121,7 @@ void FractalRenderer::Render(const OldOneEditableData& data, bool isShadow, Rend
                    RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Finally, render the quad.
-    std::cout << params.Floats.find("u_oldOne_roundness")->second.Value[0] << "\n";
+    std::cout << params.find("u_oldOne_roundness")->second.Float().GetValue()[0] << "\n";
     DrawingQuad::GetInstance()->Render(info, params, (isShadow ? *mat : *matShadow));
     
 
@@ -217,15 +217,16 @@ uniform float u_oldOne_spikyRight;\n\
 
 
     //Compile the material.
-    params.Floats["u_oldOne_pos"].Name = "u_oldOne_pos";
-    params.Floats["u_oldOne_size"].Name = "u_oldOne_size";
-    params.Floats["u_oldOne_power"].Name = "u_oldOne_power";
-    params.Floats["u_oldOne_color1"].Name = "u_oldOne_color1";
-    params.Floats["u_oldOne_color2"].Name = "u_oldOne_color2";
-    params.Floats["u_oldOne_spikyLeft"].Name = "u_oldOne_spikyLeft";
-    params.Floats["u_oldOne_spikyRight"].Name = "u_oldOne_spikyRight";
-    params.Floats["u_oldOne_roundness"].Name = "u_oldOne_roundness";
-    params.Floats["u_oldOne_angriness"].Name = "u_oldOne_angriness";
+    Vector4f zero(0.0f, 0.0f, 0.0f, 0.0f);
+    params["u_oldOne_pos"] = Uniform::MakeF("u_oldOne_pos", 3, &zero.x);
+    params["u_oldOne_size"] = Uniform::MakeF("u_oldOne_size", 1, &zero.x);
+    params["u_oldOne_power"] = Uniform::MakeF("u_oldOne_power", 1, &zero.x);
+    params["u_oldOne_color1"] = Uniform::MakeF("u_oldOne_color1", 3, &zero.x);
+    params["u_oldOne_color2"] = Uniform::MakeF("u_oldOne_color2", 3, &zero.x);
+    params["u_oldOne_spikyLeft"] = Uniform::MakeF("u_oldOne_spikyLeft", 1, &zero.x);
+    params["u_oldOne_spikyRight"] = Uniform::MakeF("u_oldOne_spikyRight", 1, &zero.x);
+    params["u_oldOne_roundness"] = Uniform::MakeF("u_oldOne_roundness", 1, &zero.x);
+    params["u_oldOne_angriness"] = Uniform::MakeF("u_oldOne_angriness", 1, &zero.x);
     
     SetFractalPos(Vector3f(140.278f, 20.134f, 20.772f));
     SetFractalSize(3.0f);
@@ -244,15 +245,15 @@ uniform float u_oldOne_spikyRight;\n\
 
 Vector3f FractalRenderer::GetFractalPos(void) const
 {
-    return *(Vector3f*)&params.Floats.find("u_oldOne_pos")->second.Value;
+    return *(Vector3f*)params.find("u_oldOne_pos")->second.Float().GetValue();
 }
 float FractalRenderer::GetFractalSize(void) const
 {
-    return params.Floats.find("u_oldOne_size")->second.Value[0];
+    return params.find("u_oldOne_size")->second.Float().GetValue()[0];
 }
 float FractalRenderer::GetFractalPower(void) const
 {
-    return params.Floats.find("u_oldOne_power")->second.Value[0];
+    return params.find("u_oldOne_power")->second.Float().GetValue()[0];
 }
 
 bool FractalRenderer::IsEditable(void) const
@@ -262,31 +263,31 @@ bool FractalRenderer::IsEditable(void) const
 
 void FractalRenderer::SetFractalPos(Vector3f newPos)
 {
-    params.Floats["u_oldOne_pos"].SetValue(newPos);
+    params["u_oldOne_pos"].Float() = newPos;
 }
 void FractalRenderer::SetFractalSize(float newSize)
 {
-    params.Floats["u_oldOne_size"].SetValue(newSize);
+    params["u_oldOne_size"].Float() = newSize;
 }
 void FractalRenderer::SetFractalPower(float newValue)
 {
-    params.Floats["u_oldOne_power"].SetValue(newValue);
+    params["u_oldOne_power"].Float() = newValue;
 }
 void FractalRenderer::SetFractalRoundness(float newValue)
 {
-    params.Floats["u_oldOne_roundness"].SetValue(newValue);
+    params["u_oldOne_roundness"].Float() = newValue;
 }
 void FractalRenderer::SetFractalAngriness(float newValue)
 {
-    params.Floats["u_oldOne_angriness"].SetValue(newValue);
+    params["u_oldOne_angriness"].Float() = newValue;
 }
 void FractalRenderer::SetFractalSpikyness(float left, float right)
 {
-    params.Floats["u_oldOne_spikyLeft"].SetValue(left);
-    params.Floats["u_oldOne_spikyRight"].SetValue(right);
+    params["u_oldOne_spikyLeft"].Float() = left;
+    params["u_oldOne_spikyRight"].Float() = right;
 }
 void FractalRenderer::SetFractalColor(Vector3f col1, Vector3f col2)
 {
-    params.Floats["u_oldOne_color1"].SetValue(col1);
-    params.Floats["u_oldOne_color2"].SetValue(col2);
+    params["u_oldOne_color1"].Float() = col1;
+    params["u_oldOne_color2"].Float() = col2;
 }

@@ -6,7 +6,7 @@
 
 
 //A bool input based on a mouse button.
-class MouseBoolInput : BoolInput
+class MouseBoolInput : public BoolInput
 {
 public:
 

@@ -118,6 +118,7 @@ unsigned int Vector2u::ManhattanDistance(Vector2u other) const
 {
     unsigned int dist = 0;
 
+    //These are unsigned ints, so we have to be careful to prevent going below 0.
     if (x < other.x)
         dist += (other.x - x);
     else dist += (x - other.x);
@@ -156,7 +157,8 @@ unsigned int Vector3u::DistanceSquared(Vector3u other) const
 unsigned int Vector3u::ManhattanDistance(Vector3u other) const
 {
     unsigned int dist = 0;
-
+    
+    //These are unsigned ints, so we have to be careful to prevent going below 0.
     if (x < other.x)
         dist += (other.x - x);
     else dist += (x - other.x);
@@ -202,6 +204,8 @@ unsigned int Vector4u::DistanceSquared(const Vector4u& other) const
 unsigned int Vector4u::ManhattanDistance(const Vector4u& other) const
 {
     unsigned int dist = 0;
+    
+    //These are unsigned ints, so we have to be careful to prevent going below 0.
 
     if (x < other.x)
         dist += (other.x - x);

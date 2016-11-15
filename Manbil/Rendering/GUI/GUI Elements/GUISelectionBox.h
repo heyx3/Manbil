@@ -9,6 +9,8 @@
 //A dropdown menu of string items to choose from.
 //Note that instances currently have a fixed number of items, set in the constuctor
 //    (although items can be hidden with "SetDrawEmptyItems(false)").
+//A new list of items can be created from scratch by calling "ResetItems()".
+//TODO: Now that we can add/delete slots, allow for adding/deleting items.
 class GUISelectionBox : public GUIElement
 {
 public:
@@ -55,8 +57,10 @@ public:
                     void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
                                             unsigned int itemIndex, void* pData),
                     void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                    unsigned int textRenderHeight = 0,
                     void* onOptionSelected_pData = 0, void* onDropdownToggled_pData = 0,
                     float textAnimSpeed = 1.0f);
+    virtual ~GUISelectionBox(void);
 
 
     //Gets the number of visible items (items with an empty string are not visible
@@ -79,6 +83,15 @@ public:
     //Changes the text value of an item. Returns the old text value.
     //Returns an empty string if the given item index didn't exist.
     std::string SetItem(unsigned int index, std::string newVal);
+
+    //Creates a whole new set of items. Returns whether the operation succeeded.
+    void ResetItems(const std::vector<std::string>& newItems, std::string& outErrorMsg);
+
+    //Returns whether the given item is hidden.
+    bool GetIsItemHidden(unsigned int index) const;
+    //Sets the given item to be hidden.
+    //You can also hide it by setting it to an empty string and calling "SetDrawEmptyItems(true)".
+    void SetIsItemHidden(unsigned int index, bool hide);
 
 
     //Gets whether the dropdown menu extends above or below this element.
@@ -117,12 +130,25 @@ protected:
 
 private:
 
+    //Some particular data needed to create a new GUISelectionBox.
+    struct GSBData
+    {
+        TextureSampleSettings2D textSettings;
+        bool useMips;
+        unsigned int renderHeight;
+        UniformDictionary labelRenderParams;
+        Material* labelRenderMat;
+        float textAnimSpeed;
+    };
+
+    GSBData constructorData;
+
+
     //Whether to display the options above or below this box.
     bool extendAbove;
     //Whether this box is currently open.
     bool isExtended;
-    //Whether to ignore any items that don't have any text.
-    //This can be used to "delete" an item from the collection.
+    //Whether to draw a space in the popup list for items that don't have any text.
     bool drawEmptyItems = false;
 
     //The scale of the text.
@@ -142,6 +168,8 @@ private:
     std::vector<std::string> items;
     //The labels for the text options.
     std::vector<GUILabel> itemElements;
+    //Which items should be hidden.
+    std::vector<bool> itemsHidden;
 
     //The font being used to render all the items.
     FreeTypeHandler::FontID itemFontID;

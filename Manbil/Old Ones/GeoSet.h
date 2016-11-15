@@ -1,7 +1,8 @@
 #pragma once
 
 
-#include "../IO/Serialization.h"
+#include "../IO/SerializationWrappers.h"
+
 #include "../Rendering/Textures/MTexture2D.h"
 
 

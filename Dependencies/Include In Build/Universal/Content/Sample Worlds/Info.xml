@@ -1,0 +1,611 @@
+<root>
+    <dataStructure name="World info">
+        <dataStructure name="Vertex inputs">
+            <collection name="Attributes">
+                <element index="0">
+                    <dataStructure name="0">
+                        <string name="Name" value="vIn_Pos"/>
+                        <uint name="Number of components" value="3"/>
+                        <bool name="Needs to be normalized?" value="false"/>
+                    </dataStructure>
+                </element>
+                <element index="1">
+                    <dataStructure name="1">
+                        <string name="Name" value="vIn_UV"/>
+                        <uint name="Number of components" value="2"/>
+                        <bool name="Needs to be normalized?" value="false"/>
+                    </dataStructure>
+                </element>
+                <element index="2">
+                    <dataStructure name="2">
+                        <string name="Name" value="vIn_Normal"/>
+                        <uint name="Number of components" value="3"/>
+                        <bool name="Needs to be normalized?" value="true"/>
+                    </dataStructure>
+                </element>
+            </collection>
+        </dataStructure>
+        <string name="Vertex shader" value="#version 400                                                    
+                                                                 
+layout (location = 0) in vec3 vIn_Pos;
+layout (location = 1) in vec2 vIn_UV;
+layout (location = 2) in vec3 vIn_Normal;
+                      
+                                                                 
+                                       
+                                                                 
+//Built-in uniforms.
+uniform mat4 u_matWVP;
+
+
+
+
+void main()                                                    
+{                                                              
+    gl_Position = u_matWVP * vec4(vIn_Pos, 1.0); 
+}"/>
+        <string name="Fragment shader" value="#version 400                                                    
+                                                                 
+                                        
+                                                                 
+out vec4 fOut_SurfaceColor;                                       
+                                                                 
+//Built-in uniforms.
+uniform float u_elapsed_seconds;
+
+
+
+
+void main()                                                    
+{                                                              
+    float timeLerp = 0.5 + (0.5 * sin(u_elapsed_seconds));          
+    fOut_SurfaceColor = mix(vec4(1.0, 0.0, 0.0, 1.0),          
+                            vec4(0.0, 1.0, 0.0, 1.0),          
+                            timeLerp);                         
+}"/>
+        <collection name="Vertices">
+            <element index="0">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="1">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="2">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="3">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="4">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="5">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="6">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="7">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="8">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="9">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="10">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="11">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="12">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="13">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="14">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="15">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="0.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="16">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="17">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="18">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="19">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="-1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="20">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="21">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="-1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="22">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="-1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="0.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+            <element index="23">
+                <dataStructure name="Vertex">
+                    <dataStructure name="Pos">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="UV">
+                        <float name="x" value="1.000000"/>
+                        <float name="y" value="1.000000"/>
+                    </dataStructure>
+                    <dataStructure name="Normal">
+                        <float name="x" value="0.000000"/>
+                        <float name="y" value="0.000000"/>
+                        <float name="z" value="1.000000"/>
+                    </dataStructure>
+                </dataStructure>
+            </element>
+        </collection>
+        <collection name="Indices">
+            <element index="0">
+                <uint name="Index" value="0"/>
+            </element>
+            <element index="1">
+                <uint name="Index" value="3"/>
+            </element>
+            <element index="2">
+                <uint name="Index" value="1"/>
+            </element>
+            <element index="3">
+                <uint name="Index" value="0"/>
+            </element>
+            <element index="4">
+                <uint name="Index" value="2"/>
+            </element>
+            <element index="5">
+                <uint name="Index" value="3"/>
+            </element>
+            <element index="6">
+                <uint name="Index" value="4"/>
+            </element>
+            <element index="7">
+                <uint name="Index" value="5"/>
+            </element>
+            <element index="8">
+                <uint name="Index" value="7"/>
+            </element>
+            <element index="9">
+                <uint name="Index" value="4"/>
+            </element>
+            <element index="10">
+                <uint name="Index" value="7"/>
+            </element>
+            <element index="11">
+                <uint name="Index" value="6"/>
+            </element>
+            <element index="12">
+                <uint name="Index" value="8"/>
+            </element>
+            <element index="13">
+                <uint name="Index" value="9"/>
+            </element>
+            <element index="14">
+                <uint name="Index" value="11"/>
+            </element>
+            <element index="15">
+                <uint name="Index" value="8"/>
+            </element>
+            <element index="16">
+                <uint name="Index" value="11"/>
+            </element>
+            <element index="17">
+                <uint name="Index" value="10"/>
+            </element>
+            <element index="18">
+                <uint name="Index" value="12"/>
+            </element>
+            <element index="19">
+                <uint name="Index" value="15"/>
+            </element>
+            <element index="20">
+                <uint name="Index" value="13"/>
+            </element>
+            <element index="21">
+                <uint name="Index" value="12"/>
+            </element>
+            <element index="22">
+                <uint name="Index" value="14"/>
+            </element>
+            <element index="23">
+                <uint name="Index" value="15"/>
+            </element>
+            <element index="24">
+                <uint name="Index" value="16"/>
+            </element>
+            <element index="25">
+                <uint name="Index" value="19"/>
+            </element>
+            <element index="26">
+                <uint name="Index" value="17"/>
+            </element>
+            <element index="27">
+                <uint name="Index" value="16"/>
+            </element>
+            <element index="28">
+                <uint name="Index" value="18"/>
+            </element>
+            <element index="29">
+                <uint name="Index" value="19"/>
+            </element>
+            <element index="30">
+                <uint name="Index" value="20"/>
+            </element>
+            <element index="31">
+                <uint name="Index" value="21"/>
+            </element>
+            <element index="32">
+                <uint name="Index" value="23"/>
+            </element>
+            <element index="33">
+                <uint name="Index" value="20"/>
+            </element>
+            <element index="34">
+                <uint name="Index" value="23"/>
+            </element>
+            <element index="35">
+                <uint name="Index" value="22"/>
+            </element>
+        </collection>
+    </dataStructure>
+</root>

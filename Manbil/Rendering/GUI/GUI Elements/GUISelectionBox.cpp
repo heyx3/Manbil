@@ -16,62 +16,42 @@ GSB::GUISelectionBox(TextRenderer* textRenderer, FreeTypeHandler::FontID font, V
                      void(*onOptionSelected)(GUISelectionBox* selector, const std::string& item,
                                              unsigned int itemIndex, void* pData),
                      void(*onDropdownToggled)(GUISelectionBox* selector, void* pData),
+                     unsigned int textRenderHeight,
                      void* onOptionSelected_pData, void* onDropdownToggled_pData,
                      float textAnimSpeed)
     : TextRender(textRenderer), MainBox(mainBackground), SelectionBackground(selectionBackground),
       Highlight(highlight), extendAbove(_extendAbove), isExtended(false), TextColor(textColor),
-      FontID(font), items(_items), itemFontID(font), textScale(_textScale), textSpacing(_textSpacing),
+      FontID(font), itemFontID(font), textScale(_textScale), textSpacing(_textSpacing),
       OnOptionSelected(onOptionSelected), OnOptionSelected_pData(onOptionSelected_pData),
       OnDropdownToggled(onDropdownToggled), OnDropdownToggled_pData(onDropdownToggled_pData),
       GUIElement(UniformDictionary())
 {
     //Give this selection box the time lerp param so that its color is animated.
-    Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp] =
-        UniformValueF(0.0f, GUIMaterials::DynamicQuadDraw_TimeLerp);
-
-
-    //Create one render slot for each item.
-    unsigned int firstSlotIndex = TextRender->GetNumbSlots(font);
-    unsigned int textBackWidth = (unsigned int)mainBackground.GetBounds().GetXSize();
-    TextureSampleSettings2D textFiltering(textFilterQuality, WT_CLAMP);
-    bool tryCreate = TextRender->CreateTextRenderSlots(FontID, outError,
-                                                       textBackWidth,
-                                                       TextRender->GetMaxCharacterSize(FontID).y,
-                                                       mipmappedText, textFiltering,
-                                                       items.size());
-    if (!tryCreate)
+    Params[GUIMaterials::DynamicQuadDraw_TimeLerp] = Uniform(GUIMaterials::DynamicQuadDraw_TimeLerp,
+                                                             UT_VALUE_F);
+    Params[GUIMaterials::DynamicQuadDraw_TimeLerp].Float().SetValue(0.0f);
+    
+    if (textRenderHeight == 0)
     {
-        outError = "Error creating " + std::to_string(items.size()) +
-                       " text render slots: " + outError;
-        return;
+        textRenderHeight = TextRender->GetMaxCharacterSize(FontID).y;
     }
 
 
-    //Set up the items.
-    nVisibleItems = 0;
+    constructorData.textSettings = TextureSampleSettings2D(textFilterQuality, WT_CLAMP);
+    constructorData.useMips = mipmappedText;
+    constructorData.renderHeight = textRenderHeight;
+    constructorData.labelRenderParams = textRenderParams;
+    constructorData.labelRenderMat = textRenderMat;
+    constructorData.textAnimSpeed = textAnimSpeed;
+
+    ResetItems(_items, outError);
+}
+GSB::~GUISelectionBox(void)
+{
     for (unsigned int i = 0; i < items.size(); ++i)
     {
-        //Create the label.
-        itemElements.insert(itemElements.end(),
-                            GUILabel(textRenderParams, TextRender,
-                                     TextRenderer::FontSlot(FontID, firstSlotIndex + i),
-                                     textRenderMat, textAnimSpeed,
-                                     GUILabel::HO_LEFT, GUILabel::VO_CENTER));
-        itemElements[itemElements.size() - 1].Depth = 0.0001f;
-        itemElements[itemElements.size() - 1].ScaleBy(textScale);
-
-        //Set the label text.
-        if (!itemElements[itemElements.size() - 1].SetText(items[i]))
-        {
-            outError = "Error rendering '" + items[i] + "' into a label: " + outError;
-            return;
-        }
-
-        //Calculate whether the element will be rendered in the dropdown box.
-        if (drawEmptyItems || !items[itemElements.size() - 1].empty())
-        {
-            nVisibleItems += 1;
-        }
+        bool tryD = TextRender->DeleteTextRenderSlot(itemElements[i].GetTextRenderSlot());
+        assert(tryD);
     }
 }
 
@@ -101,6 +81,25 @@ void GSB::ClearDidBoundsChangeDeep(void)
     DidBoundsChange = false;
     MainBox.DidBoundsChange = false;
     SelectionBackground.DidBoundsChange = false;
+}
+
+bool GSB::GetIsItemHidden(unsigned int i) const
+{
+    assert(i < itemsHidden.size());
+    return itemsHidden[i] || (!drawEmptyItems && items[i].empty());
+}
+void GSB::SetIsItemHidden(unsigned int i, bool hide)
+{
+    bool wasAlreadyHidden = GetIsItemHidden(i);
+    itemsHidden[i] = hide;
+    if (hide && !wasAlreadyHidden)
+    {
+        nVisibleItems -= 1;
+    }
+    else if (!hide && wasAlreadyHidden && (drawEmptyItems || !items[i].empty()))
+    {
+        nVisibleItems += 1;
+    }
 }
 
 void GSB::SetSelectedObject(unsigned int newIndex, bool raiseEvent)
@@ -134,42 +133,45 @@ void GSB::SetDrawEmptyItems(bool shouldDraw)
     DidBoundsChange = true;
     drawEmptyItems = shouldDraw;
 
-    if (drawEmptyItems)
+    nVisibleItems = 0;
+    for (unsigned int i = 0; i < items.size(); ++i)
     {
-        nVisibleItems = items.size();
-    }
-    else
-    {
-        nVisibleItems = 0;
-        for (unsigned int i = 0; i < items.size(); ++i)
+        if (GetIsItemHidden(i))
         {
-            if (!itemElements[i].GetText().empty())
-            {
-                nVisibleItems += 1;
-            }
+            nVisibleItems += 1;
         }
     }
 }
 
 std::string GSB::SetItem(unsigned int index, std::string newVal)
 {
+    bool hiddenByList = itemsHidden[index],
+         hiddenByEmpty = items[index].empty();
     std::string oldVal = items[index];
-    items[index] = newVal;
+
     if (!itemElements[index].SetText(newVal))
     {
         return "";
     }
 
-    if (!drawEmptyItems)
+    items[index] = newVal;
+
+    //See if this text change just added/removed the element from being rendered.
+    if (!drawEmptyItems && !hiddenByList)
     {
         //If the text went from empty to non-empty, we gained a visible element.
-        if (oldVal.empty() && !newVal.empty())
+        if (hiddenByEmpty && !newVal.empty())
         {
             nVisibleItems += 1;
             assert(nVisibleItems < items.size());
+
+            if (isExtended)
+            {
+                PositionSelectionBackground();
+            }
         }
         //Otherwise, if the text went from non-empty to empty, we lost a visible element.
-        else if (!oldVal.empty() && newVal.empty())
+        else if (!hiddenByEmpty && newVal.empty())
         {
             assert(nVisibleItems > 0);
             nVisibleItems -= 1;
@@ -180,14 +182,12 @@ std::string GSB::SetItem(unsigned int index, std::string newVal)
                     currentItem = (currentItem + 1) % items.size();
                 }
             }
-        }
-    }
 
-    //If one value is empty and the other not empty, and empty items aren't drawn,
-    //    then the dropdown background just changed.
-    if (isExtended && !drawEmptyItems && (oldVal.empty() != newVal.empty()))
-    {
-        PositionSelectionBackground();
+            if (isExtended)
+            {
+                PositionSelectionBackground();
+            }
+        }
     }
 
     return oldVal;
@@ -215,6 +215,60 @@ void GSB::SetIsExtended(bool _isExtended, bool raiseEvent)
     if (raiseEvent && OnDropdownToggled != 0)
     {
         OnDropdownToggled(this, OnDropdownToggled_pData);
+    }
+}
+
+void GSB::ResetItems(const std::vector<std::string>& newItems, std::string& err)
+{
+    //Clear out the current stuff.
+    for (unsigned int i = 0; i < items.size(); ++i)
+    {
+        bool tryD = TextRender->DeleteTextRenderSlot(itemElements[i].GetTextRenderSlot());
+        assert(tryD);
+    }
+    items = newItems;
+    itemElements.clear();
+    itemElements.reserve(newItems.size());
+    itemsHidden.resize(newItems.size());
+
+
+    unsigned int textBackWidth = (unsigned int)MainBox.GetBounds().GetXSize() / textScale.x;
+    nVisibleItems = 0;
+    for (unsigned int i = 0; i < items.size(); ++i)
+    {
+        itemsHidden[i] = false;
+
+        //Try to create the font slot.
+        TextRenderer::FontSlot slot = TextRender->CreateTextRenderSlot(FontID, err,
+                                                                       textBackWidth,
+                                                                       constructorData.renderHeight,
+                                                                       constructorData.useMips,
+                                                                       constructorData.textSettings);
+        if (!err.empty())
+        {
+            err = "Error creating text render slot for '" + items[i] + "': " + err;
+            return;
+        }
+
+        //Create the label.
+        itemElements.push_back(GUILabel(constructorData.labelRenderParams, TextRender, slot,
+                                        constructorData.labelRenderMat, constructorData.textAnimSpeed,
+                                        GUILabel::HO_LEFT, GUILabel::VO_CENTER));
+        itemElements[i].Depth = 0.001f;
+        itemElements[i].ScaleBy(textScale);
+
+        //Set the label text.
+        if (!itemElements[i].SetText(items[i]))
+        {
+            err = "Error rendering '" + items[i] + "' into a label: " + err;
+            return;
+        }
+
+        //Calculate whether the element will be rendered in the dropdown box.
+        if (drawEmptyItems || !items[i].empty())
+        {
+            nVisibleItems += 1;
+        }
     }
 }
 
@@ -300,7 +354,7 @@ void GSB::CustomUpdate(float elapsed, Vector2f relativeMousePos)
     for (unsigned int i = 0; i < itemElements.size(); ++i)
     {
         itemElements[i].Update(elapsed, relativeMousePos - itemElements[i].GetPos());
-        if (drawEmptyItems || !items[i].empty())
+        if (!GetIsItemHidden(i))
         {
             visibleIndices.insert(visibleIndices.end(), i);
         }
@@ -371,6 +425,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
 
         itemElements[currentItem].SetColor(TextColor);
         itemElements[currentItem].SetPosition(Vector2f(MainBox.GetBounds().GetXMin(), 0.0f));
+        itemElements[currentItem].Depth = 0.0005f;
         RenderChild(&itemElements[currentItem], elapsedTime, info);
     }
     else
@@ -383,6 +438,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
         //Calculate the position/size of the background and draw it.
         if (SelectionBackground.IsValid())
         {
+            SelectionBackground.Depth = -0.001f;
             RenderChild(&SelectionBackground, elapsedTime, info);
         }
 
@@ -391,7 +447,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
         float yIncrement = (extendAbove ? -mainBoxBounds.GetYSize() : mainBoxBounds.GetYSize()) + ySpace;
         for (unsigned int i = 0; i < itemElements.size(); ++i)
         {
-            if (!drawEmptyItems && items[i].empty())
+            if (GetIsItemHidden(i))
             {
                 continue;
             }
@@ -404,30 +460,28 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
             visibleItemIndex += 1;
 
             itemElements[i].SetColor(TextColor);
+            itemElements[i].Depth = 0.001f * (float)i;
 
             RenderChild(&itemElements[i], elapsedTime, info);
         }
 
         //Draw the highlight over the moused-over object.
         if (mousedOverItem >= 0 && Highlight.IsValid() &&
-            (drawEmptyItems || !items[mousedOverItem].empty()))
+            !GetIsItemHidden(mousedOverItem))
         {
             //Get which item in the menu it is.
             unsigned int menuIndex = (int)mousedOverItem;
-            if (!drawEmptyItems)
+            unsigned int visibleIndex = 0;
+            for (unsigned int i = 0; i < items.size(); ++i)
             {
-                unsigned int visibleIndex = 0;
-                for (unsigned int i = 0; i < items.size(); ++i)
+                if (i == (unsigned int)mousedOverItem)
                 {
-                    if (i == (unsigned int)mousedOverItem)
-                    {
-                        menuIndex = visibleIndex;
-                        break;
-                    }
-                    if (!items[i].empty())
-                    {
-                        visibleIndex += 1;
-                    }
+                    menuIndex = visibleIndex;
+                    break;
+                }
+                if (!GetIsItemHidden(i))
+                {
+                    visibleIndex += 1;
                 }
             }
 
@@ -435,7 +489,7 @@ void GSB::Render(float elapsedTime, const RenderInfo& info)
             Highlight.SetBounds(Box2D(Vector2f(mainBoxBounds.GetCenterX(),
                                                yIncrement * (float)menuIndex),
                                       Highlight.GetBounds().GetDimensions()));
-            Highlight.Depth = 0.001f;
+            Highlight.Depth = 0.02f;
 
             RenderChild(&Highlight, elapsedTime, info);
         }

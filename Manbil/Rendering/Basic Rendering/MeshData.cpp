@@ -39,11 +39,15 @@ MeshData& MeshData::operator=(MeshData&& other)
         verticesData = std::move(other.verticesData);
         indicesData = std::move(other.indicesData);
         PrimType = other.PrimType;
+        start = other.start;
+        range = other.range;
 
         other.verticesHandle = 0;
         other.indicesHandle = 0;
         other.nVertices = 0;
         other.nIndices = 0;
+        other.start = 0;
+        other.range = 0;
     }
 
     return *this;
@@ -120,6 +124,9 @@ void MeshData::SetIndexData(const unsigned int* newIndices, unsigned int _nIndic
         memcpy(indicesData.data(), newIndices, nIndices * sizeof(unsigned int));
     }
 
+    start = 0;
+    range = nIndices;
+
     currentIHandle = indicesHandle;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesHandle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, nIndices * sizeof(unsigned int),
@@ -141,6 +148,9 @@ bool MeshData::RemoveIndexData(void)
         nIndices = 0;
         indicesHandle = 0;
         indicesData.clear();
+
+        start = 0;
+        range = nVertices;
 
         return true;
     }

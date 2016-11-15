@@ -38,7 +38,7 @@ protected:
 
     virtual void AssertMyInputsValid(void) const override;
 
-    virtual void GetMyParameterDeclarations(UniformDictionary& outUniforms) const override;
+    virtual void GetMyParameterDeclarations(UniformList& outUniforms) const override;
     virtual void WriteMyOutputs(std::string& outCode) const override;
 
     virtual void WriteExtraData(DataWriter* writer) const override;

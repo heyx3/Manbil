@@ -64,12 +64,14 @@ EditorMaterialSet::~EditorMaterialSet(void)
 
 std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet)
 {
+    const std::string contentPath = "Content/Default Editor Content/";
+
     //Load the font.
     std::string errMsg;
-    outSet.FontID = outSet.TextRender.CreateAFont("Content/Fonts/Inconsolata.otf", errMsg, 80);
+    outSet.FontID = outSet.TextRender.CreateAFont(contentPath + "Inconsolata.otf", errMsg, 80);
     if (outSet.FontID == FreeTypeHandler::ERROR_ID)
     {
-        return "Error loading font 'Content/Fonts/Inconsolata.otf': " + errMsg;
+        return "Error loading font '" + contentPath + "Inconsolata.otf': " + errMsg;
     }
 
 
@@ -129,7 +131,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //Panel background texture.
-    greyData.Fill(0.95f);
+    greyData.Fill(0.8f);
     outSet.PanelBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                      false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.PanelBackgroundTex.SetGreyscaleData(greyData))
@@ -138,7 +140,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //SelectionBox background texture.
-    greyData.Fill(0.8f);
+    greyData.Fill(0.875f);
     outSet.SelectionBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                             false, PixelSizes::PS_8U_GREYSCALE);
     if (!outSet.SelectionBoxBackgroundTex.SetGreyscaleData(greyData))
@@ -147,7 +149,7 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
 
     //SelectionBox box texture.
-    greyData.Reset(256, 64, 0.8f);
+    greyData.Reset(512, 64, 0.875f);
     for (unsigned int x = 0; x < greyData.GetWidth(); ++x)
     {
         greyData[Vector2u(x, 0)] = 0.1f;
@@ -164,42 +166,42 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     outSet.CheckBoxBackgroundTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                         false, PixelSizes::PS_8U);
     std::string err;
-    if (!outSet.CheckBoxBackgroundTex.SetDataFromFile("Content/Textures/CheckboxBackground.png", err))
+    if (!outSet.CheckBoxBackgroundTex.SetDataFromFile(contentPath + "CheckboxBackground.png", err))
     {
-        return "Error loading 'CheckboxBackground.png' from 'Content/Textures': " + err;
+        return "Error loading 'CheckboxBackground.png' from '" + contentPath + "': " + err;
     }
 
     //Checkbox check texture.
     outSet.CheckBoxCheckTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                    false, PixelSizes::PS_8U);
-    if (!outSet.CheckBoxCheckTex.SetDataFromFile("Content/Textures/CheckboxCheck.png", err))
+    if (!outSet.CheckBoxCheckTex.SetDataFromFile(contentPath + "CheckboxCheck.png", err))
     {
-        return "Error loading 'CheckboxCheck.png' from 'Content/Textures': " + err;
+        return "Error loading 'CheckboxCheck.png' from '" + contentPath + "': " + err;
     }
 
     //"Add element" texture.
     outSet.AddToCollectionTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                      false, PixelSizes::PS_8U);
-    if (!outSet.AddToCollectionTex.SetDataFromFile("Content/Textures/AddElement.png", err))
+    if (!outSet.AddToCollectionTex.SetDataFromFile(contentPath + "AddElement.png", err))
     {
-        return "Error loading 'AddElement.png' from 'Content/Textures': " + err;
+        return "Error loading 'AddElement.png' from '" + contentPath + "': " + err;
     }
 
     //"Remove element" texture.
     outSet.DeleteFromCollectionTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP),
                                           false, PixelSizes::PS_8U);
-    if (!outSet.DeleteFromCollectionTex.SetDataFromFile("Content/Textures/RemoveElement.png", err))
+    if (!outSet.DeleteFromCollectionTex.SetDataFromFile(contentPath + "RemoveElement.png", err))
     {
-        return "Error loading 'RemoveElement.png' from 'Content/Textures': " + err;
+        return "Error loading 'RemoveElement.png' from '" + contentPath + "': " + err;
     }
 
     //Collapsible title bar texture. It's a grey texture, so convert to greyscale after loading.
     outSet.CollapsibleEditorTitleBarTex.Create(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), false,
                                                PixelSizes::PS_8U_GREYSCALE);
     Array2D<Vector4b> texCols(1, 1);
-    if (!MTexture2D::LoadImageFromFile("Content/Textures/CollapsibleTitleBar.png", texCols))
+    if (!MTexture2D::LoadImageFromFile(contentPath + "CollapsibleTitleBar.png", texCols))
     {
-        return "Error loading 'CollapsibleTitleBar.png' from 'Content/Textures'";
+        return "Error loading 'CollapsibleTitleBar.png' from '" + contentPath + "'";
     }
     Array2D<unsigned char> texGrays(texCols.GetWidth(), texCols.GetHeight());
     texGrays.FillFunc([&texCols](Vector2u loc, unsigned char* outGray) { *outGray = texCols[loc].x; });
@@ -211,12 +213,12 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
 
     //Materials.
 
-    outSet.AnimatedMatGreyParams.ClearUniforms();
-    outSet.StaticMatGreyParams.ClearUniforms();
-    outSet.AnimatedMatColParams.ClearUniforms();
-    outSet.StaticMatColParams.ClearUniforms();
-    outSet.AnimatedMatTextParams.ClearUniforms();
-    outSet.StaticMatTextParams.ClearUniforms();
+    outSet.AnimatedMatGreyParams.clear();
+    outSet.StaticMatGreyParams.clear();
+    outSet.AnimatedMatColParams.clear();
+    outSet.StaticMatColParams.clear();
+    outSet.AnimatedMatTextParams.clear();
+    outSet.StaticMatTextParams.clear();
 
     ShaderGenerator::GeneratedMaterial genM =
         GUIMaterials::GenerateStaticQuadDrawMaterial(outSet.StaticMatGreyParams,
@@ -247,7 +249,8 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     DNP lerpParam(new ParamNode(1, GUIMaterials::DynamicQuadDraw_TimeLerp, "timeLerpParam"));
     DNP lerpColor(new InterpolateNode(outSet.MaxAnimateColor, outSet.MinAnimateColor,
                                       lerpParam, InterpolateNode::IT_Linear, "lerpColor"));
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatGreyParams, GUIMaterials::TT_GREYSCALE,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatGreyParams,
+                                                         GUIMaterials::TT_GREYSCALE,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
     {
@@ -255,7 +258,8 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
     outSet.AnimatedMatGrey = genM.Mat;
 
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatColParams, GUIMaterials::TT_COLOR,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatColParams,
+                                                         GUIMaterials::TT_COLOR,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
     {
@@ -263,7 +267,8 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     }
     outSet.AnimatedMatColor = genM.Mat;
 
-    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatTextParams, GUIMaterials::TT_TEXT,
+    genM = GUIMaterials::GenerateDynamicQuadDrawMaterial(outSet.AnimatedMatTextParams,
+                                                         GUIMaterials::TT_TEXT,
                                                          Vector2f(1.0f, 1.0f), lerpColor);
     if (!genM.ErrorMessage.empty())
     {
@@ -275,6 +280,12 @@ std::string EditorMaterialSet::GenerateDefaultInstance(EditorMaterialSet& outSet
     return "";
 }
 
+TextRenderer::FontSlot EditorMaterialSet::CreateSlot(unsigned int rendSpaceWidth, std::string& err,
+                                                     FilteringTypes texQuality, bool mipmaps)
+{
+    return TextRender.CreateTextRenderSlot(FontID, err, rendSpaceWidth, TextRenderSpaceHeight,
+                                           mipmaps, TextureSampleSettings2D(texQuality, WT_CLAMP));
+}
 
 Material* EditorMaterialSet::GetAnimatedMaterial(const MTexture2D* tex) const
 {

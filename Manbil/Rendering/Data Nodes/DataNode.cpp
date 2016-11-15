@@ -19,11 +19,7 @@ unsigned int DataNode::lastID = GetDataNodeLastID();
 int DataNode::EXCEPTION_ASSERT_FAILED = 1352;
 
 const DataNode* DataNode::ExceptedNode = 0;
-
-
-MaterialOutputs DataNode::MaterialOuts = MaterialOutputs();
-GeoShaderData DataNode::GeometryShader = GeoShaderData();
-RenderIOAttributes DataNode::VertexIns = RenderIOAttributes();
+const SerializedMaterial* DataNode::currentMat = 0;
 
 Shaders DataNode::CurrentShader = SH_VERTEX;
 
@@ -161,7 +157,7 @@ void DataNode::SetFlags(MaterialUsageFlags& flags, unsigned int outputIndex) con
     SetMyFlags(flags, outputIndex);
 }
 
-void DataNode::GetParameterDeclarations(UniformDictionary& outUniforms,
+void DataNode::GetParameterDeclarations(UniformList& outUniforms,
                                         std::vector<const DataNode*>& writtenNodes) const
 {
     //Exit if this node has already been used.
@@ -306,6 +302,7 @@ void DataNode::WriteData(DataWriter* writer) const
 }
 void DataNode::ReadData(DataReader* reader)
 {
+    std::string oldName = name;
     reader->ReadString(name);
 
     //Make sure the name doesn't already belong to another node.
@@ -314,6 +311,13 @@ void DataNode::ReadData(DataReader* reader)
         reader->ErrorMessage = "A node already exists with the name '" + name + "'";
         throw DataReader::EXCEPTION_FAILURE;
     }
+    //Update the global dictionary mapping names to nodes.
+    auto tryFindOldName = DataNode_nameToNode->find(oldName);
+    if (tryFindOldName != DataNode_nameToNode->end())
+    {
+        DataNode_nameToNode->erase(tryFindOldName);
+    }
+    (*DataNode_nameToNode)[name] = this;
 
     unsigned int nInputs;
     reader->ReadUInt(nInputs);

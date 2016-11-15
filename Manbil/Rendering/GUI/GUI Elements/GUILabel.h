@@ -26,6 +26,11 @@ public:
 
     Material* RenderMat;
 
+    //If set to true, then when this label is deleted, it will delete the text slot it uses.
+    //Be careful with this! Only use it if you heap-allocated this instance; otherwise it will delete
+    //    the slot when being copied.
+    bool DeleteSlotWhenDeleted = false;
+
     
     //Starts out with no text (an empty string).
     GUILabel(const UniformDictionary& params,
@@ -34,6 +39,8 @@ public:
              Material* material = 0, float timeSpeed = 1.0f,
              HorizontalOffsets _offsetH = HO_LEFT, VerticalOffsets _offsetV = VO_TOP);
     GUILabel(void) : GUIElement(UniformDictionary()) { }
+
+    ~GUILabel(void) { if (DeleteSlotWhenDeleted) textRenderer->DeleteTextRenderSlot(textRenderSlot); }
 
 
     HorizontalOffsets GetOffsetHorz(void) const { return offsetH; }

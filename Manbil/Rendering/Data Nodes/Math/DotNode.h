@@ -8,7 +8,7 @@ class DotNode : public DataNode
 {
 public:
 
-    virtual unsigned int GetOutputSize(unsigned int index) const override;
+    virtual unsigned int GetOutputSize(unsigned int index) const override { return 1; }
     virtual std::string GetOutputName(unsigned int index) const override;
 
     DotNode(const DataLine & first, const DataLine & second, std::string name = "");

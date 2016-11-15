@@ -7,7 +7,7 @@
 //Gets the delta position of the mouse per second.
 //Optionally resets the mouse to a given position every time this input is updated.
 //NOT GUARANTEED TO STAY INSIDE THE RANGE {-1, 1}.
-class MouseDeltaVector2Input : Vector2Input
+class MouseDeltaVector2Input : public Vector2Input
 {
 public:
 

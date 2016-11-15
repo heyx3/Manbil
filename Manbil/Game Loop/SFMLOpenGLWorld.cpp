@@ -11,8 +11,8 @@
 #include "../Rendering/PostProcessing/PostProcessData.h"
 
 
-SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight, sf::ContextSettings settings)
-    : SFMLWorld(windowWidth, windowHeight, settings)
+SFMLOpenGLWorld::SFMLOpenGLWorld(int windowWidth, int windowHeight)
+    : SFMLWorld(windowWidth, windowHeight)
 {
 }
 SFMLOpenGLWorld::~SFMLOpenGLWorld(void)

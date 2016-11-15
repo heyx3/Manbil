@@ -27,9 +27,7 @@ public:
 
     GUISlider(const UniformDictionary& params,
               const GUITexture& barTex, const GUITexture& nubTex, float startingValLerp,
-              bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f)
-      : GUIElement(params, timeLerpSpeed), IsClickable(isClickable), IsVertical(isVertical),
-        Bar(barTex), Nub(nubTex), Value(startingValLerp) { }
+              bool isClickable = true, bool isVertical = false, float timeLerpSpeed = 1.0f);
     GUISlider(void) : GUISlider(UniformDictionary(), GUITexture(), GUITexture(), 0.5f) { }
     
 

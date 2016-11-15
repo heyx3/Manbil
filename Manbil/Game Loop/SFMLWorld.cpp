@@ -8,8 +8,8 @@ typedef sf::Clock Clock;
 
 
 
-SFMLWorld::SFMLWorld(int windWidth, int windHeight, sf::ContextSettings settings)
-    : contextSettings(settings), totalElapsedSeconds(0.0f), window(0),
+SFMLWorld::SFMLWorld(int windWidth, int windHeight)
+    : totalElapsedSeconds(0.0f), window(0),
       windowWidth(windWidth), windowHeight(windHeight)
 {
     window = 0;
@@ -24,6 +24,7 @@ SFMLWorld::~SFMLWorld(void)
 
 void SFMLWorld::RunWorld(void)
 {
+    contextSettings = GenerateContext();
 	window = new sf::RenderWindow(GetModeToUse(windowWidth, windowHeight),
                                   GetWindowTitle().c_str(),
                                   GetSFStyleFlags(), contextSettings);
@@ -88,4 +89,7 @@ void SFMLWorld::RunWorld(void)
 	}
 
 	OnWorldEnd();
+
+    delete window;
+    window = 0;
 }

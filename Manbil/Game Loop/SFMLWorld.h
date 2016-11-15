@@ -7,13 +7,12 @@
 
 
 
-//A basic world using SFML. Also initializes the SFGUI library upon creation.
+//A game loop using the SFML library for input and window management.
 class SFMLWorld
 {
 public:
 
-	SFMLWorld(int windWidth, int windHeight,
-              sf::ContextSettings settings = sf::ContextSettings());
+	SFMLWorld(int windWidth, int windHeight);
 	virtual ~SFMLWorld(void);
 
 	float GetTotalElapsedSeconds(void) const { return totalElapsedSeconds; }
@@ -56,7 +55,12 @@ protected:
     {
         return sf::Style::Default;
     }
-    //TODO: Make another function for the sf::Context instead of taking it via the constructor.
+    //Gets information about the rendering context.
+    //Default behavior: 16 depth bits, 0 stencil bits, no antialiasing, and version 4.3 of OpenGL.
+    virtual sf::ContextSettings GenerateContext(void)
+    {
+        return sf::ContextSettings(16, 0, 0, 4, 3);
+    }
 
 
 	virtual void InitializeWorld(void) { }

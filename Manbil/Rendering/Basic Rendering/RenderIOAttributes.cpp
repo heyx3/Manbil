@@ -8,7 +8,7 @@
 unsigned int GetIOSize(const std::vector<RenderIOAttributes::Attribute>& attrs)
 {
     unsigned int size = 0;
-    for (int i = 0; i < attrs.size(); ++i)
+    for (unsigned int i = 0; i < attrs.size(); ++i)
         size += sizeof(float) * attrs[i].Size;
     return size;
 }
@@ -26,6 +26,10 @@ unsigned int RenderIOAttributes::GetMaxAttributes(void)
 RenderIOAttributes::RenderIOAttributes(Attribute attr)
 {
     attributes.insert(attributes.end(), attr);
+
+    if (attr.Name == "")
+        attr.Name = "_val0";
+    
     ioSize = GetIOSize(attributes);
 }
 RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2)
@@ -33,6 +37,11 @@ RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2)
     attributes.reserve(2);
     attributes.insert(attributes.end(), attr1);
     attributes.insert(attributes.end(), attr2);
+
+    for (unsigned int i = 0; i < attributes.size(); ++i)
+        if (attributes[i].Name == "")
+            attributes[i].Name = std::string("_val") + std::to_string(i);
+
     ioSize = GetIOSize(attributes);
 }
 RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2, Attribute attr3)
@@ -41,6 +50,11 @@ RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2, Attribu
     attributes.insert(attributes.end(), attr1);
     attributes.insert(attributes.end(), attr2);
     attributes.insert(attributes.end(), attr3);
+
+    for (unsigned int i = 0; i < attributes.size(); ++i)
+        if (attributes[i].Name == "")
+            attributes[i].Name = std::string("_val") + std::to_string(i);
+
     ioSize = GetIOSize(attributes);
 }
 RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2,
@@ -51,6 +65,11 @@ RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2,
     attributes.insert(attributes.end(), attr2);
     attributes.insert(attributes.end(), attr3);
     attributes.insert(attributes.end(), attr4);
+
+    for (unsigned int i = 0; i < attributes.size(); ++i)
+        if (attributes[i].Name == "")
+            attributes[i].Name = std::string("_val") + std::to_string(i);
+
     ioSize = GetIOSize(attributes);
 }
 RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2, Attribute attr3,
@@ -62,11 +81,20 @@ RenderIOAttributes::RenderIOAttributes(Attribute attr1, Attribute attr2, Attribu
     attributes.insert(attributes.end(), attr3);
     attributes.insert(attributes.end(), attr4);
     attributes.insert(attributes.end(), attr5);
+
+    for (unsigned int i = 0; i < attributes.size(); ++i)
+        if (attributes[i].Name == "")
+            attributes[i].Name = std::string("_val") + std::to_string(i);
+
     ioSize = GetIOSize(attributes);
 }
 RenderIOAttributes::RenderIOAttributes(const std::vector<Attribute>& _attributes)
     : attributes(_attributes)
 {
+    for (unsigned int i = 0; i < attributes.size(); ++i)
+        if (attributes[i].Name == "")
+            attributes[i].Name = std::string("_val") + std::to_string(i);
+
     ioSize = GetIOSize(attributes); 
 }
 
@@ -77,7 +105,7 @@ bool RenderIOAttributes::operator==(const RenderIOAttributes& other) const
         return false;
     }
 
-    for (int i = 0; i < attributes.size(); ++i)
+    for (unsigned int i = 0; i < attributes.size(); ++i)
     {
         if (attributes[i].Size != other.attributes[i].Size ||
             attributes[i].IsNormalized != other.attributes[i].IsNormalized ||

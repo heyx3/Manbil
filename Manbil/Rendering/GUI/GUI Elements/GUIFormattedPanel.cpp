@@ -21,16 +21,20 @@ GUIFormatObject::GUIFormatObject(GUIElementPtr element,
 
 void GUIFormatObject::MoveObject(MovementData& data)
 {
-    Box2D bnds = Element->GetBounds();
+    Vector2f dims = Element->GetBounds().GetDimensions();
     Vector2f min = data.Pos;
 
-    Element->SetBounds(Box2D(min.x, min.x + bnds.GetXSize(),
-                             min.y, (min.y + bnds.GetYSize())));
+    Element->SetBounds(Box2D(min.x, min.x + dims.x,
+                             min.y, min.y + dims.y));
 
     if (MoveHorizontal)
-        data.Pos.x += bnds.GetXSize();
+    {
+        data.Pos.x += dims.x;
+    }
     if (MoveVertical)
-        data.Pos.y += bnds.GetYSize();
+    {
+        data.Pos.y += dims.y;
+    }
     data.Pos += SpaceAfter;
 }
 
@@ -122,6 +126,7 @@ bool GUIFormattedPanel::GetDidBoundsChangeDeep(void) const
 }
 void GUIFormattedPanel::ClearDidBoundsChangeDeep(void)
 {
+    DidBoundsChange = false;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].Element->ClearDidBoundsChangeDeep();
@@ -155,7 +160,7 @@ void GUIFormattedPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
         BackgroundTex.Update(elapsed, relativeMousePos);
     }
 
-    bool changed = false;
+    bool changed = DidBoundsChange;
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         changed = changed || objects[i].Element->GetDidBoundsChangeDeep();
@@ -217,7 +222,7 @@ void GUIFormattedPanel::RePositionElements()
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].MoveObject(moveDat);
-        Box2D bnds = objects[i].Element->GetBounds();
+        Vector2f dims = objects[i].Element->GetBounds().GetDimensions();
 
         if (objects[i].MoveHorizontal)
         {
@@ -225,7 +230,7 @@ void GUIFormattedPanel::RePositionElements()
         }
         else
         {
-            max.x = Mathf::Max(max.x, moveDat.Pos.x - objects[i].SpaceAfter.x + bnds.GetXSize());
+            max.x = Mathf::Max(max.x, moveDat.Pos.x - objects[i].SpaceAfter.x + dims.x);
         }
 
         if (objects[i].MoveVertical)
@@ -234,10 +239,8 @@ void GUIFormattedPanel::RePositionElements()
         }
         else
         {
-            max.y = Mathf::Max(max.y, moveDat.Pos.y - objects[i].SpaceAfter.y + bnds.GetYSize());
+            max.y = Mathf::Max(max.y, moveDat.Pos.y - objects[i].SpaceAfter.y + dims.y);
         }
-
-        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     //Calculate the extents and re-center the elements around the origin.
@@ -247,6 +250,7 @@ void GUIFormattedPanel::RePositionElements()
     for (unsigned int i = 0; i < objects.size(); ++i)
     {
         objects[i].Element->MoveElement(delta);
+        objects[i].Element->ClearDidBoundsChangeDeep();
     }
 
     DidBoundsChange = true;

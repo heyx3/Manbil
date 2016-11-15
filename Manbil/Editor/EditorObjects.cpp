@@ -1,7 +1,5 @@
 #include "EditorObjects.h"
 
-#include "../Rendering/GUI/GUI Elements/GUIPanel.h"
-
 
 
 CheckboxValue::CheckboxValue(EditorObject::DescriptionData description,
@@ -19,7 +17,7 @@ std::string CheckboxValue::InitGUIElement(EditorMaterialSet& materialSet)
                         materialSet.GetAnimatedMaterial(boxTex), true, materialSet.AnimateSpeed),
               checkGUITex(materialSet.GetAnimatedMatParams(checkTex), checkTex,
                           materialSet.GetAnimatedMaterial(checkTex), false, materialSet.AnimateSpeed);
-    GUICheckbox* box = new GUICheckbox(materialSet.StaticMatGreyParams, boxGUITex, checkGUITex);
+    GUICheckbox* box = new GUICheckbox(boxGUITex, checkGUITex);
 
     box->SetChecked(DefaultValue, false);
     box->OnClicked = OnBoxClicked;
@@ -43,13 +41,14 @@ std::string CheckboxValue::InitGUIElement(EditorMaterialSet& materialSet)
 
 DropdownValues::DropdownValues(const std::vector<std::string>& items, Vector2f offset,
                                EditorObject::DescriptionData description,
+                               unsigned int textRenderHeight,
                                void(*onSelected)(GUISelectionBox* dropdownBox, const std::string& item,
                                                  unsigned int index, void* pData),
                                void* onSelected_Data,
                                void(*onUpdate)(GUISelectionBox* dropdownBox, void* pData),
                                void* onUpdate_Data)
     : Items(items), OnUpdate(onUpdate), OnUpdate_Data(onUpdate_Data),
-      OnSelected(onSelected), OnSelected_Data(onSelected_Data),
+    OnSelected(onSelected), OnSelected_Data(onSelected_Data), TextRenderHeight(textRenderHeight),
       EditorObject(description, offset)
 {
 
@@ -60,11 +59,13 @@ std::string DropdownValues::InitGUIElement(EditorMaterialSet& materialSet)
                                   &materialSet.SelectionBoxBackgroundTex,
                                   materialSet.GetStaticMaterial(&materialSet.SelectionBoxBackgroundTex),
                                   false, materialSet.AnimateSpeed);
+    itemListBackground.ScaleBy(ItemBackgroundScale);
     GUITexture highlight;
     GUITexture selectedItemBox(materialSet.GetAnimatedMatParams(&materialSet.SelectionBoxBoxTex),
                                &materialSet.SelectionBoxBoxTex,
                                materialSet.GetAnimatedMaterial(&materialSet.SelectionBoxBoxTex),
                                false, materialSet.AnimateSpeed);
+    selectedItemBox.ScaleBy(ItemBackgroundScale);
     //GUISelectionBox* box = new GUISelectionBox(err, &materialSet.TextRender,
     //                                           selectedItemBox, materialSet.FontID,
     //                                           Vector2u(selectedItemBox.Tex->GetWidth(),
@@ -82,7 +83,10 @@ std::string DropdownValues::InitGUIElement(EditorMaterialSet& materialSet)
                                                true, err,
                                                Items,
                                                OnSelected, 0,
+                                               TextRenderHeight,
                                                OnSelected_Data, 0, materialSet.AnimateSpeed);
+    box->MainBox.ScaleBy(ItemBackgroundScale);
+    box->SelectionBackground.ScaleBy(ItemBackgroundScale);
     if (!err.empty())
     {
         delete box;
@@ -113,99 +117,6 @@ EditorButtonData::EditorButtonData(std::string text, MTexture2D* tex, Vector2f b
 {
 
 }
-EditorButton::EditorButton(std::string text, Vector2f size,
-                           MTexture2D* buttonTex, Vector2f offset,
-                           EditorObject::DescriptionData description,
-                           void(*onClick)(GUITexture* clicked, Vector2f localMouse, void* pData),
-                           void* onClick_Data)
-    : Text(text), ButtonSize(size), TexToUse(buttonTex),
-      OnClick(onClick), OnClick_Data(onClick_Data),
-      EditorObject(description, offset)
-{
-
-}
-std::string EditorButton::InitGUIElement(EditorMaterialSet& materialSet)
-{
-    GUIElementPtr buttonTex(0),
-                  buttonLabel(0);
-
-    if (!Text.empty())
-    {
-        //First try to create the font slot to render the label.
-        std::string err;
-        unsigned int finalRenderWidth = (unsigned int)(ButtonSize.x / materialSet.TextScale.x);
-        if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err,
-                                                          finalRenderWidth,
-                                                          materialSet.TextRenderSpaceHeight,
-                                                          false,
-                                                          TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
-        {
-            activeGUIElement = GUIElementPtr(0);
-            return "Error creating text render slot for button '" + Text + "'s label: " + err;
-        }
-        TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                         materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
-        //Next try to render the text.
-        if (!materialSet.TextRender.RenderString(labelSlot, Text))
-        {
-            return "Error render '" + Text + "' into the button's GUILabel";
-        }
-
-        //Create the label.
-        buttonLabel = GUIElementPtr(new GUILabel(materialSet.StaticMatTextParams,
-                                                 &materialSet.TextRender,
-                                                 labelSlot, materialSet.StaticMatText,
-                                                 materialSet.AnimateSpeed,
-                                                 GUILabel::HO_CENTER, GUILabel::VO_CENTER));
-        buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
-        buttonLabel->Depth = 0.01f;
-        buttonLabel->ScaleBy(materialSet.TextScale);
-    }
-    
-
-    //Create the button.
-    MTexture2D* tex = (TexToUse == 0 ? &materialSet.ButtonTex : TexToUse);
-    buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
-                                             materialSet.GetAnimatedMaterial(tex),
-                                             true, materialSet.AnimateSpeed));
-    buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(ButtonSize.x, ButtonSize.y)));
-    GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
-    buttonTexPtr->OnClicked = OnClick;
-    buttonTexPtr->OnClicked_pData = OnClick_Data;
-
-
-    //If the button has a label, create a panel to combine the label and button.
-    GUIElementPtr finalButton;
-    if (buttonLabel.get() == 0)
-    {
-        finalButton = buttonTex;
-    }
-    else
-    {
-        GUIPanel* panel = new GUIPanel();
-        panel->AddElement(buttonTex);
-        panel->AddElement(buttonLabel);
-
-        finalButton = GUIElementPtr(panel);
-    }
-
-    //If the button has a description next to it, create a panel
-    //    to combine the final button and description.
-    if (DescriptionLabel.Text.empty())
-    {
-        activeGUIElement = finalButton;
-    }
-    else
-    {
-        std::string err;
-        activeGUIElement = AddDescription(materialSet, finalButton, err);
-        if (activeGUIElement.get() == 0)
-        {
-            return "Error creating description label: " + err;
-        }
-    }
-    return "";
-}
 
 EditorButtonList::EditorButtonList(const std::vector<EditorButtonData>& buttons,
                                    DescriptionData description,
@@ -234,20 +145,17 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
             //First try to create the font slot to render the label.
             unsigned int textRenderWidth = (unsigned int)(buttonSize.x / materialSet.TextScale.x);
             std::string err;
-            if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err, textRenderWidth,
-                                                              materialSet.TextRenderSpaceHeight,
-                                                              false,
-                                                              TextureSampleSettings2D(FT_LINEAR,
-                                                                                      WT_CLAMP)))
+            TextRenderer::FontSlot labelSlot = materialSet.CreateSlot(textRenderWidth, err,
+                                                                      FT_LINEAR, false);
+            if (!err.empty())
             {
                 activeGUIElement = GUIElementPtr(0);
                 return "Error creating text render slot for button '" + dat.Text + "'s label: " + err;
             }
-            TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                             materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
             //Next try to render the text.
             if (!materialSet.TextRender.RenderString(labelSlot, dat.Text))
             {
+                materialSet.DeleteSlot(labelSlot);
                 return "Error render '" + dat.Text + "' into the button's GUILabel";
             }
 
@@ -257,6 +165,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
                                                      labelSlot, materialSet.StaticMatText,
                                                      materialSet.AnimateSpeed,
                                                      GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+            ((GUILabel*)buttonLabel.get())->DeleteSlotWhenDeleted = true;
             buttonLabel->SetColor(Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
             buttonLabel->ScaleBy(materialSet.TextScale);
         }
@@ -266,7 +175,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
         buttonTex = GUIElementPtr(new GUITexture(materialSet.GetAnimatedMatParams(tex), tex,
                                                  materialSet.GetAnimatedMaterial(tex),
                                                  true, materialSet.AnimateSpeed));
-        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(-buttonSize.x, buttonSize.y)));
+        buttonTex->SetBounds(Box2D(Vector2f(), Vector2f(buttonSize.x, buttonSize.y)));
         GUITexture* buttonTexPtr = (GUITexture*)buttonTex.get();
         buttonTexPtr->OnClicked = dat.OnClick;
         buttonTexPtr->OnClicked_pData = dat.OnClick_pData;
@@ -280,6 +189,7 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
         }
         else
         {
+            buttonLabel->Depth = 0.01f;
             GUIPanel* panel = new GUIPanel();
             panel->AddElement(buttonTex);
             panel->AddElement(buttonLabel);
@@ -310,9 +220,12 @@ std::string EditorButtonList::InitGUIElement(EditorMaterialSet& materialSet)
 }
 
 
-EditorLabel::EditorLabel(const std::string& text, unsigned int textRenderSpaceWidth,
-                         EditorObject::DescriptionData description, Vector2f offset)
-    : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth), EditorObject(description, offset)
+EditorLabel::EditorLabel(const std::string& text, unsigned int textRenderSpaceWidth, Vector2f offset,
+                         void(*onUpdate)(GUILabel* label, float elapsed, void* pData),
+                         void* onUpdate_pData)
+    : Text(text), TextRenderSpaceWidth(textRenderSpaceWidth),
+      OnUpdate(onUpdate), OnUpdate_pData(onUpdate_pData),
+      EditorObject(DescriptionData(), offset)
 {
 
 }
@@ -320,20 +233,19 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
 {
     //First try to create the font slot to render the label.
     std::string err;
-    if (!materialSet.TextRender.CreateTextRenderSlots(materialSet.FontID, err, TextRenderSpaceWidth,
-                                                      materialSet.TextRenderSpaceHeight, false,
-                                                      TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+    TextRenderer::FontSlot labelSlot = materialSet.CreateSlot(TextRenderSpaceWidth, err,
+                                                              FT_LINEAR, false);
+    if (!err.empty())
     {
         activeGUIElement = GUIElementPtr(0);
         return "Error creating text render slot for label '" + Text + "': " + err;
     }
-    TextRenderer::FontSlot labelSlot(materialSet.FontID,
-                                     materialSet.TextRender.GetNumbSlots(materialSet.FontID) - 1);
 
     //Next try to render the text into the slot.
     if (!materialSet.TextRender.RenderString(labelSlot, Text))
     {
         activeGUIElement = GUIElementPtr(0);
+        materialSet.DeleteSlot(labelSlot);
         return "Error rendering text '" + Text + "' into label slot";
     }
 
@@ -341,8 +253,19 @@ std::string EditorLabel::InitGUIElement(EditorMaterialSet& materialSet)
                                                   &materialSet.TextRender, labelSlot,
                                                   materialSet.StaticMatText, materialSet.AnimateSpeed,
                                                   GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+    ((GUILabel*)activeGUIElement.get())->DeleteSlotWhenDeleted = true;
     activeGUIElement->SetColor(materialSet.TextColor);
     activeGUIElement->ScaleBy(materialSet.TextScale);
+    
+    activeGUIElement->OnUpdate = [](GUIElement* el, float elapsed, Vector2f mouse, void* pData)
+    {
+        EditorLabel* label = (EditorLabel*)pData;
+        if (label->OnUpdate != 0)
+        {
+            label->OnUpdate((GUILabel*)el, elapsed, label->OnUpdate_pData);
+        }
+    };
+    activeGUIElement->OnUpdate_Data = this;
 
     return "";
 }
@@ -410,23 +333,23 @@ std::string EditorCollapsibleBranch::InitGUIElement(EditorMaterialSet& set)
         //First try to create the font slot to render the label.
         std::string err;
         unsigned int renderSpaceWidth = (unsigned int)((float)titleTex->GetWidth() / set.TextScale.x);
-        if (!set.TextRender.CreateTextRenderSlots(set.FontID, err, renderSpaceWidth,
-                                                  set.TextRenderSpaceHeight, false,
-                                                  TextureSampleSettings2D(FT_LINEAR, WT_CLAMP)))
+        TextRenderer::FontSlot labelSlot = set.CreateSlot(renderSpaceWidth, err, FT_LINEAR, false);
+        if (!err.empty())
         {
             return "Error creating text render slot for description '" +
                         DescriptionLabel.Text + "': " + err;
         }
-        TextRenderer::FontSlot labelSlot(set.FontID, set.TextRender.GetNumbSlots(set.FontID) - 1);
         //Next try to render the text.
         if (!set.TextRender.RenderString(labelSlot, DescriptionLabel.Text))
         {
+            set.DeleteSlot(labelSlot);
             return "Error rendering '" + DescriptionLabel.Text + "' into the description label: " + err;
         }
         //Make the label.
         GUIElementPtr label(new GUILabel(set.StaticMatTextParams, &set.TextRender,
                                          labelSlot, set.StaticMatText, set.AnimateSpeed,
                                          GUILabel::HO_CENTER, GUILabel::VO_CENTER));
+        ((GUILabel*)label.get())->DeleteSlotWhenDeleted = true;
         label->SetColor(set.CollapsibleEditorTitleTextCol);
         label->ScaleBy(set.TextScale);
         label->Depth += 0.001f;

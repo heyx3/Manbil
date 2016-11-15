@@ -32,7 +32,7 @@ public:
     static std::string GetVertexHeader(std::string outputDeclarations, const RenderIOAttributes& attribs,
                                        const MaterialUsageFlags& flags);
     //Gets everything that's needed in a geometry shader before the actual main function.
-    static std::string GetGeometryHeader(std::string outputDeclarations,
+    static std::string GetGeometryHeader(std::string inOutDeclarations,
                                          PrimitiveTypes input, PrimitiveTypes output,
                                          unsigned int maxVertices, const MaterialUsageFlags& flags);
     //Gets everything that's needed in a fragment shader before the actual main function.

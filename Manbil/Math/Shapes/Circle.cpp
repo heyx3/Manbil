@@ -47,3 +47,16 @@ unsigned int Circle::GetIntersections(Vector2f p1, Vector2f p2, Vector2f outPs[2
         }
     }
 }
+bool Circle::DoesIntersect(Vector2f p1, Vector2f p2) const
+{
+	//Transform so that this circle is at the origin.
+	p1 -= Pos;
+	p2 -= Pos;
+
+	float determinant = (p1.x * p2.y) - (p2.x * p1.y);
+	float segmentLenSqr = p1.DistanceSquared(p2);
+	float discriminant = (Radius * Radius * segmentLenSqr) -
+	                    (determinant * determinant);
+
+	return discriminant >= -0.01f;
+}

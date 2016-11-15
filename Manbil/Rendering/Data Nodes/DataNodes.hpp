@@ -1,5 +1,13 @@
 #pragma once
 
+//TODO: Add nodes for random position in sphere/box/capsule/cylinder (refer to RandomOnSphere in heyx3RT).
+//TODO: Noise nodes (simplex, linear/smooth/supersmooth, worley).
+//TODO: Length node.
+//TODO: Vector inputs for min/max node. Reference the changes to them in heyx3RT
+//TODO: Tangent node (in SimpleFunctionNodes).
+//TODO: Atan node (takes either one or two inputs, just like the GLSL func). Refer to implementation in heyx3RT.
+
+
 #include "Math/AddNode.h"
 #include "Math/ClampNode.h"
 #include "Math/CrossNode.h"

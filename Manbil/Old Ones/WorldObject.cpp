@@ -61,7 +61,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
     }
-    Params.Texture2Ds[diffTexName].Texture = DiffTex.GetTextureHandle();
+    Params[diffTexName].Tex() = DiffTex.GetTextureHandle();
     if (geoInfo.UseNormalMap)
     {
         NormalTex.Create();
@@ -70,7 +70,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
         {
             return;
         }
-        Params.Texture2Ds["u_normalTex"].Texture = NormalTex.GetTextureHandle();
+        Params["u_normalTex"].Tex() = NormalTex.GetTextureHandle();
     }
 }
 WorldObject::~WorldObject(void)
@@ -83,9 +83,9 @@ WorldObject::~WorldObject(void)
 }
 
 
-RenderIOAttributes WorldObject::GetVertexInputs(bool getUVs, bool hasNormalMaps)
+RenderIOAttributes WorldObject::GetVertexInputs(bool _getUVs, bool hasNormalMaps)
 {
-    if (getUVs)
+    if (_getUVs)
     {
         if (hasNormalMaps)
         {
@@ -120,13 +120,13 @@ RenderIOAttributes WorldObject::GetVertexInputs(bool getUVs, bool hasNormalMaps)
 }
 void WorldObject::Render(RenderInfo& info, OldOneShadowMap& shadowMap)
 {
-    Params.Matrices[lightVPMatName].Value = Matrix4f::Multiply(shadowMap.GetProjM(),
-                                                               shadowMap.GetViewM());
-    Params.Texture2Ds[lightDepthTexName].Texture = shadowMap.GetDepthTex();
+    Params[lightVPMatName].Matrix() = Matrix4f::Multiply(shadowMap.GetProjM(),
+                                                         shadowMap.GetViewM());
+    Params[lightDepthTexName].Tex() = shadowMap.GetDepthTex();
     Mat->Render(info, &MyMesh, Params);
 }
 
-std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool hasNormalMaps,
+std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, bool hasNormalMaps,
                                   MeshData& outDat)
 {
     //Load the mesh data.
@@ -158,7 +158,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
         importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have a 'position' attribute!";
     }
-    if (getUVs && !mesh->HasTextureCoords(0))
+    if (_getUVs && !mesh->HasTextureCoords(0))
     {
         importer.FreeScene();
         return "Mesh '" + meshFile + "' doesn't have a 'UV' attribute!";
@@ -183,8 +183,8 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
     }
 
     //Put the vertices into the vertex buffer.
-    RenderIOAttributes attrs = GetVertexInputs(getUVs, hasNormalMaps);
-    if (getUVs)
+    RenderIOAttributes attrs = GetVertexInputs(_getUVs, hasNormalMaps);
+    if (_getUVs)
     {
         if (hasNormalMaps)
         {
@@ -285,7 +285,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool getUVs, bool
 
 ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoInfo)
 {
-    DataNode::ClearMaterialData();
+    SerializedMaterial matData;
     
     //Figure out what vertex attributes are needed.
     RenderIOAttributes attrs = GetVertexInputs(!geoInfo.UseWorldPosUV, geoInfo.UseNormalMap);
@@ -323,14 +323,14 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
         }
     }
 
-    DataNode::VertexIns = attrs;
+    matData.VertexInputs = attrs;
 
     //Figure out what values need to be output to the fragment shader.
     DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen"),
                   worldPos = SpaceConverterNode::ObjPosToWorldPos(vIn_Pos, "objPosToWorld");
     DataNode::Ptr worldPosHorz(new SwizzleNode(worldPos, SwizzleNode::C_X, SwizzleNode::C_Y,
                                                "worldPosHorz"));
-    DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+    matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
 
     DataLine fIn_Normal(FragmentInputNode::GetInstance(), 0),
              fIn_UV(FragmentInputNode::GetInstance(), 1),
@@ -338,20 +338,20 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
              fIn_Tangent(FragmentInputNode::GetInstance(), 3),
              fIn_Bitangent(FragmentInputNode::GetInstance(), 4),
              fIn_ScreenDepth(FragDepthNode::GetInstance());
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Normal", vIn_Normal));
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Normal", vIn_Normal));
     if (geoInfo.UseWorldPosUV)
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", worldPosHorz));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", worldPosHorz));
     }
     else
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
     }
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_WorldPos", worldPos));
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_WorldPos", worldPos));
     if (geoInfo.UseNormalMap)
     {
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Tangent", vIn_Tangent));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Bitangent", vIn_Bitangent));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Tangent", vIn_Tangent));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_Bitangent", vIn_Bitangent));
     }
 
 
@@ -399,7 +399,7 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                   shadowValue(new RemapNode(depthTester, 0.0, 1.0, AmbientLight, 1.0, "shadowValue")),
 
                   brightness(new LightingNode(fIn_WorldPos, finalNormal, LightDir,
-                                              "brightnessCalc", 0.2, DiffuseLight,
+                                              0.2, DiffuseLight,
                                               geoInfo.Specular, geoInfo.SpecularIntensity));
 
 
@@ -408,11 +408,11 @@ ShaderGenerator::GeneratedMaterial WorldObject::LoadMaterial(const GeoSet& geoIn
                                               brightness, shadowValue,
                                               "finalColor"));
 
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalCol", finalColor));
 
 
     //Use either transparent or opaque blending.
-    return ShaderGenerator::GenerateMaterial(Params,
+    return ShaderGenerator::GenerateMaterial(matData, Params,
                                              geoInfo.IsTransparent ?
                                                 BlendMode::GetTransparent() :
                                                 BlendMode::GetOpaque());

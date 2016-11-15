@@ -21,7 +21,7 @@ const Vector2u GetWorldRenderSize(Vector2u windowSize)
 
 OldOnesWorld::OldOnesWorld(void)
     : windowSize(800, 800), renderSize(GetWorldRenderSize(windowSize)),
-      SFMLOpenGLWorld(800, 800, sf::ContextSettings()),
+      SFMLOpenGLWorld(800, 800),
       worldRT(0), finalRenderMat(0), ppEffects(0), oldOne(0),
       shadowMap(0), particles(0), editorGUI(0),
       worldColor(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_16U, false),
@@ -142,20 +142,20 @@ void OldOnesWorld::InitializeWorld(void)
 
 
     //Set up final render material.
-    DataNode::ClearMaterialData();
-    DataNode::VertexIns = DrawingQuad::GetVertexInputData();
+    SerializedMaterial matData;
+    matData.VertexInputs = DrawingQuad::GetVertexInputData();
     DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
              vIn_UV(VertexInputNode::GetInstance(), 1);
     DataNode::Ptr vOutPos(new CombineVectorNode(vIn_Pos, 1.0f, "vOut_Pos"));
-    DataNode::MaterialOuts.VertexPosOutput = vOutPos;
-    DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
+    matData.MaterialOuts.VertexPosOutput = vOutPos;
+    matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_UV));
     DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
     DataNode::Ptr texSampler(new TextureSample2DNode(fIn_UV, "u_tex", "texSampler"));
     DataLine texRGB(texSampler, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
     DataNode::Ptr finalColor(new CombineVectorNode(texRGB, 1.0f, "finalColorNode"));
-    DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
+    matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", finalColor));
     ShaderGenerator::GeneratedMaterial genM =
-        ShaderGenerator::GenerateMaterial(finalRenderParams, BlendMode::GetOpaque());
+        ShaderGenerator::GenerateMaterial(matData, finalRenderParams, BlendMode::GetOpaque());
     if (!genM.ErrorMessage.empty())
     {
         std::cout << "Error generating final render mat: " << genM.ErrorMessage << "\n";
@@ -165,7 +165,7 @@ void OldOnesWorld::InitializeWorld(void)
         return;
     }
     finalRenderMat = genM.Mat;
-    finalRenderParams.Texture2Ds["u_tex"].Texture = worldColor.GetTextureHandle();
+    finalRenderParams["u_tex"].Tex() = worldColor.GetTextureHandle();
 
 
     //Load world objects.
@@ -343,7 +343,7 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     //Draw world geometry.
     worldRT->EnableDrawingInto();
     RenderWorld(info);
-    worldRT->DisableDrawingInto(windowSize.x, windowSize.y);
+    worldRT->DisableDrawingInto();
 
     shadowMap->Render(GetTotalElapsedSeconds());
 
@@ -361,7 +361,7 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     Matrix4f identity;
     Camera finalRendCam;
     info = RenderInfo(GetTotalElapsedSeconds(), &finalRendCam, &identity, &identity);
-    finalRenderParams.Texture2Ds["u_tex"].Texture = finalCol;
+    finalRenderParams["u_tex"].Tex() = finalCol;
     DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
     DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
     //If the player can't control the fractal yet, don't show the editor panel.

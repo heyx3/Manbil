@@ -31,14 +31,15 @@ std::string OldOneEditableData::BuildEditorElements(std::vector<EditorObjectPtr>
     //The callback for the sliding bar as it changes just sets this instance's value.
     #define MAKE_FLOAT_BAR(itemName, minName, maxName, defaultVal, lerpPow, textName) \
         temp.reset(); \
-        temp = EditorObjectPtr(new SlidingBarFloat(minName, maxName, Vector2f(0.0f, 20.0f), \
-                                                   EditorObject::DescriptionData(#itemName, false, \
-                                                                                 20.0f, 1500U), \
-                                                   [](GUISlider* slider, float newVal, void* p) \
-                                                   { \
-                                                       *((float*)p) = newVal; \
-                                                   }, \
-                                                   defaultVal, lerpPow, &itemName)); \
+        temp = EditorObjectPtr(new SlidingBarFloat<void*>( \
+                                    minName, maxName, Vector2f(0.0f, 20.0f), \
+                                    EditorObject::DescriptionData(#itemName, false, \
+                                                                  20.0f, 1500U), \
+                                    [](GUISlider* slider, float newVal, void* p) \
+                                    { \
+                                        *((float*)p) = newVal; \
+                                    }, \
+                                    defaultVal, lerpPow, &itemName)); \
         \
         outElements.push_back(temp);
 

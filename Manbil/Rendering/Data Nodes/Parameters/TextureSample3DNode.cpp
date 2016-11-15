@@ -67,9 +67,9 @@ TextureSample3DNode::TextureSample3DNode(const DataLine & uvs, std::string sampl
 }
 
 
-void TextureSample3DNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
+void TextureSample3DNode::GetMyParameterDeclarations(UniformList& uniforms) const
 {
-    uniforms.Texture3Ds[SamplerName] = UniformValueSampler3D(SamplerName);
+    uniforms.push_back(Uniform(SamplerName, UT_VALUE_SAMPLER3D));
 }
 void TextureSample3DNode::WriteMyOutputs(std::string & outCode) const
 {

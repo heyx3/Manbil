@@ -62,7 +62,7 @@ bool WaterNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) con
 }
 
 
-void WaterNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
+void WaterNode::GetMyParameterDeclarations(UniformList& outUniforms) const
 {
     if (maxRipples > 0)
     {
@@ -75,12 +75,12 @@ void WaterNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
             sXY_sp[i] = Vector3f(0.0f, 0.0f, 0.0001f);
         }
 
-        outUniforms.FloatArrays[UniformName_DP_TSC_H_P] = UniformValueArrayF((float*)dp_tsc_h_p,
-                                                                             maxRipples, 4,
-                                                                             UniformName_DP_TSC_H_P);
-        outUniforms.FloatArrays[UniformName_sXY_SP] = UniformValueArrayF((float*)sXY_sp,
-                                                                         maxRipples, 3,
-                                                                         UniformName_sXY_SP);
+        outUniforms.push_back(Uniform(UniformName_DP_TSC_H_P, UT_VALUE_F_ARRAY));
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)dp_tsc_h_p, maxRipples, 4);
+
+        outUniforms.push_back(Uniform(UniformName_sXY_SP, UT_VALUE_F_ARRAY));
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)sXY_sp, maxRipples, 3);
+
 
         delete[] dp_tsc_h_p;
         delete[] sXY_sp;
@@ -95,11 +95,11 @@ void WaterNode::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
             tsc[i] = 0.0001f;
         }
 
-        outUniforms.FloatArrays[UniformName_F_A_P] = UniformValueArrayF((float*)fl_am_per,
-                                                                        maxFlows, 4,
-                                                                        UniformName_F_A_P);
-        outUniforms.FloatArrays[UniformName_TSC] = UniformValueArrayF(tsc, maxFlows, 1,
-                                                                      UniformName_TSC);
+        outUniforms.push_back(Uniform(UniformName_F_A_P, UT_VALUE_F_ARRAY));
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)fl_am_per, maxFlows, 4);
+
+        outUniforms.push_back(Uniform(UniformName_TSC, UT_VALUE_F_ARRAY));
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData(tsc, maxFlows, 1);
 
         delete[] fl_am_per;
         delete[] tsc;

@@ -36,13 +36,36 @@ public:
 		}
 	}
 
+    //Move semantics.
+    Array2D(Array2D&& toMove) : arrayVals(0) { *this = std::move(toMove); }
+    Array2D& operator=(Array2D&& toMove)
+    {
+        if (arrayVals != 0)
+        {
+            delete[] arrayVals;
+        }
+
+        width = toMove.width;
+        height = toMove.height;
+        arrayVals = toMove.arrayVals;
+
+        toMove.width = 0;
+        toMove.height = 0;
+        toMove.arrayVals = 0;
+
+        return *this;
+    }
+
     Array2D(void) = delete;
     Array2D(const Array2D<ArrayType>& cpy) = delete;
     Array2D & operator=(const Array2D<ArrayType>& other) = delete;
 
 	~Array2D(void)
 	{
-		delete[] arrayVals;
+        if (arrayVals != 0)
+        {
+		    delete[] arrayVals;
+        }
 	}
 
 
@@ -66,6 +89,7 @@ public:
         //Only resize if the current array does not have the same number of elements.
         if ((width * height) != (_width * _height))
         {
+            assert(arrayVals != 0);
             delete[] arrayVals;
             arrayVals = new ArrayType[_width * _height];
         }
@@ -74,10 +98,10 @@ public:
         height = _height;
 	}
     //Resets this array to the given size and initializes all elements to the given value.
-    void Reset(unsigned int _width, unsigned int _height, const ArrayType& defaultValue)
+    void Reset(unsigned int _width, unsigned int _height, const ArrayType& newValues)
 	{
 		Reset(_width, _height);
-        Fill(defaultValue);
+        Fill(newValues);
 	}
 
 
@@ -176,14 +200,14 @@ public:
 
             if (offsetLoc.y < 0)
                 continue;
-            if (offsetLoc.y >= height)
+            if (offsetLoc.y >= (int)height)
                 break;
 
             for (loc.x = 0; loc.x < toCopy.width; ++loc.x)
             {
                 offsetLoc.x = (int)loc.x + copyOffset.x;
 
-                if (offsetLoc.x >= width)
+                if (offsetLoc.x >= (int)width)
                     break;
 
                 if (offsetLoc.x >= 0)
@@ -289,8 +313,16 @@ public:
     const ArrayType* GetArray(void) const { return arrayVals; }
     //Gets a pointer to the first element in this array.
     ArrayType* GetArray(void) { return arrayVals; }
-
-    //Copies this array into the given one. Assumes it is the same size as this array.
+    
+    //Copies this array into the given one using "memcpy", which is as fast as possible.
+    //Assumes the given array is the same size as this one.
+    void MemCopyInto(ArrayType* outValues) const
+    {
+        memcpy(outValues, arrayVals, width * height * sizeof(ArrayType));
+    }
+    //Copies this array into the given one using the assignment operator for each value.
+    //Assumes it is the same size as this array.
+    //Use this instead of "MemCopyInto" if the items are too complex to just copy their byte-data over.
 	void CopyInto(ArrayType* outValues) const
 	{
         for (unsigned int i = 0; i < width * height; ++i)

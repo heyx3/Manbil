@@ -13,9 +13,6 @@ class XmlWriter : public DataWriter
 {
 public:
 
-    std::string ErrorMsg;
-
-
     XmlWriter(std::string rootNodeName = "root");
 
     
@@ -57,6 +54,9 @@ public:
     //This constructor will NOT throw an exception.
     XmlReader(const std::string& filePath);
 
+    //Loads in new XML data, resetting this reader.
+    void Reload(const std::string& filePath, std::string& outErrorMsg);
+
 
     virtual void ReadBool(bool& outB) override;
     virtual void ReadByte(unsigned char& outB) override;
@@ -67,9 +67,8 @@ public:
     virtual void ReadString(std::string& outStr) override;
     virtual void ReadBytes(std::vector<unsigned char>& outBytes) override;
 
-    virtual void ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
-                                CollectionResizer resizer, void* pCollection,
-                                void* optionalData = 0) override;
+    virtual void ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
+                                void* pCollection, void* optionalData = 0) override;
 
     virtual void ReadDataStructure(IReadable& toSerialize) override;
 

@@ -7,8 +7,7 @@
 //TODO: Create a new system on top of this one that implements a DataReader/DataWriter to create an editor panel for serialized data.
 
 
-//Provides a high-level system for creating editor panels for some data.
-//An auto-formatted editor for some kind of basic data.
+//Provides a high-level method for creating editor panels for some data.
 class EditorPanel : public GUIElement
 {
 public:
@@ -16,13 +15,7 @@ public:
     EditorMaterialSet& MaterialSet;
 
 
-    EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder)
-        : MaterialSet(set),
-          panel(horizontalBorder, verticalBorder,
-                GUITexture(set.GetStaticMatParams(&set.PanelBackgroundTex),
-                           &set.PanelBackgroundTex,
-                           set.GetStaticMaterial(&set.PanelBackgroundTex))),
-          GUIElement(UniformDictionary()) { }
+    EditorPanel(EditorMaterialSet& set, float horizontalBorder, float verticalBorder);
     
 
     const GUIFormattedPanel& GetPanel(void) const { return panel; }

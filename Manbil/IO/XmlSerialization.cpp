@@ -149,19 +149,20 @@ std::string XmlWriter::SaveData(const std::string& path)
 
 #define IMPL_WRITE_XML_DATA(dataType, dataTypeName, dataTypeString, valueToString) \
     void XmlWriter::Write ## dataTypeName(dataType value, const std::string& name) \
-{ \
-    XMLElement* child = doc.NewElement(dataTypeString); \
-    child->SetAttribute("name", name.c_str()); \
-    child->SetAttribute("value", valueToString.c_str()); \
-    currentRoot->InsertEndChild(child); \
-}
+    { \
+        XMLElement* child = doc.NewElement(dataTypeString); \
+        child->SetAttribute("name", name.c_str()); \
+        child->SetAttribute("value", valueToString.c_str()); \
+        currentRoot->InsertEndChild(child); \
+    }
 IMPL_WRITE_XML_DATA(bool, Bool, "bool", (value ? std::string("true") : std::string("false")))
-IMPL_WRITE_XML_DATA(unsigned char, Byte, "byte", std::to_string(value))
+IMPL_WRITE_XML_DATA(unsigned char, Byte, "byte", std::to_string((unsigned int)value))
 IMPL_WRITE_XML_DATA(int, Int, "int", std::to_string(value))
 IMPL_WRITE_XML_DATA(unsigned int, UInt, "uint", std::to_string(value))
 IMPL_WRITE_XML_DATA(float, Float, "float", std::to_string(value))
 IMPL_WRITE_XML_DATA(double, Double, "double", std::to_string(value))
 IMPL_WRITE_XML_DATA(const std::string&, String, "string", value)
+
 
 void XmlWriter::WriteBytes(const unsigned char* bytes, unsigned int nBytes, const std::string& name)
 {
@@ -223,12 +224,18 @@ void XmlWriter::WriteDataStructure(const IWritable& toSerialize, const std::stri
 
 XmlReader::XmlReader(const std::string& filePath)
 {
-    ErrorMessage = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
+    Reload(filePath, ErrorMessage);
+}
+void XmlReader::Reload(const std::string& filePath, std::string& err)
+{
+    doc.Clear();
+
+    err = TinyXMLErrorToString(doc.LoadFile(filePath.c_str()));
 
     currentRoot = 0;
     currentChild = 0;
 
-    if (ErrorMessage.empty())
+    if (err.empty())
     {
         //Find the root element.
         for (XMLNode* child = doc.FirstChild(); child != 0; child = child->NextSibling())
@@ -243,7 +250,7 @@ XmlReader::XmlReader(const std::string& filePath)
         //If no element was found, error.
         if (currentRoot == 0)
         {
-            ErrorMessage = "Couldn't find a root XML element in the document";
+            err = "Couldn't find a root XML element in the document";
             return;
         }
 
@@ -340,9 +347,8 @@ void XmlReader::ReadBytes(std::vector<unsigned char>& outBytes)
     HexToBytes(hexNumbers, outBytes, ErrorMessage);
 }
 
-void XmlReader::ReadCollection(ElementCreator creatorFunc, ElementReader readerFunc,
-                               CollectionResizer resizer, void* pCollection,
-                               void* optionalData)
+void XmlReader::ReadCollection(ElementReader readerFunc, CollectionResizer resizer,
+                               void* pCollection, void* optionalData)
 {
     if (currentChild == 0)
     {
@@ -371,7 +377,7 @@ void XmlReader::ReadCollection(ElementCreator creatorFunc, ElementReader readerF
     while (currentChild != 0)
     {
         //Prepare the data to be read.
-        creatorFunc(pCollection, index, optionalData);
+        resizer(pCollection, index + 1);
 
         //Try to read the data.
         currentRoot = currentChild;

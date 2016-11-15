@@ -25,9 +25,9 @@ void MDTN::AssertMyInputsValid(void) const
     Assert(GetInputs()[1].GetSize() == 1, "Depth value to test must be size 1!");
 }
 
-void MDTN::GetMyParameterDeclarations(UniformDictionary& outUniforms) const
+void MDTN::GetMyParameterDeclarations(UniformList& outUniforms) const
 {
-    outUniforms.Texture2Ds[samplerName] = UniformValueSampler2D(samplerName);
+    outUniforms.push_back(Uniform(samplerName, UniformTypes::UT_VALUE_SAMPLER2D));
 }
 void MDTN::WriteMyOutputs(std::string& outCode) const
 {

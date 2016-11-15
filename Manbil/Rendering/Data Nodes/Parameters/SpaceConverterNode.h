@@ -14,14 +14,24 @@ class SpaceConverterNode : public DataNode
 public:
 
     //A commonly-used version of this node.
-    static std::shared_ptr<DataNode> ObjPosToScreenPos(DataLine inP, std::string name = "")
+    static DataNode::Ptr ObjPosToScreenPos(DataLine inP, std::string name = "")
     {
-        return std::shared_ptr<DataNode>(new SpaceConverterNode(inP, ST_OBJECT, ST_SCREEN, DT_POSITION, name));
+        return DataNode::Ptr(new SpaceConverterNode(inP, ST_OBJECT, ST_SCREEN, DT_POSITION, name));
     }
     //A commonly-used version of this node.
-    static std::shared_ptr<DataNode> ObjPosToWorldPos(DataLine inP, std::string name = "")
+    static DataNode::Ptr ObjPosToWorldPos(DataLine inP, std::string name = "")
     {
-        return std::shared_ptr<DataNode>(new SpaceConverterNode(inP, ST_OBJECT, ST_WORLD, DT_POSITION, name));
+        return DataNode::Ptr(new SpaceConverterNode(inP, ST_OBJECT, ST_WORLD, DT_POSITION, name));
+    }
+    //A commonly-used version of this node.
+    static DataNode::Ptr ObjNormalToScreenNormal(DataLine inN, std::string name = "")
+    {
+        return DataNode::Ptr(new SpaceConverterNode(inN, ST_OBJECT, ST_SCREEN, DT_NORMAL, name));
+    }
+    //A commonly-used version of this node.
+    static DataNode::Ptr ObjNormalToWorldNormal(DataLine inN, std::string name = "")
+    {
+        return DataNode::Ptr(new SpaceConverterNode(inN, ST_OBJECT, ST_WORLD, DT_NORMAL, name));
     }
 
 
@@ -78,7 +88,7 @@ private:
 
     //Asserts that the src space is "closer" to object-space than the dest space.
     //If the assert fails, sets the error message and returns false.
-    bool AssertValidSrcDestSpaces(std::string& outError) const;
+    bool AssertValidSrcDestSpaces(std::string& outErrorMsg) const;
 
     std::string ST_ToString(SpaceTypes st) const;
     std::string DT_ToString(DataTypes dt) const;

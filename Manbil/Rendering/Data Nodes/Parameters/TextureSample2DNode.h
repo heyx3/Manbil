@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    virtual void GetMyParameterDeclarations(UniformDictionary & uniforms) const override;
+    virtual void GetMyParameterDeclarations(UniformList& uniforms) const override;
     virtual void WriteMyOutputs(std::string & outCode) const override;
     
     virtual void WriteExtraData(DataWriter* writer) const override;

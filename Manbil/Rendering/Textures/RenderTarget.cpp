@@ -139,6 +139,13 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& other)
 
 RenderTarget::~RenderTarget(void)
 {
+    //Unbind this render target if it's currently bound.
+    if (currentTarget == this)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        currentTarget = 0;
+    }
+
 	glDeleteFramebuffers(1, &frameBuffer);
     if (depthRenderBuffer != 0)
     {
@@ -178,13 +185,13 @@ bool RenderTarget::SetColorAttachment(RenderTargetTex newColorTex, bool updateDe
     rtts.insert(rtts.end(), newColorTex);
     return SetColorAttachments(rtts, updateDepthSize);
 }
-bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexes,
+bool RenderTarget::SetColorAttachments(RenderTargetTex* newColTexes, unsigned int nTexes,
                                        bool updateDepthSize)
 {
     EnableDrawingInto();
 
     //Make sure there aren't too many attachments.
-    if (newColorTexes.size() > GetMaxNumbColorAttachments())
+    if (nTexes > GetMaxNumbColorAttachments())
     {
         return false;
     }
@@ -194,10 +201,10 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
 
     //Set up each attachment.
     std::vector<GLenum> colAttachments;
-    colAttachments.reserve(newColorTexes.size());
+    colAttachments.reserve(nTexes);
     for (unsigned int i = 0; i < maxColorAttachments; ++i)
     {
-        if (i >= newColorTexes.size())
+        if (i >= nTexes)
         {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0);
         }
@@ -205,7 +212,7 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
         {
             colAttachments.insert(colAttachments.end(), GL_COLOR_ATTACHMENT0 + i);
 
-            const RenderTargetTex & tex = newColorTexes[i];
+            const RenderTargetTex& tex = newColTexes[i];
 
             if ((tex.MTex == 0 && tex.MTexCube == 0) || (tex.MTex != 0 && tex.MTexCube != 0))
             {
@@ -258,7 +265,8 @@ bool RenderTarget::SetColorAttachments(std::vector<RenderTargetTex> newColorTexe
     {
         glDrawBuffers(colAttachments.size(), colAttachments.data());
     }
-    colorTexes = newColorTexes;
+    colorTexes.resize(nTexes);
+    memcpy(colorTexes.data(), newColTexes, sizeof(RenderTargetTex) * nTexes);
 
     if (updateDepthSize)
     {
@@ -389,21 +397,20 @@ bool RenderTarget::UpdateSize(void)
     return true;
 }
 
-void RenderTarget::EnableDrawingInto(void) const
+void RenderTarget::EnableDrawingInto(Viewport v) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-    glViewport(0, 0, width, height);
+
+    v.SetAsViewport();
+    if (Viewport::IsScissorEnabled())
+        v.SetAsScissor();
+
     currentTarget = this;
 }
-void RenderTarget::DisableDrawingInto(unsigned int w, unsigned int h, bool updateMipmaps) const
+void RenderTarget::DisableDrawingInto(bool updateMipmaps) const
 {
     currentTarget = 0;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    if (w != 0 && h != 0)
-    {
-        glViewport(0, 0, w, h);
-    }
 
     if (updateMipmaps)
     {

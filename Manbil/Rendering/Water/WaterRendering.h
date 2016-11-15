@@ -40,7 +40,7 @@ protected:
     virtual bool UsesInput(unsigned int inputIndex) const override;
     virtual bool UsesInput(unsigned int inputIndex, unsigned int outputIndex) const override;
 
-    virtual void GetMyParameterDeclarations(UniformDictionary& outUniforms) const override;
+    virtual void GetMyParameterDeclarations(UniformList& outUniforms) const override;
     virtual void GetMyFunctionDeclarations(std::vector<std::string>& outDecls) const override;
     virtual void WriteMyOutputs(std::string& outCode) const override;
 

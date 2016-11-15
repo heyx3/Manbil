@@ -6,6 +6,7 @@
 
 //TODO: Decouple "mouse pointer" and "is selected", so that the element can optionally have NO mouse pos input.
 //TODO: Remove "mouse click" from "update" cycle and create some kind of generic "Activated()" event for mouse button/keyboard/gamepad/etc.
+//TODO: Fix this system so that scale is relative to parent like everything else, and the position offset scales in "RenderChild()".
 
 //Represents a single element in a UI.
 //Keeps track of whether its size/position has changed since the last frame.
@@ -29,7 +30,7 @@ public:
 
     //Raised every update step, before anything is updated.
     //"pData" is the value of this instance's "OnUpdate_Data" field.
-    void(*OnUpdate)(GUIElement* thisEl, Vector2f localMouse, void* pData) = 0;
+    void(*OnUpdate)(GUIElement* thisEl, float elapsed, Vector2f localMouse, void* pData) = 0;
     void* OnUpdate_Data = 0;
 
 
@@ -52,9 +53,8 @@ public:
 
     //Calculates whether this element's bounds have changed since the last Update() call,
     //    including any child elements changing.
-    //Default behavior: just returns "DidBoundsChange".
-    //TODO: Why is this always returning "true"??
-    virtual bool GetDidBoundsChangeDeep(void) const { return true; }
+    //Default behavior: returns "DidBoundsChange".
+    virtual bool GetDidBoundsChangeDeep(void) const { return DidBoundsChange; }
     //Resets this element's "DidBoundsChange" and any childrens' "DidBoundsChange".
     //Default behavior: just sets "DidBoundsChange" to false.
     virtual void ClearDidBoundsChangeDeep(void) { DidBoundsChange = false; }

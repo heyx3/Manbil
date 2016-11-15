@@ -71,9 +71,9 @@ TextureSampleCubemapNode::TextureSampleCubemapNode(const DataLine & texCoords, s
 }
 
 
-void TextureSampleCubemapNode::GetMyParameterDeclarations(UniformDictionary & uniforms) const
+void TextureSampleCubemapNode::GetMyParameterDeclarations(UniformList& uniforms) const
 {
-    uniforms.TextureCubemaps[SamplerName] = UniformValueSamplerCubemap(SamplerName);
+    uniforms.push_back(Uniform(SamplerName, UT_VALUE_SAMPLERCUBE));
 }
 void TextureSampleCubemapNode::WriteMyOutputs(std::string & outCode) const
 {

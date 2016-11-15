@@ -12,6 +12,7 @@ const unsigned int INPUT_ADD_RIPPLE = 666;
 
 
 //Information about the water.
+
 const int waterVerticesPerSide = 100;
 const Vector3f waterScale(1.0f, 1.0f, 1.0f);
 
@@ -31,11 +32,16 @@ WaterWorld::WaterWorld(void)
       normalMap1(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       normalMap2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       skyboxTex(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings())
+      SFMLOpenGLWorld(800, 600)
 {
     Input.AddBoolInput(INPUT_ADD_RIPPLE,
                        BoolInputPtr((BoolInput*)new MouseBoolInput(sf::Mouse::Left,
                                                                    BoolInput::JustPressed)));
+}
+
+sf::ContextSettings WaterWorld::GenerateContext(void)
+{
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 sf::VideoMode WaterWorld::GetModeToUse(unsigned int windowW, unsigned int windowH)
@@ -48,7 +54,7 @@ std::string WaterWorld::GetWindowTitle(void)
 {
     //Change this to change the string on the window's title-bar
     //    (assuming it has a title-bar).
-    return "World window";
+    return "Water World";
 }
 sf::Uint32 WaterWorld::GetSFStyleFlags(void)
 {
@@ -111,29 +117,30 @@ void WaterWorld::InitializeMaterials(void)
     {
         #pragma region Skybox material
 
-        DataNode::ClearMaterialData();
+        SerializedMaterial matData;
 
         RenderIOAttributes cubemapVertIns = PrimitiveGenerator::CubemapVertex::GetVertexAttributes();
-        DataNode::VertexIns = cubemapVertIns;
+        matData.VertexInputs = cubemapVertIns;
 
         //The vertex shader is a standard shader that uses the WVP matrix.
         //It outputs the object-space position (from {-1, -1, -1} to {1, 1, 1}) to the fragment shader.
         DataLine vIn_Pos(VertexInputNode::GetInstance(), 0),
                  vIn_Normal(VertexInputNode::GetInstance(), 1);
-        DataNode::Ptr objPosToScreenSpacePtr = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos, "objPosToScreen");
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(objPosToScreenSpacePtr, 1);
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_Pos));
+        DataNode::Ptr objPosToScreenSpacePtr = SpaceConverterNode::ObjPosToScreenPos(vIn_Pos,
+                                                                                     "objPosToScreen");
+        matData.MaterialOuts.VertexPosOutput = DataLine(objPosToScreenSpacePtr, 1);
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("fIn_UV", vIn_Pos));
 
         //The fragment shader just outputs the cubemap's color.
         DataLine fIn_UV(FragmentInputNode::GetInstance(), 0);
         DataNode::Ptr cubemapTex(new TextureSampleCubemapNode(fIn_UV, "u_skyboxTex", "cubemapTexNode"));
         DataLine cubemapTexRGB(cubemapTex, TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
         DataNode::Ptr finalColor(new CombineVectorNode(cubemapTexRGB, 1.0f, "finalColorNode"));
-        DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_FinalColor", finalColor));
 
         //Compile the material.
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(skyboxParams, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, skyboxParams, BlendMode::GetOpaque());
         if (!genM.ErrorMessage.empty())
         {
             std::cout << "Error compiling skybox material: " << genM.ErrorMessage <<
@@ -148,7 +155,7 @@ void WaterWorld::InitializeMaterials(void)
         skyboxMat = genM.Mat;
 
         //Set the skybox texture.
-        skyboxParams.TextureCubemaps["u_skyboxTex"].Texture = skyboxTex.GetTextureHandle();
+        skyboxParams["u_skyboxTex"].Tex() = skyboxTex.GetTextureHandle();
 
         #pragma endregion
     }
@@ -156,40 +163,40 @@ void WaterWorld::InitializeMaterials(void)
     {
         #pragma region Water material
          
-        DataNode::ClearMaterialData();
+        SerializedMaterial matData;
 
         RenderIOAttributes waterVertIns = WaterVertex::GetVertexAttributes();
-        DataNode::VertexIns = waterVertIns;
+        matData.VertexInputs = waterVertIns;
 
-        //Unlike previous materials, we are going to use a certain specific node in BOTH shaders:
-        //    the "WaterNode" handles all the aspects of water simulation.
+        //The water system gives us a "WaterNode", which handles water simulation.
+        //This node will be used in both the vertex and fragment shader.
 
-        //The vertex shader takes the object-space vertices, distorts them according to the "WaterNode"
-        //    that handles the water simulation, then converts them to screen-space.
+        //The vertex shader takes the model-space vertices, distorts them according to a "WaterNode"'s
+        //    output, then converts them to screen-space.
         //It outputs the object-space position, world-space position,
         //    and UV coordinates of the vertices.
         DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
                  vIn_UV(VertexInputNode::GetInstance(), 1);
 
-        //The fragment shader gets the normal of the water surface, then adds in both normal maps
-        //    to add fake bumps to the surface.
+        //The fragment shader gets the normal of the water surface from the "WaterNode",
+        //    then adds in two normal maps to add fake bumps to the surface.
         DataLine fIn_ObjPos(FragmentInputNode::GetInstance(), 0),
                  fIn_WorldPos(FragmentInputNode::GetInstance(), 1),
                  fIn_UV(FragmentInputNode::GetInstance(), 2);
 
-        //Create the water node.
-        DataNode::Ptr waterPtr(new WaterNode(vIn_ObjPos, fIn_ObjPos, maxRipples, nFlows, "waterNode"));
+        //Create the water node and its outputs.
+        DataNode::Ptr waterPtr(new WaterNode(vIn_ObjPos, fIn_ObjPos, maxRipples, nFlows));
         DataLine waterObjPos(waterPtr, 0),
                  waterSurfaceNormal(waterPtr, 1);
 
         //Now make the vertex shader.
-        DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(waterObjPos, "screenPosNode"),
-                      worldPos = SpaceConverterNode::ObjPosToWorldPos(waterObjPos, "worldPosNode");
-        DataNode::MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", waterObjPos));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_WorldPos",
+        DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(waterObjPos),
+                      worldPos = SpaceConverterNode::ObjPosToWorldPos(waterObjPos);
+        matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", waterObjPos));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_WorldPos",
                                                                     DataLine(worldPos, 0)));
-        DataNode::MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
 
 
         //The fragment shader is more complicated.
@@ -206,61 +213,62 @@ void WaterWorld::InitializeMaterials(void)
                     normalMap2Severity = 0.2f;
         DataNode::Ptr normalMap1UV(new CustomExpressionNode("('0' * '1') + ('2' * '3')", 2,
                                                             TimeNode::GetInstance(), normalMap1Pan,
-                                                            fIn_UV, normalMap1Scale,
-                                                            "normalMap1UVNode")),
+                                                            fIn_UV, normalMap1Scale)),
                       normalMap2UV(new CustomExpressionNode("('0' * '1') + ('2' * '3')", 2,
                                                             TimeNode::GetInstance(), normalMap2Pan,
-                                                            fIn_UV, normalMap2Scale,
-                                                            "normalMap2UVNode"));
-        DataNode::Ptr normalMap1Ptr(new TextureSample2DNode(normalMap1UV, "u_normalMap1",
-                                                            "normalMap1Node")),
-                      normalMap2Ptr(new TextureSample2DNode(normalMap2UV, "u_normalMap2",
-                                                            "normalMap2Node"));
+                                                            fIn_UV, normalMap2Scale));
+        DataNode::Ptr normalMap1Ptr(new TextureSample2DNode(normalMap1UV, "u_normalMap1")),
+                      normalMap2Ptr(new TextureSample2DNode(normalMap2UV, "u_normalMap2"));
         DataLine normalMap1RGB(normalMap1Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels)),
                  normalMap2RGB(normalMap2Ptr, TextureSample2DNode::GetOutputIndex(CO_AllColorChannels));
-        DataNode::Ptr normal1(new RemapNode(normalMap1RGB, 0.0f, 1.0f, -1.0f, 1.0f, "remapNormal1RGB")),
-                      normal1Final(new MultiplyNode(normal1, normalMap1Severity, "finalNormal1")),
-                      normal2(new RemapNode(normalMap2RGB, 0.0f, 1.0f, -1.0f, 1.0f, "remapNormal2RGB")),
-                      normal2Final(new MultiplyNode(normal2, normalMap2Severity, "finalNormal2"));
-        //TODO: The following normal computation isn't exactly right; we need the tangent/bitangent vectors from the water node.
-        DataNode::Ptr combinedNormal(new TangentSpaceNormalsNode(normal1Final, normal2Final,
-                                                                 waterSurfaceNormal,
-                                                                 "combineNormalsNode"));
+        DataNode::Ptr normal1(new RemapNode(normalMap1RGB, 0.0f, 1.0f, -1.0f, 1.0f)),
+                      normal1Final(new MultiplyNode(normal1, normalMap1Severity)),
+                      normal2(new RemapNode(normalMap2RGB, 0.0f, 1.0f, -1.0f, 1.0f)),
+                      normal2Final(new MultiplyNode(normal2, normalMap2Severity));
+        DataNode::Ptr tangentNormal(new TangentSpaceNormalsNode(normal1Final, normal2Final,
+                                                                        waterSurfaceNormal));
+        DataNode::Ptr worldNormal(new SpaceConverterNode(tangentNormal,
+                                                         SpaceConverterNode::ST_OBJECT,
+                                                         SpaceConverterNode::ST_WORLD,
+                                                         SpaceConverterNode::DT_NORMAL));
+        //TODO: Get WaterNode to also output tangent/bitangent and then use ApplyNormalMapNode.
+        //DataNode::Ptr combinedNormal(new ApplyNormalMapNode(waterSurfaceNormal, waterSurfaceTangent,
+        //                                                    waterSurfaceBitangent, tangentNormal,
+        //                                                    "finalNormal"));
 
-        //Now, split the water into two parts: the water itself and the reflected image of the skybox.
-        const float waterReflectivity = 0.5;
+        //The water itself has a color, but it also reflects light from the skybox.
+        //This material interpolates between the water color and the reflected skybox
+        //    based on a "reflectivity" value.
         const Vector3f waterColor(0.1f, 0.15f, 1.0f);
-        DataNode::Ptr camToPos(new SubtractNode(fIn_WorldPos, CameraDataNode::GetCamPos(),
-                                                "camToPosNode"));
-        DataNode::Ptr reflectEye(new ReflectNode(camToPos, combinedNormal, "reflectedEyeNode"));
-        DataNode::Ptr skyboxPtr(new TextureSampleCubemapNode(reflectEye, "u_skyboxCubeTex",
-                                                             "skyboxTexNode"));
+        const float waterReflectivity = 0.5f;
+        DataNode::Ptr camToPos(new SubtractNode(fIn_WorldPos, CameraDataNode::GetCamPos()));
+        DataNode::Ptr reflectEye(new ReflectNode(camToPos, tangentNormal));
+        DataNode::Ptr skyboxPtr(new TextureSampleCubemapNode(reflectEye, "u_skyboxCubeTex"));
         DataLine reflectedColor(skyboxPtr,
                                 TextureSampleCubemapNode::GetOutputIndex(CO_AllColorChannels));
         DataNode::Ptr surfaceColor(new InterpolateNode(waterColor, reflectedColor, waterReflectivity,
-                                                       InterpolateNode::IT_Linear, "surfaceColorNode"));
+                                                       InterpolateNode::IT_Linear));
 
-        //Finally, add lighting effects. There is a "LightingNode" class that handles basic
-        //    ambient-diffuse-specular lighting computation, also known as the Phong shading model.
+        //Finally, add lighting effects. There is a "LightingNode" class that does basic
+        //    ambient-diffuse-specular lighting computation.
         const Vector3f lightDir = Vector3f(1.0f, 1.0f, -0.3f).Normalized(),
                        lightColor = Vector3f(1.0f, 1.0f, 1.0f);
         const float ambientLight = 0.4f,
                     diffuseLight = 1.0f - ambientLight,
-                    specularLight = 1.0f,
+                    specularLight = 0.0f,
                     specularIntensity = 64.0f;
-        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, combinedNormal, lightDir,
-                                                      "lightCalcNode",
+        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, tangentNormal, lightDir,
                                                       ambientLight, diffuseLight, specularLight,
                                                       specularIntensity));
         DataNode::Ptr litSurfaceColor(new MultiplyNode(surfaceColor, brightnessCalc));
 
-        DataNode::Ptr outputColor(new CombineVectorNode(litSurfaceColor, 1.0f, "addAlphaNode"));
-        DataNode::MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", outputColor));
+        DataNode::Ptr outputColor(new CombineVectorNode(litSurfaceColor, 1.0f));
+        matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", outputColor));
 
 
         //Compile the material.
         ShaderGenerator::GeneratedMaterial genM =
-            ShaderGenerator::GenerateMaterial(waterObj->Params, BlendMode::GetOpaque());
+            ShaderGenerator::GenerateMaterial(matData, waterObj->Params, BlendMode::GetOpaque());
         if (!genM.ErrorMessage.empty())
         {
             std::cout << "Error creating water material: " << genM.ErrorMessage <<
@@ -275,9 +283,9 @@ void WaterWorld::InitializeMaterials(void)
         waterMat = genM.Mat;
 
         //Set the parameters.
-        waterObj->Params.Texture2Ds["u_normalMap1"].Texture = normalMap1.GetTextureHandle();
-        waterObj->Params.Texture2Ds["u_normalMap2"].Texture = normalMap2.GetTextureHandle();
-        waterObj->Params.TextureCubemaps["u_skyboxCubeTex"].Texture = skyboxTex.GetTextureHandle();
+        waterObj->Params["u_normalMap1"].Tex() = normalMap1.GetTextureHandle();
+        waterObj->Params["u_normalMap2"].Tex() = normalMap2.GetTextureHandle();
+        waterObj->Params["u_skyboxCubeTex"].Tex() = skyboxTex.GetTextureHandle();
 
 
         #pragma endregion
@@ -371,7 +379,7 @@ void WaterWorld::UpdateWorld(float elapsedSeconds)
         const float minDropoffPoint = 40.0f,
                     maxDropoffPoint = 200.0f;
         const float minAmplitude = 0.5f,
-                    maxAmplitude = 3.0f;
+                    maxAmplitude = 1.75f;
         const float minPeriod = 0.25f,
                     maxPeriod = 10.0f;
         const float minSpeed = 3.5f,
@@ -391,12 +399,9 @@ void WaterWorld::UpdateWorld(float elapsedSeconds)
 void WaterWorld::RenderOpenGL(float elapsedSeconds)
 {
     //Set up rendering state.
-    //Modify these constructors to change various aspects of how rendering is done.
     ScreenClearer(true, true, false, Vector4f(0.0f, 0.0f, 0.0f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_BACK).EnableState();
-    BlendMode::GetOpaque().EnableMode();
-
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
     //Set up world render info.
     Matrix4f viewM, projM;

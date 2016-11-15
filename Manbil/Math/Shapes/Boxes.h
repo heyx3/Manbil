@@ -103,6 +103,14 @@ public:
     Interval GetXInterval(void) const { return Interval(GetXMin(), GetXMax(), 0.001f, true, true); }
     Interval GetYInterval(void) const { return Interval(GetYMin(), GetYMax(), 0.001f, true, true); }
 
+
+    bool CastRay(Vector2f start, Vector2f dir, Vector2f& outHitPos, float& outHitT) const;
+
+    //Returns the number of intersections with this box. Will be 0, 1, or 2.
+    unsigned int CastRay(Vector2f start, Vector2f dir,
+                         Vector2f& hitPos1, float& hitT1,
+                         Vector2f& hitPos2, float& hitT2) const;
+
 private:
 
     float x, y, width, height;

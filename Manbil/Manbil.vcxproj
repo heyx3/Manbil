@@ -5,25 +5,46 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{58192AC6-9B81-4C17-824F-E184BB1BB2CE}</ProjectGuid>
     <RootNamespace>Manbil</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -33,20 +54,40 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)\Plugins\assimp-3.1.1\include;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Src;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Include;$(SolutionDir)\Plugins\Freetype 2.3.5\include\freetype2;$(SolutionDir)\Plugins\Freetype 2.3.5\include;$(SolutionDir)\Plugins\glew-1.10.0\include;$(SolutionDir)\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(SolutionDir)\Dependencies\Libraries\Universal\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Dependencies\Headers;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)\Dependencies\Headers;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)\Plugins\assimp-3.1.1\include;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Src;$(SolutionDir)\Plugins\Oculus SDK 0.4.4\LibOVR\Include;$(SolutionDir)\Plugins\Freetype 2.3.5\include\freetype2;$(SolutionDir)\Plugins\Freetype 2.3.5\include;$(SolutionDir)\Plugins\glew-1.10.0\include;$(SolutionDir)\Plugins\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(SolutionDir)\Dependencies\Libraries\Universal\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Dependencies\Headers;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)\Dependencies\Headers;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\Libraries\Universal\;$(SolutionDir)\Dependencies\Libraries\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)\Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\temp\$(Configuration)\</IntDir>
@@ -55,18 +96,49 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>OVR_OS_WIN32;OVR_BUILD_DEBUG;WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glu32.lib;assimpd.lib;libovrd.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;freetype.lib;glew32.lib;glu32.lib;ws2_32.lib;opengl32.lib;openal32.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>libovrd.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>rd /S /Q "$(SolutionDir)\Build\$(Configuration)"
+md "$(SolutionDir)\Build\$(Configuration)"
+xcopy "$(SolutionDir)\Dependencies\Include In Build\$(Configuration)" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y
+xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Move dependencies into the build folder</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4512</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>assimp-vc140-mt.lib;freetype240.lib;glew32.lib;glu32.lib;ws2_32.lib;opengl32.lib;openal32.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -89,8 +161,8 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OVR_OS_WIN32;WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TreatSpecificWarningsAsErrors>4715;4172</TreatSpecificWarningsAsErrors>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4512</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -99,9 +171,40 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;glu32.lib;assimp.lib;libovr.lib;ws2_32.lib;opengl32.lib;freetype.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;freetype.lib;glew32.lib;glu32.lib;ws2_32.lib;opengl32.lib;openal32.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>libovr.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PreBuildEvent>
+      <Command>rd /S /Q "$(SolutionDir)\Build\$(Configuration)"
+md "$(SolutionDir)\Build\$(Configuration)"
+xcopy "$(SolutionDir)\Dependencies\Include In Build\$(Configuration)" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y
+xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\Build\$(Configuration)" /S /E /V /I /Q /H /Y</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Move dependencies to the build folder</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatSpecificWarningsAsErrors>4715;4172;4003;4018;4456;4458</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4512</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>assimp-vc140-mt.lib;freetype240.lib;glew32.lib;glu32.lib;ws2_32.lib;opengl32.lib;openal32.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>rd /S /Q "$(SolutionDir)\Build\$(Configuration)"
@@ -114,7 +217,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Asset Packaging\AssetPackage.cpp" />
     <ClCompile Include="DebugAssist.cpp" />
     <ClCompile Include="Editor\Editor Panels\ColorEditor.cpp" />
     <ClCompile Include="Editor\EditorMaterialSet.cpp" />
@@ -130,7 +232,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Input\LookRotation.cpp" />
     <ClCompile Include="Input\MovingCamera.cpp" />
     <ClCompile Include="IO\BinarySerialization.cpp" />
-    <ClCompile Include="IO\Serialization.cpp" />
+    <ClCompile Include="IO\SerializationWrappers.cpp" />
     <ClCompile Include="IO\tinyxml2.cpp" />
     <ClCompile Include="IO\XmlSerialization.cpp" />
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
@@ -157,7 +259,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Math\Shapes\Boxes.cpp" />
     <ClCompile Include="Math\Shapes\Circle.cpp" />
     <ClCompile Include="Math\Shapes\ThreeDShapes.cpp" />
-    <ClCompile Include="Oculus Rift\OculusDevice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Old Ones\DemoParticles.cpp" />
     <ClCompile Include="Old Ones\FractalRenderer.cpp" />
@@ -182,9 +283,12 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Basic Rendering\RenderIOAttributes.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\ScreenClearer.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp" />
+    <ClCompile Include="Rendering\Basic Rendering\UniformValueSubroutine.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\Vertices.cpp" />
     <ClCompile Include="Rendering\Data Nodes\DataLine.cpp" />
     <ClCompile Include="Rendering\Data Nodes\DataNode.cpp" />
+    <ClCompile Include="Rendering\Data Nodes\GeoShaderData.cpp" />
+    <ClCompile Include="Rendering\Data Nodes\MaterialOutputs.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Math\AddNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Math\ClampNode.cpp" />
     <ClCompile Include="Rendering\Data Nodes\Math\CrossNode.cpp" />
@@ -247,7 +351,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\GUI\GUIManager.cpp" />
     <ClCompile Include="Rendering\GUI\GUIMaterials.cpp" />
     <ClCompile Include="Rendering\GUI\TextRenderer.cpp" />
-    <ClCompile Include="Rendering\Management\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\NoiseToTexture.cpp" />
     <ClCompile Include="Rendering\Primitives\BezierCurve.cpp" />
     <ClCompile Include="Rendering\Primitives\CurveVertex.cpp" />
@@ -257,35 +360,22 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Textures\MTexture3D.cpp" />
     <ClCompile Include="Rendering\Textures\MTextureCubemap.cpp" />
     <ClCompile Include="Rendering\Textures\RenderTarget.cpp" />
+    <ClCompile Include="Rendering\Textures\RenderTargetManager.cpp" />
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp" />
     <ClCompile Include="Rendering\Water\Water.cpp" />
     <ClCompile Include="Rendering\Water\WaterRendering.cpp" />
+    <ClCompile Include="Sample Worlds\AssetImporterWorld.cpp" />
     <ClCompile Include="Sample Worlds\DataNodeRenderWorld.cpp" />
-    <ClCompile Include="Sample Worlds\NoiseTest.cpp" />
-    <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp" />
+    <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp" />
+    <ClCompile Include="Sample Worlds\GUIWorld.cpp" />
+    <ClCompile Include="Sample Worlds\NoiseGenWorld.cpp" />
+    <ClCompile Include="Sample Worlds\SerializationWorld.cpp" />
     <ClCompile Include="Sample Worlds\SimpleRenderWorld.cpp" />
+    <ClCompile Include="Sample Worlds\TerrainWorld.cpp" />
     <ClCompile Include="Sample Worlds\WaterWorld.cpp" />
-    <ClCompile Include="Tests\AssImpTestWorld.cpp" />
-    <ClCompile Include="Tests\GUITestWorld.cpp" />
-    <ClCompile Include="Tests\RiftTestWorld.cpp" />
-    <ClCompile Include="Tests\TerrainTestWorld.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp" />
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp" />
-    <ClCompile Include="Toys\TwoTrianglesWorld.cpp" />
-    <ClCompile Include="Toys\Voxel\ChunkMesh.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelCamera.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelChunk.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelChunkManager.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelPlayer.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelWorld.cpp" />
-    <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Asset Packaging\AssetPackage.h" />
     <ClInclude Include="DebugAssist.h" />
-    <ClInclude Include="Editor\DAG Editor\DAGInput.h" />
-    <ClInclude Include="Editor\DAG Editor\DAGNode.h" />
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h" />
     <ClInclude Include="Editor\EditorMaterialSet.h" />
     <ClInclude Include="Editor\EditorObject.h" />
@@ -296,6 +386,11 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Events\Timing.h" />
     <ClInclude Include="Game Loop\SFMLOpenGLWorld.h" />
     <ClInclude Include="Game Loop\SFMLWorld.h" />
+    <ClInclude Include="Graph\AStarSearch.h" />
+    <ClInclude Include="Graph\Edge.h" />
+    <ClInclude Include="Graph\GraphSearchGoal.h" />
+    <ClInclude Include="Graph\IndexedPriorityQueue.h" />
+    <ClInclude Include="Graph\Graph.h" />
     <ClInclude Include="Input\BoolInput.h" />
     <ClInclude Include="Input\FloatInput.h" />
     <ClInclude Include="Input\Input Objects\CompositeVector2Inputs.h" />
@@ -312,7 +407,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Input\Vector2Input.h" />
     <ClInclude Include="IO\BinarySerialization.h" />
     <ClInclude Include="IO\DataSerialization.h" />
-    <ClInclude Include="IO\Serialization.h" />
+    <ClInclude Include="IO\SerializationWrappers.h" />
     <ClInclude Include="IO\tinyxml2.h" />
     <ClInclude Include="IO\XmlSerialization.h" />
     <ClInclude Include="Math\Lower Math/Array2D.h" />
@@ -349,7 +444,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Math\Shapes\Boxes.h" />
     <ClInclude Include="Math\Shapes\Circle.h" />
     <ClInclude Include="Math\Shapes\ThreeDShapes.h" />
-    <ClInclude Include="Oculus Rift\OculusDevice.h" />
     <ClInclude Include="Old Ones\DemoParticles.h" />
     <ClInclude Include="Old Ones\FractalRenderer.h" />
     <ClInclude Include="Old Ones\GeoSet.h" />
@@ -375,11 +469,15 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Basic Rendering\RenderIOAttributes.h" />
     <ClInclude Include="Rendering\Basic Rendering\ScreenClearer.h" />
     <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h" />
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueSubroutine.h" />
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h" />
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h" />
+    <ClInclude Include="Rendering\Basic Rendering\Viewport.h" />
     <ClInclude Include="Rendering\Data Nodes\DataLine.h" />
     <ClInclude Include="Rendering\Data Nodes\DataNode.h" />
     <ClInclude Include="Rendering\Data Nodes\DataNodes.hpp" />
     <ClInclude Include="Rendering\Data Nodes\GeoShaderData.h" />
+    <ClInclude Include="Rendering\Data Nodes\MaterialOutputs.h" />
     <ClInclude Include="Rendering\Data Nodes\Math\AddNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Math\ClampNode.h" />
     <ClInclude Include="Rendering\Data Nodes\Math\CrossNode.h" />
@@ -443,7 +541,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\GUI\GUIManager.h" />
     <ClInclude Include="Rendering\GUI\GUIMaterials.h" />
     <ClInclude Include="Rendering\GUI\TextRenderer.h" />
-    <ClInclude Include="Rendering\Management\RenderTargetManager.h" />
     <ClInclude Include="Rendering\NoiseToTexture.h" />
     <ClInclude Include="Rendering\Primitives\BezierCurve.h" />
     <ClInclude Include="Rendering\Primitives\CurveVertex.h" />
@@ -455,42 +552,23 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Textures\MTexture3D.h" />
     <ClInclude Include="Rendering\Textures\MTextureCubemap.h" />
     <ClInclude Include="Rendering\Textures\RenderTarget.h" />
+    <ClInclude Include="Rendering\Textures\RenderTargetManager.h" />
     <ClInclude Include="Rendering\Textures\TextureChannels.h" />
     <ClInclude Include="Rendering\Textures\TextureSettings.h" />
     <ClInclude Include="Rendering\Water\Water.h" />
     <ClInclude Include="Rendering\Water\WaterRendering.h" />
+    <ClInclude Include="Sample Worlds\AssetImporterWorld.h" />
     <ClInclude Include="Sample Worlds\DataNodeRenderWorld.h" />
-    <ClInclude Include="Sample Worlds\NoiseTest.h" />
-    <ClInclude Include="Sample Worlds\OpenGLTestWorld.h" />
+    <ClInclude Include="Sample Worlds\EditorGUIWorld.h" />
+    <ClInclude Include="Sample Worlds\GUIWorld.h" />
+    <ClInclude Include="Sample Worlds\NoiseGenWorld.h" />
+    <ClInclude Include="Sample Worlds\SerializationWorld.h" />
     <ClInclude Include="Sample Worlds\SimpleRenderWorld.h" />
+    <ClInclude Include="Sample Worlds\TerrainWorld.h" />
     <ClInclude Include="Sample Worlds\WaterWorld.h" />
-    <ClInclude Include="Tests\AssImpTestWorld.h" />
-    <ClInclude Include="Tests\GUITestWorld.h" />
-    <ClInclude Include="Tests\RiftTestWorld.h" />
-    <ClInclude Include="Tests\TerrainTestWorld.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h" />
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h" />
-    <ClInclude Include="Toys\TwoTrianglesWorld.h" />
-    <ClInclude Include="Toys\Voxel\ChunkMesh.h" />
-    <ClInclude Include="Toys\Voxel\VoxelCamera.h" />
-    <ClInclude Include="Toys\Voxel\VoxelChunk.h" />
-    <ClInclude Include="Toys\Voxel\VoxelChunkManager.h" />
-    <ClInclude Include="Toys\Voxel\VoxelPlayer.h" />
-    <ClInclude Include="Toys\Voxel\VoxelWorld.h" />
-    <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Dependencies\Include In Build\Universal\Content\Old Ones\Old One Frag Shader Body.txt" />
-    <Text Include="fbm.txt" />
-    <Text Include="mandlebrot.txt" />
-    <Text Include="Perlin.txt" />
-    <Text Include="raymarcheddistancefunc.txt" />
-    <Text Include="raymarchedterrain.txt" />
-    <Text Include="RMDFFun.txt" />
-    <Text Include="t.txt" />
-    <Text Include="Test.txt" />
-    <Text Include="water2d.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

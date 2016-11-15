@@ -61,7 +61,7 @@ DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
     }
     oldOneAppearParticles = std::shared_ptr<Material>(genM.Mat);
 
-    oldOneAppearParams.Texture2Ds[texUniformName].Texture = smokeTex.GetTextureHandle();
+    oldOneAppearParams[texUniformName].Tex() = smokeTex.GetTextureHandle();
 
     oldOneAppearMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_POINTS));
     MeshData& datAppear = oldOneAppearMesh.SubMeshes[0];
@@ -86,7 +86,7 @@ DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
     }
     oldOneAmbientParticles = std::shared_ptr<Material>(genM.Mat);
 
-    oldOneAmbientParams.Texture2Ds[texUniformName].Texture = smokeTex.GetTextureHandle();
+    oldOneAmbientParams[texUniformName].Tex() = smokeTex.GetTextureHandle();
 
     oldOneAmbientMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_POINTS));
     MeshData& datAmbient = oldOneAmbientMesh.SubMeshes[0];
@@ -129,11 +129,11 @@ void DemoParticles::Render(const RenderInfo& info)
 
 void DemoParticles::SetBasePos(Vector3f newPos)
 {
-    oldOneAppearParams.Floats[basePosUniformName].SetValue(newPos);
-    oldOneAmbientParams.Floats[basePosUniformName].SetValue(newPos);
+    oldOneAppearParams[basePosUniformName].Float() = newPos;
+    oldOneAmbientParams[basePosUniformName].Float() = newPos;
 }
 void DemoParticles::SetElapsedTime(float newTime)
 {
-    oldOneAppearParams.Floats[elapsedTimeUniformName].SetValue(newTime);
-    oldOneAmbientParams.Floats[elapsedTimeUniformName].SetValue(newTime);
+    oldOneAppearParams[elapsedTimeUniformName].Float() = newTime;
+    oldOneAmbientParams[elapsedTimeUniformName].Float() = newTime;
 }

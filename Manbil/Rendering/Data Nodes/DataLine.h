@@ -8,7 +8,7 @@
 
 class DataNode;
 
-//Represents an input into a DataNode. Its value is either a constant or the output of a DataNode.
+//Represents an input into a DataNode. Its value is either a constant or the output of another DataNode.
 struct DataLine : public ISerializable
 {
 public:
@@ -18,7 +18,10 @@ public:
         : isConstantValue(false), nonConstantValue(nodeName),
           nonConstantOutputIndex(outputLineIndex) { }
     //Creates a DataLine that gets its input value from a DataNode.
-    DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex = 0);
+    DataLine(std::shared_ptr<DataNode> nodePtr, unsigned int outputLineIndex = 0)
+        : DataLine(nodePtr.get(), outputLineIndex) { }
+    //Creates a DataLine that gets its input value from a DataNode.
+    DataLine(const DataNode* n, unsigned int outputLineIndex = 0);
 
     //Creates a DataLine with a constant input value.
     DataLine(const VectorF& constantInput) : isConstantValue(true), constantValue(constantInput) { }

@@ -15,7 +15,8 @@ std::string ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr>& outEl
     UpdateTextureColor();
 
     typedef EditorObject::DescriptionData Description;
-    SlidingBarFloat* rSlider = new SlidingBarFloat(0.0f, 1.0f, Vector2f(0.0f, 10.0f),
+    typedef SlidingBarFloat<> MSlidingBarFloa;
+    MSlidingBarFloa* rSlider = new MSlidingBarFloa(0.0f, 1.0f, Vector2f(0.0f, 10.0f),
                                                    Description("Red", true, 10.0f, 200),
                                                    [](GUISlider* slider, float newVal, void* pData)
                                                    {
@@ -24,7 +25,7 @@ std::string ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr>& outEl
                                                        ce->UpdateTextureColor();
                                                    },
                                                    Color.x, 1.0f, this);
-    SlidingBarFloat* gSlider = new SlidingBarFloat(0.0f, 1.0f, Vector2f(0.0f, 10.0f),
+    MSlidingBarFloa* gSlider = new MSlidingBarFloa(0.0f, 1.0f, Vector2f(0.0f, 10.0f),
                                                    Description("Green", true, 10.0f, 400),
                                                    [](GUISlider* slider, float newVal, void* pData)
                                                    {
@@ -33,7 +34,7 @@ std::string ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr>& outEl
                                                        ce->UpdateTextureColor();
                                                    },
                                                    Color.y, 1.0f, this);
-    SlidingBarFloat* bSlider = new SlidingBarFloat(0.0f, 1.0f, Vector2f(0.0f, 5.0f),
+    MSlidingBarFloa* bSlider = new MSlidingBarFloa(0.0f, 1.0f, Vector2f(0.0f, 5.0f),
                                                    Description("Blue", true, 10.0f, 200),
                                                    [](GUISlider* slider, float newVal, void* pData)
                                                    {
@@ -46,7 +47,7 @@ std::string ColorEditor::BuildEditorElements(std::vector<EditorObjectPtr>& outEl
     EditorImage* img = new EditorImage(&colorDisplayTex, Description(),
                                        Vector2f(100.0f, 20.0f), Vector2f(0.0f, 5.0f));
 
-    SlidingBarFloat* aSlider = new SlidingBarFloat(0.0f, 1.0f, Vector2f(),
+    MSlidingBarFloa* aSlider = new MSlidingBarFloa(0.0f, 1.0f, Vector2f(),
                                                    Description("Alpha", true, 10.0f, 400),
                                                    [](GUISlider* slider, float newVal, void* pData)
                                                    {

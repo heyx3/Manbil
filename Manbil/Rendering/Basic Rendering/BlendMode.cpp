@@ -44,12 +44,6 @@ unsigned int BlendMode::ToGLEnum(BlendingOps op)
 }
 void BlendMode::EnableMode(int bufIndex) const
 {
-    //If this mode is already enabled, don't mess with OpenGL state.
-    if (operator==(CurrentMode))
-    {
-        return;
-    }
-
     if (bufIndex < 0)
     {
         glEnable(GL_BLEND);

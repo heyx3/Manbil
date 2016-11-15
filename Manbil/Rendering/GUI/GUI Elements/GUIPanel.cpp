@@ -124,7 +124,7 @@ void GUIPanel::CustomUpdate(float elapsed, Vector2f relativeMousePos)
 void GUIPanel::Render(float elapsedTime, const RenderInfo& info)
 {
     //Render the background.
-    if (Background.IsValid())
+    if (Background.Mat != 0)
     {
         Background.SetBounds(GetBounds());
         Background.Depth = -0.001f;

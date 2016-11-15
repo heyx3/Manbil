@@ -59,6 +59,13 @@ public:
     EditorMaterialSet(TextRenderer& renderer);
     ~EditorMaterialSet(void);
 
+    //Creates a text render slot using this instance's font/settings.
+    TextRenderer::FontSlot CreateSlot(unsigned int renderSpaceWidth, std::string& outErrorMsg,
+                                      FilteringTypes texQuality, bool useMipmapping);
+    //Deletes the given text render slot from this instance's text renderer.
+    //Returns whether the given slot actually existed.
+    bool DeleteSlot(TextRenderer::FontSlot slot) { return TextRender.DeleteTextRenderSlot(slot); }
+
 
     //Gets the animated material in this material set that would be used for the given texture.
     Material* GetAnimatedMaterial(const MTexture2D* tex) const;

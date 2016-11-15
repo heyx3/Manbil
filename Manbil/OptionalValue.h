@@ -9,12 +9,15 @@ struct OptionalValue
 {
 public:
 
-    bool HasValue(void) const { return hasValue; }
-    bool SetValue(const Value & val) const { value = val; }
-    Value GetValue(void) const { assert(hasValue); return value; }
-
     OptionalValue(void) : hasValue(false) { }
     OptionalValue(const Value & valueCopy) : hasValue(true), value(valueCopy) { }
+
+    
+    bool HasValue(void) const { return hasValue; }
+    Value GetValue(void) const { assert(hasValue); return value; }
+
+    void SetValue(const Value & val) { value = val; }
+
 
 private:
 

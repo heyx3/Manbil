@@ -5,35 +5,34 @@
 #include "../Basic Rendering/BlendMode.h"
 #include "DataLine.h"
 
+
 class Material;
+struct SerializedMaterial;
 
 
-
-//Generates GLSL code from DataNode DAGs.
+//Generates GLSL code from DataNode graphs.
 class ShaderGenerator
 {
 public:
 
-
     //Generates a geometry shader, or an error message beginning with "ERROR:" if there was an error.
-    //Uses the material data stored statically by the DataNode class.
-    static std::string GenerateGeometryShader(void);
+    static std::string GenerateGeometryShader(const SerializedMaterial& matData);
 
     //Generates the GLSL definitions for the given set of uniforms.
-    static std::string GenerateUniformDeclarations(const UniformDictionary& uniforms);
+    static std::string GenerateUniformDeclarations(const UniformList& uniforms);
 
 
     //Generates a vertex and fragment shader given data nodes.
     //Returns an error message, or an empty string if there was no error.
-    //Uses the material data stored statically by the DataNode class.
     static std::string GenerateVertFragShaders(std::string& outVShader, std::string& outFShader,
-                                               UniformDictionary& outUniforms);
+                                               const SerializedMaterial& matData,
+                                               UniformList& outUniforms);
 
 
     //The return type for GenerateMaterial.
-    //If the data nodes generated a shader successfully, the material will be a heap-allocated object
+    //If a shader was generated successfully, the "Mat" field will be a heap-allocated object
     //    and the error message will be empty.
-    //Otherwise, the material will be 0 and the error message will be non-empty.
+    //Otherwise, the "Mat" field will be 0 and the error message will be non-empty.
     struct GeneratedMaterial
     {
     public:
@@ -44,6 +43,6 @@ public:
     };
     //Generates the shaders and heap-allocates a new material from them.
     //You are responsible for the material's memory management after it's created.
-    //Uses the material data stored statically by the DataNode class.
-    static GeneratedMaterial GenerateMaterial(UniformDictionary& outUniforms, BlendMode blendMode);
+    static GeneratedMaterial GenerateMaterial(const SerializedMaterial& matData,
+                                              UniformDictionary& outUniforms, BlendMode blendMode);
 };

@@ -122,11 +122,11 @@ void BezierCurve::WriteMyOutputs(std::string& outCode) const
                     GetInput_StartPos().GetValue() + ", " + GetInput_EndPos().GetValue() + ",\n\t\t" +
                     GetInput_StartSlope().GetValue() + ", " + GetInput_EndSlope().GetValue() + ",\n\t\t" +
                     GetInput_LineSurfaceNormal().GetValue() + ", " +
-                    VertexIns.GetAttribute(LinePosLerpIndex).Name + ".x);\n";
+                    GetMatData()->VertexInputs.GetAttribute(LinePosLerpIndex).Name + ".x);\n";
     outCode += "\tvec3 " + GetOutputName(1) + " = " + temp + ".Pos;\n";
     outCode += "\tvec3 " + GetOutputName(0) + " = " + temp + ".Pos + " +
                   "(" + temp + ".Perp * " + GetInput_LineThickness().GetValue() + " * " +
-                        VertexIns.GetAttribute(LinePosLerpIndex).Name + ".y);\n";
+                        GetMatData()->VertexInputs.GetAttribute(LinePosLerpIndex).Name + ".y);\n";
 }
 
 void BezierCurve::WriteExtraData(DataWriter* writer) const

@@ -14,14 +14,21 @@ public:
         I2S_QUINTIC,
     };
 
+    
     Smoothness SmoothAmount;
-	const Generator2D * NoiseToInterpolate;
+	const Generator2D* NoiseToInterpolate;
+
 	float InterpolateScale;
+    Vector2f GridOffset;
 
-	Interpolator2D(const Generator2D * toInterpolate, Smoothness smoothAmount, float interpScale = 1.0f)
-		: NoiseToInterpolate(toInterpolate), SmoothAmount(smoothAmount), InterpolateScale(interpScale) { }
 
-	virtual void Generate(Noise2D & outNoise) const override;
+	Interpolator2D(const Generator2D* toInterpolate, Smoothness smoothAmount,
+                   float interpScale = 1.0f, Vector2f gridOffset = Vector2f())
+		: NoiseToInterpolate(toInterpolate), SmoothAmount(smoothAmount),
+          InterpolateScale(interpScale), GridOffset(gridOffset) { }
+
+
+	virtual void Generate(Noise2D& outNoise) const override;
 };
 
 
@@ -30,18 +37,26 @@ class Interpolator3D : public Generator3D
 {
 public:
 
-    //TODO: Finish after completing the above TODO.
+    enum Smoothness
+    {
+        I2S_LINEAR,
+        I2S_CUBIC,
+        I2S_QUINTIC,
+    };
 
-    const Generator3D * NoiseToInterpolate;
+    
+    Smoothness SmoothAmount;
+	const Generator3D* NoiseToInterpolate;
+	
     float InterpolateScale;
-    Vector3i InterpolateSize;
+    Vector3f GridOffset;
 
-    Interpolator3D(const Generator3D * toInterpolate, Vector3i interpSize, float interpScale = 1.0f)
-        : NoiseToInterpolate(toInterpolate), InterpolateScale(interpScale), InterpolateSize(interpSize) { }
+	
+    Interpolator3D(const Generator3D* toInterpolate, Smoothness smoothAmount,
+                   float interpScale = 1.0f, Vector3f gridOffset = Vector3f())
+		: NoiseToInterpolate(toInterpolate), SmoothAmount(smoothAmount),
+          InterpolateScale(interpScale), GridOffset(gridOffset) { }
 
-    virtual void Generate(Noise3D & outNoise) const override;
 
-private:
-
-    void ComputeTempSmoothedNoise(Noise3D & tempSmoothedNoise) const;
+	virtual void Generate(Noise3D& outNoise) const override;
 };

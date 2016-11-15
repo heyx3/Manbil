@@ -4,37 +4,40 @@
 
 void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 {
-    Vector2f relMouse = ToV2f(mousePos) - RootElement->GetPos(),
-             oldRelMouse = originalClickPos - RootElement->GetPos();
+    GUIElement* root = GetRoot();
 
-    RootElement->Update(elapsed, relMouse);
+    Vector2f relMouse = ToV2f(mousePos) - root->GetPos(),
+             oldRelMouse = originalClickPos - root->GetPos();
+
+    root->Update(elapsed, relMouse);
 
     //Handle mouse input.
     if (clicked)
     {
         if (wasMouseClicked)
         {
-            RootElement->OnMouseDrag(oldRelMouse, relMouse);
+            root->OnMouseDrag(oldRelMouse, relMouse);
         }
         else
         {
             originalClickPos = ToV2f(mousePos);
-            RootElement->OnMouseClick(relMouse);
+            root->OnMouseClick(relMouse);
         }
     }
     else
     {
         if (wasMouseClicked)
         {
-            RootElement->OnMouseRelease(relMouse);
+            root->OnMouseRelease(relMouse);
         }
     }
 
+    root->DidBoundsChange = false;
     wasMouseClicked = clicked;
 }
 
 void GUIManager::Render(float elapsed, const RenderInfo& info)
 {
     DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
-    RootElement->Render(elapsed, info);
+    GetRoot()->Render(elapsed, info);
 }

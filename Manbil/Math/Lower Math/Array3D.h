@@ -24,7 +24,7 @@ public:
 
 		arrayVals = new ArrayType[width * height * depth];
 	}
-    Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType & defaultValue)
+    Array3D(unsigned int aWidth, unsigned int aHeight, unsigned int aDepth, const ArrayType& defaultValue)
 	{
 		width = aWidth;
         height = aHeight;
@@ -38,6 +38,27 @@ public:
 		}
 	}
 
+    //Move semantics
+    Array3D(Array3D&& toMove) : arrayVals(0) { *this = std::move(toMove); }
+    Array3D& operator=(Array3D&& toMove)
+    {
+        if (arrayVals != 0)
+        {
+            delete[] arrayVals;
+        }
+
+        width = toMove.width;
+        height = toMove.height;
+        depth = toMove.depth;
+        arrayVals = toMove.arrayVals;
+
+        toMove.width = 0;
+        toMove.height = 0;
+        toMove.depth = 0;
+        toMove.arrayVals = 0;
+
+        return *this;
+    }
 
     Array3D(void) = delete;
     Array3D(const Array3D<ArrayType>& cpy) = delete;
@@ -70,6 +91,7 @@ public:
 	{
         if ((width * height * depth) != (_width * _height * _depth))
         {
+            assert(arrayVals != 0);
             delete[] arrayVals;
             arrayVals = new ArrayType[_width * _height * _depth];
         }
@@ -80,10 +102,10 @@ public:
 	}
     //Resets this array to the given size, and initializes all elements to the given value.
     void Reset(unsigned int _width, unsigned int _height, unsigned int _depth,
-               const ArrayType& defaultValue)
+               const ArrayType& newValues)
 	{
 		Reset(_width, _height, _depth);
-        Fill(defaultValue)
+        Fill(newValues)
 	}
     
 
@@ -265,8 +287,15 @@ public:
     //Gets a pointer to the first element in this array.
     ArrayType* GetArray(void) { return arrayVals; }
 
+    //Copies this array into the given one using "memcpy", which is as fast as possible.
+    //Assumes the given array is the same size as this one.
+    void MemCopyInto(ArrayType* outValues) const
+    {
+        memcpy(outValues, arrayVals, width * height * depth * sizeof(ArrayType));
+    }
     //Copies this array into the given one. Assumes it is the same size as this array.
-	void CopyInto(ArrayType * outValues) const
+    //Use this instead of "MemCopyInto" if the items are too complex to just copy their byte-data over.
+	void CopyInto(ArrayType* outValues) const
 	{
         for (unsigned int i = 0; i < width * height * depth; ++i)
 			outValues[i] = arrayVals[i];

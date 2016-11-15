@@ -1,39 +1,35 @@
 #include "MovingCamera.h"
 
-bool MovingCamera::Update(float elapsedTime)
+
+void MovingCamera::Update(float elapsedTime)
 {
 	#pragma region WASD EQ
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
-		IncrementPosition(GetForward() * moveSpeed * elapsedTime);
+		IncrementPosition(GetForward() * MoveSpeed * elapsedTime);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
-		IncrementPosition(-GetForward() * moveSpeed * elapsedTime);
+		IncrementPosition(-GetForward() * MoveSpeed * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
-		IncrementPosition(GetSideways() * moveSpeed * elapsedTime);
+		IncrementPosition(GetSideways() * MoveSpeed * elapsedTime);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 	{
-		IncrementPosition(-GetSideways() * moveSpeed * elapsedTime);
+		IncrementPosition(-GetSideways() * MoveSpeed * elapsedTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 	{
-		IncrementPosition(GetUpward() * moveSpeed * elapsedTime);
+		IncrementPosition(GetUpward() * MoveSpeed * elapsedTime);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
 	{
-		IncrementPosition(GetUpward() * -moveSpeed * elapsedTime);
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-	{
-		return true;
+		IncrementPosition(GetUpward() * -MoveSpeed * elapsedTime);
 	}
 
 	#pragma endregion
@@ -41,28 +37,32 @@ bool MovingCamera::Update(float elapsedTime)
 	#pragma region Mouse
 
 	if (Window == 0)
-	{
-		return false;
-	}
+		return;
 
 	Window->setMouseCursorVisible(!capMouse);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	if (sf::Keyboard::isKeyPressed(ToggleMouseCapKey))
 	{
 		if (!pressedSpace)
 		{
 			Window->setMouseCursorVisible(true);
 			pressedSpace = true;
 			capMouse = !capMouse;
+
+            sf::Mouse::setPosition(Conv(mouseTarget), *Window);
 		}
 	}
-	else pressedSpace = false;
+	else
+    {
+        pressedSpace = false;
+    }
 
-	if (!capMouse) return false;
+	if (!capMouse)
+        return;
 
 	Vector2i mousePos = Conv(sf::Mouse::getPosition(*Window));
 	Vector2i delta = mousePos - mouseTarget;
 
-	Vector2f rotAmount(delta.x * rotSpeed * elapsedTime, delta.y * rotSpeed * elapsedTime);
+	Vector2f rotAmount = ToV2f(delta) * RotSpeed * elapsedTime;
 
 	sf::Mouse::setPosition(Conv(mouseTarget), *Window);
 
@@ -70,6 +70,4 @@ bool MovingCamera::Update(float elapsedTime)
 	AddYaw(rotAmount.x);
 
 	#pragma endregion
-
-	return false;
 }

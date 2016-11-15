@@ -24,12 +24,12 @@ struct WaterVertex
 };
 
 
-//TODO: Create static strings that store the uniform names.
+//TODO: Add move semantics.
 
 //Represents a flowing body of water.
 //Contains two kinds of water flows:
 // -Directional -- water that oscillates along a direction on the plane of the surface
-// -Ripple -- water that oscillates outwards from some point on its surface
+// -Ripple -- water that oscillates outwards from some point on the surface
 class Water
 {
 public:

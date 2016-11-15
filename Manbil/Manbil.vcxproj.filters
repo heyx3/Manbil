@@ -9,7 +9,7 @@
       <Filter>Input\Input Objects\Vector2 Input</Filter>
     </ClCompile>
     <ClCompile Include="IO\tinyxml2.cpp">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>IO\Serializers\tinyxml Library</Filter>
     </ClCompile>
     <ClCompile Include="Math\Higher Math\Camera.cpp">
       <Filter>Math\Higher Math</Filter>
@@ -84,50 +84,11 @@
     <ClCompile Include="Rendering\GUI\FreeTypeHandler.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Tests\GUITestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Water\Water.cpp">
       <Filter>Rendering\Water</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Water\WaterRendering.cpp">
       <Filter>Rendering\Water</Filter>
-    </ClCompile>
-    <ClCompile Include="IO\XmlSerialization.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="IO\BinarySerialization.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\PlanetSim\PlanetSimCamera.cpp">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorld.cpp">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\PlanetSim\PlanetSimWorldGen.cpp">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\ChunkMesh.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelCamera.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelChunk.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelChunkManager.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelPlayer.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelWorld.cpp">
-      <Filter>Toys\Voxels</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\Voxel\VoxelWorldPPC.cpp">
-      <Filter>Toys\Voxels</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUIElement.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
@@ -152,9 +113,6 @@
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUIManager.cpp">
       <Filter>Rendering\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="Asset Packaging\AssetPackage.cpp">
-      <Filter>Asset Packaging</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.cpp">
       <Filter>Rendering\GUI\GUI Elements</Filter>
@@ -198,20 +156,8 @@
     <ClCompile Include="Math\Lower Math\Vectors.cpp">
       <Filter>Math\Lower Math</Filter>
     </ClCompile>
-    <ClCompile Include="Oculus Rift\OculusDevice.cpp">
-      <Filter>Oculus Rift</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\RiftTestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\AssImpTestWorld.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Lower Math\Mathf.cpp">
       <Filter>Math\Lower Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\TerrainTestWorld.cpp">
-      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -225,9 +171,6 @@
     <ClCompile Include="Rendering\GPU Particles\GPUParticleNodes.cpp">
       <Filter>Rendering\GPU Particles</Filter>
     </ClCompile>
-    <ClCompile Include="IO\Serialization.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\GLVectors.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
@@ -236,12 +179,6 @@
     </ClCompile>
     <ClCompile Include="Game Loop\SFMLWorld.cpp">
       <Filter>Game Loop</Filter>
-    </ClCompile>
-    <ClCompile Include="Toys\TwoTrianglesWorld.cpp">
-      <Filter>Toys\Two Triangles</Filter>
-    </ClCompile>
-    <ClCompile Include="Sample Worlds\OpenGLTestWorld.cpp">
-      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\Material.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -261,14 +198,8 @@
     <ClCompile Include="Rendering\Basic Rendering\ScreenClearer.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\Vertices.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Management\RenderTargetManager.cpp">
-      <Filter>Rendering\Management</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Textures\MTexture2D.cpp">
       <Filter>Rendering\Textures</Filter>
@@ -284,9 +215,6 @@
     </ClCompile>
     <ClCompile Include="Rendering\Textures\TextureSettings.cpp">
       <Filter>Rendering\Textures</Filter>
-    </ClCompile>
-    <ClCompile Include="Sample Worlds\NoiseTest.cpp">
-      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="Input\MovingCamera.cpp">
       <Filter>Input</Filter>
@@ -459,18 +387,6 @@
     <ClCompile Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.cpp">
       <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClCompile>
-    <ClCompile Include="Old Ones\PostProcessing.cpp">
-      <Filter>Old Ones</Filter>
-    </ClCompile>
-    <ClCompile Include="Old Ones\OldOnesSkybox.cpp">
-      <Filter>Old Ones</Filter>
-    </ClCompile>
-    <ClCompile Include="Old Ones\FractalRenderer.cpp">
-      <Filter>Old Ones</Filter>
-    </ClCompile>
-    <ClCompile Include="Old Ones\OldOneShadowMap.cpp">
-      <Filter>Old Ones</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Data Nodes\Parameters\Matrix4fParamNode.cpp">
       <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClCompile>
@@ -497,6 +413,60 @@
     </ClCompile>
     <ClCompile Include="Old Ones\OldOneEditorGUI.cpp">
       <Filter>Old Ones\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\GUIWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\MaterialOutputs.cpp">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Data Nodes\GeoShaderData.cpp">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\UniformCollections.cpp">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\UniformValueSubroutine.cpp">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\BinarySerialization.cpp">
+      <Filter>IO\Serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\XmlSerialization.cpp">
+      <Filter>IO\Serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\SerializationWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\TerrainWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\AssetImporterWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\EditorGUIWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="IO\SerializationWrappers.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample Worlds\NoiseGenWorld.cpp">
+      <Filter>Sample Worlds</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\Textures\RenderTargetManager.cpp">
+      <Filter>Rendering\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\FractalRenderer.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\OldOneShadowMap.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\OldOnesSkybox.cpp">
+      <Filter>Old Ones</Filter>
+    </ClCompile>
+    <ClCompile Include="Old Ones\PostProcessing.cpp">
+      <Filter>Old Ones</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -525,7 +495,7 @@
       <Filter>Input\Input Objects</Filter>
     </ClInclude>
     <ClInclude Include="IO\tinyxml2.h">
-      <Filter>IO\tinyxml Library</Filter>
+      <Filter>IO\Serializers\tinyxml Library</Filter>
     </ClInclude>
     <ClInclude Include="Input\InputManager.h">
       <Filter>Input</Filter>
@@ -634,53 +604,14 @@
     <ClInclude Include="Rendering\GUI\TextRenderer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\GUITestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Water\Water.h">
       <Filter>Rendering\Water</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Water\WaterRendering.h">
       <Filter>Rendering\Water</Filter>
     </ClInclude>
-    <ClInclude Include="IO\XmlSerialization.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="IO\DataSerialization.h">
       <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="IO\BinarySerialization.h">
-      <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\PlanetSim\PlanetSimCamera.h">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorld.h">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\PlanetSim\PlanetSimWorldGen.h">
-      <Filter>Toys\PlanetSim</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\ChunkMesh.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelCamera.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelChunk.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelChunkManager.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelPlayer.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelWorld.h">
-      <Filter>Toys\Voxels</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\Voxel\VoxelWorldPPC.h">
-      <Filter>Toys\Voxels</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUIElement.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
@@ -705,9 +636,6 @@
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUIManager.h">
       <Filter>Rendering\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="Asset Packaging\AssetPackage.h">
-      <Filter>Asset Packaging</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\GUI\GUI Elements\GUIFormattedPanel.h">
       <Filter>Rendering\GUI\GUI Elements</Filter>
@@ -739,12 +667,6 @@
     <ClInclude Include="Editor\Editor Panels\ColorEditor.h">
       <Filter>Rendering\Editors\Editor Panels</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\DAG Editor\DAGNode.h">
-      <Filter>Rendering\Editors\DAG Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\DAG Editor\DAGInput.h">
-      <Filter>Rendering\Editors\DAG Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Shapes\Circle.h">
       <Filter>Math\Shapes</Filter>
     </ClInclude>
@@ -769,23 +691,11 @@
     <ClInclude Include="Math\Lower Math/Array2D.h">
       <Filter>Math\Lower Math</Filter>
     </ClInclude>
-    <ClInclude Include="Oculus Rift\OculusDevice.h">
-      <Filter>Oculus Rift</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\RiftTestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\AssImpTestWorld.h">
-      <Filter>Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Lower Math\Mathf.h">
       <Filter>Math\Lower Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Geometryf.h">
       <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\TerrainTestWorld.h">
-      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -799,20 +709,11 @@
     <ClInclude Include="Rendering\GPU Particles\GPUParticleNodes.h">
       <Filter>Rendering\GPU Particles</Filter>
     </ClInclude>
-    <ClInclude Include="IO\Serialization.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="Game Loop\SFMLOpenGLWorld.h">
       <Filter>Game Loop</Filter>
     </ClInclude>
     <ClInclude Include="Game Loop\SFMLWorld.h">
       <Filter>Game Loop</Filter>
-    </ClInclude>
-    <ClInclude Include="Toys\TwoTrianglesWorld.h">
-      <Filter>Toys\Two Triangles</Filter>
-    </ClInclude>
-    <ClInclude Include="Sample Worlds\OpenGLTestWorld.h">
-      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\Material.h">
       <Filter>Rendering\Basic Rendering</Filter>
@@ -835,14 +736,8 @@
     <ClInclude Include="Rendering\Basic Rendering\MaterialUsageFlags.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\Vertices.h">
       <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Management\RenderTargetManager.h">
-      <Filter>Rendering\Management</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Textures\MTexture2D.h">
       <Filter>Rendering\Textures</Filter>
@@ -861,9 +756,6 @@
     </ClInclude>
     <ClInclude Include="Rendering\Textures\TextureSettings.h">
       <Filter>Rendering\Textures</Filter>
-    </ClInclude>
-    <ClInclude Include="Sample Worlds\NoiseTest.h">
-      <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="Input\MovingCamera.h">
       <Filter>Input</Filter>
@@ -1051,18 +943,6 @@
     <ClInclude Include="Rendering\Data Nodes\Miscellaneous\ApplyNormalMapNode.h">
       <Filter>Rendering\Data Nodes\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Old Ones\PostProcessing.h">
-      <Filter>Old Ones</Filter>
-    </ClInclude>
-    <ClInclude Include="Old Ones\OldOnesSkybox.h">
-      <Filter>Old Ones</Filter>
-    </ClInclude>
-    <ClInclude Include="Old Ones\FractalRenderer.h">
-      <Filter>Old Ones</Filter>
-    </ClInclude>
-    <ClInclude Include="Old Ones\OldOneShadowMap.h">
-      <Filter>Old Ones</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Data Nodes\Parameters\Matrix4fParamNode.h">
       <Filter>Rendering\Data Nodes\Parameters</Filter>
     </ClInclude>
@@ -1089,6 +969,78 @@
     </ClInclude>
     <ClInclude Include="Old Ones\OldOneEditorGUI.h">
       <Filter>Old Ones\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\IndexedPriorityQueue.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\Graph.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\Edge.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\AStarSearch.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\GraphSearchGoal.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\GUIWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Data Nodes\MaterialOutputs.h">
+      <Filter>Rendering\Data Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformCollections.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueVectorArray.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\UniformValueSubroutine.h">
+      <Filter>Rendering\Basic Rendering\Uniform Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\BinarySerialization.h">
+      <Filter>IO\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\XmlSerialization.h">
+      <Filter>IO\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\SerializationWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\TerrainWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\AssetImporterWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\EditorGUIWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\SerializationWrappers.h">
+      <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\Viewport.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample Worlds\NoiseGenWorld.h">
+      <Filter>Sample Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Textures\RenderTargetManager.h">
+      <Filter>Rendering\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\FractalRenderer.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\OldOneShadowMap.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\OldOnesSkybox.h">
+      <Filter>Old Ones</Filter>
+    </ClInclude>
+    <ClInclude Include="Old Ones\PostProcessing.h">
+      <Filter>Old Ones</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1125,9 +1077,6 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{077822c2-7114-45a1-9e61-f6a8b548b692}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tests">
-      <UniqueIdentifier>{3418affd-fce4-41be-84fa-6388382bbf75}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Events">
       <UniqueIdentifier>{95bef7da-4bab-4a10-9f0f-306b3c80aa15}</UniqueIdentifier>
     </Filter>
@@ -1143,35 +1092,11 @@
     <Filter Include="IO">
       <UniqueIdentifier>{8dc0e115-bfb4-46f2-b6f5-e0c3b762de30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IO\tinyxml Library">
-      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Toys">
-      <UniqueIdentifier>{052fb4db-3157-48e3-806e-100b8c831aa1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Toys\Voxels">
-      <UniqueIdentifier>{8ab7af21-70a9-4b01-b23e-8ef373245d7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Toys\PlanetSim">
-      <UniqueIdentifier>{9e62b9a7-1a62-464d-b3bc-9729f3923e0b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\GUI\GUI Elements">
       <UniqueIdentifier>{ec92b068-e8ad-47a7-befa-6d2057a7ab49}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset Packaging">
-      <UniqueIdentifier>{6ac83a61-b2e1-4f2a-bf8f-d1eb1e9ae1cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Math\Lower Math">
       <UniqueIdentifier>{65986f31-c477-4577-a486-3d5206df0a9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Oculus Rift">
-      <UniqueIdentifier>{b2f214a1-17d3-4baa-adc6-64d16b442ad0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Toys\Two Triangles">
-      <UniqueIdentifier>{3508bde8-92db-4455-83bd-8647a08958b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Toys\Two Triangles\Shaders">
-      <UniqueIdentifier>{6abf4684-7d9c-450f-9987-6f4cbe1a09b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\Basic Rendering">
       <UniqueIdentifier>{8ad55c55-4ca2-43dd-bfea-912c2bee8b5c}</UniqueIdentifier>
@@ -1206,9 +1131,6 @@
     <Filter Include="Rendering\Editors\Editor Panels">
       <UniqueIdentifier>{27d624c8-459b-41ab-bb82-b8940f4d7ec6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Editors\DAG Editor">
-      <UniqueIdentifier>{d6c6e1ca-c0d4-48f4-a73e-f538fbdb9b8e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Sample Worlds">
       <UniqueIdentifier>{4ab065bd-152d-485c-bdf3-a1e684e0dfe5}</UniqueIdentifier>
     </Filter>
@@ -1220,35 +1142,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="water2d.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="raymarcheddistancefunc.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="raymarchedterrain.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="fbm.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="mandlebrot.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="Test.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="RMDFFun.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="t.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
-    <Text Include="Perlin.txt">
-      <Filter>Toys\Two Triangles\Shaders</Filter>
-    </Text>
     <Text Include="..\Dependencies\Include In Build\Universal\Content\Old Ones\Old One Frag Shader Body.txt">
       <Filter>Old Ones</Filter>
     </Text>
+    <Filter Include="Graph">
+      <UniqueIdentifier>{a8c5d9ce-e6a4-4586-ba36-d7608a67ba8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Basic Rendering\Uniform Definitions">
+      <UniqueIdentifier>{ccb2b682-ebe2-45ce-a0df-82d34f9290d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IO\Serializers">
+      <UniqueIdentifier>{952e8ef2-61c0-4da5-9ffc-de31d8f4f3cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IO\Serializers\tinyxml Library">
+      <UniqueIdentifier>{e4f7dc4f-85f9-4536-b6db-5f9c56013c8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

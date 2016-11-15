@@ -7,13 +7,18 @@ ADD_NODE_REFLECTION_DATA_CPP_SINGLETON(VertexInputNode)
 std::shared_ptr<DataNode> VertexInputNode::instance = std::shared_ptr<DataNode>(new VertexInputNode());
 
 
+unsigned int VertexInputNode::GetNumbOutputs(void) const
+{
+    return GetMatData()->VertexInputs.GetNumbAttributes();
+}
+
 unsigned int VertexInputNode::GetOutputSize(unsigned int outputIndex) const
 {
-    return VertexIns.GetAttribute(outputIndex).Size;
+    return GetMatData()->VertexInputs.GetAttribute(outputIndex).Size;
 }
 std::string VertexInputNode::GetOutputName(unsigned int outputIndex) const
 {
-    return VertexIns.GetAttribute(outputIndex).Name;
+    return GetMatData()->VertexInputs.GetAttribute(outputIndex).Name;
 }
 
 

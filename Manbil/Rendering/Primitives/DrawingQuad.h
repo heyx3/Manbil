@@ -19,7 +19,7 @@ public:
     static void DestroyQuad(void);
 
     //Gets the quad. Returns 0 if it hasn't been initialized yet.
-    static DrawingQuad* GetInstance(void) { return instance; }
+    static DrawingQuad* GetInstance(void) { assert(instance != 0); return instance; }
 
     //Gets the vertex attributes that this quad uses.
     static RenderIOAttributes GetVertexInputData(void) { return VertexPosUV::GetVertexAttributes(); }

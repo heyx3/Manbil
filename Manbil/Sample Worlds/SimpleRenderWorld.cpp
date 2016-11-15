@@ -4,9 +4,12 @@
 #include "../Rendering/Primitives/PrimitiveGenerator.h"
 
 
+const int startWidth = 800,
+          startHeight = 600;
+
 SimpleRenderWorld::SimpleRenderWorld(void)
-    : windowSize(800, 600),
-      SFMLOpenGLWorld(800, 600, sf::ContextSettings()),
+    : windowSize(startWidth, startHeight),
+      SFMLOpenGLWorld(startWidth, startHeight),
       objMat(0)
 {
 
@@ -16,18 +19,26 @@ sf::VideoMode SimpleRenderWorld::GetModeToUse(unsigned int windowW, unsigned int
 {
     //Change this return value to change the window resolution mode.
     //To use native fullscreen, return "sf::VideoMode::getFullscreenModes()[0];".
+    std::cout << windowW << " " << windowH << "\n";
     return sf::VideoMode(windowW, windowH);
 }
 std::string SimpleRenderWorld::GetWindowTitle(void)
 {
     //Change this to change the string on the window's title-bar
     //    (assuming it has a title-bar).
-    return "World window";
+    std::cout << "SimpleRenderWorld\n";
+    return "SimpleRenderWorld";
 }
 sf::Uint32 SimpleRenderWorld::GetSFStyleFlags(void)
 {
     //Change this to change the properties of the window.
+    std::cout << "Titlebar, Resize, Close\n";
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
+}
+sf::ContextSettings SimpleRenderWorld::GenerateContext(void)
+{
+    std::cout << "24-bit depth, 4.1GL\n";
+    return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
 void SimpleRenderWorld::SetUpMaterial(void)
@@ -181,10 +192,9 @@ void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
     //Modify these constructors to change various aspects of how rendering is done.
     ScreenClearer(true, true, false, Vector4f(0.2, 0.2, 0.2f, 0.0f)).ClearScreen();
     RenderingState(RenderingState::C_BACK).EnableState();
+    Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
-    glViewport(0, 0, windowSize.x, windowSize.y);
-
-    //Set up the info for rendering stuff.
+    //Set up the info for rendering the cube.
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
     gameCam.GetPerspectiveProjection(projM);

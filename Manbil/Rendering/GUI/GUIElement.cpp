@@ -7,21 +7,51 @@
 
 bool GUIElement::UsesTimeLerp(void) const
 {
-    return Params.Floats.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.Floats.end();
+    return Params.find(GUIMaterials::DynamicQuadDraw_TimeLerp) != Params.end();
 }
 
 float GUIElement::GetTimeLerp(void) const
 {
-    return Params.Floats.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second.Value[0];
+    const Uniform& unf = Params.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second;
+    assert(unf.Type == UT_VALUE_F && unf.Float().GetSize() == 1);
+
+    return unf.Float().GetValue()[0];
 }
 void GUIElement::SetTimeLerp(float newVal)
 {
-    Params.Floats[GUIMaterials::DynamicQuadDraw_TimeLerp].SetValue(newVal);
+    Uniform& unf = Params.find(GUIMaterials::DynamicQuadDraw_TimeLerp)->second;
+    assert(unf.Type == UT_VALUE_F && unf.Float().GetSize() == 1);
+    unf.Float().SetValue(newVal);
 }
 
+Vector4f GUIElement::GetColor(void) const
+{
+    auto found = Params.find(GUIMaterials::QuadDraw_Color);
+    if (found == Params.end())
+    {
+        return Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    const Uniform& unf = found->second;
+    assert(unf.Type == UT_VALUE_F && unf.Float().GetSize() == 4);
+
+    //Get the array of floats and just re-interpret it as a vector.
+    return *(Vector4f*)(unf.Float().GetValue());
+}
 void GUIElement::SetColor(Vector4f newCol)
 {
-    Params.Floats[GUIMaterials::QuadDraw_Color].SetValue(newCol);
+    auto found = Params.find(GUIMaterials::QuadDraw_Color);
+    if (found == Params.end())
+    {
+        Params[GUIMaterials::QuadDraw_Color] = Uniform::MakeF(GUIMaterials::QuadDraw_Color, 4, &newCol.x);
+    }
+    else
+    {
+        Uniform& unf = found->second;
+        assert(unf.Type == UT_VALUE_F && unf.Float().GetSize() == 4);
+
+        unf.Float().SetValue(newCol);
+    }
 }
 
 void GUIElement::ScaleBy(Vector2f scaleAmount)
@@ -34,10 +64,9 @@ void GUIElement::SetBounds(Box2D newBounds)
 {
     Box2D currentBounds = GetBounds();
 
+    MoveElement(newBounds.GetCenter() - (GetPos() + currentBounds.GetCenter()));
     ScaleBy(Vector2f(newBounds.GetXSize() / currentBounds.GetXSize(),
                      newBounds.GetYSize() / currentBounds.GetYSize()));
-    SetPosition(newBounds.GetCenter());
-    //TODO: Shouldn't this be used instead? MoveElement(newBounds.GetCenter() - (GetPos() + currentBounds.GetCenter()));
 }
 
 
@@ -54,26 +83,13 @@ void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
     GetQuad()->SetSize(bounds.GetDimensions().ComponentProduct(Vector2f(0.5f, -0.5f)));
 }
 
-Vector4f GUIElement::GetColor(void) const
-{
-    auto loc = Params.Floats.find(GUIMaterials::QuadDraw_Color);
-    if (loc == Params.Floats.end())
-    {
-        return Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-    }
-    else
-    {
-        return *(Vector4f*)&loc->second.Value;
-    }
-}
-
 void GUIElement::Update(float elapsed, Vector2f relativeMouse)
 {
     DidBoundsChange = false;
 
     if (OnUpdate != 0)
     {
-        OnUpdate(this, relativeMouse, OnUpdate_Data);
+        OnUpdate(this, elapsed, relativeMouse, OnUpdate_Data);
     }
 
     this->CustomUpdate(elapsed, relativeMouse);

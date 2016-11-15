@@ -4,7 +4,7 @@
 #include "../Textures/MTexture2D.h"
 
 
-FreeTypeHandler FreeTypeHandler::Instance = FreeTypeHandler();
+FreeTypeHandler FreeTypeHandler::Instance;
 
 
 FreeTypeHandler::FontID FreeTypeHandler::LoadFont(std::string path, FontSizeData dat,
@@ -386,6 +386,11 @@ bool FreeTypeHandler::GetChar(MTexture2D& outTex) const
 
 bool FreeTypeHandler::TryFindID(FontID id, FaceMapLoc& outLoc) const
 {
+    if (faces.size() == 0)
+    {
+        errorMsg = std::string("No fonts are even loaded!");
+        return false;
+    }
     outLoc = faces.find(id);
     if (outLoc == faces.end())
     {
@@ -402,6 +407,7 @@ FreeTypeHandler::FreeTypeHandler(void)
     if (err != 0)
     {
         errorMsg = std::string("Error initializing FreeType library: ") + std::to_string(err);
+        std::cout << errorMsg << "\n\n";
     }
 }
 FreeTypeHandler::~FreeTypeHandler(void)
