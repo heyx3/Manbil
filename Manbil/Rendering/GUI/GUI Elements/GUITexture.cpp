@@ -40,7 +40,11 @@ void GUITexture::Render(float elapsed, const RenderInfo& info)
 
     if (tex == 0)
     {
-        Params[GUIMaterials::QuadDraw_Texture2D].Tex() = INVALID_RENDER_OBJ_HANDLE;
+        auto findParam = Params.find(GUIMaterials::QuadDraw_Texture2D);
+        if (findParam != Params.end())
+        {
+            findParam->second.Tex() = INVALID_RENDER_OBJ_HANDLE;
+        }
     }
     else
     {

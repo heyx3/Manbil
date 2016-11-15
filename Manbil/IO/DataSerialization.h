@@ -48,6 +48,9 @@ public:
     std::string ErrorMessage;
 
 
+    virtual ~DataWriter(void) { }
+
+
     virtual void WriteBool(bool value, const std::string& name) = 0;
     virtual void WriteByte(unsigned char value, const std::string& name) = 0;
     virtual void WriteInt(int value, const std::string& name) = 0;
@@ -133,6 +136,9 @@ public:
 
     //An error message that may be set when EXCEPTION_FAILURE is thrown.
     std::string ErrorMessage;
+
+
+    virtual ~DataReader(void) { }
 
 
     virtual void ReadBool(bool& outB) = 0;

@@ -229,7 +229,9 @@ void TW::OnWorldEnd(void)
 
 void TW::UpdateWorld(float elapsedSeconds)
 {
-    if (cam.Update(elapsedSeconds))
+    cam.Update(elapsedSeconds);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
     {
         EndWorld();
         return;

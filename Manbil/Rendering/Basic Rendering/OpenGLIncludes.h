@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <GL/glew.h>
-#include <GL/wglew.h>
+#include <GLEW/glew.h>
+#include <GLEW/wglew.h>
 #include <SFML/OpenGL.hpp>
 
 

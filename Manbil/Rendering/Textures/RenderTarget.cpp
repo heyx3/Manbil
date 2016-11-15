@@ -400,7 +400,11 @@ bool RenderTarget::UpdateSize(void)
 void RenderTarget::EnableDrawingInto(Viewport v) const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
     v.SetAsViewport();
+    if (Viewport::IsScissorEnabled())
+        v.SetAsScissor();
+
     currentTarget = this;
 }
 void RenderTarget::DisableDrawingInto(bool updateMipmaps) const

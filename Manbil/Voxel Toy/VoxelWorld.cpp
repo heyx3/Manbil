@@ -365,14 +365,14 @@ void VoxelWorld::InitializeWorld(void)
     * 0: World pos
     * 1: UV
     */
-    voxelParams["u_corner1"] = Uniform("u_corner1", UT_VALUE_F);
-    voxelParams["u_corner1"].Float() = Vector3f(-1.0f, -1.0f, -1.0f);
-    voxelParams["u_corner2"] = Uniform("u_corner2", UT_VALUE_F);
-    voxelParams["u_corner2"].Float() = Vector3f(1.0f, -1.0f, -1.0f);
-    voxelParams["u_corner3"] = Uniform("u_corner3", UT_VALUE_F);
-    voxelParams["u_corner3"].Float() = Vector3f(-1.0f, 1.0f, 1.0f);
-    voxelParams["u_corner4"] = Uniform("u_corner4", UT_VALUE_F);
-    voxelParams["u_corner4"].Float() = Vector3f(1.0f, 1.0f, 1.0f);
+    Vector3f val(-1.0f, -1.0f, -1.0f);
+    voxelParams["u_corner1"] = Uniform::MakeF("u_corner1", 3, &val.x);
+    val = Vector3f(1.0f, -1.0f, -1.0f);
+    voxelParams["u_corner2"] = Uniform::MakeF("u_corner2", 3, &val.x);
+    val = Vector3f(-1.0f, 1.0f, 1.0f);
+    voxelParams["u_corner3"] = Uniform::MakeF("u_corner3", 3, &val.x);
+    val = Vector3f(1.0f, 1.0f, 1.0f);
+    voxelParams["u_corner4"] = Uniform::MakeF("u_corner4", 3, &val.x);
     //Use a subroutine for the function that determines how to check whether to draw the face.
     //It returns the single value from the vertex inputs that decides whether to draw.
     std::vector<std::string> subroutines;

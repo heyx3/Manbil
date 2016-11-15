@@ -42,10 +42,8 @@ void ParamNode::ReadExtraData(DataReader* reader)
 
 void ParamNode::GetMyParameterDeclarations(UniformList& outUniforms) const
 {
-    outUniforms.push_back(Uniform(GetOutputName(0), UT_VALUE_F));
-
-    float vals[] = { 0.0f, 0.0f, 0.0f, 0.0f};
-    outUniforms[outUniforms.size() - 1].Float().SetValue(vSize, vals);
+    float vals[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    outUniforms.push_back(Uniform::MakeF(GetOutputName(0), vSize, vals));
 }
 
 #pragma warning(disable: 4100)

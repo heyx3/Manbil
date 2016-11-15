@@ -4,7 +4,7 @@
 #include "../BoolInput.h"
 
 //A BoolInput that uses a keyboard button.
-class KeyboardBoolInput : BoolInput
+class KeyboardBoolInput : public BoolInput
 {
 public:
 

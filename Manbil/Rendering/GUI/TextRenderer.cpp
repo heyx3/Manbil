@@ -195,8 +195,8 @@ TR::FontSlot TR::CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::strin
     if (!RTManager[rendTargetID]->SetColorAttachment(RenderTargetTex(slot.ColorTex), true))
     {
         errorMsg = "Error attaching color texture to render target; it may be too big.";
-        slots->erase(slotID);
         delete slot.ColorTex;
+        slots->erase(slotID);
         return TR::FontSlot();
     }
 
@@ -205,8 +205,8 @@ TR::FontSlot TR::CreateTextRenderSlot(FreeTypeHandler::FontID fontID, std::strin
     if (!RTManager[rendTargetID]->IsUseable(err))
     {
         errorMsg = "Render target is not usable: " + err;
-        slots->erase(slotID);
         delete slot.ColorTex;
+        slots->erase(slotID);
         return TR::FontSlot();
     }
 

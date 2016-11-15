@@ -23,6 +23,7 @@ public:
     ~MTexture2D(void) { DeleteIfValid(); }
 
     MTexture2D(const MTexture2D& cpy) = delete;
+    MTexture2D& operator=(const MTexture2D& cpy) = delete;
 
     MTexture2D(MTexture2D&& movedFrom);
     MTexture2D& operator=(MTexture2D&& moveFrom);

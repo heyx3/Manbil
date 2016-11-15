@@ -181,12 +181,12 @@ public:
     Vector3f GetParallelVector(void) const { return (l2 - l1).Normalized(); }
     float GetLength(void) const { return l2.Distance(l1) + Radius; }
 
-    virtual void SetCenter(Vector3f center) override
+    virtual void SetCenter(Vector3f newCenter) override
     {
-        Vector3f delta = center - GetCenter();
+        Vector3f delta = newCenter - GetCenter();
         l1 += delta;
         l2 += delta;
-        Shape::SetCenter(center);
+        Shape::SetCenter(newCenter);
     }
 
     virtual bool IsPointInside(Vector3f point) const override
