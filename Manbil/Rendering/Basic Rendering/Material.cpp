@@ -181,7 +181,7 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
                    std::string geoShader)
     : mode(m), attributes(attrs)
 {
-    //Create the material object.
+    //Create the shader program object.
     shaderProg = glCreateProgram();
     if (shaderProg == 0)
     {
@@ -189,26 +189,24 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         return;
     }
 
-
     //Compile the shaders.
-
     bool useGeoShader = !geoShader.empty();
     RenderObjHandle vsO, fsO, gsO = 0;
-
+	//Vertex shader:
     vsO = CreateShader(shaderProg, vs.c_str(), SH_VERTEX, outErrorMsg);
     if (!outErrorMsg.empty())
     {
         outErrorMsg = std::string("Error creating vertex shader: ") + outErrorMsg;
         return;
     }
-
+	//Fragment shader:
     fsO = CreateShader(shaderProg, fs.c_str(), SH_FRAGMENT, outErrorMsg);
     if (!outErrorMsg.empty())
     {
         outErrorMsg = std::string("Error creating fragment shader: ") + outErrorMsg;
         return;
     }
-
+	//Geometry shader:
     if (useGeoShader)
     {
         gsO = CreateShader(shaderProg, geoShader.c_str(), SH_GEOMETRY, outErrorMsg);
@@ -219,12 +217,9 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         }
     }
 
-
-    //Link and verify the shaders.
-
+    //Link the shaders together.
     UniformLocation success;
     char error[1024];
-
     glLinkProgram(shaderProg);
     glGetProgramiv(shaderProg, GL_LINK_STATUS, &success);
     if (!success)
@@ -234,24 +229,11 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         return;
     }
 
-    glValidateProgram(shaderProg);
-    glGetProgramiv(shaderProg, GL_VALIDATE_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProg, sizeof(error), NULL, error);
-        outErrorMsg = error;
-        return;
-    }
-
-
-    //Clean up the individual shader programs.
+    //Clean up the shader objects.
     glDeleteShader(vsO);
     glDeleteShader(fsO);
     if (useGeoShader)
-    {
         glDeleteShader(gsO);
-    }
-
 
     //Get uniforms.
     UniformLocation tempLoc;
@@ -333,6 +315,20 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
     projMatL = GetUniformLoc(shaderProg, MaterialConstants::ProjMatName.c_str());
     wvpMatL = GetUniformLoc(shaderProg, MaterialConstants::WVPMatName.c_str());
     viewProjMatL = GetUniformLoc(shaderProg, MaterialConstants::ViewProjMatName.c_str());
+
+	glUseProgram(shaderProg);
+	SetUniforms(dict);
+
+	//Verify the shaders.
+	glValidateProgram(shaderProg);
+	glGetProgramiv(shaderProg, GL_VALIDATE_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shaderProg, sizeof(error), NULL, error);
+		outErrorMsg = error;
+		return;
+	}
+
 }
 Material::~Material(void)
 {

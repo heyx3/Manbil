@@ -19,25 +19,21 @@ sf::VideoMode SimpleRenderWorld::GetModeToUse(unsigned int windowW, unsigned int
 {
     //Change this return value to change the window resolution mode.
     //To use native fullscreen, return "sf::VideoMode::getFullscreenModes()[0];".
-    std::cout << windowW << " " << windowH << "\n";
     return sf::VideoMode(windowW, windowH);
 }
 std::string SimpleRenderWorld::GetWindowTitle(void)
 {
     //Change this to change the string on the window's title-bar
     //    (assuming it has a title-bar).
-    std::cout << "SimpleRenderWorld\n";
     return "SimpleRenderWorld";
 }
 sf::Uint32 SimpleRenderWorld::GetSFStyleFlags(void)
 {
     //Change this to change the properties of the window.
-    std::cout << "Titlebar, Resize, Close\n";
     return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
 }
 sf::ContextSettings SimpleRenderWorld::GenerateContext(void)
 {
-    std::cout << "24-bit depth, 4.1GL\n";
     return sf::ContextSettings(24, 0, 0, 4, 1);
 }
 
