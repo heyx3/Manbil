@@ -19,9 +19,9 @@ const unsigned int INPUT_NextLOD = 1,
 
 
 TW::TerrainWorld(void)
-    : terrMat(0), windowSize(800, 600),
-      terrTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP),
-              PixelSizes::PS_32F, true),
+    : windowSize(800, 600),
+      terrainTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP),
+                 PixelSizes::PS_32F, true),
       cam(Vector3f(0.0f, 0.0f, 50.0f), 40.0f, 0.16f, Vector3f(1.0f, 1.0f, 0.0f).Normalized()),
       SFMLOpenGLWorld(800, 600)
 {
@@ -47,21 +47,20 @@ void TW::GenerateTerrainLOD(const Terrain& terr, unsigned int lodLevel)
                                                   [](VertexPosUVNormal& v) { return &v.Normal; },
                                                   100.0f, lodLevel);
     
-    //Insert a submesh for the terrain with this level of detail.
-    terrMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    MeshData& dat = terrMesh.SubMeshes[terrMesh.SubMeshes.size() - 1];
-    dat.SetVertexData(verts, MeshData::BUF_STATIC,
-                      VertexPosUVNormal::GetVertexAttributes());
-    dat.SetIndexData(inds, MeshData::BUF_STATIC);
+    //Insert a mesh for the terrain with this level of detail.
+	Mesh mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST);
+    mesh.SetVertexData(verts, Mesh::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
+    mesh.SetIndexData(inds, Mesh::BUF_STATIC);
+	terrainMeshes.push_back(std::move(mesh));
 }
 
 void TW::InitializeTextures(void)
 {
-    terrTex.Create();
+    terrainTex.Create();
 
     //Try to load it from a file.
     std::string errorMsg;
-    if (!Assert(terrTex.SetDataFromFile("Content/Sample Worlds/grass.png", errorMsg),
+    if (!Assert(terrainTex.SetDataFromFile("Content/Sample Worlds/grass.png", errorMsg),
                 "Error loading 'Content/Sample Worlds/grass.png'",
                 errorMsg))
     {
@@ -127,16 +126,16 @@ void TW::InitializeMaterials(void)
 
 
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, terrParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, terrainParams,
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(), "Error generating terrain shaders", genM.ErrorMessage))
     {
-        terrMat = genM.Mat;
+        terrainMat.reset(genM.Mat);
     }
 
 
     //Set up parameters.
-    terrParams["u_tex"].Tex() = terrTex.GetTextureHandle();
+    terrainParams["u_tex"].Tex() = terrainTex.GetTextureHandle();
 }
 void TW::InitializeObjects(void)
 {
@@ -222,9 +221,9 @@ void TW::InitializeWorld(void)
 
 void TW::OnWorldEnd(void)
 {
-    delete terrMat;
-    terrMesh.SubMeshes.clear();
-    terrTex.DeleteIfValid();
+	terrainMat.reset();
+	terrainMeshes.clear();
+	terrainTex.DeleteIfValid();
 }
 
 void TW::UpdateWorld(float elapsedSeconds)
@@ -239,21 +238,21 @@ void TW::UpdateWorld(float elapsedSeconds)
 
     //Update input.
     if (Input.GetBoolInputValue(INPUT_NextLOD) &&
-        terrMesh.CurrentSubMesh < terrMesh.SubMeshes.size() - 1)
+        currentTerrainMesh < terrainMeshes.size() - 1)
     {
-        terrMesh.CurrentSubMesh += 1;
+		currentTerrainMesh += 1;
     }
     if (Input.GetBoolInputValue(INPUT_PrevLOD) &&
-        terrMesh.CurrentSubMesh > 0)
+		currentTerrainMesh > 0)
     {
-        terrMesh.CurrentSubMesh -= 1;
+		currentTerrainMesh -= 1;
     }
 }
 
-void TW::RenderWorldGeometry(const RenderInfo& info)
+void TW::RenderWorldGeometry(const RenderInfo& camInfo)
 {
-    //Render the current terrain submesh.
-    terrMat->Render(info, &terrMesh, terrParams);
+    //Render the current terrain mesh.
+    terrainMat->Render(terrainMeshes[currentTerrainMesh], terrainTr, camInfo, terrainParams);
 }
 void TW::RenderOpenGL(float elapsedSeconds)
 {

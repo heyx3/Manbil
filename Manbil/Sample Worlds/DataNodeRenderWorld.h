@@ -47,9 +47,10 @@ private:
     void RenderWorldGeometry(const RenderInfo& info);
 
 
-    Material* objMat;
-    UniformDictionary matParams;
-    Mesh objMesh;
+    std::unique_ptr<Material> objMat;
+    std::unique_ptr<Mesh> objMesh;
+	Transform objTransform;
+    UniformDictionary objMatParams;
     MTexture2D objTex;
 
     Vector2u windowSize;

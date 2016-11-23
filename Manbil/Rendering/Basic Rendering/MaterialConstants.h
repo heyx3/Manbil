@@ -28,14 +28,17 @@ public:
     //Gets the uniform declarations for a material with the given usage flags.
     static std::string GetUniformDeclarations(const MaterialUsageFlags& flags);
 
-    //Gets everything that's needed in a vertex shader before the actual main function.
+    //Gets almost everything that's needed in a vertex shader before the actual main function.
     static std::string GetVertexHeader(std::string outputDeclarations, const RenderIOAttributes& attribs,
-                                       const MaterialUsageFlags& flags);
-    //Gets everything that's needed in a geometry shader before the actual main function.
+                                       const MaterialUsageFlags& flags,
+									   std::string openGLVersion = "400");
+    //Gets almost everything that's needed in a geometry shader before the actual main function.
     static std::string GetGeometryHeader(std::string inOutDeclarations,
                                          PrimitiveTypes input, PrimitiveTypes output,
-                                         unsigned int maxVertices, const MaterialUsageFlags& flags);
-    //Gets everything that's needed in a fragment shader before the actual main function.
+                                         unsigned int maxVertices, const MaterialUsageFlags& flags,
+										 std::string openGLVersion = "400");
+    //Gets almost everything that's needed in a fragment shader before the actual main function.
     static std::string GetFragmentHeader(std::string inputDeclarations, std::string outputDeclarations,
-                                         const MaterialUsageFlags& flags);
+                                         const MaterialUsageFlags& flags,
+										 std::string openGLVersion = "400");
 };

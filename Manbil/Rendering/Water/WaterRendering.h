@@ -3,7 +3,7 @@
 #include "../Data Nodes/DataNodes.hpp"
 
 
-//Calculates water properties.
+//Calculates water properties in both the vertex and geometry shader.
 //Outputs:
 //0: The object-space vertex position.
 //1: The object-space vertex normal.
@@ -15,7 +15,7 @@ public:
     //For an explanation of what they mean, refer to the bottom of Water.h.
     static const char *UniformName_DP_TSC_H_P,
                       *UniformName_sXY_SP,
-                      *UniformName_F_A_P,
+                      *UniformName_D_A_P,
                       *UniformName_TSC;
 
 
@@ -30,9 +30,9 @@ public:
 
     //Takes as input the object-space vertex/fragment position
     //    (one for each shader, Vertex and Fragment).
-    //Also takes in the uniform values for ripples/flows.
+    //Also takes in the uniform values for circular/directional ripples.
     WaterNode(const DataLine& objPos_VertexShader, const DataLine& objPos_FragmentShader,
-              unsigned int _maxRipples = 0, unsigned int _maxFlows = 0,
+              unsigned int maxRipples_Directional = 0, unsigned int maxRipples_Circular = 0,
               std::string name = "");
 
 protected:
@@ -54,7 +54,7 @@ protected:
 
 private:
 
-    unsigned int maxRipples, maxFlows;
+    unsigned int maxCircular, maxDirectional;
 
     const DataLine& GetObjectPosVInput(void) const { return GetInputs()[0]; }
     const DataLine& GetObjectPosVOutput(void) const { return GetInputs()[1]; }

@@ -40,11 +40,11 @@ private:
 
     Vector2u windowSize;
 
-    TextRenderer* textRenderer;
+    std::unique_ptr<TextRenderer> textRenderer;
     GUIManager guiManager;
 
     //Three types of GUI materials: animated, not animated, and text.
-    Material *simpleGUIMat, *animatedGUIMat, *guiTextMat;
+    std::unique_ptr<Material> simpleGUIMat, animatedGUIMat, guiTextMat;
     UniformDictionary simpleGUIMatParams, animatedGUIMatParams, guiTextMatParams;
 
     MTexture2D texBackground, texCheck, texSliderBar, texSliderNub;

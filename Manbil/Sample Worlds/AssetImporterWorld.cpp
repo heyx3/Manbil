@@ -15,7 +15,7 @@
 
 
 AssetImporterWorld::AssetImporterWorld(void)
-    : objMat(0), windowSize(800, 600),
+    : windowSize(800, 600),
       objTex2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, true),
       objTex3(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_32F, true),
       cam(Vector3f(), 10.0f, 0.18f),
@@ -138,7 +138,7 @@ void AssetImporterWorld::InitializeMaterials(void)
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(), "Error generating material shaders", genM.ErrorMessage))
     {
-        objMat = genM.Mat;
+        objMat.reset(genM.Mat);
     }
 
 
@@ -206,14 +206,13 @@ void AssetImporterWorld::InitializeObjects(void)
 
 
     //Create the mesh object.
-    objMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    MeshData& dat = objMesh.SubMeshes[0];
-    dat.SetVertexData(vertices, MeshData::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
-    dat.SetIndexData(indices, MeshData::BUF_STATIC);
+    objMesh.reset(new Mesh(false, PT_TRIANGLE_LIST));
+    objMesh->SetVertexData(vertices, Mesh::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
+    objMesh->SetIndexData(indices, Mesh::BUF_STATIC);
 
     //Set up the mesh's transform.
-    objMesh.Transform.SetPosition(Vector3f(5.0f, 0.0f, 0.0f));
-    objMesh.Transform.SetScale(3.0f);
+    objTransform.SetPosition(Vector3f(5.0f, 0.0f, 0.0f));
+    objTransform.SetScale(3.0f);
 }
 void AssetImporterWorld::InitializeWorld(void)
 {
@@ -235,7 +234,9 @@ void AssetImporterWorld::InitializeWorld(void)
 
 void AssetImporterWorld::OnWorldEnd(void)
 {
-    delete objMat;
+	objMat.reset();
+	objMesh.reset();
+
     objTex2.DeleteIfValid();
     objTex3.DeleteIfValid();
 }
@@ -283,19 +284,19 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
     //Both of the following code blocks perform the exact same rotation.
     if (false)
     {
-        objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), eulerRots.z));
-        objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 1.0f, 0.0f), eulerRots.y));
-        objMesh.Transform.Rotate(Quaternion(Vector3f(1.0f, 0.0f, 0.0f), eulerRots.x));
+        objTransform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), eulerRots.z));
+        objTransform.Rotate(Quaternion(Vector3f(0.0f, 1.0f, 0.0f), eulerRots.y));
+        objTransform.Rotate(Quaternion(Vector3f(1.0f, 0.0f, 0.0f), eulerRots.x));
     }
     else if (true)
     {
-        objMesh.Transform.RotateAbsolute(eulerRots);
+        objTransform.RotateAbsolute(eulerRots);
     }
 
     //Output the amount that was rotated.
     if (eulerRots.Length() > 0.0f)
     {
-        std::cout << DebugAssist::ToString(objMesh.Transform.GetRotationAngles()) << "\n";
+        std::cout << DebugAssist::ToString(objTransform.GetRotationAngles()) << "\n";
     }
 
 
@@ -303,19 +304,19 @@ void AssetImporterWorld::UpdateWorld(float elapsedSeconds)
     const float moveSpeed = 0.01f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
     {
-        objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * moveSpeed);
+		objTransform.IncrementPosition(objTransform.GetForward() * moveSpeed);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::F))
     {
-        objMesh.Transform.IncrementPosition(objMesh.Transform.GetForward() * -moveSpeed);
+		objTransform.IncrementPosition(objTransform.GetForward() * -moveSpeed);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
     {
-        objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * moveSpeed);
+		objTransform.IncrementPosition(objTransform.GetRightward() * moveSpeed);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::V))
     {
-        objMesh.Transform.IncrementPosition(objMesh.Transform.GetRightward() * -moveSpeed);
+		objTransform.IncrementPosition(objTransform.GetRightward() * -moveSpeed);
     }
 }
 
@@ -330,8 +331,8 @@ void AssetImporterWorld::RenderOpenGL(float elapsedSeconds)
     cam.GetViewTransform(viewM);
     cam.GetPerspectiveProjection(projM);
 
-    RenderInfo info(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
-    objMat->Render(info, &objMesh, objParams);
+    RenderInfo camInfo(GetTotalElapsedSeconds(), &cam, &viewM, &projM);
+    objMat->Render(*objMesh, objTransform, camInfo, objParams);
 }
 
 

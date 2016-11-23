@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "../../Math/Higher Math/Transform.h"
 #include "RenderInfo.h"
 #include "BlendMode.h"
 #include "RenderIOAttributes.h"
@@ -32,37 +33,28 @@ public:
     ~Material(void);
 
 
-    const RenderIOAttributes GetExpectedVertexData(void) const { return attributes; }
-    const BlendMode& GetBlendMode(void) const { return mode; }
-    const UniformList& GetUniforms(void) const { return uniforms; }
+	//Gets the attributes that mesh vertices should have when using this material.
+    const RenderIOAttributes GetVetexAttributes(void) const { return attributes; }
 
-    //Gets the OpenGL handle to this material's shader program. Should generally never be needed.
+	//Gets the custom uniforms this material has.
+    const UniformList& GetUniforms(void) const { return uniforms; }
+	//Gets the handle of the given custom uniform.
+	UniformLocation GetUniformLoc(const std::string& name) const;
+
+    //Gets the OpenGL handle to this material's shader program.
     RenderObjHandle GetShaderProgram(void) const { return shaderProg; }
 
     void SetBlendMode(BlendMode newMode) { mode = newMode; }
+    const BlendMode& GetBlendMode(void) const { return mode; }
 
-    
-    //Renders the given mesh.
-    void Render(const RenderInfo& info, const Mesh* toRender, const UniformDictionary& params);
-    //Renders the given meshes.
-    void Render(const RenderInfo& info, const std::vector<const Mesh*>& meshes,
-                const UniformDictionary& params);
-    //Renders the given meshes.
-    void Render(const RenderInfo& info, const UniformDictionary& params,
-                const Mesh*const* meshPtrArray, unsigned int nMeshes);
-
-    //Renders the given vertices with the given world matrix.
-    void Render(const RenderInfo& info, const MeshData& toRender,
-                const Matrix4f& worldMat, const UniformDictionary& params);
-    //Renders the given vertex buffers with the given world matrices.
-    void Render(const RenderInfo& info, const MeshData* toRender, const Matrix4f* worldMats,
-                unsigned int nToRender, const UniformDictionary& params);
+	void Render(const Mesh& mesh, const Transform& transform,
+				const RenderInfo& cameraInfo, const UniformDictionary& params) const;
 
 
 private:
 
 
-    void SetUniforms(const UniformDictionary& params);
+    void SetUniforms(const UniformDictionary& params) const;
 
 
     Material(const Material& cpy) = delete;
@@ -75,6 +67,7 @@ private:
 
     RenderObjHandle shaderProg;
 
+	//The location of important, built-in uniforms.
     UniformLocation camPosL, camForwardL, camUpL, camSideL,
                     camZNearL, camZFarL, camWidthL, camHeightL, camFovL,
                     camOrthoMinL, camOrthoMaxL,
@@ -87,9 +80,9 @@ private:
     std::vector<UniformLocation> vertexShaderSubroutines,
                                  geometryShaderSubroutines,
                                  fragmentShaderSubroutines;
-    std::vector<RenderObjHandle> vertexShaderSubroutineValues,
-                                 geometryShaderSubroutineValues,
-                                 fragmentShaderSubroutineValues;
+    mutable std::vector<RenderObjHandle> vertexShaderSubroutineValues,
+					                     geometryShaderSubroutineValues,
+							             fragmentShaderSubroutineValues;
     
 
     static RenderObjHandle CreateShader(RenderObjHandle shaderProg, const GLchar* shaderText,
@@ -107,9 +100,9 @@ private:
                 SetUniformValueI(UniformLocation loc, unsigned int nComponents, const int* components),
                 SetUniformValueArrayI(UniformLocation loc, unsigned int nArrayElements,
                                       unsigned int nComponents, const int* elements),
-                SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat);
-    static void SetUniformValueSubroutine(Shaders shaderType, unsigned int nValues,
-                                          RenderObjHandle* valuesForAllSubroutines);
+                SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat),
+				SetUniformValueSubroutine(Shaders shaderType, unsigned int nValues,
+                                          const RenderObjHandle* valuesForAllSubroutines);
 
     static void ActivateTextureUnit(unsigned int unitIndex);
 

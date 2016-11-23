@@ -16,6 +16,7 @@ private:
 
 public:
 
+	//TODO: Switch to using an std::vector for the values.
     ComponentType* Values;
     unsigned int NValues, NComponentsPerValue;
 

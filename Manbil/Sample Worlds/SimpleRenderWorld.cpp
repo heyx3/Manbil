@@ -9,8 +9,7 @@ const int startWidth = 800,
 
 SimpleRenderWorld::SimpleRenderWorld(void)
     : windowSize(startWidth, startHeight),
-      SFMLOpenGLWorld(startWidth, startHeight),
-      objMat(0)
+      SFMLOpenGLWorld(startWidth, startHeight)
 {
 
 }
@@ -108,8 +107,8 @@ void main() \n\
     //Now that the shaders are set up, create the actual material.
     //The material's constructor takes in an error message that gets set if something went wrong.
     std::string errorMsg;
-    objMat = new Material(vertexShader, fragmentShader, objMatParams,
-                          vertexInputs, BlendMode::GetOpaque(), errorMsg);
+    objMat.reset(new Material(vertexShader, fragmentShader, objMatParams,
+					          vertexInputs, BlendMode::GetOpaque(), errorMsg));
     if (!errorMsg.empty())
     {
         std::cout << "Error setting up material: " << errorMsg << "\n\nEnter anything to end the world.";
@@ -136,14 +135,14 @@ void SimpleRenderWorld::InitializeWorld(void)
     //The below function call generates a cube from {-1, -1, -1} to {1, 1, 1}.
     PrimitiveGenerator::GenerateCube(vertices, indices, false, false);
     //Put the generated cube data into the mesh.
-    objMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_TRIANGLE_LIST));
-    objMesh.SubMeshes[0].SetVertexData(vertices, MeshData::BUF_STATIC,
-                                       VertexPosUVNormal::GetVertexAttributes());
-    objMesh.SubMeshes[0].SetIndexData(indices, MeshData::BUF_STATIC);
+	objMesh.reset(new Mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST));
+	objMesh->SetVertexData(vertices, Mesh::BUF_STATIC,
+                           VertexPosUVNormal::GetVertexAttributes());
+	objMesh->SetIndexData(indices, Mesh::BUF_STATIC);
 
     //Move/size the object so that its vertices stay within about the range [0, 1].
-    objMesh.Transform.SetScale(0.4f);
-    objMesh.Transform.SetPosition(Vector3f(0.5f, 0.5f, 0.5f));
+	objTr.SetScale(0.4f);
+	objTr.SetPosition(Vector3f(0.5f, 0.5f, 0.5f));
 
     SetUpMaterial();
 
@@ -162,10 +161,8 @@ void SimpleRenderWorld::InitializeWorld(void)
 
 void SimpleRenderWorld::OnWorldEnd(void)
 {
-    if (objMat != 0)
-    {
-        delete objMat;
-    }
+	objMat.reset();
+	objMesh.reset();
 }
 
 void SimpleRenderWorld::UpdateWorld(float elapsedSeconds)
@@ -179,8 +176,8 @@ void SimpleRenderWorld::UpdateWorld(float elapsedSeconds)
 
 
     //Slowly rotate the mesh.
-    objMesh.Transform.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f),
-                                        elapsedSeconds * 1.2f));
+    objTr.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f),
+                            elapsedSeconds * 1.2f));
 }
 void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
 {
@@ -190,14 +187,14 @@ void SimpleRenderWorld::RenderOpenGL(float elapsedSeconds)
     RenderingState(RenderingState::C_BACK).EnableState();
     Viewport(0, 0, windowSize.x, windowSize.y).Use();
 
-    //Set up the info for rendering the cube.
+    //Set up the data structure for rendering objects from our camera.
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
     gameCam.GetPerspectiveProjection(projM);
-    RenderInfo info(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
+    RenderInfo cameraInfo(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
     
-    //Render the material.
-    objMat->Render(info, &objMesh, objMatParams);
+    //Render the mesh with the material.
+    objMat->Render(*objMesh, objTr, cameraInfo, objMatParams);
 }
 
 void SimpleRenderWorld::OnInitializeError(std::string errorMsg)

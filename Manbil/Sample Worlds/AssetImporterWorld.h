@@ -48,8 +48,9 @@ private:
     void InitializeObjects(void);
 
 
-    Material* objMat;
-    Mesh objMesh;
+    std::unique_ptr<Material> objMat;
+    std::unique_ptr<Mesh> objMesh;
+	Transform objTransform;
     UniformDictionary objParams;
     MTexture2D objTex2;
     MTexture3D objTex3;

@@ -70,17 +70,20 @@ void GUIElement::SetBounds(Box2D newBounds)
 }
 
 
-void GUIElement::SetUpQuad(void) const
+Transform GUIElement::GetDrawingQuadTransform(void) const
 {
     Box2D bnds = GetBounds();
     bnds.Move(GetPos());
-    SetUpQuad(bnds, Depth);
+    return GetDrawingQuadTransform(bnds, Depth);
 }
-void GUIElement::SetUpQuad(const Box2D& bounds, float depth)
+Transform GUIElement::GetDrawingQuadTransform(const Box2D& bounds, float depth)
 {
-    GetQuad()->SetPos(bounds.GetCenter());
-    GetQuad()->SetDepth(depth);
-    GetQuad()->SetSize(bounds.GetDimensions().ComponentProduct(Vector2f(0.5f, -0.5f)));
+	Transform tr;
+	tr.SetPosition(Vector3f(bounds.GetCenter(), depth));
+	tr.SetScale(Vector3f(bounds.GetXSize() * 0.5f,
+						 bounds.GetYSize() * -0.5f,
+						 1.0f));
+	return tr;
 }
 
 void GUIElement::Update(float elapsed, Vector2f relativeMouse)

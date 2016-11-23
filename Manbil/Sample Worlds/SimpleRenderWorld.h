@@ -42,9 +42,12 @@ private:
     MovingCamera gameCam;
 
     //A material to draw our object with.
-    Material* objMat;
+    std::unique_ptr<Material> objMat;
     UniformDictionary objMatParams;
 
     //A mesh to be drawn.
-    Mesh objMesh;
+    std::unique_ptr<Mesh> objMesh;
+
+	//The position, rotation, and scale of the mesh.
+	Transform objTr;
 };
