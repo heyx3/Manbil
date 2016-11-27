@@ -55,13 +55,14 @@ private:
     void RenderWorldGeometry(const RenderInfo& info);
 
     
-    //Each Level of Detail of the terrain is stored as a different MeshData instance
-    //    inside a single mesh instance.
-    Mesh terrMesh;
+    //Each Level of Detail of the terrain is stored as a different Mesh.
+    std::vector<Mesh> terrainMeshes;
+	Transform terrainTr;
+	size_t currentTerrainMesh = 0;
 
-    Material* terrMat;
-    UniformDictionary terrParams;
-    MTexture2D terrTex;
+    std::unique_ptr<Material> terrainMat;
+    UniformDictionary terrainParams;
+    MTexture2D terrainTex;
 
     Vector2u windowSize;
 

@@ -21,15 +21,15 @@ public:
 
 
     Mesh MyMesh;
+    Transform MyTransform;
 
-    Material* Mat;
+    std::unique_ptr<Material> Mat;
     UniformDictionary Params;
 
     MTexture2D DiffTex, NormalTex;
 
 
     WorldObject(GeoSet geoInfo, std::string& outError);
-    ~WorldObject(void);
 
 
     bool GetUsesVertexUVs(void) const { return getUVs; }
@@ -42,7 +42,7 @@ private:
 
     //Returns an error message if anything went wrong.
     std::string LoadMesh(const std::string& meshFile, bool getUVs,
-                         bool hasNormalMaps, MeshData& outDat);
+                         bool hasNormalMaps, Mesh& outDat);
     ShaderGenerator::GeneratedMaterial LoadMaterial(const GeoSet& geoInfo);
 
 

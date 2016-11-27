@@ -14,6 +14,8 @@ const float appearanceParticlesLength = 8.0f;
 
 DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
     : smokeTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, true),
+      oldOneAppearMesh(false, PrimitiveTypes::PT_POINTS),
+      oldOneAmbientMesh(false, PrimitiveTypes::PT_POINTS),
       oldOne(_oldOne)
 {
     //Load the textures.
@@ -59,13 +61,11 @@ DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
         err = "Error generating 'appearance' particles: " + genM.ErrorMessage;
         return;
     }
-    oldOneAppearParticles = std::shared_ptr<Material>(genM.Mat);
+    oldOneAppearParticles.reset(genM.Mat);
 
     oldOneAppearParams[texUniformName].Tex() = smokeTex.GetTextureHandle();
 
-    oldOneAppearMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_POINTS));
-    MeshData& datAppear = oldOneAppearMesh.SubMeshes[0];
-    GPUParticleGenerator::GenerateGPUPParticles(datAppear, GPUParticleGenerator::NOP_1024);
+    GPUParticleGenerator::GenerateGPUPParticles(oldOneAppearMesh, GPUParticleGenerator::NOP_1024);
 
 
     //Create the "ambient" particles.
@@ -84,18 +84,11 @@ DemoParticles::DemoParticles(FractalRenderer& _oldOne, std::string& err)
         err = "Error generating 'ambient' particles: " + genM.ErrorMessage;
         return;
     }
-    oldOneAmbientParticles = std::shared_ptr<Material>(genM.Mat);
+    oldOneAmbientParticles.reset(genM.Mat);
 
     oldOneAmbientParams[texUniformName].Tex() = smokeTex.GetTextureHandle();
 
-    oldOneAmbientMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_POINTS));
-    MeshData& datAmbient = oldOneAmbientMesh.SubMeshes[0];
-    GPUParticleGenerator::GenerateGPUPParticles(datAmbient, GPUParticleGenerator::NOP_16384);
-}
-
-DemoParticles::~DemoParticles(void)
-{
-
+    GPUParticleGenerator::GenerateGPUPParticles(oldOneAmbientMesh, GPUParticleGenerator::NOP_16384);
 }
 
 
@@ -112,17 +105,15 @@ void DemoParticles::Render(const RenderInfo& info)
     rs.EnableDepthTestState();
     rs.EnableDepthWriteState();
 
-    Matrix4f identity;
+    Transform identity;
     if (totalTime >= FractalRenderer::AppearTime)
     {
         if (totalTime < appearanceParticlesLength + FractalRenderer::AppearTime)
         {
-            oldOneAppearParticles->Render(info, oldOneAppearMesh.SubMeshes[0], identity,
-                                          oldOneAppearParams);
+            oldOneAppearParticles->Render(oldOneAppearMesh, identity, info, oldOneAppearParams);
         }
 
-        oldOneAmbientParticles->Render(info, oldOneAmbientMesh.SubMeshes[0], identity,
-                                       oldOneAmbientParams);
+        oldOneAmbientParticles->Render(oldOneAmbientMesh, identity, info, oldOneAmbientParams);
     }
 }
 

@@ -377,13 +377,16 @@ bool TR::RenderString(std::string textToRender, unsigned int fontID, RenderTarge
             FreeTypeHandler::Instance.GetChar(tempTex);
 
             //Set up the render quad size/location.
-            DrawingQuad::GetInstance()->SetBounds(pos, pos + scaledSize);
-            DrawingQuad::GetInstance()->IncrementPos(Vector2f(scaledOffset.x,
-                                                              -(1.0f + scaledOffset.y)));
-            DrawingQuad::GetInstance()->MakeSizePositive();
+			Vector2f halfSize = scaledSize * 0.5f;
+			Transform tr;
+			tr.SetPosition(Vector3f(pos + halfSize, 0.0f));
+			tr.SetScale(Vector3f(halfSize, 1.0f));
+			tr.IncrementPosition(Vector3f(scaledOffset.x, -(1.0f + scaledOffset.y), 0.0f));
+			tr.SetScale(tr.GetScale().Abs());
 
             //Render the character into the render target.
-            DrawingQuad::GetInstance()->Render(textRendererInfo, textRendererParams, *textRenderer);
+            DrawingQuad::GetInstance()->Render(tr, textRendererInfo,
+											   *textRenderer, textRendererParams);
         }
 
         //Move the quad to the next position for the letter.

@@ -9,9 +9,9 @@
 //This file contains various global types for easy interaction with OpenGL data types.
 
 
-//An OpenGL pointer to some kind of data (buffer, texture, shader program, etc).
+//A handle to some kind of OpenGL data (buffer, texture, shader program, etc).
 typedef GLuint RenderObjHandle;
-//An OpenGL pointer to the location of a uniform in a shader.
+//The location of a uniform in a shader.
 typedef GLint UniformLocation;
 
 extern RenderObjHandle INVALID_RENDER_OBJ_HANDLE;

@@ -8,9 +8,8 @@ class OldOnesSkybox
 {
 public:
 
-    //Outputs an error into the given string if something goes wrong in the construction.
+    //Outputs an error into the given string if something goes wrong during construction.
     OldOnesSkybox(std::string& outError);
-    ~OldOnesSkybox(void);
 
 
     void Render(RenderInfo& worldRenderInfo);
@@ -19,7 +18,7 @@ public:
 private:
 
     MTextureCubemap tex;
-    Material* cubeMat;
+    std::unique_ptr<Material> cubeMat;
     Mesh cubeMesh;
     UniformDictionary cubeParams;
 };

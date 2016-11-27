@@ -362,8 +362,7 @@ void OldOnesWorld::RenderOpenGL(float elapsedSeconds)
     Camera finalRendCam;
     info = RenderInfo(GetTotalElapsedSeconds(), &finalRendCam, &identity, &identity);
     finalRenderParams["u_tex"].Tex() = finalCol;
-    DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
-    DrawingQuad::GetInstance()->Render(info, finalRenderParams, *finalRenderMat);
+    DrawingQuad::GetInstance()->Render(Transform(), info, *finalRenderMat, finalRenderParams);
     //If the player can't control the fractal yet, don't show the editor panel.
     if (oldOne->IsEditable())
     {

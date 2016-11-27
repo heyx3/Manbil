@@ -27,13 +27,13 @@ Vector3f RemapMayaVert(const aiVector3D& in)
 
 
 WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
-    : Mat(0), getUVs(!geoInfo.UseWorldPosUV), useNormalMaps(geoInfo.UseNormalMap),
+    : getUVs(!geoInfo.UseWorldPosUV), useNormalMaps(geoInfo.UseNormalMap),
       DiffTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true),
-      NormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true)
+      NormalTex(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PS_8U, true),
+      MyMesh(false, PrimitiveTypes::PT_TRIANGLE_LIST)
 {
-    MyMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
     outError = LoadMesh(geoInfo.MeshFile, !geoInfo.UseWorldPosUV,
-                        geoInfo.UseNormalMap, MyMesh.SubMeshes[0]);
+                        geoInfo.UseNormalMap, MyMesh);
     if (!outError.empty())
     {
         return;
@@ -45,7 +45,7 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
         outError = genM.ErrorMessage;
         return;
     }
-    Mat = genM.Mat;
+    Mat.reset(genM.Mat);
 
     DiffTex.Create();
     if (!DiffTex.SetDataFromFile("Content/Old Ones/Diffuse Maps/" + geoInfo.DiffuseTexFile,
@@ -71,14 +71,6 @@ WorldObject::WorldObject(GeoSet geoInfo, std::string& outError)
             return;
         }
         Params["u_normalTex"].Tex() = NormalTex.GetTextureHandle();
-    }
-}
-WorldObject::~WorldObject(void)
-{
-    if (Mat != 0)
-    {
-        delete Mat;
-        Mat = 0;
     }
 }
 
@@ -123,11 +115,11 @@ void WorldObject::Render(RenderInfo& info, OldOneShadowMap& shadowMap)
     Params[lightVPMatName].Matrix() = Matrix4f::Multiply(shadowMap.GetProjM(),
                                                          shadowMap.GetViewM());
     Params[lightDepthTexName].Tex() = shadowMap.GetDepthTex();
-    Mat->Render(info, &MyMesh, Params);
+    Mat->Render(MyMesh, MyTransform, info, Params);
 }
 
 std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, bool hasNormalMaps,
-                                  MeshData& outDat)
+                                  Mesh& outDat)
 {
     //Load the mesh data.
     Assimp::Importer importer;
@@ -203,7 +195,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, boo
                 verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
+            outDat.SetVertexData(verts, Mesh::BUF_STATIC, attrs);
         }
         else
         {
@@ -220,7 +212,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, boo
                 verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
                 verts[i].uv = *(Vector2f*)(&mesh->mTextureCoords[0][i].x);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
+            outDat.SetVertexData(verts, Mesh::BUF_STATIC, attrs);
         }
     }
     else
@@ -240,7 +232,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, boo
                 verts[i].tangent = RemapMayaVert(mesh->mTangents[i]);
                 verts[i].bitangent = verts[i].normal.Cross(verts[i].tangent);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
+            outDat.SetVertexData(verts, Mesh::BUF_STATIC, attrs);
         }
         else
         {
@@ -255,7 +247,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, boo
                 verts[i].pos = RemapMayaVert(mesh->mVertices[i]);
                 verts[i].normal = RemapMayaVert(mesh->mNormals[i]);
             }
-            outDat.SetVertexData(verts, MeshData::BUF_STATIC, attrs);
+            outDat.SetVertexData(verts, Mesh::BUF_STATIC, attrs);
         }
     }
 
@@ -277,7 +269,7 @@ std::string WorldObject::LoadMesh(const std::string& meshFile, bool _getUVs, boo
         indices.push_back(fce.mIndices[1]);
         indices.push_back(fce.mIndices[2]);
     }
-    outDat.SetIndexData(indices, MeshData::BUF_STATIC);
+    outDat.SetIndexData(indices, Mesh::BUF_STATIC);
 
     importer.FreeScene();
     return "";

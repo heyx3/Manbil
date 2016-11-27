@@ -187,8 +187,7 @@ void main()                                                    \n\
 
 
 SerializationWorld::SerializationWorld(void)
-    : windowSize(800, 600),
-      SFMLOpenGLWorld(800, 600)
+    : windowSize(800, 600), SFMLOpenGLWorld(800, 600)
 {
 }
 
@@ -293,20 +292,18 @@ void SerializationWorld::InitializeWorld(void)
 
     //Now use the world info to generate the mesh and material objects.
 
-    mesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-
     std::vector<VertexPosUVNormal> vertices;
     info.GetVertices(vertices);
-    mesh.SubMeshes[0].SetVertexData(vertices, MeshData::BUF_STATIC,
-                                    VertexPosUVNormal::GetVertexAttributes());
 
-    mesh.SubMeshes[0].SetIndexData(info.Indices, MeshData::BUF_STATIC);
+	mesh.reset(new Mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST));
+    mesh->SetVertexData(vertices, Mesh::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
+	mesh->SetIndexData(info.Indices, Mesh::BUF_STATIC);
 
-    mesh.Transform.SetScale(4.0f);
+    transform.SetScale(4.0f);
 
     std::string errorMsg;
-    material = new Material(info.VertexShader, info.FragmentShader, params,
-                            info.VertexInputs, BlendMode::GetOpaque(), errorMsg);
+    material.reset(new Material(info.VertexShader, info.FragmentShader, params,
+                                info.VertexInputs, BlendMode::GetOpaque(), errorMsg));
     if (!errorMsg.empty())
     {
         std::cout << "Error setting up material: " << errorMsg << "\n\nEnter anything to end the world.";
@@ -319,11 +316,8 @@ void SerializationWorld::InitializeWorld(void)
 }
 void SerializationWorld::OnWorldEnd(void)
 {
-    if (material != 0)
-    {
-        delete material;
-    }
-    mesh.SubMeshes.clear();
+	material.reset();
+	mesh.reset();
 }
 
 void SerializationWorld::UpdateWorld(float elapsedSeconds)
@@ -349,8 +343,8 @@ void SerializationWorld::RenderOpenGL(float elapsedSeconds)
     gameCam.GetPerspectiveProjection(projMat);
 
     //Render the geometry.
-    RenderInfo info(GetTotalElapsedSeconds(), &gameCam, &viewMat, &projMat);
-    material->Render(info, &mesh, params);
+    RenderInfo cameraInfo(GetTotalElapsedSeconds(), &gameCam, &viewMat, &projMat);
+    material->Render(*mesh, transform, cameraInfo, params);
 }
 
 

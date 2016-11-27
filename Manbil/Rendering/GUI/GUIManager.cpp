@@ -38,6 +38,5 @@ void GUIManager::Update(float elapsed, Vector2i mousePos, bool clicked)
 
 void GUIManager::Render(float elapsed, const RenderInfo& info)
 {
-    DrawingQuad::GetInstance()->GetMesh().Transform = TransformObject();
     GetRoot()->Render(elapsed, info);
 }

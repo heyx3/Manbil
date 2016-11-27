@@ -146,7 +146,7 @@ RenderObjHandle PostProcessing::Render(float seconds, ProjectionInfo projInfo,
         //Render the post-process material.
         toUse->EnableDrawingInto();
         ScreenClearer(true, false, false, Vector4f(1.0f, 0.0f, 1.0f, 0.0f)).ClearScreen();
-        DrawingQuad::GetInstance()->Render(info, ppParams[i], *ppMats[i]);
+        DrawingQuad::GetInstance()->Render(Transform(), info, *ppMats[i], ppParams[i]);
         toUse->DisableDrawingInto();
     }
 

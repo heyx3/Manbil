@@ -10,8 +10,8 @@ typedef PrimitiveGenerator::CubemapVertex Vert;
 
 
 OOS::OldOnesSkybox(std::string& outError)
-    : cubeMat(0),
-      tex(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false)
+    : tex(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
+      cubeMesh(false, PrimitiveTypes::PT_TRIANGLE_LIST)
 {
     //Set up texture.
     std::string cubemapPath = "Content/Old Ones/Skyboxes/nwo512_",
@@ -54,7 +54,7 @@ OOS::OldOnesSkybox(std::string& outError)
         outError = "Error generating material: " + genM.ErrorMessage;
         return;
     }
-    cubeMat = genM.Mat;
+    cubeMat.reset(genM.Mat);
     cubeParams["u_cubeTex"].Tex() = tex.GetTextureHandle();
 
 
@@ -62,19 +62,11 @@ OOS::OldOnesSkybox(std::string& outError)
     std::vector<Vert> verts;
     std::vector<unsigned int> inds;
     PrimitiveGenerator::GenerateCubemapCube(verts, inds, true, true);
-    cubeMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    cubeMesh.SubMeshes[0].SetVertexData(verts, MeshData::BUF_STATIC, matData.VertexInputs);
-    cubeMesh.SubMeshes[0].SetIndexData(inds, MeshData::BUF_STATIC);
-}
-OOS::~OldOnesSkybox(void)
-{
-    if (cubeMat != 0)
-    {
-        delete cubeMat;
-    }
+    cubeMesh.SetVertexData(verts, Mesh::BUF_STATIC, matData.VertexInputs);
+    cubeMesh.SetIndexData(inds, Mesh::BUF_STATIC);
 }
 
 void OOS::Render(RenderInfo& worldRendInfo)
 {
-    cubeMat->Render(worldRendInfo, &cubeMesh, cubeParams);
+    cubeMat->Render(cubeMesh, Transform(), worldRendInfo, cubeParams);
 }

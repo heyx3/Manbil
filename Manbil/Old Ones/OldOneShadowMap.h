@@ -13,7 +13,6 @@ public:
     OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worldObjects,
                     FractalRenderer& fractalRenderer, const OldOneEditableData& data,
                     std::string& outError);
-    ~OldOneShadowMap(void);
 
 
     Matrix4f& GetViewM(void) { return viewM; }
@@ -35,8 +34,5 @@ private:
 
     Matrix4f viewM, projM;
 
-    Material *matUVNormal,
-             *matUVNoNormal,
-             *matNormalNoUV,
-             *matNoUVNormal;
+    std::unique_ptr<Material> mat_UVAndNormal, mat_UV, mat_Normal, mat_Nothing;
 };

@@ -9,7 +9,6 @@ const float growEndTime = 30.0f;
 
 
 FractalRenderer::FractalRenderer(std::string& err)
-    : mat(0), matShadow(0)
 {
     if (!appearSndBuff.loadFromFile("Content/Old Ones/Audio/OldOneAppear.wav"))
     {
@@ -22,17 +21,6 @@ FractalRenderer::FractalRenderer(std::string& err)
         
     RegenerateMaterial(err, false);
     RegenerateMaterial(err, true);
-}
-FractalRenderer::~FractalRenderer(void)
-{
-    if (mat != 0)
-    {
-        delete mat;
-    }
-    if (matShadow != 0)
-    {
-        delete matShadow;
-    }
 }
 
 void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds)
@@ -84,7 +72,7 @@ void FractalRenderer::Update(const OldOneEditableData& data, float frameSeconds)
     SetFractalRoundness(data.Roundness);
     SetFractalAngriness(data.Angriness);
 }
-#include <iostream>
+
 void FractalRenderer::Render(const OldOneEditableData& data, bool isShadow, RenderInfo& info)
 {
     if (!appeared)
@@ -110,19 +98,18 @@ void FractalRenderer::Render(const OldOneEditableData& data, bool isShadow, Rend
 
     //Now position a quad so that it covers the sphere and points towards the player.
     Vector3f fractalToCam = (info.Cam->GetPosition() - finalPos).Normalized();
-    TransformObject& trans = DrawingQuad::GetInstance()->GetMesh().Transform;
-    trans.SetPosition(finalPos + (fractalToCam * fractalRadius));
-    trans.SetScale(fractalRadius);
-    trans.SetRotation(Quaternion(TransformObject::Upward(),
-                                 (isShadow ? info.Cam->GetForward() : fractalToCam)));
+    Transform transform;
+    transform.SetPosition(finalPos + (fractalToCam * fractalRadius));
+    transform.SetScale(fractalRadius);
+    transform.SetRotation(Quaternion(Transform::Upward(),
+                                     (isShadow ? info.Cam->GetForward() : fractalToCam)));
     
     //Set up the render state.
     RenderingState(RenderingState::C_NONE, true, true,
                    RenderingState::AT_GREATER, 0.0f).EnableState();
 
     //Finally, render the quad.
-    std::cout << params.find("u_oldOne_roundness")->second.Float().GetValue()[0] << "\n";
-    DrawingQuad::GetInstance()->Render(info, params, (isShadow ? *mat : *matShadow));
+    DrawingQuad::GetInstance()->Render(transform, info, (isShadow ? *mat : *matShadow), params);
     
 
     //Reset state.
@@ -131,12 +118,7 @@ void FractalRenderer::Render(const OldOneEditableData& data, bool isShadow, Rend
 
 void FractalRenderer::RegenerateMaterial(std::string& err, bool shadowMat)
 {
-    Material** matPtr = (shadowMat ? &mat : &matShadow);
-    if (*matPtr != 0)
-    {
-        delete *matPtr;
-        *matPtr = 0;
-    }
+    std::unique_ptr<Material>* matPtr = (shadowMat ? &mat : &matShadow);
 
 
     //Use a normal text shader, not the DataNode system, to simplify the shader writing.
@@ -235,7 +217,7 @@ uniform float u_oldOne_spikyRight;\n\
     SetFractalAngriness(1.0f);
     SetFractalSpikyness(-1.0f, 1.0f);
     SetFractalColor(Vector3f(), Vector3f());
-    *matPtr = new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err);
+    matPtr->reset(new Material(vShader, fShader, params, vertIns, BlendMode::GetOpaque(), err));
     if (!err.empty())
     {
         err = "Error creating material: " + err;

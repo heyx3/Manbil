@@ -17,7 +17,6 @@ public:
 
 
     FractalRenderer(std::string& outError);
-    ~FractalRenderer(void);
     
 
     //Recreates the material's fragment shader from the text file.
@@ -47,7 +46,7 @@ private:
     void SetFractalColor(Vector3f col1, Vector3f col2);
 
 
-    Material *mat, *matShadow;
+    std::unique_ptr<Material> mat, matShadow;
     UniformDictionary params;
 
     sf::Sound appearSound, ambientSound;

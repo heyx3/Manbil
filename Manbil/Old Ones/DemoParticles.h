@@ -13,7 +13,6 @@ class DemoParticles
 public:
 
     DemoParticles(FractalRenderer& oldOne, std::string& errorMsg);
-    ~DemoParticles(void);
 
 
     void Update(float elapsedTime);
@@ -28,7 +27,7 @@ private:
     void SetElapsedTime(float newTime);
 
 
-    std::shared_ptr<Material> oldOneAppearParticles, oldOneAmbientParticles;
+    std::unique_ptr<Material> oldOneAppearParticles, oldOneAmbientParticles;
     Mesh oldOneAppearMesh, oldOneAmbientMesh;
     UniformDictionary oldOneAppearParams, oldOneAmbientParams;
 

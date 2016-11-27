@@ -37,7 +37,8 @@ private:
 
     MovingCamera gameCam;
 
-    Mesh mesh;
-    Material* material;
+    std::unique_ptr<Mesh> mesh;
+    std::unique_ptr<Material> material;
+	Transform transform;
     UniformDictionary params;
 };

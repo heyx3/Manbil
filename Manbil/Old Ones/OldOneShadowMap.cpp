@@ -26,7 +26,6 @@ OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worl
                                  FractalRenderer& _fractalRenderer, const OldOneEditableData& _data,
                                  std::string& err)
     : objs(worldObjects), rt(PS_32F_DEPTH, err), fractalRenderer(_fractalRenderer), data(_data),
-      matUVNormal(0), matUVNoNormal(0), matNormalNoUV(0), matNoUVNormal(0),
       depthTex(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_32F_DEPTH, false)
 {
     if (!err.empty())
@@ -43,28 +42,31 @@ OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worl
         err = "Error generating uv-normal: " + genM.ErrorMessage;
         return;
     }
-    matUVNormal = genM.Mat;
+    mat_UVAndNormal.reset(genM.Mat);
+
     genM = GenMat(true, false);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating uv-noNormal: " + genM.ErrorMessage;
         return;
     }
-    matUVNoNormal = genM.Mat;
+    mat_UV.reset(genM.Mat);
+
     genM = GenMat(false, true);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating noUv-normal: " + genM.ErrorMessage;
         return;
     }
-    matNormalNoUV = genM.Mat;
+    mat_Normal.reset(genM.Mat);
+
     genM = GenMat(false, false);
     if (!genM.ErrorMessage.empty())
     {
         err = "Error generating noUv-noNormal: " + genM.ErrorMessage;
         return;
     }
-    matNoUVNormal = genM.Mat;
+    mat_Nothing.reset(genM.Mat);
 
 
     //Set up render target.
@@ -76,25 +78,6 @@ OldOneShadowMap::OldOneShadowMap(std::vector<std::shared_ptr<WorldObject>>& worl
         return;
     }
     rt.UpdateSize();
-}
-OldOneShadowMap::~OldOneShadowMap(void)
-{
-    if (matUVNormal != 0)
-    {
-        delete matUVNormal;
-    }
-    if (matUVNoNormal != 0)
-    {
-        delete matUVNoNormal;
-    }
-    if (matNormalNoUV != 0)
-    {
-        delete matNormalNoUV;
-    }
-    if (matNoUVNormal != 0)
-    {
-        delete matNoUVNormal;
-    }
 }
 
 void OldOneShadowMap::Render(float totalSeconds)
@@ -122,22 +105,22 @@ void OldOneShadowMap::Render(float totalSeconds)
         {
             if (objs[i]->GetUsesNormalMaps())
             {
-                matUVNormal->Render(info, &objs[i]->MyMesh, UniformDictionary());
+                mat_UVAndNormal->Render(objs[i]->MyMesh, objs[i]->MyTransform, info, UniformDictionary());
             }
             else
             {
-                matUVNoNormal->Render(info, &objs[i]->MyMesh, UniformDictionary());
+                mat_UV->Render(objs[i]->MyMesh, objs[i]->MyTransform, info, UniformDictionary());
             }
         }
         else
         {
             if (objs[i]->GetUsesNormalMaps())
             {
-                matNormalNoUV->Render(info, &objs[i]->MyMesh, UniformDictionary());
+                mat_Normal->Render(objs[i]->MyMesh, objs[i]->MyTransform, info, UniformDictionary());
             }
             else
             {
-                matNoUVNormal->Render(info, &objs[i]->MyMesh, UniformDictionary());
+                mat_Nothing->Render(objs[i]->MyMesh, objs[i]->MyTransform, info, UniformDictionary());
             }
         }
     }
