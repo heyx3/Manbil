@@ -5,7 +5,6 @@
 #include "../Basic Rendering/Material.h"
 
 
-
 RenderIOAttributes WaterVertex::GetVertexAttributes(void)
 {
     return RenderIOAttributes(RenderIOAttributes::Attribute(3, false, "vIn_Pos"),
@@ -13,299 +12,273 @@ RenderIOAttributes WaterVertex::GetVertexAttributes(void)
 }
 
 
-void CreateWaterMesh(unsigned int size, Vector3f scle, Mesh& outM)
+void CreateWaterMesh(unsigned int size, Mesh& outM)
 {
-    Vector3f offset(size * -0.5f, size * -0.5f, 0.0f);
-
-    Array2D<float> terrainHeight(size, size, 0.0f);
-
     //Just create a flat terrain and let it do the math.
     Terrain terr(Vector2u(size, size));
-    terr.SetHeightmap(terrainHeight);
-    std::vector<WaterVertex> verts;
-    std::vector<unsigned int> indices;
-    terr.GenerateTrianglesFull<WaterVertex>(verts, indices,
-                                            [](WaterVertex& v) { return &v.Pos; },
-                                            [](WaterVertex& v) { return &v.TexCoord; });
+	std::vector<WaterVertex> verts;
+	std::vector<unsigned int> indices;
+	{
+		Array2D<float> heightmap(size, size, 0.0f);
+		terr.SetHeightmap(heightmap);
+		terr.GenerateTrianglesFull<WaterVertex>(
+			verts, indices,
+			[](WaterVertex& v) { return &v.Pos; },
+			[](WaterVertex& v) { return &v.TexCoord; });
+	}
 
     //Convert the terrain vertices into water vertices.
+	float invSize = 1.0f / (float)size;
     for (unsigned int i = 0; i < verts.size(); ++i)
     {
-        verts[i].Pos = verts[i].Pos.ComponentProduct(scle) + offset;
+        verts[i].Pos = Vector3f(verts[i].Pos.x * invSize,
+								verts[i].Pos.y * invSize,
+								verts[i].Pos.z);
     }
 
     //Upload the mesh data into vertex/index buffers.
-    outM.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    MeshData& mDat = outM.SubMeshes[0];
-    mDat.SetVertexData(verts, MeshData::BUF_STATIC, WaterVertex::GetVertexAttributes());
-    mDat.SetIndexData(indices, MeshData::BUF_STATIC);
+	outM.SetVertexData(verts, Mesh::BUF_STATIC, WaterVertex::GetVertexAttributes());
+	outM.SetIndexData(indices, Mesh::BUF_STATIC);
 }
 
-Water::Water(unsigned int size, Vector3f pos, Vector3f scale,
-             unsigned int _maxRipples, unsigned int _maxFlows)
-    : maxRipples(_maxRipples), maxFlows(_maxFlows),
-      currentRippleIndex(0), currentFlowIndex(0),
-      nextRippleID(0), nextFlowID(0), rippleIDs(0), flowIDs(0),
-      dp_tsc_h_p(0), sXY_sp(0), f_a_p(0), tsc(0),
-      waterMat(0)
+Water::Water(unsigned int size, unsigned int maxCircularRipples, unsigned int maxDirectionalRipples)
+    : maxRipples_Circular(maxCircularRipples), maxRipples_Directional(maxDirectionalRipples),
+      waterMat(nullptr), MyMesh(false, PrimitiveTypes::PT_TRIANGLE_LIST)
 {
     //Create mesh.
-    CreateWaterMesh(size, scale, MyMesh);
-    MyMesh.Transform.SetPosition(pos);
+    CreateWaterMesh(size, MyMesh);
 
-
-    //Set up ripples.
-    if (maxRipples > 0)
-    {
-        rippleIDs = new unsigned int[maxRipples];
-        dp_tsc_h_p = new Vector4f[maxRipples];
-        sXY_sp = new Vector3f[maxRipples];
-        for (unsigned int i = 0; i < maxRipples; ++i)
-        {
-            dp_tsc_h_p[i].w = 999.0f;
-            dp_tsc_h_p[i].x = 0.001f;
-            sXY_sp[i].z = 0.001f;
-        }
-
-        //Set up both params for ripple simulation with their default values.
-
-        Params[WaterNode::UniformName_DP_TSC_H_P] = Uniform(WaterNode::UniformName_DP_TSC_H_P,
-                                                            UT_VALUE_F_ARRAY);
-        Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray() =
-            UniformValueArrayF(&(dp_tsc_h_p[0][0]), maxRipples, 4);
-
-        Params[WaterNode::UniformName_sXY_SP] = Uniform(WaterNode::UniformName_sXY_SP,
-                                                        UT_VALUE_F_ARRAY);
-        Params[WaterNode::UniformName_sXY_SP].FloatArray() =
-            UniformValueArrayF(&(sXY_sp[0][0]), maxRipples, 3);
-    }
-
-    //Set up flows.
-    if (maxFlows > 0)
-    {
-        flowIDs = new unsigned int[maxFlows];
-        f_a_p = new Vector4f[maxFlows];
-        tsc = new float[maxFlows];
-        for (unsigned int i = 0; i < maxFlows; ++i)
-        {
-            f_a_p[i] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
-            tsc[i] = 0.0f;
-        }
-
-        //Set up both params for flow simulation with their default values.
-
-        Params[WaterNode::UniformName_F_A_P] = Uniform(WaterNode::UniformName_F_A_P, UT_VALUE_F_ARRAY);
-        Params[WaterNode::UniformName_F_A_P].FloatArray() = UniformValueArrayF(&f_a_p[0][0],
-                                                                                   maxFlows, 4);
-
-        Params[WaterNode::UniformName_TSC] = Uniform(WaterNode::UniformName_TSC, UT_VALUE_F_ARRAY);
-        Params[WaterNode::UniformName_TSC].FloatArray() = UniformValueArrayF(tsc, maxFlows, 1);
-    }
-}
-Water::~Water(void)
-{
-    if (rippleIDs != 0)
-    {
-        assert(dp_tsc_h_p != 0 && sXY_sp != 0);
-        delete[] rippleIDs, dp_tsc_h_p, sXY_sp;
-    }
-    if (flowIDs != 0)
-    {
-        assert(f_a_p != 0 && tsc != 0);
-        delete[] flowIDs, f_a_p, tsc;
-    }
+    //Set up circular ripples.
+	ripplesUniformCircular_dp_tsc_h_p.resize(maxRipples_Circular);
+	ripplesUniformCircular_sXY_sp.resize(maxRipples_Circular);
+	for (unsigned int rippleI = 0; rippleI < maxRipples_Circular; ++rippleI)
+	{
+		ripplesUniformCircular_dp_tsc_h_p[rippleI].x = 0.001f;
+		ripplesUniformCircular_dp_tsc_h_p[rippleI].w = 999.0f;
+		ripplesUniformCircular_sXY_sp[rippleI].z = 0.001f;
+	}
+	Params[WaterNode::UniformName_DP_TSC_H_P] =
+		Uniform(WaterNode::UniformName_DP_TSC_H_P, UT_VALUE_F_ARRAY);
+	Params[WaterNode::UniformName_sXY_SP] =
+		Uniform(WaterNode::UniformName_sXY_SP, UT_VALUE_F_ARRAY);
+	Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray() =
+		UniformValueArrayF(&ripplesUniformCircular_dp_tsc_h_p[0].x, maxRipples_Circular, 4);
+	Params[WaterNode::UniformName_sXY_SP].FloatArray() =
+		UniformValueArrayF(&ripplesUniformCircular_sXY_sp[0].x, maxRipples_Circular, 3);
+	
+	//Set up directional ripples.
+	ripplesUniformDirectional_d_a_p.resize(maxRipples_Directional);
+	ripplesUniformDirectional_tsc.resize(maxRipples_Directional);
+	for (unsigned int rippleI = 0; rippleI < maxRipples_Directional; ++rippleI)
+	{
+		ripplesUniformDirectional_d_a_p[rippleI] = Vector4f(0.001f, 0.0f, 0.0f, 9999.0f);
+		ripplesUniformDirectional_tsc[rippleI] = 0.0f;
+	}
+	Params[WaterNode::UniformName_D_A_P] = Uniform(WaterNode::UniformName_D_A_P, UT_VALUE_F_ARRAY);
+	Params[WaterNode::UniformName_TSC] = Uniform(WaterNode::UniformName_TSC, UT_VALUE_F_ARRAY);
+	Params[WaterNode::UniformName_D_A_P].FloatArray() =
+		UniformValueArrayF(&ripplesUniformDirectional_d_a_p[0][0], maxRipples_Directional, 4);
+	Params[WaterNode::UniformName_TSC].FloatArray() =
+		UniformValueArrayF(&ripplesUniformDirectional_tsc[0], maxRipples_Directional, 1);
 }
 
-unsigned int Water::AddRipple(const RippleWaterArgs& args)
+Water::RippleID Water::AddRipple(CircularRipple newRipple, RippleID removeIfFull)
 {
-    assert(maxRipples > 0);
+	assert(maxRipples_Circular > 0);
 
-    RippleWaterArgs cpy(args);
+	//Find the first unused ID.
+	RippleID id = 0;
+	while (ripples_Circular.find(id) != ripples_Circular.end())
+		id += 1;
+	//If we have too many ripples already, either quit or remove one of them.
+	if (id >= maxRipples_Circular)
+	{
+		if (removeIfFull == RIPPLEID_INVALID)
+			return RIPPLEID_INVALID;
+		else
+			id = removeIfFull;
+	}
 
-    //Translate the source into object space.
-    Matrix4f inv;
-    MyMesh.Transform.GetWorldTransform(inv);
-    inv = inv.GetInverse();
-    cpy.Source = inv.Apply(args.Source);
-    
+	//Make sure uniform values are valid.
+	if (newRipple.DropoffPoint <= 0.0f)
+		newRipple.DropoffPoint = 9999.0f;
+	if (newRipple.Period <= 0.0f)
+		newRipple.Period = 0.00001f;
+	if (newRipple.Speed <= 0.0f)
+		newRipple.Speed = 1.0f;
 
-    //Update tracking values.
-    unsigned int rippleID = nextRippleID;
-    nextRippleID += 1;
-    unsigned int index = currentRippleIndex;
-    currentRippleIndex += 1;
-    currentRippleIndex %= maxRipples;
+	ripples_Circular[id] = newRipple;
 
-    //Make sure uniform values aren't invalid.
-    if (args.DropoffPoint <= 0.0f)
-    {
-        cpy.DropoffPoint = 9999.0f;
-    }
-    if (args.Period <= 0.0f)
-    {
-        cpy.Period = 5.0f;
-    }
-    if (args.Speed <= 0.0f)
-    {
-        cpy.Speed = 1.0f;
-    }
-
-    //Set the uniforms.
-    dp_tsc_h_p[index] = Vector4f(cpy.DropoffPoint, cpy.TimeSinceCreated,
-                                 cpy.Amplitude, cpy.Period);
-    sXY_sp[index] = Vector3f(cpy.Source.x, cpy.Source.y, cpy.Speed);
-    rippleIDs[index] = rippleID;
-
-
-    return rippleID;
+	return id;
 }
-bool Water::ChangeRipple(unsigned int element, const RippleWaterArgs& args)
+Water::RippleID Water::AddRipple(DirectionalRipple newRipple, RippleID removeIfFull)
 {
-    assert(maxRipples > 0);
+	assert(maxRipples_Directional > 0);
 
-    for (unsigned int i = 0; i < maxRipples; ++i)
-    {
-        if (rippleIDs[i] == element)
-        {
-            //Translate the source into object space.
-            Matrix4f inv;
-            MyMesh.Transform.GetWorldTransform(inv);
-            inv = inv.GetInverse();
-            Vector3f sourcePos = args.Source;
-            sourcePos = inv.Apply(sourcePos);
+	//Find the first unused ID.
+	RippleID id = 0;
+	while (ripples_Directional.find(id) != ripples_Directional.end())
+		id += 1;
+	//If we have too many ripples already, either quit or remove one of them.
+	if (id >= maxRipples_Directional)
+	{
+		if (removeIfFull == RIPPLEID_INVALID)
+			return RIPPLEID_INVALID;
+		else
+			id = removeIfFull;
+	}
 
-            //Set the uniforms.
-            dp_tsc_h_p[i] = Vector4f(args.DropoffPoint, args.TimeSinceCreated,
-                                     args.Amplitude, args.Period);
-            sXY_sp[i] = Vector3f(sourcePos.x, sourcePos.y, args.Speed);
+	//Make sure uniform values are valid.
+	if (newRipple.Flow == Vector2f())
+		newRipple.Flow = Vector2f(0.001f, 0.0f);
+	if (newRipple.Period <= 0.0f)
+		newRipple.Period = 0.001f;
 
-            return true;
-        }
-    }
+	ripples_Directional[id] = newRipple;
 
-    return false;
+	return id;
 }
 
-unsigned int Water::AddFlow(const DirectionalWaterArgs& args)
+void Water::ChangeRipple(RippleID toChange, const DirectionalRipple& changedRipple)
 {
-    assert(maxFlows > 0);
-
-    //Create a copy of the arguments so that any invalid uniform values can be changed.
-    DirectionalWaterArgs cpy(args);
-    if (cpy.Flow == Vector2f())
-    {
-        cpy.Flow = Vector2f(0.001f, 0.0f);
-    }
-    if (cpy.Period <= 0.0f)
-    {
-        cpy.Period = 0.001f;
-    }
-
-    //Update tracking values.
-    unsigned int flowID = nextFlowID;
-    nextFlowID += 1;
-    unsigned int index = currentFlowIndex;
-    currentFlowIndex += 1;
-    currentFlowIndex %= maxFlows;
-
-    //Set the uniforms.
-    f_a_p[index] = Vector4f(cpy.Flow.x, cpy.Flow.y, cpy.Amplitude, cpy.Period);
-    tsc[index] = cpy.TimeSinceCreated;
-
-    return flowID;
+	assert(ripples_Directional.find(toChange) != ripples_Directional.end());
+	ripples_Directional[toChange] = changedRipple;
 }
-bool Water::ChangeFlow(unsigned int element, const DirectionalWaterArgs & args)
+void Water::ChangeRipple(RippleID toChange, const CircularRipple& changedRipple)
 {
-    assert(maxFlows > 0);
+	assert(ripples_Circular.find(toChange) != ripples_Circular.end());
+	ripples_Circular[toChange] = changedRipple;
+}
 
-    for (unsigned int i = 0; i < maxFlows; ++i)
-    {
-        if (flowIDs[i] == element)
-        {
-            //Set the uniforms.
-            f_a_p[i] = Vector4f(args.Flow.x, args.Flow.y, args.Amplitude, args.Period);
-            tsc[i] = args.TimeSinceCreated;
+void Water::RemoveRipple_Circular(RippleID toRemove)
+{
+	assert(ripples_Circular.find(toRemove) != ripples_Circular.end());
+	ripples_Circular.erase(toRemove);
+}
+void Water::RemoveRipple_Directional(RippleID toRemove)
+{
+	assert(ripples_Directional.find(toRemove) != ripples_Directional.end());
+	ripples_Directional.erase(toRemove);
+}
 
-            return true;
-        }
-    }
+bool Water::RippleExists_Circular(RippleID ripple) const
+{
+	return ripples_Circular.find(ripple) != ripples_Circular.end();
+}
+bool Water::RippleExists_Directional(RippleID ripple) const
+{
+	return ripples_Directional.find(ripple) != ripples_Directional.end();
+}
 
-    return false;
+const Water::DirectionalRipple* Water::GetRipple_Directional(RippleID id) const
+{
+	auto found = ripples_Directional.find(id);
+	return (found == ripples_Directional.end() ?
+				nullptr :
+				&found->second);
+}
+const Water::CircularRipple* Water::GetRipple_Circular(RippleID id) const
+{
+	auto found = ripples_Circular.find(id);
+	return (found == ripples_Circular.end() ?
+				nullptr :
+				&found->second);
 }
 
 void Water::SetMaterial(Material* mat)
 {
     waterMat = mat;
 
-    const UniformList& matArr = mat->GetUniforms();
-    if (maxRipples > 0)
+	//Update the uniform handles.
+    if (maxRipples_Circular > 0)
     {
-        Params[WaterNode::UniformName_DP_TSC_H_P].Loc =
-            Uniform::Find(matArr, WaterNode::UniformName_DP_TSC_H_P)->Loc;
-        Params[WaterNode::UniformName_sXY_SP].Loc =
-            Uniform::Find(matArr, WaterNode::UniformName_sXY_SP)->Loc;
+		Params[WaterNode::UniformName_DP_TSC_H_P].Loc =
+			mat->GetUniformLoc(WaterNode::UniformName_DP_TSC_H_P);
+		Params[WaterNode::UniformName_sXY_SP].Loc =
+			mat->GetUniformLoc(WaterNode::UniformName_sXY_SP);
     }
-    if (maxFlows > 0)
+    if (maxRipples_Directional > 0)
     {
-        Params[WaterNode::UniformName_F_A_P].Loc =
-            Uniform::Find(matArr, WaterNode::UniformName_F_A_P)->Loc;
-        Params[WaterNode::UniformName_TSC].Loc =
-            Uniform::Find(matArr, WaterNode::UniformName_TSC)->Loc;
+		Params[WaterNode::UniformName_D_A_P].Loc =
+			mat->GetUniformLoc(WaterNode::UniformName_D_A_P);
+		Params[WaterNode::UniformName_TSC].Loc =
+			mat->GetUniformLoc(WaterNode::UniformName_TSC);
     }
 }
 
 void Water::Update(float elapsed)
 {
-    if (maxRipples > 0)
-    {
-        //Keep in mind that negative time values indicate the ripple source was stopped
-        //    and is fading out.
-        for (unsigned int i = 0; i < maxRipples; ++i)
-        {
-            if (dp_tsc_h_p[i].y >= 0.0f)
-            {
-                dp_tsc_h_p[i].y += elapsed;
-            }
-            else
-            {
-                dp_tsc_h_p[i].y -= elapsed;
-            }
-        }
-    }
+	//Update the "time since created" values for each ripple.
 
-    if (maxFlows > 0)
-    {
-        for (unsigned int i = 0; i < maxFlows; ++i)
-        {
-            if (tsc[i] > 0.0f)
-            {
-                tsc[i] += elapsed;
-            }
-            else
-            {
-                tsc[i] -= elapsed;
-            }
-        }
-    }
+    //Keep in mind that negative time values indicate the ripple source was stopped
+    //    and is fading out.
 
-    UpdateMeshUniforms();
+	for (auto& rippleNameAndValue : ripples_Circular)
+		if (rippleNameAndValue.second.TimeSinceCreated >= 0.0f)
+			rippleNameAndValue.second.TimeSinceCreated += elapsed;
+		else
+			rippleNameAndValue.second.TimeSinceCreated -= elapsed;
+
+	for (auto& rippleNameAndValue : ripples_Directional)
+		if (rippleNameAndValue.second.TimeSinceCreated > 0.0f)
+			rippleNameAndValue.second.TimeSinceCreated += elapsed;
+		else
+			rippleNameAndValue.second.TimeSinceCreated -= elapsed;
 }
-void Water::Render(const RenderInfo& info)
+void Water::Render(const Transform& tr, const RenderInfo& info)
 {
-    assert(waterMat != 0);
-    waterMat->Render(info, &MyMesh, Params);
+	assert(waterMat != nullptr);
+
+	UpdateMeshUniforms();
+	waterMat->Render(MyMesh, tr, info, Params);
 }
 
 void Water::UpdateMeshUniforms(void)
 {
-    if (maxRipples > 0)
-    {
-        Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray().SetData(&(dp_tsc_h_p[0][0]), maxRipples, 4);
-        Params[WaterNode::UniformName_sXY_SP].FloatArray().SetData(&(sXY_sp[0][0]), maxRipples, 3);
-    }
-    if (maxFlows > 0)
-    {
-        Params[WaterNode::UniformName_F_A_P].FloatArray().SetData(&(f_a_p[0][0]), maxFlows, 4);
-        Params[WaterNode::UniformName_TSC].FloatArray().SetData(tsc, maxFlows, 1);
-    }
+	//Put all circular ripples into the uniform arrays.
+	unsigned int i = 0;
+	for (auto& rippleNameAndValue : ripples_Circular)
+	{
+		ripplesUniformCircular_dp_tsc_h_p[i] = Vector4f(rippleNameAndValue.second.DropoffPoint,
+														rippleNameAndValue.second.TimeSinceCreated,
+														rippleNameAndValue.second.Amplitude,
+														rippleNameAndValue.second.Period);
+		ripplesUniformCircular_sXY_sp[i] = Vector3f(rippleNameAndValue.second.Source.x,
+													rippleNameAndValue.second.Source.y,
+													rippleNameAndValue.second.Speed);
+		i += 1;
+	}
+	//For every other entry in the uniform arrays, add an invisible ripple.
+	for (; i < maxRipples_Circular; ++i)
+	{
+		ripplesUniformCircular_dp_tsc_h_p[i] = Vector4f(0.00001f, 99999.0f, 0.0f, 99999.0f);
+		ripplesUniformCircular_sXY_sp[i] = Vector3f(0.0f, 0.0f, 0.0000001f);
+	}
+	//Finally, update the uniform values.
+	Params[WaterNode::UniformName_DP_TSC_H_P].FloatArray().SetData(&ripplesUniformCircular_dp_tsc_h_p[0][0],
+																   maxRipples_Circular, 4);
+	Params[WaterNode::UniformName_sXY_SP].FloatArray().SetData(&ripplesUniformCircular_sXY_sp[0][0],
+															   maxRipples_Circular, 3);
+
+	//Do the same thing for directional ripples.
+	i = 0;
+	for (auto& rippleNameAndValue : ripples_Directional)
+	{
+		ripplesUniformDirectional_d_a_p[i] = Vector4f(rippleNameAndValue.second.Flow.x,
+													  rippleNameAndValue.second.Flow.y,
+													  rippleNameAndValue.second.Amplitude,
+													  rippleNameAndValue.second.Period);
+		ripplesUniformDirectional_tsc[i] = ripples_Directional[i].TimeSinceCreated;
+
+		i += 1;
+	}
+	for (; i < maxRipples_Directional; ++i)
+	{
+		ripplesUniformDirectional_d_a_p[i] = Vector4f(0.00001f, 0.0f, 0.0f, 999999.0f);
+		ripplesUniformDirectional_tsc[i] = 999999.0f;
+	}
+    Params[WaterNode::UniformName_D_A_P].FloatArray().SetData(&ripplesUniformDirectional_d_a_p[0][0],
+															  maxRipples_Directional, 4);
+    Params[WaterNode::UniformName_TSC].FloatArray().SetData(&ripplesUniformDirectional_tsc[0],
+															maxRipples_Directional, 1);
 }

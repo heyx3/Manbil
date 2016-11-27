@@ -7,11 +7,10 @@
 
 
 ChunkMesh::ChunkMesh(VoxelChunkManager& mangr, Vector3i chunkIndex, VoxelChunk* chunk)
-    : vertices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex)
+    : vertices(0), manager(mangr), status(ThreadStatus::TS_OFF), ChunkIndex(chunkIndex),
+      mesh(false, PrimitiveTypes::PT_POINTS)
 {
-    mesh.SubMeshes.push_back(MeshData(false, PT_POINTS));
-    mesh.SubMeshes[0].SetVertexData((VoxelVertex*)0, 0, MeshData::BUF_DYNAMIC,
-                                    VoxelVertex::GetVertexAttributes());
+    mesh.SetVertexData((VoxelVertex*)0, 0, Mesh::BUF_DYNAMIC, VoxelVertex::GetVertexAttributes());
 }
 
 const Mesh& ChunkMesh::GetMesh(void)
@@ -70,8 +69,7 @@ void ChunkMesh::BuildBuffer(void)
 
     ClearAllRenderingErrors();
 
-    mesh.SubMeshes[0].SetVertexData(vertices, MeshData::BUF_DYNAMIC,
-                                    VoxelVertex::GetVertexAttributes());
+    mesh.SetVertexData(vertices, Mesh::BUF_DYNAMIC, VoxelVertex::GetVertexAttributes());
 
     std::string err = GetCurrentRenderingError();
     if (!err.empty())

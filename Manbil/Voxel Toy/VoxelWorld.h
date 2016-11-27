@@ -77,7 +77,8 @@ private:
     MTexture2D voxelTex;
 
     Material* voxelHighlightMat;
-    Mesh voxelHighlightMesh;
+    std::unique_ptr<Mesh> voxelHighlightMesh;
+    Transform voxelHighlightTransform;
     UniformDictionary voxelHighlightParams;
 
     RenderTarget* worldRenderTarget;

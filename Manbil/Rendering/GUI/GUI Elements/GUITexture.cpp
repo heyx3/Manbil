@@ -51,10 +51,9 @@ void GUITexture::Render(float elapsed, const RenderInfo& info)
         Params[GUIMaterials::QuadDraw_Texture2D].Tex() = tex->GetTextureHandle();
     }
 
-    SetUpQuad();
-    DrawingQuad::GetInstance()->Rotate(rotation);
-    GetQuad()->Render(info, Params, *Mat);
-    DrawingQuad::GetInstance()->SetRotation(0.0f);
+	Transform tr = GetDrawingQuadTransform();
+	tr.Rotate(Quaternion(Vector3f(0.0f, 0.0f, 1.0f), rotation));
+	GetQuad()->Render(tr, info, *Mat, Params);
 }
 #pragma warning(default: 4100)
 

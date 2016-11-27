@@ -1,7 +1,6 @@
 #include "Material.h"
 
 #include "../../Rendering/Basic Rendering/MaterialConstants.h"
-#include "../../Rendering/Basic Rendering/Mesh.h"
 
 
 
@@ -55,6 +54,7 @@ unsigned int Material::GetMaxTextureUnits(void)
     return maxTexUnits;
 }
 
+
 UniformLocation Material::GetUniformLoc(RenderObjHandle shaderProgram, const GLchar* name)
 {
     return glGetUniformLocation(shaderProgram, name);
@@ -68,6 +68,11 @@ RenderObjHandle Material::GetSubroutineID(RenderObjHandle shaderProgram, Shaders
                                           const GLchar* name)
 {
     return glGetSubroutineIndex(shaderProgram, ShaderTypeToGLEnum(shaderType), name);
+}
+
+Material::~Material(void)
+{
+    glDeleteProgram(shaderProg);
 }
 
 void Material::SetUniformValueF(UniformLocation loc, unsigned int nComponents, const float* components)
@@ -164,7 +169,7 @@ void Material::SetUniformValueMatrix4f(UniformLocation loc, const Matrix4f& mat)
 }
 
 void Material::SetUniformValueSubroutine(Shaders shaderType, unsigned int nValues,
-                                         RenderObjHandle* valuesForAllSubroutines)
+                                         const RenderObjHandle* valuesForAllSubroutines)
 {
     glUniformSubroutinesuiv(ShaderTypeToGLEnum(shaderType), nValues, valuesForAllSubroutines);
 }
@@ -181,7 +186,7 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
                    std::string geoShader)
     : mode(m), attributes(attrs)
 {
-    //Create the material object.
+    //Create the shader program object.
     shaderProg = glCreateProgram();
     if (shaderProg == 0)
     {
@@ -189,26 +194,24 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         return;
     }
 
-
     //Compile the shaders.
-
     bool useGeoShader = !geoShader.empty();
     RenderObjHandle vsO, fsO, gsO = 0;
-
+	//Vertex shader:
     vsO = CreateShader(shaderProg, vs.c_str(), SH_VERTEX, outErrorMsg);
     if (!outErrorMsg.empty())
     {
         outErrorMsg = std::string("Error creating vertex shader: ") + outErrorMsg;
         return;
     }
-
+	//Fragment shader:
     fsO = CreateShader(shaderProg, fs.c_str(), SH_FRAGMENT, outErrorMsg);
     if (!outErrorMsg.empty())
     {
         outErrorMsg = std::string("Error creating fragment shader: ") + outErrorMsg;
         return;
     }
-
+	//Geometry shader:
     if (useGeoShader)
     {
         gsO = CreateShader(shaderProg, geoShader.c_str(), SH_GEOMETRY, outErrorMsg);
@@ -219,12 +222,9 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         }
     }
 
-
-    //Link and verify the shaders.
-
+    //Link the shaders together.
     UniformLocation success;
     char error[1024];
-
     glLinkProgram(shaderProg);
     glGetProgramiv(shaderProg, GL_LINK_STATUS, &success);
     if (!success)
@@ -234,24 +234,11 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
         return;
     }
 
-    glValidateProgram(shaderProg);
-    glGetProgramiv(shaderProg, GL_VALIDATE_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProg, sizeof(error), NULL, error);
-        outErrorMsg = error;
-        return;
-    }
-
-
-    //Clean up the individual shader programs.
+    //Clean up the shader objects.
     glDeleteShader(vsO);
     glDeleteShader(fsO);
     if (useGeoShader)
-    {
         glDeleteShader(gsO);
-    }
-
 
     //Get uniforms.
     UniformLocation tempLoc;
@@ -333,332 +320,199 @@ Material::Material(const std::string& vs, const std::string& fs, UniformDictiona
     projMatL = GetUniformLoc(shaderProg, MaterialConstants::ProjMatName.c_str());
     wvpMatL = GetUniformLoc(shaderProg, MaterialConstants::WVPMatName.c_str());
     viewProjMatL = GetUniformLoc(shaderProg, MaterialConstants::ViewProjMatName.c_str());
+
+	glUseProgram(shaderProg);
+	SetUniforms(dict);
+
+	//Verify the shaders.
+	glValidateProgram(shaderProg);
+	glGetProgramiv(shaderProg, GL_VALIDATE_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shaderProg, sizeof(error), NULL, error);
+		outErrorMsg = error;
+		return;
+	}
+
 }
-Material::~Material(void)
+
+void Material::Render(const Mesh& mesh, const Transform& transform,
+					  const RenderInfo& info, const UniformDictionary& params) const
 {
-    glDeleteProgram(shaderProg);
+	glUseProgram(shaderProg);
+	GetBlendMode().EnableMode();
+
+	#pragma region Set basic uniforms
+	//TODO: Turn these into global uniforms.
+	if (timeL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(timeL, 1, &info.TotalElapsedSeconds);
+	}
+	Vector3f camPos = info.Cam->GetPosition();
+	if (camPosL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camPosL, 3, &camPos[0]);
+	}
+	Vector3f camF = info.Cam->GetForward();
+	if (camForwardL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camForwardL, 3, &camF[0]);
+	}
+	Vector3f camU = info.Cam->GetUpward();
+	if (camUpL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camUpL, 3, &camU[0]);
+	}
+	Vector3f camS = info.Cam->GetSideways();
+	if (camSideL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camSideL, 3, &camS[0]);
+	}
+	if (camWidthL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camWidthL, 1, &info.Cam->PerspectiveInfo.Width);
+	}
+	if (camHeightL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camHeightL, 1, &info.Cam->PerspectiveInfo.Height);
+	}
+	if (camZNearL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camZNearL, 1, &info.Cam->PerspectiveInfo.zNear);
+	}
+	if (camZFarL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camZFarL, 1, &info.Cam->PerspectiveInfo.zFar);
+	}
+	if (camFovL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueF(camFovL, 1, &info.Cam->PerspectiveInfo.FOV);
+	}
+	if (camOrthoMinL != INVALID_UNIFORM_LOCATION)
+	{
+		Vector3f min = info.Cam->MinOrthoBounds + info.Cam->GetPosition();
+		SetUniformValueF(camOrthoMinL, 3, &min.x);
+	}
+	if (camOrthoMaxL != INVALID_UNIFORM_LOCATION)
+	{
+		Vector3f max = info.Cam->MaxOrthoBounds + info.Cam->GetPosition();
+		SetUniformValueF(camOrthoMaxL, 3, &max.x);
+	}
+	if (viewMatL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueMatrix4f(viewMatL, *(info.mView));
+	}
+	if (projMatL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueMatrix4f(projMatL, *(info.mProj));
+	}
+	if (viewProjMatL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueMatrix4f(viewProjMatL, info.mVP);
+	}
+	#pragma endregion
+
+	SetUniforms(params);
+
+	//Calculate world and wvp matrices.
+	Matrix4f mWorld, mWVP;
+	transform.GetWorldTransform(mWorld);
+	mWVP = Matrix4f::Multiply(info.mVP, mWorld);
+
+	//Pass those matrices to the shader.
+	if (worldMatL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueMatrix4f(worldMatL, mWorld);
+	}
+	if (wvpMatL != INVALID_UNIFORM_LOCATION)
+	{
+		SetUniformValueMatrix4f(wvpMatL, mWVP);
+	}
+
+
+	//Finally, render the mesh.
+	mesh.Bind();
+	assert(attributes == mesh.GetVertexAttributes());
+	attributes.EnableAttributes();
+	if (mesh.GetUsesIndices())
+	{
+		glDrawElements(PrimitiveTypeToGLEnum(mesh.PrimType),
+					   mesh.GetRangeSize(), GL_UNSIGNED_INT,
+					   (GLvoid*)mesh.GetRangeStart());
+	}
+	else
+	{
+		glDrawArrays(PrimitiveTypeToGLEnum(mesh.PrimType),
+					 mesh.GetRangeStart(), mesh.GetRangeSize());
+	}
+	attributes.DisableAttributes();
 }
 
-void Material::Render(const RenderInfo& info, const Mesh* toRender, const UniformDictionary& params)
+UniformLocation Material::GetUniformLoc(const std::string& name) const
 {
-    Render(info, params, &toRender, 1);
+	for (size_t i = 0; i < uniforms.size(); ++i)
+		if (uniforms[i].Name == name)
+			return uniforms[i].Loc;
+	return INVALID_UNIFORM_LOCATION;
 }
-void Material::Render(const RenderInfo& info, const std::vector<const Mesh*>& meshes,
-                      const UniformDictionary& params)
-{
-    Render(info, params, meshes.data(), meshes.size());
-}
-void Material::Render(const RenderInfo& info, const UniformDictionary& params,
-                      const Mesh*const* meshPtrArray, unsigned int nMeshes)
-{
-    glUseProgram(shaderProg);
-    GetBlendMode().EnableMode();
-
-    #pragma region Set basic uniforms
-
-    //TODO: Turn these into global uniforms.
-    if (timeL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(timeL, 1, &info.TotalElapsedSeconds);
-    }
-    Vector3f camPos = info.Cam->GetPosition();
-    if (camPosL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camPosL, 3, &camPos[0]);
-    }
-    Vector3f camF = info.Cam->GetForward();
-    if (camForwardL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camForwardL, 3, &camF[0]);
-    }
-    Vector3f camU = info.Cam->GetUpward();
-    if (camUpL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camUpL, 3, &camU[0]);
-    }
-    Vector3f camS = info.Cam->GetSideways();
-    if (camSideL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camSideL, 3, &camS[0]);
-    }
-    if (camWidthL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camWidthL, 1, &info.Cam->PerspectiveInfo.Width);
-    }
-    if (camHeightL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camHeightL, 1, &info.Cam->PerspectiveInfo.Height);
-    }
-    if (camZNearL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camZNearL, 1, &info.Cam->PerspectiveInfo.zNear);
-    }
-    if (camZFarL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camZFarL, 1, &info.Cam->PerspectiveInfo.zFar);
-    }
-    if (camFovL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camFovL, 1, &info.Cam->PerspectiveInfo.FOV);
-    }
-    if (camOrthoMinL != INVALID_UNIFORM_LOCATION)
-    {
-        Vector3f min = info.Cam->MinOrthoBounds + info.Cam->GetPosition();
-        SetUniformValueF(camOrthoMinL, 3, &min.x);
-    }
-    if (camOrthoMaxL != INVALID_UNIFORM_LOCATION)
-    {
-        Vector3f max = info.Cam->MaxOrthoBounds + info.Cam->GetPosition();
-        SetUniformValueF(camOrthoMaxL, 3, &max.x);
-    }
-    if (viewMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(viewMatL, *(info.mView));
-    }
-    if (projMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(projMatL, *(info.mProj));
-    }
-    if (viewProjMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(viewProjMatL, info.mVP);
-    }
-
-    #pragma endregion
-
-    SetUniforms(params);
-
-
-    Matrix4f mWorld, mWVP;
-
-    //Render each mesh.
-    for (unsigned int i = 0; i < nMeshes; ++i)
-    {
-        const Mesh& mesh = *meshPtrArray[i];
-
-        //Calculate world and wvp matrices.
-        mesh.Transform.GetWorldTransform(mWorld);
-        mWVP = Matrix4f::Multiply(info.mVP, mWorld);
-
-        //Pass those matrices to the shader.
-        if (worldMatL != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueMatrix4f(worldMatL, mWorld);
-        }
-        if (wvpMatL != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueMatrix4f(wvpMatL, mWVP);
-        }
-
-
-        //Now render the mesh.
-
-        const MeshData& data = mesh.SubMeshes[mesh.CurrentSubMesh];
-        
-        data.Bind();
-        attributes.EnableAttributes();
-        
-        if (data.GetUsesIndices())
-        {
-            glDrawElements(PrimitiveTypeToGLEnum(data.PrimType),
-                           data.GetRangeSize(), GL_UNSIGNED_INT,
-                           (GLvoid*)data.GetRangeStart());
-        }
-        else
-        {
-            glDrawArrays(PrimitiveTypeToGLEnum(data.PrimType),
-                         data.GetRangeStart(), data.GetRangeSize());
-        }
-
-        attributes.DisableAttributes();
-    }
-}
-void Material::Render(const RenderInfo& info, const MeshData& toRender,
-                      const Matrix4f& worldMat, const UniformDictionary& params)
-
-{
-    Render(info, &toRender, &worldMat, 1, params);
-}
-void Material::Render(const RenderInfo& info, const MeshData* toRender, const Matrix4f* worldMats,
-                      unsigned int nToRender, const UniformDictionary& params)
-{
-    glUseProgram(shaderProg);
-    GetBlendMode().EnableMode();
-
-    #pragma region Set basic uniforms
-
-    //TODO: Turn these into global uniforms.
-    if (timeL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(timeL, 1, &info.TotalElapsedSeconds);
-    }
-    Vector3f camPos = info.Cam->GetPosition();
-    if (camPosL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camPosL, 3, &camPos[0]);
-    }
-    Vector3f camF = info.Cam->GetForward();
-    if (camForwardL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camForwardL, 3, &camF[0]);
-    }
-    Vector3f camU = info.Cam->GetUpward();
-    if (camUpL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camUpL, 3, &camU[0]);
-    }
-    Vector3f camS = info.Cam->GetSideways();
-    if (camSideL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camSideL, 3, &camS[0]);
-    }
-    if (camWidthL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camWidthL, 1, &info.Cam->PerspectiveInfo.Width);
-    }
-    if (camHeightL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camHeightL, 1, &info.Cam->PerspectiveInfo.Height);
-    }
-    if (camZNearL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camZNearL, 1, &info.Cam->PerspectiveInfo.zNear);
-    }
-    if (camZFarL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camZFarL, 1, &info.Cam->PerspectiveInfo.zFar);
-    }
-    if (camFovL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueF(camFovL, 1, &info.Cam->PerspectiveInfo.FOV);
-    }
-    if (camOrthoMinL != INVALID_UNIFORM_LOCATION)
-    {
-        Vector3f min = info.Cam->MinOrthoBounds + info.Cam->GetPosition();
-        SetUniformValueF(camOrthoMinL, 3, &min.x);
-    }
-    if (camOrthoMaxL != INVALID_UNIFORM_LOCATION)
-    {
-        Vector3f max = info.Cam->MaxOrthoBounds + info.Cam->GetPosition();
-        SetUniformValueF(camOrthoMaxL, 3, &max.x);
-    }
-    if (viewMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(viewMatL, *(info.mView));
-    }
-    if (projMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(projMatL, *(info.mProj));
-    }
-    if (viewProjMatL != INVALID_UNIFORM_LOCATION)
-    {
-        SetUniformValueMatrix4f(viewProjMatL, info.mVP);
-    }
-
-    #pragma endregion
-
-    SetUniforms(params);
-
-
-    Matrix4f mWVP;
-
-    //Render each mesh.
-    for (unsigned int i = 0; i < nToRender; ++i)
-    {
-        const MeshData& meshDat = toRender[i];
-
-        //Calculate world and wvp matrices.
-        mWVP = Matrix4f::Multiply(info.mVP, worldMats[i]);
-
-        //Pass those matrices to the shader.
-        if (worldMatL != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueMatrix4f(worldMatL, worldMats[i]);
-        }
-        if (wvpMatL != INVALID_UNIFORM_LOCATION)
-        {
-            SetUniformValueMatrix4f(wvpMatL, mWVP);
-        }
-
-
-        //Now render the mesh.
-
-        meshDat.Bind();
-        attributes.EnableAttributes();
-        
-        if (meshDat.GetUsesIndices())
-        {
-            glDrawElements(PrimitiveTypeToGLEnum(meshDat.PrimType),
-                           meshDat.GetRangeSize(), GL_UNSIGNED_INT, (GLvoid*)meshDat.GetRangeStart());
-        }
-        else
-        {
-            glDrawArrays(PrimitiveTypeToGLEnum(meshDat.PrimType),
-                         meshDat.GetRangeStart(), meshDat.GetRangeSize());
-        }
-
-        attributes.DisableAttributes();
-    }
-}
-
-void Material::SetUniforms(const UniformDictionary& params)
+void Material::SetUniforms(const UniformDictionary& params) const
 {
     int texUnit = 0;
 
-    for (auto it = params.begin(); it != params.end(); ++it)
+	for (auto& paramNameAndValue : params)
     {
-        if (it->second.Loc == INVALID_UNIFORM_LOCATION)
+		auto& param = paramNameAndValue.second;
+
+        if (param.Loc == INVALID_UNIFORM_LOCATION)
             continue;
 
-        switch (it->second.Type)
+        switch (param.Type)
         {
             case UT_VALUE_F:
-                SetUniformValueF(it->second.Loc, it->second.Float().GetSize(),
-                                 it->second.Float().GetValue());
+                SetUniformValueF(param.Loc, param.Float().GetSize(), param.Float().GetValue());
                 break;
             case UT_VALUE_I:
-                SetUniformValueI(it->second.Loc, it->second.Int().GetSize(),
-                                 it->second.Int().GetValue());
+                SetUniformValueI(param.Loc, param.Int().GetSize(), param.Int().GetValue());
                 break;
             case UT_VALUE_F_ARRAY:
-                SetUniformValueArrayF(it->second.Loc, it->second.FloatArray().NValues,
-                                      it->second.FloatArray().NComponentsPerValue,
-                                      it->second.FloatArray().Values);
+                SetUniformValueArrayF(param.Loc, param.FloatArray().NValues,
+                                      param.FloatArray().NComponentsPerValue,
+                                      param.FloatArray().Values);
                 break;
             case UT_VALUE_I_ARRAY:
-                SetUniformValueArrayI(it->second.Loc, it->second.IntArray().NValues,
-                                      it->second.IntArray().NComponentsPerValue,
-                                      it->second.IntArray().Values);
+                SetUniformValueArrayI(param.Loc, param.IntArray().NValues,
+                                      param.IntArray().NComponentsPerValue,
+                                      param.IntArray().Values);
                 break;
             case UT_VALUE_MAT4:
-                SetUniformValueMatrix4f(it->second.Loc, it->second.Matrix());
+                SetUniformValueMatrix4f(param.Loc, param.Matrix());
                 break;
 
             //Textures are a bit more involved to enable.
             case UT_VALUE_SAMPLER2D:
             case UT_VALUE_SAMPLER3D:
             case UT_VALUE_SAMPLERCUBE:
-                if (it->second.Tex() != INVALID_RENDER_OBJ_HANDLE)
+                if (param.Tex() != INVALID_RENDER_OBJ_HANDLE)
                 {
-                    SetUniformValueI(it->second.Loc, 1, &texUnit);
+                    SetUniformValueI(param.Loc, 1, &texUnit);
                     ActivateTextureUnit(texUnit);
                     texUnit += 1;
 
-                    GLenum enm = (it->second.Type == UT_VALUE_SAMPLER2D) ?
+                    GLenum enm = (param.Type == UT_VALUE_SAMPLER2D) ?
                                     GL_TEXTURE_2D :
-                                    ((it->second.Type == UT_VALUE_SAMPLER3D) ?
+                                    ((param.Type == UT_VALUE_SAMPLER3D) ?
                                         GL_TEXTURE_3D :
                                         GL_TEXTURE_CUBE_MAP);
-                    glBindTexture(enm, it->second.Tex());
+                    glBindTexture(enm, param.Tex());
                 }
                 break;
 
             //Subroutines are even MORE complicated to set up, because they all have to be set at once.
             case UT_VALUE_SUBROUTINE:
 
-                const UniformValueSubroutine& uvs = it->second.Subroutine();
+                const UniformValueSubroutine& uvs = param.Subroutine();
 
-                std::vector<UniformLocation>* subroutineOrder = 0;
+                const std::vector<UniformLocation>* subroutineOrder = 0;
                 std::vector<RenderObjHandle>* subroutineValue = 0;
 
                 switch (uvs.Definition.Shader)
@@ -683,7 +537,7 @@ void Material::SetUniforms(const UniformDictionary& params)
                 bool inserted = false;
                 for (unsigned int i = 0; i < subroutineOrder->size(); ++i)
                 {
-                    if (subroutineOrder->operator[](i) == it->second.Loc)
+                    if (subroutineOrder->operator[](i) == param.Loc)
                     {
                         subroutineValue->operator[](i) = uvs.PossibleValueIDs[uvs.ValueIndex];
                         inserted = true;

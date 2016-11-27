@@ -9,11 +9,8 @@
 
 #pragma warning(disable: 4100)
 
-//An atomic operation in a shader mapping some kind of input into some kind of output.
-//There is no inherent limit on the number of inputs any node must have,
-//    but there should be at least one output.
-//Some macros are provided for child classes to expose some simple reflection data
-//    for serialization purposes; this macro is mandatory.
+//An atomic operation in a shader, mapping some kind of input into some kind of output.
+//There can be any number of inputs, and at least one output.
 //All DataNodes have unique names. Specific nodes can be accessed globally by name through "GetNode()".
 class DataNode : public ISerializable
 {
@@ -108,10 +105,10 @@ public:
     //Constructors/destructors.
 
     DataNode(const std::vector<DataLine>& _inputs, std::string _name = "");
-    //DataNode(const DataNode& cpy) = delete;
-    //PRIORITY: ^ Why was that commented out? Try uncommenting it.
-
     virtual ~DataNode(void);
+
+    DataNode(const DataNode& cpy) = delete;
+	DataNode& operator=(const DataNode& cpy) = delete;
 
 
     //Error-handling.

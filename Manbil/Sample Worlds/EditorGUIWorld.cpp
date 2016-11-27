@@ -106,14 +106,14 @@ void EditorGUIWorld::OnWindowResized(unsigned int newW, unsigned int newH)
 bool EditorGUIWorld::InitializeEditorStuff(void)
 {
     //First, generate the content that the editor panel will use to render itself.
-    editorMaterials = new EditorMaterialSet(*TextRender);
+    editorMaterials.reset(new EditorMaterialSet(*TextRender));
 
     //You can supply your own content, but there is also a set of "default" content for the lazy.
     //This content is stored in "Dependencies/Include In Build/Universal/Content/Default Editor Content/".
     std::string err = EditorMaterialSet::GenerateDefaultInstance(*editorMaterials);
     if (!Assert(err.empty(), "Error loading default editor materials", err))
     {
-        delete editorMaterials;
+		editorMaterials.reset();
         editorMaterials = 0;
         return false;
     }
@@ -165,7 +165,7 @@ void EditorGUIWorld::InitializeWorld(void)
     {
         return;
     }
-    TextRender = new TextRenderer();
+    TextRender.reset(new TextRenderer());
 
 
     //Set up the editor.
@@ -191,8 +191,8 @@ void EditorGUIWorld::OnWorldEnd(void)
     //First delete the root GUI element; this must be done before cleaning up the text-rendering system.
     guiManager.SetRoot(0);
 
-    delete editorMaterials;
-    delete TextRender;
+    editorMaterials.reset();
+    TextRender.reset();
 
     DrawingQuad::DestroyQuad();
     TextRenderer::DestroySystem();

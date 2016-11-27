@@ -125,9 +125,9 @@ protected:
     static DrawingQuad* GetQuad(void) { return DrawingQuad::GetInstance(); }
     
     //Sets up the drawing quad with the given bounds and depth.
-    static void SetUpQuad(const Box2D& bounds, float depth);
+    static Transform GetDrawingQuadTransform(const Box2D& bounds, float depth);
     //Sets up the drawing quad with this element's bounds and depth.
-    void SetUpQuad(void) const;
+	Transform GetDrawingQuadTransform(void) const;
 
 
 private:

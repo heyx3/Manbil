@@ -36,7 +36,7 @@ public:
     struct GeneratedMaterial
     {
     public:
-        Material* Mat;
+        Material* Mat; //TODO: Make this an std::unique_ptr<Material>.
         std::string ErrorMessage;
         GeneratedMaterial(Material* mat) : Mat(mat), ErrorMessage("") { }
         GeneratedMaterial(std::string errorMsg) : Mat(0), ErrorMessage(errorMsg) { }

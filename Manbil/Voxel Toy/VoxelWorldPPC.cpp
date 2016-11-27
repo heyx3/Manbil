@@ -107,7 +107,7 @@ void VoxelWorldPPC::RenderPostProcessing(RenderObjHandle colorIn, RenderObjHandl
     ScreenClearer().ClearScreen();
     glViewport(0, 0, colorTex.GetWidth(), colorTex.GetHeight());
 
-    DrawingQuad::GetInstance()->Render(info, ppParams, *ppMat);
+    DrawingQuad::GetInstance()->Render(Transform(), info, *ppMat, ppParams);
 
     rendTarg.DisableDrawingInto();
 }

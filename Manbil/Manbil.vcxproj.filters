@@ -17,9 +17,6 @@
     <ClCompile Include="Math\Higher Math\Terrain.cpp">
       <Filter>Math\Higher Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Higher Math\TransformObject.cpp">
-      <Filter>Math\Higher Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Noise Generation\BasicGenerators.cpp">
       <Filter>Math\Noise Generation</Filter>
     </ClCompile>
@@ -162,9 +159,6 @@
     <ClCompile Include="Rendering\Basic Rendering\BlendMode.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Basic Rendering\MeshData.cpp">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\RenderIOAttributes.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
@@ -181,9 +175,6 @@
       <Filter>Game Loop</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\Material.cpp">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Basic Rendering\Mesh.cpp">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\Basic Rendering\OpenGLIncludes.cpp">
@@ -453,6 +444,12 @@
     <ClCompile Include="Voxel Toy\VoxelChunk.cpp">
       <Filter>Voxel Toy</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Basic Rendering\Mesh.cpp">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Higher Math\Transform.cpp">
+      <Filter>Math\Higher Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\Input Objects\KeyboardBoolInput.h">
@@ -498,9 +495,6 @@
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Higher Math\Terrain.h">
-      <Filter>Math\Higher Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Higher Math\TransformObject.h">
       <Filter>Math\Higher Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise Generation\BasicGenerators.h">
@@ -685,9 +679,6 @@
     <ClInclude Include="Rendering\Basic Rendering\BlendMode.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\MeshData.h">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\RenderIOAttributes.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
@@ -701,9 +692,6 @@
       <Filter>Game Loop</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\Material.h">
-      <Filter>Rendering\Basic Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Basic Rendering\Mesh.h">
       <Filter>Rendering\Basic Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\Basic Rendering\OpenGLIncludes.h">
@@ -1011,6 +999,12 @@
     </ClInclude>
     <ClInclude Include="Voxel Toy\VoxelCamera.h">
       <Filter>Voxel Toy</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Basic Rendering\Mesh.h">
+      <Filter>Rendering\Basic Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Higher Math\Transform.h">
+      <Filter>Math\Higher Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -263,10 +263,9 @@ void VoxelWorld::InitializeWorld(void)
     PrimitiveGenerator::GenerateCube(vhvs, vsis, false, false,
                                      Vector2f(1.0f, 1.0f), Vector2f(1.0f, 1.0f), Vector2f(1.0f, 1.0f),
                                      Vector3f(-1, -1, -1) * 0.25f, Vector3f(1, 1, 1) * 0.25f);
-    voxelHighlightMesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-    voxelHighlightMesh.SubMeshes[0].SetVertexData(vhvs, MeshData::BUF_STATIC,
-                                                  VertexPosUVNormal::GetVertexAttributes());
-    voxelHighlightMesh.SubMeshes[0].SetIndexData(vsis, MeshData::BUF_STATIC);
+    voxelHighlightMesh.reset(new Mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST));
+    voxelHighlightMesh->SetVertexData(vhvs, Mesh::BUF_STATIC, VertexPosUVNormal::GetVertexAttributes());
+    voxelHighlightMesh->SetIndexData(vsis, Mesh::BUF_STATIC);
     
     //Voxel highlight material.
     SerializedMaterial matData;
@@ -553,11 +552,11 @@ void VoxelWorld::UpdateWorld(float elapsed)
                                                                player.Cam.GetForward(), 100.0f);
     if (castHit.ChunkRayCastResult.CastResult.DidHitTarget)
     {
-        voxelHighlightMesh.Transform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
+        voxelHighlightTransform.SetPosition(castHit.ChunkRayCastResult.CastResult.HitPos);
     }
     else
     {
-        voxelHighlightMesh.Transform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
+        voxelHighlightTransform.SetPosition(Vector3f(-1, -1, -1) * 99999.0f);
     }
 
     //Mouse capturing.
@@ -785,7 +784,7 @@ void VoxelWorld::RenderOpenGL(float elapsed)
                            (Vector3i chunkIndex, VoxelChunk *chnk)
                            {
                                const Mesh * msh = &meshes[chunkIndex]->GetMesh();
-                               if (msh->SubMeshes[0].GetNVertices() == 0)
+                               if (msh->GetNVertices() == 0)
                                {
                                    return;
                                }
@@ -834,6 +833,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
 
     #pragma region Render each face
 
+    Transform identity;
+
     const float halfVox = 0.5f * VoxelChunk::VoxelSizeF;
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(-1.0f, 0.0f, 0.0f));
@@ -842,7 +843,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(-halfVox, -halfVox, halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(-halfVox, halfVox, halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 0;
-    voxelMat->Render(info, lessX, voxelParams);
+    for (auto msh : lessX)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(0.0f, -1.0f, 0.0f));
     voxelParams["u_corner1"].Float().SetValue(Vector3f(-halfVox, -halfVox, -halfVox));
@@ -850,7 +852,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(halfVox, -halfVox, -halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(halfVox, -halfVox, halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 1;
-    voxelMat->Render(info, lessY, voxelParams);
+    for (auto msh : lessY)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(0.0f, 0.0f, -1.0f));
     voxelParams["u_corner1"].Float().SetValue(Vector3f(-halfVox, -halfVox, -halfVox));
@@ -858,7 +861,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(-halfVox, halfVox, -halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(halfVox, halfVox, -halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 2;
-    voxelMat->Render(info, lessZ, voxelParams);
+    for (auto msh : lessZ)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(1.0f, 0.0f, 0.0f));
     voxelParams["u_corner1"].Float().SetValue(Vector3f(halfVox, -halfVox, -halfVox));
@@ -866,7 +870,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(halfVox, halfVox, -halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(halfVox, halfVox, halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 3;
-    voxelMat->Render(info, moreX, voxelParams);
+    for (auto msh : moreX)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(0.0f, 1.0f, 0.0f));
     voxelParams["u_corner1"].Float().SetValue(Vector3f(-halfVox, halfVox, -halfVox));
@@ -874,7 +879,8 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(-halfVox, halfVox, halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(halfVox, halfVox, halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 4;
-    voxelMat->Render(info, moreY, voxelParams);
+    for (auto msh : moreY)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     voxelParams["u_surfaceNormal"].Float().SetValue(Vector3f(0.0f, 0.0f, 1.0f));
     voxelParams["u_corner1"].Float().SetValue(Vector3f(-halfVox, -halfVox, halfVox));
@@ -882,12 +888,14 @@ void VoxelWorld::RenderOpenGL(float elapsed)
     voxelParams["u_corner3"].Float().SetValue(Vector3f(halfVox, -halfVox, halfVox));
     voxelParams["u_corner4"].Float().SetValue(Vector3f(halfVox, halfVox, halfVox));
     voxelParams["u_getQuadDecider"].Subroutine().ValueIndex = 5;
-    voxelMat->Render(info, moreZ, voxelParams);
+    for (auto msh : moreZ)
+        voxelMat->Render(*msh, identity, info, voxelParams);
 
     #pragma endregion
 
 
-    voxelHighlightMat->Render(info, &voxelHighlightMesh, voxelHighlightParams);
+    voxelHighlightMat->Render(*voxelHighlightMesh, voxelHighlightTransform,
+                              info, voxelHighlightParams);
     worldRenderTarget->DisableDrawingInto(true);
 
     //Render the post-process chain.
@@ -900,5 +908,5 @@ void VoxelWorld::RenderOpenGL(float elapsed)
         postProcessing->GetFinalColor().GetTextureHandle();
     ScreenClearer().ClearScreen();
     RenderingState(RenderingState::C_NONE, false, false).EnableState();
-    DrawingQuad::GetInstance()->Render(info, finalWorldRenderParams, *finalWorldRenderMat);
+    DrawingQuad::GetInstance()->Render(Transform(), info, *finalWorldRenderMat, finalWorldRenderParams);
 }

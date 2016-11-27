@@ -13,7 +13,7 @@ class EditorGUIWorld : public SFMLOpenGLWorld
 public:
 
     Vector2i WindowSize;
-    TextRenderer* TextRender;
+    std::unique_ptr<TextRenderer> TextRender;
 
 
     EditorGUIWorld(void);
@@ -45,5 +45,5 @@ private:
 
 
     GUIManager guiManager;
-    EditorMaterialSet* editorMaterials = 0;
+    std::unique_ptr<EditorMaterialSet> editorMaterials;
 };

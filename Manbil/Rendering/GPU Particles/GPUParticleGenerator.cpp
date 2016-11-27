@@ -283,7 +283,7 @@ void main()                                                                     
 }
 
 typedef GPUParticleGenerator GPUPG;
-void GPUPG::GenerateGPUPParticles(MeshData& outMesh, GPUPG::NumberOfParticles numb, int randSeed)
+void GPUPG::GenerateGPUPParticles(Mesh& outMesh, GPUPG::NumberOfParticles numb, int randSeed)
 {
     //Get the total number of particles and the number of particles in each row/column
     //    (in terms of particle ID).
@@ -314,6 +314,6 @@ void GPUPG::GenerateGPUPParticles(MeshData& outMesh, GPUPG::NumberOfParticles nu
     //Create the mesh data. Double-check that indices aren't attached.
     outMesh.PrimType = PT_POINTS;
     outMesh.SetVertexData(particles.GetArray(), particles.GetNumbElements(),
-                          MeshData::BUF_STATIC, ParticleVertex::GetVertexInputData());
+                          Mesh::BUF_STATIC, ParticleVertex::GetVertexInputData());
     outMesh.RemoveIndexData();
 }

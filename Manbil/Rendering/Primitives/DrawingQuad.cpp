@@ -4,42 +4,6 @@
 DrawingQuad* DrawingQuad::instance = 0;
 
 
-void DrawingQuad::SetBounds(Vector2f min, Vector2f max)
-{
-    SetPos((min + max) * 0.5f);
-    SetSize((max - min) * 0.5f);
-}
-void DrawingQuad::SetPos(Vector2f pos)
-{
-    mesh.Transform.SetPosition(Vector3f(pos.x, pos.y, GetDepth()));
-}
-void DrawingQuad::IncrementPos(Vector2f increment)
-{
-    mesh.Transform.IncrementPosition(Vector3f(increment.x, increment.y, 0.0f));
-}
-void DrawingQuad::SetSize(Vector2f size)
-{
-    mesh.Transform.SetScale(Vector3f(size.x, size.y, 1.0f));
-}
-void DrawingQuad::MakeSizePositive(void)
-{
-    mesh.Transform.SetScale(Vector3f(Mathf::Abs(mesh.Transform.GetScale().x),
-                                     Mathf::Abs(mesh.Transform.GetScale().y),
-                                     1.0f));
-}
-void DrawingQuad::SetDepth(float depth)
-{
-    Vector3f pos = mesh.Transform.GetPosition();
-    mesh.Transform.SetPosition(Vector3f(pos.x, pos.y, depth));
-}
-void DrawingQuad::SetRotation(float newRot)
-{
-    mesh.Transform.SetRotation(Vector3f(0.0f, 0.0f, newRot));
-}
-void DrawingQuad::Rotate(float amount)
-{
-    mesh.Transform.RotateRelative(Vector3f(0.0f, 0.0f, amount));
-}
 
 void DrawingQuad::InitializeQuad(void)
 {
@@ -59,10 +23,10 @@ void DrawingQuad::InitializeQuad(void)
         };
         
         instance = new DrawingQuad();
-        instance->mesh.SubMeshes.push_back(MeshData(false, PT_TRIANGLE_LIST));
-        MeshData& dat = instance->mesh.SubMeshes[0];
-        dat.SetVertexData(vertices, 4, MeshData::BUF_STATIC, VertexPosUV::GetVertexAttributes());
-        dat.SetIndexData(indices, 6, MeshData::BUF_STATIC);
+		instance->mesh.SetVertexData(vertices, 4, Mesh::BUF_STATIC,
+									 VertexPosUV::GetVertexAttributes());
+		instance->mesh.SetIndexData(indices, 6, Mesh::BUF_STATIC);
+
     }
 }
 void DrawingQuad::DestroyQuad(void)
@@ -72,9 +36,8 @@ void DrawingQuad::DestroyQuad(void)
     instance = 0;
 }
 
-void DrawingQuad::Render(const RenderInfo& info, const UniformDictionary& params, Material& mat)
+void DrawingQuad::Render(const Transform& transform, const RenderInfo& info,
+						 const Material& material, const UniformDictionary& params)
 {
-    assert(mat.GetExpectedVertexData() == VertexPosUV::GetVertexAttributes());
-
-    mat.Render(info, &mesh, params);
+	material.Render(mesh, transform, info, params);
 }

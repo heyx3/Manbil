@@ -238,7 +238,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Math\Higher Math\BumpmapToNormalmap.cpp" />
     <ClCompile Include="Math\Higher Math\Camera.cpp" />
     <ClCompile Include="Math\Higher Math\Terrain.cpp" />
-    <ClCompile Include="Math\Higher Math\TransformObject.cpp" />
+    <ClCompile Include="Math\Higher Math\Transform.cpp" />
     <ClCompile Include="Math\Lower Math\Mathf.cpp" />
     <ClCompile Include="Math\Lower Math\Interval.cpp" />
     <ClCompile Include="Math\Lower Math\Matrix4f.cpp" />
@@ -265,7 +265,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClCompile Include="Rendering\Basic Rendering\Material.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\MaterialConstants.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\Mesh.cpp" />
-    <ClCompile Include="Rendering\Basic Rendering\MeshData.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\OpenGLIncludes.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\RenderInfo.cpp" />
     <ClCompile Include="Rendering\Basic Rendering\RenderingState.cpp" />
@@ -413,7 +412,7 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Math\Higher Math\Gradient.h" />
     <ClInclude Include="Math\Higher Math\ProjectionInfo.h" />
     <ClInclude Include="Math\Higher Math\Terrain.h" />
-    <ClInclude Include="Math\Higher Math\TransformObject.h" />
+    <ClInclude Include="Math\Higher Math\Transform.h" />
     <ClInclude Include="Math\HigherMath.hpp" />
     <ClInclude Include="Math\Lower Math\Array3D.h" />
     <ClInclude Include="Math\Lower Math\Mathf.h" />
@@ -447,7 +446,6 @@ xcopy "$(SolutionDir)\Dependencies\Include In Build\Universal" "$(SolutionDir)\B
     <ClInclude Include="Rendering\Basic Rendering\MaterialConstants.h" />
     <ClInclude Include="Rendering\Basic Rendering\MaterialUsageFlags.h" />
     <ClInclude Include="Rendering\Basic Rendering\Mesh.h" />
-    <ClInclude Include="Rendering\Basic Rendering\MeshData.h" />
     <ClInclude Include="Rendering\Basic Rendering\OpenGLIncludes.h" />
     <ClInclude Include="Rendering\Basic Rendering\RenderInfo.h" />
     <ClInclude Include="Rendering\Basic Rendering\RenderingState.h" />

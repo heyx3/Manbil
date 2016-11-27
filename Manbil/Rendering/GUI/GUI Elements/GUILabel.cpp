@@ -134,11 +134,13 @@ void GUILabel::Render(float elapsedTime, const RenderInfo& info)
 
     Vector2f labelDrawSize = GetScale();
     labelDrawSize.MultiplyComponents(ToV2f(textRenderer->GetSlotRenderSize(textRenderSlot)));
-    SetUpQuad(Box2D(GetPos() + GetAnchorToRenderCenter(), labelDrawSize), Depth);
+	Transform tr = GetDrawingQuadTransform(Box2D(GetPos() + GetAnchorToRenderCenter(),
+												 labelDrawSize),
+										   Depth);
     
     RenderObjHandle texHandle = textRenderer->GetRenderedString(textRenderSlot)->GetTextureHandle();
     Params[GUIMaterials::QuadDraw_Texture2D].Tex() = texHandle;
 
-    GetQuad()->Render(info, Params, *RenderMat);
+    GetQuad()->Render(tr, info, *RenderMat, Params);
 }
 #pragma warning(default: 4100)

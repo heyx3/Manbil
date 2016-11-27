@@ -11,24 +11,32 @@
 const unsigned int INPUT_ADD_RIPPLE = 666;
 
 
-//Information about the water.
-
-const int waterVerticesPerSide = 100;
-const Vector3f waterScale(1.0f, 1.0f, 1.0f);
-
-const unsigned int maxRipples = 4;
-
-const Water::DirectionalWaterArgs flows[] = {
-    Water::DirectionalWaterArgs(Vector2f(waterVerticesPerSide * 0.45f,
-                                         waterVerticesPerSide * 0.65f) * 0.1f,
-                                0.1f, 1.0f),
+//Water constants:
+const int N_WATER_VERTICES_PER_SIDE = 300;
+const float WATER_SCALE = 1000.0f;
+const unsigned int MAX_RIPPLES_CIRCULAR = 4;
+const Water::DirectionalRipple DIRECTIONAL_RIPPLES[] = {
+	Water::DirectionalRipple(Vector2f(4.5f, 6.5f) * 0.25f,   //Direction/magnitude
+							 0.0075f, 0.05f),			     //Amplitude and period
+    Water::DirectionalRipple(Vector2f(-10.5f, 4.5f) * 0.05f, //Direction/magnitude
+                             0.02f, 0.2f),                   //Amplitude and period
 };
-const unsigned int nFlows = sizeof(flows) / sizeof(Water::DirectionalWaterArgs);
+const unsigned int N_RIPPLES_DIRECTIONAL =
+	sizeof(DIRECTIONAL_RIPPLES) / sizeof(Water::DirectionalRipple);
+
+const float SKYBOX_SCALE = 1400.0f;
+
+//Lighting:
+const Vector3f LIGHT_DIR = Vector3f(-1.0f, -1.0f, -0.6f).Normalized(),
+               LIGHT_COLOR = Vector3f(1.0f, 1.0f, 1.0f);
+const float LIGHT_AMBIENT = 0.4f,
+            LIGHT_DIFFUSE = 1.0f - LIGHT_AMBIENT,
+            LIGHT_SPECULAR = 0.0f,
+            LIGHT_SPEC_INTENSITY = 64.0f;
 
 
 WaterWorld::WaterWorld(void)
     : windowSize(800, 600), fastRand(rand()),
-      waterObj(0), waterMat(0), skyboxMat(0),
       normalMap1(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       normalMap2(TextureSampleSettings2D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
       skyboxTex(TextureSampleSettings3D(FT_LINEAR, WT_WRAP), PixelSizes::PS_8U, false),
@@ -152,7 +160,7 @@ void WaterWorld::InitializeMaterials(void)
             EndWorld();
             return;
         }
-        skyboxMat = genM.Mat;
+        skyboxMat.reset(genM.Mat);
 
         //Set the skybox texture.
         skyboxParams["u_skyboxTex"].Tex() = skyboxTex.GetTextureHandle();
@@ -171,21 +179,24 @@ void WaterWorld::InitializeMaterials(void)
         //The water system gives us a "WaterNode", which handles water simulation.
         //This node will be used in both the vertex and fragment shader.
 
-        //The vertex shader takes the model-space vertices, distorts them according to a "WaterNode"'s
+        //The vertex shader takes the model-space vertices, distorts them according to a WaterNode's
         //    output, then converts them to screen-space.
-        //It outputs the object-space position, world-space position,
-        //    and UV coordinates of the vertices.
+        //It also outputs to the fragment shader
+		//    the object-space position, world-space position, and UV coordinates of the vertices.
         DataLine vIn_ObjPos(VertexInputNode::GetInstance(), 0),
                  vIn_UV(VertexInputNode::GetInstance(), 1);
 
-        //The fragment shader gets the normal of the water surface from the "WaterNode",
-        //    then adds in two normal maps to add fake bumps to the surface.
+        //The fragment shader gets the computed normal of the water surface from the "WaterNode",
+        //    combines it with two normal maps to add fake bumps to the surface,
+        //    computes the light on the surface using Phong shading,
+        //    then adds in some of the reflected skybox texture.
         DataLine fIn_ObjPos(FragmentInputNode::GetInstance(), 0),
                  fIn_WorldPos(FragmentInputNode::GetInstance(), 1),
                  fIn_UV(FragmentInputNode::GetInstance(), 2);
 
-        //Create the water node and its outputs.
-        DataNode::Ptr waterPtr(new WaterNode(vIn_ObjPos, fIn_ObjPos, maxRipples, nFlows));
+        //Create the water node and define its outputs.
+        DataNode::Ptr waterPtr(new WaterNode(vIn_ObjPos, fIn_ObjPos,
+                                             N_RIPPLES_DIRECTIONAL, MAX_RIPPLES_CIRCULAR));
         DataLine waterObjPos(waterPtr, 0),
                  waterSurfaceNormal(waterPtr, 1);
 
@@ -193,7 +204,7 @@ void WaterWorld::InitializeMaterials(void)
         DataNode::Ptr screenPos = SpaceConverterNode::ObjPosToScreenPos(waterObjPos),
                       worldPos = SpaceConverterNode::ObjPosToWorldPos(waterObjPos);
         matData.MaterialOuts.VertexPosOutput = DataLine(screenPos, 1);
-        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", waterObjPos));
+        matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_ObjPos", vIn_ObjPos));
         matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_WorldPos",
                                                                     DataLine(worldPos, 0)));
         matData.MaterialOuts.VertexOutputs.push_back(ShaderOutput("vOut_UV", vIn_UV));
@@ -226,7 +237,7 @@ void WaterWorld::InitializeMaterials(void)
                       normal2(new RemapNode(normalMap2RGB, 0.0f, 1.0f, -1.0f, 1.0f)),
                       normal2Final(new MultiplyNode(normal2, normalMap2Severity));
         DataNode::Ptr tangentNormal(new TangentSpaceNormalsNode(normal1Final, normal2Final,
-                                                                        waterSurfaceNormal));
+                                                                waterSurfaceNormal));
         DataNode::Ptr worldNormal(new SpaceConverterNode(tangentNormal,
                                                          SpaceConverterNode::ST_OBJECT,
                                                          SpaceConverterNode::ST_WORLD,
@@ -251,18 +262,13 @@ void WaterWorld::InitializeMaterials(void)
 
         //Finally, add lighting effects. There is a "LightingNode" class that does basic
         //    ambient-diffuse-specular lighting computation.
-        const Vector3f lightDir = Vector3f(1.0f, 1.0f, -0.3f).Normalized(),
-                       lightColor = Vector3f(1.0f, 1.0f, 1.0f);
-        const float ambientLight = 0.4f,
-                    diffuseLight = 1.0f - ambientLight,
-                    specularLight = 0.0f,
-                    specularIntensity = 64.0f;
-        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, tangentNormal, lightDir,
-                                                      ambientLight, diffuseLight, specularLight,
-                                                      specularIntensity));
-        DataNode::Ptr litSurfaceColor(new MultiplyNode(surfaceColor, brightnessCalc));
+        DataNode::Ptr brightnessCalc(new LightingNode(fIn_WorldPos, tangentNormal, LIGHT_DIR,
+                                                      LIGHT_AMBIENT, LIGHT_DIFFUSE, LIGHT_SPECULAR,
+                                                      LIGHT_SPEC_INTENSITY));
+        DataNode::Ptr litSurfaceColor(new MultiplyNode(surfaceColor, brightnessCalc, LIGHT_COLOR));
 
         DataNode::Ptr outputColor(new CombineVectorNode(litSurfaceColor, 1.0f));
+
         matData.MaterialOuts.FragmentOutputs.push_back(ShaderOutput("fOut_Color", outputColor));
 
 
@@ -280,7 +286,7 @@ void WaterWorld::InitializeMaterials(void)
             EndWorld();
             return;
         }
-        waterMat = genM.Mat;
+        waterMat.reset(genM.Mat);
 
         //Set the parameters.
         waterObj->Params["u_normalMap1"].Tex() = normalMap1.GetTextureHandle();
@@ -293,28 +299,23 @@ void WaterWorld::InitializeMaterials(void)
 }
 void WaterWorld::InitializeObjects(void)
 {
-    waterObj->SetMaterial(waterMat);
-    waterObj->GetTransform().SetScale(50.0f);
+    waterObj->SetMaterial(waterMat.get());
+	waterTr.SetScale(WATER_SCALE);
 
-    //Add the specified flows.
-    for (unsigned int i = 0; i < nFlows; ++i)
-    {
-        waterObj->AddFlow(flows[i]);
-    }
-
+    //Add the directional ripples.
+    for (unsigned int i = 0; i < N_RIPPLES_DIRECTIONAL; ++i)
+		waterObj->AddRipple(DIRECTIONAL_RIPPLES[i]);
 
     //Create the skybox mesh.
     std::vector<PrimitiveGenerator::CubemapVertex> skyboxVerts;
     std::vector<unsigned int> skyboxInds;
     PrimitiveGenerator::GenerateCubemapCube(skyboxVerts, skyboxInds, true, true);
-    skyboxMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_TRIANGLE_LIST));
-    skyboxMesh.SubMeshes[0].SetVertexData(skyboxVerts, MeshData::BUF_STATIC,
-                                          PrimitiveGenerator::CubemapVertex::GetVertexAttributes());
-    skyboxMesh.SubMeshes[0].SetIndexData(skyboxInds, MeshData::BUF_STATIC);
-
-    //Scale up the skybox mesh.
-    skyboxMesh.Transform.SetScale(1400.0f);
+	skyboxMesh.reset(new Mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST));
+    skyboxMesh->SetVertexData(skyboxVerts, Mesh::BUF_STATIC,
+                              PrimitiveGenerator::CubemapVertex::GetVertexAttributes());
+    skyboxMesh->SetIndexData(skyboxInds, Mesh::BUF_STATIC);
 }
+
 void WaterWorld::InitializeWorld(void)
 {
     SFMLOpenGLWorld::InitializeWorld();
@@ -325,13 +326,14 @@ void WaterWorld::InitializeWorld(void)
         return;
     }
     
-    waterObj = new Water(waterVerticesPerSide, Vector3f(), waterScale, maxRipples, nFlows);
+	waterObj.reset(new Water(N_WATER_VERTICES_PER_SIDE,
+							 MAX_RIPPLES_CIRCULAR, N_RIPPLES_DIRECTIONAL));
 
     InitializeTextures();
     InitializeMaterials();
     InitializeObjects();
 
-    gameCam = MovingCamera(Vector3f(0.0f, 0.0f, 20.0f), 30.0f, 0.8f);
+    gameCam = MovingCamera(Vector3f(0.0f, 0.0f, 20.0f), 100.0f, 0.8f);
     gameCam.PerspectiveInfo.SetFOVDegrees(60.0f);
     gameCam.PerspectiveInfo.Width = windowSize.x;
     gameCam.PerspectiveInfo.Height = windowSize.y;
@@ -339,20 +341,13 @@ void WaterWorld::InitializeWorld(void)
     gameCam.PerspectiveInfo.zFar = 2500.0f;
     gameCam.Window = GetWindow();
 }
+
 void WaterWorld::OnWorldEnd(void)
 {
-    if (waterObj != 0)
-    {
-        delete waterObj;
-    }
-    if (waterMat != 0)
-    {
-        delete waterMat;
-    }
-    if (skyboxMat != 0)
-    {
-        delete skyboxMat;
-    }
+	waterObj.reset();
+	waterMat.reset();
+	skyboxMat.reset();
+	skyboxMesh.reset();
     
     normalMap1.DeleteIfValid();
     normalMap2.DeleteIfValid();
@@ -364,9 +359,6 @@ void WaterWorld::UpdateWorld(float elapsedSeconds)
     waterObj->Update(elapsedSeconds);
     gameCam.Update(elapsedSeconds);
 
-    //Keep the skybox centered around the player.
-    skyboxMesh.Transform.SetPosition(gameCam.GetPosition());
-
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
     {
         EndWorld();
@@ -376,24 +368,34 @@ void WaterWorld::UpdateWorld(float elapsedSeconds)
     //If the left mouse button was pressed, add a randomized ripple.
     if (Input.GetBoolInputValue(INPUT_ADD_RIPPLE))
     {
-        const float minDropoffPoint = 40.0f,
-                    maxDropoffPoint = 200.0f;
-        const float minAmplitude = 0.5f,
-                    maxAmplitude = 1.75f;
-        const float minPeriod = 0.25f,
-                    maxPeriod = 10.0f;
-        const float minSpeed = 3.5f,
+		//The ripple data is in the water's local space, which extends horizontally from 0 to 1.
+        const float minDropoffPoint = 2000.0f / WATER_SCALE,
+                    maxDropoffPoint = 8000.0f / WATER_SCALE;
+        const float minAmplitude = 0.01f,
+                    maxAmplitude = 0.03f;
+        const float minSpeed = 1.5f,
                     maxSpeed = 10.0f;
+        const float minPeriod = 0.05f,
+                    maxPeriod = 0.1f;
 
-        waterObj->AddRipple(Water::RippleWaterArgs(gameCam.GetPosition(),
-                                                   Mathf::Lerp(minDropoffPoint, maxDropoffPoint,
-                                                               fastRand.GetZeroToOne()),
-                                                   Mathf::Lerp(minAmplitude, maxAmplitude,
-                                                               fastRand.GetZeroToOne()),
-                                                   Mathf::Lerp(minPeriod, maxPeriod,
-                                                               fastRand.GetZeroToOne()),
-                                                   Mathf::Lerp(minSpeed, maxSpeed,
-                                                               fastRand.GetZeroToOne())));
+		//The souce of the ripple is positioned at the camera.
+		//We need to convert from the camera's world position to the water's local position.
+		Matrix4f localToWorldMat;
+		waterTr.GetWorldTransform(localToWorldMat);
+		Matrix4f worldToLocalMat = localToWorldMat.GetInverse();
+		Vector3f camPosLocal = worldToLocalMat.Apply(gameCam.GetPosition());
+
+        mostRecentRipple =
+			waterObj->AddRipple(Water::CircularRipple(Vector2f(camPosLocal.x, camPosLocal.y),
+													  Mathf::Lerp(minDropoffPoint, maxDropoffPoint,
+																  fastRand.GetZeroToOne()),
+													  Mathf::Lerp(minAmplitude, maxAmplitude,
+																  fastRand.GetZeroToOne()),
+													  Mathf::Lerp(minPeriod, maxPeriod,
+																  fastRand.GetZeroToOne()),
+													  Mathf::Lerp(minSpeed, maxSpeed,
+																  fastRand.GetZeroToOne())),
+								mostRecentRipple);
     }
 }
 void WaterWorld::RenderOpenGL(float elapsedSeconds)
@@ -407,11 +409,16 @@ void WaterWorld::RenderOpenGL(float elapsedSeconds)
     Matrix4f viewM, projM;
     gameCam.GetViewTransform(viewM);
     gameCam.GetPerspectiveProjection(projM);
-    RenderInfo info(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
+    RenderInfo camInfo(GetTotalElapsedSeconds(), &gameCam, &viewM, &projM);
 
-    //Render the water.
-    waterObj->Render(info);
-    skyboxMat->Render(info, &skyboxMesh, skyboxParams);
+	//Render the water.
+    waterObj->Render(waterTr, camInfo);
+
+	//Render the skybox.
+	Transform skyboxTr;
+	skyboxTr.SetPosition(gameCam.GetPosition());
+	skyboxTr.SetScale(SKYBOX_SCALE);
+    skyboxMat->Render(*skyboxMesh, skyboxTr, camInfo, skyboxParams);
 }
 
 void WaterWorld::OnInitializeError(std::string errorMsg)
