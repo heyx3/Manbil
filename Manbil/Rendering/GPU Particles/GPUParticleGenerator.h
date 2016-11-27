@@ -3,7 +3,7 @@
 #include "GPUParticleDefines.h"
 #include "../Basic Rendering/Material.h"
 #include "../Data Nodes/ShaderGenerator.h"
-#include "../Basic Rendering/MeshData.h"
+#include "../Basic Rendering/Mesh.h"
 
 
 //Generates a material that calculates and renders GPU particles from a vertex buffer of points.
@@ -61,5 +61,5 @@ public:
     static ShaderGenerator::GeneratedMaterial GenerateMaterial(GPUPOuts outputs,
                                                                UniformDictionary& outUniforms,
                                                                BlendMode mode);
-    static void GenerateGPUPParticles(MeshData& outMesh, NumberOfParticles numb, int randSeed = 12365);
+    static void GenerateGPUPParticles(Mesh& outMesh, NumberOfParticles numb, int randSeed = 12365);
 };

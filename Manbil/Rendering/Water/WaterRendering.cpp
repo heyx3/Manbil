@@ -6,7 +6,7 @@ ADD_NODE_REFLECTION_DATA_CPP(WaterNode, Vector3f(), Vector3f())
 
 const char* WaterNode::UniformName_DP_TSC_H_P = "dropoffPoints_timesSinceCreated_heights_periods";
 const char* WaterNode::UniformName_sXY_SP = "sourcesXY_speeds";
-const char* WaterNode::UniformName_F_A_P = "flow_amplitude_period";
+const char* WaterNode::UniformName_D_A_P = "direction_amplitude_period";
 const char* WaterNode::UniformName_TSC = "timesSinceCreated";
 
 
@@ -21,10 +21,11 @@ std::string WaterNode::GetOutputName(unsigned int i) const
 }
 #pragma warning(default: 4100)
 
-WaterNode::WaterNode(const DataLine & vertexObjPosInput, const DataLine & fragmentObjPosInput,
-                     unsigned int _maxRipples, unsigned int _maxFlows, std::string name)
+WaterNode::WaterNode(const DataLine& vertexObjPosInput, const DataLine& fragmentObjPosInput,
+                     unsigned int maxRipples_Directional, unsigned int maxRipples_Circular,
+					 std::string name)
     : DataNode(MakeVector(vertexObjPosInput, fragmentObjPosInput), name),
-      maxRipples(_maxRipples), maxFlows(_maxFlows)
+      maxDirectional(maxRipples_Directional), maxCircular(maxRipples_Circular)
 {
 
 }
@@ -64,61 +65,61 @@ bool WaterNode::UsesInput(unsigned int inputIndex, unsigned int outputIndex) con
 
 void WaterNode::GetMyParameterDeclarations(UniformList& outUniforms) const
 {
-    if (maxRipples > 0)
+    if (maxCircular > 0)
     {
-        //Create uniform values.
-        Vector4f *dp_tsc_h_p = new Vector4f[maxRipples];
-        Vector3f *sXY_sp = new Vector3f[maxRipples];
-        for (unsigned int i = 0; i < maxRipples; ++i)
+        //Create good default values.
+		std::vector<Vector4f> dp_tsc_h_p;
+		dp_tsc_h_p.resize(maxCircular);
+		std::vector<Vector3f> sXY_sp;
+		sXY_sp.resize(maxCircular);
+        for (unsigned int i = 0; i < maxCircular; ++i)
         {
             dp_tsc_h_p[i] = Vector4f(0.0001f, 0.0f, 0.0f, 1.0f);
             sXY_sp[i] = Vector3f(0.0f, 0.0f, 0.0001f);
         }
 
         outUniforms.push_back(Uniform(UniformName_DP_TSC_H_P, UT_VALUE_F_ARRAY));
-        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)dp_tsc_h_p, maxRipples, 4);
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)dp_tsc_h_p.data(),
+																 maxCircular, 4);
 
         outUniforms.push_back(Uniform(UniformName_sXY_SP, UT_VALUE_F_ARRAY));
-        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)sXY_sp, maxRipples, 3);
-
-
-        delete[] dp_tsc_h_p;
-        delete[] sXY_sp;
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)sXY_sp.data(),
+																 maxCircular, 3);
     }
-    if (maxFlows > 0)
+    if (maxDirectional > 0)
     {
-        Vector4f* fl_am_per = new Vector4f[maxFlows];
-        float* tsc = new float[maxFlows];
-        for (unsigned int i = 0; i < maxFlows; ++i)
+		//Create good default values.
+		std::vector<Vector4f> d_a_p;
+		d_a_p.resize(maxDirectional);
+		std::vector<float> tsc;
+		tsc.resize(maxDirectional);
+        for (unsigned int i = 0; i < maxDirectional; ++i)
         {
-            fl_am_per[i] = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+            d_a_p[i] = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
             tsc[i] = 0.0001f;
         }
 
-        outUniforms.push_back(Uniform(UniformName_F_A_P, UT_VALUE_F_ARRAY));
-        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)fl_am_per, maxFlows, 4);
+        outUniforms.push_back(Uniform(UniformName_D_A_P, UT_VALUE_F_ARRAY));
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData((float*)d_a_p.data(),
+																 maxDirectional, 4);
 
         outUniforms.push_back(Uniform(UniformName_TSC, UT_VALUE_F_ARRAY));
-        outUniforms[outUniforms.size() - 1].FloatArray().SetData(tsc, maxFlows, 1);
-
-        delete[] fl_am_per;
-        delete[] tsc;
+        outUniforms[outUniforms.size() - 1].FloatArray().SetData(tsc.data(), maxDirectional, 1);
     }
 }
 void WaterNode::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) const
 {
-    //TODO: Remove the base definitions at the start of each "for" loop and see if it cuts down on instructions.
     std::string func =
 "float getWaveHeight(vec2 horizontalPos)\n\
 {\n\
-    float offset = 0.0f;                                                                           \n";
-    if (maxRipples > 0)
+    float offset = 0.0f;                                                                            \n";
+    if (maxCircular > 0)
     {
-        std::string dptschp = "dropoffPoints_timesSinceCreated_heights_periods[i]",
-                    sxysp = "sourcesXY_speeds[i]";
+        std::string dptschp = std::string(UniformName_DP_TSC_H_P) + "[i]",
+                    sxysp = std::string(UniformName_sXY_SP) + "[i]";
         func +=
-"    //Ripples.                                                                                     \n\
-    for (int i = 0; i < " + std::to_string(maxRipples) + "; ++i)                                    \n\
+"    //Circular ripples.                                                                            \n\
+    for (int i = 0; i < " + std::to_string(maxCircular) + "; ++i)                                   \n\
     {                                                                                               \n\
         float dropoffPoint = " + dptschp + ".x;                                                     \n\
         float timeSinceCreated = " + dptschp + ".y;                                                 \n\
@@ -129,7 +130,7 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) co
                                                                                                     \n\
         float dist = distance(source, horizontalPos);                                               \n\
         float heightScale = max(0, mix(0.0, 1.0, 1.0 - (dist / dropoffPoint)));                     \n\
-        heightScale = pow(heightScale, 3.0); //TODO: turn into a uniform.                           \n\
+        heightScale = pow(heightScale, 3.0); //TODO: turn exponent into a uniform.                  \n\
                                                                                                     \n\
         float cutoff = period * speed * timeSinceCreated;                                           \n\
         cutoff = max(0, (cutoff - dist) / cutoff);                                                  \n\
@@ -138,37 +139,37 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) co
         float waveScale = height * heightScale * cutoff;                                            \n\
                                                                                                     \n\
         float heightOffset = sin(innerVal);                                                         \n\
-        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.     \n\
+        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Turn exponent into a uniform.\n\
         offset += waveScale * heightOffset;                                                         \n\
     }\n";
     }
-    if (maxFlows > 0)
+    if (maxDirectional > 0)
     {
-        std::string fap = "flow_amplitude_period[i]",
-                    tsc = "timesSinceCreated[i]";
+        std::string dap = std::string(UniformName_D_A_P) + "[i]",
+                    tsc = std::string(UniformName_TSC) + "[i]";
         func +=
-"    //Directional flows.                                                                          \n\
-    for (int i = 0; i < " + std::to_string(maxFlows) + "; ++i)                                     \n\
+"    //Directional ripples.                                                                        \n\
+    for (int i = 0; i < " + std::to_string(maxDirectional) + "; ++i)                               \n\
     {                                                                                              \n\
-        vec2 flowDir = " + fap + ".xy;                                                             \n\
+        vec2 flowDir = " + dap + ".xy;                                                             \n\
         float speed = length(flowDir);                                                             \n\
         flowDir /= speed;                                                                          \n\
-        float amplitude = " + fap + ".z;                                                           \n\
-        float period = " + fap + ".w;                                                              \n\
+        float amplitude = " + dap + ".z;                                                           \n\
+        float period = " + dap + ".w;                                                              \n\
         float timeSinceCreated = " + tsc + ";                                                      \n\
                                                                                                    \n\
         float dist = dot(flowDir, horizontalPos);                                                  \n\
-        \n\
-        float innerVal = (dist / period) + (-timeSinceCreated * speed);                            \n\
+																								   \n\
+        float innerVal = (dist / period) + (-timeSinceCreated * speed);                               \n\
         float waveScale = amplitude;                                                               \n\
-        \n\
+																								   \n\
         float heightOffset = sin(innerVal);                                                        \n\
-        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Make uniform.    \n\
+        heightOffset = -1.0 + 2.0 * pow(0.5 + (0.5 * heightOffset), 2.0); //TODO: Turn exponent into a uniform.\n\
         offset += waveScale * heightOffset;                                                        \n\
     }\n";
     }
     func +=
-"    return offset;                                                             \n\
+"    return offset;                                                                                \n\
 }\n";
     outDecls.push_back(func);
 
@@ -178,20 +179,20 @@ void WaterNode::GetMyFunctionDeclarations(std::vector<std::string>& outDecls) co
     vec3 normal, tangent, bitangent;                                                    \n\
 };                                                                                      \n\
 NormalData getWaveNormal(vec2 horizontalPos)                                            \n\
-{                                                                                       \n\
+{//TODO: Use derivative of summed sine waves instead of this.                           \n\
     NormalData dat;                                                                     \n\
     dat.normal = vec3(0.0, 0.0, 0.001);                                                 \n\
     dat.tangent = vec3(0.001, 0.0, 0.0);                                                \n\
     dat.bitangent = vec3(0.0, 0.001, 0.0);                                              \n\
                                                                                         \n\
-    vec2 epsilon = vec2(0.1);                                                           \n\
+    vec3 epsilon = vec3(0.00001, -0.00001, 0.0);                                                \n\
                                                                                         \n\
     //Get the height at nearby vertices and compute the normal via cross-product.       \n\
                                                                                         \n\
-    vec2 one_zero = horizontalPos + vec2(epsilon.x, 0.0f),                              \n\
-         nOne_zero = horizontalPos + vec2(-epsilon.x, 0.0f),                            \n\
-         zero_one = horizontalPos + vec2(0.0f, epsilon.y),                              \n\
-         zero_nOne = horizontalPos + vec2(0.0f, -epsilon.y);                            \n\
+    vec2 one_zero = horizontalPos + epsilon.xz,                                         \n\
+         nOne_zero = horizontalPos + epsilon.yz,                                        \n\
+         zero_one = horizontalPos + epsilon.zx,                                         \n\
+         zero_nOne = horizontalPos + epsilon.zy;                                        \n\
                                                                                         \n\
     vec3 p_zero_zero = vec3(horizontalPos, getWaveHeight(horizontalPos));               \n\
     vec3 p_one_zero = vec3(one_zero, getWaveHeight(one_zero)),                          \n\
@@ -200,10 +201,10 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
          p_zero_nOne = vec3(zero_nOne, getWaveHeight(zero_nOne));                       \n\
                                                                                         \n\
     vec3 norm1 = cross(normalize(p_one_zero - p_zero_zero),                             \n\
-                 normalize(p_zero_one - p_zero_zero)),                                  \n\
-                 norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                    \n\
-                 normalize(p_zero_nOne - p_zero_zero)),                                 \n\
-                 normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));  \n\
+                       normalize(p_zero_one - p_zero_zero)),                            \n\
+         norm2 = cross(normalize(p_nOne_zero - p_zero_zero),                            \n\
+                       normalize(p_zero_nOne - p_zero_zero)),                           \n\
+         normFinal = normalize((norm1 * sign(norm1.z)) + (norm2 * sign(norm2.z)));      \n\
                                                                                         \n\
     dat.normal = normFinal;                                                             \n\
     return dat;                                                                         \n\
@@ -214,7 +215,7 @@ NormalData getWaveNormal(vec2 horizontalPos)                                    
 void WaterNode::WriteMyOutputs(std::string& outCode) const
 {
     std::string posOutput = GetOutputName(GetVertexPosOutputIndex()),
-        normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
+			    normalOutput = GetOutputName(GetSurfaceNormalOutputIndex());
 
     switch (CurrentShader)
     {
@@ -232,6 +233,10 @@ void WaterNode::WriteMyOutputs(std::string& outCode) const
                             GetObjectPosVOutput().GetValue() + ".xy).normal;\n";
             break;
 
+		case SH_GEOMETRY:
+			Assert(false, "WaterNode doesn't work in the geometry shader");
+			break;
+
         default: assert(false);
     }
 }
@@ -244,13 +249,13 @@ std::string WaterNode::GetInputDescription(unsigned int index) const
 
 void WaterNode::WriteExtraData(DataWriter* writer) const
 {
-    writer->WriteUInt(maxFlows, "Max number flows");
-    writer->WriteUInt(maxRipples, "Max number ripples");
+    writer->WriteUInt(maxDirectional, "MaxDirectionalRipples");
+    writer->WriteUInt(maxCircular, "MaxCirclarRipples");
 }
 void WaterNode::ReadExtraData(DataReader* reader)
 {
-    reader->ReadUInt(maxFlows);
-    reader->ReadUInt(maxRipples);
+    reader->ReadUInt(maxDirectional);
+    reader->ReadUInt(maxCircular);
 }
 
 void WaterNode::AssertMyInputsValid(void) const

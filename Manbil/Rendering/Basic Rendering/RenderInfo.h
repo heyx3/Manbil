@@ -2,12 +2,13 @@
 
 #include "OpenGLIncludes.h"
 #include "../../Math/Higher Math/Camera.h"
-#include "../../Math/Higher Math/TransformObject.h"
 
 
 //All the data necessary to render a scene.
 struct RenderInfo
 {
+	//TODO: Rename to "CameraRenderInfo" or "CameraInfo".
+
     float TotalElapsedSeconds;
 	Camera* Cam;
 

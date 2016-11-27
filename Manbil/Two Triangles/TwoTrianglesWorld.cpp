@@ -2,6 +2,7 @@
 
 #include "../Rendering/Basic Rendering/RenderingState.h"
 #include "../Rendering/Basic Rendering/ScreenClearer.h"
+#include "../Rendering/Basic Rendering/Viewport.h"
 #include "../Rendering/Textures/MTexture2D.h"
 #include "../Input/Input Objects/KeyboardBoolInput.h"
 #include "../Input/MovingCamera.h"
@@ -430,14 +431,14 @@ void TTW::RenderOpenGL(float elapsedSeconds)
     RenderInfo info(GetTotalElapsedSeconds(), &worldCam, &identity, &identity);
 
     ScreenClearer().ClearScreen();
+    Viewport(0, 0, GetWindow()->getSize().x, GetWindow()->getSize().y).Use();
 
     RenderingState(RenderingState::C_BACK).EnableState();
-    DrawingQuad::GetInstance()->Render(info, params, *mat);
+    DrawingQuad::GetInstance()->Render(Transform(), info, *mat, params);
 }
 
 void TTW::OnWindowResized(unsigned int newWidth, unsigned int newHeight)
 {
-	glViewport(0, 0, newWidth, newHeight);
     worldCam.PerspectiveInfo.Width = newWidth;
     worldCam.PerspectiveInfo.Height = newHeight;
 }

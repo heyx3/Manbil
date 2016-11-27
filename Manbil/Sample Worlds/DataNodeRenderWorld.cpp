@@ -12,7 +12,7 @@ typedef DataNodeRenderWorld DNRW;
 
 
 DNRW::DataNodeRenderWorld(void)
-    : objMat(0), windowSize(800, 600),
+    : windowSize(800, 600),
 
       //Use bilinear filtering for the texture, make it wrap around,
       //    use 8-bit color components, and generate mipmaps.
@@ -113,18 +113,18 @@ void DNRW::InitializeMaterials(void)
     
 
     //Generate the final material.
-    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, matParams,
+    ShaderGenerator::GeneratedMaterial genM = ShaderGenerator::GenerateMaterial(matData, objMatParams,
                                                                                 BlendMode::GetOpaque());
     if (Assert(genM.ErrorMessage.empty(),
                "Error generating terrain shaders",
                genM.ErrorMessage))
     {
-        objMat = genM.Mat;
+        objMat.reset(genM.Mat);
     }
 
 
     //Set up the custom material parameters.
-    matParams["u_texSampler"].Tex() = objTex.GetTextureHandle();
+	objMatParams["u_texSampler"].Tex() = objTex.GetTextureHandle();
 }
 void DNRW::InitializeObjects(void)
 {
@@ -139,12 +139,12 @@ void DNRW::InitializeObjects(void)
                                      Vector2f(20.0f, 20.0f));
 
     //Set the mesh data to use the cube.
-    objMesh.SubMeshes.push_back(MeshData(false, PrimitiveTypes::PT_TRIANGLE_LIST));
-    objMesh.SubMeshes[0].SetVertexData(vertices, MeshData::BUF_STATIC, vertexInfo);
-    objMesh.SubMeshes[0].SetIndexData(indices, MeshData::BUF_STATIC);
+    objMesh.reset(new Mesh(false, PrimitiveTypes::PT_TRIANGLE_LIST));
+    objMesh->SetVertexData(vertices, Mesh::BUF_STATIC, vertexInfo);
+    objMesh->SetIndexData(indices, Mesh::BUF_STATIC);
 
     //Scale up the cube so that it's noticeable.
-    objMesh.Transform.SetScale(Vector3f(20.0f, 20.0f, 0.5f));
+    objTransform.SetScale(Vector3f(20.0f, 20.0f, 0.5f));
 }
 
 void DNRW::InitializeWorld(void)
@@ -170,9 +170,8 @@ void DNRW::InitializeWorld(void)
 }
 void DNRW::OnWorldEnd(void)
 {
-    delete objMat;
-    objMat = 0;
-
+	objMat.reset();
+	objMesh.reset();
     objTex.DeleteIfValid();
 }
 
@@ -186,10 +185,10 @@ void DNRW::UpdateWorld(float elapsedSeconds)
     }
 }
 
-void DNRW::RenderWorldGeometry(const RenderInfo& info)
+void DNRW::RenderWorldGeometry(const RenderInfo& camInfo)
 {
     ScreenClearer().ClearScreen();
-    objMat->Render(info, &objMesh, matParams);
+    objMat->Render(*objMesh, objTransform, camInfo, objMatParams);
 }
 void DNRW::RenderOpenGL(float elapsedSeconds)
 {

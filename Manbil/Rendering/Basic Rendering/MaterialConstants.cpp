@@ -87,10 +87,11 @@ std::string MaterialConstants::GetUniformDeclarations(const MaterialUsageFlags &
 
 std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations,
                                                const RenderIOAttributes& attribs,
-                                               const MaterialUsageFlags& flags)
+                                               const MaterialUsageFlags& flags,
+											   std::string openGLVersion)
 {
     return std::string() +
-"#version 400                                                    \n\
+"#version " + openGLVersion + "                                  \n\
                                                                  \n\
 " + GetVertexInputDeclarations(attribs) + "                      \n\
                                                                  \n\
@@ -101,25 +102,27 @@ std::string MaterialConstants::GetVertexHeader(std::string outputDeclarations,
 std::string MaterialConstants::GetGeometryHeader(std::string inOutDeclarations,
                                                  PrimitiveTypes input, PrimitiveTypes output,
                                                  unsigned int maxVertices,
-                                                 const MaterialUsageFlags& flags)
+                                                 const MaterialUsageFlags& flags,
+											     std::string openGLVersion)
 {
     return std::string() +
-"#version 400                                                   \n\
+"#version " + openGLVersion + "                                 \n\
                                                                 \n\
 layout (" + PrimitiveTypeToGSInput(input) + ") in;              \n\
 layout (" + PrimitiveTypeToGSOutput(output) + ") out;           \n\
 layout (max_vertices = " + std::to_string(maxVertices) + ") out;\n\
                                                                 \n\
-" + inOutDeclarations + "                                      \n\
+" + inOutDeclarations + "                                       \n\
                                                                 \n\
 " + GetUniformDeclarations(flags);
 }
 std::string MaterialConstants::GetFragmentHeader(std::string inputDeclarations,
                                                  std::string outputDeclarations,
-                                                 const MaterialUsageFlags& flags)
+                                                 const MaterialUsageFlags& flags,
+												 std::string openGLVersion)
 {
     return std::string() +
-"#version 400                                                    \n\
+"#version " + openGLVersion + "                                  \n\
                                                                  \n\
 " + inputDeclarations + "                                        \n\
                                                                  \n\

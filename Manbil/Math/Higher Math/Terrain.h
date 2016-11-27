@@ -5,7 +5,7 @@
 
 
 //Represents a rectangular terrain with a heightmap of floats.
-//Must have an odd number of heightmap elements if using the LOD system
+//Must have an odd number of heightmap elements if using LOD
 //    (preferably one more than a power of two).
 class Terrain
 {
@@ -49,6 +49,7 @@ public:
     //    4) The scale for the terrain's height
     //    5) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
     //Assumes the region can be split down to the given level of detail.
+	//The actual position of the vertices ranges from "topLeft" to "bottomRight".
     void GenerateTriangles(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
                            Vector3f*(*vertPosGetter)(VertexType& vert),
                            Vector2f*(*vertUVGetter)(VertexType& vert),
@@ -240,6 +241,7 @@ public:
     //    2) Getters for a vertex's data (pass 0 for the vertex normal getter to not compute normals).
     //    3) The scale for the terrain's height
     //    4) The LOD level of the terrain (0 = full detail, 1 = 1/4 detail, 2 = 1/8 detail, etc.)
+	//The actual position of the vertices ranges from the origin to {heightmapWidth, heightmapHeight}.
     void GenerateTrianglesFull(std::vector<VertexType>& outVerts, std::vector<unsigned int>& outIndices,
                                Vector3f*(*vertPosGetter)(VertexType& vert),
                                Vector2f*(*vertUVGetter)(VertexType& vert),

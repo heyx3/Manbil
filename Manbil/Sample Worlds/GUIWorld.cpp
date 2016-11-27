@@ -37,8 +37,7 @@ GUIWorld::GUIWorld(void)
       texBackground(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
       texCheck(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
       texSliderBar(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
-      texSliderNub(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false),
-      simpleGUIMat(0), animatedGUIMat(0), guiTextMat(0)
+      texSliderNub(TextureSampleSettings2D(FT_LINEAR, WT_CLAMP), PixelSizes::PS_8U, false)
 {
 
 }
@@ -131,7 +130,7 @@ void GUIWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    guiTextMat = tryMat.Mat;
+    guiTextMat.reset(tryMat.Mat);
 
     //Next, create a simple unanimated material for static textures.
     tryMat = GUIMaterials::GenerateStaticQuadDrawMaterial(simpleGUIMatParams, GUIMaterials::TT_COLOR);
@@ -142,7 +141,7 @@ void GUIWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    simpleGUIMat = tryMat.Mat;
+    simpleGUIMat.reset(tryMat.Mat);
 
 
     //Finally, set up the animated material for textures that change size/color when moused over.
@@ -170,7 +169,7 @@ void GUIWorld::InitializeMaterials(void)
         EndWorld();
         return;
     }
-    animatedGUIMat = tryMat.Mat;
+    animatedGUIMat.reset(tryMat.Mat);
 }
 void GUIWorld::InitializeGUI(void)
 {
@@ -178,7 +177,7 @@ void GUIWorld::InitializeGUI(void)
 
 
     //First set up the text renderer and load the font.
-    textRenderer = new TextRenderer();
+    textRenderer.reset(new TextRenderer());
     textFont = textRenderer->CreateAFont("Content/Default Editor Content/Inconsolata.otf",
                                          errorMsg, 75);
     if (textFont == FreeTypeHandler::ERROR_ID)
@@ -208,7 +207,7 @@ void GUIWorld::InitializeGUI(void)
     //Allocate them on the heap; they'll be stored in a smart pointer that manages their memory.
 
     //The header label on top of the GUI panel.
-    GUILabel* title = new GUILabel(guiTextMatParams, textRenderer, textSlot, guiTextMat);
+    GUILabel* title = new GUILabel(guiTextMatParams, textRenderer.get(), textSlot, guiTextMat.get());
     if (!title->SetText("WASD:Move  EQ:Zoom"))
     {
         std::cout << "Failed to set GUI label's text\n";
@@ -221,8 +220,8 @@ void GUIWorld::InitializeGUI(void)
     title->Depth = 0.001f;
 
     //A slider bar.
-    GUITexture sliderBar(simpleGUIMatParams, &texSliderBar, simpleGUIMat),
-               sliderNub(animatedGUIMatParams, &texSliderNub, animatedGUIMat, true, 1.0f);
+    GUITexture sliderBar(simpleGUIMatParams, &texSliderBar, simpleGUIMat.get()),
+               sliderNub(animatedGUIMatParams, &texSliderNub, animatedGUIMat.get(), true, 1.0f);
     sliderNub.ScaleBy(Vector2f(0.5f, 0.5f));
     sliderNub.Depth = 0.001f;
     GUISlider* slider = new GUISlider(UniformDictionary(), sliderBar, sliderNub, 0.5f);
@@ -234,15 +233,15 @@ void GUIWorld::InitializeGUI(void)
     slider->Depth = 0.001f;
 
     //A checkbox.
-    GUITexture checkboxBackground(animatedGUIMatParams, &texBackground, animatedGUIMat, true, 2.0f),
-               checkboxForeground(simpleGUIMatParams, &texCheck, simpleGUIMat);
+    GUITexture checkboxBackground(animatedGUIMatParams, &texBackground, animatedGUIMat.get(), true, 2.0f),
+               checkboxForeground(simpleGUIMatParams, &texCheck, simpleGUIMat.get());
     GUICheckbox* checkbox = new GUICheckbox(checkboxBackground, checkboxForeground, false);
     checkbox->Depth = 0.001f;
 
     
     //Create a "GUIFormattedPanel", which is just a GUIElement that holds other GUIElements.
     //Unlike the "GUIPanel", "GUIFormattedPanel" will automatically fit the elements together nicely.
-    GUITexture panelBackground(simpleGUIMatParams, &texBackground, simpleGUIMat);
+    GUITexture panelBackground(simpleGUIMatParams, &texBackground, simpleGUIMat.get());
     GUIFormattedPanel* panel = new GUIFormattedPanel(40.0f, 40.0f, panelBackground);
     panel->AddObject(GUIFormatObject(GUIElementPtr(title), false, true, Vector2f(10.0f, 20.0f)));
     panel->AddObject(GUIFormatObject(GUIElementPtr(slider), false, true, Vector2f(0.0f, 10.0f)));
@@ -291,24 +290,24 @@ void GUIWorld::OnWorldEnd(void)
     //First delete the GUI system; this must be done before cleaning up the text-rendering system.
     guiManager.SetRoot(0);
 
-    delete textRenderer;
+    textRenderer.reset();
     textRenderer = 0;
 
     textFont = 0;
 
     if (simpleGUIMat != 0)
     {
-        delete simpleGUIMat;
+        simpleGUIMat.reset();
         simpleGUIMat = 0;
     }
     if (animatedGUIMat != 0)
     {
-        delete animatedGUIMat;
+        animatedGUIMat.reset();
         animatedGUIMat = 0;
     }
     if (guiTextMat != 0)
     {
-        delete guiTextMat;
+        guiTextMat.reset();
         guiTextMat = 0;
     }
     
