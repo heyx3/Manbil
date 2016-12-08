@@ -26,17 +26,21 @@ public:
 
 
 	MovingCamera(float moveSpd = 10.0f, float rSpeed = 0.03f)
-        : pressedSpace(false), MoveSpeed(moveSpd), RotSpeed(rSpeed),
+        : pressedToggleKey(false), MoveSpeed(moveSpd), RotSpeed(rSpeed),
           mouseTarget(100, 100) { }
 	MovingCamera(Vector3f pos, float moveSpd = 10.0f, float rSpeed = 0.03f,
 				 Vector3f forward = Vector3f(1, 0, 0), Vector3f up = Vector3f(0, 0, 1),
                  bool lockUp = true)
-		: Camera(pos, forward, up, lockUp), pressedSpace(false),
+		: Camera(pos, forward, up, lockUp), pressedToggleKey(false),
           MoveSpeed(moveSpd), RotSpeed(rSpeed),
           mouseTarget(100, 100) { }
 
 
     bool IsMouseCapped(void) const { return capMouse; }
+	// turn mouse capture on or off
+	void SetMouseCapped(bool isCapped) {
+		capMouse = isCapped;
+	}
 
 
     //Updates this camera.
@@ -46,7 +50,7 @@ private:
 
 	Vector2i mouseTarget;
 
-	bool pressedSpace, capMouse;
+	bool pressedToggleKey, capMouse;
 
 	sf::Vector2i Conv(Vector2i i) const { return sf::Vector2i(i.x, i.y); }
 	Vector2i Conv(sf::Vector2i i) const { return Vector2i(i.x, i.y); }
