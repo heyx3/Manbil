@@ -37,10 +37,7 @@ public:
 
 
     bool IsMouseCapped(void) const { return capMouse; }
-	// turn mouse capture on or off
-	void SetMouseCapped(bool isCapped) {
-		capMouse = isCapped;
-	}
+	void SetMouseCapped(bool isCapped) { capMouse = isCapped; }
 
 
     //Updates this camera.
