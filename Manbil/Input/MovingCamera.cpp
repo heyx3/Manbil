@@ -42,10 +42,10 @@ void MovingCamera::Update(float elapsedTime)
 	Window->setMouseCursorVisible(!capMouse);
 	if (sf::Keyboard::isKeyPressed(ToggleMouseCapKey))
 	{
-		if (!pressedSpace)
+		if (!pressedToggleKey)
 		{
 			Window->setMouseCursorVisible(true);
-			pressedSpace = true;
+			pressedToggleKey = true;
 			capMouse = !capMouse;
 
             sf::Mouse::setPosition(Conv(mouseTarget), *Window);
@@ -53,7 +53,7 @@ void MovingCamera::Update(float elapsedTime)
 	}
 	else
     {
-        pressedSpace = false;
+        pressedToggleKey = false;
     }
 
 	if (!capMouse)
